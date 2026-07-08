@@ -47,6 +47,12 @@ export interface SourceData {
   percentage: number;
 }
 
+export interface TicketPropertyFilter {
+  propertyId: string;
+  type?: string;
+  values: string[];
+}
+
 export interface ConversationListItem {
   _id: string;
   content: string;

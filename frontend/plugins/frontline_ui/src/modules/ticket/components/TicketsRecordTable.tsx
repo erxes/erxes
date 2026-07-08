@@ -1,4 +1,4 @@
-import { ticketsColumns } from '@/ticket/components/TicketsColumn';
+import { useTicketsColumns } from '@/ticket/components/TicketsColumn';
 import { isUndefinedOrNull, RecordTable, useQueryState } from 'erxes-ui';
 import { useTickets } from '@/ticket/hooks/useGetTickets';
 import { TICKETS_CURSOR_SESSION_KEY } from '@/ticket/constants';
@@ -36,7 +36,7 @@ export const TicketsRecordTable = () => {
         <TicketPipelineFallback className="absolute inset-0" />
       )}
       <RecordTable.Provider
-        columns={ticketsColumns()}
+        columns={useTicketsColumns()}
         data={tickets || (loading ? [{}] : [])}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}

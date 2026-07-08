@@ -1,5 +1,6 @@
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { Form, Label, InfoCard, Switch } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 import { SelectBoardFormItem, SelectPipelineFormItem } from './SelectSalesFlow';
@@ -11,6 +12,7 @@ const PipelineConfig = ({
 }: {
   form: UseFormReturn<PmsBranchFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   const boardId = useWatch({ control: form.control, name: 'boardId' });
   const roomsCategoryIds = useWatch({
     control: form.control,
@@ -116,7 +118,7 @@ const PipelineConfig = ({
 
   return (
     <PmsFormFieldsLayout>
-      <InfoCard title="Stage">
+      <InfoCard title={t('stage')}>
         <InfoCard.Content>
           <div className="grid grid-cols-2 gap-6">
             <Form.Field
@@ -124,12 +126,12 @@ const PipelineConfig = ({
               name="boardId"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>BOARD</Label>
+                  <Label>{t('board')}</Label>
                   <Form.Control>
                     <SelectBoardFormItem
                       value={field.value}
                       onValueChange={handleBoardChange}
-                      placeholder="Choose a board"
+                      placeholder={t('choose-a-board')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -142,13 +144,13 @@ const PipelineConfig = ({
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>PIPELINE</Label>
+                  <Label>{t('pipeline')}</Label>
                   <Form.Control>
                     <SelectPipelineFormItem
                       value={field.value}
                       boardId={boardId || ''}
                       onValueChange={handlePipelineChange}
-                      placeholder="Choose a pipeline"
+                      placeholder={t('choose-a-pipeline')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -159,14 +161,14 @@ const PipelineConfig = ({
         </InfoCard.Content>
       </InfoCard>
 
-      <InfoCard title="Room categories">
+      <InfoCard title={t('room-categories')}>
         <InfoCard.Content>
           <Form.Field
             control={form.control}
             name="roomsCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Label>ROOM CATEGORIES</Label>
+                <Label>{t('room-categories')}</Label>
                 <Form.Control>
                   <SelectCategory
                     mode="multiple"
@@ -185,7 +187,7 @@ const PipelineConfig = ({
               name="excludeRoomCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE ROOM CATEGORIES</Label>
+                  <Label>{t('exclude-room-categories')}</Label>
                   <Form.Control>
                     <SelectCategory
                       currentCategoryIds={roomsCategoryIds}
@@ -204,14 +206,14 @@ const PipelineConfig = ({
               name="excludeRoomIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE ROOMS</Label>
+                  <Label>{t('exclude-rooms')}</Label>
                   <Form.Control>
                     <SelectProducts
                       mode="multiple"
                       value={field.value}
                       categories={roomsCategoryIds}
                       onValueChange={handleExcludeRoomChange}
-                      placeholder="Select rooms"
+                      placeholder={t('select-rooms')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -222,14 +224,14 @@ const PipelineConfig = ({
         </InfoCard.Content>
       </InfoCard>
 
-      <InfoCard title="Extra product categories">
+      <InfoCard title={t('extra-product-categories')}>
         <InfoCard.Content>
           <Form.Field
             control={form.control}
             name="extrasCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Label>EXTRA PRODUCT CATEGORIES</Label>
+                <Label>{t('extra-product-categories')}</Label>
                 <Form.Control>
                   <SelectCategory
                     mode="multiple"
@@ -248,7 +250,7 @@ const PipelineConfig = ({
               name="excludeExtraProductCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE EXTRA PRODUCT CATEGORIES</Label>
+                  <Label>{t('exclude-extra-product-categories')}</Label>
                   <Form.Control>
                     <SelectCategory
                       currentCategoryIds={extrasCategoryIds}
@@ -267,14 +269,14 @@ const PipelineConfig = ({
               name="excludeExtraProductIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE EXTRA PRODUCTS</Label>
+                  <Label>{t('exclude-extra-products')}</Label>
                   <Form.Control>
                     <SelectProducts
                       mode="multiple"
                       value={field.value}
                       categories={extrasCategoryIds}
                       onValueChange={handleExcludeExtraProductChange}
-                      placeholder="Select extra products"
+                      placeholder={t('select-extra-products')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -285,7 +287,7 @@ const PipelineConfig = ({
         </InfoCard.Content>
       </InfoCard>
 
-      <InfoCard title="Appointment product categories">
+      <InfoCard title={t('appointment-product-categories')}>
         <InfoCard.Content>
           <Form.Field
             control={form.control}
@@ -297,7 +299,7 @@ const PipelineConfig = ({
                   onCheckedChange={handleAppointmentToggle}
                   className="w-10 h-6 [&_span]:size-4 [&_span]:data-[state=checked]:translate-x-[19px] rtl:[&_span]:data-[state=checked]:-translate-x-[19px]"
                 />
-                <Label>ENABLE APPOINTMENTS</Label>
+                <Label>{t('enable-appointments')}</Label>
               </div>
             )}
           />
@@ -307,7 +309,7 @@ const PipelineConfig = ({
             name="appointmentCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Label>APPOINTMENT CATEGORIES</Label>
+                <Label>{t('appointment-categories')}</Label>
                 <Form.Control>
                   <SelectCategory
                     mode="multiple"
@@ -326,7 +328,7 @@ const PipelineConfig = ({
               name="excludeAppointmentCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE APPOINTMENT CATEGORIES</Label>
+                  <Label>{t('exclude-appointment-categories')}</Label>
                   <Form.Control>
                     <SelectCategory
                       currentCategoryIds={appointmentCategoryIds}
@@ -345,14 +347,14 @@ const PipelineConfig = ({
               name="excludeAppointmentIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE APPOINTMENTS</Label>
+                  <Label>{t('exclude-appointments')}</Label>
                   <Form.Control>
                     <SelectProducts
                       mode="multiple"
                       value={field.value}
                       categories={appointmentCategoryIds}
                       onValueChange={handleExcludeAppointmentChange}
-                      placeholder="Select appointments"
+                      placeholder={t('select-appointments')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />

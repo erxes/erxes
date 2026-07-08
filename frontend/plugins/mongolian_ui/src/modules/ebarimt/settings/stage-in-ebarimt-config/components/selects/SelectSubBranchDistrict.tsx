@@ -16,6 +16,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { DISTRICTS } from '../../../constants/distrcitData';
 import {
   SelectTriggerVariant,
@@ -104,6 +105,7 @@ const SelectSubBranchDistrictValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, subBranchDistricts } = useSelectSubBranchDistrictContext();
   const selectedSubBranchDistrict = subBranchDistricts?.find(
     (district) => district.subBranchCode === value,
@@ -112,7 +114,7 @@ const SelectSubBranchDistrictValue = ({
   if (!selectedSubBranchDistrict) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select sub branch district'}
+        {placeholder || t('select-sub-branch-district')}
       </span>
     );
   }
@@ -148,14 +150,15 @@ const SelectSubBranchDistrictCommandItem = ({
 };
 
 const SelectSubBranchDistrictContent = () => {
+  const { t } = useTranslation('mongolian');
   const { subBranchDistricts } = useSelectSubBranchDistrictContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search sub branch district" />
+      <Command.Input placeholder={t('search-sub-branch-district')} />
       <Command.Empty>
         <span className="text-muted-foreground">
-          No sub branch districts found
+          {t('no-sub-branch-districts-found')}
         </span>
       </Command.Empty>
       <Command.List>
@@ -171,10 +174,11 @@ const SelectSubBranchDistrictContent = () => {
 };
 
 export const SelectSubBranchDistrictFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="subBranchDistrict">
       <IconBuildingStore />
-      Sub Branch District
+      {t('sub-branch-district')}
     </Filter.Item>
   );
 };
@@ -224,6 +228,7 @@ export const SelectSubBranchDistrictFilterBar = ({
   mode?: 'single' | 'multiple';
   branchCode?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [subBranchDistrict, setSubBranchDistrict] = useQueryState<
     string[] | string
   >('subBranchDistrict');
@@ -233,7 +238,7 @@ export const SelectSubBranchDistrictFilterBar = ({
     <Filter.BarItem queryKey={'subBranchDistrict'}>
       <Filter.BarName>
         <IconBuildingStore />
-        Sub Branch District
+        {t('sub-branch-district')}
       </Filter.BarName>
       <SelectSubBranchDistrictProvider
         mode={mode}

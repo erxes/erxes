@@ -10,6 +10,7 @@ import {
   IconCalendar,
   IconEye,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 type StatusFilter = 'all' | 'draft' | 'published' | 'archived';
 
@@ -22,6 +23,7 @@ export function ArticleList({
   onEditArticle,
   onCreateArticle,
 }: ArticleListProps) {
+  const { t } = useTranslation('frontline');
   const [searchParams] = useSearchParams();
   const categoryId = searchParams.get('categoryId') || '';
 
@@ -56,7 +58,7 @@ export function ArticleList({
       id: 'title',
       accessorKey: 'title',
       size: 220,
-      header: () => <RecordTable.InlineHead icon={IconFileText} label="Name" />,
+      header: () => <RecordTable.InlineHead icon={IconFileText} label={t('col-name')} />,
       cell: ({ row }: any) => (
         <div
           className="flex items-center gap-2 ml-2 cursor-pointer hover:bg-accent rounded p-1 -m-1"
@@ -64,11 +66,8 @@ export function ArticleList({
         >
           <div>
             <div className="font-semibold opacity-80 ml-2">
-              {row.original?.title || 'Untitled'}
+              {row.original?.title || t('kb-untitled')}
             </div>
-            {/* {row.original?.summary && (
-              <div className="mt-1 text-xs opacity-70 line-clamp-1">{row.original.summary}</div>
-            )} */}
           </div>
         </div>
       ),
@@ -77,7 +76,7 @@ export function ArticleList({
       id: 'status',
       accessorKey: 'status',
       size: 220,
-      header: () => <RecordTable.InlineHead icon={IconEye} label="Status" />,
+      header: () => <RecordTable.InlineHead icon={IconEye} label={t('status')} />,
       cell: ({ row }: any) => {
         const status = String(row.original?.status || 'unknown').toLowerCase();
         const isPublished = status.includes('publish');
@@ -113,7 +112,7 @@ export function ArticleList({
       id: 'createdUser',
       accessorKey: 'createdUser',
       size: 220,
-      header: () => <RecordTable.InlineHead icon={IconUser} label="Owner" />,
+      header: () => <RecordTable.InlineHead icon={IconUser} label={t('kb-owner')} />,
       cell: ({ row }: any) => (
         <div className="flex items-center gap-2 opacity-80 ml-2">
           {row.original?.createdUser?.username || '-'}
@@ -125,7 +124,7 @@ export function ArticleList({
       accessorKey: 'createdDate',
       size: 180,
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('kb-created')} />
       ),
       cell: ({ row }: any) => {
         const createdDate = row.original?.createdDate;
@@ -143,7 +142,7 @@ export function ArticleList({
             </div>
           );
         } catch (error) {
-          return <div className="opacity-80 ml-2">Invalid date</div>;
+          return <div className="opacity-80 ml-2">{t('kb-invalid-date')}</div>;
         }
       },
     },
@@ -190,15 +189,11 @@ export function ArticleList({
     const handleDelete = async () => {
       if (articleIds.length === 0) return;
 
-      const message = `Are you sure you want to delete ${
-        articleIds.length
-      } article${
-        articleIds.length > 1 ? 's' : ''
-      }? This action cannot be undone.`;
+      const message = t('kb-confirm-delete-articles', { count: articleIds.length });
 
       const confirmOptions = {
         confirmationValue: 'delete',
-        description: 'This action is permanent and cannot be undone.',
+        description: t('kb-action-permanent'),
       };
 
       try {
@@ -223,7 +218,7 @@ export function ArticleList({
       <CommandBar open={selectedArticles.length > 0}>
         <CommandBar.Bar>
           <CommandBar.Value>
-            {selectedArticles.length} selected
+            {t('n-selected', { count: selectedArticles.length })}
           </CommandBar.Value>
           <Separator.Inline />
           <button
@@ -231,14 +226,14 @@ export function ArticleList({
             disabled={selectedArticles.length !== 1}
             className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent text-foreground hover:bg-border h-7 py-1"
           >
-            Edit
+            {t('edit')}
           </button>
           <Separator.Inline />
           <button
             onClick={handleDelete}
             className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent hover:bg-border h-7 py-1 text-destructive"
           >
-            Delete
+            {t('delete')}
           </button>
         </CommandBar.Bar>
       </CommandBar>
@@ -255,7 +250,7 @@ export function ArticleList({
             onKeyDown={(e) => {
               if (e.key === 'Enter') e.preventDefault();
             }}
-            placeholder="Search..."
+            placeholder={t('filter')}
             className="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2"
           />
         </div>
@@ -268,7 +263,7 @@ export function ArticleList({
             }`}
             onClick={() => setStatus('all')}
           >
-            All
+            {t('kb-all')}
           </button>
           <button
             type="button"
@@ -277,7 +272,7 @@ export function ArticleList({
             }`}
             onClick={() => setStatus('draft')}
           >
-            Draft
+            {t('kb-draft')}
           </button>
           <button
             type="button"
@@ -286,7 +281,7 @@ export function ArticleList({
             }`}
             onClick={() => setStatus('published')}
           >
-            Published
+            {t('kb-published')}
           </button>
           <button
             type="button"
@@ -295,11 +290,11 @@ export function ArticleList({
             }`}
             onClick={() => setStatus('archived')}
           >
-            Archived
+            {t('archived')}
           </button>
 
           <div className="ml-1 rounded-lg border px-3 py-2 text-sm opacity-70">
-            {filtered.length} {filtered.length === 1 ? 'article' : 'articles'}
+            {t('kb-article-count', { count: filtered.length })}
           </div>
         </div>
       </div>
@@ -311,13 +306,13 @@ export function ArticleList({
           </div>
           <div className="text-base font-semibold mb-2">
             {q.trim()
-              ? `No results found for "${q}"`
-              : 'No articles in this category'}
+              ? t('kb-no-results-for', { query: q })
+              : t('kb-no-articles')}
           </div>
           <div className="mt-1 text-sm opacity-70 mb-4">
             {q.trim()
-              ? 'Try adjusting your search terms or filters.'
-              : 'Create your first article to get started with this category.'}
+              ? t('kb-adjust-search')
+              : t('kb-create-first-article')}
           </div>
         </div>
       ) : (

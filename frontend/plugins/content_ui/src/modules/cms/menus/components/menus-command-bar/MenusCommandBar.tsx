@@ -1,11 +1,13 @@
 import { CommandBar, Separator, Button, RecordTable, toast } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+import { useTranslation } from 'react-i18next';
 
 interface MenusCommandBarProps {
   onBulkDelete: (ids: string[]) => Promise<void>;
 }
 
 export const MenusCommandBar = ({ onBulkDelete }: MenusCommandBarProps) => {
+  const { t } = useTranslation('content');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -16,7 +18,7 @@ export const MenusCommandBar = ({ onBulkDelete }: MenusCommandBarProps) => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', { count: selectedRows.length })}</CommandBar.Value>
         <Separator.Inline />
         <Button
           variant="secondary"
@@ -24,23 +26,23 @@ export const MenusCommandBar = ({ onBulkDelete }: MenusCommandBarProps) => {
           size="sm"
           onClick={() =>
             confirm({
-              message: `Are you sure you want to delete the ${selectedIds.length} selected menus?`,
+              message: t('confirm-delete-x-menus', { count: selectedIds.length }),
             }).then(async () => {
               try {
                 await onBulkDelete(selectedIds);
                 selectedRows.forEach((row: any) => row.toggleSelected(false));
-                toast({ title: 'Success', variant: 'default' });
+                toast({ title: t('success'), variant: 'default' });
               } catch (e: any) {
                 toast({
-                  title: 'Error',
-                  description: e?.message || 'Failed to delete menus',
+                  title: t('error'),
+                  description: e?.message || t('failed-to-delete-menus'),
                   variant: 'destructive',
                 });
               }
             })
           }
         >
-          Delete
+          {t('delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

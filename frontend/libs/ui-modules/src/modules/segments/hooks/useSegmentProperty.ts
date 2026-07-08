@@ -1,4 +1,4 @@
-import { useWatch } from 'react-hook-form';
+import { Path, useWatch } from 'react-hook-form';
 import { useSegment } from '../context/SegmentProvider';
 import {
   createFieldNameSafe,
@@ -7,7 +7,7 @@ import {
 import { useGetFieldsProperties } from './useGetFieldsProperties';
 import { useSegmentGroup } from '../context/SegmentGroupProvider';
 import { useCallback } from 'react';
-import { ConditionFieldKey } from '../types';
+import { ConditionFieldKey, TSegmentForm } from '../types';
 
 type TConditionFieldName =
   | `conditionSegments.${number}.conditions.${number}`
@@ -46,28 +46,57 @@ export const useSegmentProperty = ({ index }: { index: number }) => {
 
       fieldsToResetInCurrent.forEach((fieldKey) => {
         form.setValue(
-          `${conditionFieldName}.${fieldKey}` as any,
+          `${conditionFieldName}.${fieldKey}` as Path<TSegmentForm>,
           fieldKey === 'propertyType' ? contentType || '' : '',
           { shouldDirty: true },
         );
       });
 
+      if (['propertyType', 'propertyName'].includes(triggerField)) {
+        form.setValue(
+          `${conditionFieldName}.meta` as Path<TSegmentForm>,
+          {},
+          {
+            shouldDirty: true,
+          },
+        );
+      }
+
       for (let j = index + 1; j < totalFields; j += 1) {
         const conditionPath = `${fieldPath}.${j}`;
         form.setValue(
-          `${conditionPath}.propertyType` as any,
+          `${conditionPath}.propertyType` as Path<TSegmentForm>,
           contentType || '',
           { shouldDirty: true },
         );
-        form.setValue(`${conditionPath}.propertyName` as any, '', {
-          shouldDirty: true,
-        });
-        form.setValue(`${conditionPath}.propertyOperator` as any, '', {
-          shouldDirty: true,
-        });
-        form.setValue(`${conditionPath}.propertyValue` as any, '', {
-          shouldDirty: true,
-        });
+        form.setValue(
+          `${conditionPath}.propertyName` as Path<TSegmentForm>,
+          '',
+          {
+            shouldDirty: true,
+          },
+        );
+        form.setValue(
+          `${conditionPath}.propertyOperator` as Path<TSegmentForm>,
+          '',
+          {
+            shouldDirty: true,
+          },
+        );
+        form.setValue(
+          `${conditionPath}.propertyValue` as Path<TSegmentForm>,
+          '',
+          {
+            shouldDirty: true,
+          },
+        );
+        form.setValue(
+          `${conditionPath}.meta` as Path<TSegmentForm>,
+          {},
+          {
+            shouldDirty: true,
+          },
+        );
       }
     },
     [form, conditionFieldName, fieldPath, contentType, index, totalFields],

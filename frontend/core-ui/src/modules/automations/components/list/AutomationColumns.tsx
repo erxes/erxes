@@ -77,14 +77,16 @@ export const getAutomationColumns: (
             className="w-[100px] min-w-0 [&>button]:cursor-pointer"
             onClick={(e) => e.stopPropagation()}
           >
-            <DropdownMenu.Item asChild>
+            <DropdownMenu.Item
+              asChild
+              onSelect={() =>
+                navigate(`/automations/edit/${cell.row.original._id}`)
+              }
+            >
               <Button
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start"
-                onClick={() =>
-                  navigate(`/automations/edit/${cell.row.original._id}`)
-                }
               >
                 <IconEdit className="size-4" />
                 {t('edit')}

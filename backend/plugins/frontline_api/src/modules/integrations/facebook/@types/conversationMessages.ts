@@ -16,6 +16,8 @@ export interface IFacebookConversationMessage {
   internal?: boolean;
   botId?: string;
   botData?: any;
+  source?: Record<string, unknown>;
+  relatedMessage?: Record<string, unknown>;
 }
 
 export interface IFacebookConversationMessageDocument

@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/useStageInErkhetMovementConfigQuery';
 import {
   CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG,
@@ -36,6 +37,7 @@ const buildMovementConfigValue = (value: TMovementErkhetConfig) => {
 };
 
 export const useMovementConfigs = () => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const { data, loading, refetch } = useQuery(GET_CONFIGS_GET_VALUE, {
@@ -54,7 +56,7 @@ export const useMovementConfigs = () => {
     {
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -77,7 +79,7 @@ export const useMovementConfigs = () => {
       },
     });
     await refetch();
-    toast({ title: 'Success', description: 'Config created successfully' });
+    toast({ title: t('success'), description: t('config-created-successfully') });
   };
 
   const editConfig = async (id: string, data: TMovementErkhetConfig) => {
@@ -89,19 +91,19 @@ export const useMovementConfigs = () => {
       },
     });
     await refetch();
-    toast({ title: 'Success', description: 'Config updated successfully' });
+    toast({ title: t('success'), description: t('config-updated-successfully') });
   };
 
   const deleteConfig = async (id: string) => {
     await removeConfig({ variables: { id } });
     await refetch();
-    toast({ title: 'Success', description: 'Config deleted successfully' });
+    toast({ title: t('success'), description: t('config-deleted-successfully') });
   };
 
   const deleteManyConfigs = async (ids: string[]) => {
     await Promise.all(ids.map((id) => removeConfig({ variables: { id } })));
     await refetch();
-    toast({ title: 'Success', description: `${ids.length} config(s) deleted` });
+    toast({ title: t('success'), description: t('configs-deleted', { count: ids.length }) });
   };
 
   return {

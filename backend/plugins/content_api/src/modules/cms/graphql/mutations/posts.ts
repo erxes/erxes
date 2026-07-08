@@ -15,7 +15,7 @@ import {
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
-import { notifyIfNewlyPublished } from '@/cms/utils/notifications';
+import { sendPublishedPostNotification } from '@/cms/utils/notifications';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -114,8 +114,6 @@ export const postMutations: Record<string, Resolver> = {
 
     await saveTranslations(models, post._id, translations || []);
 
-    await notifyIfNewlyPublished(subdomain, post);
-
     return post;
   },
 
@@ -189,8 +187,6 @@ export const postMutations: Record<string, Resolver> = {
 
     await saveTranslations(models, post._id, translations || []);
 
-    await notifyIfNewlyPublished(subdomain, post);
-
     return post;
   },
 
@@ -262,12 +258,6 @@ export const postMutations: Record<string, Resolver> = {
         );
         await saveTranslations(models, _id, remainingTranslations);
 
-        await notifyIfNewlyPublished(
-          subdomain,
-          post,
-          existingPost.status,
-        );
-
         return post;
       }
     }
@@ -283,8 +273,6 @@ export const postMutations: Record<string, Resolver> = {
     const post = await models.Posts.updatePost(_id, postInput);
 
     await saveTranslations(models, _id, translations || []);
-
-    await notifyIfNewlyPublished(subdomain, post, existingPost.status);
 
     return post;
   },
@@ -369,8 +357,6 @@ export const postMutations: Record<string, Resolver> = {
     });
 
     const updatedPost = await models.Posts.changeStatus(_id, status);
-    
-    await notifyIfNewlyPublished(subdomain, updatedPost, post.status);
 
     return updatedPost;
   },
@@ -397,6 +383,40 @@ export const postMutations: Record<string, Resolver> = {
     });
 
     return models.Posts.toggleFeatured(_id);
+  },
+
+  cmsPostsSendNotification: async (_parent, args, context: IContext) => {
+    const { models, subdomain } = context;
+    const { _id } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
+
+    if (post.status !== 'published') {
+      throw new Error('Only published posts can send notifications');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions: CMS_POST_ACTIONS.approve,
+      document: post,
+    });
+
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: post.clientPortalId,
+    });
+
+    const { recipientCount } = await sendPublishedPostNotification(
+      subdomain,
+      post,
+    );
+
+    return { success: true, recipientCount };
   },
 
   cmsAddTranslation: async (_parent, args, context: IContext) => {

@@ -6,6 +6,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupIntroAtom,
@@ -14,6 +15,7 @@ import { Link } from 'react-router-dom';
 import { emPreviewTabAtom } from '../states/emPreviewStates';
 
 export const EMPreviewChatInput = () => {
+  const { t } = useTranslation('frontline');
   const intro = useAtomValue(erxesMessengerSetupIntroAtom);
   const activetab = useAtomValue(emPreviewTabAtom);
   const isInChat = activetab === 'chat';
@@ -35,7 +37,7 @@ export const EMPreviewChatInput = () => {
           </Button>
         )}
         <input
-          placeholder={!isInChat ? intro?.welcome : 'Reply...'}
+          placeholder={!isInChat ? intro?.welcome : t('reply')}
           className="border-none placeholder:truncate py-1.5 h-auto px-1 text-xs bg-transparent text-foreground shadow-none focus-visible:outline-none! focus-visible:ring-0! focus-visible:border-0! placeholder:text-muted-foreground placeholder:font-medium placeholder:text-sm flex-1"
           id="em-preview-chat-input"
         />

@@ -5,6 +5,7 @@ import {
   CONVERSATION_STATUS_TEXT_CLASSES,
   ConversationStatus,
 } from '@/inbox/conversations/conversation-detail/constants/conversationStatusColors';
+import { useTranslation } from 'react-i18next';
 
 interface ProgressProps {
   customerId?: string;
@@ -28,6 +29,7 @@ export const ProgressDot = ({ status }: { status: ConversationStatus }) => (
 const DISPLAY_STATUSES: ConversationStatus[] = ['new', 'open', 'closed', 'resolved'];
 
 export const Progress = ({ customerId }: ProgressProps) => {
+  const { t } = useTranslation('frontline');
   const { conversationProgressChart, loading } = useConversationProgressChart({
     variables: { customerId },
     skip: !customerId,
@@ -44,7 +46,7 @@ export const Progress = ({ customerId }: ProgressProps) => {
     { new: 0, open: 0, closed: 0, resolved: 0 },
   ) ?? { new: 0, open: 0, closed: 0, resolved: 0 };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>{t('loading')}</p>;
 
   return (
     <div className="flex justify-between w-full my-4 px-2">

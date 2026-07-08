@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation } from '@apollo/client';
 import {
   Input,
@@ -40,6 +41,7 @@ export function TranslationEditor({
   languages,
   defaultLanguage = 'en',
 }: TranslationEditorProps) {
+  const { t } = useTranslation('content');
   const [activeLanguage, setActiveLanguage] = useState<string>(
     languages[0] || defaultLanguage,
   );
@@ -166,14 +168,14 @@ export function TranslationEditor({
       if (existingTranslation) {
         await editTranslation({ variables: { input } });
         toast({
-          title: 'Success',
-          description: `Translation for ${activeLanguage} updated`,
+          title: t('success'),
+          description: t('translation-updated', { lang: activeLanguage }),
         });
       } else {
         await addTranslation({ variables: { input } });
         toast({
-          title: 'Success',
-          description: `Translation for ${activeLanguage} added`,
+          title: t('success'),
+          description: t('translation-added', { lang: activeLanguage }),
         });
       }
 
@@ -184,8 +186,8 @@ export function TranslationEditor({
       }));
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error?.message || 'Failed to save translation',
+        title: t('error'),
+        description: error?.message || t('failed-to-save-translation'),
         variant: 'destructive',
       });
     }
@@ -195,7 +197,7 @@ export function TranslationEditor({
     return (
       <div className="flex items-center justify-center p-8">
         <Spinner size="md" />
-        <span className="ml-2">Loading translations...</span>
+        <span className="ml-2">{t('loading-translations')}</span>
       </div>
     );
   }
@@ -203,8 +205,7 @@ export function TranslationEditor({
   if (languages.length === 0) {
     return (
       <div className="p-4 text-center text-gray-500">
-        No languages configured for this CMS. Please add languages in the CMS
-        settings.
+        {t('no-languages-configured')}
       </div>
     );
   }
@@ -212,7 +213,7 @@ export function TranslationEditor({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Translations</h3>
+        <h3 className="text-lg font-semibold">{t('translations')}</h3>
         <Button
           onClick={() => form.handleSubmit(onSubmit)()}
           disabled={adding || editing}
@@ -221,10 +222,10 @@ export function TranslationEditor({
           {adding || editing ? (
             <>
               <Spinner size="sm" className="mr-2" />
-              Saving...
+              {t('saving')}
             </>
           ) : (
-            'Save Translation'
+            t('save-translation')
           )}
         </Button>
       </div>
@@ -253,9 +254,9 @@ export function TranslationEditor({
                   name="title"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Title ({lang})</Form.Label>
+                      <Form.Label>{t('title-with-lang', { lang })}</Form.Label>
                       <Form.Control>
-                        <Input {...field} placeholder={`Title in ${lang}`} />
+                        <Input {...field} placeholder={t('title-in-lang', { lang })} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -267,11 +268,11 @@ export function TranslationEditor({
                   name="excerpt"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Excerpt ({lang})</Form.Label>
+                      <Form.Label>{t('excerpt-with-lang', { lang })}</Form.Label>
                       <Form.Control>
                         <Textarea
                           {...field}
-                          placeholder={`Excerpt in ${lang}`}
+                          placeholder={t('excerpt-in-lang', { lang })}
                           rows={3}
                         />
                       </Form.Control>
@@ -285,7 +286,7 @@ export function TranslationEditor({
                   name="content"
                   render={() => (
                     <Form.Item>
-                      <Form.Label>Content ({lang})</Form.Label>
+                      <Form.Label>{t('content-with-lang', { lang })}</Form.Label>
                       <Form.Control>
                         <Editor
                           key={`editor-${lang}-${postId}`}

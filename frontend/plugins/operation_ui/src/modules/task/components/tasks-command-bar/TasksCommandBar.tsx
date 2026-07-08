@@ -8,6 +8,7 @@ import {
   Popover,
   Command,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Row } from '@tanstack/table-core';
 import { ITask } from '@/task/types';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
@@ -45,6 +46,7 @@ import {
 } from '../task-actions/CopyTask';
 
 export const TasksCommandBar = () => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const { table } = RecordTable.useRecordTable();
   const currentUser = useAtomValue(currentUserState);
@@ -88,7 +90,7 @@ export const TasksCommandBar = () => {
           <Popover.Trigger asChild>
             <Button variant="secondary">
               <IconRepeat />
-              Actions
+{t('actions')}
             </Button>
           </Popover.Trigger>
           <Popover.Content
@@ -129,7 +131,7 @@ export const TasksCommandBar = () => {
                             </Avatar.Fallback>
                           </Avatar>
                         </div>
-                        Assign to me
+                        {t('assign-to-me')}
                       </div>
                     </Command.Item>
                     <TasksAssignToTrigger
@@ -175,7 +177,7 @@ export const TasksCommandBar = () => {
                     >
                       <div className="flex gap-2 items-center">
                         <IconTrash className="size-4" />
-                        Delete
+                        {t('delete')}
                       </div>
                     </Command.Item>
                   </Command.Group>

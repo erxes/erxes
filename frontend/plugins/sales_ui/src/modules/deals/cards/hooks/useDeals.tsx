@@ -14,6 +14,7 @@ import {
   toast,
   useQueryState,
   validateFetchMore,
+  isUndefinedOrNull,
 } from 'erxes-ui';
 import {
   GET_DEALS,
@@ -25,13 +26,16 @@ import {
   useMutation,
   useQuery,
 } from '@apollo/client';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
+import { dealTotalCountAtom } from '@/deals/states/dealsTotalCountState';
+import { dealsViewAtom } from '@/deals/states/dealsViewState';
 import {
   DealsBoardState,
   useAllDealsMap,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
+import { useTranslation } from 'react-i18next';
 
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { DEAL_CHANGED } from '@/deals/graphql/subscriptions/dealChanged';
@@ -68,6 +72,7 @@ export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
   pipelineId?: string,
 ) => {
+  const { t } = useTranslation('sales');
   const { data, loading, fetchMore, subscribeToMore } = useQuery<
     ICursorListResponse<IDeal>
   >(GET_DEALS, {
@@ -77,7 +82,7 @@ export const useDeals = (
     fetchPolicy: 'cache-and-network',
     onError: (e) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });
@@ -151,15 +156,15 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                  ? prev.deals.totalCount - 1
-                  : prev.deals.totalCount,
+                ? prev.deals.totalCount - 1
+                : prev.deals.totalCount,
           },
         };
       },
     });
 
     return unsubscribe;
-  }, [subscribeToMore, subscriptionVars]);
+  }, [currentUser?._id, subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
     direction,
@@ -192,6 +197,30 @@ export const useDeals = (
       },
     });
   };
+
+  const view = useAtomValue(dealsViewAtom);
+  const setTotalCount = useSetAtom(dealTotalCountAtom);
+
+  useEffect(() => {
+    if (view === 'list') {
+      if (loading) {
+        setTotalCount(null);
+      } else {
+        const finalCount = isUndefinedOrNull(totalCount)
+          ? deals?.length || 0
+          : totalCount;
+        setTotalCount(finalCount);
+      }
+    }
+  }, [view, totalCount, loading, deals?.length, setTotalCount]);
+
+  useEffect(() => {
+    return () => {
+      if (view === 'list') {
+        setTotalCount(null);
+      }
+    };
+  }, [view, setTotalCount]);
 
   return {
     loading,
@@ -297,6 +326,7 @@ export const useDealDetail = (
 };
 
 export function useDealsEdit(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
   const [salesItemId] = useQueryState('salesItemId');
 
@@ -318,15 +348,15 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: 'Successfully updated a deal',
+        title: t('deal-updated'),
         variant: 'success',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Update failed',
+        title: t('error'),
+        description: err.message || t('update-failed'),
         variant: 'destructive',
       });
     },
@@ -340,6 +370,7 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsAdd(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
   const [defaultValues] = useAtom(dealCreateDefaultValuesState);
 
@@ -354,15 +385,15 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: 'Successfully added a deal',
+        title: t('deal-added'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Update failed',
+        title: t('error'),
+        description: err.message || t('update-failed'),
         variant: 'destructive',
       });
     },
@@ -376,6 +407,7 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsRemove(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
 
   const [removeDeals, { loading, error }] = useMutation(REMOVE_DEALS, {
@@ -387,15 +419,15 @@ export function useDealsRemove(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: 'Successfully removed a deal',
+        title: t('deal-removed'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Update failed',
+        title: t('error'),
+        description: err.message || t('update-failed'),
         variant: 'destructive',
       });
     },
@@ -409,6 +441,7 @@ export function useDealsRemove(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsChange(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [changeDeals, { loading, error }] = useMutation(DEALS_CHANGE, {
     ...options,
     variables: {
@@ -416,15 +449,15 @@ export function useDealsChange(options?: MutationHookOptions<any, any>) {
     },
     onCompleted: (...args) => {
       toast({
-        title: 'Successfully updated deal order',
+        title: t('deal-order-updated'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Update failed',
+        title: t('error'),
+        description: err.message || t('update-failed'),
         variant: 'destructive',
       });
     },
@@ -538,6 +571,7 @@ export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsArchive(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [archiveDealsBase, { loading, error }] = useMutation(DEALS_ARCHIVE, {
     ...options,
     variables: {
@@ -546,15 +580,15 @@ export function useDealsArchive(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: 'Successfully archived deals',
+        title: t('deals-archived'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Update failed',
+        title: t('error'),
+        description: err.message || t('update-failed'),
         variant: 'destructive',
       });
     },
@@ -573,6 +607,7 @@ export function useDealsArchive(options?: MutationHookOptions<any, any>) {
   };
 }
 export function useDealsCopy(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
 
   const [copyDeals, { loading, error }] = useMutation(DEALS_COPY, {
@@ -584,15 +619,15 @@ export function useDealsCopy(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: 'Successfully copied a deal',
+        title: t('deal-copied'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Update failed',
+        title: t('error'),
+        description: err.message || t('update-failed'),
         variant: 'destructive',
       });
     },
@@ -606,6 +641,7 @@ export function useDealsCopy(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsWatch(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
 
   const [watchDeals, { loading, error }] = useMutation(DEALS_WATCH, {
@@ -617,15 +653,15 @@ export function useDealsWatch(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: 'Successfully updated watch status',
+        title: t('watch-status-updated'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Update failed',
+        title: t('error'),
+        description: err.message || t('update-failed'),
         variant: 'destructive',
       });
     },

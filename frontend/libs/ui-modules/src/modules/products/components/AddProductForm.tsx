@@ -21,7 +21,7 @@ import {
 } from 'erxes-ui';
 import { nanoid } from 'nanoid';
 import { useCallback, useMemo, useState } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules/modules/brands';
 import { SelectCompany } from 'ui-modules/modules/contacts';
@@ -37,10 +37,6 @@ import { FieldString } from 'ui-modules/modules/properties/components/FieldStrin
 import { FieldPhone } from 'ui-modules/modules/properties/components/FieldPhone';
 import { IFieldGroup } from 'ui-modules/modules/properties/types/fieldsTypes';
 import { SelectCategory } from '../categories';
-import {
-  EMPTY_PRODUCT_FORM_VALUES,
-  PRODUCT_FORM_SCHEMA,
-} from '../constants/addProductFormSchema';
 import { PRODUCT_DURATION_TYPES } from '../constants/productTypes';
 import { useAddProduct } from '../hooks/useProductsAdd';
 import { IProductFormValues } from '../types';
@@ -62,19 +58,17 @@ export function AddProductForm({
   showMoreInfo: controlledShowMoreInfo,
   onShowMoreInfoChange,
   options,
+  form,
 }: {
   embed?: boolean;
   onOpenChange: (open: boolean) => void;
   showMoreInfo?: boolean;
   onShowMoreInfoChange?: (showMoreInfo: boolean) => void;
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
+  form: UseFormReturn<IProductFormValues>;
 }) {
   const { productsAdd, loading } = useAddProduct();
 
-  const form = useForm<IProductFormValues>({
-    resolver: zodResolver(PRODUCT_FORM_SCHEMA),
-    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
-  });
 
   async function onSubmit(data: IProductFormValues) {
     const cleanData: Record<string, unknown> = {};
@@ -751,7 +745,7 @@ function AddProductFormFieldsDetail({
                         <Form.Label>{t('duration-type')}</Form.Label>
                         <Form.Control>
                           <Select
-                            value={field.value}
+                            value={field.value || ''}
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger>

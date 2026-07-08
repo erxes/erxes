@@ -42,12 +42,17 @@ const withBefore = (
 
     const headers = (context as any).requestInfo?.headers || (context as any).req?.headers;
 
-    const nextArgs = await runBeforeResolvers(resolverKey, args, {
+    const result = await runBeforeResolvers(resolverKey, args, {
       subdomain,
       user,
       headers,
     });
-    return resolver(root, nextArgs, context, info);
+
+    if (result.resolved) {
+      return result.data;
+    }
+
+    return resolver(root, result.args, context, info);
   };
 };
 

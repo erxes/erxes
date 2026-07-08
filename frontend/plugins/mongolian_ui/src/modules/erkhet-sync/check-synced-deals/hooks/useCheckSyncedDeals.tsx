@@ -10,6 +10,7 @@ import {
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
@@ -100,8 +101,8 @@ export const useCheckSyncedDealsVariables = (
     boardId: string;
     pipelineId: string;
     stageId: string;
-    dealSearch: string;
-    number: string;
+    dealSearch: string | number;
+    number: string | number;
     stageChangedDateRange: string;
     dateType: string;
     dateRange: string;
@@ -132,7 +133,7 @@ export const useCheckSyncedDealsVariables = (
     },
     cursor,
     number: String(number ?? '') || undefined,
-    search: dealSearch || undefined,
+    search: String(dealSearch ?? '') || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
     createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
@@ -149,6 +150,7 @@ export const useCheckSyncedDealsVariables = (
   };
 };
 export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
+  const { t } = useTranslation('mongolian');
   const setCheckSyncedDealsTotalCount = useSetAtom(
     checkSyncedDealsTotalCountAtom,
   );
@@ -241,8 +243,8 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
-          title: 'Warning',
-          description: 'No deals to check',
+          title: t('warning'),
+          description: t('no-deals-to-check'),
           variant: 'destructive',
         });
       }
@@ -253,7 +255,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
       variables: { ids, contentType: 'sales:deal' },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -302,8 +304,8 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     });
     if (!checkOptions?.silent) {
       toast({
-        title: 'Success',
-        description: `${checked.length} deals checked`,
+        title: t('success'),
+        description: t('deals-checked', { count: checked.length }),
       });
     }
   };
@@ -315,8 +317,8 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
 
     if (!syncableIds.length) {
       toast({
-        title: 'Warning',
-        description: 'No checked deals to sync',
+        title: t('warning'),
+        description: t('no-checked-deals-to-sync'),
         variant: 'destructive',
       });
       return;
@@ -360,7 +362,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -461,8 +463,13 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     const syncedCount = summary.success - summary.resynced;
 
     toast({
-      title: 'Sync complete',
-      description: `${syncedCount} synced, ${summary.resynced} resynced, ${summary.error} failed, ${summary.skipped} skipped`,
+      title: t('sync-complete'),
+      description: t('synced-summary', {
+        synced: syncedCount,
+        resynced: summary.resynced,
+        error: summary.error,
+        skipped: summary.skipped,
+      }),
     });
   };
 

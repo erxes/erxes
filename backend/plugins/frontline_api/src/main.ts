@@ -23,6 +23,7 @@ import {
   ticketExportHandlers,
   formSubmissionExportHandlers,
 } from './meta/import-export/export/exportHandlers';
+import { frontlineReferences } from './meta/references';
 import segments from './meta/segments';
 
 const ticketImportTypes = [
@@ -138,6 +139,7 @@ startPlugin({
     afterProcess,
     notifications,
     permissions,
+    references: frontlineReferences,
     segments,
     tags: {
       types: [

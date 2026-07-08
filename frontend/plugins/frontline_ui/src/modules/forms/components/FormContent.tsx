@@ -11,8 +11,10 @@ import { Form, InfoCard } from 'erxes-ui';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
 import { FormDnd } from './FormDnd';
 import { FormDndProvider } from './FormDndProvider';
+import { useTranslation } from 'react-i18next';
 
 export const FormContent = () => {
+  const { t } = useTranslation('frontline');
   const form = useForm<z.infer<typeof FORM_CONTENT_SCHEMA>>({
     resolver: zodResolver(FORM_CONTENT_SCHEMA),
     defaultValues: {
@@ -27,9 +29,9 @@ export const FormContent = () => {
   });
 
   return (
-    <FormMutateLayout title="Content" description="Content" form={form}>
+    <FormMutateLayout title={t('content-label')} description={t('content-label')} form={form}>
       <FormValueEffectComponent form={form} atom={formSetupContentAtom} />
-      <InfoCard title="Fields" description="Drag to reorder fields">
+      <InfoCard title={t('fields-label')} description={t('drag-to-reorder')}>
         <Form.Field
           name="steps"
           control={form.control}

@@ -15,6 +15,8 @@ import {
   useDealsRemove,
   useDealsWatch,
 } from '@/deals/cards/hooks/useDeals';
+import { useTranslation } from 'react-i18next';
+
 
 export const DealsActions = ({
   deals,
@@ -28,6 +30,7 @@ export const DealsActions = ({
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
   const { watchDeals, loading: watchLoading } = useDealsWatch();
+  const { t } = useTranslation('sales');
 
   const count = selectedCount || deals.length;
   const isSingle = count === 1;
@@ -44,13 +47,11 @@ export const DealsActions = ({
 
   const handleArchive = async () => {
     const newStatus = allArchived ? 'active' : 'archived';
-    const action = allArchived ? 'unarchive' : 'archive';
+    const actionLabel = allArchived ? t('unarchive') : t('archive');
 
     if (!isSingle) {
       await confirm({
-        message: `Are you sure you want to ${action} ${count} deal${
-          count > 1 ? 's' : ''
-        }?`,
+        message: t('archive-deals-confirm', { count, action: actionLabel }),
       });
     }
 
@@ -65,9 +66,7 @@ export const DealsActions = ({
 
   const handleRemove = async () => {
     await confirm({
-      message: `Are you sure you want to remove ${count} deal${
-        count > 1 ? 's' : ''
-      }? `,
+      message: t('remove-deals-confirm', { count }),
     });
 
     await Promise.all(
@@ -96,16 +95,17 @@ export const DealsActions = ({
   const handlePrint = () => {
     window.print();
   };
+
   const getArchiveLabel = () => {
-    if (allArchived) return isSingle ? 'Unarchive' : 'archive';
-    if (allActive) return 'Archive';
-    return isSingle ? 'Archive' : 'Archive (Mixed)';
+    if (allArchived) return t('unarchive');
+    if (allActive) return t('archive');
+    return isSingle ? t('archive') : t('archive-mixed');
   };
 
   const getWatchLabel = () => {
-    if (allWatched) return 'Unwatch';
-    if (allUnwatched) return 'Watch';
-    return 'Watch (Mixed)';
+    if (allWatched) return t('unwatch');
+    if (allUnwatched) return t('watch');
+    return t('watch-mixed');
   };
 
   return (
@@ -117,13 +117,13 @@ export const DealsActions = ({
           disabled={isLoading}
         >
           {isSingle ? <IconDotsVertical /> : <IconEdit />}
-          Edit
+          {t('edit')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-48 min-w-fit!">
         <DropdownMenu.Item onClick={handleCopy} disabled={isLoading}>
           <IconCopy />
-          Copy {isSingle ? '' : `(${count})`}
+          {t('copy')} {isSingle ? '' : `(${count})`}
         </DropdownMenu.Item>
 
         <DropdownMenu.Item onClick={handleWatch} disabled={isLoading}>
@@ -133,7 +133,7 @@ export const DealsActions = ({
 
         <DropdownMenu.Item onClick={handlePrint} disabled={isLoading}>
           <IconPrinter />
-          Print document
+          {t('print-document')}
         </DropdownMenu.Item>
 
         <DropdownMenu.Item onClick={handleArchive} disabled={isLoading}>
@@ -148,7 +148,7 @@ export const DealsActions = ({
             className="text-red-700 focus:text-red-700"
           >
             <IconTrash className="text-red-700" />
-            Remove {isSingle ? '' : `(${count})`}
+            {t('remove')} {isSingle ? '' : `(${count})`}
           </DropdownMenu.Item>
         )}
       </DropdownMenu.Content>

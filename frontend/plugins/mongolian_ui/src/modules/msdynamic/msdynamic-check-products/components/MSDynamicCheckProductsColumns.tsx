@@ -1,10 +1,12 @@
 import { IconCircleCheck, IconCode, IconHash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Badge,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { MSDynamicCheckProduct } from '../types/msDynamicCheckProduct';
 
@@ -14,7 +16,10 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
     {
       id: 'code',
       accessorKey: 'displayCode',
-      header: () => <RecordTable.InlineHead label="Code" icon={IconCode} />,
+      header: () => {
+        const { t } = useTranslation('mongolian');
+        return <RecordTable.InlineHead label={t('code')} icon={IconCode} />;
+      },
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue<string>()} />
@@ -24,7 +29,10 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
     {
       id: 'name',
       accessorKey: 'displayName',
-      header: () => <RecordTable.InlineHead label="Name" icon={IconHash} />,
+      header: () => {
+        const { t } = useTranslation('mongolian');
+        return <RecordTable.InlineHead label={t('name')} icon={IconHash} />;
+      },
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue<string>()} />
@@ -34,9 +42,10 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
     {
       id: 'barcodes',
       accessorKey: 'displayBarcodes',
-      header: () => (
-        <RecordTable.InlineHead label="Bar codes" icon={IconHash} />
-      ),
+      header: () => {
+        const { t } = useTranslation('mongolian');
+        return <RecordTable.InlineHead label={t('bar-codes')} icon={IconHash} />;
+      },
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue<string>()} />
@@ -46,9 +55,10 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
     {
       id: 'unitPrice',
       accessorKey: 'displayUnitPrice',
-      header: () => (
-        <RecordTable.InlineHead label="Unit price" icon={IconHash} />
-      ),
+      header: () => {
+        const { t } = useTranslation('mongolian');
+        return <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />;
+      },
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip
@@ -60,15 +70,21 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
     {
       id: 'status',
       accessorKey: 'isSynced',
-      header: () => (
-        <RecordTable.InlineHead label="Status" icon={IconCircleCheck} />
-      ),
-      cell: ({ row }) => (
-        <RecordTableInlineCell>
-          {row.original.isSynced && (
-            <span className="text-green-600 font-medium">Synced</span>
-          )}
-        </RecordTableInlineCell>
-      ),
+      header: () => {
+        const { t } = useTranslation('mongolian');
+        return <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />;
+      },
+      cell: ({ row }) => {
+        const { t } = useTranslation('mongolian');
+        return (
+          <RecordTableInlineCell>
+            {row.original.isSynced ? (
+              <Badge variant="success">{t('synced')}</Badge>
+            ) : (
+              <Badge variant="warning">{t('pending')}</Badge>
+            )}
+          </RecordTableInlineCell>
+        );
+      },
     },
   ];

@@ -1,4 +1,5 @@
 import { Button, Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
 import {
   InstagramIntegrationFormSteps,
@@ -26,6 +27,7 @@ const INTEGRATION_KINDS = {
 };
 
 export const InstagramIntegrationSetup = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams();
   const { isPost } = useIgIntegrationContext();
   const form = useForm<z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>>({
@@ -71,16 +73,16 @@ export const InstagramIntegrationSetup = () => {
                 className="bg-border"
                 onClick={() => setActiveStep(2)}
               >
-                Previous step
+                {t('previous-step')}
               </Button>
               <Button type="submit" disabled={loading}>
-                Save
+                {t('save')}
               </Button>
             </>
           }
         >
           <InstagramIntegrationFormSteps
-            title="Integration Setup"
+            title={t('integration-setup')}
             step={3}
             description=""
           />
@@ -89,12 +91,12 @@ export const InstagramIntegrationSetup = () => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Integration name</Form.Label>
+                  <Form.Label>{t('integration-name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
                   <Form.Description>
-                    Name this integration to differentiate from the rest
+                    {t('integration-name-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -105,17 +107,17 @@ export const InstagramIntegrationSetup = () => {
               name="brandId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Brand</Form.Label>
+                  <Form.Label>{t('brand')}</Form.Label>
                   <Form.Control>
                     <SelectBrand
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select a brand"
+                      placeholder={t('select-a-brand')}
                       className="w-full h-10 rounded-lg border bg-background"
                     />
                   </Form.Control>
                   <Form.Description>
-                    Choose the brand for this integration
+                    {t('choose-brand-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>

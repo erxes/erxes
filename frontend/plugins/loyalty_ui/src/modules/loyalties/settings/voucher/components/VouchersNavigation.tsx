@@ -1,9 +1,11 @@
 import { IconTicket, IconCategory } from '@tabler/icons-react';
 import { Breadcrumb, Toggle, Button, Separator } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
 
 export const VouchersNavigation = () => {
+  const { t } = useTranslation('loyalty');
   const { pathname } = useLocation();
   return (
     <PageHeader.Start>
@@ -13,7 +15,7 @@ export const VouchersNavigation = () => {
             <Button variant="ghost" asChild name="vouchers">
               <Link to="/loyalty/vouchers">
                 <IconTicket />
-                Vouchers
+                {t('vouchers')}
               </Link>
             </Button>
           </Breadcrumb.Item>
@@ -27,7 +29,7 @@ export const VouchersNavigation = () => {
             >
               <Link to="/loyalty/vouchers/categories">
                 <IconCategory />
-                Categories
+                {t('categories')}
               </Link>
             </Toggle>
           </Breadcrumb.Page>

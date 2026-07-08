@@ -1,10 +1,13 @@
 import {
   loadAiActionMemory,
+  loadAiConversationState,
   parseAiAgentActionConfig,
   parseAiAgentInput,
   persistAiActionMemory,
+  persistAiConversationState,
   runAiAction,
   TAiActionExecutionResult,
+  TAiAgentActionConfig,
 } from '../../ai';
 import { generateModels } from '../../connectionResolver';
 import {
@@ -30,16 +33,21 @@ export const executeAiAgentAction = async (
 ): Promise<TAiAgentActionWorkerResponse> => {
   try {
     const models = await generateModels(subdomain);
-    const parsedActionConfig = resolveRuntimeConfigValue(
+    const rawActionConfig = normalizeAiAgentActionConfig(
       parseAiAgentActionConfig(action.config),
-      execution,
+    );
+    const parsedActionConfig = parseAiAgentActionConfig(
+      resolveRuntimeConfigValue(rawActionConfig, execution),
     );
     const aiContext = await getAiContext(subdomain, execution);
-    const inputData = await getInputData(
-      execution,
-      parsedActionConfig.inputMapping,
-    );
+    const inputData = await getInputData(execution, parsedActionConfig);
     const memory = await loadAiActionMemory({
+      models,
+      execution,
+      actionConfig: parsedActionConfig,
+      aiContext,
+    });
+    const conversationState = await loadAiConversationState({
       models,
       execution,
       actionConfig: parsedActionConfig,
@@ -67,6 +75,7 @@ export const executeAiAgentAction = async (
       inputData,
       aiContext,
       memory,
+      conversationState,
     });
     console.timeEnd(timerLabel);
     if (!response) {
@@ -80,12 +89,88 @@ export const executeAiAgentAction = async (
       result: response.result,
       aiContext,
     });
+    await persistAiConversationState({
+      models,
+      execution,
+      actionConfig: parsedActionConfig,
+      aiContext,
+      state: response.conversationState,
+    });
 
-    return response;
+    return {
+      result: response.result,
+      nextActionId: response.nextActionId,
+    };
   } catch (error) {
     throw new Error(`AI Agent Action failed: ${error.message}`);
   }
 };
+
+const runtimeTokenRegex = /^\s*\{\{\s*([^{}]+?)\s*\}\}\s*$/;
+const nestedRuntimeTokenRegex =
+  /\{\{\s*(?:trigger|actions\.[^.\s{}]+)\.(\{\{\s*([^{}]+?)\s*\}\})\s*\}\}/g;
+
+const unwrapRuntimeToken = (value?: string) => {
+  const match = value?.match(runtimeTokenRegex);
+
+  return match?.[1]?.trim();
+};
+
+const normalizeAiInputTemplate = (input?: string) => {
+  if (!input) {
+    return input;
+  }
+
+  return input.replace(
+    nestedRuntimeTokenRegex,
+    (_match, _innerToken: string, innerPath: string) => `{{ ${innerPath} }}`,
+  );
+};
+
+const normalizeInputMappingPath = (
+  inputMapping?: TAiAgentActionConfig['inputMapping'],
+) => {
+  if (!inputMapping?.path) {
+    return inputMapping;
+  }
+
+  const unwrappedPath = unwrapRuntimeToken(inputMapping.path);
+
+  if (!unwrappedPath) {
+    return inputMapping;
+  }
+
+  if (inputMapping.source === 'trigger') {
+    return {
+      ...inputMapping,
+      path: unwrappedPath.startsWith('trigger.')
+        ? unwrappedPath.slice(8)
+        : unwrappedPath,
+    };
+  }
+
+  if (inputMapping.source === 'previousAction') {
+    return {
+      ...inputMapping,
+      path: unwrappedPath.startsWith('actions.')
+        ? unwrappedPath.slice(8)
+        : unwrappedPath,
+    };
+  }
+
+  return {
+    ...inputMapping,
+    path: unwrappedPath,
+  };
+};
+
+const normalizeAiAgentActionConfig = (
+  actionConfig: TAiAgentActionConfig,
+): TAiAgentActionConfig => ({
+  ...actionConfig,
+  input: normalizeAiInputTemplate(actionConfig.input),
+  inputMapping: normalizeInputMappingPath(actionConfig.inputMapping),
+});
 
 const getAiContext = async (
   subdomain: string,
@@ -122,25 +207,22 @@ const getAiContext = async (
 
 const getInputData = async (
   execution: IAutomationExecutionDocument,
-  inputMapping: any,
+  inputConfig: {
+    input?: string;
+    inputMapping?: {
+      source: 'trigger' | 'previousAction' | 'custom';
+      path?: string;
+      customValue?: string;
+    };
+  },
 ) => {
+  if (inputConfig.input !== undefined) {
+    return inputConfig.input.trim() ? inputConfig.input : execution.target;
+  }
+
+  const { inputMapping } = inputConfig;
+
   if (!inputMapping?.source) {
-    if (typeof execution.target === 'string') {
-      return execution.target;
-    }
-
-    if (typeof execution.target?.content === 'string') {
-      return execution.target.content;
-    }
-
-    if (typeof execution.target?.message === 'string') {
-      return execution.target.message;
-    }
-
-    if (typeof execution.target?.text === 'string') {
-      return execution.target.text;
-    }
-
     return execution.target;
   }
 
@@ -154,11 +236,7 @@ const getInputData = async (
         : execution.target;
     }
     case 'previousAction': {
-      const prevAction = (execution.actions || []).find(
-        (a: any) =>
-          a.actionId === inputMapping.path || a.id === inputMapping.path,
-      );
-      return prevAction?.result;
+      return getActionResult(execution, inputMapping.path);
     }
     case 'custom':
       return resolveRuntimeValue(inputMapping.customValue, execution);
@@ -167,12 +245,40 @@ const getInputData = async (
   }
 };
 
-const getNestedValue = (obj: any, path: string) => {
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === 'object' && !Array.isArray(value);
+
+const getActionResult = (
+  execution: IAutomationExecutionDocument,
+  actionId?: string,
+) => {
+  const action = (execution.actions || []).find((executionAction) => {
+    if (!isRecord(executionAction)) {
+      return false;
+    }
+
+    return (
+      executionAction.actionId === actionId || executionAction.id === actionId
+    );
+  });
+
+  return isRecord(action) ? action.result : undefined;
+};
+
+const getNestedValue = (obj: unknown, path: string) => {
   return path
     .replace(/\[(\d+)\]/g, '.$1')
     .split('.')
     .filter(Boolean)
-    .reduce((current, key) => current?.[key], obj);
+    .reduce<unknown>((current, key) => {
+      if (Array.isArray(current)) {
+        const index = Number(key);
+
+        return Number.isInteger(index) ? current[index] : undefined;
+      }
+
+      return isRecord(current) ? current[key] : undefined;
+    }, obj);
 };
 
 const getActionResultValue = (
@@ -180,12 +286,7 @@ const getActionResultValue = (
   actionId: string,
   path: string,
 ) => {
-  const action = (execution.actions || []).find(
-    (execAction: any) =>
-      execAction.actionId === actionId || execAction.id === actionId,
-  );
-
-  return getNestedValue(action?.result, path);
+  return getNestedValue(getActionResult(execution, actionId), path);
 };
 
 const resolveRuntimeToken = (
@@ -238,9 +339,9 @@ const resolveRuntimeString = (
 };
 
 const resolveRuntimeValue = (
-  value: any,
+  value: unknown,
   execution: IAutomationExecutionDocument,
-): any => {
+): unknown => {
   if (typeof value === 'string') {
     return resolveRuntimeString(value, execution);
   }
@@ -249,23 +350,22 @@ const resolveRuntimeValue = (
     return value.map((item) => resolveRuntimeValue(item, execution));
   }
 
-  if (!value || typeof value !== 'object') {
+  if (!isRecord(value)) {
     return value;
   }
 
-  return Object.entries(value).reduce<Record<string, any>>(
-    (acc, [key, currentValue]) => {
-      acc[key] = resolveRuntimeValue(currentValue, execution);
-      return acc;
-    },
-    {},
+  return Object.fromEntries(
+    Object.entries(value).map(([key, currentValue]) => [
+      key,
+      resolveRuntimeValue(currentValue, execution),
+    ]),
   );
 };
 
 const resolveRuntimeConfigValue = (
-  value: any,
+  value: unknown,
   execution: IAutomationExecutionDocument,
-): any => {
+): unknown => {
   if (typeof value === 'string') {
     const resolved = resolveRuntimeString(value, execution);
     return typeof resolved === 'string'
@@ -277,15 +377,14 @@ const resolveRuntimeConfigValue = (
     return value.map((item) => resolveRuntimeConfigValue(item, execution));
   }
 
-  if (!value || typeof value !== 'object') {
+  if (!isRecord(value)) {
     return value;
   }
 
-  return Object.entries(value).reduce<Record<string, any>>(
-    (acc, [key, currentValue]) => {
-      acc[key] = resolveRuntimeConfigValue(currentValue, execution);
-      return acc;
-    },
-    {},
+  return Object.fromEntries(
+    Object.entries(value).map(([key, currentValue]) => [
+      key,
+      resolveRuntimeConfigValue(currentValue, execution),
+    ]),
   );
 };

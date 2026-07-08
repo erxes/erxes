@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Tooltip, Spinner } from 'erxes-ui';
 import { Panel } from '@xyflow/react';
 import {
@@ -21,6 +22,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
     },
     slotsButtonRef,
   ) => {
+    const { t } = useTranslation('sales');
     return (
       <Panel position="top-right" className="flex flex-col items-end gap-2">
         <div className="relative p-2 border rounded-md bg-background">
@@ -34,7 +36,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
                 </Tooltip.Trigger>
 
                 <Tooltip.Content>
-                  <p>Add New Slot</p>
+                  <p>{t('add-new-slot')}</p>
                 </Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
@@ -51,7 +53,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
                   </Button>
                 </Tooltip.Trigger>
                 <Tooltip.Content>
-                  <p>Auto-arrange Layout</p>
+                  <p>{t('auto-arrange-layout')}</p>
                 </Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
@@ -71,7 +73,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
                     </Button>
                   </Tooltip.Trigger>
                   <Tooltip.Content>
-                    <p>Open Slots</p>
+                    <p>{t('open-slots')}</p>
                   </Tooltip.Content>
                 </Tooltip>
               </Tooltip.Provider>
@@ -94,7 +96,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
                     </Button>
                   </Tooltip.Trigger>
                   <Tooltip.Content>
-                    <p>{saving ? 'Saving...' : 'Save Changes'}</p>
+                    <p>{saving ? t('saving') : t('save-changes')}</p>
                   </Tooltip.Content>
                 </Tooltip>
               </Tooltip.Provider>

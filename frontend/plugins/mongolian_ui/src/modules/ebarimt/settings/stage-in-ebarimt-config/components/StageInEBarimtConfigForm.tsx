@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Accordion, AlertDialog, Button, Card, Form } from 'erxes-ui';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import {
   FormCheckbox,
@@ -35,6 +36,7 @@ const StageInEbarimtConfigCard = ({
   onSave: (key: string, data: TStageInEbarimtConfig) => void;
   onDelete: (key: string) => void;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(addEBarimtStageInConfigSchema),
@@ -120,7 +122,7 @@ const StageInEbarimtConfigCard = ({
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-md font-medium">
-          {config.title || 'Untitled Config'}
+          {config.title || t('untitled-config')}
         </h3>
       </div>
 
@@ -129,8 +131,8 @@ const StageInEbarimtConfigCard = ({
           <div className="grid grid-cols-2 gap-4">
             <FormInput
               name="title"
-              label="Title"
-              placeholder="Title"
+              label={t('title')}
+              placeholder={t('title')}
               control={form.control}
             />
             <Form.Field
@@ -138,7 +140,7 @@ const StageInEbarimtConfigCard = ({
               name="boardId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Destination Stage Board</Form.Label>
+                  <Form.Label>{t('destination-stage-board')}</Form.Label>
                   <SelectSalesBoard
                     value={field.value}
                     onValueChange={handleBoardChange}
@@ -153,7 +155,7 @@ const StageInEbarimtConfigCard = ({
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Pipeline</Form.Label>
+                  <Form.Label>{t('pipeline')}</Form.Label>
                   <SelectPipeline
                     value={field.value}
                     onValueChange={handlePipelineChange}
@@ -170,7 +172,7 @@ const StageInEbarimtConfigCard = ({
               name="stageId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Stage</Form.Label>
+                  <Form.Label>{t('stage')}</Form.Label>
                   <SelectStage
                     id="stageId"
                     variant="form"
@@ -186,29 +188,29 @@ const StageInEbarimtConfigCard = ({
 
             <FormInput
               name="companyName"
-              label="Company Name"
-              placeholder="Enter company name"
+              label={t('company-name')}
+              placeholder={t('enter-company-name')}
               control={form.control}
             />
 
             <FormInput
               name="posNo"
-              label="Pos No"
-              placeholder="Pos No"
+              label={t('pos-no')}
+              placeholder={t('pos-no')}
               control={form.control}
             />
 
             <FormInput
               name="companyRD"
-              label="Company RD"
-              placeholder="Company RD"
+              label={t('company-rd')}
+              placeholder={t('company-rd')}
               control={form.control}
             />
 
             <FormInput
               name="merchantTin"
-              label="MerchantTin"
-              placeholder="MerchantTin"
+              label={t('merchant-tin')}
+              placeholder={t('merchant-tin')}
               control={form.control}
             />
 
@@ -218,7 +220,7 @@ const StageInEbarimtConfigCard = ({
                 name="branchOfProvince"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Branch of Province / District</Form.Label>
+                    <Form.Label>{t('branch-of-province-district')}</Form.Label>
                     <SelectBranchDistrict
                       value={field.value}
                       onValueChange={handleBranchChange}
@@ -232,7 +234,7 @@ const StageInEbarimtConfigCard = ({
                 name="subProvince"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>SUB Province / District</Form.Label>
+                    <Form.Label>{t('sub-province-district')}</Form.Label>
                     <SelectSubBranchDistrict
                       value={field.value}
                       branchCode={selectedBranchCode}
@@ -246,8 +248,8 @@ const StageInEbarimtConfigCard = ({
 
             <FormDistrictCode
               name="districtCode"
-              label="District Code"
-              placeholder="District Code"
+              label={t('district-code')}
+              placeholder={t('district-code')}
               control={form.control}
               branchCode={selectedBranchCode}
               subBranchCode={selectedSubBranchCode}
@@ -256,15 +258,15 @@ const StageInEbarimtConfigCard = ({
 
             <FormInput
               name="defaultUnitedCode"
-              label="Default United Code"
-              placeholder="Default United Code"
+              label={t('default-united-code')}
+              placeholder={t('default-united-code')}
               control={form.control}
             />
 
             <FormInput
               name="branchNo"
-              label="Branch No"
-              placeholder="Branch No"
+              label={t('branch-no')}
+              placeholder={t('branch-no')}
               control={form.control}
             />
           </div>
@@ -274,21 +276,21 @@ const StageInEbarimtConfigCard = ({
                 <div className="grid grid-cols-2 gap-4">
                   <FormCheckbox
                     name="hasVat"
-                    label="Has Vat"
+                    label={t('has-vat')}
                     control={form.control}
                     labelPosition="before"
                   />
                   <FormInput
                     name={'vatPercent'}
-                    label="Vat percent"
-                    placeholder="Enter vat percent"
+                    label={t('vat-percent')}
+                    placeholder={t('enter-vat-percent')}
                     control={form.control}
                     type="number"
                   />
                 </div>
                 <FormSelectEbarimtProductRules
                   name="reverseVatRules"
-                  label="Another Rules of Products on VAT"
+                  label={t('another-rules-of-products-on-vat')}
                   kind="vat"
                   control={form.control}
                 />
@@ -296,7 +298,7 @@ const StageInEbarimtConfigCard = ({
             ) : (
               <FormCheckbox
                 name="hasVat"
-                label="Has Vat"
+                label={t('has-vat')}
                 control={form.control}
                 labelPosition="before"
               />
@@ -307,14 +309,14 @@ const StageInEbarimtConfigCard = ({
               <div className="grid grid-cols-2 gap-4">
                 <FormCheckbox
                   name="hasCitytax"
-                  label="Has all Citytax"
+                  label={t('has-all-citytax')}
                   control={form.control}
                   labelPosition="before"
                 />
                 <FormInput
                   name={'citytaxPercent'}
-                  label="Citytax Percent"
-                  placeholder="Enter citytax percent"
+                  label={t('citytax-percent')}
+                  placeholder={t('enter-citytax-percent')}
                   control={form.control}
                   type="number"
                 />
@@ -323,13 +325,13 @@ const StageInEbarimtConfigCard = ({
               <>
                 <FormCheckbox
                   name="hasCitytax"
-                  label="Has all Citytax"
+                  label={t('has-all-citytax')}
                   control={form.control}
                   labelPosition="before"
                 />
                 <FormSelectEbarimtProductRules
                   name={'reverseCtaxRules'}
-                  label="Another rules of products on citytax"
+                  label={t('another-rules-of-products-on-citytax')}
                   kind="ctax"
                   control={form.control}
                 />
@@ -339,28 +341,28 @@ const StageInEbarimtConfigCard = ({
           <div className="grid grid-cols-2 gap-4">
             <FormArea
               name="headerText"
-              label="Header text"
-              placeholder="Header text"
+              label={t('header-text')}
+              placeholder={t('header-text')}
               control={form.control}
             />
 
             <FormArea
               name="footerText"
-              label="Footer text"
-              placeholder="Footer text"
+              label={t('footer-text')}
+              placeholder={t('footer-text')}
               control={form.control}
             />
 
             <FormCheckbox
               name="withDescription"
-              label="With Description"
+              label={t('with-description')}
               control={form.control}
               labelPosition="before"
             />
 
             <FormCheckbox
               name="skipEbarimt"
-              label="Skip Ebarimt"
+              label={t('skip-ebarimt')}
               control={form.control}
               labelPosition="before"
             />
@@ -373,33 +375,31 @@ const StageInEbarimtConfigCard = ({
             >
               <AlertDialog.Trigger asChild>
                 <Button variant="ghost" size="sm">
-                  <p className="text-black">Delete</p>
+                  <p className="text-black">{t('delete')}</p>
                 </Button>
               </AlertDialog.Trigger>
               <AlertDialog.Content>
                 <AlertDialog.Header>
-                  <AlertDialog.Title>Delete Configuration</AlertDialog.Title>
+                  <AlertDialog.Title>{t('delete-configuration')}</AlertDialog.Title>
                   <AlertDialog.Description>
-                    Are you sure you want to delete "
-                    {config.title || 'Untitled Config'}"? This action cannot be
-                    undone.
+                    {t('delete-config-confirm', { title: config.title || t('untitled-config') })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>
                 <AlertDialog.Footer>
-                  <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
                   <AlertDialog.Action
                     onClick={() => {
                       onDelete(configKey);
                       setIsDeleteDialogOpen(false);
                     }}
                   >
-                    Delete
+                    {t('delete')}
                   </AlertDialog.Action>
                 </AlertDialog.Footer>
               </AlertDialog.Content>
             </AlertDialog>
             <Button type="submit" size="sm">
-              Save
+              {t('save')}
             </Button>
           </div>
         </form>
@@ -409,6 +409,7 @@ const StageInEbarimtConfigCard = ({
 };
 
 export const StageInEBarimtConfigForm = () => {
+  const { t } = useTranslation('mongolian');
   const [openItems, setOpenItems] = useState<string[]>([]);
 
   const {
@@ -455,7 +456,7 @@ export const StageInEBarimtConfigForm = () => {
     <div className="h-full w-full p-6 overflow-y-auto">
       <div className="space-y-6">
         <div className="border-b pb-4">
-          <h1 className="text-xl font-semibold">Stage In Ebarimt</h1>
+          <h1 className="text-xl font-semibold">{t('stage-in-ebarimt')}</h1>
         </div>
 
         <div className="flex justify-end">
@@ -465,14 +466,14 @@ export const StageInEBarimtConfigForm = () => {
             className="flex items-center gap-2"
           >
             <IconPlus className="h-4 w-4" />
-            New Config
+            {t('new-config')}
           </Button>
         </div>
 
         <div className="space-y-4">
           {Object.keys(localConfigsMap).length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No configurations found. Click "New Config" to create one.
+              {t('no-configurations-found')}
             </div>
           ) : (
             <Accordion
@@ -486,7 +487,7 @@ export const StageInEBarimtConfigForm = () => {
                   <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
                     <div className="flex justify-between items-center w-full">
                       <span>
-                        {localConfigsMap[configKey].title || 'Untitled Config'}
+                        {localConfigsMap[configKey].title || t('untitled-config')}
                       </span>
                     </div>
                   </Accordion.Trigger>

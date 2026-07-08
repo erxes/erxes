@@ -1,5 +1,6 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Button, useConfirm, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { useRemovePage } from '../../../hooks/useRemovePage';
@@ -13,6 +14,7 @@ export const PagesDelete = ({
   rows: Row<any>[];
   onRefetch?: () => void;
 }) => {
+  const { t } = useTranslation('content');
   const { confirm } = useConfirm();
   const { removePage } = useRemovePage();
   const { toast } = useToast();
@@ -22,9 +24,7 @@ export const PagesDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${
-            pagesIds.length
-          } selected page${pagesIds.length === 1 ? '' : 's'}?`,
+          message: t('confirm-delete-x-pages', { count: pagesIds.length }),
         }).then(() => {
           Promise.all(pagesIds.map((pageId) => removePage(pageId)))
             .then(() => {
@@ -32,16 +32,16 @@ export const PagesDelete = ({
                 row.toggleSelected(false);
               });
               toast({
-                title: 'Success',
+                title: t('success'),
                 variant: 'success',
-                description: 'Pages deleted successfully',
+                description: t('pages-deleted-successfully'),
               });
 
               onRefetch?.();
             })
             .catch((e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -50,7 +50,7 @@ export const PagesDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

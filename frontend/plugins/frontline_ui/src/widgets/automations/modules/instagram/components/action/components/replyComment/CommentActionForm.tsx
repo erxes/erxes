@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Textarea, toast } from 'erxes-ui';
 import { useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AutomationActionFormProps } from 'ui-modules';
 import {
   commentActionFormSchema,
@@ -25,6 +26,7 @@ export const CommentActionForm = ({
   currentAction,
   onSaveActionConfig,
 }: AutomationActionFormProps) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<TCommentActionForm>({
     resolver: zodResolver(commentActionFormSchema),
     defaultValues: { ...(currentAction?.config || {}) },
@@ -34,7 +36,7 @@ export const CommentActionForm = ({
   useImperativeHandle(formRef, () => ({
     submit: form.handleSubmit(onSaveActionConfig, () =>
       toast({
-        title: 'There is some error in the form',
+        title: t('form-error'),
         variant: 'destructive',
       }),
     ),
@@ -50,7 +52,7 @@ export const CommentActionForm = ({
             <Form.Item>
               <Form.Label className="flex flex-row justify-between">
                 <div className="flex flex-row gap-2 items-center">
-                  Text
+                  {t('text')}
                   <InputTextCounter
                     count={field.value?.length || 0}
                     limit={8000}
@@ -58,7 +60,7 @@ export const CommentActionForm = ({
                 </div>
               </Form.Label>
               <Form.Control>
-                <Textarea {...field} placeholder="Enter your text" />
+                <Textarea {...field} placeholder={t('enter-your-text')} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -69,10 +71,10 @@ export const CommentActionForm = ({
           name="attachments"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Attachments</Form.Label>
+              <Form.Label>{t('attachments-label')}</Form.Label>
               <Form.Control>
                 <Button disabled variant="secondary">
-                  Upload Attachments (Work in progress)
+                  {t('upload-attachments-wip')}
                 </Button>
               </Form.Control>
             </Form.Item>

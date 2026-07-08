@@ -1,8 +1,10 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { useRemoveExchangeRates } from '../hooks/useRemoveExchangeRates';
+import { useTranslation } from 'react-i18next';
 
 export const ExchangeRatesCommandbar = () => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   const selectedCount = table.getFilteredSelectedRowModel().rows.length;
 
@@ -10,7 +12,7 @@ export const ExchangeRatesCommandbar = () => {
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {selectedCount} selected
+          {selectedCount} {t('selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ExchangeRatesDelete />
@@ -20,6 +22,7 @@ export const ExchangeRatesCommandbar = () => {
 };
 
 const ExchangeRatesDelete = () => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   const { remove, loading } = useRemoveExchangeRates();
 
@@ -35,7 +38,7 @@ const ExchangeRatesDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

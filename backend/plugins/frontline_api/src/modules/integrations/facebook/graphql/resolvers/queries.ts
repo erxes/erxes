@@ -28,6 +28,75 @@ const buildSelector = async (conversationId: string, model: any) => {
   return query;
 };
 
+const COMMENT_PRIVATE_REPLY_SOURCE_TYPE = 'facebook_comment_private_reply';
+
+type TFacebookMessageSource = {
+  type?: string;
+  conversationId?: string;
+  messageId?: string;
+  targetConversationId?: string;
+  content?: string;
+};
+
+type TMessageWithToObject = Record<string, unknown> & {
+  toObject?: () => Record<string, unknown>;
+};
+
+const toPlainObject = (message: TMessageWithToObject) =>
+  message.toObject ? message.toObject() : message;
+
+const appendRelatedMessengerMessages = async (
+  models: IContext['models'],
+  conversationId: string,
+  messages: TMessageWithToObject[],
+) => {
+  const messageIds = messages
+    .map((message) => String(toPlainObject(message)._id || ''))
+    .filter(Boolean);
+
+  if (!messageIds.length) {
+    return messages.map(toPlainObject);
+  }
+
+  const relatedMessages = await models.FacebookConversationMessages.find({
+    'source.type': COMMENT_PRIVATE_REPLY_SOURCE_TYPE,
+    'source.conversationId': conversationId,
+    'source.messageId': { $in: messageIds },
+  }).lean();
+
+  const relatedBySourceMessageId = new Map<string, Record<string, unknown>>();
+
+  for (const relatedMessage of relatedMessages) {
+    const source = relatedMessage.source as TFacebookMessageSource | undefined;
+
+    if (source?.messageId) {
+      relatedBySourceMessageId.set(String(source.messageId), relatedMessage);
+    }
+  }
+
+  return messages.map((message) => {
+    const messageObject = toPlainObject(message);
+    const relatedMessage = relatedBySourceMessageId.get(
+      String(messageObject._id || ''),
+    );
+
+    if (!relatedMessage) {
+      return messageObject;
+    }
+
+    const source = relatedMessage.source as TFacebookMessageSource | undefined;
+
+    return {
+      ...messageObject,
+      relatedMessage: {
+        conversationId: source?.targetConversationId,
+        messageId: relatedMessage._id,
+        content: relatedMessage.content,
+      },
+    };
+  });
+};
+
 export const facebookQueries = {
   async facebookGetConfigs(_root, _args, { models }: IContext) {
     return await models.FacebookConfigs.find({});
@@ -263,10 +332,19 @@ export const facebookQueries = {
         const combinedResult = [...comment, ...search].sort((a, b) =>
           a.createdAt > b.createdAt ? 1 : -1,
         );
-        return combinedResult;
-      } else {
-        return comment;
+
+        return await appendRelatedMessengerMessages(
+          models,
+          conversationId,
+          combinedResult,
+        );
       }
+
+      return await appendRelatedMessengerMessages(
+        models,
+        conversationId,
+        comment,
+      );
     }
   },
   /**

@@ -12,6 +12,7 @@ import {
 import { IconEdit, IconTrash, IconTicket } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useDeleteSpin } from '../hooks/useDeleteSpin';
 import { ISpin } from '../types/spinTypes';
 
@@ -20,6 +21,7 @@ export const SpinMoreColumnCell = ({
 }: {
   cell: Cell<ISpin, unknown>;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { _id } = cell.row.original;
   const [, setEditSpinId] = useQueryState('editSpinId');
   const { removeSpin, loading } = useDeleteSpin();
@@ -38,20 +40,20 @@ export const SpinMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: 'Are you sure you want to delete this spin campaign?',
+      message: t('delete-spin-campaign-confirm'),
     }).then(() => {
       removeSpin({
         variables: { _ids: [_id] },
       })
         .then(() => {
           toast({
-            title: '1 spin campaign deleted successfully',
+            title: t('spins-deleted', { count: 1 }),
             variant: 'success',
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -72,10 +74,10 @@ export const SpinMoreColumnCell = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="see-spins" onSelect={handleSeeSpins}>
-              <IconTicket /> See spins
+              <IconTicket /> {t('see-spins')}
             </Command.Item>
             <Command.Item asChild>
               <Button
@@ -86,7 +88,7 @@ export const SpinMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>

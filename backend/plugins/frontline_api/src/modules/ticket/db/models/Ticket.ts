@@ -137,7 +137,7 @@ export const loadTicketClass = (
       userId: string;
       subdomain: string;
     }) {
-      const { _id, ...rest } = doc;
+      const { _id, propertiesData: incomingPropertiesData, ...rest } = doc;
       const permissionValidator = createPermissionValidator(models);
 
       const ticket = await models.Ticket.findOne({ _id });
@@ -151,20 +151,18 @@ export const loadTicketClass = (
         doc.statusId || '',
         userId,
       );
-      if (doc.propertiesData) {
-        const propertiesData = await sendTRPCMessage({
+      if (incomingPropertiesData) {
+        await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'mutation',
           module: 'fields',
           action: 'validateFieldValues',
           input: {
-            data: doc.propertiesData,
+            data: incomingPropertiesData,
           },
-          defaultValue: doc.propertiesData,
+          defaultValue: incomingPropertiesData,
         });
-
-        doc.propertiesData = propertiesData;
       }
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {
@@ -218,9 +216,15 @@ export const loadTicketClass = (
           action: 'assignee',
         });
       }
-      const update = {
-        $set: rest,
+      const update: { $set: Record<string, any>; [key: string]: any } = {
+        $set: { ...rest },
       };
+
+      if (incomingPropertiesData) {
+        for (const [key, value] of Object.entries(incomingPropertiesData)) {
+          update.$set[`propertiesData.${key}`] = value;
+        }
+      }
 
       if (doc.isSubscribed !== false) {
         update['$addToSet'] = {

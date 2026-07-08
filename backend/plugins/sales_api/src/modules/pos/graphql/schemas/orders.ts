@@ -136,9 +136,10 @@ const queryParams = `
   posToken: String
   types: [String]
   statuses: [String]
-  excludeStatuses: [String] 
+  excludeStatuses: [String]
   hasPaidDate: Boolean
   brandId: String
+  dealId: String
 `;
 
 const groupParams = `

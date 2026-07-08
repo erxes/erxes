@@ -1,21 +1,17 @@
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { Button, RecordTable } from 'erxes-ui';
+import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { MS_DYNAMIC_SESSION_KEYS } from '@/msdynamic/constants/msDynamicSessionKey';
 import { useMSDynamicCheckProducts } from '../hooks/useMSDynamicCheckProducts';
 import { msDynamicCheckProductColumns } from './MSDynamicCheckProductsColumns';
+import { MSDynamicCheckProductsCommandBar } from './MSDynamicCheckProductsCommandBar';
 
 /** Products record table with sync and cursor pagination */
 export const MSDynamicCheckProductsRecordTable = () => {
-  const {
-    filteredProducts,
-    checking,
-    syncing,
-    syncableProducts,
-    syncProducts,
-    checkProducts,
-    pageInfo,
-  } = useMSDynamicCheckProducts();
+  const { t } = useTranslation('mongolian');
+  const { filteredProducts, checking, checkProducts, pageInfo } =
+    useMSDynamicCheckProducts();
   const { hasPreviousPage, hasNextPage } = pageInfo;
 
   return (
@@ -24,6 +20,7 @@ export const MSDynamicCheckProductsRecordTable = () => {
       data={filteredProducts}
       className="h-full w-full px-2 overflow-y-auto"
       stickyColumns={['checkbox']}
+      commandBar={<MSDynamicCheckProductsCommandBar />}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -31,13 +28,6 @@ export const MSDynamicCheckProductsRecordTable = () => {
         dataLength={filteredProducts.length}
         sessionKey={MS_DYNAMIC_SESSION_KEYS.products}
       >
-        {syncableProducts.length > 0 && (
-          <div className="p-2">
-            <Button onClick={syncProducts} disabled={syncing || checking}>
-              Sync Products
-            </Button>
-          </div>
-        )}
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
@@ -61,10 +51,10 @@ export const MSDynamicCheckProductsRecordTable = () => {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h3 className="text-xl font-semibold mb-2">
-                  No products in this group
+                  {t('no-products-in-this-group')}
                 </h3>
                 <p className="text-muted-foreground max-w-md">
-                  Run check or choose another product group.
+                  {t('run-check-or-choose-another-product-group')}
                 </p>
               </div>
             </div>

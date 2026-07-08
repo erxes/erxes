@@ -7,6 +7,7 @@ import {
 import { Button } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { webDrawerState } from '../states/webBuilderState';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
@@ -19,6 +20,7 @@ interface WebCardProps {
 }
 
 export const WebCard = ({ web, index }: WebCardProps) => {
+  const { t } = useTranslation('content');
   const setDrawer = useSetAtom(webDrawerState);
   const { removeWeb } = useRemoveWeb();
   const { confirm } = useConfirm();
@@ -39,7 +41,7 @@ export const WebCard = ({ web, index }: WebCardProps) => {
 
   const handleDelete = () =>
     confirm({
-      message: `Are you sure you want to delete "${web.name}"?`,
+      message: t('confirm-delete-web', { name: web.name }),
     }).then(() => removeWeb(web._id));
 
   return (
@@ -75,7 +77,7 @@ export const WebCard = ({ web, index }: WebCardProps) => {
           {web.name}
         </h3>
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-10">
-          {web.description || 'No description'}
+          {web.description || t('no-description')}
         </p>
 
         <div className="flex items-center justify-between">
@@ -90,16 +92,16 @@ export const WebCard = ({ web, index }: WebCardProps) => {
               onClick={() =>
                 window.open(buildUrl, '_blank', 'noopener,noreferrer')
               }
-              title="Build"
+              title={t('build')}
             >
               <IconHammer className="w-3.5 h-3.5 mr-1" />
-              Build
+              {t('build')}
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleEdit}
-              title="Edit"
+              title={t('edit')}
             >
               <IconEdit className="w-3.5 h-3.5" />
             </Button>
@@ -107,7 +109,7 @@ export const WebCard = ({ web, index }: WebCardProps) => {
               variant="ghost"
               size="icon"
               onClick={handleDelete}
-              title="Delete"
+              title={t('delete')}
               className="text-destructive hover:text-destructive"
             >
               <IconTrash className="w-3.5 h-3.5" />

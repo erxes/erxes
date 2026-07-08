@@ -2,6 +2,7 @@ import { useRemoveResponse } from '@/responseTemplate/hooks/useRemoveResponse';
 import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, Spinner, toast, useConfirm } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ResponseDelete = ({
   responseIds,
@@ -10,6 +11,7 @@ export const ResponseDelete = ({
   responseIds: string[];
   rows: Row<any>[];
 }) => {
+  const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const { removeResponse, loading } = useRemoveResponse();
 
@@ -20,7 +22,7 @@ export const ResponseDelete = ({
       disabled={loading}
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${responseIds.length} selected response${responseIds.length === 1 ? '' : 's'}?`,
+          message: t('confirm-delete-responses', { count: responseIds.length }),
         }).then(async () => {
           try {
             await Promise.all(
@@ -30,13 +32,13 @@ export const ResponseDelete = ({
             );
             rows.forEach((row) => row.toggleSelected(false));
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: `${responseIds.length} Response${responseIds.length === 1 ? '' : 's'} deleted successfully`,
+              description: t('responses-deleted-successfully', { count: responseIds.length }),
             });
           } catch (e: any) {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -45,7 +47,7 @@ export const ResponseDelete = ({
       }
     >
       {loading ? <Spinner /> : <IconTrash />}
-      Delete
+      {t('delete')}
     </Button>
   );
 };

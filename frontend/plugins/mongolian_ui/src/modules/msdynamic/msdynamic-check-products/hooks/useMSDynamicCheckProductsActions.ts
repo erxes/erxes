@@ -1,6 +1,7 @@
 import { gql, useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { mutations } from '@/msdynamic/graphql';
 
@@ -99,6 +100,7 @@ export const useMSDynamicCheckProductsActions = ({
   const setProductsData = useSetAtom(productsDataAtom);
   const setChecking = useSetAtom(checkingAtom);
   const setSyncing = useSetAtom(syncingAtom);
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const [checkMsdProducts] = useMutation<
@@ -114,9 +116,8 @@ export const useMSDynamicCheckProductsActions = ({
   const checkProducts = async () => {
     if (!hasDynamicConfig) {
       toast({
-        title: 'Error',
-        description:
-          'MS Dynamic config not found for the selected brand. Configure MS Dynamic settings first.',
+        title: t('error'),
+        description: t('ms-dynamic-config-not-found'),
         variant: 'destructive',
       });
       return;
@@ -139,13 +140,13 @@ export const useMSDynamicCheckProductsActions = ({
       setProductsData(responseData);
 
       toast({
-        title: 'Success',
-        description: `${normalizedProducts.length} products found`,
+        title: t('success'),
+        description: t('products-found', { count: normalizedProducts.length }),
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: getErrorMessage(error, 'Failed to check products'),
+        title: t('error'),
+        description: getErrorMessage(error, t('failed-to-check-products')),
         variant: 'destructive',
       });
     } finally {
@@ -154,21 +155,22 @@ export const useMSDynamicCheckProductsActions = ({
   };
 
   /** Sync selected products then refresh from server */
-  const syncProducts = async () => {
+  const syncProducts = async (selectedProducts?: MSDynamicCheckProduct[]) => {
+    const productsToSync = selectedProducts ?? syncableProducts;
+
     if (!hasDynamicConfig) {
       toast({
-        title: 'Error',
-        description:
-          'MS Dynamic config not found for the selected brand. Configure MS Dynamic settings first.',
+        title: t('error'),
+        description: t('ms-dynamic-config-not-found'),
         variant: 'destructive',
       });
       return;
     }
 
-    if (!syncableProducts.length) {
+    if (!productsToSync.length) {
       toast({
-        title: 'Warning',
-        description: 'No products to sync',
+        title: t('warning'),
+        description: t('no-products-to-sync'),
         variant: 'destructive',
       });
       return;
@@ -181,7 +183,7 @@ export const useMSDynamicCheckProductsActions = ({
         variables: {
           brandId,
           action: MSDYNAMIC_PRODUCT_ACTIONS[selectedFilter],
-          products: syncableProducts,
+          products: productsToSync,
         },
       });
 
@@ -196,13 +198,13 @@ export const useMSDynamicCheckProductsActions = ({
       setProductsData(refreshedData || null);
 
       toast({
-        title: 'Success',
-        description: `${syncableProducts.length} products synced`,
+        title: t('success'),
+        description: t('products-synced', { count: productsToSync.length }),
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: getErrorMessage(error, 'Failed to sync products'),
+        title: t('error'),
+        description: getErrorMessage(error, t('failed-to-sync-products')),
         variant: 'destructive',
       });
     } finally {

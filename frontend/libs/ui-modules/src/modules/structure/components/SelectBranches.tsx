@@ -84,7 +84,7 @@ export const SelectBranchesCommand = ({
 }) => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedBranches, branchIds } = useSelectBranchesContext();
+  const { branchIds } = useSelectBranchesContext();
   const [noBranchesSearchValue, setNoBranchesSearchValue] =
     useState<string>('');
 
@@ -115,7 +115,7 @@ export const SelectBranchesCommand = ({
         focusOnMount
       />
       <Command.List>
-        {selectedBranches?.length > 0 && (
+        {(branchIds?.length ?? 0) > 0 && (
           <>
             <div className="flex flex-wrap justify-start p-2 gap-2">
               <BranchesList />
@@ -223,6 +223,7 @@ export const BranchesList = ({
           branchId={branchId}
           branch={selectedBranches.find((b) => b._id === branchId)}
           renderAsPlainText={renderAsPlainText}
+          showMissingId
           variant={'secondary'}
           onCompleted={(branch) => {
             if (!branch) return;
@@ -232,7 +233,9 @@ export const BranchesList = ({
           }}
           onClose={() =>
             onSelect?.(
-              selectedBranches.find((p) => p._id === branchId) as IBranch,
+              (selectedBranches.find((p) => p._id === branchId) ?? {
+                _id: branchId,
+              }) as IBranch,
             )
           }
           {...props}
@@ -243,12 +246,12 @@ export const BranchesList = ({
 };
 
 export const SelectBranchesValue = () => {
-  const { selectedBranches, mode } = useSelectBranchesContext();
+  const { branchIds, mode } = useSelectBranchesContext();
 
-  if (selectedBranches?.length > 1 && mode === 'multiple')
+  if (mode === 'multiple' && (branchIds?.length ?? 0) > 1)
     return (
       <span className="text-muted-foreground">
-        {selectedBranches.length} branches selected
+        {branchIds?.length} branches selected
       </span>
     );
 
@@ -312,6 +315,7 @@ const SelectBranchesBadgesView = () => {
         <BranchBadge
           key={bId}
           branchId={bId}
+          showMissingId
           onCompleted={(branch) => {
             if (!branch) return;
             if (branchIds.includes(branch._id)) {
@@ -319,7 +323,11 @@ const SelectBranchesBadgesView = () => {
             }
           }}
           onClose={() =>
-            onSelect?.(selectedBranches.find((p) => p._id === bId) as IBranch)
+            onSelect?.(
+              (selectedBranches.find((p) => p._id === bId) ?? {
+                _id: bId,
+              }) as IBranch,
+            )
           }
         />
       ))}

@@ -3,12 +3,14 @@ import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { IProject } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const ProjectsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IProject, unknown>;
 }) => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
   const { _id } = cell.row.original;
 
@@ -25,7 +27,7 @@ export const ProjectsMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
           </Command.List>
         </Command>

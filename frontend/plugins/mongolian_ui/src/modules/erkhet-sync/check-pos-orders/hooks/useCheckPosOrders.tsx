@@ -5,6 +5,7 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { checkPosOrdersQuery } from '../graphql/queries/checkPosOrdersQuery';
 import {
   CheckPosOrderStatus,
@@ -131,6 +132,7 @@ export const useCheckPosOrdersVariables = (
 };
 
 export const useCheckPosOrders = (options?: QueryHookOptions) => {
+  const { t } = useTranslation('mongolian');
   const setCheckPosOrdersTotalCount = useSetAtom(checkPosOrdersTotalCountAtom);
   const setCheckPosOrdersStatusCounts = useSetAtom(
     checkPosOrdersStatusCountsAtom,
@@ -211,8 +213,8 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
-          title: 'Warning',
-          description: 'No orders to check',
+          title: t('warning'),
+          description: t('no-orders-to-check'),
           variant: 'destructive',
         });
       }
@@ -223,7 +225,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
       variables: { ids, contentType: 'pos:order' },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -272,8 +274,8 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     });
     if (!checkOptions?.silent) {
       toast({
-        title: 'Success',
-        description: `${checked.length} orders checked`,
+        title: t('success'),
+        description: t('orders-checked', { count: checked.length }),
       });
     }
   };
@@ -285,8 +287,8 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
 
     if (!syncableIds.length) {
       toast({
-        title: 'Warning',
-        description: 'No checked orders to sync',
+        title: t('warning'),
+        description: t('no-checked-orders-to-sync'),
         variant: 'destructive',
       });
       return;
@@ -326,7 +328,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
         variables: { orderIds: batchIds },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -427,8 +429,13 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     const syncedCount = summary.success - summary.resynced;
 
     toast({
-      title: 'Sync complete',
-      description: `${syncedCount} synced, ${summary.resynced} resynced, ${summary.error} failed, ${summary.skipped} skipped`,
+      title: t('sync-complete'),
+      description: t('synced-summary', {
+        synced: syncedCount,
+        resynced: summary.resynced,
+        error: summary.error,
+        skipped: summary.skipped,
+      }),
     });
   };
 

@@ -94,6 +94,10 @@ export const facebookConstants = {
       label: 'Send Facebook Message',
       description: 'Send Facebook Message',
       isAvailableOptionalConnect: true,
+      allowedMultiTriggerTypes: [
+        'frontline:facebook.messages',
+        'frontline:facebook.comments',
+      ],
       output: facebookMessageActionOutput,
     },
     {
