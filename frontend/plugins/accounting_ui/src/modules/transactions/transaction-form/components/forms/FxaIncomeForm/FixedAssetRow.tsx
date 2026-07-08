@@ -1,4 +1,3 @@
-import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
   Checkbox,
   CurrencyField,
@@ -9,12 +8,10 @@ import {
   RecordTableInlineCell,
   Table,
 } from 'erxes-ui';
-import { useQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
-import { Select } from 'erxes-ui';
-import { FIXED_ASSETS_QUERY } from '../../../graphql/queries/fixedAssets';
+import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
 import { taxPercentsState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
@@ -22,41 +19,6 @@ import {
   TFxaIncomeJournal,
 } from '../../../types/JournalForms';
 import { FxaIncomeDetailInstancesSheet } from './FxaIncomeInstancesSheet';
-
-type TFixedAssetOption = {
-  _id: string;
-  code?: string;
-  name?: string;
-};
-
-const SelectFixedAsset = ({
-  value,
-  onValueChange,
-}: {
-  value?: string;
-  onValueChange: (value: string) => void;
-}) => {
-  const { data } = useQuery<{ fixedAssets?: TFixedAssetOption[] }>(
-    FIXED_ASSETS_QUERY,
-    { variables: { limit: 50 } },
-  );
-  const fixedAssets = data?.fixedAssets || [];
-
-  return (
-    <Select value={value || ''} onValueChange={onValueChange}>
-      <Select.Trigger className="h-8 min-w-60">
-        <Select.Value placeholder="Үндсэн хөрөнгө" />
-      </Select.Trigger>
-      <Select.Content>
-        {fixedAssets.map((fixedAsset) => (
-          <Select.Item key={fixedAsset._id} value={fixedAsset._id}>
-            {[fixedAsset.code, fixedAsset.name].filter(Boolean).join(' - ')}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
-  );
-};
 
 export const FixedAssetRow = ({
   form,
@@ -113,7 +75,6 @@ export const FixedAssetRow = ({
     }
 
     setTaxAmounts(calcTaxAmounts(detail.count, detail.unitPrice));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     detail._id,
     detail.count,
@@ -237,9 +198,12 @@ export const FixedAssetRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetId`}
             render={({ field }) => (
-              <SelectFixedAsset
+              <SelectFixedAsset.FormItem
+                mode="single"
                 value={field.value || ''}
                 onValueChange={field.onChange}
+                placeholder="Үндсэн хөрөнгө"
+                className="h-8 min-w-60"
               />
             )}
           />

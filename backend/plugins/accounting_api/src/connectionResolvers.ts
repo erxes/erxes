@@ -197,12 +197,12 @@ export const loadClasses = (
   models.AdjustFixedAssets = db.model<
     IAdjustFixedAssetDocument,
     IAdjustFixedAssetModel
-  >('adjust_fixed_assets', loadAdjustFixedAssetClass());
+  >('adjust_fixed_assets', loadAdjustFixedAssetClass(models));
 
   models.AdjustFxaDetails = db.model<
     IAdjustFxaDetailDocument,
     IAdjustFxaDetailModel
-  >('adjust_fxa_details', loadAdjustFxaDetailClass());
+  >('adjust_fxa_details', loadAdjustFxaDetailClass(models));
 
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'accounting_permissions',

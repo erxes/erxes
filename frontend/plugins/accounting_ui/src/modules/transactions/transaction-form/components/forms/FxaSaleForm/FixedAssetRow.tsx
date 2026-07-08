@@ -1,56 +1,19 @@
-import { useQuery } from '@apollo/client';
+import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
 import {
   Checkbox,
   Form,
   InputNumber,
   RecordTableHotKeyControl,
   RecordTableInlineCell,
-  Select,
   Table,
 } from 'erxes-ui';
 import { type Path, useWatch } from 'react-hook-form';
-import { FIXED_ASSETS_QUERY } from '../../../graphql/queries/fixedAssets';
 import {
   ITransactionGroupForm,
   TAddTransactionGroup,
   TFxaDetail,
 } from '../../../types/JournalForms';
 import { FxaInstanceSelectionSheet } from '../../helpers/FxaInstanceSelectionSheet';
-
-type TFixedAssetOption = {
-  _id: string;
-  code?: string;
-  name?: string;
-};
-
-const SelectFixedAsset = ({
-  value,
-  onValueChange,
-}: {
-  value?: string;
-  onValueChange: (value: string) => void;
-}) => {
-  const { data } = useQuery<{ fixedAssets?: TFixedAssetOption[] }>(
-    FIXED_ASSETS_QUERY,
-    { variables: { limit: 50 } },
-  );
-  const fixedAssets = data?.fixedAssets || [];
-
-  return (
-    <Select value={value || ''} onValueChange={onValueChange}>
-      <Select.Trigger className="h-8 min-w-60">
-        <Select.Value placeholder="Үндсэн хөрөнгө" />
-      </Select.Trigger>
-      <Select.Content>
-        {fixedAssets.map((fixedAsset) => (
-          <Select.Item key={fixedAsset._id} value={fixedAsset._id}>
-            {[fixedAsset.code, fixedAsset.name].filter(Boolean).join(' - ')}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
-  );
-};
 
 export const FixedAssetRow = ({
   form,
@@ -118,9 +81,12 @@ export const FixedAssetRow = ({
             control={form.control}
             name={fieldName('fixedAssetId')}
             render={({ field }) => (
-              <SelectFixedAsset
+              <SelectFixedAsset.FormItem
+                mode="single"
                 value={field.value || ''}
                 onValueChange={field.onChange}
+                placeholder="Үндсэн хөрөнгө"
+                className="h-8 min-w-60"
               />
             )}
           />

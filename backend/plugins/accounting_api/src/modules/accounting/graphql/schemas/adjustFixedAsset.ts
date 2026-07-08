@@ -53,12 +53,60 @@ export const types = `
     transactionDetailId: String
     error: String
     warning: String
+    account: Account
+    fixedAsset: FixedAsset
 
     createdAt: Date
     updatedAt: Date
   }
 `;
 
-export const queries = '';
+const adjustFixedAssetsQueryParams = `
+  startDate: Date
+  endDate: Date
+  description: String
+  status: String
+  error: String
+  warning: String
+  startBeginDate: Date
+  endBeginDate: Date
+  startSuccessDate: Date
+  endSuccessDate: Date
+  startCheckedAt: Date
+  endCheckedAt: Date
+`;
 
-export const mutations = '';
+const adjustFixedAssetParams = `
+  date: Date
+  description: String
+  beginDate: Date
+  successDate: Date
+  checkedAt: Date
+`;
+
+export const queries = `
+  adjustFixedAssets(
+    ${adjustFixedAssetsQueryParams}
+    page: Int
+    perPage: Int
+    sortField: String
+    sortDirection: Int
+  ): [AdjustFixedAsset]
+  adjustFixedAssetsCount(${adjustFixedAssetsQueryParams}): Int
+  adjustFixedAssetDetail(_id: String!): AdjustFixedAsset
+  adjustFxaDetails(
+    _id: String!
+    page: Int
+    perPage: Int
+    sortField: String
+    sortDirection: Int
+  ): [AdjustFxaDetail]
+  adjustFxaDetailsCount(_id: String!): Int
+`;
+
+export const mutations = `
+  adjustFixedAssetAdd(${adjustFixedAssetParams}): AdjustFixedAsset
+  adjustFixedAssetRemove(adjustId: String!): String
+  adjustFixedAssetRun(adjustId: String!): AdjustFixedAsset
+  adjustFixedAssetTransaction(adjustId: String!, expenseAccountId: String!): AdjustFixedAsset
+`;

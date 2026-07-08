@@ -3,10 +3,9 @@ import { IconChecklist } from '@tabler/icons-react';
 import { Button, Checkbox, Sheet, Table } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
-import {
-  FIXED_ASSETS_QUERY,
-  FXA_INSTANCES_QUERY,
-} from '../../graphql/queries/fixedAssets';
+import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
+import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
+import { FXA_INSTANCES_QUERY } from '../../graphql/queries/fixedAssets';
 import { ITransactionGroupForm, TFxaDetail } from '../../types/JournalForms';
 import { MembersInline, SelectBranches, SelectDepartments } from 'ui-modules';
 
@@ -18,12 +17,6 @@ type IFxaInstance = {
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
-};
-
-type TFixedAsset = {
-  _id: string;
-  code?: string;
-  name?: string;
 };
 
 const getCodeSequence = (code: string, assetCode: string) => {
@@ -77,18 +70,12 @@ export const FxaInstanceSelectionSheet = ({
     },
   );
   const instances = data?.fxaInstances || [];
-  const { data: fixedAssetsData } = useQuery<{ fixedAssets: TFixedAsset[] }>(
-    FIXED_ASSETS_QUERY,
-    {
+  const { fixedAssets } = useFixedAssets({
       variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
       skip: !fixedAssetIds.length,
-    },
-  );
+  });
   const fixedAssetsById = new Map(
-    (fixedAssetsData?.fixedAssets || []).map((fixedAsset) => [
-      fixedAsset._id,
-      fixedAsset,
-    ]),
+    (fixedAssets || []).map((fixedAsset) => [fixedAsset._id, fixedAsset]),
   );
 
   useEffect(() => {
@@ -128,14 +115,6 @@ export const FxaInstanceSelectionSheet = ({
   const visibleExpectedCount = selectedFixedAssetId
     ? expectedByAsset[selectedFixedAssetId] || 0
     : expectedCount;
-  const getFixedAssetLabel = (fixedAssetId: string) => {
-    const fixedAsset = fixedAssetsById.get(fixedAssetId);
-
-    return (
-      [fixedAsset?.code, fixedAsset?.name].filter(Boolean).join(' - ') ||
-      fixedAssetId
-    );
-  };
   const getDisplaySequence = (instance: IFxaInstance) => {
     const fixedAssetCode = fixedAssetsById.get(instance.fixedAssetId)?.code;
 
@@ -222,6 +201,7 @@ export const FxaInstanceSelectionSheet = ({
                 const selectedCount =
                   selectedByAsset[instance.fixedAssetId] || 0;
                 const limit = expectedByAsset[instance.fixedAssetId] || 0;
+                const fixedAsset = fixedAssetsById.get(instance.fixedAssetId);
 
                 return (
                   <Table.Row key={instance._id}>
@@ -239,7 +219,14 @@ export const FxaInstanceSelectionSheet = ({
                     </Table.Cell>
                     <Table.Cell>{instance.code}</Table.Cell>
                     <Table.Cell>
-                      {getFixedAssetLabel(instance.fixedAssetId)}
+                      <SelectFixedAsset.Provider
+                        mode="single"
+                        value={instance.fixedAssetId}
+                        fixedAssets={fixedAsset ? [fixedAsset] : []}
+                        placeholder="-"
+                      >
+                        <SelectFixedAsset.Value placeholder="-" />
+                      </SelectFixedAsset.Provider>
                     </Table.Cell>
                     <Table.Cell>
                       {instance.branchId ? (

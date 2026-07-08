@@ -48,8 +48,13 @@ export const GET_FIXED_ASSET_CATEGORY_DETAIL = gql`
 `;
 
 export const GET_FIXED_ASSETS = gql`
-  query fixedAssets($searchValue: String, $categoryId: String) {
-    fixedAssets(searchValue: $searchValue, categoryId: $categoryId, limit: 200) {
+  query fixedAssets($searchValue: String, $ids: [String], $categoryId: String) {
+    fixedAssets(
+      searchValue: $searchValue
+      ids: $ids
+      categoryId: $categoryId
+      limit: 200
+    ) {
       ${fixedAssetFields}
     }
   }
