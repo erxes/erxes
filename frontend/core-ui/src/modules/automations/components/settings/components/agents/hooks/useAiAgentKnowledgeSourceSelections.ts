@@ -71,9 +71,7 @@ export const useAiAgentKnowledgeSourceSelections = () => {
     }
 
     updateSelections(
-      knowledgeSources.filter(
-        (selection) => !isSameSource(selection, source),
-      ),
+      knowledgeSources.filter((selection) => !isSameSource(selection, source)),
     );
   };
 

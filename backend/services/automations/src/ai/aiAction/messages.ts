@@ -60,7 +60,12 @@ const getGenerateTextCaptureFields = (actionConfig: TAiAgentActionConfig) =>
     : [];
 
 const buildCaptureFieldsSpec = (
-  captureFields: { fieldName: string; dataType: string; validation: string; prompt: string }[],
+  captureFields: {
+    fieldName: string;
+    dataType: string;
+    validation: string;
+    prompt: string;
+  }[],
 ) =>
   captureFields
     .map(

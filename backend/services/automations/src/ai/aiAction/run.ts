@@ -96,19 +96,17 @@ const invokeAiProviderWithRealtimeFallback = async ({
 
   const providerPromise = invokeAiProvider(agent, messages, subdomain, {
     responseFormat,
-  }).catch(
-    (error) => {
-      if (isAiProviderTimeoutError(error)) {
-        const fallbackResponse = createAiProviderFallbackResponse(actionConfig);
+  }).catch((error) => {
+    if (isAiProviderTimeoutError(error)) {
+      const fallbackResponse = createAiProviderFallbackResponse(actionConfig);
 
-        if (fallbackResponse) {
-          return fallbackResponse;
-        }
+      if (fallbackResponse) {
+        return fallbackResponse;
       }
+    }
 
-      throw error;
-    },
-  );
+    throw error;
+  });
   const timeoutMs = agent.runtime.timeoutMs || 15000;
   let timeoutId: NodeJS.Timeout | undefined;
 
