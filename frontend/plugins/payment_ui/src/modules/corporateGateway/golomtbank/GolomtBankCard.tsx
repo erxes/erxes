@@ -12,9 +12,16 @@ import queries from './graphql/queries';
 
 const GOLOMT_PAYMENT = PAYMENT_KINDS[PaymentKind.GOLOMT];
 
+type GolomtBankConfig = {
+  _id: string;
+  name: string;
+  organizationName: string;
+  clientId: string;
+};
+
 type ConfigsListQueryResponse = {
   golomtBankConfigsList: {
-    list: any[];
+    list: GolomtBankConfig[];
     totalCount: number;
   };
 };
@@ -24,12 +31,15 @@ const GolomtBankCard = () => {
 
   const logoUrl = `${REACT_APP_API_URL}/pl:payment/static/images/payments/golomt.png`;
 
-  const { data } = useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
-    variables: {
-      limit: 1,
+  const { data, loading, error } = useQuery<ConfigsListQueryResponse>(
+    gql(queries.listQuery),
+    {
+      variables: {
+        limit: 1,
+      },
+      fetchPolicy: 'network-only',
     },
-    fetchPolicy: 'network-only',
-  });
+  );
 
   const configs = data?.golomtBankConfigsList?.list ?? [];
   const hasConfig = configs.length > 0;
@@ -52,13 +62,25 @@ const GolomtBankCard = () => {
             </div>
           </div>
 
-          <Button variant="link" size="sm" onClick={() => setOpen(true)}>
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() => setOpen(true)}
+          >
             {hasConfig ? 'Manage' : '+ Add'}
           </Button>
         </div>
 
         <div className="space-y-3">
-          {hasConfig ? (
+          {loading ? (
+            <p className="text-sm text-muted-foreground">
+              Loading configuration...
+            </p>
+          ) : error ? (
+            <p className="text-sm text-destructive">
+              Failed to load configuration.
+            </p>
+          ) : hasConfig ? (
             <>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-green-500" />
@@ -69,10 +91,14 @@ const GolomtBankCard = () => {
                 <span className="text-muted-foreground">Name</span>
                 <span>{config.name}</span>
 
-                <span className="text-muted-foreground">Organization</span>
+                <span className="text-muted-foreground">
+                  Organization
+                </span>
                 <span>{config.organizationName}</span>
 
-                <span className="text-muted-foreground">Client ID</span>
+                <span className="text-muted-foreground">
+                  Client ID
+                </span>
                 <span>{config.clientId}</span>
               </div>
             </>
@@ -80,7 +106,9 @@ const GolomtBankCard = () => {
             <>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-gray-400" />
-                <span className="text-sm font-medium">Not connected</span>
+                <span className="text-sm font-medium">
+                  Not connected
+                </span>
               </div>
 
               <p className="text-sm text-muted-foreground">
