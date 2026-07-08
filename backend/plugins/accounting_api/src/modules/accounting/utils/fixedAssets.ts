@@ -180,10 +180,10 @@ export const removeFxaDisposalInstances = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const logs = await models.FxaInstanceLogs.findByTransaction(
-    transaction._id,
-    [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE],
-  );
+  const logs = await models.FxaInstanceLogs.findByTransaction(transaction._id, [
+    FXA_LOG_EVENT_TYPES.DISPOSAL,
+    FXA_LOG_EVENT_TYPES.SALE,
+  ]);
 
   if (!logs.length) {
     return;

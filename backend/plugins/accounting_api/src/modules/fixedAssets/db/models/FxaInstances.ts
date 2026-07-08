@@ -49,7 +49,9 @@ export interface IFxaInstanceModel extends Model<IFxaInstanceDocument> {
     activeStatus: string,
   ): Promise<IFxaInstanceDocument[]>;
   findByIds(instanceIds: string[]): Promise<IFxaInstanceDocument[]>;
-  listByFilter(filter: Record<string, unknown>): Promise<IFxaInstanceDocument[]>;
+  listByFilter(
+    filter: Record<string, unknown>,
+  ): Promise<IFxaInstanceDocument[]>;
   findAdjustable(params: {
     status: string;
     endDate: Date;
@@ -123,7 +125,9 @@ export const loadFxaInstanceClass = () => {
       const usedSequences = new Map<string, Set<number>>();
 
       for (const fixedAsset of fixedAssets) {
-        const selector: Record<string, unknown> = { fixedAssetId: fixedAsset._id };
+        const selector: Record<string, unknown> = {
+          fixedAssetId: fixedAsset._id,
+        };
 
         if (excludeTransactionId) {
           selector.acquisitionTransactionId = { $ne: excludeTransactionId };
@@ -312,7 +316,10 @@ export const loadFxaInstanceClass = () => {
       instanceId: string,
       fields: TFxaOptionalLocationUpdate,
     ) {
-      await this.updateOne({ _id: instanceId }, buildOptionalFieldUpdate(fields));
+      await this.updateOne(
+        { _id: instanceId },
+        buildOptionalFieldUpdate(fields),
+      );
     }
 
     public static async applyDisposal(
