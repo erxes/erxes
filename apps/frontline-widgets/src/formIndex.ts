@@ -1,8 +1,6 @@
-// css
 import styles from './formstyle.css';
 import { getLocalStorageItem } from './lib/utils';
 
-// Inject styles into the page
 const styleElement = document.createElement('style');
 styleElement.textContent = styles;
 document.head.appendChild(styleElement);
@@ -23,12 +21,6 @@ export const generateIntegrationUrl = (): string => {
   return '';
 };
 
-// Capture the integration URL synchronously at module load time while
-// document.currentScript is still available. After this point (e.g. inside
-// DOMContentLoaded callbacks) document.currentScript is always null, so
-// calling generateIntegrationUrl() there would fall back to the last <script>
-// in the DOM — which is often the inline install script whose .src is '',
-// causing iframe.src to be set to '' and the iframe to reload the host page.
 const INTEGRATION_URL = generateIntegrationUrl();
 
 export const setErxesProperty = (name: string, value: any) => {
@@ -106,7 +98,6 @@ export const listenForCommonRequests = async (event: any, iframe: any) => {
 
 declare const window: any;
 
-// add meta to head
 const meta = document.createElement('meta');
 meta.name = 'viewport';
 meta.content = 'initial-scale=1, width=device-width';
@@ -120,11 +111,9 @@ type Settings = {
   onAction?: () => void;
 };
 
-// create iframe helper
 const createIframe = (settings: Settings) => {
   const formId = settings.form_id;
 
-  // container
   const containerId = `erxes-container-${formId}`;
   const iframeId = `erxes-iframe-${formId}`;
   let container = document.getElementById(containerId);
@@ -134,7 +123,6 @@ const createIframe = (settings: Settings) => {
     container.id = containerId;
   }
 
-  // add iframe
   let iframe: any = document.getElementById(iframeId);
 
   if (!iframe) {
@@ -154,21 +142,16 @@ const createIframe = (settings: Settings) => {
 
   container.appendChild(iframe);
 
-  // if there is an placeholder for embed then add new iframe to it
   const embedContainer = document.querySelector(
     `[data-erxes-embed="${formId}"]`,
   );
 
   if (embedContainer) {
     embedContainer.appendChild(container);
-
-    // otherwise add to body
   } else {
     document.body.appendChild(container);
   }
 
-  // send erxes settings to iframe
-  // after iframe load send connection info
   iframe.onload = () => {
     iframe.style.display = 'inherit';
 
@@ -187,7 +170,6 @@ const createIframe = (settings: Settings) => {
 
     const modifiedSettings = { ...settings };
 
-    // remove unpassable data
     if (modifiedSettings.onAction) {
       delete modifiedSettings.onAction;
     }
@@ -249,8 +231,9 @@ setErxesProperty('sendExtraFormContent', (id: string, html: string) => {
 
 const formSettings = window.erxesSettings.forms || [];
 
-// create iframes and save with index
 const iframesMapping: any = {};
+
+const popupHandlersAttached: Record<string, boolean> = {};
 
 const getMappingKey = (settings: Settings) =>
   JSON.stringify({
@@ -264,10 +247,6 @@ const getSettings = (settings: Settings) =>
       s.channel_id === settings.channel_id && s.form_id === settings.form_id,
   );
 
-// Returns true if this form setting has a popup/modal trigger in the DOM.
-// Popup forms should always be initialised eagerly (iframe lives on body, hidden).
-// Embed forms should only be initialised once their placeholder element exists,
-// because moving an iframe node in the DOM forces a reload.
 const isPopupForm = (settings: Settings): boolean =>
   document.querySelectorAll(`[data-erxes-modal="${settings.form_id}"]`).length >
   0;
@@ -285,28 +264,24 @@ const initForms = () => {
       `[data-erxes-embed="${settings.form_id}"]`,
     );
 
-    // Initialise immediately if:
-    //   a) the embed placeholder is already in the DOM, or
-    //   b) this is a popup/modal form (no embed placeholder expected)
-    // Otherwise defer to the MutationObserver so the iframe is created directly
-    // inside the embed target and never needs to be moved (which would reload it).
     if (embedContainer || isPopupForm(settings)) {
       initForm(settings);
     }
   });
 };
 
-// Watch for embed containers added after initial load (e.g. React/SPA rendering)
 const observeEmbedContainers = () => {
   const observer = new MutationObserver(() => {
     formSettings.forEach((settings: Settings) => {
+      if (iframesMapping[getMappingKey(settings)]) {
+        return;
+      }
+
       const embedContainer = document.querySelector(
         `[data-erxes-embed="${settings.form_id}"]`,
       );
-      if (embedContainer) {
-        // Embed placeholder just appeared — create the iframe directly inside it.
-        // We intentionally skip this in initForms when the placeholder is absent
-        // so that we never have to move an already-loaded iframe (which reloads it).
+
+      if (embedContainer || isPopupForm(settings)) {
         initForm(settings);
       }
     });
@@ -356,27 +331,27 @@ window.addEventListener('message', async (event: MessageEvent) => {
     const loadType =
       data.connectionInfo.widgetsLeadConnect.form.leadData.loadType;
 
-    // track popup handlers
-    if (loadType === 'popup') {
-      const selector = `[data-erxes-modal="${settings.form_id}"]`;
-      const elements = document.querySelectorAll(selector);
+    if (loadType === 'popup' && !popupHandlersAttached[settings.form_id]) {
+      popupHandlersAttached[settings.form_id] = true;
 
-      // Using for instead of for to get correct element
-      // tslint:disable-next-line
-      for (let i = 0; i < elements.length; i++) {
-        const elm = elements[i];
+      document.addEventListener('click', (e) => {
+        const trigger = (e.target as Element)?.closest?.(
+          `[data-erxes-modal="${settings.form_id}"]`,
+        );
 
-        elm.addEventListener('click', () => {
-          iframe?.contentWindow.postMessage(
-            {
-              fromPublisher: true,
-              action: 'showPopup',
-              formId: settings.form_id,
-            },
-            '*',
-          );
-        });
-      }
+        if (!trigger) {
+          return;
+        }
+
+        iframe?.contentWindow?.postMessage(
+          {
+            fromPublisher: true,
+            action: 'showPopup',
+            formId: settings.form_id,
+          },
+          '*',
+        );
+      });
     }
   }
 

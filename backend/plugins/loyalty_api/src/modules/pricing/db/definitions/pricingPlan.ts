@@ -4,6 +4,7 @@ import {
   APPLY_TYPES,
   DISCOUNT_TYPES,
   PRICE_ADJUST_TYPES,
+  PRIORITY_TYPES,
   STATUS_TYPES,
 } from './constants';
 import { expiryRuleSchema } from './expiryRule';
@@ -34,7 +35,11 @@ export const pricingPlanSchema = schemaWrapper(
       },
       priceAdjustFactor: { type: Number },
       bonusProduct: { type: String },
-      isPriority: { type: Boolean, default: false },
+      priority: {
+        type: String,
+        enum: PRIORITY_TYPES.ALL,
+        default: PRIORITY_TYPES.NONE,
+      },
 
       applyType: {
         type: String,
@@ -54,7 +59,6 @@ export const pricingPlanSchema = schemaWrapper(
 
       // Customer & broker targeting (dynamic conditions).
       // Empty fields mean "no constraint", so pre-existing plans behave unchanged.
-
       customerIds: { type: [String], default: [] },
       customerTags: { type: [String], default: [] },
       customerExcludeTags: { type: [String], default: [] },

@@ -6,7 +6,6 @@ import {
   searchAtom,
   toggleRemainderAtom,
 } from "@/store"
-import { similarityConfigAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -17,11 +16,27 @@ import { queries } from "../graphql"
 export const useProducts = (props?: {
   skip?: boolean
   perPage?: number
+  sortField?: string
+  sortDirection?: number
+  minDiscountValue?: number
+  maxDiscountValue?: number
+  minDiscountPercent?: number
+  maxDiscountPercent?: number
+  discountConditions?: Record<string, unknown>
   onCompleted?: (product: IProduct[]) => void
 }): IUseProducts => {
-  const { skip, perPage, onCompleted } = props || {}
-  const groupedSimilarity = useAtomValue(similarityConfigAtom)
-
+  const {
+    skip,
+    perPage,
+    sortField,
+    sortDirection,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+    onCompleted,
+  } = props || {}
   const [search] = useAtom(searchAtom)
   const [searchValue, setSearchValue] = useState(search)
   const categoryId = useAtomValue(activeCategoryAtom)
@@ -29,17 +44,29 @@ export const useProducts = (props?: {
   const setProductCount = useSetAtom(productCountAtom)
   const mode = useAtomValue(modeAtom)
 
-  const isCafe = mode === "coffee-shop"
   const isKiosk = mode === "kiosk"
+  // main-family layouts and coffee-shop collapse bulk-similarity groups to
+  // their starred product; searching stays ungrouped so exact variant codes
+  // remain findable
+  const isMainList = ["main", "restaurant", "mobile", "coffee-shop"].includes(
+    mode
+  )
 
   const { data, loading, fetchMore } = useQuery(queries.products, {
     variables: {
       perPage: perPage || FETCH_MORE_PER_PAGE,
       categoryId: categoryId,
       minRemainder: toggleRemainder ? 0.005 : undefined,
+      minDiscountValue,
+      maxDiscountValue,
+      minDiscountPercent,
+      maxDiscountPercent,
+      discountConditions,
+      sortField,
+      sortDirection,
       searchValue: searchValue,
       page: 1,
-      groupedSimilarity: isCafe ? groupedSimilarity : undefined,
+      isSimilarity: isMainList && !searchValue ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     skip,
@@ -52,8 +79,13 @@ export const useProducts = (props?: {
     variables: {
       categoryId,
       minRemainder: toggleRemainder ? 0.005 : undefined,
+      minDiscountValue,
+      maxDiscountValue,
+      minDiscountPercent,
+      maxDiscountPercent,
+      discountConditions,
       searchValue,
-      groupedSimilarity: isCafe ? groupedSimilarity : null,
+      isSimilarity: isMainList && !searchValue ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     onCompleted(data) {

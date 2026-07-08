@@ -65,24 +65,33 @@ export const Conversations = () => {
     }
   }, [refetchNewMessages]);
 
-  const { channelId, integrationType, unassigned, status, created, brandId } =
-    useNonNullMultiQueryState<{
-      channelId: string;
-      integrationType: string;
-      unassigned: string;
-      status: string;
-      conversationId: string;
-      created: string;
-      brandId: string;
-    }>([
-      'channelId',
-      'integrationType',
-      'unassigned',
-      'status',
-      'conversationId',
-      'created',
-      'brandId',
-    ]);
+  const {
+    channelId,
+    integrationType,
+    unassigned,
+    status,
+    created,
+    brandId,
+    searchValue,
+  } = useNonNullMultiQueryState<{
+    channelId: string;
+    integrationType: string;
+    unassigned: string;
+    status: string;
+    conversationId: string;
+    created: string;
+    brandId: string;
+    searchValue: string;
+  }>([
+    'channelId',
+    'integrationType',
+    'unassigned',
+    'status',
+    'conversationId',
+    'created',
+    'brandId',
+    'searchValue',
+  ]);
 
   const parsedDate = parseDateRangeFromString(created || '');
 
@@ -97,6 +106,7 @@ export const Conversations = () => {
         startDate: parsedDate?.from,
         endDate: parsedDate?.to,
         brandId,
+        searchValue,
         cursorMode: EnumCursorMode.INCLUSIVE,
       },
     });

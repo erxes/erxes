@@ -15,6 +15,7 @@ import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
+import { usePipelineChanged } from '@/deals/boards/hooks/usePipelineChanged';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
 import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 import { useQueryState } from 'erxes-ui';
@@ -34,6 +35,7 @@ export const DealsBoard = () => {
   const { columns, columnsLoading } = useDealsBoardData();
   const [pipelineId] = useQueryState<string>('pipelineId');
   const { changeDeals } = useDealsChange();
+  usePipelineChanged(pipelineId || undefined);
   const { updateStagesOrder } = useStagesOrder();
   const [searchParams] = useSearchParams();
   const [fetchMoreTriggers, setFetchMoreTriggers] = useState<
@@ -216,13 +218,19 @@ export const DealsBoard = () => {
         const aboveItemId =
           newIndex > 0 ? newColumnItems[newIndex - 1] : undefined;
 
+        const processId = Math.random().toString();
+        localStorage.setItem('processId', processId);
+
         changeDeals({
           variables: {
             itemId: draggedItemId,
             destinationStageId: newItem.columnId,
             sourceStageId: oldItem.columnId,
             aboveItemId,
+            processId,
           },
+        }).finally(() => {
+          delete locallyMovedIdsRef.current[draggedItemId];
         });
       }
     },

@@ -45,6 +45,7 @@ export type BeforeResolverHandler = (
 export interface BeforeResolversConfig {
   resolvers: Record<string, string[]>;
   handler: BeforeResolverHandler;
+  check?: BeforeResolverHandler;
   blocker?: BeforeResolverHandler;
 }
 
@@ -75,7 +76,7 @@ export const startBeforeResolvers = async (
   pluginName: string,
   config: BeforeResolversConfig,
 ) => {
-  const { resolvers, handler, blocker } = config || {};
+  const { resolvers, handler, check, blocker } = config || {};
 
   if (!handler || !resolvers) {
     return;
@@ -92,12 +93,18 @@ export const startBeforeResolvers = async (
         return await handler(input.subdomain, input.data);
       }),
     check: t.procedure.input(beforeResolverInput).query(async ({ input }) => {
-      return await handler(input.subdomain, input.data);
+      if (check) {
+        return await check(input.subdomain, input.data);
+      }
+
+      return { status: 'ok' };
     }),
     blocker: t.procedure.input(beforeResolverInput).query(async ({ input }) => {
-      return blocker
-        ? await blocker(input.subdomain, input.data)
-        : { status: 'ok' };
+      if (blocker) {
+        return await blocker(input.subdomain, input.data);
+      }
+
+      return { status: 'ok' };
     }),
   });
 
