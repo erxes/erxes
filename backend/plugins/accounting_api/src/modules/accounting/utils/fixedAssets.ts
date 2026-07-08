@@ -268,7 +268,9 @@ export const removeFxaDisposalInstances = async (
 ) => {
   const logs = await models.FxaInstanceLogs.find({
     transactionId: transaction._id,
-    eventType: { $in: [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE] },
+    eventType: {
+      $in: [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE],
+    },
   }).lean();
 
   if (!logs.length) {
