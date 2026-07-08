@@ -26,10 +26,12 @@ type ConfigsListQueryResponse = {
 const KhanBankCard = () => {
   const [open, setOpen] = useState(false);
 
-  const { data, loading, error } =
-    useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
+  const { data, loading, error } = useQuery<ConfigsListQueryResponse>(
+    gql(queries.listQuery),
+    {
       fetchPolicy: 'network-only',
-    });
+    },
+  );
 
   const configs = data?.khanbankConfigsList?.list ?? [];
   const config = configs[0];
@@ -54,9 +56,7 @@ const KhanBankCard = () => {
           <span>{config?.consumerKey}</span>
         </div>
       }
-      form={
-        <ConfigFormContainer closeModal={() => setOpen(false)} />
-      }
+      form={<ConfigFormContainer closeModal={() => setOpen(false)} />}
     />
   );
 };
