@@ -75,68 +75,6 @@ const parseJsonObject = (value: string) => {
   }
 };
 
-export const parseAiActionResult = ({
-  actionConfig,
-  text,
-  usage,
-}: {
-  actionConfig: TAiAgentActionConfig;
-  text: string;
-  usage?: TAiActionExecutionResult['usage'];
-}): TAiActionExecutionResult => {
-  if (actionConfig.goalType === 'generateText') {
-    const captureFields = actionConfig.captureFields || [];
-
-    if (!captureFields.length) {
-      return {
-        type: 'generateText',
-        text: text.trim(),
-        usage,
-      };
-    }
-
-    return parseGenerateTextWithCapture({
-      text,
-      captureFields,
-      fallbackText: actionConfig.fallbackText,
-      usage,
-    });
-  }
-
-  if (actionConfig.goalType === 'splitTopic') {
-    const cleaned = stripWrappingQuotes(stripCodeFence(text)).trim();
-    const matchedTopic = actionConfig.topics.find(({ id }) => id === cleaned);
-
-    return {
-      type: 'splitTopic',
-      topicId: matchedTopic?.id || null,
-      matched: !!matchedTopic,
-      usage,
-    };
-  }
-
-  const parsed = parseJsonObject(text);
-
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error('AI classification response must be a JSON object.');
-  }
-
-  const attributes = Object.fromEntries(
-    actionConfig.objectFields.map(({ fieldName }) => [
-      fieldName,
-      normalizeAiAttributeValue(
-        (parsed as Record<string, unknown>)[fieldName] ?? null,
-      ),
-    ]),
-  );
-
-  return {
-    type: 'classification',
-    attributes,
-    usage,
-  };
-};
-
 // Models sometimes answer "not found" as a literal string instead of JSON null.
 const PSEUDO_NULL_VALUES = new Set([
   'null',
@@ -251,6 +189,68 @@ const parseGenerateTextWithCapture = ({
     type: 'generateText',
     text: text.trim(),
     attributes: emptyAttributes,
+    usage,
+  };
+};
+
+export const parseAiActionResult = ({
+  actionConfig,
+  text,
+  usage,
+}: {
+  actionConfig: TAiAgentActionConfig;
+  text: string;
+  usage?: TAiActionExecutionResult['usage'];
+}): TAiActionExecutionResult => {
+  if (actionConfig.goalType === 'generateText') {
+    const captureFields = actionConfig.captureFields || [];
+
+    if (!captureFields.length) {
+      return {
+        type: 'generateText',
+        text: text.trim(),
+        usage,
+      };
+    }
+
+    return parseGenerateTextWithCapture({
+      text,
+      captureFields,
+      fallbackText: actionConfig.fallbackText,
+      usage,
+    });
+  }
+
+  if (actionConfig.goalType === 'splitTopic') {
+    const cleaned = stripWrappingQuotes(stripCodeFence(text)).trim();
+    const matchedTopic = actionConfig.topics.find(({ id }) => id === cleaned);
+
+    return {
+      type: 'splitTopic',
+      topicId: matchedTopic?.id || null,
+      matched: !!matchedTopic,
+      usage,
+    };
+  }
+
+  const parsed = parseJsonObject(text);
+
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('AI classification response must be a JSON object.');
+  }
+
+  const attributes = Object.fromEntries(
+    actionConfig.objectFields.map(({ fieldName }) => [
+      fieldName,
+      normalizeAiAttributeValue(
+        (parsed as Record<string, unknown>)[fieldName] ?? null,
+      ),
+    ]),
+  );
+
+  return {
+    type: 'classification',
+    attributes,
     usage,
   };
 };

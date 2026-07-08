@@ -27,6 +27,52 @@ import {
   SetPropertiesInput,
 } from './zodTypes';
 
+const generateRuntimeResolveOutputPaths = (
+  pluginName: string,
+  config: AutomationConfigs,
+) => {
+  const { resolveOutputPaths, constants } = config || {};
+
+  if (resolveOutputPaths) {
+    return resolveOutputPaths;
+  }
+
+  const runtimeOutputs = buildRuntimeOutputsIndex(pluginName, constants);
+  const runtimeOutputKeys = Object.keys(runtimeOutputs);
+
+  if (!runtimeOutputKeys?.length) {
+    return null;
+  }
+  return async (
+    { subdomain, data }: z.infer<typeof ResolveOutputPathsInput>,
+    _context: IAutomationContext,
+  ) => {
+    if (!runtimeOutputs[data.nodeType]) {
+      return {};
+    }
+
+    const resolvedValues = await resolveOutputPathsByNodeType({
+      subdomain,
+      nodeType: data.nodeType,
+      source: data.source || {},
+      paths: data.paths || [],
+      defaultValue: data.defaultValue,
+      runtimeOutputs,
+    });
+
+    return Object.fromEntries(
+      (data.paths || []).map((path) => {
+        const resolvedValue = resolvedValues?.[path];
+
+        return [
+          path,
+          resolvedValue === undefined ? data.defaultValue : resolvedValue,
+        ];
+      }),
+    );
+  };
+};
+
 export const startAutomations = async (
   app: Express,
   pluginName: string,
@@ -146,50 +192,4 @@ export const startAutomations = async (
   });
 
   app.use('/automations', trpcMiddleware);
-};
-
-const generateRuntimeResolveOutputPaths = (
-  pluginName: string,
-  config: AutomationConfigs,
-) => {
-  const { resolveOutputPaths, constants } = config || {};
-
-  if (resolveOutputPaths) {
-    return resolveOutputPaths;
-  }
-
-  const runtimeOutputs = buildRuntimeOutputsIndex(pluginName, constants);
-  const runtimeOutputKeys = Object.keys(runtimeOutputs);
-
-  if (!runtimeOutputKeys?.length) {
-    return null;
-  }
-  return async (
-    { subdomain, data }: z.infer<typeof ResolveOutputPathsInput>,
-    _context: IAutomationContext,
-  ) => {
-    if (!runtimeOutputs[data.nodeType]) {
-      return {};
-    }
-
-    const resolvedValues = await resolveOutputPathsByNodeType({
-      subdomain,
-      nodeType: data.nodeType,
-      source: data.source || {},
-      paths: data.paths || [],
-      defaultValue: data.defaultValue,
-      runtimeOutputs,
-    });
-
-    return Object.fromEntries(
-      (data.paths || []).map((path) => {
-        const resolvedValue = resolvedValues?.[path];
-
-        return [
-          path,
-          resolvedValue === undefined ? data.defaultValue : resolvedValue,
-        ];
-      }),
-    );
-  };
 };

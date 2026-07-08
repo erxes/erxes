@@ -14,8 +14,8 @@ const padDatePart = (value: number) => String(value).padStart(2, '0');
 
 /**
  * Resolved date placeholders arrive as raw ISO timestamps, which read like
- * database values in an email. Re-format them as "YYYY-MM-DD HH:mm" in the
- * server's local time.
+ * database values in an email. Re-format them as "YYYY-MM-DD" in the server's
+ * local time.
  */
 export const formatIsoDatesInText = (text: string) =>
   text.replace(ISO_DATE_TIME_REGEX, (match) => {
@@ -27,9 +27,7 @@ export const formatIsoDatesInText = (text: string) =>
 
     return `${date.getFullYear()}-${padDatePart(
       date.getMonth() + 1,
-    )}-${padDatePart(date.getDate())} ${padDatePart(
-      date.getHours(),
-    )}:${padDatePart(date.getMinutes())}`;
+    )}-${padDatePart(date.getDate())}`;
   });
 
 export const getEmailRecipientTypes = async () => {

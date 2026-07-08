@@ -112,7 +112,7 @@ const resolveProductsDataNames = async (subdomain: string, source: IDeal) => {
   return names.length ? names.join(', ') : undefined;
 };
 
-const resolveProductsDataPath = async (
+const resolveProductsDataPath = (
   subdomain: string,
   source: IDeal,
   path: string,
