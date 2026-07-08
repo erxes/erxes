@@ -24,15 +24,12 @@ const GolomtBankCard = () => {
 
   const logoUrl = `${REACT_APP_API_URL}/pl:payment/static/images/payments/golomt.png`;
 
-  const { data } = useQuery<ConfigsListQueryResponse>(
-    gql(queries.listQuery),
-    {
-      variables: {
-        limit: 1,
-      },
-      fetchPolicy: 'network-only',
+  const { data } = useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
+    variables: {
+      limit: 1,
     },
-  );
+    fetchPolicy: 'network-only',
+  });
 
   const configs = data?.golomtBankConfigsList?.list ?? [];
   const hasConfig = configs.length > 0;
@@ -51,17 +48,11 @@ const GolomtBankCard = () => {
 
             <div>
               <p className="font-semibold">{GOLOMT_PAYMENT.name}</p>
-              <p className="text-xs text-muted-foreground">
-                (Accepts MNT)
-              </p>
+              <p className="text-xs text-muted-foreground">(Accepts MNT)</p>
             </div>
           </div>
 
-          <Button
-            variant="link"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
+          <Button variant="link" size="sm" onClick={() => setOpen(true)}>
             {hasConfig ? 'Manage' : '+ Add'}
           </Button>
         </div>
@@ -78,14 +69,10 @@ const GolomtBankCard = () => {
                 <span className="text-muted-foreground">Name</span>
                 <span>{config.name}</span>
 
-                <span className="text-muted-foreground">
-                  Organization
-                </span>
+                <span className="text-muted-foreground">Organization</span>
                 <span>{config.organizationName}</span>
 
-                <span className="text-muted-foreground">
-                  Client ID
-                </span>
+                <span className="text-muted-foreground">Client ID</span>
                 <span>{config.clientId}</span>
               </div>
             </>
@@ -93,9 +80,7 @@ const GolomtBankCard = () => {
             <>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-gray-400" />
-                <span className="text-sm font-medium">
-                  Not connected
-                </span>
+                <span className="text-sm font-medium">Not connected</span>
               </div>
 
               <p className="text-sm text-muted-foreground">

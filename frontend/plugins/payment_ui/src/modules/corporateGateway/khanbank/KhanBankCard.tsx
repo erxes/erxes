@@ -23,12 +23,9 @@ const KhanBankCard = () => {
 
   const logoUrl = `${REACT_APP_API_URL}/pl:payment/static/images/payments/khanbank.png`;
 
-  const { data } = useQuery<ConfigsListQueryResponse>(
-    gql(queries.listQuery),
-    {
-      fetchPolicy: 'network-only',
-    },
-  );
+  const { data } = useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
+    fetchPolicy: 'network-only',
+  });
 
   const configs = data?.khanbankConfigsList?.list ?? [];
   const hasConfig = configs.length > 0;
@@ -47,17 +44,11 @@ const KhanBankCard = () => {
 
             <div>
               <p className="font-semibold">{KHANBANK_PAYMENT.name}</p>
-              <p className="text-xs text-muted-foreground">
-                (Accepts MNT)
-              </p>
+              <p className="text-xs text-muted-foreground">(Accepts MNT)</p>
             </div>
           </div>
 
-          <Button
-            variant="link"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
+          <Button variant="link" size="sm" onClick={() => setOpen(true)}>
             {hasConfig ? 'Manage' : '+ Add'}
           </Button>
         </div>
@@ -74,9 +65,7 @@ const KhanBankCard = () => {
                 <span className="text-muted-foreground">Name</span>
                 <span>{config.name}</span>
 
-                <span className="text-muted-foreground">
-                  Consumer Key
-                </span>
+                <span className="text-muted-foreground">Consumer Key</span>
                 <span>{config.consumerKey}</span>
               </div>
             </>
@@ -84,9 +73,7 @@ const KhanBankCard = () => {
             <>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-gray-400" />
-                <span className="text-sm font-medium">
-                  Not connected
-                </span>
+                <span className="text-sm font-medium">Not connected</span>
               </div>
 
               <p className="text-sm text-muted-foreground">
