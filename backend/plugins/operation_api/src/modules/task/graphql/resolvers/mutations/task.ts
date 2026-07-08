@@ -34,7 +34,7 @@ export const taskMutations = {
         task,
       },
     });
-    const githubConfig = await models.GithubConfig.findByTeam(params.teamId);
+    const githubConfig = await models.GithubConfig.findByTeam(params.teamId, subdomain);
     if (githubConfig && githubConfig.syncMode === 'twoWay') {
       const app = await getInstallationOctokit(githubConfig.installationId);
       const title = `${task.name}`;
@@ -55,7 +55,7 @@ export const taskMutations = {
           title,
           body,
         );
-        await models.Task.updateTask({
+        const updatedTask = await models.Task.updateTask({
           doc: {
             _id: task._id,
             githubIssueNumber: issueNumber,
@@ -71,14 +71,14 @@ export const taskMutations = {
         graphqlPubsub.publish(`operationTaskChanged:${task._id}`, {
           operationTaskChanged: {
             type: 'update',
-            task,
+            updatedTask,
           },
         });
 
         graphqlPubsub.publish('operationTaskListChanged', {
           operationTaskListChanged: {
             type: 'update',
-            task,
+            updatedTask,
           },
         });
       } catch (error) {
@@ -105,8 +105,9 @@ export const taskMutations = {
     if (params.status && updatedTask.githubIssueNumber) {
       const githubConfig = await models.GithubConfig.findByTeam(
         updatedTask.teamId,
+        subdomain,
       );
-      if (githubConfig) {
+      if (githubConfig && githubConfig.syncMode === 'twoWay') {
         try {
           const octokit = await getInstallationOctokit(
             githubConfig.installationId,

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_TEAMS = gql`
-  query getTeams {
+  query githubGetTeams {
     getTeams {
       _id
       name

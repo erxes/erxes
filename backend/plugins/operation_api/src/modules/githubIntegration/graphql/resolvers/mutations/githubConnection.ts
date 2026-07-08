@@ -16,24 +16,21 @@ export const githubConnectionMutations = {
     { installationId }: { installationId: number },
     { models, subdomain }: IContext,
   ) {
-    try {
-      const appOctokit = await getAppOctokit();
-      await appOctokit.request('DELETE /app/installations/{installation_id}', {
-        installation_id: installationId,
-      });
+    const appOctokit = await getAppOctokit();
+    await appOctokit.request('DELETE /app/installations/{installation_id}', {
+      installation_id: installationId,
+    });
 
-      const connection = await models.GithubConnection.findOne({
-        installationId,
-        subdomain,
-      });
-      if (!connection) {
-        throw new Error('Github connection not found');
-      }
-      connection.isActive = false;
-      await connection.save();
-    } catch (e) {
-      console.log('Failed to delete github app installation', e);
+    const connection = await models.GithubConnection.findOne({
+      installationId,
+      subdomain,
+    });
+    if (!connection) {
+      throw new Error('Github connection not found');
     }
+    connection.isActive = false;
+    await connection.save();
+
     return { success: true };
   },
 };

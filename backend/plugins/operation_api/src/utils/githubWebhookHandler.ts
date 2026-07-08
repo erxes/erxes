@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import * as crypto from 'crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { generateModels } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { updateGithubIssueBody } from './githubClient';
+import { isDuplicateKeyError } from './mongoErrors';
 
 interface RawBodyRequest extends Request {
   rawBody?: Buffer | string;
@@ -15,14 +16,13 @@ const verifyGithubSignature = (rawBody: Buffer, signature: string): boolean => {
 
   if (!secret) throw new Error('GITHUB_WEBHOOK_SECRET is not set');
 
-  const expected = `sha256=${crypto
-    .createHmac('sha256', secret)
+  const expected = `sha256=${createHmac('sha256', secret)
     .update(rawBody)
     .digest('hex')}`;
 
   if (expected.length !== signature.length) return false;
 
-  return crypto.timingSafeEqual(
+  return timingSafeEqual(
     Buffer.from(expected, 'utf8'),
     Buffer.from(signature, 'utf8'),
   );
@@ -58,68 +58,76 @@ export const handleGithubWebhook = async (
     const subdomain = getSubdomain(req);
 
     if (!subdomain) {
-      return void res.status(400).send('Could not determine subdomain');
+      res.status(400).send('Could not determine subdomain');
+      return;
     }
 
     const signature = req.headers['x-hub-signature-256'] as string;
 
     if (!signature) {
-      return void res.status(401).send('Missing signature');
+      res.status(401).send('Missing signature');
+      return;
     }
 
     const rawBody = Buffer.isBuffer(req.rawBody)
       ? req.rawBody
       : Buffer.isBuffer(req.body)
-        ? req.body
-        : Buffer.from(
-            typeof req.rawBody === 'string'
-              ? req.rawBody
-              : typeof req.body === 'string'
-                ? req.body
-                : JSON.stringify(req.body ?? {}),
-            'utf8',
-          );
+      ? req.body
+      : Buffer.from(
+          typeof req.rawBody === 'string'
+            ? req.rawBody
+            : typeof req.body === 'string'
+            ? req.body
+            : JSON.stringify(req.body ?? {}),
+          'utf8',
+        );
 
     let isValid: boolean;
     try {
       isValid = verifyGithubSignature(rawBody, signature);
     } catch (err) {
-      return void res.status(500).send('Webhook secret not configured');
+      res.status(500).send('Webhook secret not configured');
+      return;
     }
 
     if (!isValid) {
-      return void res.status(401).send('Invalid signature');
+      res.status(401).send('Invalid signature');
+      return;
     }
 
     let payload: any;
     try {
       payload = JSON.parse(rawBody.toString('utf8'));
     } catch {
-      return void res.status(400).send('Invalid JSON');
+      res.status(400).send('Invalid JSON');
+      return;
     }
 
     const eventType = req.headers['x-github-event'] as string;
 
     if (eventType === 'ping') {
-      return void res.status(200).send('pong');
+      res.status(200).send('pong');
+      return;
     }
 
     if (eventType === 'installation') {
       await handleGithubConnection(payload, subdomain);
-      return void res.status(200).send('ok');
+      res.status(200).send('ok');
+      return;
     }
 
     if (eventType === 'issues') {
       await handleIssues(payload, subdomain);
-      return void res.status(200).send('ok');
+      res.status(200).send('ok');
+      return;
     }
 
-    return void res.status(200).send('ignored');
+    res.status(200).send('ignored');
   } catch (error) {
     console.error('handleGithubWebhook error', error);
 
     if (!res.headersSent) {
-      return void res.status(500).send('Internal server error');
+      res.status(500).send('Internal server error');
     }
   }
 };
@@ -173,12 +181,20 @@ const handleIssues = async (payload: any, subdomain: string): Promise<void> => {
   }
 
   const models = await generateModels(subdomain);
+
   const taskCheckByIssue = await models.Task.findOne({
     githubRepoName: repository.full_name,
     githubIssueNumber: issue.number,
   }).lean();
 
-  if (!taskCheckByIssue && action === 'opened') {
+  const triageCheckByIssue = !taskCheckByIssue
+    ? await models.Triage.findOne({
+        githubRepoName: repository.full_name,
+        githubIssueNumber: issue.number,
+      }).lean()
+    : null;
+
+  if (!taskCheckByIssue && !triageCheckByIssue && action === 'opened') {
     const config = await models.GithubConfig.findOne({
       repoName: repository?.full_name,
     }).lean();
@@ -190,32 +206,37 @@ const handleIssues = async (payload: any, subdomain: string): Promise<void> => {
     ) {
       return;
     }
+    try {
+      const newTask = await models.Triage.createTriage({
+        triage: {
+          name: issue.title,
+          description: issue.body || '',
+          teamId: config.teamId,
+          createdBy: 'system',
+          type: 'triage',
+          number: 0,
+          priority: 0,
+          status: STATUS_TYPES.TRIAGE,
+          githubIssueNumber: issue.number,
+          githubIssueUrl: issue.html_url,
+          githubRepoName: repository.full_name,
+        },
+        subdomain,
+      });
 
-    const newTask = await models.Triage.createTriage({
-      triage: {
-        name: issue.title,
-        description: issue.body || '',
-        teamId: config.teamId,
-        createdBy: 'system',
-        type: 'triage',
-        number: 0,
-        priority: 0,
-        status: STATUS_TYPES.TRIAGE,
-        githubIssueNumber: issue.number,
-        githubIssueUrl: issue.html_url,
-        githubRepoName: repository.full_name,
-      },
-      subdomain,
-    });
-
-    await updateGithubIssueBody(
-      config.installationId,
-      repository.owner.login,
-      repository.name,
-      issue.number,
-      `${issue.body || ''}\n\n<!-- erxes-task-id: ${newTask._id} -->`,
-    );
-
+      await updateGithubIssueBody(
+        config.installationId,
+        repository.owner.login,
+        repository.name,
+        issue.number,
+        `${issue.body || ''}\n\n<!-- erxes-task-id: ${newTask._id} -->`,
+      );
+    } catch (error) {
+      if (isDuplicateKeyError(error)) {
+        return;
+      }
+      throw error;
+    }
     return;
   }
   const targetStatusType = getTargetStatusType(action, state_reason);
@@ -271,7 +292,7 @@ const handleIssues = async (payload: any, subdomain: string): Promise<void> => {
   }
 };
 
-export const handleGithubSetup = async (req: any, res: any) => {
+export const handleGithubSetup = (req: any, res: any) => {
   res.send(`
     <!DOCTYPE html>
     <html><body><script>

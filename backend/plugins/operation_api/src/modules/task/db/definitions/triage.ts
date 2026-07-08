@@ -19,3 +19,5 @@ export const triageSchema = new Schema(
     timestamps: true,
   },
 );
+
+triageSchema.index({ githubRepoName: 1, githubIssueNumber: 1 }, { unique: true, sparse: true });

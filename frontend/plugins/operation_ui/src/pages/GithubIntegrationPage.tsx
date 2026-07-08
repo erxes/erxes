@@ -15,6 +15,10 @@ import { useGithubConnection } from '../modules/integrations/github/hooks/useGit
 
 const GITHUB_APP_SLUG = 'erxes-operation-github';
 
+function buildInstallUrl(): string {
+  return `https://github.com/apps/${GITHUB_APP_SLUG}/installations/new`;
+}
+
 export const GithubIntegrationPage = () => {
   const { confirm } = useConfirm();
   const {
@@ -30,10 +34,6 @@ export const GithubIntegrationPage = () => {
   const connection = data?.getGithubConnection;
   const isConnected = connection?.isActive;
   const popupRef = useRef<Window | null>(null);
-
-  function buildInstallUrl(): string {
-    return `https://github.com/apps/${GITHUB_APP_SLUG}/installations/new`;
-  }
 
   function handleConnect() {
     if (popupRef.current && !popupRef.current.closed) {
@@ -75,7 +75,7 @@ export const GithubIntegrationPage = () => {
   }, [refetch]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (!isConnected && !loading) {
       interval = setInterval(() => {
         refetch();
@@ -90,14 +90,10 @@ export const GithubIntegrationPage = () => {
     confirm({
       message: 'Are you sure you want to disconnect the GitHub integration?',
     }).then(() => {
-      try {
-        if (!connection?.installationId) return;
-        disconnectGithub({
-          variables: { installationId: connection.installationId },
-        });
-      } catch (err: any) {
-        // Error handled in hook
-      }
+      if (!connection?.installationId) return;
+      disconnectGithub({
+        variables: { installationId: connection.installationId },
+      });
     });
   }
 
@@ -177,7 +173,7 @@ export const GithubIntegrationPage = () => {
                   ].map(({ icon, label }) => (
                     <li key={label} className="flex items-center gap-2">
                       <span
-                        className={icon === '✓' ? 'text-success' : '-faint'}
+                        className={icon === '✓' ? 'text-success' : 'text-muted-foreground'}
                       >
                         {icon}
                       </span>

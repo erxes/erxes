@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 export type IGithubConnection = {
   installationId: number;
   orgName: string;
-  orgAvatarUrl: string;
+  orgAvatarUrl?: string;
   orgType: string;
   initiatedUserId?: string;
   isActive: boolean;
