@@ -12,7 +12,9 @@ import { IAdjustFxaDetail } from '../types/AdjustFixedAsset';
 
 const formatNumber = (value?: number) =>
   typeof value === 'number'
-    ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value)
+    ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(
+        value,
+      )
     : '-';
 
 const TextCell = ({ value }: { value?: string }) => (
@@ -63,14 +65,18 @@ export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   },
   {
     id: 'accountId',
-    header: () => <RecordTable.InlineHead icon={IconBuildingBank} label="Данс" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuildingBank} label="Данс" />
+    ),
     accessorKey: 'accountId',
     cell: ({ row }) => <AccountCell detail={row.original} />,
     size: 240,
   },
   {
     id: 'originalCost',
-    header: () => <RecordTable.InlineHead icon={IconCashBanknote} label="Өртөг" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCashBanknote} label="Өртөг" />
+    ),
     accessorKey: 'originalCost',
     cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
   },
@@ -100,7 +106,9 @@ export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   },
   {
     id: 'error',
-    header: () => <RecordTable.InlineHead icon={IconAlertTriangle} label="Алдаа" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlertTriangle} label="Алдаа" />
+    ),
     accessorKey: 'error',
     cell: ({ getValue, row }) => (
       <TextCell

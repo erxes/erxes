@@ -159,7 +159,11 @@ const SelectFixedAssetContent = () => {
   const [debouncedSearch] = useDebounce(search, 500);
   const { fixedAssetIds, fixedAssets, defaultFilter } =
     useSelectFixedAssetContext();
-  const { fixedAssets: fixedAssetsData, loading, error } = useFixedAssets({
+  const {
+    fixedAssets: fixedAssetsData,
+    loading,
+    error,
+  } = useFixedAssets({
     variables: {
       ...defaultFilter,
       searchValue: debouncedSearch,

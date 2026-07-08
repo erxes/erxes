@@ -42,7 +42,9 @@ export const adjustFixedAssetTableColumns: ColumnDef<IAdjustFixedAsset>[] = [
   },
   {
     id: 'status',
-    header: () => <RecordTable.InlineHead icon={IconProgressCheck} label="Төлөв" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconProgressCheck} label="Төлөв" />
+    ),
     accessorKey: 'status',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>{getValue<string>()}</RecordTableInlineCell>

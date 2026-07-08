@@ -71,8 +71,8 @@ export const FxaInstanceSelectionSheet = ({
   );
   const instances = data?.fxaInstances || [];
   const { fixedAssets } = useFixedAssets({
-      variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
-      skip: !fixedAssetIds.length,
+    variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
+    skip: !fixedAssetIds.length,
   });
   const fixedAssetsById = new Map(
     (fixedAssets || []).map((fixedAsset) => [fixedAsset._id, fixedAsset]),

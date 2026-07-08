@@ -48,7 +48,11 @@ export const AdjustFixedAssets = {
 
     const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
 
-    if ([ADJ_FXA_STATUSES.RUNNING, ADJ_FXA_STATUSES.PUBLISH].includes(adjust.status)) {
+    if (
+      [ADJ_FXA_STATUSES.RUNNING, ADJ_FXA_STATUSES.PUBLISH].includes(
+        adjust.status,
+      )
+    ) {
       throw new Error('This fixed asset adjustment cannot be calculated.');
     }
 
@@ -80,7 +84,9 @@ export const AdjustFixedAssets = {
     }
 
     if (adjust.error) {
-      throw new Error('Resolve depreciation errors before creating transaction.');
+      throw new Error(
+        'Resolve depreciation errors before creating transaction.',
+      );
     }
 
     return createAdjustFixedAssetTransaction({

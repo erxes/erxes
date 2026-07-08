@@ -63,7 +63,12 @@ const generateFilter = (params: IAdjustFixedAssetQueryParams) => {
   }
 
   dateRangeFilter(filter, 'date', params.startDate, params.endDate);
-  dateRangeFilter(filter, 'beginDate', params.startBeginDate, params.endBeginDate);
+  dateRangeFilter(
+    filter,
+    'beginDate',
+    params.startBeginDate,
+    params.endBeginDate,
+  );
   dateRangeFilter(
     filter,
     'successDate',
@@ -106,7 +111,9 @@ export const AdjustFixedAssets = {
   ) {
     await checkPermission('readAdjustInventories');
 
-    return models.AdjustFixedAssets.find(generateFilter(params)).countDocuments();
+    return models.AdjustFixedAssets.find(
+      generateFilter(params),
+    ).countDocuments();
   },
 
   async adjustFixedAssetDetail(

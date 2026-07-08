@@ -73,7 +73,10 @@ const calculateStraightLineDepreciation = ({
     }
 
     if (closingBookValue < salvageValue) {
-      const remainingAmount = Math.max(originalCost - accumulated - salvageValue, 0);
+      const remainingAmount = Math.max(
+        originalCost - accumulated - salvageValue,
+        0,
+      );
       amount += remainingAmount;
       accumulated += remainingAmount;
       warning = `Depreciation reached salvage value on ${currentDate.toISOString().slice(0, 10)}`;
@@ -179,7 +182,9 @@ export const checkValidFixedAssetDate = async (
   );
 
   return {
-    beginDate: beforeAdjust?.date ? addDays(getPureDate(beforeAdjust.date), 1) : date,
+    beginDate: beforeAdjust?.date
+      ? addDays(getPureDate(beforeAdjust.date), 1)
+      : date,
     beforeAdjust,
   };
 };
@@ -189,7 +194,10 @@ export const runAdjustFixedAsset = async (
   userId: string,
   adjust: IAdjustFixedAssetDocument,
 ) => {
-  const { beginDate, beforeAdjust } = await checkValidFixedAssetDate(models, adjust);
+  const { beginDate, beforeAdjust } = await checkValidFixedAssetDate(
+    models,
+    adjust,
+  );
   const endDate = getPureDate(adjust.date);
   const previousDetails = await getPreviousDetailMap(models, beforeAdjust?._id);
   const instances = await models.FxaInstances.find({
@@ -211,7 +219,9 @@ export const runAdjustFixedAsset = async (
     const startDate = previousDetail?.closingBookValue
       ? beginDate
       : getPureDate(
-          instance.depreciationStartDate || instance.acquisitionDate || beginDate,
+          instance.depreciationStartDate ||
+            instance.acquisitionDate ||
+            beginDate,
         );
 
     if (startDate > endDate) {
@@ -224,7 +234,9 @@ export const runAdjustFixedAsset = async (
       previousDetail?.closingAccumulatedDepreciation || 0;
     const openingBookValue = originalCost - openingAccumulatedDepreciation;
     const depreciationMethod =
-      instance.depreciationMethod || fixedAsset?.depreciationMethod || 'straightLine';
+      instance.depreciationMethod ||
+      fixedAsset?.depreciationMethod ||
+      'straightLine';
     const accountId = accountByInstanceId.get(instance._id);
     const result = calculateStraightLineDepreciation({
       originalCost,
@@ -373,8 +385,9 @@ export const createAdjustFixedAssetTransaction = async ({
     },
   ];
 
-  const existingTransactionId = details.find((detail) => detail.transactionId)
-    ?.transactionId;
+  const existingTransactionId = details.find(
+    (detail) => detail.transactionId,
+  )?.transactionId;
   const transactions = existingTransactionId
     ? await models.Transactions.updatePTransaction(
         existingTransactionId,

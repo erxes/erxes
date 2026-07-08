@@ -36,10 +36,7 @@ import {
 } from '../hooks/useAdjustFixedAssetMutations';
 import { useAdjustFixedAssetDetail } from '../hooks/useAdjustFixedAssetDetail';
 import { useAdjustFxaDetails } from '../hooks/useAdjustFxaDetails';
-import {
-  ADJ_FXA_STATUSES,
-  IAdjustFixedAsset,
-} from '../types/AdjustFixedAsset';
+import { ADJ_FXA_STATUSES, IAdjustFixedAsset } from '../types/AdjustFixedAsset';
 import { adjustFxaDetailColumns } from './AdjustFxaDetailColumns';
 
 export const AdjustFixedAssetDetail = () => {
@@ -75,7 +72,8 @@ export const AdjustFixedAssetDetail = () => {
   const status = adjustFixedAsset.status || ADJ_FXA_STATUSES.DRAFT;
   const canRun =
     status === ADJ_FXA_STATUSES.DRAFT || status === ADJ_FXA_STATUSES.PROCESS;
-  const canTransact = status === ADJ_FXA_STATUSES.PROCESS && !adjustFixedAsset.error;
+  const canTransact =
+    status === ADJ_FXA_STATUSES.PROCESS && !adjustFixedAsset.error;
   const canDelete = canRun;
 
   return (
@@ -147,13 +145,18 @@ export const AdjustFixedAssetDetail = () => {
   );
 };
 
-const AdjustFixedAssetTransactionDialog = ({ adjustId }: { adjustId: string }) => {
+const AdjustFixedAssetTransactionDialog = ({
+  adjustId,
+}: {
+  adjustId: string;
+}) => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   const form = useForm<{ expenseAccountId?: string }>({
     defaultValues: { expenseAccountId: undefined },
   });
-  const { createTransaction, loading } = useAdjustFixedAssetTransaction(adjustId);
+  const { createTransaction, loading } =
+    useAdjustFixedAssetTransaction(adjustId);
   const expenseAccountId = form.watch('expenseAccountId');
 
   const handleSubmit = () => {
