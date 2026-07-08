@@ -173,7 +173,11 @@ export const GithubIntegrationPage = () => {
                   ].map(({ icon, label }) => (
                     <li key={label} className="flex items-center gap-2">
                       <span
-                        className={icon === '✓' ? 'text-success' : 'text-muted-foreground'}
+                        className={
+                          icon === '✓'
+                            ? 'text-success'
+                            : 'text-muted-foreground'
+                        }
                       >
                         {icon}
                       </span>

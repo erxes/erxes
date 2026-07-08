@@ -34,7 +34,10 @@ export const taskMutations = {
         task,
       },
     });
-    const githubConfig = await models.GithubConfig.findByTeam(params.teamId, subdomain);
+    const githubConfig = await models.GithubConfig.findByTeam(
+      params.teamId,
+      subdomain,
+    );
     if (githubConfig && githubConfig.syncMode === 'twoWay') {
       const app = await getInstallationOctokit(githubConfig.installationId);
       const title = `${task.name}`;
