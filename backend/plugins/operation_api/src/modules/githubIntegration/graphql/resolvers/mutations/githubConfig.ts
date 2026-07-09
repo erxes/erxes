@@ -5,9 +5,9 @@ export const githubConfigMutations = {
   async upsertGithubConfig(
     _parent: undefined,
     params: IGithubConfig,
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    const config = await models.GithubConfig.upsertConfig(params);
+    const config = await models.GithubConfig.upsertConfig(params, subdomain);
     return config;
   },
 };

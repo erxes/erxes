@@ -10,7 +10,7 @@ import { isDuplicateKeyError } from '~/utils/mongoErrors';
 export interface IGithubConnectionModel extends Model<IGithubConnectionDocument> {
   upsertConnection(
     connection: IGithubConnection,
-  ): Promise<IGithubConnectionDocument>;
+  ): Promise<IGithubConnectionDocument | null>;
 }
 
 export const loadGithubConnectionClass = (models: IModels) => {

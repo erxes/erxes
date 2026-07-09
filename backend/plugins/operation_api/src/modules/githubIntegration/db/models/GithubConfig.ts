@@ -5,40 +5,50 @@ import {
 } from '../../@types/githubConfig';
 import { IModels } from '~/connectionResolvers';
 import { githubConfigSchema } from '../definitions/githubConfig';
+import { isDuplicateKeyError } from '~/utils/mongoErrors';
 
 export interface IGithubConfigModel extends Model<IGithubConfigDocument> {
   findByTeam(
     teamId: string,
     subdomain: string,
   ): Promise<IGithubConfigDocument | null>;
-  upsertConfig(config: IGithubConfig): Promise<IGithubConfigDocument>;
+  upsertConfig(
+    config: IGithubConfig,
+    subdomain: string,
+  ): Promise<IGithubConfigDocument | null>;
 }
 
 export const loadGithubConfigClass = (models: IModels) => {
   class GithubConfigClass {
     public static async findByTeam(teamId: string, subdomain: string) {
-      const config = await models.GithubConfig.findOne({
+      return models.GithubConfig.findOne({
         teamId,
         subdomain,
       }).lean();
-
-      if (!config) {
-        return null;
-      }
-
-      return config;
     }
 
-    public static async upsertConfig(config: IGithubConfig) {
-      const existingConfig = await models.GithubConfig.findOne({
-        teamId: config.teamId,
-      });
-      if (existingConfig) {
-        Object.assign(existingConfig, config);
-        return existingConfig.save();
-      } else {
-        const newConfig = new models.GithubConfig(config);
-        return newConfig.save();
+    public static async upsertConfig(config: IGithubConfig, subdomain: string) {
+      try {
+        return await models.GithubConfig.findOneAndUpdate(
+          {
+            teamId: config.teamId,
+            subdomain,
+          },
+          { $set: config },
+          { new: true, upsert: true, setDefaultsOnInsert: true },
+        );
+      } catch (error) {
+        if (isDuplicateKeyError(error)) {
+          return models.GithubConfig.findOneAndUpdate(
+            {
+              teamId: config.teamId,
+              subdomain,
+            },
+            { $set: config },
+            { new: true },
+          );
+        }
+        throw error;
       }
     }
   }
