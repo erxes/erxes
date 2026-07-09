@@ -1,9 +1,18 @@
 import { IContext } from '~/connectionResolvers';
 import { buildCustomFieldsMap } from '@/cms/utils/common';
+import { IPostDocument } from '@/cms/@types/posts';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Posts.findOne({ _id });
+  },
+
+  seoTitle(post: IPostDocument) {
+    return post.seoTitle || post.title || '';
+  },
+
+  seoDescription(post: IPostDocument) {
+    return post.seoDescription || post.excerpt || '';
   },
 
   async author(post: any) {
