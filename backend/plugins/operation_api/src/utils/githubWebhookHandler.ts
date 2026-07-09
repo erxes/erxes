@@ -82,7 +82,6 @@ const getTargetStatusType = (
   return null;
 };
 
-
 const handleGithubConnection = async (
   payload: GithubInstallationPayload,
   subdomain: string,
@@ -124,7 +123,10 @@ const handleGithubConnection = async (
   }
 };
 
-const handleIssues = async (payload: GithubIssuesPayload, subdomain: string): Promise<void> => {
+const handleIssues = async (
+  payload: GithubIssuesPayload,
+  subdomain: string,
+): Promise<void> => {
   const { action, issue, sender, repository } = payload;
   const { state_reason } = issue || {};
   if (sender?.type === 'Bot') {
@@ -304,7 +306,10 @@ export const handleGithubWebhook = async (
     }
 
     if (eventType === 'installation') {
-      await handleGithubConnection(payload as GithubInstallationPayload, subdomain);
+      await handleGithubConnection(
+        payload as GithubInstallationPayload,
+        subdomain,
+      );
       res.status(200).send('ok');
       return;
     }
