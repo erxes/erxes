@@ -7,6 +7,7 @@ export type IGithubConfig = {
   repoName: string;
   installationId: number;
   syncMode: syncMode;
+  subdomain: string;
 };
 
 export interface IGithubConfigDocument extends IGithubConfig, Document {
