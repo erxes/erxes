@@ -1,5 +1,8 @@
 import { useQuery, useMutation } from '@apollo/client';
-import { GITHUB_ISSUES_SECTION_DATA, GET_TEAMS } from '../graphql/queries/githubConfigQueries';
+import {
+  GITHUB_ISSUES_SECTION_DATA,
+  GET_TEAMS,
+} from '../graphql/queries/githubConfigQueries';
 import { GET_GITHUB_REPOSITORIES } from '../graphql/queries/githubConnectionQueries';
 import { UPSERT_GITHUB_CONFIG } from '../graphql/mutations/githubConfigMutations';
 import { ITeam } from '../types';
