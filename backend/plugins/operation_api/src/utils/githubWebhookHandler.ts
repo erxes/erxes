@@ -2,10 +2,42 @@ import { Request, Response } from 'express';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { generateModels } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
-import { getSubdomain } from 'erxes-api-shared/utils';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { getSubdomain, graphqlPubsub } from 'erxes-api-shared/utils';
 import { updateGithubIssueBody } from './githubClient';
 import { isDuplicateKeyError } from './mongoErrors';
+
+interface GithubInstallationPayload {
+  action: string;
+  installation: {
+    id: number;
+    account: {
+      login: string;
+      avatar_url?: string;
+      type: string;
+    };
+  };
+}
+
+interface GithubIssuesPayload {
+  action: string;
+  sender?: {
+    type?: string;
+  };
+  issue: {
+    number: number;
+    title: string;
+    body: string | null;
+    html_url: string;
+    state_reason: string | null;
+  };
+  repository: {
+    full_name: string;
+    name: string;
+    owner: {
+      login: string;
+    };
+  };
+}
 
 interface RawBodyRequest extends Request {
   rawBody?: Buffer | string;
@@ -50,90 +82,9 @@ const getTargetStatusType = (
   return null;
 };
 
-export const handleGithubWebhook = async (
-  req: RawBodyRequest,
-  res: Response,
-): Promise<void> => {
-  try {
-    const subdomain = getSubdomain(req);
-
-    if (!subdomain) {
-      res.status(400).send('Could not determine subdomain');
-      return;
-    }
-
-    const signature = req.headers['x-hub-signature-256'] as string;
-
-    if (!signature) {
-      res.status(401).send('Missing signature');
-      return;
-    }
-
-    const rawBody = Buffer.isBuffer(req.rawBody)
-      ? req.rawBody
-      : Buffer.isBuffer(req.body)
-        ? req.body
-        : Buffer.from(
-            typeof req.rawBody === 'string'
-              ? req.rawBody
-              : typeof req.body === 'string'
-                ? req.body
-                : JSON.stringify(req.body ?? {}),
-            'utf8',
-          );
-
-    let isValid: boolean;
-    try {
-      isValid = verifyGithubSignature(rawBody, signature);
-    } catch (err) {
-      res.status(500).send('Webhook secret not configured');
-      return;
-    }
-
-    if (!isValid) {
-      res.status(401).send('Invalid signature');
-      return;
-    }
-
-    let payload: any;
-    try {
-      payload = JSON.parse(rawBody.toString('utf8'));
-    } catch {
-      res.status(400).send('Invalid JSON');
-      return;
-    }
-
-    const eventType = req.headers['x-github-event'] as string;
-
-    if (eventType === 'ping') {
-      res.status(200).send('pong');
-      return;
-    }
-
-    if (eventType === 'installation') {
-      await handleGithubConnection(payload, subdomain);
-      res.status(200).send('ok');
-      return;
-    }
-
-    if (eventType === 'issues') {
-      await handleIssues(payload, subdomain);
-      res.status(200).send('ok');
-      return;
-    }
-
-    res.status(200).send('ignored');
-  } catch (error) {
-    console.error('handleGithubWebhook error', error);
-
-    if (!res.headersSent) {
-      res.status(500).send('Internal server error');
-    }
-  }
-};
 
 const handleGithubConnection = async (
-  payload: any,
+  payload: GithubInstallationPayload,
   subdomain: string,
 ): Promise<void> => {
   const { action, installation } = payload;
@@ -173,7 +124,7 @@ const handleGithubConnection = async (
   }
 };
 
-const handleIssues = async (payload: any, subdomain: string): Promise<void> => {
+const handleIssues = async (payload: GithubIssuesPayload, subdomain: string): Promise<void> => {
   const { action, issue, sender, repository } = payload;
   const { state_reason } = issue || {};
   if (sender?.type === 'Bot') {
@@ -292,7 +243,89 @@ const handleIssues = async (payload: any, subdomain: string): Promise<void> => {
   }
 };
 
-export const handleGithubSetup = (req: any, res: any) => {
+export const handleGithubWebhook = async (
+  req: RawBodyRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const subdomain = getSubdomain(req);
+
+    if (!subdomain) {
+      res.status(400).send('Could not determine subdomain');
+      return;
+    }
+
+    const signature = req.headers['x-hub-signature-256'] as string;
+
+    if (!signature) {
+      res.status(401).send('Missing signature');
+      return;
+    }
+
+    const rawBody = Buffer.isBuffer(req.rawBody)
+      ? req.rawBody
+      : Buffer.isBuffer(req.body)
+        ? req.body
+        : Buffer.from(
+            typeof req.rawBody === 'string'
+              ? req.rawBody
+              : typeof req.body === 'string'
+                ? req.body
+                : JSON.stringify(req.body ?? {}),
+            'utf8',
+          );
+
+    let isValid: boolean;
+    try {
+      isValid = verifyGithubSignature(rawBody, signature);
+    } catch (err) {
+      res.status(500).send('Webhook secret not configured');
+      return;
+    }
+
+    if (!isValid) {
+      res.status(401).send('Invalid signature');
+      return;
+    }
+
+    let payload: unknown;
+    try {
+      payload = JSON.parse(rawBody.toString('utf8'));
+    } catch {
+      res.status(400).send('Invalid JSON');
+      return;
+    }
+
+    const eventType = req.headers['x-github-event'] as string;
+
+    if (eventType === 'ping') {
+      res.status(200).send('pong');
+      return;
+    }
+
+    if (eventType === 'installation') {
+      await handleGithubConnection(payload as GithubInstallationPayload, subdomain);
+      res.status(200).send('ok');
+      return;
+    }
+
+    if (eventType === 'issues') {
+      await handleIssues(payload as GithubIssuesPayload, subdomain);
+      res.status(200).send('ok');
+      return;
+    }
+
+    res.status(200).send('ignored');
+  } catch (error) {
+    console.error('handleGithubWebhook error', error);
+
+    if (!res.headersSent) {
+      res.status(500).send('Internal server error');
+    }
+  }
+};
+
+export const handleGithubSetup = (req: Request, res: Response) => {
   res.send(`
     <!DOCTYPE html>
     <html><body><script>
