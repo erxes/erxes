@@ -1,4 +1,12 @@
+# Changelog
 
+## [3.0.53](https://github.com/erxes/erxes/compare/3.0.52...3.0.53) (2026-07-09)
+
+
+### Bug Fixes
+
+* **accounting:** records aggregation ([ae11894](https://github.com/erxes/erxes/commit/ae11894c54413bbce269db47c8c2cea83d5a0149))
+* **operation:** keep board card position on edit and use column status when creating task ([bfc1349](https://github.com/erxes/erxes/commit/bfc13490cf3911a4390234c7704152eb906f38dd))
 
 ## [3.0.52](https://github.com/erxes/erxes/compare/3.0.51...3.0.52) (2026-07-08)
 
@@ -135,7 +143,7 @@
 * **msdynamic:** add configurable property field mapping ([#8453](https://github.com/erxes/erxes/issues/8453)) ([b05f247](https://github.com/erxes/erxes/commit/b05f2478e5637a3db51c4722e7ad6dbb2d725ab3))
 * product log activity when products are bulk-updated ([c33fffc](https://github.com/erxes/erxes/commit/c33fffc8e120b9c299de4f89f24915dd5357d7b2))
 
-# Changelog
+
 
 ## [3.0.46](https://github.com/erxes/erxes/compare/3.0.45...3.0.46) (2026-06-29)
 
