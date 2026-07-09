@@ -63,21 +63,21 @@ const queries: Record<string, Resolver> = {
     const apiUrl = process.env.TOKI_API_URL;
 
     if (!apiKey) {
-      throw new Error("Toki api key is not set");
+      throw new Error('Toki api key is not set');
     }
 
     if (!apiUrl) {
-      throw new Error("Toki API URL is not set");
+      throw new Error('Toki API URL is not set');
     }
 
     const response = await fetch(
       `https://${apiUrl}/third-party-service/v1/shoppy/user`,
       {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
-          "api-key": apiKey,
+          'api-key': apiKey,
         },
       },
     );

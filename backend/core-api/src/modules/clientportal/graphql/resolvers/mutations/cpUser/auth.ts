@@ -231,41 +231,25 @@ export const authMutations: Record<string, Resolver<any, any, IContext>> = {
     );
   },
   async clientPortalUserLoginWithToki(
-  _root:unknown,
-  { token },
-  { models, subdomain, clientPortal, res }: IContext,
-) {
-  const user = await loginWithToki(
-    token,
-    clientPortal,
-    models,
-  );
+    _root: unknown,
+    { token },
+    { models, subdomain, clientPortal, res }: IContext,
+  ) {
+    const user = await loginWithToki(token, clientPortal, models);
 
-  const tokens = jwtManager.setAuthCookie(
-    res,
-    user,
-    clientPortal,
-  );
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
 
-  const payload = generateCPUserLoginActivityLog(
-    user,
-    'toki',
-  );
+    const payload = generateCPUserLoginActivityLog(user, 'toki');
 
-  await createCPUserActivityLog(
-    models,
-    subdomain,
-    payload,
-    user,
-  );
+    await createCPUserActivityLog(models, subdomain, payload, user);
 
-  if (tokens?.token && tokens?.refreshToken) {
-    return {
-      success: true,
-      ...tokens,
-    };
-  }
+    if (tokens?.token && tokens?.refreshToken) {
+      return {
+        success: true,
+        ...tokens,
+      };
+    }
 
-  return 'Success';
-}
+    return 'Success';
+  },
 };

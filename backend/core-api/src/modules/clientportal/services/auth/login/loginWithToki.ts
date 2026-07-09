@@ -55,20 +55,16 @@ export async function loginWithToki(
   const lastName = rest.join(' ');
 
   let user: ICPUserDocument | null = await models.CPUser.findOne({
-  clientPortalId: clientPortal._id,
-  phone: phoneNo,
+    clientPortalId: clientPortal._id,
+    phone: phoneNo,
   });
 
   if (!user) {
-    user = await handleCPContacts(
-      models,
-      clientPortal._id,
-      {
-        firstName,
-        lastName,
-        phone: phoneNo,
-      },
-    );
+    user = await handleCPContacts(models, clientPortal._id, {
+      firstName,
+      lastName,
+      phone: phoneNo,
+    });
   }
 
   if (!user) {
