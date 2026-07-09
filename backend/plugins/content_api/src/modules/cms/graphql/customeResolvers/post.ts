@@ -1,9 +1,14 @@
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { buildCustomFieldsMap } from '@/cms/utils/common';
 import { IPostDocument } from '@/cms/@types/posts';
+import { ICustomFieldGroupDocument } from '@/cms/@types/customPostType';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference(
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
     return models.Posts.findOne({ _id });
   },
 
@@ -15,7 +20,7 @@ export default {
     return post.seoDescription || post.excerpt || '';
   },
 
-  async author(post: any) {
+  async author(post: IPostDocument) {
     if (post.authorKind === 'user') {
       return {
         _id: post.authorId,
@@ -29,7 +34,7 @@ export default {
     }
   },
 
-  async tags(post: any, _params, { models }: IContext) {
+  async tags(post: IPostDocument, _params: unknown, { models }: IContext) {
     try {
       if (!post.tagIds || post.tagIds.length === 0) {
         return [];
@@ -44,7 +49,11 @@ export default {
     }
   },
 
-  async categories(post: any, _params, { models }: IContext) {
+  async categories(
+    post: IPostDocument,
+    _params: unknown,
+    { models }: IContext,
+  ) {
     try {
       if (!post.categoryIds || post.categoryIds.length === 0) {
         return [];
@@ -59,7 +68,11 @@ export default {
     }
   },
 
-  async customPostType(post: any, _params, { models }: IContext) {
+  async customPostType(
+    post: IPostDocument,
+    _params: unknown,
+    { models }: IContext,
+  ) {
     if (!post.type || post.type === 'post') {
       return {
         _id: 'post',
@@ -73,9 +86,13 @@ export default {
     return await models.CustomPostTypes.findOne({ _id: post.type });
   },
 
-  async customFieldsMap(post: any, _params, { models, subdomain }: IContext) {
+  async customFieldsMap(
+    post: IPostDocument,
+    _params: unknown,
+    { models, subdomain }: IContext,
+  ) {
     const postType = post.type || 'post';
-    const query: any = {
+    const query: FilterQuery<ICustomFieldGroupDocument> = {
       $or: [
         { customPostTypeIds: postType },
         { enabledCategoryIds: { $in: post.categoryIds || [] } },
@@ -92,7 +109,11 @@ export default {
     );
   },
 
-  async translations(post: any, _params, { models }: IContext) {
+  async translations(
+    post: IPostDocument,
+    _params: unknown,
+    { models }: IContext,
+  ) {
     return models.Translations.find({
       objectId: post._id,
       type: 'post',
