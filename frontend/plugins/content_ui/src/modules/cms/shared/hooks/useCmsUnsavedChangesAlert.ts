@@ -38,7 +38,6 @@ export const useCmsUnsavedChangesAlert = ({
       }
 
       event.preventDefault();
-      event.returnValue = '';
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);

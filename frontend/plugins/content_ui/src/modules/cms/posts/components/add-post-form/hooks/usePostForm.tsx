@@ -47,7 +47,7 @@ type TLoadedPost = {
   description?: string;
   content?: string;
   type?: string;
-  status?: PostFormData['status'];
+  status?: NonNullable<PostFormData['status']>;
   categoryIds?: string[];
   categories?: { _id: string }[];
   tagIds?: string[];
@@ -55,7 +55,7 @@ type TLoadedPost = {
   featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
-  thumbnail?: PostFormData['thumbnail'];
+  thumbnail?: NonNullable<PostFormData['thumbnail']>;
   images?: { url: string }[];
   videoUrl?: string;
   documents?: { url: string }[];

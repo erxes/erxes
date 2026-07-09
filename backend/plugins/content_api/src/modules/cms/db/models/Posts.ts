@@ -107,7 +107,7 @@ export const loadPostClass = (models: IModels) => {
       return models.Posts.countDocuments({ clientPortalId });
     };
 
-    public static getPosts = async (
+    public static readonly getPosts = async (
       query: FilterQuery<IPostDocument>,
       sort: Record<string, SortOrder>,
     ) => {
@@ -187,7 +187,10 @@ export const loadPostClass = (models: IModels) => {
       return models.Posts.deleteOne({ _id });
     };
 
-    public static duplicatePost = async (_id: string, authorId?: string) => {
+    public static readonly duplicatePost = async (
+      _id: string,
+      authorId?: string,
+    ) => {
       const post = await models.Posts.findOne({ _id }).lean();
 
       if (!post) {
