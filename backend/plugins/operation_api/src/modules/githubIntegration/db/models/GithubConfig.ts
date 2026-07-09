@@ -12,9 +12,7 @@ export interface IGithubConfigModel extends Model<IGithubConfigDocument> {
     teamId: string,
     subdomain: string,
   ): Promise<IGithubConfigDocument | null>;
-  upsertConfig(
-    config: IGithubConfig,
-  ): Promise<IGithubConfigDocument | null>;
+  upsertConfig(config: IGithubConfig): Promise<IGithubConfigDocument | null>;
 }
 
 export const loadGithubConfigClass = (models: IModels) => {
