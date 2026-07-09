@@ -5,6 +5,7 @@ const integrationCommonFields = `
     wsServer: String
     operators: JSON
     queues: [String]
+    queueNames: [String]
     srcTrunk: String
     dstTrunk: String
 `;
@@ -328,6 +329,7 @@ export const queries = `
   callActiveSessions(inboxIntegrationId: String!, extension: String): [CallSession]
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
   callUserIntegrations: [CallsIntegrationDetailResponse]
+  callReportIntegrations: [CallsIntegrationDetailResponse]
   callsCustomerDetail(customerPhone: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
