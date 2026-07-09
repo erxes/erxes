@@ -1,3 +1,4 @@
+import { Model } from 'mongoose';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { POST_REACTION_TYPES, PostReactionType } from '@/cms/@types/posts';
 import { ITranslation } from '@/cms/@types/translations';
@@ -30,6 +31,13 @@ const getDefaultLanguage = async (
 // assigned from the saved post before upserting.
 type TPostTranslationInput = Omit<ITranslation, 'objectId'> & {
   objectId?: string;
+};
+
+// Minimal shape shared by every document type that supports translations.
+type TTranslatableDocument = {
+  _id: string;
+  clientPortalId: string;
+  authorId?: string | null;
 };
 
 const saveTranslations = async (
@@ -471,13 +479,15 @@ export const postMutations: Record<string, Resolver> = {
     const { input } = args;
     const { type } = input;
 
-    const modelMap: Record<string, any> = {
+    // The concrete model classes have divergent generics, so they are widened
+    // to the minimal document shape the translation flow reads.
+    const modelMap = {
       post: models.Posts,
       page: models.Pages,
       category: models.Categories,
       tag: models.PostTags,
       menu: models.MenuItems,
-    };
+    } as unknown as Record<string, Model<TTranslatableDocument>>;
 
     const model = modelMap[type];
     if (!model) throw new Error(`Invalid type: ${type}`);
