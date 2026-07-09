@@ -5,10 +5,7 @@ import { IPostDocument } from '@/cms/@types/posts';
 import { ICustomFieldGroupDocument } from '@/cms/@types/customPostType';
 
 export default {
-  async __resolveReference(
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  async __resolveReference({ _id }: { _id: string }, { models }: IContext) {
     return models.Posts.findOne({ _id });
   },
 
