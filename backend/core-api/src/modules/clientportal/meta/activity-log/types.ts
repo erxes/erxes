@@ -1,4 +1,4 @@
-type CPUserLoginMethod = 'credentials' | 'otp' | 'social';
+type CPUserLoginMethod = 'credentials' | 'otp' | 'social'| 'toki';
 
 export interface CPUserLoginActivityPayload {
   activityType: string;
