@@ -73,9 +73,12 @@ export const getBrowserInfo = async () => {
   let location;
 
   try {
-    const response = await fetch('https://geo.erxes.io');
+    // const response = await fetch('https://geo.erxes.io',{
+    //   timeout: 5000
+    // });
 
-    location = await response.json();
+    // location = await response.json();
+    new Error('geo.erxes.io is not available');
 
   } catch (e) {
     location = {
@@ -83,16 +86,18 @@ export const getBrowserInfo = async () => {
       remoteAddress: '',
       region: '',
       country: '',
-      countryCode: ''
+      countryCode: '',
+      network:'',
+      countryName:''
     };
   }
 
   return {
-    remoteAddress: location.network,
-    region: location.region,
-    countryCode: location.countryCode,
-    city: location.city,
-    country: location.countryName,
+    remoteAddress: location?.network,
+    region: location?.region,
+    countryCode: location?.countryCode,
+    city: location?.city,
+    country: location?.countryName,
     url: window.location.pathname,
     hostname: window.location.origin,
     language: navigator.language,
