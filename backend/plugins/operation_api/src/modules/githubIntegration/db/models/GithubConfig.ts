@@ -14,7 +14,6 @@ export interface IGithubConfigModel extends Model<IGithubConfigDocument> {
   ): Promise<IGithubConfigDocument | null>;
   upsertConfig(
     config: IGithubConfig,
-    subdomain: string,
   ): Promise<IGithubConfigDocument | null>;
 }
 
@@ -27,12 +26,12 @@ export const loadGithubConfigClass = (models: IModels) => {
       }).lean();
     }
 
-    public static async upsertConfig(config: IGithubConfig, subdomain: string) {
+    public static async upsertConfig(config: IGithubConfig) {
       try {
         return await models.GithubConfig.findOneAndUpdate(
           {
             teamId: config.teamId,
-            subdomain,
+            subdomain: config.subdomain,
           },
           { $set: config },
           { new: true, upsert: true, setDefaultsOnInsert: true },
@@ -42,7 +41,7 @@ export const loadGithubConfigClass = (models: IModels) => {
           return models.GithubConfig.findOneAndUpdate(
             {
               teamId: config.teamId,
-              subdomain,
+              subdomain: config.subdomain,
             },
             { $set: config },
             { new: true },

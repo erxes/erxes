@@ -15,6 +15,7 @@ export const githubConfigSchema = new Schema(
       label: 'Sync Mode',
       required: true,
     },
+    subdomain: { type: String, label: 'Subdomain', required: true },
   },
   { timestamps: true },
 );

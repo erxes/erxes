@@ -7,7 +7,10 @@ export const githubConfigMutations = {
     params: IGithubConfig,
     { models, subdomain }: IContext,
   ) {
-    const config = await models.GithubConfig.upsertConfig(params, subdomain);
+    const config = await models.GithubConfig.upsertConfig({
+      ...params,
+      subdomain,
+    });
     return config;
   },
 };

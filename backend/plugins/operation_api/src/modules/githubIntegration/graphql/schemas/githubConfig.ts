@@ -5,6 +5,7 @@ export const type = `
     repoName: String
     installationId: Int
     syncMode: String
+    subdomain: String
     createdAt: Date
     updatedAt: Date
   }
