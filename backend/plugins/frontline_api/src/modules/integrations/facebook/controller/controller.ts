@@ -78,9 +78,9 @@ export const facebookSubscription = async (req, res, next) => {
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
       if (req.query['hub.verify_token'] === FACEBOOK_VERIFY_TOKEN) {
-        res.type('text/plain').send(req.query['hub.challenge']);
+        res.type('text/plain').send(String(req.query['hub.challenge']));
       } else {
-        res.send('OK');
+        res.type('text/plain').send('OK');
       }
     }
   } catch (e) {
