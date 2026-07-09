@@ -6,6 +6,7 @@ export const githubConnectionSchema = new Schema(
     orgName: {
       type: String,
       label: 'Organization Name',
+      required: true,
     },
     orgAvatarUrl: {
       type: String,
