@@ -7,6 +7,8 @@ export type TAutomationOutputVariable = {
   label: string;
   exposure?: 'placeholder' | 'reference';
   field?: string;
+  /** Plain sub-fields of an array/object value, expanded inline without a reference lookup. */
+  fields?: TAutomationOutputVariable[];
   referenceFields?: TAutomationOutputVariable[];
   referenceType?: string;
   sourceType?: string;

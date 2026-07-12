@@ -42,3 +42,6 @@ name = "docker"
 
 [[transformers]]
 name = "prettier"
+
+[analyzers.meta]
+    skip_doc_coverage = ["class-expression", "method-definition"]

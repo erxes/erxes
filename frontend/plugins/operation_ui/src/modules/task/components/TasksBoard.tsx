@@ -159,6 +159,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
   useEffect(() => {
     if (tasks) {
       setTaskCards((prev) => {
+        const prevSortById = new Map(prev.map((task) => [task.id, task.sort]));
         const previousTasks = prev.filter(
           (task) => !tasks.some((t) => t._id === task.id),
         );
@@ -167,7 +168,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
           ...tasks.map((task) => ({
             id: task._id,
             column: task.status,
-            sort: task.updatedAt,
+            sort: prevSortById.get(task._id) ?? task.updatedAt,
           })),
         ];
       });

@@ -9,7 +9,10 @@ export const AutomationHistoryName = ({
   return (
     <>
       <Button asChild variant="link">
-        <Link target="_blank" to={`/contacts/details/${target?.customerId}`}>
+        <Link
+          target="_blank"
+          to={`/contacts/customers?contactId=${target?.customerId}`}
+        >
           {'See Customer'}
           <IconExternalLink />
         </Link>

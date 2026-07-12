@@ -40,7 +40,7 @@ export const GET_STAGES = gql`
 export const PRICING_PLANS = gql`
   query PricingPlans(
     $status: String
-    $prioritizeRule: String
+    $priority: String
     $branchId: String
     $departmentId: String
     $productId: String
@@ -52,7 +52,7 @@ export const PRICING_PLANS = gql`
   ) {
     pricingPlans(
       status: $status
-      prioritizeRule: $prioritizeRule
+      priority: $priority
       branchId: $branchId
       departmentId: $departmentId
       productId: $productId
@@ -73,7 +73,7 @@ export const PRICING_PLANS = gql`
       applyType
       startDate
       endDate
-      isPriority
+      priority
       isRepeatEnabled
       isQuantityEnabled
       isPriceEnabled
@@ -105,7 +105,7 @@ export const PRICING_PLAN_DETAIL = gql`
       priceAdjustType
       priceAdjustFactor
       bonusProduct
-      isPriority
+      priority
       applyType
       products
       productsExcluded
@@ -216,6 +216,48 @@ export const productCategories = gql`
       code
       name
       order
+    }
+  }
+`;
+
+export const GET_PRODUCTS_BY_IDS = gql`
+  query AssignedProducts($ids: [String], $categoryIds: [String], $limit: Int) {
+    productsMain(ids: $ids, categoryIds: $categoryIds, limit: $limit) {
+      list {
+        _id
+        name
+        uom
+        unitPrice
+        code
+      }
+    }
+  }
+`;
+
+export const PRICING_FIXED_VALUES_PAGE = gql`
+  query PricingFixedValuesPage(
+    $pricingPlanId: String!
+    $page: Int
+    $perPage: Int
+    $search: String
+  ) {
+    pricingFixedValuesPage(
+      pricingPlanId: $pricingPlanId
+      page: $page
+      perPage: $perPage
+      search: $search
+    ) {
+      totalCount
+      list {
+        _id
+        productId
+        productName
+        sortField
+        uom
+        unitPrice
+        newPrice
+        status
+      }
     }
   }
 `;

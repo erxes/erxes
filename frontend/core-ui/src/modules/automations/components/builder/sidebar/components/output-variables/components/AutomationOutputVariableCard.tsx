@@ -44,7 +44,7 @@ export const AutomationOutputVariableCard = ({
         <div className="font-medium text-foreground">{title}</div>
         {badge}
       </div>
-      <div className="mt-1 break-all font-mono text-xs text-muted-foreground">
+      <div className="mt-1 max-w-full truncate font-mono text-xs text-muted-foreground">
         {path}
       </div>
     </div>

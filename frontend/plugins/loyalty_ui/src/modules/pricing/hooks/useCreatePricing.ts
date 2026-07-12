@@ -1,10 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { PRICING_PLAN_ADD } from '@/pricing/graphql/mutations';
+import { PricingPriority } from '@/pricing/types';
 
 interface ICreatePricingDoc {
   name: string;
   status: string;
-  isPriority?: boolean;
+  priority?: PricingPriority;
   applyType?: string;
   categories?: string[];
   categoriesExcluded?: string[];
