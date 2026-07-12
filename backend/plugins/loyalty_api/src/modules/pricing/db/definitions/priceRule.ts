@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { IPriceRule } from '@/pricing/@types/priceRule';
-import { RULE_TYPES, DISCOUNT_TYPES, PRICE_ADJUST_TYPES } from './constants';
+import { RULE_TYPES, RULE_DISCOUNT_TYPES, PRICE_ADJUST_TYPES } from './constants';
 
 
 export const priceRuleSchema = new Schema<IPriceRule>(
@@ -16,8 +16,8 @@ export const priceRuleSchema = new Schema<IPriceRule>(
     },
     discountType: {
       type: String,
-      enum: DISCOUNT_TYPES.ALL,
-      default: DISCOUNT_TYPES.DEFAULT,
+      enum: RULE_DISCOUNT_TYPES.ALL,
+      default: RULE_DISCOUNT_TYPES.DEFAULT,
     },
     discountValue: {
       type: Number,

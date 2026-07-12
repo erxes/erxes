@@ -61,3 +61,15 @@ export const PRICING_PLAN_EDIT = gql`
     }
   }
 `;
+
+export const PRICING_FIXED_VALUES_BULK_EDIT = gql`
+  mutation PricingFixedValuesBulkEdit(
+    $pricingPlanId: String!
+    $productsData: JSON
+  ) {
+    pricingFixedValuesBulkEdit(
+      pricingPlanId: $pricingPlanId
+      productsData: $productsData
+    )
+  }
+`;

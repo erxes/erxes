@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { RULE_TYPES, DISCOUNT_TYPES, PRICE_ADJUST_TYPES } from './constants';
+import { RULE_TYPES, RULE_DISCOUNT_TYPES, PRICE_ADJUST_TYPES } from './constants';
 import { IQuantityRule } from '@/pricing/@types/quantityRule';
 
 export const quantityRuleSchema = new Schema<IQuantityRule>({
@@ -7,8 +7,8 @@ export const quantityRuleSchema = new Schema<IQuantityRule>({
   value: { type: Number, required: true },
   discountType: {
     type: String,
-    enum: DISCOUNT_TYPES.ALL,
-    default: DISCOUNT_TYPES.DEFAULT as typeof DISCOUNT_TYPES.ALL[number]
+    enum: RULE_DISCOUNT_TYPES.ALL,
+    default: RULE_DISCOUNT_TYPES.DEFAULT as typeof RULE_DISCOUNT_TYPES.ALL[number]
   },
   discountValue: { type: Number, default: 0 },
   discountBonusProduct: { type: String },

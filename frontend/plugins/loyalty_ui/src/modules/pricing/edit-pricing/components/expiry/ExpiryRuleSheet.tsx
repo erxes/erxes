@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectProduct } from 'ui-modules';
 import {
-  DISCOUNT_TYPES,
+  RULE_DISCOUNT_TYPES,
   DiscountType,
   PRICE_ADJUST_TYPES,
   PriceAdjustType,
@@ -181,7 +181,7 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                           <Select.Value placeholder={t('choose-discount-type')} />
                         </Select.Trigger>
                         <Select.Content>
-                          {DISCOUNT_TYPES.map((option) => (
+                          {RULE_DISCOUNT_TYPES.map((option) => (
                             <Select.Item
                               key={option.value}
                               value={option.value}

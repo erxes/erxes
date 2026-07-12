@@ -10,10 +10,13 @@ import {
   InputNumber,
   Input,
   Select,
+  Button,
+  useToast,
 } from 'erxes-ui';
 import { useRef, useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
+import { PRICING_FIXED_VALUES_BULK_EDIT } from '~/modules/pricing/graphql/mutations';
 
 type FixedPricingStatus = 'NEW' | 'SAVED' | 'STALE';
 
@@ -46,7 +49,12 @@ export const FixedPricingTable = ({
   onSave: () => void;
 }) => {
   const { fields, replace } = useFieldArray({ control, name: 'fixedValues' });
-  const tableRef = useRef<HTMLTableElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const client = useApolloClient();
+  const [bulkEdit, { loading: bulkLoading }] = useMutation(
+    PRICING_FIXED_VALUES_BULK_EDIT,
+  );
 
   const [searchText, setSearchText] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -56,7 +64,6 @@ export const FixedPricingTable = ({
   const [pageSize, setPageSize] = useState(10);
   const [customPageSize, setCustomPageSize] = useState('');
   const [isCustomMode, setIsCustomMode] = useState(false);
-  const PAGE_SIZE = pageSize;
 
   const watchedFixedValues = useWatch({ control, name: 'fixedValues' });
 
@@ -72,7 +79,7 @@ export const FixedPricingTable = ({
     variables: {
       pricingPlanId: pricingId,
       page: currentPage,
-      perPage: PAGE_SIZE,
+      perPage: pageSize,
       search: debouncedSearch,
     },
     skip: !pricingId,
@@ -82,7 +89,7 @@ export const FixedPricingTable = ({
   const pageResult = data?.pricingFixedValuesPage;
   const pageItems: IPageItem[] = pageResult?.list || [];
   const totalCount: number = pageResult?.totalCount || 0;
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   useEffect(() => {
     if (!pageItems.length) return;
@@ -105,6 +112,92 @@ export const FixedPricingTable = ({
     });
     if (hasDirtyRows) onSave();
     setCurrentPage(newPage);
+  };
+
+  const handleCsvFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!fileInputRef.current) return;
+    fileInputRef.current.value = '';
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const text = ev.target?.result as string;
+      const lines = text
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean);
+      if (!lines.length) {
+        toast({ title: 'CSV file is empty', variant: 'destructive' });
+        return;
+      }
+
+      const firstCells = lines[0].split(',').map((s) => s.trim().toLowerCase());
+      const hasHeader = isNaN(parseFloat(firstCells[1]));
+      const dataLines = hasHeader ? lines.slice(1) : lines;
+
+      let colProductCode = 0,
+        colNewPrice = 1,
+        colUom = 2,
+        colUnitPrice = 3;
+      if (hasHeader) {
+        firstCells.forEach((cell, i) => {
+          if (cell === 'productcode' || cell === 'product code')
+            colProductCode = i;
+          else if (cell === 'newprice' || cell === 'new price') colNewPrice = i;
+          else if (cell === 'uom' || cell === 'unit of measure') colUom = i;
+          else if (cell === 'unitprice' || cell === 'unit price')
+            colUnitPrice = i;
+        });
+      }
+
+      const productsData = dataLines.flatMap((line) => {
+        const cols = line.split(',').map((s) => s.trim());
+        const productCode = cols[colProductCode];
+        const price = parseFloat(cols[colNewPrice]);
+        if (!productCode || isNaN(price)) return [];
+        const uom = cols[colUom] || undefined;
+        const up = parseFloat(cols[colUnitPrice]);
+        return [
+          {
+            productCode,
+            newPrice: price,
+            uom,
+            unitPrice: isNaN(up) ? undefined : up,
+          },
+        ];
+      });
+
+      if (!productsData.length) {
+        toast({ title: 'No valid rows found in CSV', variant: 'destructive' });
+        return;
+      }
+
+      try {
+        const result = await bulkEdit({
+          variables: { pricingPlanId: pricingId, productsData },
+        });
+        const { count = 0, notFound = [] } =
+          result.data?.pricingFixedValuesBulkEdit ?? {};
+        await client.refetchQueries({ include: ['PricingFixedValuesPage'] });
+        if (notFound.length) {
+          toast({
+            title: `Imported ${count} rows. ${
+              notFound.length
+            } product code(s) not found: ${notFound.join(', ')}`,
+            variant: notFound.length ? 'destructive' : 'default',
+          });
+        } else {
+          toast({ title: `Imported ${count} rows successfully` });
+        }
+      } catch (err: any) {
+        toast({
+          title: err?.message || 'Import failed',
+          variant: 'destructive',
+        });
+      }
+    };
+    reader.readAsText(file);
   };
 
   const renderStatusBadge = (status: FixedPricingStatus) => {
@@ -247,6 +340,22 @@ export const FixedPricingTable = ({
             onChange={(e) => setSearchText(e.target.value)}
           />
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv"
+          style={{ display: 'none' }}
+          onChange={handleCsvFile}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={bulkLoading}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {bulkLoading ? 'Importing…' : 'Import CSV'}
+        </Button>
         <div style={{ width: '200px' }}>
           <Select
             value={statusFilter}
@@ -361,7 +470,7 @@ export const FixedPricingTable = ({
           rowLength={filteredIndices.length}
           scope="pricingFixedValues"
         >
-          <Table ref={tableRef}>
+          <Table>
             <Table.Header>
               <Table.Row>
                 <Table.Head />

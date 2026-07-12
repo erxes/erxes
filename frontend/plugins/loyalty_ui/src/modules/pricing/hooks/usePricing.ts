@@ -8,6 +8,7 @@ interface IPricingPlansQueryResult {
     _id: string;
     name: string;
     status: string;
+    type: string;
     isPriority: boolean;
     applyType: string;
     createdAt: string;
@@ -85,6 +86,7 @@ export const usePricing = () => {
       _id: plan._id,
       name: plan.name,
       status: plan.status as IPricing['status'],
+      type: plan.type,
       isPriority: plan.isPriority,
       applyType: plan.applyType as IPricing['applyType'],
       createdBy:
