@@ -5,7 +5,13 @@ import { useState } from 'react';
 import { useToggleFavorite } from '../hooks/useToggleFavorite';
 import { FavoriteToggleParams } from '../types';
 
-const PARTICLE_IDS = ['top', 'right', 'bottom-right', 'bottom-left', 'left'];
+const FAVORITE_PARTICLES = [
+  { id: 'top', radius: 18, scale: 0.8, duration: 0.6, size: 4 },
+  { id: 'right', radius: 23, scale: 1, duration: 0.64, size: 5 },
+  { id: 'bottom-right', radius: 21, scale: 0.9, duration: 0.62, size: 4 },
+  { id: 'bottom-left', radius: 26, scale: 1.15, duration: 0.68, size: 6 },
+  { id: 'left', radius: 20, scale: 1.05, duration: 0.66, size: 5 },
+] as const;
 
 const animations = {
   icon: {
@@ -18,23 +24,24 @@ const animations = {
     animate: { scale: [0, 1.4, 1], opacity: [0, 0.4, 0] },
     transition: { duration: 0.7, ease: 'easeOut' },
   },
-  particles: (index: number) => {
-    const angle = (index / 5) * (2 * Math.PI);
-    const radius = 18 + Math.random() * 8;
-    const scale = 0.8 + Math.random() * 0.4;
-    const duration = 0.6 + Math.random() * 0.1;
+  particles: FAVORITE_PARTICLES.map((particle, index) => {
+    const angle = (index / FAVORITE_PARTICLES.length) * (2 * Math.PI);
 
     return {
       initial: { scale: 0, opacity: 0.3, x: 0, y: 0 },
       animate: {
-        scale: [0, scale, 0],
+        scale: [0, particle.scale, 0],
         opacity: [0.3, 0.8, 0],
-        x: [0, Math.cos(angle) * radius],
-        y: [0, Math.sin(angle) * radius * 0.75],
+        x: [0, Math.cos(angle) * particle.radius],
+        y: [0, Math.sin(angle) * particle.radius * 0.75],
       },
-      transition: { duration, delay: index * 0.04, ease: 'easeOut' },
+      transition: {
+        duration: particle.duration,
+        delay: index * 0.04,
+        ease: 'easeOut',
+      },
     };
-  },
+  }),
 };
 
 export function FavoriteToggleIconButton(
@@ -102,21 +109,25 @@ export function FavoriteToggleIconButton(
       <AnimatePresence>
         {isAnimating && isFavorite && (
           <motion.div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            {PARTICLE_IDS.map((particleId, index) => (
-              <motion.div
-                key={particleId}
-                className="absolute rounded-full bg-amber-500"
-                style={{
-                  width: `${4 + Math.random() * 2}px`,
-                  height: `${4 + Math.random() * 2}px`,
-                  filter: 'blur(1px)',
-                  transform: 'translate(-50%, -50%)',
-                }}
-                initial={animations.particles(index).initial}
-                animate={animations.particles(index).animate}
-                transition={animations.particles(index).transition}
-              />
-            ))}
+            {FAVORITE_PARTICLES.map((particle, index) => {
+              const particleAnimation = animations.particles[index];
+
+              return (
+                <motion.div
+                  key={particle.id}
+                  className="absolute rounded-full bg-amber-500"
+                  style={{
+                    width: `${particle.size}px`,
+                    height: `${particle.size}px`,
+                    filter: 'blur(1px)',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                  initial={particleAnimation.initial}
+                  animate={particleAnimation.animate}
+                  transition={particleAnimation.transition}
+                />
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
