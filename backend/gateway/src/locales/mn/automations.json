@@ -244,6 +244,16 @@
       }
     }
   },
+  "schedule-cron-required": "Cron илэрхийлэл шаардлагатай",
+  "schedule-cron-format-error": "5, 6 эсвэл 7 талбартай cron илэрхийлэл ашиглана уу",
+  "schedule-timezone-required": "Цагийн бүс шаардлагатай",
+  "schedule-validation-title": "Хуваарийн тохиргоог шалгана уу",
+  "schedule-validation-description": "Зөв cron илэрхийлэл болон цагийн бүс шаардлагатай.",
+  "schedule-cron-label": "Cron илэрхийлэл",
+  "schedule-cron-description": "Таваас долоон талбар ашиглана. Жишээлбэл, 0 9 * * 1 нь Даваа гараг бүрийн 09:00 цагт ажиллана.",
+  "schedule-timezone-label": "Цагийн бүс",
+  "schedule-timezone-description": "UTC, Asia/Ulaanbaatar эсвэл America/New_York зэрэг IANA цагийн бүс ашиглана уу.",
+  "schedule-not-configured": "Хуваарь тохируулаагүй",
   "error": "Алдаа",
   "success": "Амжилттай"
 }
