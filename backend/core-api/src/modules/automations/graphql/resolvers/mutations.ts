@@ -14,12 +14,17 @@ import {
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
-const requestScheduleReconcile = (subdomain: string) =>
-  sendWorkerQueue('automations', 'schedule').add(
-    'reconcile-recurring-automations',
-    { kind: 'reconcile', subdomain },
-    { removeOnComplete: 10, removeOnFail: 10 },
-  );
+const requestScheduleReconcile = async (subdomain: string) => {
+  try {
+    await sendWorkerQueue('automations', 'schedule').add(
+      'reconcile-recurring-automations',
+      { kind: 'reconcile', subdomain },
+      { removeOnComplete: 10, removeOnFail: 10 },
+    );
+  } catch {
+    // The recurring scheduler retries reconciliation every 60 seconds.
+  }
+};
 
 export const automationMutations = {
   /**

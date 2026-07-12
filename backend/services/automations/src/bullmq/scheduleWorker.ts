@@ -172,8 +172,15 @@ const tenants = async (): Promise<string[]> => {
 
 export const syncAllAutomationSchedules = async () => {
   for (const subdomain of await tenants()) {
-    const models = await generateModels(subdomain);
-    await syncTenantAutomationSchedules(models, subdomain);
+    try {
+      const models = await generateModels(subdomain);
+      await syncTenantAutomationSchedules(models, subdomain);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      debugError(
+        `Failed to reconcile schedules for tenant ${subdomain}: ${message}`,
+      );
+    }
   }
 };
 
@@ -235,5 +242,10 @@ export const initScheduleWorker = async (redis: Redis) => {
       opts: { removeOnComplete: 10, removeOnFail: 10 },
     },
   );
-  await syncAllAutomationSchedules();
+  try {
+    await syncAllAutomationSchedules();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    debugError(`Initial schedule sync failed: ${message}`);
+  }
 };
