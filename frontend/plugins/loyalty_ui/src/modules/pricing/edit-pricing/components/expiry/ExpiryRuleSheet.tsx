@@ -178,7 +178,9 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-discount-type')} />
+                          <Select.Value
+                            placeholder={t('choose-discount-type')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {RULE_DISCOUNT_TYPES.map((option) => (

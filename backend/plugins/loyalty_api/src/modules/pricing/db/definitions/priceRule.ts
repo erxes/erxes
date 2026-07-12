@@ -1,7 +1,10 @@
 import { Schema } from 'mongoose';
 import { IPriceRule } from '@/pricing/@types/priceRule';
-import { RULE_TYPES, RULE_DISCOUNT_TYPES, PRICE_ADJUST_TYPES } from './constants';
-
+import {
+  RULE_TYPES,
+  RULE_DISCOUNT_TYPES,
+  PRICE_ADJUST_TYPES,
+} from './constants';
 
 export const priceRuleSchema = new Schema<IPriceRule>(
   {

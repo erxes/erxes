@@ -1,23 +1,32 @@
 import { Schema } from 'mongoose';
-import { IExpiryRule } from '@/pricing/@types/expiryRule'
-import { EXPIRY_TYPES, RULE_DISCOUNT_TYPES, PRICE_ADJUST_TYPES } from './constants';
+import { IExpiryRule } from '@/pricing/@types/expiryRule';
+import {
+  EXPIRY_TYPES,
+  RULE_DISCOUNT_TYPES,
+  PRICE_ADJUST_TYPES,
+} from './constants';
 
-export const expiryRuleSchema = new Schema<IExpiryRule>({
-  type: { type: String, enum: EXPIRY_TYPES.ALL, required: true },
-  value: { type: Number, required: true },
-  discountType: {
-    type: String,
-    enum: RULE_DISCOUNT_TYPES.ALL,
-    default: RULE_DISCOUNT_TYPES.DEFAULT as typeof RULE_DISCOUNT_TYPES.ALL[number]
+export const expiryRuleSchema = new Schema<IExpiryRule>(
+  {
+    type: { type: String, enum: EXPIRY_TYPES.ALL, required: true },
+    value: { type: Number, required: true },
+    discountType: {
+      type: String,
+      enum: RULE_DISCOUNT_TYPES.ALL,
+      default:
+        RULE_DISCOUNT_TYPES.DEFAULT as (typeof RULE_DISCOUNT_TYPES.ALL)[number],
+    },
+    discountValue: { type: Number, default: 0 },
+    discountBonusProduct: { type: String },
+    priceAdjustType: {
+      type: String,
+      enum: PRICE_ADJUST_TYPES.ALL,
+      default:
+        PRICE_ADJUST_TYPES.NONE as (typeof PRICE_ADJUST_TYPES.ALL)[number],
+    },
+    priceAdjustFactor: { type: Number, default: 0 },
   },
-  discountValue: { type: Number, default: 0 },
-  discountBonusProduct: { type: String },
-  priceAdjustType: {
-    type: String,
-    enum: PRICE_ADJUST_TYPES.ALL,
-    default: PRICE_ADJUST_TYPES.NONE as typeof PRICE_ADJUST_TYPES.ALL[number]
+  {
+    timestamps: false,
   },
-  priceAdjustFactor: { type: Number, default: 0 }
-}, {
-  timestamps: false
-});
+);
