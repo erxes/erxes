@@ -23,7 +23,7 @@ export const ExchangeRatesBreadcrumb = () => {
       <Separator.Inline />
       <PageHeader.FavoriteToggleButton
         breadcrumb={favoriteBreadcrumb}
-        icon="IconSandbox"
+        icon="IconCurrencyDollar"
       />
     </>
   );

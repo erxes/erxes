@@ -22,7 +22,7 @@ export const AccountingHeader = ({
   const { t } = useTranslation('accounting');
   const to = returnLink || '/accounting/main';
   const breadcrumb =
-    favoriteBreadcrumb ||
+    (favoriteBreadcrumb?.length ? favoriteBreadcrumb : undefined) ||
     createFavoriteBreadcrumb(t('accounting'), returnText || t('transactions'));
 
   return (

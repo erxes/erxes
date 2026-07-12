@@ -31,7 +31,7 @@ export const EBarimtBreadcrumb = () => {
       <Separator.Inline />
       <PageHeader.FavoriteToggleButton
         breadcrumb={favoriteBreadcrumb}
-        icon="IconSandbox"
+        icon="IconCashBanknote"
       />
     </>
   );

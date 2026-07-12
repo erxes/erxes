@@ -46,7 +46,7 @@ const getPosChildName = (pathname: string, t: (key: string) => string) => {
   }
 
   if (pathname.includes('/orders-by-subscription')) {
-    return 'POS orders by subscription';
+    return t('pos-orders-by-subscription');
   }
 
   if (pathname.includes('/by-items')) {
