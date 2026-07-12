@@ -3,8 +3,8 @@ import {
   getCoreAutomationTriggerComponent,
   isCoreAutomationTriggerType,
 } from '@/automations/components/builder/nodes/triggers/coreAutomationTriggers';
+import { TriggerContentLoadingFallback } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentLoadingFallback';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
-import { Spinner } from 'erxes-ui';
 import { Suspense } from 'react';
 import { splitAutomationNodeType } from 'ui-modules';
 
@@ -28,7 +28,7 @@ export const TriggerNodeConfigurationContent = ({
       TAutomationTriggerComponent.NodeContent,
     );
     return (
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<TriggerContentLoadingFallback />}>
         <div className="px-4 py-2">
           {CoreTriggerComponent ? (
             <CoreTriggerComponent config={config} />
