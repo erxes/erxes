@@ -34,11 +34,16 @@ const IndexPage = () => {
     return (cats || []).find((c: any) => c._id === categoryId);
   }, [currentTopic, categoryId]);
 
-  const lastLabel = categoryId
-    ? t('articles')
-    : topicId
-      ? t('kb-categories')
-      : t('knowledge-base');
+  let lastLabel = t('knowledge-base');
+
+  if (topicId) {
+    lastLabel = t('kb-categories');
+  }
+
+  if (categoryId) {
+    lastLabel = t('articles');
+  }
+
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     t('knowledge-base'),
     topicId && (currentTopic?.title || t('unnamed-topic')),
