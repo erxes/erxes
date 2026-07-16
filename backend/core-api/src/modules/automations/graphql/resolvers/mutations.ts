@@ -14,17 +14,6 @@ import {
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
-const requestScheduleReconcile = async (subdomain: string) => {
-  try {
-    await sendWorkerQueue('automations', 'schedule').add(
-      'reconcile-recurring-automations',
-      { kind: 'reconcile', subdomain },
-      { removeOnComplete: 10, removeOnFail: 10 },
-    );
-  } catch {
-    // The recurring scheduler retries reconciliation every 60 seconds.
-  }
-};
 
 export const automationMutations = {
   /**
@@ -33,7 +22,7 @@ export const automationMutations = {
   async automationsAdd(
     _root,
     doc: IAutomation,
-    { user, models, subdomain, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('automationsCreate');
 
@@ -43,7 +32,6 @@ export const automationMutations = {
       createdBy: user._id,
       updatedBy: user._id,
     });
-    await requestScheduleReconcile(subdomain);
 
     return models.Automations.getAutomation(automation._id);
   },
@@ -54,7 +42,7 @@ export const automationMutations = {
   async automationsEdit(
     _root,
     { _id, ...doc }: IAutomationsEdit,
-    { user, models, subdomain, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
 
@@ -75,7 +63,6 @@ export const automationMutations = {
       { _id },
       { $set: { ...doc, updatedAt: new Date(), updatedBy: user._id } },
     );
-    await requestScheduleReconcile(subdomain);
 
     return models.Automations.getAutomation(_id);
   },
@@ -87,7 +74,7 @@ export const automationMutations = {
   async archiveAutomations(
     _root,
     { automationIds, isRestore },
-    { models, user, subdomain, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
 
@@ -115,7 +102,6 @@ export const automationMutations = {
         },
       },
     );
-    await requestScheduleReconcile(subdomain);
     return automationIds;
   },
   /**
@@ -124,7 +110,7 @@ export const automationMutations = {
   async automationsRemove(
     _root,
     { automationIds }: { automationIds: string[] },
-    { models, user, subdomain, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('automationsDelete');
 
@@ -162,7 +148,6 @@ export const automationMutations = {
     await models.AutomationExecutions.removeExecutions(automationIds);
 
     await models.Segments.deleteMany({ _id: { $in: segmentIds } });
-    await requestScheduleReconcile(subdomain);
 
     return automationIds;
   },

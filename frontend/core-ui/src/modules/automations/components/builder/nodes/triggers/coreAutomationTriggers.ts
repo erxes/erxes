@@ -1,21 +1,8 @@
 import WebhooksComponents from '@/automations/components/builder/nodes/triggers/webhooks/Webhooks';
 import { LazyAutomationComponent } from '@/automations/types';
-import { lazy } from 'react';
 
 const coreTriggers = {
   ...WebhooksComponents,
-  schedules: {
-    sidebar: lazy(() =>
-      import(
-        '@/automations/components/builder/nodes/triggers/schedules/ScheduleConfigForm'
-      ).then((module) => ({ default: module.ScheduleConfigForm })),
-    ),
-    nodeContent: lazy(() =>
-      import(
-        '@/automations/components/builder/nodes/triggers/schedules/ScheduleNodeContent'
-      ).then((module) => ({ default: module.ScheduleNodeContent })),
-    ),
-  },
 };
 
 type TriggerName = keyof typeof coreTriggers;

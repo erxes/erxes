@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   getCoreAutomationTriggerComponent,
   TAutomationTriggerComponent,
@@ -7,7 +7,6 @@ import { useCoreCustomTriggerContent } from '@/automations/components/builder/si
 import { Button } from 'erxes-ui';
 import { CustomCoreTriggerContentProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
 import { TriggerContentWrapper } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentWrapper';
-import { TriggerContentLoadingFallback } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentLoadingFallback';
 
 /**
  * Custom core trigger content component for built-in core triggers
@@ -44,9 +43,7 @@ export const CustomCoreTriggerContent =
         footer={footerContent}
         aria-label={`Configure ${activeNode?.type || 'core trigger'} settings`}
       >
-        <Suspense fallback={<TriggerContentLoadingFallback />}>
-          {Component && <Component {...updatedProps} />}
-        </Suspense>
+        {Component && <Component {...updatedProps} />}
       </TriggerContentWrapper>
     );
   });
