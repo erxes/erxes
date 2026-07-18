@@ -85,9 +85,13 @@ const AutomationContext = createContext<AutomationContextType | null>(null);
 export const AutomationProvider = ({
   children,
   detail,
+  scoped,
 }: {
   children: React.ReactNode;
   detail?: IAutomation;
+  // Scoped providers (e.g. workflow edit sheet) keep their node selection in
+  // local state instead of URL params, so they don't fight the main canvas.
+  scoped?: boolean;
 }) => {
   const [awaitingToConnectNodeId, setAwaitingToConnectNodeId] = useState('');
   const [selectedNode, setSelectedNode] = useState<{
@@ -101,12 +105,22 @@ export const AutomationProvider = ({
     Node<NodeData>,
     Edge<EdgeProps>
   > | null>(null);
-  const [queryParams, setQueryParams] =
+  const [urlQueryParams, setUrlQueryParams] =
     useMultiQueryState<AutomationQueryParams>([
       'activeTab',
       'activeNodeTab',
       'activeNodeId',
     ]);
+  const [localQueryParams, setLocalQueryParams] = useState<
+    QueryValues<AutomationQueryParams>
+  >({ activeTab: null, activeNodeTab: null, activeNodeId: null });
+
+  const queryParams = scoped ? localQueryParams : urlQueryParams;
+  const setQueryParams = scoped
+    ? (values: QueryValues<AutomationQueryParams>) =>
+        setLocalQueryParams((previous) => ({ ...previous, ...values }))
+    : setUrlQueryParams;
+
   const { pathname } = useLocation();
   const isCreatePage = pathname === '/automations/create';
   const [cached, setCached] = useState<TConstantCached>(null);

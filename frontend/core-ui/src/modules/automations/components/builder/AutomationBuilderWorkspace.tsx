@@ -12,6 +12,7 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useAutomationBilderWorkSpace } from '@/automations/components/builder/hooks/useAutomationBilderWorkSpace';
+import { AutomationBuilderSidebar } from './sidebar/components/AutomationBuilderSidebar';
 
 export const AutomationBuilderWorkspace = () => {
   const { loading } = useAutomation();
@@ -37,6 +38,7 @@ export const AutomationBuilderWorkspace = () => {
         className="relative flex min-h-0 w-full flex-row overflow-hidden"
       >
         <AutomationBuilderCanvas />
+        <AutomationBuilderSidebar />
       </Resizable.Panel>
 
       {/* TODO: Add inspector panel when it is implemented */}

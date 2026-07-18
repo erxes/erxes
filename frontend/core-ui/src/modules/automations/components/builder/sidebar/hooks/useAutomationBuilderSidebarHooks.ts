@@ -20,13 +20,15 @@ export const useAutomationBuilderSidebarHooks = () => {
   const toggleSecondarySidebarOpen = useSetAtom(
     toggleAutomationBuilderSecondarySidebar,
   );
-  const { queryParams, setQueryParams } = useAutomation();
+  const { queryParams, setQueryParams, setAwaitingToConnectNodeId } =
+    useAutomation();
   const { getNode } = useReactFlow<Node<NodeData>>();
   const activeNode = getNode(queryParams?.activeNodeId || '')?.data;
 
   const handleClose = () => {
+    setIsOpenSideBar(false);
     setIsSecondarySidebarOpen(false);
-    toggleSideBarOpen();
+    setAwaitingToConnectNodeId('');
     setQueryParams({
       activeNodeId: null,
       activeNodeTab: null,

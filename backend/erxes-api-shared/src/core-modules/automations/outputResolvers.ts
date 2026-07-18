@@ -25,7 +25,7 @@ type TPropertyField = {
 type TPlaceholderToken = {
   token: string;
   sourceKey: string;
-  sourceType: 'trigger' | 'action';
+  sourceType: 'trigger' | 'action' | 'input';
   path: string;
 };
 type TOutputResolveGroup = {
@@ -469,13 +469,26 @@ const resolveBracketPlaceholderToken = (token: string) => {
 };
 
 const extractOutputPlaceholderTokens = (value: string) => {
-  const regex = /{{\s*([^}]+)\s*}}/g;
+  // Token body excludes both braces so malformed nested placeholders like
+  // "{{ trigger.{{ trigger.content }} }}" never match as a whole.
+  const regex = /{{\s*([^{}]+)\s*}}/g;
   const tokens = new Map<string, TPlaceholderToken>();
 
   for (const match of value.matchAll(regex)) {
     const token = match[1].trim();
 
     if (tokens.has(token)) {
+      continue;
+    }
+
+    // Workflow member scope: resolved from the child execution's frozen inputs
+    if (token.startsWith('input.')) {
+      tokens.set(token, {
+        token,
+        sourceKey: 'input',
+        sourceType: 'input',
+        path: token.slice('input.'.length),
+      });
       continue;
     }
 
@@ -604,6 +617,17 @@ const buildOutputResolveGroups = ({
 
   for (const tokens of Object.values(tokensByValueKey)) {
     for (const token of tokens) {
+      // Direct lookup on the frozen input values — no plugin definition
+      if (token.sourceType === 'input') {
+        addPathToOutputResolveGroup(groups, {
+          groupKey: 'input',
+          nodeType: '',
+          source: execution.inputs || {},
+          path: token.path,
+        });
+        continue;
+      }
+
       if (token.sourceType === 'trigger') {
         addPathToOutputResolveGroup(groups, {
           groupKey: 'trigger',
@@ -797,7 +821,7 @@ const replaceCurlyPlaceholders = (
   resolvedByToken: Record<string, unknown>,
   defaultValue?: unknown,
 ) =>
-  value.replace(/{{\s*([^}]+)\s*}}/g, (_, token: string) => {
+  value.replace(/{{\s*([^{}]+)\s*}}/g, (_, token: string) => {
     const resolved = resolveCurlyPlaceholderToken(token, resolvedByToken);
 
     if (resolved === undefined || resolved === null) {
@@ -819,7 +843,7 @@ const replaceOutputPlaceholderValue = (
   defaultValue?: unknown,
   keepUnresolvedPlaceholders = true,
 ) => {
-  const regex = /{{\s*([^}]+)\s*}}/g;
+  const regex = /{{\s*([^{}]+)\s*}}/g;
   const matches = [...value.matchAll(regex)];
   const fullTokenMatch =
     matches.length === 1 && matches[0][0].trim() === value.trim();

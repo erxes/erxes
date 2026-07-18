@@ -5,25 +5,46 @@ import {
 import { AutomationNodeType } from '@/automations/types';
 import { cn, Command, IconComponent } from 'erxes-ui';
 import React from 'react';
-import {
-  IAutomationsActionConfigConstants,
-  IAutomationsTriggerConfigConstants,
-} from 'ui-modules';
+
+export type TNodeLibraryRowItem = {
+  type: string;
+  label: string;
+  description?: string;
+  icon?: string;
+} & Record<string, any>;
 
 interface NodeLibraryRowProps {
-  item: IAutomationsTriggerConfigConstants | IAutomationsActionConfigConstants;
-  nodeType: AutomationNodeType.Trigger | AutomationNodeType.Action;
-  onDragStart: (
+  item: TNodeLibraryRowItem;
+  nodeType: AutomationNodeType;
+  draggable?: boolean;
+  rightElement?: React.ReactNode;
+  onDragStart?: (
     event: React.DragEvent<HTMLDivElement>,
     { type, label, description, icon, isCustom }: any,
   ) => void;
-  onSelectNode: (
-    node: (
-      | IAutomationsTriggerConfigConstants
-      | IAutomationsActionConfigConstants
-    ) & { nodeType: AutomationNodeType.Trigger | AutomationNodeType.Action },
-  ) => void;
+  onSelectNode: (node: TNodeLibraryRowItem & { nodeType: AutomationNodeType }) => void;
 }
+
+const GHOST_COLORS: Record<
+  AutomationNodeType,
+  { border: string; background: string; color: string }
+> = {
+  [AutomationNodeType.Trigger]: {
+    border: 'rgba(99,102,241,0.18)',
+    background: 'rgba(99,102,241,0.10)',
+    color: 'rgb(99,102,241)',
+  },
+  [AutomationNodeType.Action]: {
+    border: 'rgba(34,197,94,0.18)',
+    background: 'rgba(34,197,94,0.10)',
+    color: 'rgb(34,197,94)',
+  },
+  [AutomationNodeType.Workflow]: {
+    border: 'rgba(59,130,246,0.18)',
+    background: 'rgba(59,130,246,0.10)',
+    color: 'rgb(59,130,246)',
+  },
+};
 
 const createDragGhost = ({
   label,
@@ -31,7 +52,7 @@ const createDragGhost = ({
   iconMarkup,
 }: {
   label: string;
-  nodeType: AutomationNodeType.Trigger | AutomationNodeType.Action;
+  nodeType: AutomationNodeType;
   iconMarkup: string;
 }) => {
   const ghost = document.createElement('div');
@@ -50,11 +71,7 @@ const createDragGhost = ({
         gap:10px;
         padding:10px 12px;
         border-radius:12px;
-        border:1px solid ${
-          nodeType === AutomationNodeType.Trigger
-            ? 'rgba(99,102,241,0.18)'
-            : 'rgba(34,197,94,0.18)'
-        };
+        border:1px solid ${GHOST_COLORS[nodeType].border};
         background:var(--background, rgba(255,255,255,0.96));
         color:var(--foreground, rgb(15,23,42));
         box-shadow:0 16px 40px rgba(15,23,42,0.16);
@@ -70,16 +87,8 @@ const createDragGhost = ({
           width:32px;
           height:32px;
           border-radius:10px;
-          background:${
-            nodeType === AutomationNodeType.Trigger
-              ? 'rgba(99,102,241,0.10)'
-              : 'rgba(34,197,94,0.10)'
-          };
-          color:${
-            nodeType === AutomationNodeType.Trigger
-              ? 'rgb(99,102,241)'
-              : 'rgb(34,197,94)'
-          };
+          background:${GHOST_COLORS[nodeType].background};
+          color:${GHOST_COLORS[nodeType].color};
         "
       >
         ${iconMarkup}
@@ -105,6 +114,8 @@ export const NodeLibraryRow = ({
   onDragStart,
   onSelectNode,
   nodeType,
+  draggable = true,
+  rightElement,
 }: NodeLibraryRowProps) => {
   const { icon: iconName, label, description } = item;
   const { hoveredRowId, draggingNode } = useDnDMetaState();
@@ -123,50 +134,61 @@ export const NodeLibraryRow = ({
       className={cn(
         'relative !h-auto w-full rounded-lg border border-border/60 bg-background !p-0 transition-[border-color,background-color] duration-150 ease-out data-[selected=true]:bg-background',
         {
-          'cursor-grab': !isDragging,
-          'cursor-grabbing': isDragging,
+          'cursor-grab': draggable && !isDragging,
+          'cursor-grabbing': draggable && isDragging,
+          'cursor-pointer': !draggable,
           'border-success/20 bg-success/[0.035] data-[selected=true]:bg-success/[0.035]':
             nodeType === AutomationNodeType.Action && isHovered,
           'border-primary/20 bg-primary/[0.035] data-[selected=true]:bg-primary/[0.035]':
             nodeType === AutomationNodeType.Trigger && isHovered,
+          'border-info/20 bg-info/[0.035] data-[selected=true]:bg-info/[0.035]':
+            nodeType === AutomationNodeType.Workflow && isHovered,
           'border-success/30 bg-success/5 data-[selected=true]:bg-success/5':
             nodeType === AutomationNodeType.Action && isDragging,
           'border-primary/30 bg-primary/5 data-[selected=true]:bg-primary/5':
             nodeType === AutomationNodeType.Trigger && isDragging,
         },
       )}
-      draggable
+      draggable={draggable}
       onMouseEnter={() => setHoveredRowId(rowId)}
       onMouseLeave={() => {
         setHoveredRowId(null);
       }}
-      onDragStart={(event) => {
-        startDragging({
-          nodeType,
-          ...item,
-        });
+      onDragStart={
+        draggable
+          ? (event) => {
+              startDragging({
+                nodeType,
+                ...item,
+              } as Parameters<typeof startDragging>[0]);
 
-        const iconElement = event.currentTarget.querySelector(
-          '.node-library-row-icon',
-        ) as HTMLElement | null;
+              const iconElement = event.currentTarget.querySelector(
+                '.node-library-row-icon',
+              ) as HTMLElement | null;
 
-        const ghost = createDragGhost({
-          label,
-          nodeType,
-          iconMarkup: iconElement?.innerHTML || '<span>+</span>',
-        });
+              const ghost = createDragGhost({
+                label,
+                nodeType,
+                iconMarkup: iconElement?.innerHTML || '<span>+</span>',
+              });
 
-        event.dataTransfer.setDragImage(ghost, 24, 20);
-        onDragStart(event, { nodeType, ...item });
+              event.dataTransfer.setDragImage(ghost, 24, 20);
+              onDragStart?.(event, { nodeType, ...item });
 
-        window.setTimeout(() => {
-          ghost.remove();
-        }, 0);
-      }}
-      onDragEnd={() => {
-        setHoveredRowId(null);
-        reset();
-      }}
+              window.setTimeout(() => {
+                ghost.remove();
+              }, 0);
+            }
+          : undefined
+      }
+      onDragEnd={
+        draggable
+          ? () => {
+              setHoveredRowId(null);
+              reset();
+            }
+          : undefined
+      }
     >
       <div className="flex min-h-16 w-full items-center gap-3.5 px-4 py-1.5">
         <div
@@ -177,6 +199,7 @@ export const NodeLibraryRow = ({
                 nodeType === AutomationNodeType.Action,
               'bg-primary/10 text-primary':
                 nodeType === AutomationNodeType.Trigger,
+              'bg-info/10 text-info': nodeType === AutomationNodeType.Workflow,
             },
           )}
         >
@@ -190,6 +213,7 @@ export const NodeLibraryRow = ({
             {description || ''}
           </p>
         </div>
+        {rightElement}
       </div>
     </Command.Item>
   );

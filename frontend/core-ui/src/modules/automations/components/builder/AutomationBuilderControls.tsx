@@ -8,6 +8,7 @@ import {
   IconGridDots,
   IconLine,
   IconMap,
+  IconMarquee2,
   IconMenu2,
   IconMinus,
   IconPhoto,
@@ -100,8 +101,10 @@ type AutomationBuilderControlsProps = {
   flowDirection: TAutomationFlowDirection;
   showGrid: boolean;
   showMiniMap: boolean;
+  isMarqueeMode: boolean;
   onToggleGrid: () => void;
   onToggleMiniMap: () => void;
+  onToggleMarquee: () => void;
 };
 
 export const AutomationBuilderControls = ({
@@ -109,8 +112,10 @@ export const AutomationBuilderControls = ({
   flowDirection,
   showGrid,
   showMiniMap,
+  isMarqueeMode,
   onToggleGrid,
   onToggleMiniMap,
+  onToggleMarquee,
 }: AutomationBuilderControlsProps) => {
   const { getValues, setValue } = useFormContext<TAutomationBuilderForm>();
   const {
@@ -258,6 +263,14 @@ export const AutomationBuilderControls = ({
           onClick={() => fitView({ padding: 0.2, duration: 300 })}
         >
           <IconFocusCentered />
+        </ControlButton>
+
+        <ControlButton
+          label={isMarqueeMode ? 'Exit marquee select' : 'Marquee select'}
+          active={isMarqueeMode}
+          onClick={onToggleMarquee}
+        >
+          <IconMarquee2 />
         </ControlButton>
 
         <Separator className="w-full" />

@@ -67,7 +67,11 @@ const AutomationHistorySheetResultName = () => {
     </div>
   );
 };
-const AutomationHistorySheetContent = ({ isOpen }: { isOpen: boolean }) => {
+export const AutomationHistorySheetContent = ({
+  isOpen,
+}: {
+  isOpen: boolean;
+}) => {
   if (!isOpen) {
     return null;
   }

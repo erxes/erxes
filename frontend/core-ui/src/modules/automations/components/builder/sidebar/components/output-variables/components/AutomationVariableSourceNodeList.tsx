@@ -1,7 +1,18 @@
-import { Combobox, Command, IconComponent, Popover, cn } from 'erxes-ui';
+import { CANVAS_FIT_VIEW_OPTIONS } from '@/automations/constants';
+import { AutomationNodeType, NodeData } from '@/automations/types';
+import { IconFocusCentered } from '@tabler/icons-react';
+import { Node, useReactFlow } from '@xyflow/react';
+import {
+  Button,
+  Combobox,
+  Command,
+  IconComponent,
+  Popover,
+  Tooltip,
+  cn,
+} from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { TAutomationVariableSourceNode } from '../AutomationVariableBrowserTypes';
-import { AutomationNodeType } from '@/automations/types';
 
 export const AutomationVariableSourceNodeList = ({
   activeSourceNodeId,
@@ -13,20 +24,52 @@ export const AutomationVariableSourceNodeList = ({
   onSelectSourceNode: (nodeId: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
+  const { fitView, getNode } = useReactFlow<Node<NodeData>>();
   const selectedNode = useMemo(
     () => sourceNodes.find((node) => node.id === activeSourceNodeId),
     [activeSourceNodeId, sourceNodes],
   );
+  const focusSelectedNode = () => {
+    const node = getNode(activeSourceNodeId);
+
+    if (!node) {
+      return;
+    }
+
+    fitView({
+      nodes: [node],
+      duration: 300,
+      ...CANVAS_FIT_VIEW_OPTIONS,
+    });
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger>
-        {selectedNode ? (
-          <AutomationVariableSourceNodeValue node={selectedNode} />
-        ) : (
-          <Combobox.Value placeholder="Select node" />
-        )}
-      </Combobox.Trigger>
+      <div className="flex items-center gap-2">
+        <Combobox.Trigger className="min-w-0 flex-1">
+          {selectedNode ? (
+            <AutomationVariableSourceNodeValue node={selectedNode} />
+          ) : (
+            <Combobox.Value placeholder="Select node" />
+          )}
+        </Combobox.Trigger>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="shrink-0"
+              aria-label="Focus selected node"
+              disabled={!selectedNode}
+              onClick={focusSelectedNode}
+            >
+              <IconFocusCentered className="size-4" />
+            </Button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>Focus selected node</Tooltip.Content>
+        </Tooltip>
+      </div>
       <Combobox.Content>
         <Command shouldFilter>
           <Command.Input placeholder="Search nodes..." />
@@ -37,6 +80,7 @@ export const AutomationVariableSourceNodeList = ({
                 key={node.id}
                 className="py-2"
                 value={node.id}
+                keywords={[node.label]}
                 onSelect={() => {
                   onSelectSourceNode(node.id);
                   setOpen(false);
@@ -74,7 +118,8 @@ const AutomationVariableSourceNodeValue = ({
       ) : null}
       <span className="min-w-0 flex-1 truncate font-medium">{node.label}</span>
       <span className="text-xs text-muted-foreground">
-        {node.nodeType === AutomationNodeType.Trigger ? 'Trigger' : 'Action'}
+        {node.kindLabel ??
+          (node.nodeType === AutomationNodeType.Trigger ? 'Trigger' : 'Action')}
       </span>
     </div>
   );

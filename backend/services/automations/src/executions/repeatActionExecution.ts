@@ -1,5 +1,5 @@
 import { IModels } from '../connectionResolver';
-import { getActionsMap } from '../utils/utils';
+import { getExecutionActionsMap } from '../utils/utils';
 import { executeActions } from './executeActions';
 import {
   AUTOMATION_EXECUTION_STATUS,
@@ -31,7 +31,7 @@ export const repeatActionExecution = async (
 
   const { actions = [] } = automation || {};
 
-  const actionsMap = await getActionsMap(actions || []);
+  const actionsMap = await getExecutionActionsMap(automation, execution);
 
   const actionIndex = actions.findIndex((action) => action.id === actionId);
 

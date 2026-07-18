@@ -1,7 +1,7 @@
 import { IModels } from '../connectionResolver';
 import { calculateExecution } from './calculateExecutions';
 import { executeActions } from './executeActions';
-import { getActionsMap } from '../utils/utils';
+import { getExecutionActionsMap } from '../utils/utils';
 
 const escapeRegExp = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -85,7 +85,7 @@ export const receiveTrigger = async ({
             subdomain,
             trigger.type,
             execution,
-            await getActionsMap(automation.actions),
+            await getExecutionActionsMap(automation, execution),
             trigger.actionId,
           );
         }
