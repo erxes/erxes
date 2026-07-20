@@ -144,6 +144,14 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
       ? 'Add images to gallery'
       : 'Add more';
 
+  const uploadButtonIcon = uploading ? (
+    <IconLoader2 size={15} className="animate-spin" />
+  ) : images.length === 0 ? (
+    <IconPhoto size={15} />
+  ) : (
+    <IconPlus size={15} />
+  );
+
   if (readonly && images.length === 0) return null;
 
   return (
@@ -188,13 +196,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
                 if (!uploading) inputRef.current?.click();
               }}
             >
-              {uploading ? (
-                <IconLoader2 size={15} className="animate-spin" />
-              ) : images.length === 0 ? (
-                <IconPhoto size={15} />
-              ) : (
-                <IconPlus size={15} />
-              )}
+              {uploadButtonIcon}
               <span>{uploadButtonLabel}</span>
             </button>
           ) : (
