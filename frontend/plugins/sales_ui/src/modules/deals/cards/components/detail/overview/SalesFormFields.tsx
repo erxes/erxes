@@ -164,7 +164,9 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         <FormField label={t('broker-type')}>
           <Select
             value={brokerType || '_none'}
-            onValueChange={(v) => handleBrokerTypeChange(v === '_none' ? '' : v)}
+            onValueChange={(v) =>
+              handleBrokerTypeChange(v === '_none' ? '' : v)
+            }
           >
             <Select.Trigger>
               <Select.Value placeholder={t('none')} />

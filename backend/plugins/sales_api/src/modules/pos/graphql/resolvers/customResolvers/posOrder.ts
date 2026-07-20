@@ -102,7 +102,9 @@ const resolvers = {
       defaultValue: null,
     });
     if (!customer) return null;
-    const name = [customer.firstName, customer.lastName].filter(Boolean).join(' ');
+    const name = [customer.firstName, customer.lastName]
+      .filter(Boolean)
+      .join(' ');
     return name || customer.primaryEmail || customer.code || null;
   },
 };
