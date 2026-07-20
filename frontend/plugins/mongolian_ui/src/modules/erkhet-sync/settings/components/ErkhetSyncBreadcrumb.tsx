@@ -3,7 +3,6 @@ import { Button, Separator } from 'erxes-ui';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { SETTINGS_ROUTES } from '@/erkhet-sync/settings/constants/settingRoutes';
-import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const ErkhetSyncBreadcrumb = () => {
   const { pathname } = useLocation();
@@ -11,10 +10,6 @@ export const ErkhetSyncBreadcrumb = () => {
   const currentLabel = t(
     SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES] ||
       SETTINGS_ROUTES['/settings/mongolian/sync-erkhet'],
-  );
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    t('settings'),
-    currentLabel,
   );
 
   return (
@@ -27,11 +22,6 @@ export const ErkhetSyncBreadcrumb = () => {
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
         {currentLabel}
       </Button>
-      <Separator.Inline />
-      <PageHeader.FavoriteToggleButton
-        breadcrumb={favoriteBreadcrumb}
-        icon="IconCashBanknote"
-      />
     </>
   );
 };

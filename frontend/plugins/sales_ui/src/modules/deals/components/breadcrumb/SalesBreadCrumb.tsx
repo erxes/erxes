@@ -27,6 +27,7 @@ export const SalesBreadCrumb = ({
   }
 
   const breadcrumb = createFavoriteBreadcrumb(
+    'Sales',
     boardId ? boardDetail?.name || 'Unknown' : undefined,
     pipelineId ? pipelineDetail?.name || 'Unknown' : undefined,
   );

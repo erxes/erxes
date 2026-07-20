@@ -26,18 +26,32 @@ export default function ReportIndexPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const activeSection: Section = location.pathname.includes('/call')
-    ? 'call'
-    : location.pathname.includes('/ticket')
-      ? 'ticket'
-      : 'overview';
-  const activeSectionLabel =
-    activeSection === 'call'
-      ? t('call-center')
-      : activeSection === 'ticket'
-        ? t('ticket')
-        : t('frontline-overview');
+  let activeSection: Section = 'overview';
+
+  if (location.pathname.includes('/call')) {
+    activeSection = 'call';
+  } else if (location.pathname.includes('/ticket')) {
+    activeSection = 'ticket';
+  }
+
+  let activeSectionLabel: string | undefined;
+
+  if (activeSection === 'call') {
+    activeSectionLabel = t('call-center');
+  } else if (activeSection === 'ticket') {
+    activeSectionLabel = t('ticket');
+  }
+
+  let reportContent = <ReportsView />;
+
+  if (activeSection === 'ticket') {
+    reportContent = <TicketReportsList />;
+  } else if (activeSection === 'call') {
+    reportContent = <CallReportsView />;
+  }
+
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Frontline',
     t('reports'),
     activeSectionLabel,
   );
@@ -81,13 +95,7 @@ export default function ReportIndexPage() {
         </PageHeader.Start>
       </PageHeader>
 
-      {activeSection === 'ticket' ? (
-        <TicketReportsList />
-      ) : activeSection === 'call' ? (
-        <CallReportsView />
-      ) : (
-        <ReportsView />
-      )}
+      {reportContent}
     </PageContainer>
   );
 }

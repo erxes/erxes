@@ -32,7 +32,9 @@ export const LoyaltyMainLayout = ({
     agents: 'agents',
     coupons: 'coupons',
   };
-  const currentSection = pathname.split('/').filter(Boolean).pop() || '';
+  const currentSection = pathname
+    .split('/')
+    .reduce((lastSection, section) => section || lastSection, '');
   const currentLabel = sectionLabelByPath[currentSection]
     ? t(sectionLabelByPath[currentSection])
     : '';

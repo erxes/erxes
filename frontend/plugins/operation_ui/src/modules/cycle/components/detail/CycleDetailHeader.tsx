@@ -1,27 +1,21 @@
-import {
-  FavoriteToggleIconButton,
-  PageHeader,
-  createFavoriteBreadcrumb,
-} from 'ui-modules';
-import { Breadcrumb, Separator } from 'erxes-ui';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
+import { Breadcrumb, Separator, Skeleton } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
 import { CyclesBreadcrumb } from '@/cycle/components/CyclesBreadcrumb';
 import { useGetCycle } from '@/cycle/hooks/useGetCycle';
-import { useTranslation } from 'react-i18next';
+import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
 
 export const CycleDetailHeader = () => {
   const { teamId, cycleId } = useParams<{
     teamId?: string;
     cycleId: string;
   }>();
-  const { t } = useTranslation('operation');
-  const { cycleDetail } = useGetCycle(cycleId);
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    t('cycles'),
-    cycleDetail?.name,
-  );
+  const { cycleDetail, loading: cycleLoading } = useGetCycle(cycleId);
+  const cycleSegment = cycleId ? cycleDetail?.name || 'Unknown' : undefined;
+  const { breadcrumb: favoriteBreadcrumb, loading: teamLoading } =
+    useTeamFavoriteBreadcrumb(teamId, cycleSegment);
 
   return (
     <PageHeader>
@@ -36,10 +30,14 @@ export const CycleDetailHeader = () => {
               {cycleDetail?.name}
             </Breadcrumb.Item>
             <Breadcrumb.Item className="ml-1">
-              <FavoriteToggleIconButton
-                breadcrumb={favoriteBreadcrumb}
-                icon="IconListCheck"
-              />
+              {cycleLoading || teamLoading ? (
+                <Skeleton className="w-8 h-8" />
+              ) : (
+                <FavoriteToggleIconButton
+                  breadcrumb={favoriteBreadcrumb}
+                  icon="IconListCheck"
+                />
+              )}
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>

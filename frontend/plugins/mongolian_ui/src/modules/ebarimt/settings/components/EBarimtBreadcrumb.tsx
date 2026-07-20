@@ -3,7 +3,6 @@ import { Button, Separator } from 'erxes-ui';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { SETTINGS_ROUTES } from '@/ebarimt/settings/constants/settingRoutes';
-import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const EBarimtBreadcrumb = () => {
   const { pathname } = useLocation();
@@ -12,10 +11,6 @@ export const EBarimtBreadcrumb = () => {
   const currentLabel = t(
     SETTINGS_ROUTES[currentPath as keyof typeof SETTINGS_ROUTES] ||
       SETTINGS_ROUTES[''],
-  );
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    t('settings'),
-    currentLabel,
   );
 
   return (
@@ -28,11 +23,6 @@ export const EBarimtBreadcrumb = () => {
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
         {currentLabel}
       </Button>
-      <Separator.Inline />
-      <PageHeader.FavoriteToggleButton
-        breadcrumb={favoriteBreadcrumb}
-        icon="IconCashBanknote"
-      />
     </>
   );
 };

@@ -1,8 +1,9 @@
 import { Breadcrumb, Button, Skeleton } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { useGetTask } from '@/task/hooks/useGetTask';
-import { FavoriteToggleIconButton, createFavoriteBreadcrumb } from 'ui-modules';
+import { FavoriteToggleIconButton } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
 
 export const TaskDetailBreadCrump = () => {
   const { teamId, taskId } = useParams<{
@@ -13,15 +14,21 @@ export const TaskDetailBreadCrump = () => {
 
   const { task, loading } = useGetTask({ variables: { _id: taskId } });
 
-  if (loading) {
-    return <Skeleton className="w-12 h-lh" />;
-  }
-
   // Determine base path
   const basePath = teamId
     ? `/operation/team/${teamId}/tasks/${taskId}`
     : `/operation/tasks/${taskId}`;
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('tasks'), task?.name);
+  const taskSegment = taskId ? task?.name || 'Unknown' : undefined;
+  const { breadcrumb: favoriteBreadcrumb, loading: teamLoading } =
+    useTeamFavoriteBreadcrumb(
+      teamId,
+      teamId ? taskSegment : t('tasks'),
+      teamId ? undefined : taskSegment,
+    );
+
+  if (loading || teamLoading) {
+    return <Skeleton className="w-12 h-lh" />;
+  }
 
   return (
     <Breadcrumb>

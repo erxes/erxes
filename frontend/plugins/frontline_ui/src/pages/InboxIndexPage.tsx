@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('inbox'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb('Frontline', t('inbox'));
 
   return (
     <div className="flex flex-col h-dvh">

@@ -9,7 +9,8 @@ import {
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetProject } from '@/project/hooks/useGetProject';
 import { useTranslation } from 'react-i18next';
-import { FavoriteToggleIconButton, createFavoriteBreadcrumb } from 'ui-modules';
+import { FavoriteToggleIconButton } from 'ui-modules';
+import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
 
 export const ProjectDetailBreadCrumb = () => {
   const { t } = useTranslation('operation');
@@ -19,26 +20,26 @@ export const ProjectDetailBreadCrumb = () => {
   }>();
   const { pathname } = useLocation();
 
-  const { project, loading } = useGetProject({
+  const { project, loading: projectLoading } = useGetProject({
     variables: { _id: projectId },
     skip: !projectId,
   });
-
-  if (loading) {
-    return <Skeleton className="w-12 h-lh" />;
-  }
 
   // Determine base path
   const basePath = teamId
     ? `/operation/team/${teamId}/projects/${projectId}`
     : `/operation/projects/${projectId}`;
-  const currentView =
-    pathname === `${basePath}/tasks` ? t('tasks') : t('overview');
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    t('projects'),
-    project?.name,
-    currentView,
-  );
+  const projectSegment = projectId ? project?.name || 'Unknown' : undefined;
+  const { breadcrumb: favoriteBreadcrumb, loading: teamLoading } =
+    useTeamFavoriteBreadcrumb(
+      teamId,
+      teamId ? projectSegment : t('projects'),
+      teamId ? undefined : projectSegment,
+    );
+
+  if (projectLoading || teamLoading) {
+    return <Skeleton className="w-12 h-lh" />;
+  }
 
   return (
     <Breadcrumb>

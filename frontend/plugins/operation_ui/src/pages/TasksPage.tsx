@@ -8,15 +8,11 @@ import {
   TasksExportButton,
   TasksImportButton,
 } from '@/task/components/TasksLayout';
-import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
+import { Breadcrumb, PageSubHeader, Separator, Skeleton } from 'erxes-ui';
 import { useLocation, useParams } from 'react-router-dom';
-import {
-  Can,
-  FavoriteToggleIconButton,
-  PageHeader,
-  createFavoriteBreadcrumb,
-} from 'ui-modules';
+import { Can, FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
@@ -28,10 +24,9 @@ export const TasksPage = () => {
     : `/operation/tasks`;
 
   const isCreatedView = pathname === '/operation/tasks/created';
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    t('tasks'),
-    !teamId && (isCreatedView ? t('created') : t('assigned')),
-  );
+  const taskView = !teamId && (isCreatedView ? t('created') : t('assigned'));
+  const { breadcrumb: favoriteBreadcrumb, loading: favoriteLoading } =
+    useTeamFavoriteBreadcrumb(teamId, t('tasks'), taskView);
 
   return (
     <>
@@ -47,10 +42,14 @@ export const TasksPage = () => {
               )}
               <TaskBreadCrump link={basePath} />
               <Breadcrumb.Item className="ml-1">
-                <FavoriteToggleIconButton
-                  breadcrumb={favoriteBreadcrumb}
-                  icon="IconChecklist"
-                />
+                {favoriteLoading ? (
+                  <Skeleton className="w-8 h-8" />
+                ) : (
+                  <FavoriteToggleIconButton
+                    breadcrumb={favoriteBreadcrumb}
+                    icon="IconChecklist"
+                  />
+                )}
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>

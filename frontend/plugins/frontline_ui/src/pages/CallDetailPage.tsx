@@ -371,10 +371,44 @@ export const CallDetailCard = ({
   );
 };
 
+type WaitingCall = {
+  callerid: string;
+  callerchannel: string;
+};
+
+export const useWaitingColumns = (): ColumnDef<WaitingCall>[] => {
+  const { t } = useTranslation('frontline');
+
+  return [
+    {
+      accessorKey: 'callerid',
+      header: () => <RecordTable.InlineHead label={t('caller-id')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {formatPhoneNumber({
+            defaultCountry: 'MN',
+            value: cell.getValue() as string,
+          })}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      accessorKey: 'callerchannel',
+      header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      ),
+      size: 300,
+    },
+  ];
+};
+
 export const CallDetailWaiting = ({
   waitingList,
 }: {
-  waitingList: { callerid: string; callerchannel: string }[];
+  waitingList: WaitingCall[];
 }) => {
   const { t } = useTranslation('frontline');
   return (
@@ -383,32 +417,7 @@ export const CallDetailWaiting = ({
         {t('waiting')}
       </h5>
       <RecordTable.Provider
-        columns={[
-          {
-            accessorKey: 'callerid',
-            header: () => <RecordTable.InlineHead label={t('caller-id')} />,
-            cell: ({ cell }) => (
-              <RecordTableInlineCell className="font-medium">
-                {formatPhoneNumber({
-                  defaultCountry: 'MN',
-                  value: cell.getValue() as string,
-                })}
-              </RecordTableInlineCell>
-            ),
-          },
-          {
-            accessorKey: 'callerchannel',
-            header: () => (
-              <RecordTable.InlineHead label={t('caller-channel')} />
-            ),
-            cell: ({ cell }) => (
-              <RecordTableInlineCell className="font-medium">
-                {cell.getValue() as string}
-              </RecordTableInlineCell>
-            ),
-            size: 300,
-          },
-        ]}
+        columns={useWaitingColumns()}
         data={waitingList}
       >
         <RecordTable.Scroll>
@@ -424,12 +433,57 @@ export const CallDetailWaiting = ({
   );
 };
 
+type TalkingCall = {
+  callerid: string;
+  calleeid?: string;
+  bridge_time?: Date;
+};
+
+export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
+  const { t } = useTranslation('frontline');
+
+  return [
+    {
+      accessorKey: 'callerid',
+      header: () => <RecordTable.InlineHead label={t('caller-id')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {formatPhoneNumber({
+            defaultCountry: 'MN',
+            value: cell.getValue() as string,
+          })}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      accessorKey: 'calleeid',
+      header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      accessorKey: 'bridge_time',
+      header: () => <RecordTable.InlineHead label={t('duration')} />,
+      cell: ({ cell }) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const duration = useCallDurationFromDate(cell.getValue() as Date);
+        return (
+          <RecordTableInlineCell className="font-medium">
+            {duration}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+  ];
+};
+
 export const CallDetailTalking = ({
   talkingList,
 }: {
-  talkingList: {
-    callerid: string;
-  }[];
+  talkingList: TalkingCall[];
 }) => {
   const { t } = useTranslation('frontline');
   return (
@@ -438,44 +492,7 @@ export const CallDetailTalking = ({
         {t('talking')}
       </h5>
       <RecordTable.Provider
-        columns={[
-          {
-            accessorKey: 'callerid',
-            header: () => <RecordTable.InlineHead label={t('caller-id')} />,
-            cell: ({ cell }) => (
-              <RecordTableInlineCell className="font-medium">
-                {formatPhoneNumber({
-                  defaultCountry: 'MN',
-                  value: cell.getValue() as string,
-                })}
-              </RecordTableInlineCell>
-            ),
-          },
-          {
-            accessorKey: 'calleeid',
-            header: () => (
-              <RecordTable.InlineHead label={t('caller-channel')} />
-            ),
-            cell: ({ cell }) => (
-              <RecordTableInlineCell className="font-medium">
-                {cell.getValue() as string}
-              </RecordTableInlineCell>
-            ),
-          },
-          {
-            accessorKey: 'bridge_time',
-            header: () => <RecordTable.InlineHead label={t('duration')} />,
-            cell: ({ cell }) => {
-              // eslint-disable-next-line react-hooks/rules-of-hooks
-              const duration = useCallDurationFromDate(cell.getValue() as Date);
-              return (
-                <RecordTableInlineCell className="font-medium">
-                  {duration}
-                </RecordTableInlineCell>
-              );
-            },
-          },
-        ]}
+        columns={useTalkingColumns()}
         data={talkingList}
       >
         <RecordTable.Scroll>

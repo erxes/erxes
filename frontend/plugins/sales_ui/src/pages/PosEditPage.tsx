@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Breadcrumb, Select, Separator } from 'erxes-ui';
-import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { Button, Breadcrumb, Select } from 'erxes-ui';
+import { PageHeader } from 'ui-modules';
 import { IconCashRegister } from '@tabler/icons-react';
 import { PosEdit } from '~/modules/pos/components/pos-edit';
 import PosDelete from '~/modules/pos/components/pos-delete/PosDelete';
@@ -15,10 +15,6 @@ export const PosEditPage = () => {
   const { posList, loading } = usePosList();
 
   const currentPos = posList.find((pos: IPos) => pos._id === id);
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    t('pos'),
-    currentPos?.name,
-  );
 
   const handlePosChange = (posId: string) => {
     navigate(`/settings/sales/pos/${posId}`);
@@ -61,11 +57,6 @@ export const PosEditPage = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={favoriteBreadcrumb}
-            icon="IconCashRegister"
-          />
         </PageHeader.Start>
 
         <PageHeader.End>

@@ -22,7 +22,7 @@ export const FormDetailsBreadcrumbItem = ({ formId }: { formId: string }) => {
 export const FormPageHeader = () => {
   const { t } = useTranslation('frontline');
   const { formId } = useParams<{ formId: string }>();
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('forms'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb('Frontline', t('forms'));
 
   return (
     <PageHeader>

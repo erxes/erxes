@@ -23,7 +23,10 @@ import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
 const TicketsIndexPage = () => {
   const { t } = useTranslation('frontline');
   const variables = useTicketsVariables();
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('tickets'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Frontline',
+    t('tickets'),
+  );
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;

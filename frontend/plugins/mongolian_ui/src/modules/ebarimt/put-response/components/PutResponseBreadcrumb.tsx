@@ -8,24 +8,33 @@ import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 export const PutResponseBreadcrumb = () => {
   const { t } = useTranslation('mongolian');
   const { pathname } = useLocation();
+  const rootLabel = t('put-response');
   const currentLabel = t(
     PUT_RESPONSE_ROUTES.find((r) => pathname.endsWith(r.value))?.label ?? '',
   );
+  const hasCurrentSegment = currentLabel && currentLabel !== rootLabel;
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    t('put-response'),
-    currentLabel,
+    rootLabel,
+    hasCurrentSegment && currentLabel,
   );
 
   return (
     <>
       <Button variant="ghost" className="font-semibold">
         <IconSandbox className="w-4 h-4 mr-1.5" />
-        {t('put-response')}
+        {rootLabel}
       </Button>
-      <Separator.Inline />
-      <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {currentLabel}
-      </Button>
+      {hasCurrentSegment && (
+        <>
+          <Separator.Inline />
+          <Button
+            variant="ghost"
+            className="hover:bg-transparent font-semibold"
+          >
+            {currentLabel}
+          </Button>
+        </>
+      )}
       <Separator.Inline />
       <PageHeader.FavoriteToggleButton
         breadcrumb={favoriteBreadcrumb}
