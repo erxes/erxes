@@ -243,4 +243,5 @@ export const queries = `
   clientPortalCurrentUser: CPUser
   getClientPortalUsers(filter: IClientPortalUserFilter): CPUserListResponse
   getClientPortalUser(_id: String!): CPUser
+  checkTokiUserLegalAge(token: String!): Boolean
 `;
