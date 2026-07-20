@@ -17,6 +17,7 @@ import {
 } from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
+import { Spinner } from 'erxes-ui/components';
 
 export interface GalleryImage {
   url: string;
@@ -59,17 +60,24 @@ const GalleryImage: FC<{
   readonly: boolean;
   onRemove: () => void;
 }> = ({ image, readonly, onRemove }) => {
-  const { downloadUrl } = useResolveUrl(image.url);
+  const { loadingState, downloadUrl } = useResolveUrl(image.url);
+  const isResolving = loadingState === 'loading';
   const src = downloadUrl ?? image.url;
 
   return (
     <div className="relative group aspect-square overflow-hidden rounded-md bg-muted">
-      <img
-        src={src}
-        alt={image.caption ?? ''}
-        className="w-full h-full object-cover"
-        draggable={false}
-      />
+      {isResolving ? (
+        <div className="flex h-full w-full items-center justify-center">
+          <Spinner size="sm" />
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt={image.caption ?? ''}
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
+      )}
       {!readonly && (
         <button
           type="button"
