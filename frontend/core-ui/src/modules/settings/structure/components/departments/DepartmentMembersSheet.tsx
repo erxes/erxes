@@ -44,7 +44,10 @@ export const DepartmentMembersSheet = ({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
-        <button className="w-full h-full font-medium text-sm hover:underline">
+        <button
+          type="button"
+          className="w-full h-full font-medium text-sm hover:underline"
+        >
           {count}
         </button>
       </Sheet.Trigger>
