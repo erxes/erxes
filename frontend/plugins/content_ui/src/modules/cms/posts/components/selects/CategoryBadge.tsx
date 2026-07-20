@@ -1,8 +1,8 @@
 import { Badge, Skeleton, TextOverflowTooltip } from 'erxes-ui';
 
-import { ICategory } from './types/category';
+import { ICategory } from './category';
 import React from 'react';
-import { useCategoryById } from './hooks/useCategoryById';
+import { useCategoryById } from './useCategoryById';
 
 export const CategoryBadge = React.forwardRef<
   React.ElementRef<typeof Badge>,

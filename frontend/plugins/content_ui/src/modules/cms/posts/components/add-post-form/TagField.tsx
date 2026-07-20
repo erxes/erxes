@@ -6,7 +6,7 @@ import { Form, MultipleSelector, type MultiSelectOption } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { POST_CMS_TAGS } from '../../graphql/queries/postCmsTagsQuery';
-import { useInlineTag } from './hooks/useInlineTag';
+import { useInlineTag } from './useInlineTag';
 
 interface TagFieldProps {
   form: UseFormReturn<FieldValues>;

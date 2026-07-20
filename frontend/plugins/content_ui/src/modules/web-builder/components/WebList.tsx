@@ -2,7 +2,7 @@ import { IconLayoutGrid, IconList, IconWorldPlus } from '@tabler/icons-react';
 import { Spinner, ToggleGroup } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { EmptyState } from '../../cms/shared/EmptyState';
+import { EmptyState } from '../../cms/shared/components/EmptyState';
 import { useGetWebList } from '../hooks/useGetWebList';
 import { webDrawerState, webViewModeState } from '../states/webBuilderState';
 import { WebCard } from './WebCard';
@@ -37,7 +37,9 @@ export const WebList = () => {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-muted-foreground">{t('found-results', { count: webs.length })}</div>
+        <div className="text-sm text-muted-foreground">
+          {t('found-results', { count: webs.length })}
+        </div>
         <ToggleGroup
           type="single"
           value={viewMode}

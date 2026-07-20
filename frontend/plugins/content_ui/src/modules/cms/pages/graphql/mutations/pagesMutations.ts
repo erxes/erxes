@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+
 export const PAGES_ADD = gql`
   mutation PagesAdd($input: PageInput!) {
     cmsPagesAdd(input: $input) {
@@ -70,3 +71,97 @@ export const PAGES_REMOVE = gql`
     cmsPagesRemove(_id: $id)
   }
 `;
+
+export const PAGE_LIST = gql`
+  query PageList(
+    $clientPortalId: String!
+    $searchValue: String
+    $language: String
+    $limit: Int
+    $cursor: String
+    $direction: CURSOR_DIRECTION
+  ) {
+    cmsPageList(
+      clientPortalId: $clientPortalId
+      searchValue: $searchValue
+      language: $language
+      limit: $limit
+      cursor: $cursor
+      direction: $direction
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        endCursor
+        startCursor
+      }
+      pages {
+        _id
+        name
+        description
+        slug
+        clientPortalId
+        createdAt
+        customFieldsData
+        createdUser {
+          _id
+          email
+          details {
+            fullName
+            firstName
+            lastName
+            middleName
+            shortName
+            avatar
+            __typename
+          }
+          __typename
+        }
+        createdUserId
+        updatedAt
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+
+export const CLIENT_PORTAL_GET_CONFIGS = gql`
+  query clientPortalGetConfigs($searchValue: String) {
+    clientPortalGetConfigs(search: $searchValue) {
+      _id
+      name
+      description
+      domain
+      createdAt
+      kind
+      url
+      __typename
+    }
+  }
+`;
+
+// export const PAGES_ADD = gql`
+//   mutation PagesAdd($input: PageInput!) {
+//     cmsPagesAdd(input: $input) {
+//       _id
+//       __typename
+//     }
+//   }
+// `;
+
+// export const PAGES_EDIT = gql`
+//   mutation PagesEdit($_id: String!, $input: PageInput!) {
+//     cmsPagesEdit(_id: $_id, input: $input) {
+//       _id
+//       __typename
+//     }
+//   }
+// `;
+
+// export const PAGES_REMOVE = gql`
+//   mutation PagesRemove($id: String!) {
+//     cmsPagesRemove(_id: $id)
+//   }
+// `;

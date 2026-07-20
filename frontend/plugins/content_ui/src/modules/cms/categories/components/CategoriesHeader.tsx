@@ -1,5 +1,5 @@
 import { PageHeader as UIHeader } from 'ui-modules';
-import { HeaderLanguageTabs } from '@/cms/shared/HeaderLanguageTabs';
+import { HeaderLanguageTabs } from '@/cms/shared/components/HeaderLanguageTabs';
 import { CategoriesNavigation } from './CategoriesNavigation';
 
 export const CategoriesHeader = ({ children }: React.PropsWithChildren) => {

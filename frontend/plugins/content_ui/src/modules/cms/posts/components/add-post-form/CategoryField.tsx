@@ -1,7 +1,7 @@
 import { Form, Input, MultipleSelector, Button } from 'erxes-ui';
 import { IconPlus, IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useInlineCategory } from './hooks/useInlineCategory';
+import { useInlineCategory } from './useInlineCategory';
 
 interface CategoryFieldProps {
   form: any;

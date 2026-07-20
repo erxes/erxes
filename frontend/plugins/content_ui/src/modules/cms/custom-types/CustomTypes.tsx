@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router-dom';
 import { CustomTypeDrawer } from '../components/customTypes/CustomTypeDrawer';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { EmptyState } from '../shared/EmptyState';
+import { CmsSidebar } from '../shared/components/CmsSidebar';
+import { EmptyState } from '../shared/components/EmptyState';
 import { CustomTypesHeader } from './components/CustomTypesHeader';
 import { CustomTypesRecordTable } from './components/CustomTypesRecordTable';
 import { useCustomTypes } from './hooks/useCustomTypes';
@@ -67,7 +67,9 @@ export function CustomTypes() {
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">
                 <div className="text-sm text-gray-600">
-                  {t('found-x-custom-types', { count: customTypes?.length || 0 })}
+                  {t('found-x-custom-types', {
+                    count: customTypes?.length || 0,
+                  })}
                 </div>
               </div>
               {!loading && (!customTypes || customTypes.length === 0) ? (

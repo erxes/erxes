@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Form, Input, Tabs } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
+import { LanguageSelector } from '~/modules/cms/shared/components/LanguageSelector';
 import { MediaSection } from '~/modules/cms/posts/components/add-post-form/MediaSection';
 import { SelectParentPage } from './SelectParentPage';
 import { IPageFormData } from '../types/pageTypes';
@@ -34,18 +34,18 @@ const SidebarTabs = ({
 }) => {
   const { t } = useTranslation('content');
   return (
-  <Tabs value={activeTab} onValueChange={onTabChange}>
-    <Tabs.List className="border-none">
-      <div className="flex justify-evenly items-center gap-4">
-        <Tabs.Trigger value="content" className="w-full">
-          {t('content')}
-        </Tabs.Trigger>
-        <Tabs.Trigger value="media" className="w-full">
-          {t('media')}
-        </Tabs.Trigger>
-      </div>
-    </Tabs.List>
-  </Tabs>
+    <Tabs value={activeTab} onValueChange={onTabChange}>
+      <Tabs.List className="border-none">
+        <div className="flex justify-evenly items-center gap-4">
+          <Tabs.Trigger value="content" className="w-full">
+            {t('content')}
+          </Tabs.Trigger>
+          <Tabs.Trigger value="media" className="w-full">
+            {t('media')}
+          </Tabs.Trigger>
+        </div>
+      </Tabs.List>
+    </Tabs>
   );
 };
 
@@ -63,53 +63,53 @@ const ContentTab = ({
 }) => {
   const { t } = useTranslation('content');
   return (
-  <>
-    {availableLanguages.length > 0 && (
-      <LanguageSelector
-        selectedLanguage={selectedLanguage}
-        languageOptions={languageOptions}
-        onLanguageChange={handleLanguageChange}
+    <>
+      {availableLanguages.length > 0 && (
+        <LanguageSelector
+          selectedLanguage={selectedLanguage}
+          languageOptions={languageOptions}
+          onLanguageChange={handleLanguageChange}
+        />
+      )}
+
+      <Form.Field
+        control={form.control}
+        name="parentId"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('parent-page')}</Form.Label>
+            <SelectParentPage.FormItem
+              value={field.value}
+              onValueChange={field.onChange}
+              websiteId={websiteId}
+              currentPageId={currentPageId}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
       />
-    )}
 
-    <Form.Field
-      control={form.control}
-      name="parentId"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('parent-page')}</Form.Label>
-          <SelectParentPage.FormItem
-            value={field.value}
-            onValueChange={field.onChange}
-            websiteId={websiteId}
-            currentPageId={currentPageId}
-          />
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-
-    <Form.Field
-      control={form.control}
-      name="path"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>
-            {t('slug')}
-            {isTranslationMode && (
-              <span className="ml-2 text-xs text-gray-500">
-                ({t('shared-across-languages')})
-              </span>
-            )}
-          </Form.Label>
-          <Form.Control>
-            <Input {...field} placeholder="/about-us" required />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-  </>
+      <Form.Field
+        control={form.control}
+        name="path"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>
+              {t('slug')}
+              {isTranslationMode && (
+                <span className="ml-2 text-xs text-gray-500">
+                  ({t('shared-across-languages')})
+                </span>
+              )}
+            </Form.Label>
+            <Form.Control>
+              <Input {...field} placeholder="/about-us" required />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </>
   );
 };
 

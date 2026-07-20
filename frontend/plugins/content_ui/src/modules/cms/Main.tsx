@@ -27,7 +27,7 @@ const PostsDetail = lazy(() =>
 );
 
 const Categories = lazy(() =>
-  import('~/modules/cms/categories/Categories').then((module) => ({
+  import('~/modules/cms/categories/components/Categories').then((module) => ({
     default: module.Categories,
   })),
 );
@@ -39,7 +39,7 @@ const Tags = lazy(() =>
 );
 
 const Pages = lazy(() =>
-  import('~/modules/cms/pages/Page').then((module) => ({
+  import('~/modules/cms/pages/components/Page').then((module) => ({
     default: module.Page,
   })),
 );
@@ -69,7 +69,7 @@ const WebBuilderPage = lazy(() =>
 );
 
 const Menus = lazy(() =>
-  import('~/modules/cms/menus/Menus').then((module) => ({
+  import('~/modules/cms/menus/components/Menus').then((module) => ({
     default: module.Menus,
   })),
 );

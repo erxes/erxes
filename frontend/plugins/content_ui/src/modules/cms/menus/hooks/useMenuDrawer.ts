@@ -12,7 +12,7 @@ import {
   CMS_MENU_LIST,
   CONTENT_CMS_LIST,
 } from '../../graphql/queries';
-import { buildFlatTree, getDepthPrefix, RawMenuItem } from '../menuUtils';
+import { buildFlatTree, getDepthPrefix, RawMenuItem } from '../utils/menuUtils';
 import {
   MENU_PAGES_QUERY,
   MENU_POSTS_QUERY,
@@ -81,13 +81,23 @@ function buildMenuTranslations(
   }
 
   if (isCreating && isNonDefaultLang) {
-    entries.push({ language: selectedLanguage, title: currentLabel, type: 'menu' });
+    entries.push({
+      language: selectedLanguage,
+      title: currentLabel,
+      type: 'menu',
+    });
   }
 
   return entries;
 }
 
-export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }: MenuDrawerProps) {
+export function useMenuDrawer({
+  isOpen,
+  onClose,
+  onSuccess,
+  clientPortalId,
+  menu,
+}: MenuDrawerProps) {
   const { t } = useTranslation('content');
   const [hasPermissionError, setHasPermissionError] = useState(false);
   const isEditing = Boolean(menu?._id);
@@ -182,7 +192,11 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   });
 
   const { data: postsData } = useQuery(MENU_POSTS_QUERY, {
-    variables: { clientPortalId, limit: 100, type: isCustomType ? linkType : undefined },
+    variables: {
+      clientPortalId,
+      limit: 100,
+      type: isCustomType ? linkType : undefined,
+    },
     skip: !isOpen || !clientPortalId || !isPostType,
     fetchPolicy: 'cache-first',
   });
@@ -213,8 +227,11 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
 
     const detectedPages: { _id: string; slug: string }[] =
       detectData.cmsPageList?.pages || [];
-    const detectedPosts: { _id: string; slug: string; customPostType?: { _id: string } }[] =
-      detectData.cmsPostList?.posts || [];
+    const detectedPosts: {
+      _id: string;
+      slug: string;
+      customPostType?: { _id: string };
+    }[] = detectData.cmsPostList?.posts || [];
 
     const matchedPage = detectedPages.find((p) => `/${p.slug}` === url);
     if (matchedPage) {
@@ -228,10 +245,12 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     }
   }, [detectData, isEditing, menu?.url]);
 
-  const customTypes: MenuCustomType[] = customTypesData?.cmsCustomPostTypes || [];
+  const customTypes: MenuCustomType[] =
+    customTypesData?.cmsCustomPostTypes || [];
   const pages: MenuContentItem[] = pagesData?.cmsPageList?.pages || [];
   const posts: MenuContentItem[] = postsData?.cmsPostList?.posts || [];
-  const categories: MenuContentItem[] = categoriesData?.cmsCategories?.list || [];
+  const categories: MenuContentItem[] =
+    categoriesData?.cmsCategories?.list || [];
   const tags: MenuContentItem[] = tagsData?.cmsTags?.tags || [];
 
   function handleError(error: ApolloError) {
@@ -264,7 +283,11 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
       onClose();
       form.reset();
       onSuccess?.();
-      toast({ title: t('success'), description: t('menu-created-successfully'), variant: 'default' });
+      toast({
+        title: t('success'),
+        description: t('menu-created-successfully'),
+        variant: 'default',
+      });
     },
     onError: handleError,
   });
@@ -273,7 +296,11 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     onCompleted: () => {
       onClose();
       onSuccess?.();
-      toast({ title: t('success'), description: t('menu-updated-successfully'), variant: 'default' });
+      toast({
+        title: t('success'),
+        description: t('menu-updated-successfully'),
+        variant: 'default',
+      });
     },
     onError: handleError,
   });
@@ -290,7 +317,12 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
 
     const input: MenuInput = {
       clientPortalId: data.clientPortalId,
-      label: resolveMainLabel(currentLabel, isCreating, isNonDefaultLang, defaultLangData),
+      label: resolveMainLabel(
+        currentLabel,
+        isCreating,
+        isNonDefaultLang,
+        defaultLangData,
+      ),
       url: data.url,
       kind: data.kind,
       target: data.target ? '_blank' : '',
@@ -301,12 +333,22 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     }
 
     if (selectedLanguage) {
-      input.language = resolveLanguage(selectedLanguage, defaultLanguage, isCreating, isNonDefaultLang);
+      input.language = resolveLanguage(
+        selectedLanguage,
+        defaultLanguage,
+        isCreating,
+        isNonDefaultLang,
+      );
     }
 
     if (defaultLanguage) {
       const translationEntries = buildMenuTranslations(
-        translations, defaultLanguage, selectedLanguage, currentLabel, isCreating, isNonDefaultLang,
+        translations,
+        defaultLanguage,
+        selectedLanguage,
+        currentLabel,
+        isCreating,
+        isNonDefaultLang,
       );
       if (translationEntries.length > 0) {
         input.translations = translationEntries;
@@ -324,7 +366,9 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     handleLanguageChange(
       lang,
       () => ({ title: form.getValues('label') || '' }),
-      (data) => { form.setValue('label', data.title || ''); },
+      (data) => {
+        form.setValue('label', data.title || '');
+      },
       menu ? { title: menu.label || '' } : undefined,
     );
     setCmsLanguage(lang);
@@ -337,7 +381,8 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
       return;
     }
     if (appliedInitialLangRef.current) return;
-    if (!defaultLanguage || !cmsLanguage || cmsLanguage === defaultLanguage) return;
+    if (!defaultLanguage || !cmsLanguage || cmsLanguage === defaultLanguage)
+      return;
     if (selectedLanguage !== defaultLanguage) return;
 
     appliedInitialLangRef.current = true;

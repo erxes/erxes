@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router';
-import { PostsPath } from '../types/path/PostsPath';
+import { PostsPath } from '../types/PostsPath';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
 
 export const useIsPostsLeadSessionKey = () => {

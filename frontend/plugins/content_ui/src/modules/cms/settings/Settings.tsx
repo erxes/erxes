@@ -1,5 +1,5 @@
 import { PageContainer } from 'erxes-ui';
-import { CmsSidebar } from '../shared/CmsSidebar';
+import { CmsSidebar } from '../shared/components/CmsSidebar';
 import { SettingsForm } from './components/SettingsForm';
 import { SettingsHeader } from './components/SettingsHeader';
 import { useSettingsForm } from './hooks/useSettingsForm';

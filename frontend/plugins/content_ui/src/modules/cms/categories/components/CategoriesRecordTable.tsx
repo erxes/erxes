@@ -2,7 +2,7 @@ import { IconArticle } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmptyState } from '../../shared/EmptyState';
+import { EmptyState } from '../../shared/components/EmptyState';
 import { useCategoriesColumns } from './CategoriesColumn';
 
 import { useCategories } from '../hooks/useCategoriesEnhanced';
@@ -73,11 +73,7 @@ export const CategoriesRecordTable = ({
     [categories],
   );
 
-  const columns = useCategoriesColumns(
-    clientPortalId,
-    onEdit,
-    refetch,
-  );
+  const columns = useCategoriesColumns(clientPortalId, onEdit, refetch);
 
   return (
     <>
@@ -87,10 +83,7 @@ export const CategoriesRecordTable = ({
       {!loading && categories.length === 0 ? (
         <div className="rounded-lg overflow-hidden">
           {isFiltered ? (
-            <EmptyState
-              icon={IconArticle}
-              title={t('no-categories-found')}
-            />
+            <EmptyState icon={IconArticle} title={t('no-categories-found')} />
           ) : (
             <EmptyState
               icon={IconArticle}

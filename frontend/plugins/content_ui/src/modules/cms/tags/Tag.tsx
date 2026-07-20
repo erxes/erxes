@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useTags } from '../hooks/useTags';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { EmptyState } from '../shared/EmptyState';
-import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
+import { CmsSidebar } from '../shared/components/CmsSidebar';
+import { EmptyState } from '../shared/components/EmptyState';
+import { HeaderLanguageTabs } from '../shared/components/HeaderLanguageTabs';
 import { TagsHeader } from './components/TagsHeader';
 import { TagsFilter } from './components/TagsFilter';
 import { TagsRecordTable } from './components/TagsRecordTable';
@@ -72,10 +72,7 @@ export function Tag() {
           {!loading && (!tags || tags.length === 0) ? (
             <div className="rounded-lg overflow-hidden">
               {searchValue ? (
-                <EmptyState
-                  icon={IconTags}
-                  title={t('no-tags-found')}
-                />
+                <EmptyState icon={IconTags} title={t('no-tags-found')} />
               ) : (
                 <EmptyState
                   icon={IconTags}

@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useMutation } from '@apollo/client';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
-import { getDepthPrefix } from '../menuUtils';
+import { getDepthPrefix } from '../utils/menuUtils';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 import { MenuItem } from '../types/menuDrawerTypes';
 
@@ -143,7 +143,9 @@ export const useMenusColumns = (
     RecordTable.checkboxColumn as ColumnDef<MenuItem>,
     {
       id: 'label',
-      header: () => <RecordTable.InlineHead icon={IconList} label={t('label')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconList} label={t('label')} />
+      ),
       accessorKey: 'label',
       cell: ({ cell }) => (
         <LabelCell cell={cell} refetch={refetch} isMissing={isMissing} />
@@ -165,7 +167,9 @@ export const useMenusColumns = (
     },
     {
       id: 'kind',
-      header: () => <RecordTable.InlineHead icon={IconArticle} label={t('kind')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconArticle} label={t('kind')} />
+      ),
       accessorKey: 'kind',
       cell: ({ cell }) => (
         <div className={BADGE_CLASS}>

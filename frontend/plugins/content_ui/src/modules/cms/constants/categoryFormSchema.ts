@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FieldDefinition } from '../posts/CustomFieldInput';
+import { FieldDefinition } from '../posts/components/CustomFieldInput';
 
 // Base schema without custom fields
 export const baseCategoryFormSchema = z.object({
@@ -34,7 +34,10 @@ const isValidByFieldType = (value: unknown, type: string): boolean => {
     case 'file':
       return Array.isArray(value) && value.every((v) => typeof v === 'string');
     case 'number':
-      return typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value)));
+      return (
+        typeof value === 'number' ||
+        (typeof value === 'string' && !isNaN(Number(value)))
+      );
     default:
       return typeof value === 'string';
   }
@@ -88,9 +91,9 @@ export type DynamicCategoryFormType = z.infer<
 
 export type CategoryFormType = z.infer<typeof baseCategoryFormSchema> & {
   [key: `customFields.${string}`]:
-  | string
-  | boolean
-  | string[]
-  | null
-  | undefined;
+    | string
+    | boolean
+    | string[]
+    | null
+    | undefined;
 };
