@@ -39,6 +39,24 @@ export const startWorkflowExecution = async (
     keepUnresolvedPlaceholders: false,
   });
 
+  // When an AI agent handed off into this workflow, its extracted arguments
+  // fill inputs that have no working binding. Bound inputs are system values
+  // (customerId etc.) — the model never overrides them.
+  const handoffArgs = (execution.actions || []).at(-1)?.result?.handoff?.args;
+
+  if (handoffArgs && typeof handoffArgs === 'object') {
+    for (const name of Object.keys(bindings)) {
+      const hasBinding = String(bindings[name] ?? '').trim().length > 0;
+
+      if (
+        (!hasBinding || inputs[name] === undefined) &&
+        handoffArgs[name] !== undefined
+      ) {
+        inputs[name] = handoffArgs[name];
+      }
+    }
+  }
+
   const missingInputs = Object.keys(bindings).filter(
     (name) => inputs[name] === undefined,
   );

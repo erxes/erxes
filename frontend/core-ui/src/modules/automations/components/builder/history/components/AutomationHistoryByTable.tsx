@@ -1,4 +1,4 @@
-import { WorkflowExecutionResultCell } from '@/automations/components/builder/history/components/AutomationChildExecutionSheet';
+import { WorkflowExecutionResultCell } from '@/automations/components/builder/history/components/WorkflowExecutionResultCell';
 import {
   AutomationHistoryPopoverValue,
   stringifyAutomationHistoryValue,

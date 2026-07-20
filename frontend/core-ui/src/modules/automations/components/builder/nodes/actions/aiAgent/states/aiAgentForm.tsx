@@ -119,12 +119,25 @@ export const getDefaultAiAgentMemoryConfig = (
   };
 };
 
+// Both kinds are wired on the canvas (optionalConnects): helper runs the
+// wired workflow inline and feeds the result back; handoff ends the reply
+// and routes execution to the wired node.
+const aiAgentToolSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  description: z.string().optional().default(''),
+  kind: z.enum(['helper', 'handoff']),
+});
+
 const generateTextSchema = z.object({
   goalType: z.literal('generateText'),
   prompt: z.string().optional().default(''),
   fallbackText: z.string().optional().default(''),
   captureFields: z.array(aiAgentObjectFieldSchema).optional().default([]),
+  tools: z.array(aiAgentToolSchema).optional().default([]),
 });
+
+export type TAiAgentToolFormValue = z.infer<typeof aiAgentToolSchema>;
 
 const splitTopicSchema = z.object({
   goalType: z.literal('splitTopic'),

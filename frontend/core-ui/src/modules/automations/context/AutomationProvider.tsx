@@ -15,7 +15,12 @@ import {
   OnInit,
   ReactFlowInstance,
 } from '@xyflow/react';
+import {
+  automationBuilderSecondarySidebarOpenState,
+  automationBuilderSiderbarOpenState,
+} from '@/automations/states/automationState';
 import { useMultiQueryState } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import {
   createContext,
   SetStateAction,
@@ -60,6 +65,14 @@ type TConstantCached = Pick<AutomationConstants, TConstantCachedFields> | null;
 interface AutomationContextType {
   awaitingToConnectNodeId?: string;
   setAwaitingToConnectNodeId: Dispatch<SetStateAction<string>>;
+  // Sidebar visibility, scoped like queryParams: the workflow edit sheet has
+  // its own sidebar that must not open/close the main canvas one
+  isSidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
+  isSecondarySidebarOpen: boolean;
+  setSecondarySidebarOpen: (open: boolean) => void;
+  toggleSecondarySidebar: () => void;
   selectedNode: TAutomationSelectedNode;
   setSelectedNode: Dispatch<SetStateAction<TAutomationSelectedNode>>;
   queryParams: QueryValues<AutomationQueryParams>;
@@ -120,6 +133,28 @@ export const AutomationProvider = ({
     ? (values: QueryValues<AutomationQueryParams>) =>
         setLocalQueryParams((previous) => ({ ...previous, ...values }))
     : setUrlQueryParams;
+
+  const [globalSidebarOpen, setGlobalSidebarOpen] = useAtom(
+    automationBuilderSiderbarOpenState,
+  );
+  const [globalSecondarySidebarOpen, setGlobalSecondarySidebarOpen] = useAtom(
+    automationBuilderSecondarySidebarOpenState,
+  );
+  const [localSidebarOpen, setLocalSidebarOpen] = useState(false);
+  const [localSecondarySidebarOpen, setLocalSecondarySidebarOpen] =
+    useState(false);
+
+  const isSidebarOpen = scoped ? localSidebarOpen : globalSidebarOpen;
+  const setSidebarOpen = scoped ? setLocalSidebarOpen : setGlobalSidebarOpen;
+  const isSecondarySidebarOpen = scoped
+    ? localSecondarySidebarOpen
+    : globalSecondarySidebarOpen;
+  const setSecondarySidebarOpen = scoped
+    ? setLocalSecondarySidebarOpen
+    : setGlobalSecondarySidebarOpen;
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+  const toggleSecondarySidebar = () =>
+    setSecondarySidebarOpen(!isSecondarySidebarOpen);
 
   const { pathname } = useLocation();
   const isCreatePage = pathname === '/automations/create';
@@ -201,6 +236,12 @@ export const AutomationProvider = ({
       value={{
         awaitingToConnectNodeId,
         setAwaitingToConnectNodeId,
+        isSidebarOpen,
+        setSidebarOpen,
+        toggleSidebar,
+        isSecondarySidebarOpen,
+        setSecondarySidebarOpen,
+        toggleSecondarySidebar,
         selectedNode,
         setSelectedNode,
         queryParams,

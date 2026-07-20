@@ -1,14 +1,21 @@
 import { AutomationBuilderCanvas } from '@/automations/components/builder/AutomationBuilderCanvas';
 import { AutomationBuilderSidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebar';
+import { useWorkflowTemplatePrompt } from '@/automations/components/builder/hooks/useWorkflowTemplatePrompt';
 import { AutomationProvider } from '@/automations/context/AutomationProvider';
 import { WorkflowEditScopeProvider } from '@/automations/context/WorkflowEditScopeProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { useWorkflowTemplatePrompt } from '@/automations/components/builder/hooks/useWorkflowTemplatePrompt';
 import { IconArrowsMaximize } from '@tabler/icons-react';
 import { ReactFlowProvider } from '@xyflow/react';
 import { AlertDialog, Button, Input, Popover, Sheet } from 'erxes-ui';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   FieldPath,
   FormProvider,
@@ -16,18 +23,16 @@ import {
   useFormContext,
   useWatch,
 } from 'react-hook-form';
+import { TAutomationAction } from 'ui-modules';
 
-// Edits a workflow's member actions with the real builder canvas: the sheet
-// hosts its own form scope where members live as root `actions`, so every
-// main-canvas behavior (config sidebar, output variables, connect, drop)
-// works unchanged. Changes sync back to the outer form live.
-const WorkflowEditCanvas = ({
-  workflowId,
-  onMembersChanged,
-}: {
-  workflowId: string;
-  onMembersChanged?: () => void;
-}) => {
+type TWorkflowEditCanvasHandle = {
+  getMembers: () => TAutomationAction[];
+};
+
+const WorkflowEditCanvas = forwardRef<
+  TWorkflowEditCanvasHandle,
+  { workflowId: string; onDirty: () => void }
+>(({ workflowId, onDirty }, ref) => {
   const outerForm = useFormContext<TAutomationBuilderForm>();
   const { workflows } = useAutomationNodes();
 
@@ -60,18 +65,17 @@ const WorkflowEditCanvas = ({
       return;
     }
 
-    if (workflowIndex < 0) {
-      return;
-    }
-
-    onMembersChanged?.();
-    outerForm.setValue(
-      `workflows.${workflowIndex}.actions` as FieldPath<TAutomationBuilderForm>,
-      innerActions,
-      { shouldDirty: true },
-    );
+    onDirty();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [innerActions, workflowIndex]);
+  }, [innerActions]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getMembers: () => innerForm.getValues('actions') || [],
+    }),
+    [innerForm],
+  );
 
   const inputs = workflow?.config?.inputs || {};
 
@@ -114,7 +118,9 @@ const WorkflowEditCanvas = ({
       </ReactFlowProvider>
     </AutomationProvider>
   );
-};
+});
+
+WorkflowEditCanvas.displayName = 'WorkflowEditCanvas';
 
 // Sheet title/description edit the workflow node's name/description directly
 const WorkflowSheetMeta = ({ workflowId }: { workflowId: string }) => {
@@ -189,21 +195,64 @@ const WorkflowSheetMeta = ({ workflowId }: { workflowId: string }) => {
 
 export const WorkflowCanvasSheet = ({ workflowId }: { workflowId: string }) => {
   const [open, setOpen] = useState(false);
-  const {
-    isPromptOpen,
-    setPromptOpen,
-    markMembersChanged,
-    handleSheetOpenChange,
-    confirmUpdateTemplate,
-  } = useWorkflowTemplatePrompt(workflowId);
+  const [isDirty, setDirty] = useState(false);
+  const [isDiscardOpen, setDiscardOpen] = useState(false);
+  const editorRef = useRef<TWorkflowEditCanvasHandle>(null);
+
+  const outerForm = useFormContext<TAutomationBuilderForm>();
+  const { workflows } = useAutomationNodes();
+  const workflowIndex = (workflows || []).findIndex(
+    ({ id }) => id === workflowId,
+  );
+
+  const { hasTemplate, isPromptOpen, setPromptOpen, confirmUpdateTemplate } =
+    useWorkflowTemplatePrompt(workflowId);
+
+  const handleDirty = useCallback(() => setDirty(true), []);
+
+  // Commits the sheet's edits to the outer form in one write; the automation
+  // Save persists them as usual
+  const handleSave = useCallback(() => {
+    const members = editorRef.current?.getMembers();
+
+    if (!members || workflowIndex < 0) {
+      return;
+    }
+
+    outerForm.setValue(
+      `workflows.${workflowIndex}.actions` as FieldPath<TAutomationBuilderForm>,
+      members,
+      { shouldDirty: true },
+    );
+    setDirty(false);
+
+    if (hasTemplate) {
+      setPromptOpen(true);
+    }
+  }, [workflowIndex, outerForm, hasTemplate, setPromptOpen]);
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
+      // Closing with unsaved edits needs an explicit discard
+      if (!nextOpen && isDirty) {
+        setDiscardOpen(true);
+        return;
+      }
+
       setOpen(nextOpen);
-      handleSheetOpenChange(nextOpen);
+
+      if (nextOpen) {
+        setDirty(false);
+      }
     },
-    [handleSheetOpenChange],
+    [isDirty],
   );
+
+  const handleDiscard = useCallback(() => {
+    setDiscardOpen(false);
+    setDirty(false);
+    setOpen(false);
+  }, []);
 
   return (
     <>
@@ -216,26 +265,51 @@ export const WorkflowCanvasSheet = ({ workflowId }: { workflowId: string }) => {
         <Sheet.View className="p-0 md:w-[calc(96vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-none">
           <Sheet.Header>
             {open && <WorkflowSheetMeta workflowId={workflowId} />}
+            <Button onClick={handleSave} disabled={!isDirty}>
+              Save workflow
+            </Button>
             <Sheet.Close />
           </Sheet.Header>
           <Sheet.Content className="min-h-0 flex-1">
             {open && (
               <WorkflowEditCanvas
+                ref={editorRef}
                 workflowId={workflowId}
-                onMembersChanged={markMembersChanged}
+                onDirty={handleDirty}
               />
             )}
           </Sheet.Content>
         </Sheet.View>
       </Sheet>
 
+      <AlertDialog open={isDiscardOpen} onOpenChange={setDiscardOpen}>
+        <AlertDialog.Content>
+          <AlertDialog.Header>
+            <AlertDialog.Title>Unsaved changes</AlertDialog.Title>
+            <AlertDialog.Description>
+              Close without saving? The edits made in this workflow will be
+              lost.
+            </AlertDialog.Description>
+          </AlertDialog.Header>
+          <AlertDialog.Footer>
+            <AlertDialog.Cancel>Keep editing</AlertDialog.Cancel>
+            <AlertDialog.Action
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleDiscard}
+            >
+              Discard changes
+            </AlertDialog.Action>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog>
+
       <AlertDialog open={isPromptOpen} onOpenChange={setPromptOpen}>
         <AlertDialog.Content>
           <AlertDialog.Header>
             <AlertDialog.Title>Update template?</AlertDialog.Title>
             <AlertDialog.Description>
-              This workflow was inserted from a template. Apply your edits to
-              the template as well, or keep them only in this automation?
+              This workflow was inserted from a template. Apply the saved edits
+              to the template as well, or keep them only in this automation?
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>

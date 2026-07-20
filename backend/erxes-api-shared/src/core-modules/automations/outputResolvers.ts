@@ -138,6 +138,50 @@ const getOutputSourceType = ({
   propertySource,
 }: TAutomationRuntimeOutputDefinition) => propertySource?.propertyType || '';
 
+const getSourceReferenceTarget = (source: TAutomationOutputSource) => {
+  const targetId = source.targetId;
+
+  if (typeof targetId === 'string' && targetId) {
+    return { targetId };
+  }
+
+  return { target: source };
+};
+
+const resolveCurrentOutputSource = async ({
+  definition,
+  path,
+  source,
+  subdomain,
+}: {
+  definition: TAutomationRuntimeOutputDefinition;
+  path: string;
+  source: TAutomationOutputSource;
+  subdomain: string;
+}) => {
+  const sourceType = getOutputSourceType(definition);
+  const targetId = source.targetId;
+
+  if (!sourceType || typeof targetId !== 'string' || !targetId) {
+    return source;
+  }
+
+  const [head] = path.split('.');
+  const propertyKey = definition.propertySource?.key;
+  const sourceField =
+    propertyKey && head === propertyKey ? 'propertiesData' : head;
+  const currentValue = await resolveRecordReferenceValue({
+    subdomain,
+    type: sourceType,
+    targetId,
+    path: sourceField,
+  });
+
+  return currentValue === undefined
+    ? source
+    : { ...source, [sourceField]: currentValue };
+};
+
 const toReferenceIds = (value: unknown) =>
   (Array.isArray(value) ? value : [value])
     .filter((item) => item !== undefined && item !== null && item !== '')
@@ -267,7 +311,7 @@ const resolveReferenceOutputValue = async ({
     value: await resolveRecordReferenceValue({
       subdomain,
       type: sourceType,
-      target: source,
+      ...getSourceReferenceTarget(source),
       path,
       defaultValue,
     }),
@@ -298,7 +342,7 @@ const resolveSourceReferenceOutputValue = async ({
     value: await resolveRecordReferenceValue({
       subdomain,
       type: sourceType,
-      target: source,
+      ...getSourceReferenceTarget(source),
       path,
       defaultValue,
     }),
@@ -321,6 +365,12 @@ const resolveOutputPathsFromDefinition = async ({
   const result: Record<string, unknown> = {};
 
   for (const path of [...new Set(paths)]) {
+    const currentSource = await resolveCurrentOutputSource({
+      definition,
+      path,
+      source,
+      subdomain,
+    });
     const matchedResolver = Object.entries(definition.resolvers || {}).find(
       ([resolverKey]) => matchAutomationResolverKey(resolverKey, path),
     );
@@ -328,7 +378,7 @@ const resolveOutputPathsFromDefinition = async ({
     if (matchedResolver) {
       result[path] = await matchedResolver[1]({
         subdomain,
-        source,
+        source: currentSource,
         path,
         defaultValue,
       });
@@ -347,7 +397,7 @@ const resolveOutputPathsFromDefinition = async ({
         (item) => item.code === propertyCode || item.name === propertyCode,
       );
 
-      const propertiesData = source.propertiesData as
+      const propertiesData = currentSource.propertiesData as
         | Record<string, unknown>
         | undefined;
 
@@ -359,7 +409,7 @@ const resolveOutputPathsFromDefinition = async ({
 
     const nestedFields = resolveNestedFieldsOutputValue(
       definition,
-      source,
+      currentSource,
       path,
     );
 
@@ -371,7 +421,7 @@ const resolveOutputPathsFromDefinition = async ({
     const reference = await resolveReferenceOutputValue({
       definition,
       defaultValue,
-      source,
+      source: currentSource,
       subdomain,
       path,
     });
@@ -381,7 +431,7 @@ const resolveOutputPathsFromDefinition = async ({
       continue;
     }
 
-    const direct = getValueByPath(source, path);
+    const direct = getValueByPath(currentSource, path);
 
     if (direct.found) {
       result[path] = direct.value;
@@ -391,7 +441,7 @@ const resolveOutputPathsFromDefinition = async ({
     const sourceReference = await resolveSourceReferenceOutputValue({
       definition,
       defaultValue,
-      source,
+      source: currentSource,
       subdomain,
       path,
     });

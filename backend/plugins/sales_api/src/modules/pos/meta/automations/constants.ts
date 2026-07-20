@@ -4,9 +4,11 @@ import {
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
 import { IPosOrder } from '~/modules/pos/@types/orders';
+import { resolvePosOrderPaymentUrl } from './resolvers/resolvePosOrderPaymentUrl';
 
 type TPosOrderAutomationTarget = IPosOrder & {
   _id?: string;
+  targetId?: string;
   previousStatus?: string;
   currentStatus?: string;
   previousPaidDate?: Date | string;
@@ -90,6 +92,7 @@ const POS_ORDER_OUTPUT: TAutomationRuntimeOutputDefinition<TPosOrderAutomationTa
       { key: 'paymentTypes', label: 'Payment types' },
       { key: 'subscriptionInfo.status', label: 'Subscription status' },
       { key: 'link', label: 'POS order link' },
+      { key: 'onlinePaymentUrl', label: 'Online payment URL' },
     ],
     propertySource: {
       key: 'properties',
@@ -118,6 +121,17 @@ const POS_ORDER_OUTPUT: TAutomationRuntimeOutputDefinition<TPosOrderAutomationTa
         source.posId && source._id
           ? `/sales/pos/${source.posId}/orders?pos_order_id=${source._id}`
           : '',
+      onlinePaymentUrl: async ({ subdomain, source }) => {
+        console.log({ source });
+        const orderId =
+          typeof source.targetId === 'string'
+            ? source.targetId
+            : String(source._id || '');
+
+        const result = await resolvePosOrderPaymentUrl({ orderId, subdomain });
+        console.log({ result });
+        return result;
+      },
     },
   };
 

@@ -16,21 +16,21 @@ export const useAutomationNodeOutput = (
   activeSourceNode: TAutomationVariableSourceNode | null,
 ) => {
   const { actions, triggers } = useAutomationNodes();
-  const [pluginName, moduleName, recordName] = splitAutomationNodeType(
-    activeSourceNode?.type || '',
-  );
+  // const [pluginName, moduleName, recordName] = splitAutomationNodeType(
+  //   activeSourceNode?.type || '',
+  // );
 
-  const isCoreNode = isCoreAutomationNodeType(activeSourceNode?.type);
-  const nodeType = isCoreNode
-    ? activeSourceNode?.type || ''
-    : `${pluginName}:${moduleName}.${recordName}`;
+  // const isCoreNode = isCoreAutomationNodeType(activeSourceNode?.type);
+  // const nodeType = isCoreNode
+  //   ? activeSourceNode?.type || ''
+  //   : `${pluginName}:${moduleName}.${recordName}`;
 
   const { data, loading } = useQuery<TAutomationNodeOutputResponse>(
     AUTOMATION_NODE_OUTPUT,
     {
       skip: !activeSourceNode?.type,
       variables: {
-        nodeType,
+        nodeType: activeSourceNode?.type || '',
       },
       fetchPolicy: 'cache-first',
     },

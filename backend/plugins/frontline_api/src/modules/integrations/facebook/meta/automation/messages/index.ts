@@ -249,6 +249,19 @@ export const actionCreateMessage = async ({
       actionId,
       config: resolvedConfig,
     });
+    console.log(
+      JSON.stringify(
+        {
+          messages,
+          resolvedConfig,
+          outputResolvedConfig,
+          executionId,
+          actionId,
+        },
+        null,
+        2,
+      ),
+    );
 
     if (!messages?.length) {
       throw new Error('There are no generated messages to send.');
