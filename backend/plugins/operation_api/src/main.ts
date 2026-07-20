@@ -61,67 +61,69 @@ startPlugin({
 
   expressRouter: router,
 
-  importExport: {
-    import: {
-      types: [
-        {
-          label: 'Task',
-          contentType: 'operation:task.task',
-          permissions: ['taskImportManage'],
-        },
-      ],
-      insertImportRows: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { task: taskImportHandlers },
-        methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
-        extractModuleName: (input: TInsertImportRowsInput) => input.moduleName,
-        generateModels,
-      }),
-      getImportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { task: taskImportHandlers },
-        methodName: TImportExportProducers.GET_IMPORT_HEADERS,
-        extractModuleName: (input: TGetImportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-    },
-    export: {
-      types: [
-        {
-          label: 'Task',
-          contentType: 'operation:task.task',
-          permissions: ['taskExportManage'],
-        },
-        {
-          label: 'Project',
-          contentType: 'operation:project.project',
-          permissions: ['projectExportManage'],
-        },
-      ],
-      getExportData: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: {
-          task: taskExportHandlers,
-          project: projectExportHandlers,
-        },
-        methodName: TImportExportProducers.GET_EXPORT_DATA,
-        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
-        generateModels,
-      }),
-      getExportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: {
-          task: taskExportHandlers,
-          project: projectExportHandlers,
-        },
-        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
-        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-    },
-  },
-
   meta: {
+    importExport: {
+      import: {
+        types: [
+          {
+            label: 'Task',
+            contentType: 'operation:task.task',
+            permissions: ['taskImportManage'],
+          },
+        ],
+        insertImportRows: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { task: taskImportHandlers },
+          methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+          extractModuleName: (input: TInsertImportRowsInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getImportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { task: taskImportHandlers },
+          methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+          extractModuleName: (input: TGetImportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+      },
+      export: {
+        types: [
+          {
+            label: 'Task',
+            contentType: 'operation:task.task',
+            permissions: ['taskExportManage'],
+          },
+          {
+            label: 'Project',
+            contentType: 'operation:project.project',
+            permissions: ['projectExportManage'],
+          },
+        ],
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: {
+            task: taskExportHandlers,
+            project: projectExportHandlers,
+          },
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: {
+            task: taskExportHandlers,
+            project: projectExportHandlers,
+          },
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+      },
+    },
     automations,
     permissions,
     notifications,

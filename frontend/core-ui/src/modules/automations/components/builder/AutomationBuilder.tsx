@@ -1,6 +1,5 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect } from 'react';
-// @ts-ignore
 import '@xyflow/react/dist/style.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,16 +38,17 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
     activeNodeId: string;
     activeTab: AutomationBuilderTabsType;
   }>(['activeNodeId', 'activeTab']);
+  const cleanedDetail = deepCleanNulls(detail);
 
   const form = useForm<TAutomationBuilderForm>({
     resolver: zodResolver(automationBuilderFormSchema),
     defaultValues: {
-      edgeType: 'default',
-      flowDirection: 'horizontal',
-      triggers: [],
-      actions: [],
-      workflows: [],
-      ...deepCleanNulls(detail),
+      ...cleanedDetail,
+      edgeType: cleanedDetail?.edgeType ?? 'default',
+      flowDirection: cleanedDetail?.flowDirection ?? 'horizontal',
+      triggers: cleanedDetail?.triggers ?? [],
+      actions: cleanedDetail?.actions ?? [],
+      workflows: cleanedDetail?.workflows ?? [],
     },
   });
 
@@ -80,22 +80,18 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
             <AutomationBuilderUnsavedChangesAlert />
             <Tabs value={activeTab} className="h-screen flex flex-col">
               <AutomationBuilderHeader />
-              {activeTab === 'builder' && (
-                <Tabs.Content
-                  value="builder"
-                  className="flex-1 h-full relative"
-                >
-                  <AutomationBuilderWorkspace />
-                </Tabs.Content>
-              )}
-              {activeTab === 'history' && (
-                <Tabs.Content
-                  value="history"
-                  className="flex-1 flex flex-col min-h-0"
-                >
-                  <AutomationHistories />
-                </Tabs.Content>
-              )}
+              <Tabs.Content
+                value="builder"
+                className="flex-1 h-full relative animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+              >
+                <AutomationBuilderWorkspace />
+              </Tabs.Content>
+              <Tabs.Content
+                value="history"
+                className="flex-1 flex flex-col min-h-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+              >
+                <AutomationHistories />
+              </Tabs.Content>
             </Tabs>
           </FormProvider>
         </AutomationBuilderDnDProvider>
