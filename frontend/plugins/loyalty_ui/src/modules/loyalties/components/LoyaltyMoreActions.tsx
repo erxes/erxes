@@ -28,7 +28,7 @@ export const LoyaltyMoreActions = ({
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
-      <Combobox.Content
+      <Popover.Content
         align="start"
         className="w-[280px] min-w-0 [&>button]:cursor-pointer"
         onClick={(event) => event.stopPropagation()}
@@ -36,23 +36,15 @@ export const LoyaltyMoreActions = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={onEdit}>
-              <IconEdit /> {editLabel}
+              <IconEdit className="size-4" /> {editLabel}
             </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start h-8"
-                onClick={onDelete}
-                disabled={deleteLoading}
-              >
-                <IconTrash className="size-4" />
-                {deleteLabel}
-              </Button>
+            <Command.Item value="delete" onSelect={onDelete} disabled={deleteLoading}>
+              <IconTrash className="size-4" />
+              {deleteLabel}
             </Command.Item>
           </Command.List>
         </Command>
-      </Combobox.Content>
+      </Popover.Content>
     </Popover>
     {children}
   </>
