@@ -167,7 +167,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input });
+    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
 
     return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
   },
@@ -201,7 +201,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input });
+    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
 
     return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
   },

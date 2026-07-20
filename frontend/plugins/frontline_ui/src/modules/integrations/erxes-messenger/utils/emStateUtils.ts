@@ -6,6 +6,7 @@ import {
   SocialLinks,
 } from '@/integrations/erxes-messenger/types/EMStateTypes';
 import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
+import { ScheduleDay } from '@/integrations/erxes-messenger/constants/emHoursSchema';
 import { z } from 'zod';
 
 /**
@@ -52,9 +53,11 @@ export const createDefaultOnlineHours = () => {
   }, {} as Record<Weekday, { from?: string; to?: string; work?: boolean }>);
 };
 
-/**
- * Processes online hours from API response
- */
+const VALID_SCHEDULE_KEYS = new Set<string>([
+  ...Object.values(Weekday),
+  ...Object.values(ScheduleDay),
+]);
+
 export const processOnlineHours = (
   onlineHours?: Exclude<
     MessengerSetupPayload['messengerData'],
@@ -62,9 +65,10 @@ export const processOnlineHours = (
   >['onlineHours'],
 ) => {
   return onlineHours?.reduce((acc, { day, from, to }) => {
-    acc[day] = { from, to, work: true };
+    if (!VALID_SCHEDULE_KEYS.has(day)) return acc;
+    acc[day] = { from: from ?? '', to: to ?? '', work: true };
     return acc;
-  }, {} as Record<Weekday, { from?: string; to?: string; work?: boolean }>);
+  }, {} as Record<string, { from?: string; to?: string; work?: boolean }>);
 };
 
 /**
