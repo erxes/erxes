@@ -11,7 +11,7 @@ import {
   IconEdit,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Badge, Skeleton } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
 import {
   generateContractPDF,
@@ -86,6 +86,12 @@ export const ContractDetailPage = () => {
     );
   }
 
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('contracts'),
+    contract.contractNumber,
+  );
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -138,7 +144,10 @@ export const ContractDetailPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>

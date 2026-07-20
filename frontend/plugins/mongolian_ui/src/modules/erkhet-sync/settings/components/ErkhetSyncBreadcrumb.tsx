@@ -7,11 +7,6 @@ import { SETTINGS_ROUTES } from '@/erkhet-sync/settings/constants/settingRoutes'
 export const ErkhetSyncBreadcrumb = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('mongolian');
-  const currentLabel = t(
-    SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES] ||
-      SETTINGS_ROUTES['/settings/mongolian/sync-erkhet'],
-  );
-
   return (
     <>
       <Button variant="ghost" className="font-semibold">
@@ -20,7 +15,7 @@ export const ErkhetSyncBreadcrumb = () => {
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {currentLabel}
+        {t(SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES])}
       </Button>
     </>
   );

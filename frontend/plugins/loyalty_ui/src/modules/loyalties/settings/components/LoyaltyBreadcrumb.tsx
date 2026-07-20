@@ -10,8 +10,6 @@ export const LoyaltyBreadcrumb = () => {
   const normalizePath = (value: string) => value.replace(/\/+$/, '');
   const label =
     SETTINGS_ROUTES[normalizePath(pathname) as keyof typeof SETTINGS_ROUTES];
-  const currentLabel = label ? t(label) : '';
-
   return (
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-2">
@@ -21,7 +19,7 @@ export const LoyaltyBreadcrumb = () => {
         </Button>
         <Separator.Inline />
         <Button variant="ghost" className="font-semibold">
-          {currentLabel}
+          {label ? t(label) : ''}
         </Button>
       </div>
     </div>

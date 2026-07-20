@@ -24,7 +24,7 @@ import {
   Input,
   Skeleton,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import {
   useVendor,
   useVendorUsers,
@@ -229,6 +229,12 @@ export const VendorDetailPage = () => {
     return <div className="p-6">{t('vendor-not-found')}</div>;
   }
 
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('vendors'),
+    vendor.name,
+  );
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -259,7 +265,10 @@ export const VendorDetailPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleCreate}>

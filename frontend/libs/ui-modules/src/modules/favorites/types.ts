@@ -1,6 +1,6 @@
 export interface FavoriteToggleParams {
   path?: string;
-  breadcrumb?: string[];
+  breadcrumb: string[];
   icon?: string;
 }
 

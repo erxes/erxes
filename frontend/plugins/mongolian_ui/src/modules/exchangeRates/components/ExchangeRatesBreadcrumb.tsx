@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 
 export const ExchangeRatesBreadcrumb = () => {
   const { t } = useTranslation('mongolian');
-
   return (
     <>
       <Button variant="ghost" className="font-semibold">

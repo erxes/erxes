@@ -9,7 +9,7 @@ import {
   IconDeviceFloppy,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Skeleton } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
 import { generateContractHTML } from '~/utils/contractPdfGenerator';
 import { useMutation, gql } from '@apollo/client';
@@ -135,6 +135,10 @@ export const ContractPdfEditorPage = () => {
     );
   }
 
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('contract-pdf-editor'),
+  );
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -150,7 +154,10 @@ export const ContractPdfEditorPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleReset} variant="outline">

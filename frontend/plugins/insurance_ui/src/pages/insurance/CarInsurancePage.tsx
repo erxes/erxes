@@ -9,13 +9,12 @@ import {
   Select,
   DatePicker,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   useVendors,
   useCustomers,
-  useInsuranceProducts,
   useInsuranceTypes,
   useCreateInsuranceContract,
 } from '~/modules/insurance/hooks';
@@ -29,8 +28,11 @@ import {
 export const CarInsurancePage = () => {
   const { t } = useTranslation('insurance');
   const navigate = useNavigate();
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('car-insurance'),
+  );
   const { insuranceTypes } = useInsuranceTypes();
-  const { insuranceProducts } = useInsuranceProducts();
   const { vendors } = useVendors();
   const { customers } = useCustomers();
   const { createInsuranceContract, loading: creating } =
@@ -217,7 +219,10 @@ export const CarInsurancePage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
       </PageHeader>
 

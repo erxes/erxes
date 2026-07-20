@@ -9,7 +9,7 @@ export const useToggleFavorite = ({
   path: providedPath,
   breadcrumb,
   icon,
-}: FavoriteToggleParams = {}) => {
+}: FavoriteToggleParams) => {
   const { pathname, search } = useLocation();
   const path = providedPath || `${pathname}${search}`;
 

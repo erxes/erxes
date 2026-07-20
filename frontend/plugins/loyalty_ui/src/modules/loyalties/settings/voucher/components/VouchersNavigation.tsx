@@ -1,12 +1,17 @@
 import { IconTicket, IconCategory } from '@tabler/icons-react';
-import { Breadcrumb, Toggle, Button } from 'erxes-ui';
+import { Breadcrumb, Toggle, Button, Separator } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const VouchersNavigation = () => {
   const { t } = useTranslation('loyalty');
   const { pathname } = useLocation();
+  const isCategoriesPage = pathname.includes('/categories');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('vouchers'),
+    isCategoriesPage && t('categories'),
+  );
 
   return (
     <PageHeader.Start>
@@ -25,7 +30,7 @@ export const VouchersNavigation = () => {
             <Toggle
               type="button"
               asChild
-              pressed={pathname.includes('/categories')}
+              pressed={isCategoriesPage}
               name="categories"
             >
               <Link to="/loyalty/vouchers/categories">
@@ -36,6 +41,11 @@ export const VouchersNavigation = () => {
           </Breadcrumb.Page>
         </Breadcrumb.List>
       </Breadcrumb>
+      <Separator.Inline />
+      <PageHeader.FavoriteToggleButton
+        breadcrumb={favoriteBreadcrumb}
+        icon="IconTicket"
+      />
     </PageHeader.Start>
   );
 };

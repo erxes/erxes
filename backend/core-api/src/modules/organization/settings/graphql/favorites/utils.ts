@@ -1,11 +1,5 @@
 import { IFavoritesDocument } from '@/organization/settings/db/definitions/favorites';
 
-function titleize(value: string) {
-  return value
-    .replace(/[-_]/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
 export function normalizeFavoritePath(path: string) {
   const trimmedPath = path.trim();
 
@@ -34,13 +28,6 @@ export function normalizeFavoriteIcon(icon?: string) {
   return normalizedIcon || undefined;
 }
 
-function getFallbackFavoriteBreadcrumb(path: string) {
-  const segments = path.split(/[?#]/)[0].split('/');
-  const breadcrumb = segments.filter(Boolean).slice(0, 3).map(titleize);
-
-  return breadcrumb.length ? breadcrumb : ['Unknown'];
-}
-
 export function resolveFavoritesBreadcrumbs({
   favorites,
 }: {
@@ -53,9 +40,7 @@ export function resolveFavoritesBreadcrumbs({
     return {
       ...favorite.toObject(),
       path,
-      breadcrumb: breadcrumb.length
-        ? breadcrumb
-        : getFallbackFavoriteBreadcrumb(path),
+      breadcrumb,
     };
   });
 }

@@ -7,12 +7,6 @@ import { SETTINGS_ROUTES } from '@/ebarimt/settings/constants/settingRoutes';
 export const EBarimtBreadcrumb = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('mongolian');
-  const currentPath = pathname.split('/').pop() || '';
-  const currentLabel = t(
-    SETTINGS_ROUTES[currentPath as keyof typeof SETTINGS_ROUTES] ||
-      SETTINGS_ROUTES[''],
-  );
-
   return (
     <>
       <Button variant="ghost" className="font-semibold">
@@ -21,7 +15,7 @@ export const EBarimtBreadcrumb = () => {
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {currentLabel}
+        {t(SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES])}
       </Button>
     </>
   );
