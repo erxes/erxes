@@ -10,6 +10,8 @@ import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
 import { commonRemove } from './commonRemove';
 import {
+  createFxaDisposalFollowTrs,
+  prepareFxaDisposalTransaction,
   syncFxaDisposalInstances,
   syncFxaIncomeInstances,
   syncFxaMoveInstances,
@@ -325,10 +327,11 @@ async function handleFxaOut(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
+  const preparedDoc = await prepareFxaDisposalTransaction(models, doc);
   const transaction = await createOrUpdateTr(
     models,
     userId,
-    { ...doc, side: TR_SIDES.CREDIT },
+    { ...preparedDoc, side: TR_SIDES.CREDIT },
     oldTr,
   );
 
@@ -340,7 +343,13 @@ async function handleFxaOut(
     FXA_INSTANCE_STATUSES.DISPOSED,
   );
 
-  return { mainTr: transaction, otherTrs: [] };
+  const otherTrs = await createFxaDisposalFollowTrs(
+    models,
+    userId,
+    transaction,
+  );
+
+  return { mainTr: transaction, otherTrs };
 }
 
 async function handleFxaMove(
@@ -371,11 +380,12 @@ async function handleFxaSale(
 ) {
   const taxTrsClass = new TaxTrs(models, userId, doc, 'ct', false);
   await taxTrsClass.checkTaxValidation();
+  const preparedDoc = await prepareFxaDisposalTransaction(models, doc);
 
   const transaction = await createOrUpdateTr(
     models,
     userId,
-    { ...doc, side: TR_SIDES.CREDIT },
+    { ...preparedDoc, side: TR_SIDES.CREDIT },
     oldTr,
   );
 
@@ -388,6 +398,7 @@ async function handleFxaSale(
   );
 
   const otherTrs = [
+    ...(await createFxaDisposalFollowTrs(models, userId, transaction)),
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
   ];
 

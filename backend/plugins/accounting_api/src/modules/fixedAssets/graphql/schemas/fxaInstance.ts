@@ -8,6 +8,8 @@ export const types = `
     status: String
 
     originalCost: Float
+    accumulatedDepreciation: Float
+    bookValue: Float
     depreciationMethod: String
     usefulLife: Float
     salvageValue: Float

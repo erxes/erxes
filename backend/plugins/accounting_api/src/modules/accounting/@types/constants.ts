@@ -143,6 +143,8 @@ export const JOURNALS = {
   INV_SALE_RETURN_OUT: 'invSaleReturnOut',
   FXA_INCOME: 'fxaIncome',
   FXA_OUT: 'fxaOut',
+  FXA_OUT_DEPRECIATION: 'fxaOutDepreciation',
+  FXA_OUT_LOSS: 'fxaOutLoss',
   FXA_MOVE: 'fxaMove',
   FXA_SALE: 'fxaSale',
   // INV_IN_RETURN: 'invInReturn',
@@ -169,6 +171,8 @@ export const JOURNALS = {
     'invSaleReturnCost',
     'fxaIncome',
     'fxaOut',
+    'fxaOutDepreciation',
+    'fxaOutLoss',
     'fxaMove',
     'fxaSale',
     'expense',
@@ -232,6 +236,8 @@ export const TR_FOLLOW_TYPES = {
   INV_SALE_RETURN_OUT: 'invSaleReturnOut',
   INV_SALE_RETURN_COST: 'invSaleReturnCost',
   INV_MOVE_IN: 'invMoveIn',
+  FXA_OUT_DEPRECIATION: 'fxaOutDepreciation',
+  FXA_OUT_LOSS: 'fxaOutLoss',
   ALL: [
     'vat',
     'ctax',
@@ -242,6 +248,8 @@ export const TR_FOLLOW_TYPES = {
     'invSaleReturnOut',
     'invSaleReturnCost',
     'invMoveIn',
+    'fxaOutDepreciation',
+    'fxaOutLoss',
   ],
 };
 
@@ -249,5 +257,7 @@ export const TR_DETAIL_FOLLOW_TYPES = {
   SALE_OUT: 'saleOut',
   SALE_COST: 'saleCost',
   MOVE_IN: 'moveIn',
-  ALL: ['saleOut', 'saleCost', 'moveIn'],
+  FXA_OUT_DEPRECIATION: 'fxaOutDepreciation',
+  FXA_OUT_LOSS: 'fxaOutLoss',
+  ALL: ['saleOut', 'saleCost', 'moveIn', 'fxaOutDepreciation', 'fxaOutLoss'],
 };

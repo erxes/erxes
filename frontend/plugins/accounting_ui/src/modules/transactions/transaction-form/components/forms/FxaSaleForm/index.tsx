@@ -14,6 +14,7 @@ import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { FixedAssetForm } from './FixedAssetForm';
 import { FxaSaleAccountFields } from './FxaSaleAccountFields';
 import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
+import { useFxaDisposalFollowTrs } from '../hooks/useFxaDisposalFollowTrs';
 
 export const FxaSaleForm = ({
   form,
@@ -23,6 +24,7 @@ export const FxaSaleForm = ({
   index: number;
 }) => {
   const onAccountChange = useFxaAccountConfig(form, index);
+  useFxaDisposalFollowTrs({ form, journalIndex: index });
 
   return (
     <>

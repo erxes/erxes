@@ -364,6 +364,16 @@ export const fxaRequiredAssetAccountFollowInfosSchema =
     }),
   });
 
+export const fxaDisposalFollowInfosSchema =
+  fxaRequiredAssetAccountFollowInfosSchema.extend({
+    accumulatedDepreciationAccountId: z.string().refine((val) => val?.length, {
+      message: 'Must fill accumulated depreciation account',
+    }),
+    lossAccountId: z.string().refine((val) => val?.length, {
+      message: 'Must fill loss account',
+    }),
+  });
+
 export const fxaMoveFollowInfosSchema =
   fxaRequiredAssetAccountFollowInfosSchema.extend({
     moveInBranchId: z.string().refine((val) => val?.length, {
@@ -434,7 +444,7 @@ export const transactionFxaOutSchema = z
     customerId: undefed(z.string()),
     branchId: undefed(z.string()),
     departmentId: undefed(z.string()),
-    followInfos: fxaRequiredAssetAccountFollowInfosSchema,
+    followInfos: fxaDisposalFollowInfosSchema,
     followExtras: undefed(fxaFollowExtrasSchema),
     extraData: undefed(fxaExtraDataSchema),
     details: z.array(
@@ -474,7 +484,7 @@ export const transactionFxaSaleSchema = z
     departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
-    followInfos: fxaRequiredAssetAccountFollowInfosSchema,
+    followInfos: fxaDisposalFollowInfosSchema,
     followExtras: undefed(fxaFollowExtrasSchema),
     extraData: undefed(fxaExtraDataSchema),
     details: z.array(

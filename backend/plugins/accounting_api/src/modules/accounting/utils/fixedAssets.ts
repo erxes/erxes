@@ -1,11 +1,23 @@
 import { nanoid } from 'nanoid';
+import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import {
+  JOURNALS,
+  TR_DETAIL_FOLLOW_TYPES,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+} from '../@types/constants';
 import {
   FXA_INSTANCE_STATUSES,
   FXA_LOG_EVENT_TYPES,
 } from '@/fixedAssets/@types/constants';
 import { IFixedAsset } from '@/fixedAssets/@types/fixedAsset';
-import { ITransactionDocument } from '../@types/transaction';
+import {
+  ITransaction,
+  ITransactionDocument,
+  ITrDetail,
+} from '../@types/transaction';
+import { createOrUpdateTr } from './utils';
 
 type TFxaInstanceInput = {
   _id?: string;
@@ -46,18 +58,36 @@ type TFxaMoveFollowInfos = {
   moveInDepartmentId?: string;
 };
 
+type TFxaDisposalFollowInfos = TFxaMoveFollowInfos & {
+  accumulatedDepreciationAccountId?: string;
+  lossAccountId?: string;
+};
+
+type TFxaDisposalSummary = {
+  detailId?: string;
+  fixedAssetId?: string;
+  count: number;
+  originalCost: number;
+  accumulatedDepreciation: number;
+  bookValue: number;
+};
+
 export type TFxaIncomeInstanceRemoveOptions = {
   detailIds?: string[];
   validateOnly?: boolean;
 };
 
 const getFxaExtraData = (
-  transaction: ITransactionDocument,
+  transaction: ITransaction | ITransactionDocument,
 ): TFxaTransactionExtraData => transaction.extraData || {};
 
 const getFxaMoveFollowInfos = (
   transaction: ITransactionDocument,
 ): TFxaMoveFollowInfos => transaction.followInfos || {};
+
+const getFxaDisposalFollowInfos = (
+  transaction: ITransaction | ITransactionDocument,
+): TFxaDisposalFollowInfos => transaction.followInfos || {};
 
 const getFxaInstanceInputs = (transaction: ITransactionDocument) =>
   getFxaExtraData(transaction).fxaInstances || [];
@@ -469,7 +499,7 @@ export const syncFxaIncomeInstances = async (
 
 const getSelectedInstanceIds = async (
   models: IModels,
-  transaction: ITransactionDocument,
+  transaction: ITransaction | ITransactionDocument,
 ) => {
   const selectedIds = getFxaExtraData(transaction).fxaInstanceIds || [];
 
@@ -499,7 +529,7 @@ const getSelectedInstanceIds = async (
 
   const instances = await models.FxaInstances.findAvailableSelected(
     uniqueIds,
-    transaction._id,
+    transaction._id || '',
     FXA_INSTANCE_STATUSES.ACTIVE,
   );
 
@@ -522,6 +552,309 @@ const getSelectedInstanceIds = async (
   }
 
   return uniqueIds;
+};
+
+const getLatestAdjustmentDetailsByInstanceId = async (
+  models: IModels,
+  instanceIds: string[],
+) => {
+  const details = await models.AdjustFxaDetails.find({
+    fxaInstanceId: { $in: instanceIds },
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+  const detailsByInstanceId = new Map<string, (typeof details)[number]>();
+
+  for (const detail of details) {
+    if (!detailsByInstanceId.has(detail.fxaInstanceId)) {
+      detailsByInstanceId.set(detail.fxaInstanceId, detail);
+    }
+  }
+
+  return detailsByInstanceId;
+};
+
+const getFxaDisposalSummaries = async (
+  models: IModels,
+  transaction: ITransaction | ITransactionDocument,
+) => {
+  const instanceIds = await getSelectedInstanceIds(models, transaction);
+  const instances = await models.FxaInstances.findByIds(instanceIds);
+  const adjustmentDetails = await getLatestAdjustmentDetailsByInstanceId(
+    models,
+    instanceIds,
+  );
+
+  return (transaction.details || [])
+    .map((detail) => {
+      const detailInstances = instances.filter(
+        (instance) => instance.fixedAssetId === detail.fixedAssetId,
+      );
+      const accumulatedDepreciation = fixNum(
+        detailInstances.reduce(
+          (sum, instance) =>
+            sum +
+            (adjustmentDetails.get(instance._id)
+              ?.closingAccumulatedDepreciation || 0),
+          0,
+        ),
+      );
+      const originalCost = fixNum(
+        detailInstances.reduce(
+          (sum, instance) => sum + (instance.originalCost || 0),
+          0,
+        ),
+      );
+
+      return {
+        detailId: detail._id,
+        fixedAssetId: detail.fixedAssetId,
+        count: detailInstances.length,
+        originalCost,
+        accumulatedDepreciation,
+        bookValue: fixNum(originalCost - accumulatedDepreciation),
+      };
+    })
+    .filter((summary) => summary.fixedAssetId && summary.count > 0);
+};
+
+const validateFxaDisposalAccounts = (
+  transaction: ITransaction | ITransactionDocument,
+  summaries: TFxaDisposalSummary[],
+) => {
+  const followInfos = getFxaDisposalFollowInfos(transaction);
+  const accumulatedDepreciation = summaries.reduce(
+    (sum, summary) => sum + summary.accumulatedDepreciation,
+    0,
+  );
+  const bookValue = summaries.reduce(
+    (sum, summary) => sum + summary.bookValue,
+    0,
+  );
+
+  if (
+    accumulatedDepreciation > 0 &&
+    !followInfos.accumulatedDepreciationAccountId
+  ) {
+    throw new Error('Accumulated depreciation account is required');
+  }
+
+  if (bookValue > 0 && !followInfos.lossAccountId) {
+    throw new Error('Fixed asset loss account is required');
+  }
+};
+
+export const prepareFxaDisposalTransaction = async (
+  models: IModels,
+  doc: ITransaction,
+) => {
+  const summaries = await getFxaDisposalSummaries(models, doc);
+  validateFxaDisposalAccounts(doc, summaries);
+
+  return {
+    ...doc,
+    details: (doc.details || []).map((detail) => {
+      const summary = summaries.find(
+        (item) =>
+          item.detailId === detail._id ||
+          item.fixedAssetId === detail.fixedAssetId,
+      );
+
+      if (!summary) {
+        return detail;
+      }
+
+      return {
+        ...detail,
+        count: summary.count,
+        unitPrice: summary.count
+          ? fixNum(summary.originalCost / summary.count)
+          : 0,
+        amount: summary.originalCost,
+      };
+    }),
+  };
+};
+
+const cleanFxaFollowTr = async (
+  models: IModels,
+  transactionId: string,
+  originType: string,
+) => {
+  const followTrs = await models.Transactions.find({
+    originId: transactionId,
+    originType,
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (followTrs.length <= 1) {
+    return followTrs[0];
+  }
+
+  const [current, ...duplicates] = followTrs;
+  await models.Transactions.deleteMany({
+    _id: { $in: duplicates.map((transaction) => transaction._id) },
+  });
+
+  return current;
+};
+
+const buildFxaDisposalFollowDetails = ({
+  accountId,
+  amountKey,
+  oldTr,
+  originType,
+  summaries,
+}: {
+  accountId?: string;
+  amountKey: 'accumulatedDepreciation' | 'bookValue';
+  oldTr?: ITransactionDocument | null;
+  originType: string;
+  summaries: TFxaDisposalSummary[];
+}) =>
+  summaries
+    .filter((summary) => summary[amountKey] > 0)
+    .map((summary) => {
+      const oldDetail = oldTr?.details.find(
+        (detail) => detail.originId === summary.detailId,
+      );
+
+      return {
+        ...oldDetail,
+        originId: summary.detailId,
+        originType,
+        fixedAssetId: summary.fixedAssetId,
+        accountId: accountId || '',
+        count: summary.count,
+        unitPrice: summary.count
+          ? fixNum(summary[amountKey] / summary.count)
+          : 0,
+        amount: summary[amountKey],
+      } as ITrDetail;
+    });
+
+const buildFxaDisposalFollowTrDoc = ({
+  details,
+  journal,
+  oldTr,
+  originType,
+  ptrId,
+  transaction,
+}: {
+  details: ITrDetail[];
+  journal: string;
+  oldTr?: ITransactionDocument | null;
+  originType: string;
+  ptrId: string;
+  transaction: ITransactionDocument;
+}): ITransaction => ({
+  ...oldTr,
+  originId: transaction._id,
+  originType,
+  ptrId,
+  parentId: transaction.parentId,
+  number: transaction.number,
+  date: transaction.date,
+  description: transaction.description,
+  status: transaction.status,
+  mentionOwnerId: transaction.mentionOwnerId,
+  mentionUserIds: transaction.mentionUserIds,
+  branchId: transaction.branchId,
+  departmentId: transaction.departmentId,
+  customerType: transaction.customerType,
+  customerId: transaction.customerId,
+  journal,
+  side: TR_SIDES.DEBIT,
+  details,
+});
+
+const deleteEmptyFxaFollowTr = async (
+  models: IModels,
+  oldTr?: ITransactionDocument | null,
+) => {
+  if (!oldTr?._id) {
+    return;
+  }
+
+  await models.Transactions.deleteMany({ _id: oldTr._id });
+};
+
+export const createFxaDisposalFollowTrs = async (
+  models: IModels,
+  userId: string,
+  transaction: ITransactionDocument,
+) => {
+  const summaries = await getFxaDisposalSummaries(models, transaction);
+  validateFxaDisposalAccounts(transaction, summaries);
+
+  const [oldDepreciationTr, oldLossTr] = await Promise.all([
+    cleanFxaFollowTr(
+      models,
+      transaction._id,
+      TR_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
+    ),
+    cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_OUT_LOSS),
+  ]);
+  const ptrId = oldDepreciationTr?.ptrId || oldLossTr?.ptrId || nanoid();
+  const followInfos = getFxaDisposalFollowInfos(transaction);
+  const depreciationDetails = buildFxaDisposalFollowDetails({
+    accountId: followInfos.accumulatedDepreciationAccountId,
+    amountKey: 'accumulatedDepreciation',
+    oldTr: oldDepreciationTr,
+    originType: TR_DETAIL_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
+    summaries,
+  });
+  const lossDetails = buildFxaDisposalFollowDetails({
+    accountId: followInfos.lossAccountId,
+    amountKey: 'bookValue',
+    oldTr: oldLossTr,
+    originType: TR_DETAIL_FOLLOW_TYPES.FXA_OUT_LOSS,
+    summaries,
+  });
+  const followTrs: ITransactionDocument[] = [];
+
+  if (depreciationDetails.length) {
+    followTrs.push(
+      await createOrUpdateTr(
+        models,
+        userId,
+        buildFxaDisposalFollowTrDoc({
+          details: depreciationDetails,
+          journal: JOURNALS.FXA_OUT_DEPRECIATION,
+          oldTr: oldDepreciationTr,
+          originType: TR_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
+          ptrId,
+          transaction,
+        }),
+        oldDepreciationTr,
+      ),
+    );
+  } else {
+    await deleteEmptyFxaFollowTr(models, oldDepreciationTr);
+  }
+
+  if (lossDetails.length) {
+    followTrs.push(
+      await createOrUpdateTr(
+        models,
+        userId,
+        buildFxaDisposalFollowTrDoc({
+          details: lossDetails,
+          journal: JOURNALS.FXA_OUT_LOSS,
+          oldTr: oldLossTr,
+          originType: TR_FOLLOW_TYPES.FXA_OUT_LOSS,
+          ptrId,
+          transaction,
+        }),
+        oldLossTr,
+      ),
+    );
+  } else {
+    await deleteEmptyFxaFollowTr(models, oldLossTr);
+  }
+
+  return followTrs;
 };
 
 export const syncFxaDisposalInstances = async (

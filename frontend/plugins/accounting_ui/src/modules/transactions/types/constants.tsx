@@ -25,6 +25,8 @@ export enum TrJournalEnum {
 
   FXA_INCOME = 'fxaIncome',
   FXA_OUT = 'fxaOut',
+  FXA_OUT_DEPRECIATION = 'fxaOutDepreciation',
+  FXA_OUT_LOSS = 'fxaOutLoss',
   FXA_MOVE = 'fxaMove',
   FXA_SALE = 'fxaSale',
 }
@@ -54,6 +56,8 @@ export const TR_JOURNAL_LABELS = {
 
   [TrJournalEnum.FXA_INCOME]: 'Үндсэн хөрөнгийн орлого',
   [TrJournalEnum.FXA_OUT]: 'Үндсэн хөрөнгийн зарлага',
+  [TrJournalEnum.FXA_OUT_DEPRECIATION]: 'Үндсэн хөрөнгийн хур.элэгдэл',
+  [TrJournalEnum.FXA_OUT_LOSS]: 'Үндсэн хөрөнгийн үлдэгдэл өртөг',
   [TrJournalEnum.FXA_MOVE]: 'Үндсэн хөрөнгийн хөдөлгөөн',
   [TrJournalEnum.FXA_SALE]: 'Үндсэн хөрөнгийн борлуулалт',
 };

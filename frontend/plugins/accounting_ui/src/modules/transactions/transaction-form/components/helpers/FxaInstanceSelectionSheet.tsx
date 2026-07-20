@@ -1,6 +1,13 @@
 import { useQuery } from '@apollo/client';
 import { IconChecklist } from '@tabler/icons-react';
-import { Button, Checkbox, Sheet, Table } from 'erxes-ui';
+import {
+  Button,
+  Checkbox,
+  CurrencyCode,
+  CurrencyFormatedDisplay,
+  Sheet,
+  Table,
+} from 'erxes-ui';
 import { useEffect, useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
@@ -15,10 +22,22 @@ type IFxaInstance = {
   fixedAssetId: string;
   code: string;
   sequence?: number;
+  originalCost?: number;
+  accumulatedDepreciation?: number;
+  bookValue?: number;
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
 };
+
+const AmountCell = ({ amount }: { amount?: number }) => (
+  <CurrencyFormatedDisplay
+    currencyValue={{
+      currencyCode: CurrencyCode.MNT,
+      amountMicros: amount || 0,
+    }}
+  />
+);
 
 export const FxaInstanceSelectionSheet = ({
   form,
@@ -213,6 +232,9 @@ export const FxaInstanceSelectionSheet = ({
                 <Table.Head>Үндсэн хөрөнгийн дугаар</Table.Head>
                 <Table.Head>Instance код</Table.Head>
                 <Table.Head>Хөрөнгө</Table.Head>
+                <Table.Head>Анхны өртөг</Table.Head>
+                <Table.Head>Хур.элэгдэл</Table.Head>
+                <Table.Head>Үлдэгдэл өртөг</Table.Head>
                 <Table.Head>Салбар</Table.Head>
                 <Table.Head>Хэлтэс</Table.Head>
                 <Table.Head>Эд хариуцагч</Table.Head>
@@ -250,6 +272,15 @@ export const FxaInstanceSelectionSheet = ({
                       >
                         <SelectFixedAsset.Value placeholder="-" />
                       </SelectFixedAsset.Provider>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <AmountCell amount={instance.originalCost} />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <AmountCell amount={instance.accumulatedDepreciation} />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <AmountCell amount={instance.bookValue} />
                     </Table.Cell>
                     <Table.Cell>
                       {instance.branchId ? (

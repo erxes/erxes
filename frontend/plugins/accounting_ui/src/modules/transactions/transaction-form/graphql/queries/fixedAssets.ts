@@ -28,6 +28,9 @@ export const FXA_INSTANCES_QUERY = gql`
       fixedAssetId
       code
       sequence
+      originalCost
+      accumulatedDepreciation
+      bookValue
       branchId
       departmentId
       responsibleUserId
