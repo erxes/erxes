@@ -21,6 +21,10 @@ export const layout = (
   const SCALE_FACTOR = scale / 100;
   const SCALE_TO_FIT = scale < 100;
 
+  const { width, height } = paper(size, orientation);
+
+  const pageSize = `${width}mm ${height}mm`;
+
   const doc = iframe.contentDocument || iframe.contentWindow?.document;
 
   if (!doc) return;
@@ -31,7 +35,7 @@ export const layout = (
 
   style.innerHTML = `
     @page {
-      size: ${size} ${orientation};
+      size: ${pageSize};
       margin: ${margin}mm;
     }
       
