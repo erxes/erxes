@@ -24,7 +24,7 @@ export const LoyaltyMoreActions = ({
       </Popover.Trigger>
       <Popover.Content
         align="start"
-        className="w-[280px] min-w-0 [&>button]:cursor-pointer"
+        className="w-[280px] min-w-0 [&>button]:cursor-pointer p-0"
         onClick={(event) => event.stopPropagation()}
       >
         <Command>

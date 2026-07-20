@@ -70,5 +70,5 @@ export const lotteryMoreColumn = {
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
   cell: LotteryMoreColumnCell,
-  size: 25,
+  size: 33,
 };

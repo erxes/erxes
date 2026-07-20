@@ -51,21 +51,11 @@ export const getOwnerName = (
 };
 
 const formatDate = (dateStr?: string) => {
-  if (!dateStr) return '—';
-  const date = new Date(dateStr);
-  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-CA');
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-CA');
 };
 
-const formatScore = (value?: number) =>
-  value === undefined ? '—' : fixNum(value, 4).toLocaleString();
-
-const getScoreChangeClassName = (action?: string) => {
-  if (action === 'add') return 'text-green-600';
-  if (action === 'subtract') return 'text-red-500';
-  if (action === 'refund') return 'text-blue-500';
-  if (action === 'set') return 'text-violet-600';
-  return 'text-muted-foreground';
-};
+const formatScore = (value?: number) => fixNum(value, 4).toLocaleString();
 
 const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
   const setDetailRecord = useSetAtom(scoreDetailRecordAtom);
@@ -79,7 +69,7 @@ const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
         if (record.ownerId) setDetailRecord(record);
       }}
     >
-      <TextOverflowTooltip value={name || '—'} />
+      <TextOverflowTooltip value={name} />
     </RecordTableInlineCell>
   );
 };
@@ -105,7 +95,7 @@ export const scoreLogColumns = (
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="capitalize text-xs">
-        {(cell.getValue() as string) || '—'}
+        {cell.getValue() as string}
       </RecordTableInlineCell>
     ),
   },
@@ -144,7 +134,7 @@ export const scoreLogColumns = (
     size: 200,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || '—'} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
   },
@@ -158,7 +148,7 @@ export const scoreLogColumns = (
       if (!action)
         return (
           <RecordTableInlineCell>
-            <span className="text-muted-foreground">—</span>
+            <span className="text-muted-foreground"></span>
           </RecordTableInlineCell>
         );
       let variant: 'secondary' | 'success' | 'destructive' = 'secondary';
@@ -244,7 +234,7 @@ export const scoreLogColumns = (
     size: 140,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || '—'} />
+        <TextOverflowTooltip value={cell.getValue() as string} />
       </RecordTableInlineCell>
     ),
   },
@@ -257,7 +247,7 @@ export const scoreLogColumns = (
     size: 160,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || '—'} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
   },
@@ -266,46 +256,11 @@ export const scoreLogColumns = (
 // Columns for the per-person detail sheet: the same definitions as the main
 // list (so they stay in sync) minus the row actions and owner columns, which
 // are redundant when every row already belongs to the same person.
-const DETAIL_EXCLUDED_COLUMNS = new Set([
-  'more',
-  'ownerName',
-  'ownerType',
-  'pointsEarned',
-  'pointsSpent',
-  'pointsRefunded',
-  'pointsSet',
-]);
-
-const makeScoreChangeColumn = (
-  t: TFunction<'loyalty'>,
-): ColumnDef<IScoreLog> => ({
-  id: 'change',
-  accessorKey: 'change',
-  header: () => (
-    <RecordTable.InlineHead icon={IconCoins} label={t('score-change')} />
-  ),
-  size: 130,
-  cell: ({ cell, row }) => (
-    <RecordTableInlineCell
-      className={`text-right font-semibold ${getScoreChangeClassName(
-        row.original.action,
-      )}`}
-    >
-      <TextOverflowTooltip
-        value={formatScore(cell.getValue() as number | undefined)}
-      />
-    </RecordTableInlineCell>
-  ),
-});
+const DETAIL_EXCLUDED_COLUMNS = new Set(['more', 'ownerName', 'ownerType']);
 
 export const scoreDetailColumns = (
   t: TFunction<'loyalty'>,
 ): ColumnDef<IScoreLog>[] =>
-  scoreLogColumns(t).reduce<ColumnDef<IScoreLog>[]>((columns, column) => {
-    if (DETAIL_EXCLUDED_COLUMNS.has(column.id || '')) return columns;
-
-    columns.push(column);
-    if (column.id === 'action') columns.push(makeScoreChangeColumn(t));
-
-    return columns;
-  }, []);
+  scoreLogColumns(t).filter(
+    (column) => !DETAIL_EXCLUDED_COLUMNS.has(column.id || ''),
+  );
