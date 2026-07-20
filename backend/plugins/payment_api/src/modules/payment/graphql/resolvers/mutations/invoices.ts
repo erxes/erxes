@@ -243,9 +243,9 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
         const [pluginName, moduleName, collectionType] = splitType(
           invoice.contentType,
         );
-
         // Fire-and-forget: enqueue without waiting for the worker to finish
-        sendWorkerQueue(pluginName, 'payments')
+        //Hardcode to 'sales' because no pos-payments worker exists
+        sendWorkerQueue('sales', 'payments')
           .add(
             'callback',
             {
