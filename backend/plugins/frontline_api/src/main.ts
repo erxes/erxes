@@ -91,50 +91,52 @@ startPlugin({
     },
   },
 
-  importExport: {
-    import: {
-      types: ticketImportTypes,
-      insertImportRows: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { ticket: ticketImportHandlers },
-        methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
-        extractModuleName: (input: TInsertImportRowsInput) => input.moduleName,
-        generateModels,
-      }),
-      getImportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { ticket: ticketImportHandlers },
-        methodName: TImportExportProducers.GET_IMPORT_HEADERS,
-        extractModuleName: (input: TGetImportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-    },
-    export: {
-      types: [...ticketExportTypes, ...formSubmissionExportTypes],
-      getExportData: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: {
-          ticket: ticketExportHandlers,
-          formSubmission: formSubmissionExportHandlers,
-        },
-        methodName: TImportExportProducers.GET_EXPORT_DATA,
-        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
-        generateModels,
-      }),
-      getExportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: {
-          ticket: ticketExportHandlers,
-          formSubmission: formSubmissionExportHandlers,
-        },
-        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
-        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-    },
-  },
-
   meta: {
+    importExport: {
+      import: {
+        types: ticketImportTypes,
+        insertImportRows: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { ticket: ticketImportHandlers },
+          methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+          extractModuleName: (input: TInsertImportRowsInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getImportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { ticket: ticketImportHandlers },
+          methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+          extractModuleName: (input: TGetImportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+      },
+      export: {
+        types: [...ticketExportTypes, ...formSubmissionExportTypes],
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: {
+            ticket: ticketExportHandlers,
+            formSubmission: formSubmissionExportHandlers,
+          },
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: {
+            ticket: ticketExportHandlers,
+            formSubmission: formSubmissionExportHandlers,
+          },
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+      },
+    },
     automations,
     afterProcess,
     notifications,

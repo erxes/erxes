@@ -299,6 +299,7 @@ const toSetPropertyTargetOption = (
   sourceType: target.sourceType,
   relation: target.relation,
   resolverKey: target.resolverKey,
+  targetPath: target.targetPath,
   pluginName: target.pluginName,
   value: target.type,
   description: target.label,
@@ -316,6 +317,7 @@ const getSetPropertyTargetOptionKey = (
     target.relation?.contentType || '',
     target.relation?.relatedContentType || '',
     target.resolverKey || '',
+    target.targetPath || '',
   ].join(':');
 
 export const getAutomationSetPropertyTargets = async (sourceType: string) => {

@@ -23,6 +23,17 @@ export interface IEbarimtConfig {
   isCleanTaxPrice?: boolean;
 }
 
+export interface IErkhetConfig {
+  apiKey?: string;
+  apiSecret?: string;
+  getRemainderApiUrl?: string;
+  useRemainder?: boolean;
+  accounts?: string;
+  locations?: string;
+  account?: string;
+  location?: string;
+}
+
 interface IConfigColors {
   [key: string]: string;
 }
@@ -65,6 +76,7 @@ export interface IConfig {
   token: string;
   uiOptions: IUIOptions;
   ebarimtConfig?: IEbarimtConfig;
+  erkhetConfig?: IErkhetConfig;
   catProdMappings?: ICatProd[];
   initialCategoryIds?: string[];
   kioskExcludeCategoryIds?: string[];

@@ -147,6 +147,7 @@ type LegacyProps = {
   contentType: string;
   segmentId?: string;
   callback: (contentId: string) => void;
+  onCreateSuccess?: (contentId: string) => void;
   saveButtonText?: string;
 };
 
@@ -154,6 +155,7 @@ type LegacyProps = {
 const SegmentFormLegacy = ({
   contentType,
   callback,
+  onCreateSuccess,
   segmentId,
 }: LegacyProps) => {
   return (
@@ -161,7 +163,10 @@ const SegmentFormLegacy = ({
       <SegmentFormWrapper>
         <SegmentFormHeader />
         <SegmentFormContent callback={callback} />
-        <SegmentFormFooter callback={callback} />
+        <SegmentFormFooter
+          callback={callback}
+          onCreateSuccess={onCreateSuccess}
+        />
       </SegmentFormWrapper>
     </SegmentFormRoot>
   );

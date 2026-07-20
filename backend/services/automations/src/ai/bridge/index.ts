@@ -42,6 +42,7 @@ export const invokeAiProvider = async (
   agent: TAiAgentInput,
   messages: TAiBridgeMessage[],
   subdomain?: string,
+  options?: { responseFormat?: 'json' | 'text' },
 ) => {
   const connection = resolveAiProviderConnection({
     subdomain,
@@ -53,6 +54,7 @@ export const invokeAiProvider = async (
     connection,
     runtime: agent.runtime,
     messages,
+    responseFormat: options?.responseFormat,
   });
 };
 

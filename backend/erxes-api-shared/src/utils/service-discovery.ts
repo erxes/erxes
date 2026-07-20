@@ -99,7 +99,9 @@ export const clearServiceDiscoveryCache = (name?: string) => {
   }
 
   Object.keys(serviceInfoCache).forEach((key) => delete serviceInfoCache[key]);
-  Object.keys(pluginAddressCache).forEach((key) => delete pluginAddressCache[key]);
+  Object.keys(pluginAddressCache).forEach(
+    (key) => delete pluginAddressCache[key],
+  );
 };
 
 export const getPlugin = async (

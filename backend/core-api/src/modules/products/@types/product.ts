@@ -33,4 +33,5 @@ export interface IProductParams extends IListParams, ICursorPaginateParams {
   maxDiscountValue: number;
   minDiscountPercent: number;
   maxDiscountPercent: number;
+  discountConditions?: Record<string, unknown>;
 }
