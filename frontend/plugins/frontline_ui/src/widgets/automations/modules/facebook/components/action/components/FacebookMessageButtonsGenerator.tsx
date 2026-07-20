@@ -102,6 +102,7 @@ export const FacebookMessageButtonsGenerator = ({
             <FacebookMessageButton
               key={index}
               button={button}
+              index={index}
               handleChangeButton={handleChangeButton}
               onRemovButton={() => onRemovButton(index)}
               ContentBeforeInput={ContentBeforeInput}
@@ -123,11 +124,13 @@ export const FacebookMessageButtonsGenerator = ({
 
 const FacebookMessageButton = ({
   button,
+  index,
   handleChangeButton,
   onRemovButton,
   ContentBeforeInput,
 }: {
   button: { disableRemoveButton?: boolean } & TBotMessageButton;
+  index: number;
   handleChangeButton: (button: TBotMessageButton) => void;
   onRemovButton: () => void;
   ContentBeforeInput?: ({
@@ -155,7 +158,11 @@ const FacebookMessageButton = ({
 
     e.preventDefault();
 
-    handleChangeButton({ ...button, text: value, isEditing: false });
+    handleChangeButton({
+      ...button,
+      text: value || `Button #${index + 1}`,
+      isEditing: false,
+    });
   };
 
   const onChangeButtonText = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,7 +226,7 @@ const FacebookMessageButton = ({
           </a>
         ) : (
           <span className="font-mono font-medium text-foreground text-sm">
-            {button.text || t('type-a-button-label')}
+            {button.text}
           </span>
         )}
       </div>
@@ -244,7 +251,7 @@ const FacebookMessageButton = ({
         size="icon"
         variant="destructive"
         disabled={button.disableRemoveButton}
-        aria-label={`Remove button: ${button.text || 'untitled'}`}
+        aria-label={`Remove button: ${button.text}`}
         onClick={onRemovButton}
       >
         <IconX />

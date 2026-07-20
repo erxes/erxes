@@ -88,13 +88,20 @@ export const useAutomationActionContentSidebar = () => {
   };
 
   const onSaveActionConfig = (config: any) => {
+    const prevConfig = currentAction?.config || {};
+
+    const updatedConfig = { ...prevConfig, ...config };
+
     setAutomationBuilderFormValue(
       `${AutomationNodesType.Actions}.${currentIndex}.config`,
-      config,
+      updatedConfig,
     );
     if (currentAction) {
       const node = getNode(currentAction.id);
-      updateNodeData(currentAction.id, { ...node?.data, config });
+      updateNodeData(currentAction.id, {
+        ...node?.data,
+        config: updatedConfig,
+      });
     }
     onSaveActionConfigCallback();
   };

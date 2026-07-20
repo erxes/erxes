@@ -1,4 +1,8 @@
 import { gql } from '@apollo/client';
+import {
+  AUTOMATION_ACTION_FIELDS,
+  AUTOMATION_TRIGGER_FIELDS,
+} from './graphqlConstants';
 
 export const AUTOMATION_REMOVE = gql`
   mutation AutomationsRemove($ids: [String]) {
@@ -30,6 +34,24 @@ export const AUTOMATION_EDIT = gql`
       _id
       name
       status
+      edgeType
+      flowDirection
+      updatedAt
+      updatedBy
+      triggers {
+        ${AUTOMATION_TRIGGER_FIELDS}
+      }
+      actions {
+        ${AUTOMATION_ACTION_FIELDS}
+      }
+      workflows {
+        id
+        automationId
+        name
+        description
+        config
+        position
+      }
     }
   }
 `;

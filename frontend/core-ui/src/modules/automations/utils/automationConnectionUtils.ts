@@ -114,7 +114,13 @@ export const checkIsValidConnect = ({
   const connectionInfo = generateConnectInfo(connection, source, target);
 
   if (connectionInfo.connectType === 'optional') {
-    if (!checkValidOptionalConnect(source, target)) {
+    if (
+      !checkValidOptionalConnect(
+        source,
+        target,
+        connectionInfo.optionalConnectId,
+      )
+    ) {
       return false;
     }
   }

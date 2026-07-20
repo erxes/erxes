@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   AutomationActionFormProps,
@@ -34,12 +33,6 @@ export const MessageActionForm = ({
     formRef,
     callback: () => handleSubmit(onSaveActionConfig, handleValidationErrors)(),
   });
-
-  useEffect(() => {
-    if (currentAction?.config) {
-      form.reset({ ...currentAction.config });
-    }
-  }, [currentAction?.config, form]);
 
   return (
     <ReplyMessageProvider form={form}>
