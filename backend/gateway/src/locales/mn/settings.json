@@ -78,6 +78,9 @@
     "status": "Төлөв",
     "role": "Үүрэг",
     "actions": "Үйлдэл",
+    "branches": "Салбар",
+    "departments": "Хэлтэс",
+    "unit": "Нэгж",
     "team-member": "Багийн гишүүн"
   },
   "brands": {

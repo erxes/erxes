@@ -1,11 +1,13 @@
 import { IAttachment } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 
+export type PricingPriority = '' | 'public' | 'posBase';
+
 export interface IPricing {
   _id: string;
   name: string;
   status: 'active' | 'archived' | 'draft' | 'completed';
-  isPriority: boolean;
+  priority: PricingPriority;
   applyType: 'category' | 'product' | 'order';
   createdBy: string;
   createdAt: string;
@@ -66,7 +68,7 @@ export interface IPricingPlanDetail {
   priceAdjustType: string;
   priceAdjustFactor: number;
   bonusProduct?: string;
-  isPriority: boolean;
+  priority: PricingPriority;
   applyType: string;
 
   products?: string[];
@@ -78,6 +80,34 @@ export interface IPricingPlanDetail {
   vendors?: string[];
   tags?: string[];
   tagsExcluded?: string[];
+
+  customerIds?: string[];
+  customerTags?: string[];
+  customerExcludeTags?: string[];
+  customerSegmentIds?: string[];
+
+  companyIds?: string[];
+  companyTags?: string[];
+  companyExcludeTags?: string[];
+  companySegmentIds?: string[];
+
+  userIds?: string[];
+  userPositions?: string[];
+  userSegmentIds?: string[];
+
+  brokerCustomerIds?: string[];
+  brokerCustomerTags?: string[];
+  brokerCustomerExcludeTags?: string[];
+  brokerCustomerSegmentIds?: string[];
+
+  brokerCompanyIds?: string[];
+  brokerCompanyTags?: string[];
+  brokerCompanyExcludeTags?: string[];
+  brokerCompanySegmentIds?: string[];
+
+  brokerUserIds?: string[];
+  brokerUserPositions?: string[];
+  brokerUserSegmentIds?: string[];
 
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;

@@ -188,6 +188,14 @@ const handleLauncherIframeLoad = async () => {
     launcherIframe.contentDocument || launcherIframe?.contentWindow?.document;
 
   if (launcherIframeDocument) {
+    // Keep the about:blank document's color scheme in sync with the iframe
+    // element (color-scheme: light in index.css); a mismatch makes the
+    // browser paint the iframe with an opaque white canvas on dark host pages
+    launcherIframeDocument.documentElement.style.colorScheme = 'light';
+    launcherIframeDocument.documentElement.style.background = 'transparent';
+    launcherIframeDocument.body.style.background = 'transparent';
+    launcherIframeDocument.body.style.margin = '0';
+
     const launcherBtn = launcherIframeDocument.createElement('div');
     launcherBtn.setAttribute('role', 'button');
     launcherBtn.setAttribute('class', 'erxes-launcher');

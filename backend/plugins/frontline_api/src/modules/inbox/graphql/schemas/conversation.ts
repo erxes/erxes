@@ -172,6 +172,7 @@ const mutationFilterParams = `
   segment: String
   customerId: String
   brandId: String
+  searchValue: String
 `;
 
 const convertParams = `

@@ -488,7 +488,10 @@ const queries = {
     const orderDetail = order as any;
 
     for (const item of orderDetail.items || []) {
-      item.productName = productById[item.productId]?.name || 'unknown';
+      const product = productById[item.productId];
+      item.productName = product
+        ? [product.code, product.name].filter(Boolean).join(' - ')
+        : 'unknown';
     }
 
     return orderDetail;

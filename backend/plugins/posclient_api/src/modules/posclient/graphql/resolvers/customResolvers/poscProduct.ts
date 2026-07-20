@@ -1,7 +1,10 @@
 import { IProductDocument } from '@/posclient/@types/products';
 import { IContext } from '@/posclient/@types/types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { getRemBranchId } from '~/modules/posclient/utils/products';
+import {
+  getDiscount,
+  getRemBranchId,
+} from '~/modules/posclient/utils/products';
 
 const propertyToCustomFieldData = (field: string, value: any) => {
   const data: any = { field, value };
@@ -107,18 +110,46 @@ export default {
     const remBranchId = getRemBranchId(config, args.branchId);
     return product.remainderByToken?.[config.token]?.[remBranchId] || 0;
   },
+  discount(product: IProductDocument, args, { config }: IContext, info: any) {
+    const variables = info?.variableValues || {};
+
+    return getDiscount(
+      product.discounts,
+      config,
+      args.branchId || variables.branchId,
+      {
+        ...variables.discountConditions,
+        ...args.discountConditions,
+        departmentId: args.departmentId || variables.departmentId,
+        pipelineId: args.pipelineId || variables.pipelineId,
+      },
+    );
+  },
   isCheckRem(product: IProductDocument, _args, { config }: IContext) {
     return product?.isCheckRems?.[config.token] || false;
   },
 
   hasSimilarity(product: IProductDocument & { hasSimilarity?: boolean }) {
-    // legacy groupedSimilarity lists precompute this from the group size;
-    // a field resolver overrides parent values, so pass theirs through
-    if (typeof product.hasSimilarity === 'boolean') {
-      return product.hasSimilarity;
+    return !!product.similarityId;
+  },
+
+  async similarity(
+    product: IProductDocument,
+    _args,
+    { subdomain }: IContext,
+  ) {
+    if (!product.similarityId) {
+      return null;
     }
 
-    return !!product.similarityId;
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.findOne',
+      input: { _id: product.similarityId },
+      defaultValue: null,
+    });
   },
 
   async category(product: IProductDocument, _, { models }: IContext) {

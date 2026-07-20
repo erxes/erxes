@@ -64,6 +64,7 @@ export const useActionTarget = ({
       selectedActionType = targetSourceType || type;
     }
   }
+
   return {
     selectedActionType,
     actionsCanBeTarget,

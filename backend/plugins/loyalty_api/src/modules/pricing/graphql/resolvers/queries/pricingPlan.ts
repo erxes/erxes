@@ -46,7 +46,7 @@ const applyProductIdFilter = async (
   const plans: IPricingPlanDocument[] = await models.PricingPlans.find(
     baseFilter,
   ).sort({
-    isPriority: 1,
+    priority: 1,
     value: 1,
   });
 
@@ -60,19 +60,6 @@ const applyProductIdFilter = async (
   }
 
   return { ...baseFilter, _id: { $in: planIds } };
-};
-
-const applyPrioritizeRuleFilter = (
-  filter: Record<string, any>,
-  prioritizeRule?: 'only' | 'exclude',
-): Record<string, any> => {
-  if (prioritizeRule === 'only') {
-    return { ...filter, isPriority: true };
-  }
-  if (prioritizeRule === 'exclude') {
-    return { ...filter, isPriority: false };
-  }
-  return filter;
 };
 
 const applyBooleanFilters = (
@@ -114,24 +101,27 @@ const generateFilter = async (
   models: IModels,
   params: {
     status?: string;
+    priority?: string;
     branchId?: string;
     departmentId?: string;
     date?: string | Date;
     productId?: string;
-    prioritizeRule?: 'only' | 'exclude';
     isQuantityEnabled?: boolean;
     isPriceEnabled?: boolean;
     isExpiryEnabled?: boolean;
     isRepeatEnabled?: boolean;
   },
 ): Promise<Record<string, any>> => {
-  const { status, branchId, departmentId, date, productId, prioritizeRule } =
-    params;
+  const { status, priority, branchId, departmentId, date, productId } = params;
 
   let filter: Record<string, any> = {};
 
   if (status && status !== 'all') {
     filter.status = status;
+  }
+
+  if (priority !== undefined && priority !== 'all') {
+    filter.priority = priority;
   }
 
   if (branchId) {
@@ -147,8 +137,6 @@ const generateFilter = async (
   if (date) {
     filter.$or = buildDateFilter(date);
   }
-
-  filter = applyPrioritizeRuleFilter(filter, prioritizeRule);
 
   if (productId) {
     filter = await applyProductIdFilter(subdomain, models, filter, productId);
@@ -273,7 +261,7 @@ export const pricingPlanQueries = {
 
     // Stale: have a saved fixed value but product no longer on the plan
     const staleProductIds = allFixedValues
-      .filter((fv) => !planProductIdSet.has(fv.productId))
+      .filter((fv) => !planProductIdSet.has(fv.productId ?? ''))
       .map((fv) => fv.productId);
 
     // Full list: plan products first (sorted by their fixed value's sortField),
@@ -327,7 +315,7 @@ export const pricingPlanQueries = {
     const list = pageProductIds.map((productId) => {
       const product = productById.get(productId);
       const fixedValue = fixedByProductId.get(productId);
-      const isActive = planProductIdSet.has(productId);
+      const isActive = planProductIdSet.has(productId ?? '');
 
       let status = 'NEW';
       if (fixedValue && isActive) status = 'SAVED';
@@ -356,6 +344,10 @@ export const pricingPlanQueries = {
       departmentId: string;
       branchId: string;
       pipelineId: string;
+      customerType?: 'customer' | 'company' | 'user';
+      customerId?: string;
+      brokerType?: 'customer' | 'company' | 'user';
+      brokerId?: string;
       products: Array<{
         itemId: string;
         productId: string;
@@ -373,6 +365,10 @@ export const pricingPlanQueries = {
       branchId,
       products,
       pipelineId,
+      customerType,
+      customerId,
+      brokerType,
+      brokerId,
     } = params;
 
     return checkPricing({
@@ -384,6 +380,10 @@ export const pricingPlanQueries = {
       branchId,
       pipelineId,
       orderItems: products || [],
+      customerType,
+      customerId,
+      brokerType,
+      brokerId,
     });
   },
 };
@@ -391,5 +391,3 @@ export const pricingPlanQueries = {
 (pricingPlanQueries.cpPricingPlans as any).wrapperConfig = {
   forClientPortal: true,
 };
-
-export default pricingPlanQueries;

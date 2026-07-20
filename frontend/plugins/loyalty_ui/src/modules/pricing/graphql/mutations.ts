@@ -73,3 +73,9 @@ export const PRICING_FIXED_VALUES_BULK_EDIT = gql`
     )
   }
 `;
+
+export const PRICING_PLANS_RECALCULATE_PUBLIC_DISCOUNTS = gql`
+  mutation PricingPlansRecalculatePublicDiscounts {
+    pricingPlansRecalculatePublicDiscounts
+  }
+`;

@@ -7,7 +7,12 @@ import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
 import { ticketCountByBoardAtom } from '@/ticket/states/ticketsTotalCountState';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
-import { BoardCardProps, Button, Separator, TextOverflowTooltip } from 'erxes-ui';
+import {
+  BoardCardProps,
+  Button,
+  Separator,
+  TextOverflowTooltip,
+} from 'erxes-ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +22,14 @@ export const ticketBoardItemAtom = atom(
 
 export const TicketCard = ({ id, column }: BoardCardProps) => {
   const { t } = useTranslation('frontline');
+  const ticket = useAtomValue(ticketBoardItemAtom)(id);
+  const setActiveTicket = useSetAtom(ticketDetailSheetState);
+  const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
+
+  if (!ticket) {
+    return null;
+  }
+
   const {
     startDate,
     targetDate,
@@ -27,9 +40,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
     createdAt,
     pipelineId,
     assigneeId,
-  } = useAtomValue(ticketBoardItemAtom)(id);
-  const setActiveTicket = useSetAtom(ticketDetailSheetState);
-  const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
+  } = ticket;
 
   return (
     <div onClick={() => setActiveTicket(id)}>

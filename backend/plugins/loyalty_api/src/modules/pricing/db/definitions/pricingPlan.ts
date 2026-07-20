@@ -4,6 +4,7 @@ import {
   APPLY_TYPES,
   DISCOUNT_TYPES,
   PRICE_ADJUST_TYPES,
+  PRIORITY_TYPES,
   STATUS_TYPES,
 } from './constants';
 import { expiryRuleSchema } from './expiryRule';
@@ -14,6 +15,7 @@ import { repeatRuleSchema } from './repeatRule';
 export const pricingPlanSchema = schemaWrapper(
   new Schema(
     {
+      // Generals
       name: { type: String },
       status: {
         type: String,
@@ -33,7 +35,12 @@ export const pricingPlanSchema = schemaWrapper(
       },
       priceAdjustFactor: { type: Number },
       bonusProduct: { type: String },
-      isPriority: { type: Boolean, default: false },
+      priority: {
+        type: String,
+        enum: PRIORITY_TYPES.ALL,
+        default: PRIORITY_TYPES.NONE,
+      },
+
       applyType: {
         type: String,
         enum: APPLY_TYPES.ALL,
@@ -50,17 +57,49 @@ export const pricingPlanSchema = schemaWrapper(
       segments: { type: [String], default: [] },
       vendors: { type: [String], default: [] },
 
+      // Customer & broker targeting (dynamic conditions).
+      // Empty fields mean "no constraint", so pre-existing plans behave unchanged.
+      customerIds: { type: [String], default: [] },
+      customerTags: { type: [String], default: [] },
+      customerExcludeTags: { type: [String], default: [] },
+      customerSegmentIds: { type: [String], default: [] },
+
+      companyIds: { type: [String], default: [] },
+      companyTags: { type: [String], default: [] },
+      companyExcludeTags: { type: [String], default: [] },
+      companySegmentIds: { type: [String], default: [] },
+
+      userIds: { type: [String], default: [] },
+      userPositions: { type: [String], default: [] },
+      userSegmentIds: { type: [String], default: [] },
+
+      brokerCustomerIds: { type: [String], default: [] },
+      brokerCustomerTags: { type: [String], default: [] },
+      brokerCustomerExcludeTags: { type: [String], default: [] },
+      brokerCustomerSegmentIds: { type: [String], default: [] },
+
+      brokerCompanyIds: { type: [String], default: [] },
+      brokerCompanyTags: { type: [String], default: [] },
+      brokerCompanyExcludeTags: { type: [String], default: [] },
+      brokerCompanySegmentIds: { type: [String], default: [] },
+
+      brokerUserIds: { type: [String], default: [] },
+      brokerUserPositions: { type: [String], default: [] },
+      brokerUserSegmentIds: { type: [String], default: [] },
+
       isStartDateEnabled: { type: Boolean, default: false },
       isEndDateEnabled: { type: Boolean, default: false },
       startDate: { type: Date },
       endDate: { type: Date },
 
+      // Locations
       departmentIds: { type: [String], default: [] },
       branchIds: { type: [String], default: [] },
       boardId: { type: String },
       pipelineId: { type: String },
       stageId: { type: String },
 
+      // Rules
       isPriceEnabled: { type: Boolean, default: false },
       priceRules: { type: [priceRuleSchema], default: [] },
 
@@ -75,6 +114,8 @@ export const pricingPlanSchema = schemaWrapper(
 
       createdBy: { type: String },
       updatedBy: { type: String },
+
+      // Timestamps
     },
     {
       timestamps: true,

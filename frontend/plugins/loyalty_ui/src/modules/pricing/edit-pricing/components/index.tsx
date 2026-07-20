@@ -44,5 +44,6 @@ export const PRICE_ADJUST_TYPES: {
 export const PRICING_STEPS = [
   { value: 'general', title: 'general' },
   { value: 'options', title: 'options' },
+  { value: 'participants', title: 'participants' },
   { value: 'rules', title: 'rules' },
 ];

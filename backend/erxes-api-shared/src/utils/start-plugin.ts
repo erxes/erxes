@@ -72,10 +72,20 @@ type IMeta = {
   payments?: any;
   notifications?: any;
   tags?: any;
+  documents?: {
+    types: {
+      label: string;
+      contentType: string;
+    }[];
+  };
   properties?: IPropertyMeta;
   references?: TRecordReferencesConfig;
   permissions?: IPermissionConfig;
   beforeResolvers?: BeforeResolversConfig;
+  importExport?: ImportExportConfigs;
+  relations?: {
+    subscribedTypes: string[];
+  };
 };
 
 type ApiHandler = {
@@ -111,7 +121,6 @@ type ConfigTypes = {
   hasSubscriptions?: boolean;
   corsOptions?: any;
   subscriptionPluginPath?: any;
-  importExport?: ImportExportConfigs;
   trpcAppRouter?: {
     router: any;
     createContext: <TContext>(
@@ -143,7 +152,6 @@ export async function startPlugin(
     onServerInit,
     // meta
     meta,
-    importExport,
   } = configs || {};
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
 
@@ -359,6 +367,13 @@ export async function startPlugin(
     `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
+  await joinErxesGateway({
+    name,
+    port: PORT,
+    hasSubscriptions,
+    meta,
+  });
+
   if (meta) {
     const {
       automations,
@@ -368,7 +383,20 @@ export async function startPlugin(
       payments,
       beforeResolvers,
       references,
+      importExport,
     } = meta || {};
+
+    if (beforeResolvers) {
+      await startBeforeResolvers(app, name, beforeResolvers);
+    }
+
+    if (afterProcess) {
+      await startAfterProcess(app, name, afterProcess);
+    }
+
+    if (references) {
+      await initRecordReferences(app, name, references);
+    }
 
     if (automations) {
       await startAutomations(app, name, automations);
@@ -378,43 +406,22 @@ export async function startPlugin(
       await initSegmentProducers(app, name, segments);
     }
 
-    if (references) {
-      await initRecordReferences(app, name, references);
-    }
-
-    if (afterProcess) {
-      await startAfterProcess(app, name, afterProcess);
-    }
-
     if (notifications) {
       await initializePluginConfig(name, 'notifications', notifications);
+    }
+
+    if (importExport) {
+      startImportExportWorker({
+        pluginName: name,
+        config: importExport,
+        app,
+      });
     }
 
     if (payments) {
       await startPayments(name, payments);
     }
-
-    if (beforeResolvers) {
-      await startBeforeResolvers(app, name, beforeResolvers);
-    }
   } // end meta if
-
-  await joinErxesGateway({
-    name: name,
-    port: PORT,
-    hasSubscriptions: hasSubscriptions,
-    meta: meta,
-  });
-
-  if (importExport) {
-    startImportExportWorker({
-      pluginName: name,
-      config: {
-        ...importExport,
-      },
-      app,
-    });
-  }
 
   if (onServerInit) {
     onServerInit(app);

@@ -162,7 +162,7 @@ export const Form = () => {
   if (isPopup) {
     return (
       <Dialog open={isPopupOpen} onOpenChange={setIsPopupOpen}>
-        <Dialog.Content className="p-0 border-none bg-transparent">
+        <Dialog.Content className="p-0 shadow-none border-none bg-transparent">
           {formContent}
           <div className="flex items-center gap-0.5 justify-center mt-1 text-primary-foreground text-[10px]">
             <span>

@@ -40,7 +40,7 @@ export const GET_STAGES = gql`
 export const PRICING_PLANS = gql`
   query PricingPlans(
     $status: String
-    $prioritizeRule: String
+    $priority: String
     $branchId: String
     $departmentId: String
     $productId: String
@@ -52,7 +52,7 @@ export const PRICING_PLANS = gql`
   ) {
     pricingPlans(
       status: $status
-      prioritizeRule: $prioritizeRule
+      priority: $priority
       branchId: $branchId
       departmentId: $departmentId
       productId: $productId
@@ -73,7 +73,7 @@ export const PRICING_PLANS = gql`
       applyType
       startDate
       endDate
-      isPriority
+      priority
       isRepeatEnabled
       isQuantityEnabled
       isPriceEnabled
@@ -105,7 +105,7 @@ export const PRICING_PLAN_DETAIL = gql`
       priceAdjustType
       priceAdjustFactor
       bonusProduct
-      isPriority
+      priority
       applyType
       products
       productsExcluded
@@ -116,6 +116,28 @@ export const PRICING_PLAN_DETAIL = gql`
       vendors
       tags
       tagsExcluded
+      customerIds
+      customerTags
+      customerExcludeTags
+      customerSegmentIds
+      companyIds
+      companyTags
+      companyExcludeTags
+      companySegmentIds
+      userIds
+      userPositions
+      userSegmentIds
+      brokerCustomerIds
+      brokerCustomerTags
+      brokerCustomerExcludeTags
+      brokerCustomerSegmentIds
+      brokerCompanyIds
+      brokerCompanyTags
+      brokerCompanyExcludeTags
+      brokerCompanySegmentIds
+      brokerUserIds
+      brokerUserPositions
+      brokerUserSegmentIds
       isStartDateEnabled
       isEndDateEnabled
       startDate

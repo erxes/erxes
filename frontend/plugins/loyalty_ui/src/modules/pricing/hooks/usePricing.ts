@@ -1,4 +1,4 @@
-import { IPricing } from '@/pricing/types';
+import { IPricing, PricingPriority } from '@/pricing/types';
 import { PRICING_PLANS } from '@/pricing/graphql/queries';
 import { useQuery } from '@apollo/client';
 import { useMultiQueryState } from 'erxes-ui';
@@ -8,8 +8,7 @@ interface IPricingPlansQueryResult {
     _id: string;
     name: string;
     status: string;
-    type: string;
-    isPriority: boolean;
+    priority: PricingPriority;
     applyType: string;
     createdAt: string;
     updatedAt: string;
@@ -25,7 +24,7 @@ interface IPricingPlansQueryResult {
 
 interface PricingFilterVariables {
   status?: string;
-  prioritizeRule?: string;
+  priority?: string;
   branchId?: string;
   departmentId?: string;
   productId?: string;
@@ -39,7 +38,7 @@ interface PricingFilterVariables {
 export const usePricing = () => {
   const [queries] = useMultiQueryState<{
     status?: string | null;
-    isPriority?: string | null;
+    priority?: string | null;
     branchId?: string | null;
     departmentId?: string | null;
     productId?: string | null;
@@ -51,7 +50,7 @@ export const usePricing = () => {
     [key: string]: string | boolean | null | undefined;
   }>([
     'status',
-    'isPriority',
+    'priority',
     'branchId',
     'departmentId',
     'productId',
@@ -66,7 +65,9 @@ export const usePricing = () => {
     status: 'all',
   };
   if (queries?.status) variables.status = queries.status;
-  if (queries?.isPriority) variables.prioritizeRule = queries.isPriority;
+  if (queries?.priority) {
+    variables.priority = queries.priority === 'none' ? '' : queries.priority;
+  }
   if (queries?.branchId) variables.branchId = queries.branchId;
   if (queries?.departmentId) variables.departmentId = queries.departmentId;
   if (queries?.productId) variables.productId = queries.productId;
@@ -86,8 +87,7 @@ export const usePricing = () => {
       _id: plan._id,
       name: plan.name,
       status: plan.status as IPricing['status'],
-      type: plan.type,
-      isPriority: plan.isPriority,
+      priority: plan.priority,
       applyType: plan.applyType as IPricing['applyType'],
       createdBy:
         plan.createdUser?.details?.fullName ||

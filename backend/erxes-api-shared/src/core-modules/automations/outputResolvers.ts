@@ -6,8 +6,8 @@ import {
   AutomationConstants,
   IAutomationsActionConfig,
   IAutomationsTriggerConfig,
-  TAutomationProducers,
   TAutomationOutputDefinition,
+  TAutomationProducers,
   TAutomationRuntimeOutputDefinition,
 } from './types';
 import { splitType } from './typeUtils';
@@ -142,6 +142,60 @@ const toReferenceIds = (value: unknown) =>
   (Array.isArray(value) ? value : [value])
     .filter((item) => item !== undefined && item !== null && item !== '')
     .map(String);
+
+const resolveNestedFieldsOutputValue = (
+  definition: TAutomationRuntimeOutputDefinition,
+  source: TAutomationOutputSource,
+  path: string,
+) => {
+  const [head, ...restParts] = path.split('.');
+  const restPath = restParts.join('.');
+
+  if (!restPath) {
+    return { found: false };
+  }
+
+  const variable = (definition.variables || []).find(
+    (item) => item.fields?.length && (item.key === head || item.field === head),
+  );
+
+  if (!variable) {
+    return { found: false };
+  }
+
+  const sourceValue = getValueByPath(source, variable.field || variable.key);
+
+  if (!sourceValue.found) {
+    return { found: false };
+  }
+
+  if (Array.isArray(sourceValue.value)) {
+    const values = sourceValue.value
+      .map((item) =>
+        getValueByPath((item ?? {}) as TAutomationOutputSource, restPath),
+      )
+      .filter(
+        (result) => result.found && result.value != null && result.value !== '',
+      )
+      .map((result) => result.value);
+
+    return {
+      found: true,
+      value: values.length ? values.join(', ') : undefined,
+    };
+  }
+
+  if (sourceValue.value && typeof sourceValue.value === 'object') {
+    const nested = getValueByPath(
+      sourceValue.value as TAutomationOutputSource,
+      restPath,
+    );
+
+    return nested.found ? nested : { found: false };
+  }
+
+  return { found: false };
+};
 
 const resolveReferenceOutputValue = async ({
   definition,
@@ -303,6 +357,17 @@ const resolveOutputPathsFromDefinition = async ({
       continue;
     }
 
+    const nestedFields = resolveNestedFieldsOutputValue(
+      definition,
+      source,
+      path,
+    );
+
+    if (nestedFields.found) {
+      result[path] = nestedFields.value ?? defaultValue;
+      continue;
+    }
+
     const reference = await resolveReferenceOutputValue({
       definition,
       defaultValue,
@@ -390,8 +455,8 @@ const ENTITY_PLACEHOLDER_TYPES = [
 
 const BRACKET_PLACEHOLDER_REGEX = /\[\[\s*([^\]]+?)\s*\]\]/g;
 
-// [[ user.XCMwd... ]] -> "XCMwd..."   (split[0] нь entity бол split[1]-ийг авна)
-// [[ High ]]          -> "High"        (split[1] байхгүй бол бүхэлд нь авна)
+// [[ user.XCMwd... ]] -> "XCMwd..."   (use split[1] when split[0] is an entity)
+// [[ High ]]          -> "High"        (use the full token when split[1] is missing)
 const resolveBracketPlaceholderToken = (token: string) => {
   const trimmed = token.trim();
   const parts = trimmed.split('.');
@@ -621,7 +686,7 @@ const hasMatchingResolverKey = (
   );
 };
 
-const resolveOutputPathsByNodeType = async ({
+export const resolveOutputPathsByNodeType = async ({
   subdomain,
   nodeType,
   source,
@@ -711,7 +776,7 @@ const resolveOutputGroups = async ({
   return resolvedByToken;
 };
 
-// {{ token }} -> resolve хийсэн түүхий утга (object/number/string), эсвэл undefined
+// {{ token }} -> resolved raw value (object/number/string), or undefined
 const resolveCurlyPlaceholderToken = (
   token: string,
   resolvedByToken: Record<string, unknown>,
@@ -726,7 +791,7 @@ const resolveCurlyPlaceholderToken = (
   );
 };
 
-// string доторх бүх {{ }}-ийг орлуулна
+// Replace all {{ }} placeholders in a string.
 const replaceCurlyPlaceholders = (
   value: string,
   resolvedByToken: Record<string, unknown>,
@@ -742,7 +807,7 @@ const replaceCurlyPlaceholders = (
     return String(resolved);
   });
 
-// string доторх бүх [[ ]]-ийг орлуулна
+// Replace all [[ ]] placeholders in a string.
 const replaceBracketPlaceholders = (value: string) =>
   value.replace(BRACKET_PLACEHOLDER_REGEX, (_, token: string) =>
     resolveBracketPlaceholderToken(token),
@@ -759,7 +824,7 @@ const replaceOutputPlaceholderValue = (
   const fullTokenMatch =
     matches.length === 1 && matches[0][0].trim() === value.trim();
 
-  // {{ ... }} бүхэлдээ нэг token бол түүхий утгыг (object г.м.) буцаана
+  // Return the raw value when the entire string is a single {{ ... }} token.
   if (fullTokenMatch) {
     const resolved = resolveCurlyPlaceholderToken(
       matches[0][1],
@@ -773,7 +838,7 @@ const replaceOutputPlaceholderValue = (
     return keepUnresolvedPlaceholders ? (defaultValue ?? value) : defaultValue;
   }
 
-  // бусад тохиолдолд: curly -> bracket дарааллаар орлуулна
+  // Otherwise replace placeholders in curly -> bracket order.
   return replaceBracketPlaceholders(
     replaceCurlyPlaceholders(value, resolvedByToken, defaultValue),
   );
@@ -902,7 +967,7 @@ export const toTransportOutput = (
   return {
     variables: output.variables,
     propertySource: output.propertySource,
-    resolverKeys: output.resolverKeys || Object.keys(output.resolvers || {}),
+    resolverKeys: Object.keys(output.resolvers || {}),
   };
 };
 

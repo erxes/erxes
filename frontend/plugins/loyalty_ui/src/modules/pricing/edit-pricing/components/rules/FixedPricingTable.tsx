@@ -436,7 +436,7 @@ export const FixedPricingTable = ({
               value={customPageSize}
               onChange={(e) => setCustomPageSize(e.target.value)}
               onBlur={() => {
-                const n = parseInt(customPageSize, 10);
+                const n = Number.parseInt(customPageSize, 10);
                 if (n > 0) {
                   setPageSize(n);
                   setCurrentPage(1);
@@ -445,7 +445,7 @@ export const FixedPricingTable = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  const n = parseInt(customPageSize, 10);
+                  const n = Number.parseInt(customPageSize, 10);
                   if (n > 0) {
                     setPageSize(n);
                     setCurrentPage(1);

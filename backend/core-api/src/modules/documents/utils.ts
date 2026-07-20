@@ -1,6 +1,20 @@
 import { getEnv } from 'erxes-api-shared/utils';
 import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 
+const toDimension = (value?: number | string) => {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  const num = typeof value === 'number' ? value : parseFloat(value);
+
+  if (!isFinite(num) || num <= 0) {
+    return undefined;
+  }
+
+  return `${num}mm`;
+};
+
 export const prepareContent = ({
   contents,
   config,
@@ -8,7 +22,30 @@ export const prepareContent = ({
   contents: string[];
   config: Record<string, any>;
 }) => {
-  const { copies } = config;
+  const { copies, paperWidth, paperHeight } = config || {};
+
+  const width = toDimension(paperWidth ?? config?.width);
+  const height = toDimension(paperHeight ?? config?.height);
+
+  const pageSize = width ? `${width} ${height || 'auto'}` : 'auto';
+
+  const pageStyle = width
+    ? `
+            @page {
+              size: ${pageSize};
+              margin: 0;
+            }
+            html,
+            body {
+              width: ${width};
+              margin: 0;
+              padding: 0;
+            }
+            img,
+            svg {
+              max-width: 100%;
+            }`
+    : '';
 
   let htmlContents: string[] = [];
 
@@ -30,7 +67,7 @@ export const prepareContent = ({
       <!DOCTYPE html>
       <html>
         <head>
-          <style>
+          <style>${pageStyle}
             table {
               border-collapse: collapse;
             }
@@ -60,7 +97,7 @@ export const prepareContent = ({
         <body>
           ${htmlContents.join('')}
         </body>
-      </html>  
+      </html>
     `;
 };
 

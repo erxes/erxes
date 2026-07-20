@@ -12,7 +12,7 @@ export const AutomationTriggerContentSidebar =
     if (activeNode?.isCustom) {
       return (
         <div className={containerClasses}>
-          <CustomTriggerContent activeNode={activeNode} />
+          <CustomTriggerContent key={activeNode?.id} activeNode={activeNode} />
         </div>
       );
     }
@@ -22,7 +22,7 @@ export const AutomationTriggerContentSidebar =
         <AutomationDefaultTriggerHeader activeNode={activeNode} />
         <Separator />
         <div className="flex-1 w-auto overflow-auto">
-          <DefaultTriggerContent activeNode={activeNode} />
+          <DefaultTriggerContent key={activeNode?.id} activeNode={activeNode} />
         </div>
       </div>
     );

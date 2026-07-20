@@ -159,14 +159,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
+
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input });
+    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
 
     return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
   },
@@ -192,14 +193,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
+
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input });
+    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
 
     return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
   },
@@ -428,7 +430,8 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
+
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     return models.Invoices.updateInvoice(_id, {

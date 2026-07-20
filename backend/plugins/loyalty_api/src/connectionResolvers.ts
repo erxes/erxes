@@ -36,6 +36,7 @@ import {
   ILotteryCampaignModel,
   loadLotteryCampaignClass,
 } from '@/lottery/db/models/LotteryCampaign';
+import { IPricingFixedValueDocument } from '@/pricing/@types/pricingFixedValue';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import {
   IPricingFixedValueModel,

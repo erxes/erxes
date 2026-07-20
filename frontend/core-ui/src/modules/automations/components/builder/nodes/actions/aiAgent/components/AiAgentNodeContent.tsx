@@ -119,14 +119,33 @@ const AiAgentClassification = ({
 const AiAgentGenerateText = ({
   config,
 }: NodeContentComponentProps<TAiAgentConfigForm>) => {
-  const { prompt = '' } = (config || {}) as Extract<
+  const { prompt = '', captureFields = [] } = (config || {}) as Extract<
     TAiAgentConfigForm,
     { goalType: 'generateText' }
   >;
 
   return (
-    <div className="line-clamp-3 p-2 text-xs text-muted-foreground">
-      {prompt || 'Generate text'}
+    <div className="p-2">
+      <div className="line-clamp-3 text-xs text-muted-foreground">
+        {prompt || 'Generate text'}
+      </div>
+      {captureFields.length ? (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {captureFields.slice(0, 3).map(({ fieldName }) => (
+            <div
+              key={fieldName}
+              className="rounded-xs bg-background p-2 text-xs font-semibold shadow"
+            >
+              {fieldName}
+            </div>
+          ))}
+          {captureFields.length > 3 ? (
+            <div className="rounded-xs bg-background p-2 text-xs font-semibold shadow">
+              +{captureFields.length - 3} more
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 };

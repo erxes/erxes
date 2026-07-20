@@ -8,8 +8,10 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
+import { useRemoveTicketsFromView } from '@/ticket/hooks/useRemoveTicketsFromView';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { ITicket } from '@/ticket/types';
 import { IAttachment } from '@/ticket/types/attachments';
 import { Block } from '@blocknote/core';
@@ -24,6 +26,7 @@ import {
   Tooltip,
   useBlockEditor,
   useConfirm,
+  useQueryState,
   useToast,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
@@ -53,6 +56,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const startDate = (ticket as any)?.startDate;
   const description = (ticket as any)?.description;
   const isFirstRun = React.useRef(true);
+  const isRemovedRef = React.useRef(false);
   const [state, setState] = useState(ticketState || 'active');
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -132,6 +136,8 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const { updateTicket } = useUpdateTicket();
   const { removeTicket } = useTicketRemove();
+  const { removeTicketsFromView } = useRemoveTicketsFromView();
+  const [stateFilter] = useQueryState<string>('state');
   const [name, setName] = useState(_name);
   const [isSubscribed, setSubscribe] = useState<boolean>(
     _isSubscribed || false,
@@ -164,8 +170,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     );
   };
 
-  const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
-  const [debouncedName] = useDebounce(name, 1000);
+  const [debouncedDescriptionContent, descriptionDebounce] = useDebounce(
+    descriptionContent,
+    1000,
+  );
+  const [debouncedName, nameDebounce] = useDebounce(name, 1000);
 
   const handleArchiveToggle = () => {
     const newState = state === 'active' ? 'archived' : 'active';
@@ -179,10 +188,17 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         _id: ticketId,
         state: newState,
       },
+      refetchQueries: [GET_TICKETS],
       onCompleted: () => {
+        if (newState !== (stateFilter || 'active')) {
+          removeTicketsFromView([ticketId]);
+        }
         toast({
           title: t('success'),
-          description: newState === 'archived' ? t('ticket-archived-successfully') : t('ticket-restored-successfully'),
+          description:
+            newState === 'archived'
+              ? t('ticket-archived-successfully')
+              : t('ticket-restored-successfully'),
         });
       },
       onError: (error) => {
@@ -200,6 +216,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     confirm({
       message: t('confirm-delete-ticket'),
     }).then(async () => {
+      isRemovedRef.current = true;
+      nameDebounce.cancel();
+      descriptionDebounce.cancel();
       try {
         await removeTicket([ticketId]);
         toast({
@@ -208,6 +227,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           description: t('ticket-deleted-successfully'),
         });
       } catch (e: any) {
+        isRemovedRef.current = false;
         toast({
           title: t('error'),
           description: e.message,
@@ -218,6 +238,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   };
 
   useEffect(() => {
+    if (isRemovedRef.current || !ticketId) return;
     if (!debouncedName || debouncedName === _name) return;
     updateTicket({
       variables: {
@@ -228,6 +249,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedName]);
   useEffect(() => {
+    if (isRemovedRef.current || !ticketId) return;
     if (!debouncedDescriptionContent) return;
     const currentParsed = parseDescription(description);
     if (
@@ -250,6 +272,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       isFirstRun.current = false;
       return;
     }
+    if (isRemovedRef.current || !ticketId) return;
     if (isSubscribed === _isSubscribed) return;
     if (isSubscribed !== undefined) {
       updateTicket({
@@ -263,6 +286,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   }, [isSubscribed, _isSubscribed, ticketId]);
   return (
     <AttachmentProvider
+      ticketId={ticketId}
       initialAttachments={attachments || ([] as IAttachment[])}
     >
       <div className="flex flex-col gap-3 h-full px-5 py-8">
@@ -292,7 +316,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                 <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
                 <SelectChannel value={channelId} variant="detail" disabled />
               </div>
-              <Tooltip.Content>{t('channel-cannot-be-changed')}</Tooltip.Content>
+              <Tooltip.Content>
+                {t('channel-cannot-be-changed')}
+              </Tooltip.Content>
             </Tooltip>
             <Tooltip>
               <div className="relative">
@@ -304,7 +330,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                   disabled
                 />
               </div>
-              <Tooltip.Content>{t('pipeline-cannot-be-changed')}</Tooltip.Content>
+              <Tooltip.Content>
+                {t('pipeline-cannot-be-changed')}
+              </Tooltip.Content>
             </Tooltip>
             <SelectStatusTicket
               variant="detail"

@@ -49,7 +49,6 @@ export const queries = `
 
   paymentsGetStripeKey(_id: String!): String
 
-
   cpPayments(status: String, kind: String): [Payment]
 `;
 
