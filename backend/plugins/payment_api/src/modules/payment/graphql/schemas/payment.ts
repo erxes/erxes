@@ -47,7 +47,7 @@ export const queries = `
   qpayGetMerchant(_id: String!): JSON
   qpayGetDistricts(cityCode: String!): JSON
 
-  checkTokiUserLegalAge(token: String!): Boolean
+  paymentsGetStripeKey(_id: String!): String
 
   cpPayments(status: String, kind: String): [Payment]
 `;
