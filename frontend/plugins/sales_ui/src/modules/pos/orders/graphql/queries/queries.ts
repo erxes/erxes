@@ -57,6 +57,7 @@ export const POS_ORDERS_QUERY = gql`
       customerType
       brokerId
       brokerType
+      brokerName
       finalAmount
       items
       mobileAmount

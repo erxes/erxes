@@ -322,6 +322,21 @@ export const PosOrderSheet = () => {
                       {posOrder.customer?.primaryEmail || '-'}
                     </span>
                   </div>
+                  {posOrder.brokerType && (
+                    <div className="flex justify-between w-full gap-1">
+                      <span className="text-base font-medium text-muted-foreground">
+                        {t('broker')}:
+                      </span>
+                      <span className="text-base font-medium">
+                        {posOrder.brokerName || posOrder.brokerId || '-'}
+                        {posOrder.brokerType && (
+                          <span className="ml-1 text-xs text-muted-foreground">
+                            ({t(posOrder.brokerType)})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
                       {t('bill-number')}:

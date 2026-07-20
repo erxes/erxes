@@ -11,6 +11,7 @@ export interface IOrder {
   customerType?: string;
   brokerId?: string;
   brokerType?: string;
+  brokerName?: string;
   cashAmount?: number;
   mobileAmount?: number;
   paidAmounts?: any;

@@ -11,6 +11,7 @@ const posOrderFields = () => `
   customerType: String,
   brokerId: String,
   brokerType: String,
+  brokerName: String,
   cashAmount: Float,
   mobileAmount: Float,
   paidAmounts: JSON,

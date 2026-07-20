@@ -253,8 +253,8 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
     size: 120,
   },
   {
-    id: 'brokerId',
-    accessorKey: 'brokerId',
+    id: 'brokerName',
+    accessorKey: 'brokerName',
     header: () => <BrokerHeader />,
     cell: ({ cell }) => {
       const value = cell.getValue() as string;

@@ -21,6 +21,9 @@ export interface TPosOrder {
   number: string;
   customerId?: string;
   customerType?: string;
+  brokerId?: string;
+  brokerType?: string;
+  brokerName?: string;
   customer?: {
     _id: string;
     code?: string;

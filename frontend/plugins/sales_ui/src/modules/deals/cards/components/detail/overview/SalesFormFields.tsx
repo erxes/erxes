@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import { Label, Editor } from 'erxes-ui';
+import { Label, Editor, Select } from 'erxes-ui';
 import {
   SelectBranches,
   SelectCompany,
@@ -162,16 +162,20 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           />
         </FormField>
         <FormField label={t('broker-type')}>
-          <select
-            className="w-full border rounded px-2 py-1 text-sm"
-            value={brokerType || ''}
-            onChange={(e) => handleBrokerTypeChange(e.target.value)}
+          <Select
+            value={brokerType || '_none'}
+            onValueChange={(v) => handleBrokerTypeChange(v === '_none' ? '' : v)}
           >
-            <option value="">{t('none')}</option>
-            <option value="customer">{t('customer')}</option>
-            <option value="company">{t('company')}</option>
-            <option value="user">{t('user')}</option>
-          </select>
+            <Select.Trigger>
+              <Select.Value placeholder={t('none')} />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="_none">{t('none')}</Select.Item>
+              <Select.Item value="customer">{t('customer')}</Select.Item>
+              <Select.Item value="company">{t('company')}</Select.Item>
+              <Select.Item value="user">{t('user')}</Select.Item>
+            </Select.Content>
+          </Select>
         </FormField>
         {brokerType && (
           <FormField label={t('broker')}>
