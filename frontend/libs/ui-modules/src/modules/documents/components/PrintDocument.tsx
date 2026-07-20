@@ -148,10 +148,12 @@ const Controller = ({ contentType }: { contentType: string }) => {
       const value = values[name as keyof typeof values];
 
       const selectedValue =
-        selectedValues[value as keyof typeof selectedValues] || value;
+        name === 'size'
+          ? PAPER_SIZES[value as keyof typeof PAPER_SIZES]?.label || value
+          : selectedValues[value as keyof typeof selectedValues] || value;
 
       if (selectedValue) {
-        if (replacer === 'value') {
+        if (replacer === 'value' || name === 'size') {
           strings.push(selectedValue);
         } else {
           strings.push(`${selectedValue} ${showAll ? keyName : ''}`);
@@ -258,11 +260,13 @@ const Controller = ({ contentType }: { contentType: string }) => {
                             <Select.Value placeholder="Select paper size" />
                           </Select.Trigger>
                           <Select.Content>
-                            {Object.keys(PAPER_SIZES).map((key) => (
-                              <Select.Item key={key} value={key}>
-                                {key}
-                              </Select.Item>
-                            ))}
+                            {Object.entries(PAPER_SIZES).map(
+                              ([key, { label }]) => (
+                                <Select.Item key={key} value={key}>
+                                  {label}
+                                </Select.Item>
+                              ),
+                            )}
                           </Select.Content>
                         </div>
                       </Select>
