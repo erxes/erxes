@@ -13,7 +13,7 @@ import {
   RelativeDateDisplay,
   Switch,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import { IVoucher } from '../types/voucherTypes';
 import { VoucherNameCell } from '../voucher-detail/components/VoucherNameCell';
 import { voucherMoreColumn } from './VoucherMoreColumn';
@@ -39,20 +39,27 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const voucherColumns: (
-  editStatus: (options: any) => void,
-) => ColumnDef<IVoucher>[] = (editStatus) => [
+interface VoucherStatusMutationOptions {
+  variables: {
+    _id: string;
+    status: string;
+  };
+}
+
+export const voucherColumns = (
+  t: TFunction<'loyalty'>,
+  editStatus: (options: VoucherStatusMutationOptions) => unknown,
+): ColumnDef<IVoucher>[] => [
   voucherMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IVoucher>,
 
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTag} label={t('title')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('title')} />
+    ),
+    cell: ({ cell }) => {
       return (
         <VoucherNameCell
           voucher={cell.row.original}
@@ -65,11 +72,10 @@ export const voucherColumns: (
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
+    ),
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />
@@ -81,11 +87,10 @@ export const voucherColumns: (
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />
+    ),
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />
@@ -97,11 +102,10 @@ export const voucherColumns: (
   {
     id: 'voucherType',
     accessorKey: 'voucherType',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTicket} label={t('type')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
+    header: () => (
+      <RecordTable.InlineHead icon={IconTicket} label={t('type')} />
+    ),
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
@@ -113,10 +117,9 @@ export const voucherColumns: (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
+    ),
     cell: ({ cell }) => {
       const { _id } = cell.row.original || {};
       const currentStatus = cell.getValue() as string;

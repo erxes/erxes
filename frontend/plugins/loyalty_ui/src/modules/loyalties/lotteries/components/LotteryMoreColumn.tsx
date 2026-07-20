@@ -1,4 +1,6 @@
 import { Cell } from '@tanstack/react-table';
+import { useMutation } from '@apollo/client';
+import { useState } from 'react';
 import {
   Button,
   Combobox,
@@ -9,38 +11,47 @@ import {
   useToast,
 } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDeleteAgent } from '../hooks/useDeleteAgent';
-import { IAgent } from '../types/agent';
-import { AgentEditSheet } from './AgentEditSheet';
+import { DELETE_LOTTERY_MUTATION } from '@/loyalties/lotteries/graphql/mutations/mutations';
+import { ILottery } from '@/loyalties/lotteries/types/lottery';
+import { LotteryEditSheet } from './LotteryEditSheet';
 
-export const AgentMoreColumnCell = ({
+export const LotteryMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<IAgent, unknown>;
+  cell: Cell<ILottery, unknown>;
 }) => {
-  const agent = cell.row.original;
+  const lottery = cell.row.original;
   const [editOpen, setEditOpen] = useState(false);
-  const { deleteAgent, loading } = useDeleteAgent();
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { t } = useTranslation('loyalty');
-  const confirmationValue = 'delete';
+
+  const [deleteLottery, { loading }] = useMutation(DELETE_LOTTERY_MUTATION, {
+    refetchQueries: ['LotteriesMain'],
+  });
+
   const handleDelete = () => {
-    if (!agent._id) return;
+    if (!lottery._id) return;
 
     confirm({
-      options: { confirmationValue },
-      message: t('delete-agent-confirm', { count: 1 }),
+      message: t('delete-lottery-confirm', { count: 1 }),
     }).then(() => {
-      deleteAgent(agent._id).catch(() => {
-        toast({
-          title: t('error'),
-          description: t('failed-to-delete-agent'),
-          variant: 'destructive',
+      deleteLottery({ variables: { _ids: [lottery._id] } })
+        .then(() => {
+          toast({
+            title: t('success'),
+            variant: 'success',
+            description: t('lotteries-deleted', { count: 1 }),
+          });
+        })
+        .catch((e: Error) => {
+          toast({
+            title: t('error'),
+            description: e.message,
+            variant: 'destructive',
+          });
         });
-      });
     });
   };
 
@@ -77,8 +88,8 @@ export const AgentMoreColumnCell = ({
         </Combobox.Content>
       </Popover>
       {editOpen && (
-        <AgentEditSheet
-          agent={agent}
+        <LotteryEditSheet
+          lottery={lottery}
           open={editOpen}
           onOpenChange={setEditOpen}
         />
@@ -87,9 +98,9 @@ export const AgentMoreColumnCell = ({
   );
 };
 
-export const agentMoreColumn = {
+export const lotteryMoreColumn = {
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
-  cell: AgentMoreColumnCell,
+  cell: LotteryMoreColumnCell,
   size: 25,
 };

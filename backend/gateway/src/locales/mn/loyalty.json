@@ -129,6 +129,7 @@
   "usage": "Хэрэглэлт",
   "limit": "Хязгаар",
   "date": "Огноо",
+  "copy-code": "Код хуулах",
   "copied": "Хуулагдлаа!",
   "selected-count": "{{count}} сонгогдсон",
   "records-found": "бичлэг олдлоо",

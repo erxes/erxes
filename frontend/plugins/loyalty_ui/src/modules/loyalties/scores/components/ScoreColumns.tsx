@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import {
   IconCalendar,
   IconChartBar,
@@ -13,6 +12,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef, Row } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import { useSetAtom } from 'jotai';
 import {
   Badge,
@@ -51,11 +51,21 @@ export const getOwnerName = (
 };
 
 const formatDate = (dateStr?: string) => {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('en-CA');
+  if (!dateStr) return '—';
+  const date = new Date(dateStr);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-CA');
 };
 
-const formatScore = (value?: number) => fixNum(value, 4).toLocaleString();
+const formatScore = (value?: number) =>
+  value === undefined ? '—' : fixNum(value, 4).toLocaleString();
+
+const getScoreChangeClassName = (action?: string) => {
+  if (action === 'add') return 'text-green-600';
+  if (action === 'subtract') return 'text-red-500';
+  if (action === 'refund') return 'text-blue-500';
+  if (action === 'set') return 'text-violet-600';
+  return 'text-muted-foreground';
+};
 
 const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
   const setDetailRecord = useSetAtom(scoreDetailRecordAtom);
@@ -69,34 +79,42 @@ const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
         if (record.ownerId) setDetailRecord(record);
       }}
     >
-      <TextOverflowTooltip value={name} />
+      <TextOverflowTooltip value={name || '—'} />
     </RecordTableInlineCell>
   );
 };
 
-export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
+export const scoreLogColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IScoreLog>[] => [
   makeScoreMoreColumn(),
   {
     id: 'ownerName',
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconUser} label={t('owner-name')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-name')} />
+    ),
     size: 180,
     cell: ({ row }) => <ScoreOwnerNameCell row={row} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />
+    ),
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="capitalize text-xs">
-        {cell.getValue() as string}
+        {(cell.getValue() as string) || '—'}
       </RecordTableInlineCell>
     ),
   },
   {
     id: 'totalScore',
     accessorKey: 'totalScore',
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconStar} label={t('total-score')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconStar} label={t('total-score')} />
+    ),
     size: 140,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-semibold">
@@ -107,7 +125,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -118,34 +138,35 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'dealNumber',
     accessorFn: (row) => row.target?.number,
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />
+    ),
     size: 200,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || '—'} />
       </RecordTableInlineCell>
     ),
   },
   {
     id: 'action',
     accessorKey: 'action',
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTag} label={t('type')} />; },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('type')} />,
     size: 90,
     cell: ({ cell }) => {
       const action = cell.getValue() as string | undefined;
       if (!action)
         return (
           <RecordTableInlineCell>
-            <span className="text-muted-foreground"></span>
+            <span className="text-muted-foreground">—</span>
           </RecordTableInlineCell>
         );
-      let variant = 'secondary';
+      let variant: 'secondary' | 'success' | 'destructive' = 'secondary';
       if (action === 'add') variant = 'success';
       else if (action === 'subtract') variant = 'destructive';
-      else if (action === 'set') variant = 'outline';
       return (
         <RecordTableInlineCell>
-          <Badge variant={variant as any}>{action}</Badge>
+          <Badge variant={variant}>{action}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -153,7 +174,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'pointsEarned',
     accessorFn: (row) => (row.action === 'add' ? row.change : undefined),
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCoins} label={t('points-earned')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCoins} label={t('points-earned')} />
+    ),
     size: 130,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -167,7 +190,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'pointsSpent',
     accessorFn: (row) => (row.action === 'subtract' ? row.change : undefined),
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconChartBar} label={t('points-spent')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label={t('points-spent')} />
+    ),
     size: 130,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -181,7 +206,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'pointsRefunded',
     accessorFn: (row) => (row.action === 'refund' ? row.change : undefined),
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconRefresh} label={t('points-refunded')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconRefresh} label={t('points-refunded')} />
+    ),
     size: 150,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -195,7 +222,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'pointsSet',
     accessorFn: (row) => (row.action === 'set' ? row.change : undefined),
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCoins} label={t('score-set')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCoins} label={t('score-set')} />
+    ),
     size: 120,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -209,22 +238,26 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'campaign',
     accessorFn: (row) => row.campaign?.title,
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTrophy} label={t('campaign')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconTrophy} label={t('campaign')} />
+    ),
     size: 140,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || '—'} />
       </RecordTableInlineCell>
     ),
   },
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconNote} label={t('description')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconNote} label={t('description')} />
+    ),
     size: 160,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || '—'} />
       </RecordTableInlineCell>
     ),
   },
@@ -233,9 +266,46 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
 // Columns for the per-person detail sheet: the same definitions as the main
 // list (so they stay in sync) minus the row actions and owner columns, which
 // are redundant when every row already belongs to the same person.
-const DETAIL_EXCLUDED_COLUMNS = new Set(['more', 'ownerName', 'ownerType']);
+const DETAIL_EXCLUDED_COLUMNS = new Set([
+  'more',
+  'ownerName',
+  'ownerType',
+  'pointsEarned',
+  'pointsSpent',
+  'pointsRefunded',
+  'pointsSet',
+]);
 
-export const scoreDetailColumns: ColumnDef<IScoreLog>[] =
-  scoreLogColumns.filter(
-    (column) => !DETAIL_EXCLUDED_COLUMNS.has(column.id || ''),
-  );
+const makeScoreChangeColumn = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IScoreLog> => ({
+  id: 'change',
+  accessorKey: 'change',
+  header: () => (
+    <RecordTable.InlineHead icon={IconCoins} label={t('score-change')} />
+  ),
+  size: 130,
+  cell: ({ cell, row }) => (
+    <RecordTableInlineCell
+      className={`text-right font-semibold ${getScoreChangeClassName(
+        row.original.action,
+      )}`}
+    >
+      <TextOverflowTooltip
+        value={formatScore(cell.getValue() as number | undefined)}
+      />
+    </RecordTableInlineCell>
+  ),
+});
+
+export const scoreDetailColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IScoreLog>[] =>
+  scoreLogColumns(t).reduce<ColumnDef<IScoreLog>[]>((columns, column) => {
+    if (DETAIL_EXCLUDED_COLUMNS.has(column.id || '')) return columns;
+
+    columns.push(column);
+    if (column.id === 'action') columns.push(makeScoreChangeColumn(t));
+
+    return columns;
+  }, []);

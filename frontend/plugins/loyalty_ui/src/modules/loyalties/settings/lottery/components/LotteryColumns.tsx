@@ -12,7 +12,7 @@ import {
   IconHash,
   IconTag,
 } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import { LotteryNameCell } from '../lottery-detail/components/LotteryNameCell';
 import { ILottery } from '../types/lotteryTypes';
 import { lotteryMoreColumn } from './LotteryMoreColumn';
@@ -38,14 +38,18 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const lotteryColumns: ColumnDef<ILottery>[] = [
+export const lotteryColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<ILottery>[] => [
   lotteryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ILottery>,
 
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTag} label={t('title')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('title')} />
+    ),
     cell: ({ cell }) => {
       return (
         <LotteryNameCell
@@ -59,7 +63,9 @@ export const lotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -72,7 +78,9 @@ export const lotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -85,7 +93,7 @@ export const lotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead label={t('status')} icon={IconHash} />; },
+    header: () => <RecordTable.InlineHead label={t('status')} icon={IconHash} />,
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { donationColumns } from './DonationColumns';
 import { DonationCommandBar } from './donation-command-bar/DonationCommandBar';
 import { useDonations } from '../hooks/useDonations';
-import { useDonationStatusEdit } from '../hooks/useDonationStatusEdit';
 import { DONATIONS_CURSOR_SESSION_KEY } from '../constants/donationsCursorSessionKey';
 
 import { IconHeart } from '@tabler/icons-react';
@@ -13,12 +12,11 @@ import { LoyaltyDonationAddSheet } from './DonationAddSheet';
 export const DonationRecordTable = () => {
   const { t } = useTranslation('loyalty');
   const { donations, handleFetchMore, loading, pageInfo } = useDonations();
-  const { editStatus } = useDonationStatusEdit();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={donationColumns(editStatus)}
+      columns={donationColumns(t)}
       data={donations || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}

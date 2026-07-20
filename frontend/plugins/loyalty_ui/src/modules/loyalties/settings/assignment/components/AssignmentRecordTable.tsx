@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { assignmentColumns } from './AssignmentColumns';
 import { AssignmentCommandBar } from './assignment-command-bar/AssignmentCommandBar';
 import { useAssignments } from '../hooks/useAssignments';
-import { useAssignmentStatusEdit } from '../hooks/useAssignmentStatusEdit';
 import { ASSIGNMENTS_CURSOR_SESSION_KEY } from '../constants/assignmentsCursorSessionKey';
 
 import { IconTicket } from '@tabler/icons-react';
@@ -13,12 +12,11 @@ import { LoyaltyAssignmentAddSheet } from './AssignmentAddSheet';
 export const AssignmentRecordTable = () => {
   const { t } = useTranslation('loyalty');
   const { assignments, handleFetchMore, loading, pageInfo } = useAssignments();
-  const { editStatus } = useAssignmentStatusEdit();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={assignmentColumns(editStatus)}
+      columns={assignmentColumns(t)}
       data={assignments || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}
