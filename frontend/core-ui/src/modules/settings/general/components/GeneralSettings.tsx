@@ -112,7 +112,7 @@ const GeneralSettings = () => {
             languages.some((lng) => lang.value === lng),
           )}
           placeholder={t('languages-placeholder', 'Languages')}
-          label={t('language')}
+          label={t('language', 'Language')}
         />
         <SelectMainCurrency />
         <SelectCurrency />
@@ -122,7 +122,7 @@ const GeneralSettings = () => {
           {isLoading ? (
             <Spinner className="stroke-white/90 w-4 h-4" />
           ) : (
-            t('update')
+            t('update', 'Update')
           )}
         </Button>
       </form>

@@ -33,7 +33,7 @@ export const WaitEventConfigForm = ({
         defaultValue={waitEventOptions[0]?.id}
         render={({ field }) => (
           <Form.Item className="px-4">
-            <Form.Label>{t('select-target-type')} ({`${field.value}`})</Form.Label>
+            <Form.Label>{t('select-target-type', 'Select target type')} ({`${field.value}`})</Form.Label>
             <Select
               value={field.value ?? waitEventOptions[0]?.id}
               onValueChange={onSelectTargetTypeId}
@@ -43,7 +43,7 @@ export const WaitEventConfigForm = ({
                 aria-describedby={`target-type-help-${currentAction.id}`}
                 className="mt-1"
               >
-                <Select.Value placeholder={t('select-target-type')} />
+                <Select.Value placeholder={t('select-target-type', 'Select target type')} />
               </Select.Trigger>
               <Select.Content>
                 {waitEventOptions.map(({ id, label, icon }) => (
@@ -57,7 +57,7 @@ export const WaitEventConfigForm = ({
               </Select.Content>
             </Select>
             <Form.Description id={`target-type-help-${currentAction.id}`}>
-              {t('event-listen-description')}
+              {t('event-listen-description', 'This determines where the event will be listened from.')}
             </Form.Description>
             <Form.Message />
           </Form.Item>

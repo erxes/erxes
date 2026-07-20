@@ -14,7 +14,7 @@ export function SelectMainCurrency() {
       name="mainCurrency"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('main-currency')}</Form.Label>
+          <Form.Label>{t('main-currency', 'Main currency')}</Form.Label>
           <Form.Control>
             <CurrencyField.SelectCurrency
               value={field.value as CurrencyCode}

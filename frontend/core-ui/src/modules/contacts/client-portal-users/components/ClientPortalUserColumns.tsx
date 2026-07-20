@@ -4,7 +4,6 @@ import {
   IconCheck,
   IconMail,
   IconPhone,
-  IconTrash,
   IconUser,
   IconWorld,
 } from '@tabler/icons-react';
@@ -18,7 +17,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { ICPUser } from '@/contacts/client-portal-users/types/cpUser';
-import { CPUserRowDeleteButton } from '@/contacts/client-portal-users/components/CPUserRowDeleteButton';
+import { clientPortalUserMoreColumn } from '@/contacts/client-portal-users/components/ClientPortalUserMoreColumn';
 
 function displayName(user: ICPUser) {
   const parts = [user.firstName, user.lastName].filter(Boolean);
@@ -29,6 +28,8 @@ function displayName(user: ICPUser) {
 export const clientPortalUserColumns = (
   t: (key: string, defaultValue: string) => string,
 ): ColumnDef<ICPUser>[] => [
+  clientPortalUserMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<ICPUser>,
   {
     id: 'name',
     accessorKey: 'firstName',
@@ -148,18 +149,5 @@ export const clientPortalUserColumns = (
         </RecordTableInlineCell>
       </RelativeDateDisplay>
     ),
-  },
-  {
-    id: 'actions',
-    header: () => <RecordTable.InlineHead icon={IconTrash} label="" />,
-    cell: ({ row }) => (
-      <RecordTableInlineCell
-        onClick={(e) => e.stopPropagation()}
-        className="w-10"
-      >
-        <CPUserRowDeleteButton row={row.original} />
-      </RecordTableInlineCell>
-    ),
-    size: 48,
   },
 ];

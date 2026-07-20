@@ -67,7 +67,7 @@ export function Organization() {
           <DropdownMenu.Separator />
           <DropdownMenu.Item asChild>
             <Link to="/settings" className="text-sm">
-              {t('settings')}
+              {t('settings', 'Settings')}
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
@@ -75,11 +75,11 @@ export function Organization() {
           <SelectLanguages />
           <DropdownMenu.Separator />
           <DropdownMenu.Item className="text-sm" onClick={() => handleLogout()}>
-            {t('logout')}
+            {t('logout', 'Logout')}
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
           <DropdownMenu.Label className="flex items-center gap-2">
-            {t('version')}
+            {t('version', 'Version')}
             <span className="text-primary ml-auto tracking-wider">
               {version}
             </span>

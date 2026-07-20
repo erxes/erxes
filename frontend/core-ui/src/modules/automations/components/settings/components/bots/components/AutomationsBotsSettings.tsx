@@ -5,6 +5,7 @@ import {
 import { IAutomationBot } from '@/automations/components/settings/components/bots/types/automationBots';
 import { AutomationBotsEmptyState } from '@/automations/components/settings/components/bots/components/AutomationBotsEmptyState';
 import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { Card, cn, getPluginAssetsUrl, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +23,7 @@ const BotCard = ({
 
   return (
     <Card key={name} className="h-auto p-3 flex flex-col gap-2 rounded-lg">
-      <Link to={`/settings/automations/bots/${name}`}>
+      <Link to={`${AutomationSettingsPath.Bots}/${name}`}>
         <div className="flex gap-2 mb-2 items-center">
           <div
             className={cn(

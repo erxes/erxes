@@ -16,6 +16,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { Link, useNavigate } from 'react-router-dom';
 import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
 
@@ -58,7 +59,7 @@ export const AutomationsRecordTable = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconAffiliate />
-                  {t('automations')}
+                  {t('automations', 'Automations')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -68,17 +69,17 @@ export const AutomationsRecordTable = () => {
         <PageHeader.End>
           <Button variant="outline" asChild>
             <Link
-              to="/settings/automations"
+              to={AutomationSettingsPath.Index}
               onClick={() => setAutomationSettingsReturnPath('/automations')}
             >
               <IconSettings />
-              {t('go-to-settings')}
+              {t('go-to-settings', 'Go to settings')}
             </Link>
           </Button>
           <Can action="automationsCreate">
             <Button asChild>
               <Link to={'/automations/create'}>
-                {t('create')}
+                {t('create', 'Create a new automation')}
                 <Kbd>C</Kbd>
               </Link>
             </Button>

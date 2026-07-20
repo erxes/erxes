@@ -153,6 +153,16 @@
   "select-goal-type": "Select goal type",
   "instruction-prompt": "Instruction Prompt",
   "enter-prompt": "Enter prompt",
+  "instruction-prompt-description": "Optional. Fill this only when you need extra instructions beyond the selected agent's system prompt and context files.",
+  "fallback-text": "Fallback response",
+  "fallback-text-placeholder": "Sorry, the response is taking a bit longer. We received your message.",
+  "fallback-text-description": "Sent when the AI provider does not respond in time. Leave empty to skip the fallback response.",
+  "capture-fields": "Capture fields",
+  "capture-fields-description": "Optional. Fields to extract from the conversation in the same call while generating the response. Results appear in the action's attributes output; missing fields are null.",
+  "add-capture-field": "Add Capture Field",
+  "memory": "Memory",
+  "runtime-snapshot": "Runtime Snapshot",
+  "output-fields": "Output Fields",
   "ai-agent-input": "AI input",
   "ai-agent-input-description": "Drag an output variable here. Leave this empty to send the full trigger payload.",
   "ai-agent-input-mode": "Input mode",
@@ -234,6 +244,16 @@
       }
     }
   },
+  "schedule-cron-required": "Cron expression is required",
+  "schedule-cron-format-error": "Use a 5, 6, or 7 field cron expression",
+  "schedule-timezone-required": "Timezone is required",
+  "schedule-validation-title": "Check the schedule configuration",
+  "schedule-validation-description": "A valid cron expression and timezone are required.",
+  "schedule-cron-label": "Cron expression",
+  "schedule-cron-description": "Five to seven fields. For example, 0 9 * * 1 runs every Monday at 09:00.",
+  "schedule-timezone-label": "Timezone",
+  "schedule-timezone-description": "Use an IANA timezone such as UTC, Asia/Ulaanbaatar, or America/New_York.",
+  "schedule-not-configured": "Schedule not configured",
   "error": "Error",
   "success": "Success",
 
@@ -329,9 +349,6 @@
 
   "form-error": "There is some error in the form",
   "settings": "Settings",
-
-  "memory": "Memory",
-  "runtime-snapshot": "Runtime Snapshot",
 
   "enter-topic-label": "Enter topic label",
   "explain-topic-selection": "Explain when this topic should be selected",
@@ -480,9 +497,12 @@
 
   "hide-fields": "Hide fields",
   "reference": "Reference",
+  "fields": "Fields",
   "no-matching-output-variables": "No matching output variables.",
   "no-output-variables-available": "No output variables available.",
   "no-reference-fields-available": "No reference fields available.",
+  "loading-reference-fields": "Loading reference fields...",
+  "loading-outputs": "Loading outputs...",
 
   "see-request-and-response": "See Request & Response",
   "outgoing-webhook-result": "Outgoing Webhook Result",

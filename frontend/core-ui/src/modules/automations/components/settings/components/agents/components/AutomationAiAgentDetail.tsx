@@ -16,6 +16,7 @@ import {
   TAiAgentForm,
 } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconActivityHeartbeat,
@@ -89,7 +90,7 @@ export const AutomationAiAgentDetail = ({
               ? t('update-your-ai-agent', 'Update your AI agent')
               : t('create-new-ai-agent', 'Create a new AI agent for automation')
           }
-          backTo="/settings/automations/agents"
+          backTo={AutomationSettingsPath.Agents}
           actions={
             <div className="flex items-center gap-2">
               {detail?._id && (

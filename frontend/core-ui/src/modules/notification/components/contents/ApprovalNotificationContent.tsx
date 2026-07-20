@@ -67,7 +67,7 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
   if (!metadata) {
     return (
       <div className="p-6 text-sm text-muted-foreground">
-        {t('invalid-notification')}
+        {t('invalid-notification', 'This approval notification is missing request details.')}
       </div>
     );
   }
@@ -77,7 +77,7 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
   }
 
   const request = data?.approvalRequestDetail;
-  const requesterName = getRequesterName(request?.requester) || t('someone');
+  const requesterName = getRequesterName(request?.requester) || t('someone', 'Someone');
   const targetLabel = metadata.targetLabel || metadata.targetContentType;
 
   return (
@@ -88,13 +88,13 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
         </div>
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-base font-semibold">{t('approval-request')}</h2>
+            <h2 className="text-base font-semibold">{t('approval-request', 'Approval request')}</h2>
             {request?.status && (
               <Badge variant="secondary">{t(`status-${request.status}`)}</Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            {t('approval-request-description', {
+            {t('approval-request-description', '{{requester}} requested access to {{label}}.', {
               requester: requesterName,
               label: targetLabel,
             })}
@@ -108,7 +108,7 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
       {request?.reason && (
         <div className="space-y-2">
           <div className="text-xs font-medium uppercase text-muted-foreground">
-            {t('request-reason')}
+            {t('request-reason', 'Reason')}
           </div>
           <div className="whitespace-pre-wrap break-words rounded-md border p-3 text-sm text-muted-foreground">
             {request.reason}
@@ -117,7 +117,7 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
       )}
       <div className="space-y-2">
         <div className="text-xs font-medium uppercase text-muted-foreground">
-          {t('target')}
+          {t('target', 'Target')}
         </div>
         <div className="rounded-md border p-3">
           <div className="min-w-0">

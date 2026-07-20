@@ -123,6 +123,7 @@ const generateTextSchema = z.object({
   goalType: z.literal('generateText'),
   prompt: z.string().optional().default(''),
   fallbackText: z.string().optional().default(''),
+  captureFields: z.array(aiAgentObjectFieldSchema).optional().default([]),
 });
 
 const splitTopicSchema = z.object({

@@ -170,11 +170,11 @@ export const ProductRuleForm = ({
       >
         <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
           <Sheet.Title>
-            {productRule ? t('edit-product-rule') : t('add-product-rule')}
+            {productRule ? t('edit-product-rule', 'Edit product rule') : t('add-product-rule', 'Add product rule')}
           </Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
-            {productRule ? t('edit-product-rule') : t('add-product-rule')}
+            {productRule ? t('edit-product-rule', 'Edit product rule') : t('add-product-rule', 'Add product rule')}
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="overflow-hidden flex-auto">
@@ -186,10 +186,10 @@ export const ProductRuleForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('name')} <span className="text-destructive">*</span>
+                      {t('name', 'Name')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
-                      <Input placeholder={t('name')} {...field} autoFocus />
+                      <Input placeholder={t('name', 'Name')} {...field} autoFocus />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -201,7 +201,7 @@ export const ProductRuleForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('unit-price')}{' '}
+                      {t('unit-price', 'Unit Price')}{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
@@ -226,7 +226,7 @@ export const ProductRuleForm = ({
                 name="categoryIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('choose-categories-to-include')}</Form.Label>
+                    <Form.Label>{t('choose-categories-to-include', 'Choose categories to include')}</Form.Label>
                     <Form.Control>
                       <SelectCategory
                         selected={field.value?.[0] || ''}
@@ -244,7 +244,7 @@ export const ProductRuleForm = ({
                 name="excludeCategoryIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('choose-categories-to-exclude')}</Form.Label>
+                    <Form.Label>{t('choose-categories-to-exclude', 'Choose categories to exclude')}</Form.Label>
                     <Form.Control>
                       <SelectCategory
                         selected={field.value?.[0] || ''}
@@ -265,7 +265,7 @@ export const ProductRuleForm = ({
                 name="productIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('choose-products')}</Form.Label>
+                    <Form.Label>{t('choose-products', 'Choose products')}</Form.Label>
                     <Form.Control>
                       <SelectProduct
                         mode="multiple"
@@ -284,7 +284,7 @@ export const ProductRuleForm = ({
                 name="excludeProductIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('choose-exclude-products')}</Form.Label>
+                    <Form.Label>{t('choose-exclude-products', 'Choose products to exclude')}</Form.Label>
                     <Form.Control>
                       <SelectProduct
                         mode="multiple"
@@ -306,7 +306,7 @@ export const ProductRuleForm = ({
                 name="tagIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('choose-tags')}</Form.Label>
+                    <Form.Label>{t('choose-tags', 'Choose tags')}</Form.Label>
                     <Form.Control>
                       <SelectTags
                         mode="multiple"
@@ -325,7 +325,7 @@ export const ProductRuleForm = ({
                 name="excludeTagIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('choose-exclude-tags')}</Form.Label>
+                    <Form.Label>{t('choose-exclude-tags', 'Choose tags to exclude')}</Form.Label>
                     <Form.Control>
                       <SelectTags
                         mode="multiple"
@@ -344,16 +344,16 @@ export const ProductRuleForm = ({
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button type="button" variant="outline" onClick={handleCancel}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading
               ? productRule
-                ? t('updating')
-                : t('creating')
+                ? t('updating', 'Updating')
+                : t('creating', 'Creating')
               : productRule
-              ? t('update')
-              : t('create')}
+              ? t('update', 'Update')
+              : t('create', 'Create')}
           </Button>
         </Sheet.Footer>
       </form>

@@ -69,7 +69,7 @@ export const AutomationHeaderTabs = ({
           />
         )}
         <IconAutomation className="relative z-10 size-3.5 shrink-0" />
-        <span className="relative z-10 whitespace-nowrap">{t('builder')}</span>
+        <span className="relative z-10 whitespace-nowrap">{t('builder', 'Builder')}</span>
       </Tabs.Trigger>
       <Tabs.Trigger
         className="relative z-10 min-w-24 cursor-pointer gap-1.5 rounded-md px-3 font-normal text-muted-foreground transition-colors after:border-none after:shadow-none after:content-none hover:bg-transparent data-[state=active]:text-foreground"
@@ -88,7 +88,7 @@ export const AutomationHeaderTabs = ({
           />
         )}
         <IconHistory className="relative z-10 size-3.5 shrink-0" />
-        <span className="relative z-10 whitespace-nowrap">{t('history')}</span>
+        <span className="relative z-10 whitespace-nowrap">{t('history', 'History')}</span>
       </Tabs.Trigger>
     </Tabs.List>
   );

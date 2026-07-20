@@ -16,7 +16,7 @@ export const LogsTotalCount = () => {
 
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
-      {t('records-found', { count: totalCount })}
+      {t('records-found', '{{count}} records found', { count: totalCount })}
     </div>
   );
 };

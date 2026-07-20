@@ -14,14 +14,14 @@ export function InviteTeamMember() {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('invite-team-members')}
+          {t('invite-team-members', 'Invite team members')}
         </Button>
       </Dialog.Trigger>
       <Dialog.Content className="max-w-md xl:max-w-lg p-0">
         <Dialog.Header className="px-3 py-[13px] border-b border-muted">
           <Dialog.Title className="flex items-center gap-2 text-sm">
             <IconUsersGroup size={14} />
-            {t('invite-team-members')}
+            {t('invite-team-members', 'Invite team members')}
           </Dialog.Title>
           <Dialog.Description className="sr-only">
             Add a new account
@@ -38,7 +38,7 @@ export function InviteTeamMember() {
         </Dialog.Header>
         <div className="flex flex-col gap-6 px-3 pb-3">
           <span className="text-accent-foreground">
-            {t('notify')}
+            {t('notify', 'Send an email and notify members that they\'ve been invited!')}
           </span>
           <InviteForm setIsOpen={setIsOpen} />
         </div>

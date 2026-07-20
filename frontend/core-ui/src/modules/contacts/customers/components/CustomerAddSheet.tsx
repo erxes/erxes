@@ -46,7 +46,7 @@ export const CustomerAddSheet = () => {
     ContactsHotKeyScope.CustomerAddSheet,
   );
 
-  const title = isLead ? t('lead.add._') : t('customer.add._');
+  const title = isLead ? t('lead.add._', 'Add Lead') : t('customer.add._', 'Add Customer');
 
   return (
     <FocusSheet

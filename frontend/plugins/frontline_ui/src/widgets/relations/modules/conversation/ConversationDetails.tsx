@@ -22,6 +22,11 @@ import { ConversationContext } from '@/inbox/conversations/context/ConversationC
 import { ConversationDetailView } from './ConversationDetailView';
 import { IChannel } from '@/inbox/types/Channel';
 import { IIntegration } from '@/integrations/types/Integration';
+import { IntegrationType } from '@/types/Integration';
+import {
+  CALL_STATUS_LABEL_KEYS,
+  parseCallConversationContent,
+} from '@/integrations/call/utils/callContentUtils';
 
 export const ConversationRelationDetails = ({
   conversationId,
@@ -110,15 +115,21 @@ export const ConversationRelationDetails = ({
 
 export const ConversationItemContent = () => {
   const { t } = useTranslation('frontline');
-  const { content } = useConversationContext();
+  const { content, integration } = useConversationContext();
   if (!content) return null;
 
-  if (content.includes('callDirection/')) {
-    const callDirection = content.split('callDirection/')[1];
+  const callContent =
+    integration?.kind === IntegrationType.CALL ||
+    content.includes('callDirection/')
+      ? parseCallConversationContent(content)
+      : null;
 
+  if (callContent) {
+    const { direction, status } = callContent;
     return (
       <div className="font-medium">
-        {callDirection === 'INCOMING' ? t('incoming-call') : t('outgoing-call')}
+        {direction === 'incoming' ? t('incoming-call') : t('outgoing-call')}
+        {status ? ` · ${t(CALL_STATUS_LABEL_KEYS[status])}` : ''}
       </div>
     );
   }

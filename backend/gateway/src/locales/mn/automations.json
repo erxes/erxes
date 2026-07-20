@@ -153,6 +153,16 @@
   "select-goal-type": "Зорилгын төрлийг сонгох",
   "instruction-prompt": "Заавар",
   "enter-prompt": "Заавар оруулах",
+  "instruction-prompt-description": "Заавал биш. Сонгосон агентын system prompt болон context файлуудаас гадна нэмэлт заавар хэрэгтэй үед л бөглөнө.",
+  "fallback-text": "Удаашрах үеийн хариу",
+  "fallback-text-placeholder": "Уучлаарай, хариу бага зэрэг удааширлаа. Таны бичсэнийг авлаа.",
+  "fallback-text-description": "AI provider хугацаандаа хариу өгөхгүй үед энэ текстийг явуулна. Хоосон орхивол fallback хариу явуулахгүй.",
+  "capture-fields": "Задлах талбарууд",
+  "capture-fields-description": "Заавал биш. Хариулт үүсгэхийн зэрэгцээ нэг дуудлагаар харилцан ярианаас задлах талбарууд. Үр дүн нь action-ы attributes output-оор гарна; олдоогүй талбар null байна.",
+  "add-capture-field": "Задлах талбар нэмэх",
+  "memory": "Санах ой",
+  "runtime-snapshot": "Ажиллагааны төлөв",
+  "output-fields": "Гаралтын талбарууд",
   "ai-agent-input": "Агентын оролт",
   "ai-agent-input-description": "Гаралтын хувьсагчийг энд чирж оруулна уу. Хоосон бол триггерийн бүтэн payload-г илгээнэ.",
   "ai-agent-input-mode": "Оролтын горим",
@@ -234,6 +244,16 @@
       }
     }
   },
+  "schedule-cron-required": "Cron илэрхийлэл шаардлагатай",
+  "schedule-cron-format-error": "5, 6 эсвэл 7 талбартай cron илэрхийлэл ашиглана уу",
+  "schedule-timezone-required": "Цагийн бүс шаардлагатай",
+  "schedule-validation-title": "Хуваарийн тохиргоог шалгана уу",
+  "schedule-validation-description": "Зөв cron илэрхийлэл болон цагийн бүс шаардлагатай.",
+  "schedule-cron-label": "Cron илэрхийлэл",
+  "schedule-cron-description": "Таваас долоон талбар ашиглана. Жишээлбэл, 0 9 * * 1 нь Даваа гараг бүрийн 09:00 цагт ажиллана.",
+  "schedule-timezone-label": "Цагийн бүс",
+  "schedule-timezone-description": "UTC, Asia/Ulaanbaatar эсвэл America/New_York зэрэг IANA цагийн бүс ашиглана уу.",
+  "schedule-not-configured": "Хуваарь тохируулаагүй",
   "error": "Алдаа",
   "success": "Амжилттай",
 
@@ -329,9 +349,6 @@
 
   "form-error": "Маягтад алдаа байна",
   "settings": "Тохиргоо",
-
-  "memory": "Санах ой",
-  "runtime-snapshot": "Runtime Snapshot",
 
   "enter-topic-label": "Сэдвийн нэр оруулна уу",
   "explain-topic-selection": "Энэ сэдэв хэзээ сонгогдох ёстойг тайлбарлана уу",
@@ -480,9 +497,12 @@
 
   "hide-fields": "Талбаруудыг нуух",
   "reference": "Лавлагаа",
+  "fields": "Талбарууд",
   "no-matching-output-variables": "Тохирох гаралтын хувьсагч олдсонгүй.",
   "no-output-variables-available": "Гаралтын хувьсагч байхгүй байна.",
   "no-reference-fields-available": "Лавлагааны талбар байхгүй байна.",
+  "loading-reference-fields": "Лавлагааны талбар ачаалж байна...",
+  "loading-outputs": "Гаралтыг ачаалж байна...",
 
   "see-request-and-response": "Хүсэлт ба Хариуг харах",
   "outgoing-webhook-result": "Гарах Webhook-ийн үр дүн",

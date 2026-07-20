@@ -25,7 +25,7 @@ export const PlaceHolderNode = memo(
     return (
       <div className="flex flex-col">
         <div className="ml-1 w-fit rounded-t-md bg-primary/10 px-3 py-1 text-primary">
-          <p className="text-sm font-semibold">{t('start')}</p>
+          <p className="text-sm font-semibold">{t('start', 'Start')}</p>
         </div>
         <Card
           className={cn(
@@ -42,15 +42,15 @@ export const PlaceHolderNode = memo(
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/70">
-                  {t('trigger')}
+                  {t('trigger', 'Trigger')}
                 </p>
                 <Card.Title className="text-lg leading-5">
-                  {t('choose-a-trigger')}
+                  {t('choose-a-trigger', 'Choose a trigger')}
                 </Card.Title>
               </div>
             </div>
             <Card.Description className="pt-3 text-sm leading-5 text-muted-foreground">
-              {t('choose-trigger-description')}
+              {t('choose-trigger-description', 'Select the event that starts this automation.')}
             </Card.Description>
           </Card.Header>
           <Card.Content className="p-4 pt-0">
@@ -60,7 +60,7 @@ export const PlaceHolderNode = memo(
               onClick={openSidebar}
             >
               <IconPlus className="size-4" />
-              {t('add-trigger')}
+              {t('add-trigger', 'Add trigger')}
             </Button>
           </Card.Content>
 

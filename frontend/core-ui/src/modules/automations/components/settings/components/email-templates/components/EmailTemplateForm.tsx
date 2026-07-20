@@ -1,4 +1,5 @@
 import { useAutomationEmailTemplateDetail } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplateDetail';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { useEmailDocumentPlaceholder } from '@/automations/components/common/EmailDocumentPlaceholderPicker';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDeviceFloppy } from '@tabler/icons-react';
@@ -143,7 +144,7 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
       } else {
         await createEmailTemplate(data);
       }
-      navigate('/settings/automations/email-templates');
+      navigate(AutomationSettingsPath.EmailTemplates);
     } catch (error) {
       console.error('Error saving email template:', error);
     }
@@ -168,15 +169,15 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
             ? t('update-your-email-template', 'Update your email template')
             : t('create-new-email-template', 'Create a new email template for automation')
         }
-        backTo="/settings/automations/email-templates"
+        backTo={AutomationSettingsPath.EmailTemplates}
         actions={
           <Button type="submit" form="email-template-form" disabled={isLoading}>
             <IconDeviceFloppy className="size-4 mr-2" />
             {isLoading
               ? t('saving', 'Saving...')
               : isEditing
-              ? t('update-template', 'Update Template')
-              : t('create-template', 'Create Template')}
+                ? t('update-template', 'Update Template')
+                : t('create-template', 'Create Template')}
           </Button>
         }
       />

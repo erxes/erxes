@@ -32,7 +32,7 @@ export const ProductDetailGeneral = () => {
   const { productDetail } = useProductDetail();
 
   return (
-    <InfoCard title={t('product-information')}>
+    <InfoCard title={t('product-information', 'Product Information')}>
       <InfoCard.Content>
         <div className="grid grid-cols-2 gap-4">
           <Form.Field
@@ -40,7 +40,7 @@ export const ProductDetailGeneral = () => {
             name="name"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('name')}</Label>
+                <Label>{t('name', 'Name')}</Label>
                 <Input {...field} />
               </div>
             )}
@@ -50,7 +50,7 @@ export const ProductDetailGeneral = () => {
             name="code"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('code')}</Label>
+                <Label>{t('code', 'Code')}</Label>
                 <Input {...field} disabled={!!productDetail?.similarityId} />
               </div>
             )}
@@ -60,7 +60,7 @@ export const ProductDetailGeneral = () => {
             name="shortName"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('short-name')}</Label>
+                <Label>{t('short-name', 'Short Name')}</Label>
                 <Input {...field} />
               </div>
             )}
@@ -70,7 +70,7 @@ export const ProductDetailGeneral = () => {
             name="type"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('type')}</Label>
+                <Label>{t('type', 'Type')}</Label>
                 <SelectProductType
                   value={field.value ?? ''}
                   onValueChange={field.onChange}
@@ -97,7 +97,7 @@ export const ProductDetailGeneral = () => {
             name="unitPrice"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('unit-price')}</Label>
+                <Label>{t('unit-price', 'Unit price')}</Label>
                 <CurrencyField.ValueInput
                   value={field.value}
                   onChange={(v) => field.onChange(v)}
@@ -112,7 +112,7 @@ export const ProductDetailGeneral = () => {
                 name="duration"
                 render={({ field }) => (
                   <div className="space-y-2">
-                    <Label>{t('duration')}</Label>
+                    <Label>{t('duration', 'Duration')}</Label>
                     <NumberInput {...field} />
                     <Form.Message />
                   </div>
@@ -123,10 +123,10 @@ export const ProductDetailGeneral = () => {
                 name="durationType"
                 render={({ field }) => (
                   <div className="space-y-2">
-                    <Label>{t('duration-type')}</Label>
+                    <Label>{t('duration-type', 'Duration type')}</Label>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
-                        <Select.Value placeholder={t('select-duration-type')} />
+                        <Select.Value placeholder={t('select-duration-type', 'Select duration type')} />
                       </Select.Trigger>
                       <Select.Content>
                         {PRODUCT_DURATION_TYPES.map((durationType) => (
@@ -154,7 +154,7 @@ export const ProductDetailGeneral = () => {
 
               return (
                 <div className="col-span-2 space-y-2">
-                  <Label>{t('unit-of-measurements')}</Label>
+                  <Label>{t('unit-of-measurements', 'Unit of Measurements')}</Label>
                   <SelectUOMWithName
                     key={uomValue || 'empty'}
                     value={uomValue}
@@ -172,7 +172,7 @@ export const ProductDetailGeneral = () => {
             name="description"
             render={({ field }) => (
               <div className="col-span-2 space-y-2">
-                <Label>{t('description')}</Label>
+                <Label>{t('description', 'Description')}</Label>
                 <Editor
                   key={productId || 'new-product'}
                   initialContent={field.value || ''}

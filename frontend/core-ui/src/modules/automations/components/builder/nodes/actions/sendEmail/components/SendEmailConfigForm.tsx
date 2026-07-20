@@ -34,7 +34,7 @@ export const SendEmailConfigForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                {t('sender')}
+                {t('sender', 'Sender')}
                 <span className="text-destructive">*</span>
               </Form.Label>
               <RadioGroup
@@ -43,12 +43,12 @@ export const SendEmailConfigForm = ({
               >
                 <label className="flex space-x-2 items-center">
                   <RadioGroup.Item value="default" id="env-sender" />
-                  <Label htmlFor="env-sender">{t('use-company-email')}</Label>
+                  <Label htmlFor="env-sender">{t('use-company-email', 'Use company email')}</Label>
                 </label>
                 <label className="flex space-x-2 items-center">
                   <RadioGroup.Item value="custom" id="custom-sender" />
                   <Label htmlFor="custom-sender">
-                    {t('custom-sender-email')}
+                    {t('custom-sender-email', 'Custom sender email')}
                   </Label>
                 </label>
               </RadioGroup>
@@ -101,12 +101,12 @@ export const SendEmailConfigForm = ({
               <Form.Item>
                 <Form.Label className="flex justify-between">
                   <div>
-                    {t('to')}
+                    {t('to', 'To')}
                     <span className="text-destructive">*</span>
                   </div>
                   <Collapsible.Trigger className="group">
                     <Form.Label className="group-data-[state=open]:text-destructive cursor-pointer pb-2">
-                      {t('cc')}
+                      {t('cc', 'CC')}
                     </Form.Label>
                   </Collapsible.Trigger>
                 </Form.Label>
@@ -161,7 +161,7 @@ export const SendEmailConfigForm = ({
           render={({ field: { disabled: _disabled, ...field } }) => (
             <Form.Item>
               <Form.Label>
-                {t('subject')}
+                {t('subject', 'Subject')}
                 <span className="text-destructive">*</span>
               </Form.Label>
               <PlaceholderInput
@@ -179,7 +179,7 @@ export const SendEmailConfigForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                {t('email-content')}
+                {t('email-content', 'Email Content')}
                 <span className="text-destructive">*</span>
               </Form.Label>
               <SendEmailEmailContentBuilder

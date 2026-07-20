@@ -9,6 +9,7 @@ import { AutomationConfigFormWrapper } from '@/automations/components/builder/no
 import {
   IconBrain,
   IconChartPie,
+  IconListDetails,
   IconPlus,
   IconSettings,
 } from '@tabler/icons-react';
@@ -18,6 +19,30 @@ import { Link, useLocation } from 'react-router';
 import { TAutomationActionProps } from 'ui-modules';
 import { useAiAgentConfigForm } from '../hooks/useAiAgentConfigForm';
 import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
+
+const AI_AGENT_CONFIG_FORM_TABS = [
+  {
+    value: 'general',
+    label: 'configuration',
+    icon: IconSettings,
+  },
+  {
+    value: 'memory',
+    label: 'memory',
+    icon: IconBrain,
+  },
+  {
+    value: 'runtimeSnapshot',
+    label: 'runtime-snapshot',
+    icon: IconChartPie,
+  },
+  {
+    value: 'fields',
+    label: 'output-fields',
+    icon: IconListDetails,
+  },
+];
 
 export const AIAgentConfigForm = ({
   currentAction,
@@ -42,16 +67,11 @@ export const AIAgentConfigForm = ({
       >
         <Tabs defaultValue="general" className="min-w-72">
           <Tabs.List className="flex flex-row">
-            <Tabs.Trigger value="general" className="flex-1">
-              <IconSettings className="size-3.5 mr-2" /> {t('configuration', 'Configuration')}
-            </Tabs.Trigger>
-            <Tabs.Trigger value="memory" className="flex-1">
-              <IconBrain className="size-3.5 mr-2" /> {t('memory', 'Memory')}
-            </Tabs.Trigger>
-            <Tabs.Trigger value="runtimeSnapshot" className="flex-1">
-              <IconChartPie className="size-3.5 mr-2" />
-              {t('runtime-snapshot', 'Runtime Snapshot')}
-            </Tabs.Trigger>
+            {AI_AGENT_CONFIG_FORM_TABS.map(({ value, label, icon: Icon }) => (
+              <Tabs.Trigger key={value} value={value} className="flex-1">
+                <Icon className="size-3.5 mr-2" /> {t(label)}
+              </Tabs.Trigger>
+            ))}
           </Tabs.List>
           <Tabs.Content value="general" className="flex flex-col gap-2">
             <Form.Field
@@ -60,11 +80,11 @@ export const AIAgentConfigForm = ({
               render={({ field }) => {
                 return (
                   <Form.Item>
-                    <Form.Label>{t('ai-agent')}</Form.Label>
+                    <Form.Label>{t('ai-agent', 'Ai Agent')}</Form.Label>
 
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger className="mt-1">
-                        <Select.Value placeholder={t('select-ai-agent')} />
+                        <Select.Value placeholder={t('select-ai-agent', 'Select ai agent')} />
                       </Select.Trigger>
                       <Select.Content>
                         {automationsAiAgents.map(({ _id, name }) => (
@@ -73,13 +93,13 @@ export const AIAgentConfigForm = ({
                           </Select.Item>
                         ))}
                         <Link
-                          to="/settings/automations/agents"
+                          to={AutomationSettingsPath.Agents}
                           onClick={() =>
                             setAutomationSettingsReturnPath(pathname)
                           }
                         >
                           <Button variant="ghost" className="w-full">
-                            <IconPlus /> {t('add-new-agent')}
+                            <IconPlus /> {t('add-new-agent', 'Add new agent')}
                           </Button>
                         </Link>
                       </Select.Content>
@@ -96,10 +116,10 @@ export const AIAgentConfigForm = ({
               render={({ field }) => {
                 return (
                   <Form.Item>
-                    <Form.Label>{t('goal-type')}</Form.Label>
+                    <Form.Label>{t('goal-type', 'Goal Type')}</Form.Label>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger className="mt-1">
-                        <Select.Value placeholder={t('select-goal-type')} />
+                        <Select.Value placeholder={t('select-goal-type', 'Select goal type')} />
                       </Select.Trigger>
                       <Select.Content>
                         {AI_AGENT_NODE_GOAL_TYPES.map(({ type, label }) => (
@@ -126,12 +146,10 @@ export const AIAgentConfigForm = ({
                   control={control}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('instruction-prompt')}</Form.Label>
-                      <Textarea placeholder={t('enter-prompt')} {...field} />
+                      <Form.Label>{t('instruction-prompt', 'Instruction Prompt')}</Form.Label>
+                      <Textarea placeholder={t('enter-prompt', 'Enter prompt')} {...field} />
                       <Form.Description>
-                        Заавал биш. Сонгосон agent-ийн system prompt болон
-                        context files-оос гадна нэмэлт заавар хэрэгтэй үед л
-                        бөглөнө.
+                        {t('instruction-prompt-description', 'Optional. Fill this only when you need extra instructions beyond the selected agent\'s system prompt and context files.')}
                       </Form.Description>
                       <Form.Message />
                     </Form.Item>
@@ -142,14 +160,13 @@ export const AIAgentConfigForm = ({
                   control={control}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Удаашрах үеийн хариу</Form.Label>
+                      <Form.Label>{t('fallback-text', 'Fallback response')}</Form.Label>
                       <Textarea
-                        placeholder="Уучлаарай, хариу бага зэрэг удааширлаа. Таны бичсэнийг авлаа."
+                        placeholder={t('fallback-text-placeholder', 'Sorry, the response is taking a bit longer. We received your message.')}
                         {...field}
                       />
                       <Form.Description>
-                        AI provider хугацаандаа хариу өгөхгүй үед энэ текстийг
-                        явуулна. Хоосон орхивол fallback хариу явуулахгүй.
+                        {t('fallback-text-description', 'Sent when the AI provider does not respond in time. Leave empty to skip the fallback response.')}
                       </Form.Description>
                       <Form.Message />
                     </Form.Item>
@@ -163,6 +180,18 @@ export const AIAgentConfigForm = ({
           </Tabs.Content>
           <Tabs.Content value="runtimeSnapshot" className="my-2">
             <AiAgentRuntimeInfo agent={selectedAgent} actionConfig={config} />
+          </Tabs.Content>
+          <Tabs.Content value="fields" className="my-2">
+            <Form.Item>
+              <Form.Label>{t('capture-fields', 'Capture fields')}</Form.Label>
+              <Form.Description>
+                {t('capture-fields-description', 'Optional. Fields to extract from the conversation in the same call while generating the response. Results appear in the action\'s attributes output; missing fields are null.')}
+              </Form.Description>
+              <AiAgentObjectBuilder
+                name="captureFields"
+                addLabel={t('add-capture-field', 'Add Capture Field')}
+              />
+            </Form.Item>
           </Tabs.Content>
         </Tabs>
       </AutomationConfigFormWrapper>

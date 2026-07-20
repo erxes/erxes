@@ -15,11 +15,11 @@ export const TagsBreadcrumb = () => {
         {' tags'}
       </Button>
       <Tooltip>
-        <Tooltip.Trigger aria-label={t('tags.workspace-description')}>
+        <Tooltip.Trigger aria-label={t('tags.workspace-description', 'Workspace tags are shared tags that can be used across all tag types.')}>
           <IconInfoCircle className="size-4 text-accent-foreground" />
         </Tooltip.Trigger>
         <Tooltip.Content>
-          <p>{t('tags.workspace-description')}</p>
+          <p>{t('tags.workspace-description', 'Workspace tags are shared tags that can be used across all tag types.')}</p>
         </Tooltip.Content>
       </Tooltip>
     </div>

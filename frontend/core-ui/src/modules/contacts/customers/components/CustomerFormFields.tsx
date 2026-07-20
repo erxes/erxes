@@ -30,7 +30,7 @@ export const AvatarField = ({
               <div className="flex flex-col justify-center gap-2">
                 <div className="flex gap-4">
                   <Upload.Button size="sm" variant="outline" type="button">
-                    {t('upload')}
+                    {t('upload', 'Upload')}
                   </Upload.Button>
 
                   <Upload.RemoveButton
@@ -39,7 +39,7 @@ export const AvatarField = ({
                     type="button"
                   />
                 </div>
-                <Form.Description>{t('upload-description')}</Form.Description>
+                <Form.Description>{t('upload-description', 'Upload 1:1, 2MB max')}</Form.Description>
               </div>
             </Upload.Root>
           </Form.Control>
@@ -125,7 +125,7 @@ export const EmailValidationStatusField = ({
       name="emailValidationStatus"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('email-verification-status')}</Form.Label>
+          <Form.Label>{t('email-verification-status', 'Email verification status')}</Form.Label>
           <Select onValueChange={field.onChange} value={field.value} disabled={disabled}>
             <Form.Control>
               <Select.Trigger>
@@ -171,7 +171,7 @@ export const FirstNameField = ({
       name="firstName"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('first-name')}</Form.Label>
+          <Form.Label>{t('first-name', 'First name')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -202,7 +202,7 @@ export const IsSubscribedField = ({
               }
             />
           </Form.Control>
-          <Form.Label variant="peer">{t('subscribed')}</Form.Label>
+          <Form.Label variant="peer">{t('subscribed', 'Subscribed')}</Form.Label>
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
@@ -222,7 +222,7 @@ export const LastNameField = ({
       name="lastName"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('last-name')}</Form.Label>
+          <Form.Label>{t('last-name', 'Last name')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -245,7 +245,7 @@ export const OwnerIdField = ({
       name="ownerId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('owner')}</Form.Label>
+          <Form.Label>{t('owner', 'Owner')}</Form.Label>
           <Form.Control>
             <div className="w-full">
               <SelectMember.FormItem
@@ -281,7 +281,7 @@ export const PhoneValidationStatusField = ({
       name="phoneValidationStatus"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('phone-verification-status')}</Form.Label>
+          <Form.Label>{t('phone-verification-status', 'Phone verification status')}</Form.Label>
           <Select onValueChange={field.onChange} value={field.value}>
             <Form.Control>
               <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
@@ -327,7 +327,7 @@ export const PrimaryEmailField = ({
       name="primaryEmail"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('email')}</Form.Label>
+          <Form.Label>{t('email', 'Email')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -350,7 +350,7 @@ export const PrimaryPhoneField = ({
       name="primaryPhone"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('phone')}</Form.Label>
+          <Form.Label>{t('phone', 'Phone')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>

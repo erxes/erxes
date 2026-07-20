@@ -280,7 +280,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconAlignLeft}
-          label={t('work-started-date')}
+          label={t('work-started-date', 'Work started date')}
         />
       ),
       cell: ({ cell }) => {
@@ -340,7 +340,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconMailCheck}
-          label={t('invitation-status')}
+          label={t('invitation-status', 'Invitation status')}
         />
       ),
       cell: ({ cell }) => {

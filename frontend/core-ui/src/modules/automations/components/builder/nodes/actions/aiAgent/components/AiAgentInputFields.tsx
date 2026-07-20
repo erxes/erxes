@@ -15,7 +15,7 @@ export const AiAgentInputFields = () => {
         name="input"
         render={({ field: { disabled: _disabled, ...field } }) => (
           <Form.Item>
-            <Form.Label>{t('ai-agent-input')}</Form.Label>
+            <Form.Label>{t('ai-agent-input', 'AI input')}</Form.Label>
             <PlaceholderInput
               {...field}
               value={field.value || ''}
@@ -25,7 +25,7 @@ export const AiAgentInputFields = () => {
               ]}
             />
             <Form.Description>
-              {t('ai-agent-input-description')}
+              {t('ai-agent-input-description', 'Drag an output variable here. Leave this empty to send the full trigger payload.')}
             </Form.Description>
             <Form.Message />
           </Form.Item>

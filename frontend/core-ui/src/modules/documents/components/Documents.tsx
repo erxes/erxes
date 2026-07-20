@@ -31,10 +31,10 @@ export const Documents = ({ viewType }: Props) => {
               <IconFilePlus size={28} className="text-muted-foreground" />
             </div>
             <h3 className="mb-1 text-lg font-semibold">
-              {t('no-document-title')}
+              {t('no-document-title', 'No document yet')}
             </h3>
             <p className="max-w-sm text-sm text-muted-foreground">
-              {t('no-document-description')}
+              {t('no-document-description', 'Get started by creating your first document.')}
             </p>
           </div>
       )}

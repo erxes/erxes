@@ -46,7 +46,7 @@ export const AutomationBuilderStatusSwitch = ({
             >
               <div className="flex shrink-0 items-center gap-2">
                 <Label htmlFor="mode" className="whitespace-nowrap">
-                  {field.value === 'active' ? t('active') : t('inactive')}
+                  {field.value === 'active' ? t('active', 'Active') : t('inactive', 'Inactive')}
                 </Label>
                 <Switch
                   id="mode"

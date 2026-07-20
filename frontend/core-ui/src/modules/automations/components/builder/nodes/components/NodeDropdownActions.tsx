@@ -113,15 +113,15 @@ export const NodeRemoveActionDialog = ({
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>{t('delete-confirm-title')}</AlertDialog.Title>
+          <AlertDialog.Title>{t('delete-confirm-title', 'Are you absolutely sure?')}</AlertDialog.Title>
           <AlertDialog.Description>
-            {t('delete-confirm-description')}
+            {t('delete-confirm-description', 'This action cannot be undone.')}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
           <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
           <AlertDialog.Action onClick={onRemoveNode}>
-            {t('continue')}
+            {t('continue', 'Continue')}
           </AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>
@@ -158,7 +158,7 @@ const NodeEditMetaDataDialog = ({
             onDoubleClick={(e) => e.stopPropagation()}
           >
             <IconEdit className="size-4" />
-            {t('edit')}
+            {t('edit', 'Edit')}
           </Button>
         </DropdownMenu.Item>
       </Dialog.Trigger>

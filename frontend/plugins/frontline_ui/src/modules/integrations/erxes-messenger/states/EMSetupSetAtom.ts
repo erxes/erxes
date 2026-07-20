@@ -28,7 +28,6 @@ export const erxesMessengerSetSetupAtom = atom(
   null,
   (_, set, payload: MessengerSetupPayload) => {
     try {
-      // Set appearance
       const appearance = {
         primary: {
           DEFAULT:
@@ -84,9 +83,7 @@ export const erxesMessengerSetSetupAtom = atom(
 
       set(erxesMessengerSetupConfigAtom, config);
 
-      // Derive language code from messages object key first, then fall back to
-      // payload.languageCode so format mismatches (e.g. "en_US" vs "en-US")
-      // don't cause the lookup to miss the stored data.
+
       const messagesObj = payload?.messengerData?.messages;
       const languageCode =
         payload?.languageCode ||
@@ -108,28 +105,36 @@ export const erxesMessengerSetSetupAtom = atom(
 
       set(erxesMessengerSetupGreetingAtom, greetings);
 
-      // Set hours with improved processing
+
       const defaultHours = createDefaultOnlineHours();
       const processedHours = processOnlineHours(
         payload?.messengerData?.onlineHours,
       );
 
+      const rawResponseRate = payload?.messengerData?.responseRate
+        ?.replace('few ', '')
+        ?.toLowerCase();
+      const responseRate = (
+        Object.values(EnumResponseRate) as string[]
+      ).includes(rawResponseRate ?? '')
+        ? (rawResponseRate as EnumResponseRate)
+        : EnumResponseRate.MINUTES;
+
       const hours = {
-        availabilityMethod:
-          payload?.messengerData?.availabilityMethod || 'manual',
-        responseRate: payload?.messengerData?.responseRate?.replace(
-          'few ',
-          '',
-        ) as EnumResponseRate,
-        isOnline: payload?.messengerData?.isOnline,
+        availabilityMethod: (payload?.messengerData?.availabilityMethod ===
+        'auto'
+          ? 'auto'
+          : 'manual') as 'auto' | 'manual',
+        responseRate,
+        isOnline: payload?.messengerData?.isOnline ?? false,
         onlineHours: {
           ...defaultHours,
           ...processedHours,
         },
-        timezone: payload?.messengerData?.timezone,
-        displayOperatorTimezone: payload?.messengerData?.showTimezone,
+        timezone: payload?.messengerData?.timezone ?? undefined,
+        displayOperatorTimezone: payload?.messengerData?.showTimezone ?? false,
         hideMessengerDuringOfflineHours:
-          payload?.messengerData?.hideWhenOffline,
+          payload?.messengerData?.hideWhenOffline ?? false,
       };
 
       set(erxesMessengerSetupHoursAtom, hours);
@@ -157,10 +162,8 @@ export const erxesMessengerSetSetupAtom = atom(
           scopeBrandIds: [],
         })),
       };
-      // Set settings
       set(erxesMessengerSetupSettingsAtom, settings);
 
-      // Set intro messages
       const messages = messagesObj?.[languageCode];
       const intro = {
         welcome: messages?.welcome ?? '',
@@ -172,7 +175,6 @@ export const erxesMessengerSetSetupAtom = atom(
       set(erxesMessengerSetupStepAtom, 1);
     } catch (error) {
       console.error('Error setting up messenger configuration:', error);
-      // Optionally, you could throw the error or set an error state
     }
   },
 );

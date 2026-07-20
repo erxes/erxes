@@ -59,7 +59,7 @@ export const MessageProSettings = () => {
         {isLoading ? (
           <Spinner className="stroke-white/90 w-4 h-4" />
         ) : (
-          t('update')
+          t('update', 'Update')
         )}
       </Button>
     </form>

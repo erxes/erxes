@@ -8,6 +8,16 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 
 const inventoryKey = (id?: string) => id || '_';
 
+const discountValueSchema = z.object({
+  planId: z.string(),
+  discount: z.number(),
+  discountPercent: z.number(),
+  prefixes: z.array(z.string()),
+  conditions: z.record(z.any()),
+});
+
+const discountsSchema = z.array(discountValueSchema);
+
 export const productsTrpcRouter = t.router({
   products: t.router({
     similarities: similaritiesTrpcRouter,
@@ -91,12 +101,7 @@ export const productsTrpcRouter = t.router({
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;
-        const { models, subdomain } = ctx;
-
-        console.log(
-          `[${subdomain}][trpc:updateProducts] called`,
-          JSON.stringify({ _id, doc }),
-        );
+        const { models } = ctx;
 
         return models.Products.updateProduct(_id, doc);
       }),
@@ -105,12 +110,7 @@ export const productsTrpcRouter = t.router({
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { query, doc } = input;
-        const { models, subdomain } = ctx;
-
-        console.log(
-          `[${subdomain}][trpc:updateProducts] called`,
-          JSON.stringify({ query, doc }),
-        );
+        const { models } = ctx;
 
         return models.Products.updateProducts(query, doc);
       }),
@@ -119,11 +119,7 @@ export const productsTrpcRouter = t.router({
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { _ids } = input;
-        const { models, subdomain } = ctx;
-
-        console.log(
-          `[${subdomain}][trpc:removeProducts] called with ${_ids?.length ?? 0} id(s)`,
-        );
+        const { models } = ctx;
 
         return models.Products.removeProducts(_ids);
       }),
@@ -270,6 +266,44 @@ export const productsTrpcRouter = t.router({
                 },
               },
               upsert: true,
+            },
+          })),
+        );
+      }),
+
+    replaceDiscounts: t.procedure
+      .input(
+        z.object({
+          productsInfo: z.array(
+            z.object({
+              productId: z.string(),
+              discounts: discountsSchema,
+            }),
+          ),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { productsInfo } = input;
+
+        await models.Products.updateMany(
+          { discounts: { $exists: true } },
+          { $unset: { discounts: 1 } },
+        );
+
+        if (!productsInfo.length) {
+          return;
+        }
+
+        await models.Products.bulkWrite(
+          productsInfo.map((info) => ({
+            updateOne: {
+              filter: { _id: info.productId },
+              update: {
+                $set: {
+                  discounts: info.discounts,
+                },
+              },
             },
           })),
         );

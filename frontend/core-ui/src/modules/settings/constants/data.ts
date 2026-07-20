@@ -116,34 +116,34 @@ export const SETTINGS_PATH_DATA = (
 ): { [key: string]: TSettingPath[] } => ({
   account: [
     {
-      name: t('profile'),
+      name: t('profile', 'Profile'),
       icon: IconUserCircle,
       path: SettingsPath.Profile,
     },
     {
-      name: t('notification'),
+      name: t('notification', 'Notification'),
       icon: IconNotification,
       path: SettingsPath.Notification,
     },
     {
-      name: t('change-password'),
+      name: t('change-password', 'Change Password'),
       icon: IconPassword,
       path: SettingsPath.ChangePassword,
     },
   ],
   nav: [
     {
-      name: t('general'),
+      name: t('general', 'General'),
       icon: IconAdjustmentsAlt,
       path: SettingsWorkspacePath.General,
     },
     {
-      name: t('team-member'),
+      name: t('team-member', 'Team member'),
       icon: IconUsersGroup,
       path: SettingsWorkspacePath.TeamMember,
     },
     {
-      name: t('structure'),
+      name: t('structure', 'Structure'),
       icon: IconHierarchy,
       path: SettingsWorkspacePath.Structure,
     },
@@ -153,7 +153,7 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Tags,
     },
     {
-      name: t('brands'),
+      name: t('brands', 'Brands'),
       icon: IconChessKnight,
       path: SettingsWorkspacePath.Brands,
     },
@@ -168,7 +168,7 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Products,
     },
     {
-      name: t('automations'),
+      name: t('automations', 'Automations'),
       icon: IconBolt,
       path: SettingsWorkspacePath.Automations,
     },

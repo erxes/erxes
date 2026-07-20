@@ -44,6 +44,16 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
           />
         );
       case 'participants':
+        if (pricingDetail?.priority === 'posBase') {
+          return (
+            <GeneralInfo
+              pricingId={pricingId}
+              pricingDetail={pricingDetail}
+              onSaveActionChange={setSaveAction}
+            />
+          );
+        }
+
         return (
           <ParticipantsInfo
             pricingId={pricingId}

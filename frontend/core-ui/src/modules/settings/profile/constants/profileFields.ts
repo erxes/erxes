@@ -18,37 +18,37 @@ const PROFILE_ADVANCED_FIELDS = (t: TFunction): Array<{
   };
 }> => [
   {
-    fieldLabel: t('middle-name'),
+    fieldLabel: t('middle-name', 'Middle Name'),
     fieldName: 'middleName',
     fieldPath: 'details',
     field: { element: 'input', attributes: { type: 'text' } },
   },
   {
-    fieldLabel: t('short-name'),
+    fieldLabel: t('short-name', 'Short Name'),
     fieldName: 'shortName',
     fieldPath: 'details',
     field: { element: 'input', attributes: { type: 'text' } },
   },
   {
-    fieldLabel: t('employee-id'),
+    fieldLabel: t('employee-id', 'Employee ID'),
     fieldName: 'employeeId',
     fieldPath: 'details',
     field: { element: 'input', attributes: { type: 'text' } },
   },
   {
-    fieldLabel: t('phone-operator'),
+    fieldLabel: t('phone-operator', 'Phone (Operator)'),
     fieldName: 'operatorPhone',
     fieldPath: 'details',
     field: { element: 'telephone' },
   },
   {
-    fieldLabel: t('join-date'),
+    fieldLabel: t('join-date', 'Join Date'),
     fieldName: 'workStartedDate',
     fieldPath: 'details',
     field: { element: 'date' },
   },
   {
-    fieldLabel: t('birth-date'),
+    fieldLabel: t('birth-date', 'Birth Date'),
     fieldName: 'birthDate',
     fieldPath: 'details',
     field: { element: 'date', attributes: { withPresent: true } },

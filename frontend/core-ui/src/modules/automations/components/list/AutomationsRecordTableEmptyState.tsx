@@ -13,15 +13,15 @@ export const AutomationsRecordTableEmptyState = () => {
         <Empty.Media variant="icon">
           <IconAffiliate />
         </Empty.Media>
-        <Empty.Title>{t('empty-title')}</Empty.Title>
-        <Empty.Description>{t('empty-description')}</Empty.Description>
+        <Empty.Title>{t('empty-title', 'No automations found')}</Empty.Title>
+        <Empty.Description>{t('empty-description', 'Create a new automation or adjust your filters to keep moving.')}</Empty.Description>
       </Empty.Header>
       <Empty.Content>
         <Can action="automationsCreate">
           <Button asChild>
             <Link to="/automations/create">
               <IconPlus className="size-4" />
-              {t('create')}
+              {t('create', 'Create a new automation')}
             </Link>
           </Button>
         </Can>

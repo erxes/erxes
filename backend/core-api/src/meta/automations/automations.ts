@@ -39,6 +39,49 @@ const getCoreSetPropertyModel = (models: IModels, module: string) => {
   throw new Error(`Unsupported core set property module: ${module}`);
 };
 
+const isCustomerSetPropertyModule = (module: string) => {
+  const [, moduleName, collectionName] = module.replace(/\./g, ':').split(':');
+
+  return ['customers', 'leads'].includes(collectionName || moduleName);
+};
+
+const CUSTOMER_PRIMARY_FIELD_TO_LIST_FIELD: Record<string, string> = {
+  primaryPhone: 'phones',
+  primaryEmail: 'emails',
+};
+
+type TSetPropertyRules = Parameters<typeof setProperty>[0]['rules'];
+
+const hasCustomerPrimaryFieldRule = (rules: TSetPropertyRules) =>
+  (rules || []).some(
+    (rule) =>
+      CUSTOMER_PRIMARY_FIELD_TO_LIST_FIELD[rule.field] &&
+      (rule.operator || 'set') === 'set',
+  );
+
+const buildCustomerPrimaryFieldRules = (
+  item: Record<string, unknown>,
+  rules: TSetPropertyRules,
+): TSetPropertyRules =>
+  (rules || []).flatMap((rule) => {
+    const listField = CUSTOMER_PRIMARY_FIELD_TO_LIST_FIELD[rule.field];
+
+    if (!listField || (rule.operator || 'set') !== 'set') {
+      return [rule];
+    }
+
+    const listRule = {
+      ...rule,
+      field: listField,
+      fieldLabel: listField,
+      operator: 'addToSet',
+    };
+
+    return String(item[rule.field] || '').trim()
+      ? [listRule]
+      : [rule, listRule];
+  });
+
 export const initAutomation = (app: Express) =>
   startAutomations(app, 'core', {
     constants: CORE_AUTOMATION_CONSTANTS,
@@ -78,21 +121,69 @@ export const initAutomation = (app: Express) =>
         execution,
         targetType,
         relation: setPropertyTarget?.relation,
+        targetPath: setPropertyTarget?.targetPath,
       });
 
-      return await setProperty({
-        models,
-        subdomain,
-        module,
-        rules,
-        execution,
-        setPropertyTarget,
-        selector,
-        fetchItems: async (itemSelector) =>
-          await model.find(itemSelector).lean(),
-        update: async ({ selector: itemSelector, modifier }) =>
-          await model.updateMany(itemSelector, modifier),
-        targetType,
-      });
+      const runSetProperty = (
+        itemRules: TSetPropertyRules,
+        itemSelector: Record<string, unknown>,
+      ) =>
+        setProperty({
+          models,
+          subdomain,
+          module,
+          rules: itemRules,
+          execution,
+          setPropertyTarget,
+          selector: itemSelector,
+          fetchItems: async (fetchSelector) =>
+            await model.find(fetchSelector).lean(),
+          update: async ({ selector: updateSelector, modifier }) =>
+            await model.updateMany(updateSelector, modifier),
+          targetType,
+        });
+
+      if (
+        !isCustomerSetPropertyModule(module) ||
+        !hasCustomerPrimaryFieldRule(rules)
+      ) {
+        return await runSetProperty(rules, selector);
+      }
+
+      // Primary promotion depends on each customer's current value, so the
+      // rules are adjusted per record.
+      const items = await model.find(selector).lean();
+      const results: Awaited<ReturnType<typeof setProperty>>[] = [];
+
+      for (const item of items) {
+        results.push(
+          await runSetProperty(buildCustomerPrimaryFieldRules(item, rules), {
+            _id: item._id,
+          }),
+        );
+      }
+
+      if (results.length === 1) {
+        return results[0];
+      }
+
+      if (!results.length) {
+        return await runSetProperty(rules, { _id: { $in: [] } });
+      }
+
+      const [first, ...rest] = results;
+
+      return rest.reduce(
+        (merged, result) => ({
+          ...merged,
+          target: {
+            ...merged.target,
+            count: (merged.target?.count || 0) + (result.target?.count || 0),
+          },
+          changes: [...(merged.changes || []), ...(result.changes || [])],
+          summary: `${merged.summary}; ${result.summary}`,
+        }),
+        first,
+      );
     },
   });

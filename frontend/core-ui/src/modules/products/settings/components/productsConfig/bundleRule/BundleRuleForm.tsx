@@ -142,11 +142,11 @@ export const BundleRuleForm = ({
       >
         <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
           <Sheet.Title>
-            {bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
+            {bundleRule ? t('edit-bundle-rule', 'Edit Bundle Rule') : t('add-bundle-rule', 'Add Bundle Rule')}
           </Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
-            {bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
+            {bundleRule ? t('edit-bundle-rule', 'Edit Bundle Rule') : t('add-bundle-rule', 'Add Bundle Rule')}
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="overflow-hidden flex-auto">
@@ -256,11 +256,11 @@ export const BundleRuleForm = ({
           <Button type="submit" disabled={isLoading}>
             {isLoading
               ? bundleRule
-                ? t('updating')
-                : t('creating')
+                ? t('updating', 'Updating')
+                : t('creating', 'Creating')
               : bundleRule
-              ? t('update')
-              : t('create')}
+              ? t('update', 'Update')
+              : t('create', 'Create')}
           </Button>
         </Sheet.Footer>
       </form>

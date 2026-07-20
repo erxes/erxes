@@ -20,14 +20,14 @@ import { ProductNameCell } from './ProductNameCell';
 import { productMoreColumn } from './ProductMoreCell';
 
 export const productColumns: (
-  t: (key: string) => string,
+  t: (key: string, defaultValue: string) => string,
 ) => ColumnDef<IProduct>[] = (t) => [
   productMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IProduct>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
@@ -40,7 +40,7 @@ export const productColumns: (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name', 'Name')} />,
     cell: ({ cell }: { cell: any }) => <ProductNameCell cell={cell} />,
     size: 250,
   },
@@ -48,7 +48,7 @@ export const productColumns: (
     id: 'type',
     accessorKey: 'type',
     header: () => (
-      <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('type', 'Type')} />
     ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
@@ -64,7 +64,7 @@ export const productColumns: (
     id: 'shortName',
     accessorKey: 'shortName',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label={t('shortName')} />
+      <RecordTable.InlineHead icon={IconLabel} label={t('shortName', 'Short Name')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
@@ -99,7 +99,7 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead
         icon={IconCurrencyDollar}
-        label={t('unit-price')}
+        label={t('unit-price', 'Unit Price')}
       />
     ),
     cell: ({ cell }: { cell: any }) => {
@@ -119,7 +119,7 @@ export const productColumns: (
   {
     id: 'uom',
     accessorKey: 'uom',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('uom')} />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('uom', 'UOM')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
@@ -133,7 +133,7 @@ export const productColumns: (
     id: 'hasAttach',
     accessorKey: 'hasAttach',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('hasAttach')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('hasAttach', 'Has Attachment')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       const hasAttachment = Boolean(cell.row.original?.attachment?.url);
@@ -150,7 +150,7 @@ export const productColumns: (
     id: 'vendor',
     accessorKey: 'vendor',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('vendor')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('vendor', 'Vendor')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
@@ -164,7 +164,7 @@ export const productColumns: (
   {
     id: 'tags',
     accessorKey: 'tags',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('tags')} />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('tags', 'Tags')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <TagsSelect.InlineCell

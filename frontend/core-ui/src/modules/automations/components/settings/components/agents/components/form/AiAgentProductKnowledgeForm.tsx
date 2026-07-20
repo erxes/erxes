@@ -106,15 +106,15 @@ export const AiAgentProductKnowledgeForm = ({
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <h4 className="text-sm font-medium">
-            {t('ai-product-knowledge-title')}
+            {t('ai-product-knowledge-title', 'Products')}
           </h4>
           <p className="text-sm text-muted-foreground">
-            {t('ai-product-knowledge-description')}
+            {t('ai-product-knowledge-description', 'Define the bounded product scope this agent may index and retrieve. Use categories for large catalogs, then exclude exceptions.')}
           </p>
         </div>
         <Switch
           checked={enabled}
-          aria-label={t('ai-product-knowledge-enabled')}
+          aria-label={t('ai-product-knowledge-enabled', 'Enable product search for this agent')}
           onCheckedChange={handleEnabledChange}
         />
       </div>
@@ -123,7 +123,7 @@ export const AiAgentProductKnowledgeForm = ({
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="space-y-4">
             <Form.Item>
-              <Form.Label>{t('product-category')}</Form.Label>
+              <Form.Label>{t('product-category', 'Product category')}</Form.Label>
               <SelectCategory
                 mode="multiple"
                 value={productConfig.includeCategoryIds}
@@ -134,16 +134,16 @@ export const AiAgentProductKnowledgeForm = ({
                 }
               />
               <Form.Description>
-                {t('ai-product-include-category-description')}
+                {t('ai-product-include-category-description', 'All products under the selected categories are indexed in the background.')}
               </Form.Description>
             </Form.Item>
 
             <Form.Item>
-              <Form.Label>{t('product')}</Form.Label>
+              <Form.Label>{t('product', 'Product')}</Form.Label>
               <SelectProduct
                 mode="multiple"
                 value={productConfig.includeProductIds}
-                placeholder={t('ai-product-knowledge-placeholder')}
+                placeholder={t('ai-product-knowledge-placeholder', 'Select products')}
                 onValueChange={(includeProductIds) =>
                   handleConfigChange({
                     includeProductIds: toArrayValue(includeProductIds),
@@ -155,7 +155,7 @@ export const AiAgentProductKnowledgeForm = ({
 
           <div className="space-y-4">
             <Form.Item>
-              <Form.Label>{t('or-exclude-product-category')}</Form.Label>
+              <Form.Label>{t('or-exclude-product-category', 'Or exclude product category')}</Form.Label>
               <SelectCategory
                 mode="multiple"
                 value={productConfig.excludeCategoryIds}
@@ -168,11 +168,11 @@ export const AiAgentProductKnowledgeForm = ({
             </Form.Item>
 
             <Form.Item>
-              <Form.Label>{t('or-exclude-product')}</Form.Label>
+              <Form.Label>{t('or-exclude-product', 'Or exclude product')}</Form.Label>
               <SelectProduct
                 mode="multiple"
                 value={productConfig.excludeProductIds}
-                placeholder={t('ai-product-knowledge-placeholder')}
+                placeholder={t('ai-product-knowledge-placeholder', 'Select products')}
                 onValueChange={(excludeProductIds) =>
                   handleConfigChange({
                     excludeProductIds: toArrayValue(excludeProductIds),
@@ -185,10 +185,10 @@ export const AiAgentProductKnowledgeForm = ({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        {t('ai-product-selected-scope-count', { count: selectedCount })} ·{' '}
-        {t('ai-product-indexed-products', { count: indexedCount })}
+        {t('ai-product-selected-scope-count', '{{count}} include selectors', { count: selectedCount })} ·{' '}
+        {t('ai-product-indexed-products', '{{count}} indexed', { count: indexedCount })}
         {latestRun?.status === 'indexing' || latestRun?.status === 'queued'
-          ? ` · ${t('ai-product-index-progress', {
+          ? ` · ${t('ai-product-index-progress', '{{processed}} / {{total}} processed', {
               processed: latestRun.processedCount || 0,
               total: latestRun.totalCount || 0,
             })}`

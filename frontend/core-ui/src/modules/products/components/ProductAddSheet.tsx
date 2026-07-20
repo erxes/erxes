@@ -78,13 +78,13 @@ export const ProductAddSheet = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            {t('add-product')}
+            {t('add-product', 'Add Product')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
       </Can>
       <ProductAddSheetView showMoreInfo={showMoreInfo}>
-        <FocusSheet.Header title={t('create-product')} />
+        <FocusSheet.Header title={t('create-product', 'Create Product')} />
         <FocusSheet.Content className="flex-1 min-h-0">
           {showMoreInfo && (
             <FocusSheet.SideBar>
@@ -151,7 +151,7 @@ export const ProductAddSheetHeader = () => {
   });
   return (
     <Sheet.Header className="gap-3 border-b">
-      <Sheet.Title>{t('create-product')}</Sheet.Title> <Sheet.Close />
+      <Sheet.Title>{t('create-product', 'Create Product')}</Sheet.Title> <Sheet.Close />
     </Sheet.Header>
   );
 };

@@ -109,7 +109,7 @@ export const ProductDetailBarcode = ({
     const isDuplicate =
       formBarcodes.includes(codeValue) || codeValue in variantsForDisplay;
     if (isDuplicate) {
-      const message = t('duplicate-barcode') || 'This barcode already exists.';
+      const message = t('duplicate-barcode', 'This barcode already exists.') || 'This barcode already exists.';
       form.setError('barcodes', { type: 'manual', message });
       toast({
         title: message,
@@ -163,11 +163,11 @@ export const ProductDetailBarcode = ({
   };
 
   return (
-    <InfoCard title={t('barcodes')}>
+    <InfoCard title={t('barcodes', 'Barcodes')}>
       <InfoCard.Content>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>{t('barcodes')}</Label>
+            <Label>{t('barcodes', 'Barcodes')}</Label>
             <Input value={code} onChange={(e) => setCode(e.target.value)} />
             <Button
               type="button"
@@ -178,7 +178,7 @@ export const ProductDetailBarcode = ({
               className="w-full"
             >
               <IconPlus className="mr-2 w-4 h-4" />
-              {t('add-barcode') || 'Add barcode'}
+              {t('add-barcode', 'Add barcode') || 'Add barcode'}
             </Button>
             {barcodeItems.length > 0 ? (
               <div className="flex flex-col gap-2">
@@ -188,11 +188,11 @@ export const ProductDetailBarcode = ({
                     className="flex gap-2 items-end p-2 rounded-md border"
                   >
                     <div className="flex flex-col flex-1 gap-2">
-                      <Label>{t('code')}</Label>
+                      <Label>{t('code', 'Code')}</Label>
                       <Input value={barcode.code || ''} disabled />
                     </div>
                     <div className="flex flex-col flex-1 gap-2">
-                      <Label>{t('name')}</Label>
+                      <Label>{t('name', 'Name')}</Label>
                       <Input
                         value={barcode.name || ''}
                         onChange={(e) =>
@@ -202,11 +202,11 @@ export const ProductDetailBarcode = ({
                             e.target.value || undefined,
                           )
                         }
-                        placeholder={t('enter-name')}
+                        placeholder={t('enter-name', 'Enter name')}
                       />
                     </div>
                     <div className="flex flex-col flex-1 gap-2">
-                      <Label>{t('barcode-image')}</Label>
+                      <Label>{t('barcode-image', 'Image')}</Label>
                       <Select
                         value={barcode.image?.url || ''}
                         onValueChange={(imageUrl) => {
@@ -226,8 +226,8 @@ export const ProductDetailBarcode = ({
                           <Select.Value
                             placeholder={
                               availableImages.length > 0
-                                ? t('select-image')
-                                : t('no-image')
+                                ? t('select-image', 'Select image')
+                                : t('no-image', 'No image')
                             }
                           >
                             {barcode.image?.name}
@@ -259,7 +259,7 @@ export const ProductDetailBarcode = ({
             ) : null}
           </div>
           <div className="space-y-2">
-            <Label>{t('barcode-description')}</Label>
+            <Label>{t('barcode-description', 'Barcode description')}</Label>
             <Editor
               key={productDetail?._id ?? 'new'}
               initialContent={formBarcodeDescription}

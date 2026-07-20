@@ -17,6 +17,13 @@ export interface IProduct extends IProductBase {
   attachment?: { url?: string } | null
   remainder?: number
   remainders?: { location: string; remainder: number }[]
+  discount?: {
+    planId: string
+    discount: number
+    discountPercent: number
+    prefixes: string[]
+    conditions: Record<string, unknown>
+  } | null
   isCheckRem?: boolean
   code?: string
   manufacturedDate?: string

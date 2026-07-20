@@ -35,7 +35,7 @@ export function SegmentDetail({ onRefresh }: Props) {
             onClick={() => setIsCreatingNew(!isCreatingNew)}
             disabled={!selectedContentType}
           >
-            <IconPlus /> {t('create-segment')}
+            <IconPlus /> {t('create-segment', 'Create Segment')}
           </Button>
         </Sheet.Trigger>
       </Can>
@@ -49,15 +49,16 @@ export function SegmentDetail({ onRefresh }: Props) {
         <Sheet.Content className="h-full">
           <div className="h-full flex flex-col">
             <Sheet.Header className="border-b p-3 flex-row items-center space-y-0 gap-3">
-              <Sheet.Title>{`${segmentId ? t('edit') : t('create')} ${t(
-                'a-segment',
-              )}`}</Sheet.Title>
+              <Sheet.Title>{`${
+                segmentId ? t('edit', 'Edit') : t('create', 'Create')
+              } ${t('a-segment', 'a segment')}`}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <SegmentForm
               contentType={selectedContentType}
               segmentId={segmentId || ''}
               callback={onRefresh}
+              onCreateSuccess={() => setIsCreatingNew(false)}
             />
           </div>
         </Sheet.Content>

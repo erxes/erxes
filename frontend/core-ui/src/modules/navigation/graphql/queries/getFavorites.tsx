@@ -6,6 +6,7 @@ export const GET_FAVORITES = gql`
       _id
       type
       path
+      label
     }
   }
 `;

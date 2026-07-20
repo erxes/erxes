@@ -131,7 +131,7 @@ const FileUpload = () => {
           form={form}
           fileMimeTypesOptions={fileMimeTypesOptions}
         />
-        <Label>{t('upload-service-type')}</Label>
+        <Label>{t('upload-service-type', 'Upload service type')}</Label>
 
         <UploadServiceRadioGroup selected={selected} form={form} />
 

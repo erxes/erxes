@@ -18,7 +18,7 @@ export function BrandsHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/brands">
                   <IconChessKnightFilled />
-                  {t('_')}
+                  {t('_', 'Brands')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

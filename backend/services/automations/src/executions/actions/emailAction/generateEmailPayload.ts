@@ -9,6 +9,7 @@ import { replaceDocuments } from './replaceDocuments';
 import {
   filterOutSenderEmail,
   formatFromEmail,
+  formatIsoDatesInText,
   normalizeEmailActionPlaceholders,
 } from './utils';
 
@@ -76,8 +77,10 @@ export const generateEmailPayload = async ({
       content: replacedContent,
     },
   });
-  const subject = String(replacedValues.subject ?? normalizedSubject);
-  const content = String(replacedValues.content ?? '');
+  const subject = formatIsoDatesInText(
+    String(replacedValues.subject ?? normalizedSubject),
+  );
+  const content = formatIsoDatesInText(String(replacedValues.content ?? ''));
 
   const [toEmails, ccEmails] = await getRecipientEmails({
     subdomain,

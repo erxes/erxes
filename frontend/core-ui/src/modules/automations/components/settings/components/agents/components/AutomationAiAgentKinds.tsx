@@ -71,7 +71,7 @@ export const AutomationAiAgentKinds = ({
       <Select.Content className="w-80">
         <Select.Group>
           <Select.Label className="px-2 pb-2 pt-1 text-xs font-medium text-muted-foreground">
-            {t('select-provider')}
+            {t('select-provider', 'Select Provider')}
           </Select.Label>
           {kinds.map((kind) => (
             <Select.Item

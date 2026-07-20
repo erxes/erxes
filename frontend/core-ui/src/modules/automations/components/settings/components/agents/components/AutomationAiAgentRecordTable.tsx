@@ -1,6 +1,7 @@
 import { AutomationAiAgentTableEmptyState } from '@/automations/components/settings/components/agents/components/AutomationAiAgentTableEmptyState';
 import { getAutomationAiAgentColumns } from '@/automations/components/settings/components/agents/components/automationAiAgentColumns';
 import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, RecordTable } from 'erxes-ui';
 import { Link } from 'react-router';
@@ -15,7 +16,7 @@ export const AutomationAiAgentRecordTable = ({
   const { t } = useTranslation('automations');
   const { automationsAiAgents, loading } = useAiAgents(kind);
 
-  const toCreateUrl = `/settings/automations/agents/create${
+  const toCreateUrl = `${AutomationSettingsPath.AgentCreate}${
     kind ? `?kind=${kind}` : ''
   }`;
 

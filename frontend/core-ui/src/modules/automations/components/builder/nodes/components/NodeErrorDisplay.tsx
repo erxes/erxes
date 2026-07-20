@@ -28,7 +28,7 @@ export const NodeErrorDisplay = ({
         title={error}
       >
         <IconAlertCircle className="size-3" />
-        <span className="text-xs font-medium">{t('configuration-error')}</span>
+        <span className="text-xs font-medium">{t('configuration-error', 'Configuration Error')}</span>
         <span className="text-xs text-destructive ml-auto">
           {isExpanded ? '−' : '+'}
         </span>

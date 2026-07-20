@@ -68,7 +68,7 @@ export const BundleConditionSheet = () => {
         <Sheet.Trigger asChild>
           <Button className="whitespace-nowrap shrink-0">
             <IconPlus />
-            {t('add-bundle-condition')}
+            {t('add-bundle-condition', 'Add Bundle Condition')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>

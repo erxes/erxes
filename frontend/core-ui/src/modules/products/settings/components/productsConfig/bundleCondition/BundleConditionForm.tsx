@@ -78,7 +78,7 @@ export const BundleConditionForm = ({
         onCompleted: () => {
           toast({
             title: 'Success',
-            description: t('bundle-condition-added'),
+            description: t('bundle-condition-added', 'Bundle condition added'),
           });
           form.reset();
           onOpenChange?.(false);
@@ -105,14 +105,14 @@ export const BundleConditionForm = ({
         <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
           <Sheet.Title>
             {bundleCondition
-              ? t('edit-bundle-condition')
-              : t('add-bundle-condition')}
+              ? t('edit-bundle-condition', 'Edit Bundle Condition')
+              : t('add-bundle-condition', 'Add Bundle Condition')}
           </Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
             {bundleCondition
-              ? t('edit-bundle-condition')
-              : t('add-bundle-condition')}
+              ? t('edit-bundle-condition', 'Edit Bundle Condition')
+              : t('add-bundle-condition', 'Add Bundle Condition')}
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="overflow-hidden flex-auto">
@@ -123,10 +123,10 @@ export const BundleConditionForm = ({
               render={({ field }) => (
                 <Form.Item className="w-full">
                   <Form.Label>
-                    {t('name')} <span className="text-destructive">*</span>
+                    {t('name', 'Name')} <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
-                    <Input placeholder={t('name')} {...field} autoFocus />
+                    <Input placeholder={t('name', 'Name')} {...field} autoFocus />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -138,10 +138,10 @@ export const BundleConditionForm = ({
               render={({ field }) => (
                 <Form.Item className="w-full">
                   <Form.Label>
-                    {t('code')} <span className="text-destructive">*</span>
+                    {t('code', 'Code')} <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
-                    <Input placeholder={t('code')} {...field} />
+                    <Input placeholder={t('code', 'Code')} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -152,10 +152,10 @@ export const BundleConditionForm = ({
               name="description"
               render={({ field }) => (
                 <Form.Item className="w-full">
-                  <Form.Label>{t('description')}</Form.Label>
+                  <Form.Label>{t('description', 'Description')}</Form.Label>
                   <Form.Control>
                     <Textarea
-                      placeholder={t('description')}
+                      placeholder={t('description', 'Description')}
                       {...field}
                       value={field.value ?? ''}
                       rows={3}
@@ -169,16 +169,16 @@ export const BundleConditionForm = ({
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button type="button" variant="outline" onClick={handleCancel}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading
               ? bundleCondition
-                ? t('updating')
-                : t('creating')
+                ? t('updating', 'Updating')
+                : t('creating', 'Creating')
               : bundleCondition
-              ? t('update')
-              : t('create')}
+              ? t('update', 'Update')
+              : t('create', 'Create')}
           </Button>
         </Sheet.Footer>
       </form>

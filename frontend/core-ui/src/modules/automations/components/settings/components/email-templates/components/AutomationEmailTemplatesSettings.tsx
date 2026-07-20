@@ -7,6 +7,7 @@ import { useAutomationEmailTemplates } from '@/automations/components/settings/c
 import { EmailTemplatesList } from '@/automations/components/settings/components/email-templates/components/EmailTemplatesList';
 import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
 import { useTranslation } from 'react-i18next';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 
 export function AutomationEmailTemplatesSettings() {
   const { t } = useTranslation('automations');
@@ -40,7 +41,7 @@ export function AutomationEmailTemplatesSettings() {
       description={t('email-templates-description', 'Create and manage email templates for your automation workflows')}
       actions={
         <Button asChild>
-          <Link to="/settings/automations/email-templates/create">
+          <Link to={AutomationSettingsPath.EmailTemplateCreate}>
             <IconPlus />
             {t('create-template', 'Create Template')}
           </Link>

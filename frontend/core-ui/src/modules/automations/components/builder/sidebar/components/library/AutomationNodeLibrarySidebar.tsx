@@ -175,7 +175,7 @@ const AutomationNodeLibrarySidebarFilters = ({
             activeGroup &&
               'border-primary/40 bg-primary/5 text-primary hover:bg-primary/10',
           )}
-          aria-label={t('filter-by-type')}
+          aria-label={t('filter-by-type', 'Filter by type')}
         >
           <IconFilter className="size-4" />
           {activeGroup ? (
@@ -190,7 +190,7 @@ const AutomationNodeLibrarySidebarFilters = ({
       >
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {t('filter-by-type')}
+            {t('filter-by-type', 'Filter by type')}
           </span>
           {activeGroup ? (
             <button

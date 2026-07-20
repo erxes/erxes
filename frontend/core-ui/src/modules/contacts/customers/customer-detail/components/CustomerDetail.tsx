@@ -40,8 +40,8 @@ export const CustomerDetail = () => {
         <FocusSheet.Header
           title={
             isLead
-              ? t('lead.detail.lead-detail')
-              : t('customer.detail.customer-detail')
+              ? t('lead.detail.lead-detail', 'Lead details')
+              : t('customer.detail.customer-detail', 'Customer details')
           }
         />
         <FocusSheet.Content>

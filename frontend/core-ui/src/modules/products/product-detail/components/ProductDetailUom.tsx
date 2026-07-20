@@ -40,7 +40,7 @@ export const ProductDetailUom = () => {
     form.setValue('subUoms', updated);
   };
   return (
-    <InfoCard title={t('unit-of-measurements')}>
+    <InfoCard title={t('unit-of-measurements', 'Unit of Measurements')}>
       <InfoCard.Content>
         <div className="space-y-4">
           <div className="flex gap-2 items-center">
@@ -52,7 +52,7 @@ export const ProductDetailUom = () => {
               className="w-full"
             >
               <IconPlus className="mr-2 w-4 h-4" />
-              {t('add-sub')}
+              {t('add-sub', 'Add sub')}
             </Button>
           </div>
           {subUoms.length > 0 && (
