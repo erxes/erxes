@@ -14,7 +14,6 @@ import {
 import {
   getNextMonth,
   getToday,
-  regexSearchText,
   escapeRegExp,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -299,11 +298,11 @@ export const generateFilter = async (
   }
 
   if (search) {
+    const escaped = escapeRegExp(search);
     Object.assign(filter, {
       $or: [
-        regexSearchText(search),
-        { name: { $regex: new RegExp(`${escapeRegExp(search)}`, 'i') } },
-        { number: { $regex: new RegExp(`^${escapeRegExp(search)}`, 'i') } },
+        { name: { $regex: escaped, options: 'i' } },
+        { number: { $regex: escaped, options: 'i' } },
       ],
     });
   }
@@ -685,7 +684,7 @@ const fetchDeals = async (
   const { search, noSkipArchive } = args;
 
   if (noSkipArchive && search) {
-    args.orderBy = { status: 1, ...args.orderBy }
+    args.orderBy = { status: 1, ...args.orderBy };
   }
 
   const filter = await generateFilter(
