@@ -1,11 +1,5 @@
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import {
-  Button,
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-} from 'erxes-ui';
+import { Command, Popover, RecordTable } from 'erxes-ui';
 import { ReactNode } from 'react';
 
 export const LoyaltyMoreActions = ({
@@ -38,7 +32,11 @@ export const LoyaltyMoreActions = ({
             <Command.Item value="edit" onSelect={onEdit}>
               <IconEdit className="size-4" /> {editLabel}
             </Command.Item>
-            <Command.Item value="delete" onSelect={onDelete} disabled={deleteLoading}>
+            <Command.Item
+              value="delete"
+              onSelect={onDelete}
+              disabled={deleteLoading}
+            >
               <IconTrash className="size-4" />
               {deleteLabel}
             </Command.Item>
