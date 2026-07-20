@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.0.54](https://github.com/erxes/erxes/compare/3.0.53...3.0.54) (2026-07-20)
+
+
+### Bug Fixes
+
+* frontline widget companies propertiesData ([184f8d0](https://github.com/erxes/erxes/commit/184f8d08ba5aa320cd4252fc1114b70383caad50))
+* **frontline:** unblock messenger setup "Next step" on legacy hours data ([e9d0dca](https://github.com/erxes/erxes/commit/e9d0dca0f83d154255d51c5585d68a4329c36222))
+* **operation:** keep board card position stable when editing a task  ([a26b958](https://github.com/erxes/erxes/commit/a26b9581f8a6dec81ae6455838e2061c66e8d38c))
+* print thermal standard labels and label sizes ([af1c995](https://github.com/erxes/erxes/commit/af1c99514eb2850f9167de75e8e967cb1731ba0a))
+
+
+### Features
+
+* add similarity field to PoscProduct ([edf23a8](https://github.com/erxes/erxes/commit/edf23a801cf25babc88f9e3e2348919f03db528a))
+* **automations:** add recurring schedule trigger ([#8673](https://github.com/erxes/erxes/issues/8673)) ([fe2078c](https://github.com/erxes/erxes/commit/fe2078c49549ebb82cf47b1ffd644f4bd68c6d57))
+* **clientportal:** migrate Toki login and add legal age check ([#8659](https://github.com/erxes/erxes/issues/8659)) ([21439c1](https://github.com/erxes/erxes/commit/21439c163060a34090ed6482ff0065bc9d718c6a))
+* **clientportal:** move Toki legal age query to cpUser ([#8687](https://github.com/erxes/erxes/issues/8687)) ([4fa4fcd](https://github.com/erxes/erxes/commit/4fa4fcdf7cfd0b8caba8640cde7eafeabdc7ef3b))
+* expose similarity field on cpPoscProduct ([812ea7d](https://github.com/erxes/erxes/commit/812ea7d6560c1a305dbe142ebafde24329c19318))
+* **facebook:** enhance automation message handling and UI components ([563c963](https://github.com/erxes/erxes/commit/563c9637642619da8b0be2fd38de1f7305810913))
+* **ui-modules:** add LLM provider API key fields ([#8695](https://github.com/erxes/erxes/issues/8695)) ([91b02bc](https://github.com/erxes/erxes/commit/91b02bc58c17c469ee7081981ffd054cad1d2bf5))
+
+
+### Reverts
+
+* Revert "feat(ui-modules): add LLM provider API key fields (#8695)" (#8696) ([176299d](https://github.com/erxes/erxes/commit/176299d30c52291e72cf9543b4473f3762d15c94)), closes [#8695](https://github.com/erxes/erxes/issues/8695) [#8696](https://github.com/erxes/erxes/issues/8696)
+
 ## [3.0.53](https://github.com/erxes/erxes/compare/3.0.52...3.0.53) (2026-07-09)
 
 
