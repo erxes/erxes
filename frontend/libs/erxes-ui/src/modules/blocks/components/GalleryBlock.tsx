@@ -138,19 +138,15 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
     updateBlock({ columns: String(n) });
   };
 
-  const uploadButtonLabel = uploading
-    ? 'Uploading...'
-    : images.length === 0
-      ? 'Add images to gallery'
-      : 'Add more';
-
-  const uploadButtonIcon = uploading ? (
-    <IconLoader2 size={15} className="animate-spin" />
-  ) : images.length === 0 ? (
-    <IconPhoto size={15} />
-  ) : (
-    <IconPlus size={15} />
-  );
+  let uploadButtonLabel = 'Add more';
+  let uploadButtonIcon = <IconPlus size={15} />;
+  if (uploading) {
+    uploadButtonLabel = 'Uploading...';
+    uploadButtonIcon = <IconLoader2 size={15} className="animate-spin" />;
+  } else if (images.length === 0) {
+    uploadButtonLabel = 'Add images to gallery';
+    uploadButtonIcon = <IconPhoto size={15} />;
+  }
 
   if (readonly && images.length === 0) return null;
 
