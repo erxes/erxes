@@ -32,22 +32,58 @@ interface GetFavoritesResponse {
 
 type AccessibleModule = {
   path: string;
+  icon?: ElementType;
   submenus?: Array<{
     path: string;
+    icon?: ElementType;
   }>;
 };
 
 type FavoriteIconProps = ComponentPropsWithoutRef<typeof IconComponent>;
 
-function normalizeNavigationPath(path: string) {
-  return path
-    .split(/[?#]/)[0]
-    .replace('_ui', '')
-    .replace(/^\/+/, '')
-    .replace(/\/+$/, '');
+function stripSearchAndHash(path: string) {
+  const searchIndex = path.indexOf('?');
+  const hashIndex = path.indexOf('#');
+
+  if (searchIndex === -1 && hashIndex === -1) {
+    return path;
+  }
+
+  if (searchIndex === -1) {
+    return path.slice(0, hashIndex);
+  }
+
+  if (hashIndex === -1) {
+    return path.slice(0, searchIndex);
+  }
+
+  return path.slice(0, Math.min(searchIndex, hashIndex));
 }
 
-function addAllowedPath(paths: Set<string>, path?: string) {
+function trimPathSlashes(path: string) {
+  let start = 0;
+  let end = path.length;
+
+  while (start < end && path[start] === '/') {
+    start += 1;
+  }
+
+  while (end > start && path[end - 1] === '/') {
+    end -= 1;
+  }
+
+  return path.slice(start, end);
+}
+
+function normalizeNavigationPath(path: string) {
+  return trimPathSlashes(stripSearchAndHash(path).replace('_ui', ''));
+}
+
+function addAllowedPath(
+  paths: Map<string, ElementType | undefined>,
+  path?: string,
+  icon?: ElementType,
+) {
   if (!path) {
     return;
   }
@@ -55,16 +91,18 @@ function addAllowedPath(paths: Set<string>, path?: string) {
   const normalizedPath = normalizeNavigationPath(path);
 
   if (normalizedPath) {
-    paths.add(normalizedPath);
+    paths.set(normalizedPath, icon);
   }
 }
 
 function getAllowedFavoritePaths(modules?: AccessibleModule[]) {
-  const paths = new Set<string>();
+  const paths = new Map<string, ElementType | undefined>();
 
   modules?.forEach((module) => {
-    addAllowedPath(paths, module.path);
-    module.submenus?.forEach((submenu) => addAllowedPath(paths, submenu.path));
+    addAllowedPath(paths, module.path, module.icon);
+    module.submenus?.forEach((submenu) =>
+      addAllowedPath(paths, submenu.path, submenu.icon),
+    );
   });
 
   return paths;
@@ -80,33 +118,41 @@ function getFavoritePathCandidates(path: string) {
   const candidates = [normalizedPath];
 
   if (normalizedPath.startsWith('settings/')) {
-    candidates.push(normalizedPath.replace(/^settings\/+/, ''));
+    candidates.push(trimPathSlashes(normalizedPath.slice('settings'.length)));
   }
 
   return candidates;
 }
 
-function isAllowedFavoritePath(path: string, allowedPaths: Set<string>) {
+function getAllowedFavoritePath(
+  path: string,
+  allowedPaths: Map<string, ElementType | undefined>,
+) {
   const candidates = getFavoritePathCandidates(path);
 
-  return candidates.some((candidate) =>
-    Array.from(allowedPaths).some((allowedPath) => {
+  for (const candidate of candidates) {
+    for (const allowedPath of allowedPaths.keys()) {
       const [candidateRoot] = candidate.split('/');
 
-      return (
+      const isAllowed =
         candidate === allowedPath ||
         candidate.startsWith(`${allowedPath}/`) ||
         (!!candidateRoot &&
           (allowedPath === candidateRoot ||
-            allowedPath.endsWith(`/${candidateRoot}`)))
-      );
-    }),
-  );
+            allowedPath.endsWith(`/${candidateRoot}`)));
+
+      if (isAllowed) {
+        return allowedPath;
+      }
+    }
+  }
+
+  return undefined;
 }
 
-function resolveFavoriteIcon(icon?: string): ElementType {
+function resolveFavoriteIcon(icon?: string): ElementType | undefined {
   if (!icon) {
-    return IconStar;
+    return undefined;
   }
 
   return function FavoriteIcon(props: FavoriteIconProps) {
@@ -128,11 +174,19 @@ export function useFavorites(): FavoriteModule[] {
   );
   const favorites = data?.getFavoritesByCurrentUser ?? [];
 
-  return favorites
-    .filter((favorite) => isAllowedFavoritePath(favorite.path, allowedPaths))
-    .map((favorite) => ({
+  return favorites.reduce<FavoriteModule[]>((acc, favorite) => {
+    const allowedPath = getAllowedFavoritePath(favorite.path, allowedPaths);
+
+    if (!allowedPath) {
+      return acc;
+    }
+
+    acc.push({
       name: favorite.breadcrumb?.join(' / ') || favorite.path,
-      icon: resolveFavoriteIcon(favorite.icon),
+      icon: resolveFavoriteIcon(favorite.icon) || allowedPaths.get(allowedPath) || IconStar,
       path: favorite.path,
-    }));
+    });
+
+    return acc;
+  }, []);
 }
