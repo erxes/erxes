@@ -1,17 +1,9 @@
 import { Cell } from '@tanstack/react-table';
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
-import {
-  Button,
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  useConfirm,
-  useToast,
-} from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { LoyaltyMoreActions } from '~/modules/loyalties/components/LoyaltyMoreActions';
 import { DELETE_LOTTERY_MUTATION } from '@/loyalties/lotteries/graphql/mutations/mutations';
 import { ILottery } from '@/loyalties/lotteries/types/lottery';
 import { LotteryEditSheet } from './LotteryEditSheet';
@@ -56,37 +48,13 @@ export const LotteryMoreColumnCell = ({
   };
 
   return (
-    <>
-      <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
-        <Combobox.Content
-          align="start"
-          className="w-[280px] min-w-0 [&>button]:cursor-pointer"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Command>
-            <Command.List>
-              <Command.Item value="edit" onSelect={() => setEditOpen(true)}>
-                <IconEdit /> {t('edit')}
-              </Command.Item>
-              <Command.Item asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start h-8"
-                  onClick={handleDelete}
-                  disabled={loading}
-                >
-                  <IconTrash className="size-4" />
-                  {t('delete')}
-                </Button>
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
+    <LoyaltyMoreActions
+      editLabel={t('edit')}
+      deleteLabel={t('delete')}
+      deleteLoading={loading}
+      onEdit={() => setEditOpen(true)}
+      onDelete={handleDelete}
+    >
       {editOpen && (
         <LotteryEditSheet
           lottery={lottery}
@@ -94,7 +62,7 @@ export const LotteryMoreColumnCell = ({
           onOpenChange={setEditOpen}
         />
       )}
-    </>
+    </LoyaltyMoreActions>
   );
 };
 
