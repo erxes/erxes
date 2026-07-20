@@ -138,6 +138,12 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
     updateBlock({ columns: String(n) });
   };
 
+  const uploadButtonLabel = uploading
+    ? 'Uploading...'
+    : images.length === 0
+      ? 'Add images to gallery'
+      : 'Add more';
+
   if (readonly && images.length === 0) return null;
 
   return (
@@ -149,7 +155,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
         >
           {images.map((img, i) => (
             <GalleryImage
-              key={i}
+              key={img.url}
               image={img}
               readonly={readonly}
               onRemove={() => removeImage(i)}
@@ -189,13 +195,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
               ) : (
                 <IconPlus size={15} />
               )}
-              <span>
-                {uploading
-                  ? 'Uploading...'
-                  : images.length === 0
-                    ? 'Add images to gallery'
-                    : 'Add more'}
-              </span>
+              <span>{uploadButtonLabel}</span>
             </button>
           ) : (
             images.length === 0 && (
@@ -253,9 +253,9 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
           : { display: 'none' }
       }
     >
-      {images.map((img, i) =>
+      {images.map((img) =>
         img.caption ? (
-          <figure key={i} style={{ margin: 0 }}>
+          <figure key={img.url} style={{ margin: 0 }}>
             <img
               src={img.url}
               alt={img.caption}
@@ -265,7 +265,7 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
           </figure>
         ) : (
           <img
-            key={i}
+            key={img.url}
             src={img.url}
             alt=""
             style={{ width: '100%', height: 'auto', display: 'block' }}
