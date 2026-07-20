@@ -137,7 +137,6 @@ const generateFilter = async (
     tokens: { $in: [token] },
   };
 
-  // one card per bulk-similarity group: standalone products + each group's star
   if (isSimilarity) {
     const similarityGroups = await sendTRPCMessage({
       subdomain,
