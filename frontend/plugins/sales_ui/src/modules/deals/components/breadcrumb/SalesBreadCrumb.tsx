@@ -3,6 +3,7 @@ import { IconCards, IconLayoutCards } from '@tabler/icons-react';
 
 import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
 import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
+import { createFavoriteBreadcrumb, FavoriteToggleIconButton } from 'ui-modules';
 
 export const SalesBreadCrumb = ({
   boardId,
@@ -24,6 +25,12 @@ export const SalesBreadCrumb = ({
   if (boardLoading || pipelineLoading) {
     return <Skeleton className="w-12 h-lh" />;
   }
+
+  const breadcrumb = createFavoriteBreadcrumb(
+    'Sales',
+    boardId ? boardDetail?.name || 'Unknown' : undefined,
+    pipelineId ? pipelineDetail?.name || 'Unknown' : undefined,
+  );
 
   return (
     <>
@@ -51,6 +58,12 @@ export const SalesBreadCrumb = ({
           </Button>
         </Breadcrumb.Item>
       )}
+      <Breadcrumb.Item className="ml-1">
+        <FavoriteToggleIconButton
+          breadcrumb={breadcrumb}
+          icon="IconBriefcase"
+        />
+      </Breadcrumb.Item>
     </>
   );
 };

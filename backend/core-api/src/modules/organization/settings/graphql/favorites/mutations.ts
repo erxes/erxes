@@ -1,33 +1,51 @@
 import { IContext } from '~/connectionResolvers';
 import { IFavorites } from '@/organization/settings/db/definitions/favorites';
+import {
+  normalizeFavoriteBreadcrumb,
+  normalizeFavoriteIcon,
+  normalizeFavoritePath,
+} from '@/organization/settings/graphql/favorites/utils';
+
+type ToggleFavoriteArgs = Pick<IFavorites, 'path' | 'breadcrumb' | 'icon'>;
 
 export const favoriteMutations = {
   toggleFavorite: async (
     _parent: undefined,
-    { type, path, label }: IFavorites,
+    { path, breadcrumb, icon }: ToggleFavoriteArgs,
     { models, user }: IContext,
   ) => {
-    const favorite = await models.Favorites.getFavorites({
-      type,
-      path,
+    const normalizedPath = normalizeFavoritePath(path);
+
+    const favorite = await models.Favorites.getFavorite({
+      path: normalizedPath,
       userId: user._id,
     });
 
     if (favorite) {
       return models.Favorites.deleteFavorite({
-        type,
-        path,
+        path: normalizedPath,
         userId: user._id,
       });
-    } else {
-      return models.Favorites.createFavorite({
-        type,
-        path,
+    }
+
+    try {
+      return await models.Favorites.createFavorite({
+        path: normalizedPath,
+        breadcrumb: normalizeFavoriteBreadcrumb(breadcrumb),
+        icon: normalizeFavoriteIcon(icon),
         userId: user._id,
-        label,
       });
+    } catch (error) {
+      const { code } = error as { code?: number };
+
+      if (code === 11000) {
+        return models.Favorites.getFavorite({
+          path: normalizedPath,
+          userId: user._id,
+        });
+      }
+
+      throw error;
     }
   },
 };
-
-export default favoriteMutations;

@@ -340,16 +340,29 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
         .map((row: any, rowIndex: number) => {
           const cells = (row.cells || [])
             .map((cell: any) => {
+              const cellData = Array.isArray(cell) ? { content: cell } : cell;
+
               const cellContent = renderInlineContent(
-                cell.content || [],
+                cellData?.content || [],
                 config,
               );
+
+              const colspan = Number(cellData?.props?.colspan) || 1;
+              const rowspan = Number(cellData?.props?.rowspan) || 1;
+
+              const spanAttrs = `${colspan > 1 ? ` colspan="${colspan}"` : ''}${
+                rowspan > 1 ? ` rowspan="${rowspan}"` : ''
+              }`;
+
               const cellStyle = `padding: 8px; border: 1px solid #ddd; ${
                 rowIndex === 0
                   ? 'font-weight: bold; background-color: #f4f4f4;'
                   : ''
               }`;
-              return `<td style="${cellStyle}">${cellContent || '&nbsp;'}</td>`;
+
+              return `<td${spanAttrs} style="${cellStyle}">${
+                cellContent || '&nbsp;'
+              }</td>`;
             })
             .join('');
           return `<tr>${cells}</tr>`;
