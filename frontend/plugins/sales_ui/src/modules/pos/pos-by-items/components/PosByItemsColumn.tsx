@@ -33,7 +33,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     accessorKey: 'code',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('code')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('code', 'Code')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -47,7 +47,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     accessorKey: 'name',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('name')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('name', 'Name')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -60,7 +60,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     id: 'category',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('category')} />;
+      return <RecordTable.InlineHead icon={IconCategory} label={t('category', 'Category')} />;
     },
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -74,7 +74,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     accessorKey: 'unitPrice',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconMobiledata} label={t('unit-price')} />;
+      return <RecordTable.InlineHead icon={IconMobiledata} label={t('unit-price', 'Unit Price')} />;
     },
     cell: ({ cell }) => {
       const val = cell.getValue() as number;
@@ -132,7 +132,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     accessorKey: 'count',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconChartBar} label={t('pos-sale')} />;
+      return <RecordTable.InlineHead icon={IconChartBar} label={t('pos-sale', 'POS Sale')} />;
     },
     cell: ({ cell }) => {
       const val = cell.getValue() as number;
@@ -151,7 +151,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     accessorKey: 'amount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('pos-amount')} />;
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('pos-amount', 'POS Amount')} />;
     },
     cell: ({ cell }) => {
       const val = cell.getValue() as number;

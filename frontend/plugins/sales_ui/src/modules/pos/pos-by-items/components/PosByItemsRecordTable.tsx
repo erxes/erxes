@@ -43,10 +43,10 @@ export const PosByItemsRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-pos-by-items-yet')}
+                {t('no-pos-by-items-yet', 'No pos by items yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('create-first-pos-by-items')}
+                {t('create-first-pos-by-items', 'Get started by creating your first pos by items.')}
               </p>
             </div>
           </div>

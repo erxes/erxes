@@ -96,7 +96,7 @@ const SelectPosCommandItem = ({ pos }: { pos: IPos }) => {
 
   return (
     <Command.Item value={pos._id} onSelect={() => onSelect(pos)}>
-      <PosInline pos={[pos]} placeholder={t('unnamed-user')} />
+      <PosInline pos={[pos]} placeholder={t('unnamed-user', 'Unnamed User')} />
       <Combobox.Check checked={posIds.includes(pos._id)} />
     </Command.Item>
   );
@@ -124,7 +124,7 @@ const SelectPosContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder={t('search-pos')}
+        placeholder={t('search-pos', 'Search POS...')}
         className="h-9"
       />
       <Command.List>
@@ -157,7 +157,7 @@ export const SelectPosFilterItem = () => {
   return (
     <Filter.Item value="pos">
       <IconLabel />
-      {t('pos')}
+      {t('pos', 'POS')}
     </Filter.Item>
   );
 };
@@ -214,7 +214,7 @@ export const SelectPosFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'pos'}>
       <Filter.BarName>
         <IconLabel />
-        {!iconOnly && t('pos')}
+        {!iconOnly && t('pos', 'POS')}
       </Filter.BarName>
 
       <SelectPosProvider

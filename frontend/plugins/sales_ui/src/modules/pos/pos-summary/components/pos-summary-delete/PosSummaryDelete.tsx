@@ -30,20 +30,20 @@ export const PosSummaryDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-pos-summary-confirm', { count: posSummaryCount }),
+          message: t('delete-pos-summary-confirm', 'Are you sure you want to delete the {{count}} selected pos summaries?', { count: posSummaryCount }),
         }).then(() => {
           removePosSummary(posSummaryIds, {
             onError: (e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
             },
             onCompleted: () => {
               toast({
-                title: t('success'),
-                description: t('pos-summary-deleted'),
+                title: t('success', 'Success'),
+                description: t('pos-summary-deleted', 'pos summary deleted successfully.'),
               });
 
               if (onDeleteSuccess) {
@@ -55,7 +55,7 @@ export const PosSummaryDelete = ({
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

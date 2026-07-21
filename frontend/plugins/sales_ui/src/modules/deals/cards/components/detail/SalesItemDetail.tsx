@@ -148,9 +148,9 @@ const SalesItemDetailEmptyState = () => {
           <Empty.Media variant="icon">
             <IconCloudExclamation />
           </Empty.Media>
-          <Empty.Title>{t('deal-not-found')}</Empty.Title>
+          <Empty.Title>{t('deal-not-found', 'Deal not found')}</Empty.Title>
           <Empty.Description>
-            {t('no-deal-with-id')}
+            {t('no-deal-with-id', 'There seems to be no deal with this ID')}
           </Empty.Description>
         </Empty.Header>
       </Empty>
@@ -169,7 +169,7 @@ const SalesItemDetailErrorState = () => {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>{t('error')}</Empty.Title>
+          <Empty.Title>{t('error', 'Error')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
       </Empty>

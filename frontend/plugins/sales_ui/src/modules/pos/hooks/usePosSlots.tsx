@@ -112,8 +112,8 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
         });
 
         toast({
-          title: t('slots-saved'),
-          description: t('slots-saved-description', { count: slotsData.length }),
+          title: t('slots-saved', 'Slots saved successfully'),
+          description: t('slots-saved-description', 'Saved {{count}} slots to the database', { count: slotsData.length }),
         });
 
         await refetch();
@@ -121,8 +121,8 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
       } catch (error) {
         console.error('Failed to save slots:', error);
         toast({
-          title: t('slots-save-failed'),
-          description: t('please-try-again-later'),
+          title: t('slots-save-failed', 'Failed to save slots'),
+          description: t('please-try-again-later', 'Please try again later'),
           variant: 'destructive',
         });
         return false;

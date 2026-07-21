@@ -70,7 +70,7 @@ const IconChooserForType = ({ type }: { type: string }) => {
                 <IconFileInvoice className="size-4 text-white" stroke={2} />
               </Badge>
             </Tooltip.Trigger>
-            <Tooltip.Content>{t('service')}</Tooltip.Content>
+            <Tooltip.Content>{t('service', 'Service')}</Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
       );
@@ -83,7 +83,7 @@ const IconChooserForType = ({ type }: { type: string }) => {
                 <IconBox className="size-4 text-white" stroke={2} />
               </Badge>
             </Tooltip.Trigger>
-            <Tooltip.Content>{t('product')}</Tooltip.Content>
+            <Tooltip.Content>{t('product', 'Product')}</Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
       );
@@ -117,7 +117,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorFn: (row) => row.product?.name,
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('product-service')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('product-service', 'Product/Service')} />;
     },
     cell: ({ cell, table }) => {
       const product = cell.row.original.product;
@@ -196,7 +196,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorKey: 'unitPrice',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('unit-price')} />;
+      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('unit-price', 'Unit Price')} />;
     },
     cell: ({ cell }) => {
       const currencyCode = cell.row.original.currency;
@@ -227,7 +227,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorKey: 'quantity',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconPentagonNumber1} label={t('quantity')} />;
+      return <RecordTable.InlineHead icon={IconPentagonNumber1} label={t('quantity', 'Quantity')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -248,7 +248,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorKey: 'discountPercent',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead label={t('discount-percent')} />;
+      return <RecordTable.InlineHead label={t('discount-percent', 'Discount %')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -269,7 +269,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorKey: 'discount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead label={t('discount')} />;
+      return <RecordTable.InlineHead label={t('discount', 'Discount')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -297,7 +297,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     },
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconDiamond} label={t('amount')} />;
+      return <RecordTable.InlineHead icon={IconDiamond} label={t('amount', 'Amount')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
@@ -314,7 +314,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorKey: 'tickUsed',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead label={t('tick-used')} />;
+      return <RecordTable.InlineHead label={t('tick-used', 'Tick used')} />;
     },
     cell: ({ cell }) => {
       const value = !!cell.getValue() as boolean;
@@ -333,7 +333,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorKey: 'isVatApplied',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead label={t('vat-applied')} />;
+      return <RecordTable.InlineHead label={t('vat-applied', 'Vat applied')} />;
     },
     cell: ({ cell }) => {
       const value = !!cell.getValue() as boolean;
@@ -353,7 +353,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('assigned-to')} />;
+      return <RecordTable.InlineHead icon={IconUser} label={t('assigned-to', 'Assigned to')} />;
     },
     cell: ({ cell }) => {
       const assignedUserId =

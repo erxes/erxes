@@ -17,7 +17,7 @@ export const PrintConfig: React.FC<PrintConfigProps> = ({ control }) => {
         render={({ field }) => (
           <div className="flex gap-2 items-center">
             <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Label>{t('KITCHEN-PRINT')}</Label>
+            <Label>{t('KITCHEN-PRINT', 'KITCHEN PRINT')}</Label>
           </div>
         )}
       />
@@ -28,7 +28,7 @@ export const PrintConfig: React.FC<PrintConfigProps> = ({ control }) => {
         render={({ field }) => (
           <div className="flex gap-2 items-center">
             <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Label>{t('WAITING-PRINT')}</Label>
+            <Label>{t('WAITING-PRINT', 'WAITING PRINT')}</Label>
           </div>
         )}
       />

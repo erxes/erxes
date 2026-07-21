@@ -103,7 +103,7 @@ const SelectTypeValue = ({
   if (!selectedType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-type')}
+        {placeholder || t('select-type', 'Select type')}
       </span>
     );
   }
@@ -140,9 +140,9 @@ const SelectTypeContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-type')} />
+      <Command.Input placeholder={t('search-type', 'Search type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-types-found')}</span>
+        <span className="text-muted-foreground">{t('no-types-found', 'No types found')}</span>
       </Command.Empty>
       <Command.List>
         {types?.map((type) => (
@@ -158,7 +158,7 @@ export const SelectTypeFilterItem = () => {
   return (
     <Filter.Item value="types">
       <IconCategory />
-      {t('type')}
+      {t('type', 'Type')}
     </Filter.Item>
   );
 };
@@ -209,7 +209,7 @@ export const SelectTypeFilterBar = ({
     <Filter.BarItem queryKey={'types'}>
       <Filter.BarName>
         <IconCategory />
-        {t('type')}
+        {t('type', 'Type')}
       </Filter.BarName>
       <SelectTypeProvider
         mode={mode}

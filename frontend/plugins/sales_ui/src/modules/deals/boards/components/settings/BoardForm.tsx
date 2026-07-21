@@ -40,7 +40,7 @@ export const BoardForm = () => {
   const submitHandler: SubmitHandler<TBoardForm> = React.useCallback(
     async (data) => {
       const manageBoard = boardId ? editBoard : addBoard;
-      const successTitle = boardId ? t('board-updated') : t('board-created');
+      const successTitle = boardId ? t('board-updated', 'Updated a board') : t('board-created', 'Created a board');
 
       manageBoard({
         variables: {
@@ -83,7 +83,7 @@ export const BoardForm = () => {
           >
             <Sheet.Header>
               <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                {boardId ? t('edit-board') : t('add-board')}
+                {boardId ? t('edit-board', 'Edit Board') : t('add-board', 'Add Board')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -96,12 +96,12 @@ export const BoardForm = () => {
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('board-name')}</Form.Label>
+                      <Form.Label>{t('board-name', 'Board Name')}</Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
                           type="text"
-                          placeholder={t('enter-board-name')}
+                          placeholder={t('enter-board-name', 'Enter a Board Name')}
                           className="input"
                           value={field.value || boardDetail?.name || ''}
                         />
@@ -114,10 +114,10 @@ export const BoardForm = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={handleClose}>
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={addLoading || editLoading}>
-                {addLoading || editLoading ? <Spinner /> : t('save')}
+                {addLoading || editLoading ? <Spinner /> : t('save', 'Save')}
               </Button>
             </Sheet.Footer>
           </form>

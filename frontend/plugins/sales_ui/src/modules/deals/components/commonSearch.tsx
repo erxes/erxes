@@ -59,7 +59,7 @@ export const CommonDealSearch = () => {
           <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="h-8 pl-8"
-            placeholder={t('search-deals')}
+            placeholder={t('search-deals', 'Search deals')}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             onFocus={() => setFocused(true)}
@@ -76,13 +76,13 @@ export const CommonDealSearch = () => {
         {loading && (
           <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
             <IconLoader2 className="size-4 animate-spin" />
-            {t('searching')}
+            {t('searching', 'Searching')}
           </div>
         )}
 
         {!loading && !deals.length && (
           <div className="px-3 py-2 text-sm text-muted-foreground">
-            {t('no-deals-found')}
+            {t('no-deals-found', 'No deals found')}
           </div>
         )}
 

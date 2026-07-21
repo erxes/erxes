@@ -134,7 +134,7 @@ const SelectUsersValue = ({
   if (!selectedUser) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-user')}
+        {placeholder || t('select-user', 'Select user')}
       </span>
     );
   }
@@ -183,10 +183,10 @@ const SelectUsersContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder={t('search-users')} />
+        <Command.Input placeholder={t('search-users', 'Search users')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">{t('loading-users')}</span>
+            <span className="text-muted-foreground">{t('loading-users', 'Loading users...')}</span>
           </div>
         </Command.List>
       </Command>
@@ -195,9 +195,9 @@ const SelectUsersContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-users')} />
+      <Command.Input placeholder={t('search-users', 'Search users')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-users-found')}</span>
+        <span className="text-muted-foreground">{t('no-users-found', 'No users found')}</span>
       </Command.Empty>
       <Command.List>
         {users?.map((user) => (
@@ -213,7 +213,7 @@ export const SelectUsersFilterItem = () => {
   return (
     <Filter.Item value="users">
       <IconUsers />
-      {t('users')}
+      {t('users', 'Users')}
     </Filter.Item>
   );
 };
@@ -271,7 +271,7 @@ export const SelectUsersFilterBar = ({
     <Filter.BarItem queryKey={'users'}>
       <Filter.BarName>
         <IconUsers />
-        {t('users')}
+        {t('users', 'Users')}
       </Filter.BarName>
       <SelectUsersProvider
         mode={mode}

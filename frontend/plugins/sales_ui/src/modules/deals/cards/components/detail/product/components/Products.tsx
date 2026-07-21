@@ -22,14 +22,14 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
             className="w-20 cursor-pointer font-normal data-[state=active]:bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
             value="product"
           >
-            {t('products')}
+            {t('products', 'Products')}
           </Tabs.Trigger>
 
           <Tabs.Trigger
             className="w-20 cursor-pointer font-normal data-[state=active]:bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
             value="payment"
           >
-            {t('payments')}
+            {t('payments', 'Payments')}
           </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="product">

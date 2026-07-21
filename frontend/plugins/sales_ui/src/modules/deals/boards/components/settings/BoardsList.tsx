@@ -36,7 +36,7 @@ export const BoardsList = () => {
       <Sidebar.Group>
         <div className="w-full flex items-center justify-between">
           <Sidebar.GroupLabel>
-            {t('boards')} ({boards?.length || 0})
+            {t('boards', 'Boards')} ({boards?.length || 0})
           </Sidebar.GroupLabel>
           <BoardForm />
         </div>
@@ -73,7 +73,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
 
   const onRemove = (boardId: string) => {
     confirm({
-      message: t('delete-board-confirm', { name: board.name }),
+      message: t('delete-board-confirm', 'Are you sure you want to delete {{name}}?', { name: board.name }),
     }).then(() => {
       removeBoard({ variables: { _id: boardId } });
     });

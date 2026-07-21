@@ -41,7 +41,7 @@ export const OrdersMoreColumnCell = ({
               onSelect={() => setOpen(_id)}
               disabled={!_id}
             >
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
           </Command.List>
         </Command>

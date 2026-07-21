@@ -25,7 +25,7 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     accessorKey: 'posName',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconPhone} label={t('pos')} />;
+      return <RecordTable.InlineHead icon={IconPhone} label={t('pos', 'POS')} />;
     },
     cell: ({ row }) => {
       return <ClickablePosName value={row.original.posName || ''} row={row} />;
@@ -37,7 +37,7 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     accessorKey: 'beginDate',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('begin-date')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('begin-date', 'Begin Date')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -62,7 +62,7 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     accessorKey: 'endDate',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconMobiledata} label={t('end-date')} />;
+      return <RecordTable.InlineHead icon={IconMobiledata} label={t('end-date', 'End Date')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -86,7 +86,7 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     accessorKey: 'user.email',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('user')} />;
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('user', 'User')} />;
     },
     cell: ({ row }) => {
       return (

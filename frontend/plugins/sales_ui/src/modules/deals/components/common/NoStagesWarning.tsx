@@ -14,15 +14,15 @@ export const NoStagesWarning = () => {
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        {t('no-stages-yet')}
+        {t('no-stages-yet', 'No stages yet')}
       </h2>
       <p className="text-md text-muted-foreground mb-4">
-        {t('create-stage-to-your-board')}
+        {t('create-stage-to-your-board', 'Create a stage to start organizing your board.')}
       </p>
       <Button variant="outline" asChild>
         <Link to={'/settings/deals'}>
           <IconSettings />
-          {t('go-to-settings')}
+          {t('go-to-settings', 'Go to Settings')}
         </Link>
       </Button>
     </div>

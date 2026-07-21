@@ -13,7 +13,7 @@ export const MainColors: React.FC<MainColorsProps> = ({ control }) => {
     <div className="space-y-6">
       <div className="flex gap-6">
         <div className="space-y-2">
-          <Label>{t('primary')}</Label>
+          <Label>{t('primary', 'PRIMARY')}</Label>
           <Controller
             name="bodyColor"
             control={control}
@@ -28,7 +28,7 @@ export const MainColors: React.FC<MainColorsProps> = ({ control }) => {
         </div>
 
         <div className="space-y-2">
-          <Label>{t('secondary')}</Label>
+          <Label>{t('secondary', 'SECONDARY')}</Label>
           <Controller
             name="headerColor"
             control={control}
@@ -43,7 +43,7 @@ export const MainColors: React.FC<MainColorsProps> = ({ control }) => {
         </div>
 
         <div className="space-y-2">
-          <Label>{t('third')}</Label>
+          <Label>{t('third', 'THIRD')}</Label>
           <Controller
             name="footerColor"
             control={control}

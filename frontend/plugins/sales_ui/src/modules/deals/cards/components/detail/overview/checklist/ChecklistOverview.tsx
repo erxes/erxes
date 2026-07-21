@@ -12,7 +12,7 @@ const ChecklistOverview = () => {
         <Filter.BarButton filterKey="status">
           <div className="flex items-center gap-1">
             <IconListCheck size={16} />
-            {t('add-new-checklist')}
+            {t('add-new-checklist', 'Add New Checklist')}
           </div>
         </Filter.BarButton>
       </Popover.Trigger>

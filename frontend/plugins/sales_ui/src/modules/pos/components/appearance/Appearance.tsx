@@ -91,8 +91,8 @@ const Appearance: React.FC<AppearanceProps> = ({
     async (data: AppearanceFormData) => {
       if (!posId) {
         toast({
-          title: t('error'),
-          description: t('pos-id-required'),
+          title: t('error', 'Error'),
+          description: t('pos-id-required', 'POS ID is required'),
           variant: 'destructive',
         });
         return;
@@ -127,14 +127,14 @@ const Appearance: React.FC<AppearanceProps> = ({
         });
 
         toast({
-          title: t('success'),
-          description: t('appearance-saved'),
+          title: t('success', 'Success'),
+          description: t('appearance-saved', 'Appearance settings saved successfully'),
         });
         reset(data);
       } catch {
         toast({
-          title: t('error'),
-          description: t('failed-to-save-appearance'),
+          title: t('error', 'Error'),
+          description: t('failed-to-save-appearance', 'Failed to save appearance settings'),
           variant: 'destructive',
         });
       }
@@ -155,7 +155,7 @@ const Appearance: React.FC<AppearanceProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? t('saving') : t('save-changes')}
+          {saving ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -183,7 +183,7 @@ const Appearance: React.FC<AppearanceProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            {t('failed-to-load-pos-details')}: {error.message}
+            {t('failed-to-load-pos-details', 'Failed to load POS details: {{message}}')}: {error.message}
           </p>
         </div>
       );
@@ -197,17 +197,17 @@ const Appearance: React.FC<AppearanceProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>{t('logos-and-favicon')}</Label>
+            <Label>{t('logos-and-favicon', 'Logos and favicon')}</Label>
             <LogosAndFavicon control={control} posType={posType} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>{t('main-colors')}</Label>
+            <Label>{t('main-colors', 'Main colors')}</Label>
             <MainColors control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>{t('infos')}</Label>
+            <Label>{t('infos', 'Infos')}</Label>
             <Infos control={control} />
           </section>
         </form>
@@ -217,7 +217,7 @@ const Appearance: React.FC<AppearanceProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('appearance-configuration')}>
+      <InfoCard title={t('appearance-configuration', 'Appearance configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

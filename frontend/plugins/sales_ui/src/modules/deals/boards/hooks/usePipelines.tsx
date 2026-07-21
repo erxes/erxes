@@ -89,15 +89,15 @@ export const usePipelineRemove = (
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: t('pipeline-removed'),
+        title: t('pipeline-removed', 'Successfully removed a pipeline'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('remove-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('remove-failed', 'Remove failed'),
         variant: 'destructive',
       });
     },
@@ -184,7 +184,7 @@ export const usePipelineArchive = (
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
-        title: t('pipeline-archived'),
+        title: t('pipeline-archived', 'Pipeline archived successfully'),
       });
     },
     onError: (error) => {
@@ -215,7 +215,7 @@ export const usePipelineCopy = (
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
-        title: t('pipeline-copied'),
+        title: t('pipeline-copied', 'Pipeline copied successfully'),
       });
     },
     onError: (error) => {
@@ -248,7 +248,7 @@ export const usePipelineUpdateOrder = (
       awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
-          title: t('pipeline-order-updated'),
+          title: t('pipeline-order-updated', 'Pipeline order updated successfully'),
         });
       },
       onError: (error) => {
@@ -283,7 +283,7 @@ export const usePipelinesBulkRemove = () => {
             // Don't refetch individually, let bulk operation handle it
             onCompleted: () => {
               toast({
-                title: t('pipelines-removed'),
+                title: t('pipelines-removed', 'Pipelines removed successfully'),
               });
             },
           }),
@@ -292,20 +292,20 @@ export const usePipelinesBulkRemove = () => {
 
       const failures = results.filter((result) => result.status === 'rejected');
       if (failures.length > 0) {
-        throw new Error(t('failed-to-delete-pipelines', { count: failures.length }));
+        throw new Error(t('failed-to-delete-pipelines', 'Failed to delete {{count}} pipelines', { count: failures.length }));
       }
 
       // Single refetch after all operations complete
       client.refetchQueries({ include: ['SalesPipelines'] });
 
       toast({
-        title: t('success'),
+        title: t('success', 'Success'),
         variant: 'success',
-        description: t('pipelines-deleted'),
+        description: t('pipelines-deleted', 'Pipelines deleted successfully'),
       });
     } catch (e: any) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: e.message,
         variant: 'destructive',
       });

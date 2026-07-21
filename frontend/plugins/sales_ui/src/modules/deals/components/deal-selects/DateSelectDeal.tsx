@@ -75,7 +75,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
       <>
         <IconCalendarPlus className="text-accent-foreground" />
         <span className="text-accent-foreground font-medium">
-          {placeholder || t('select-date')}
+          {placeholder || t('select-date', 'Select date...')}
         </span>
       </>
     );
@@ -199,7 +199,7 @@ export const DateSelectDealRoot = ({
           <DateSelectTrigger>
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
-              {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')} {t('ago')}{' '}
+              {t('ended', 'Ended')} {endedDiff} {endedDiff === 1 ? t('day', 'day') : t('days', 'days')} {t('ago', 'ago')}{' '}
             </div>
           </DateSelectTrigger>
           <Content className="w-fit" onClick={(e) => e.stopPropagation()}>

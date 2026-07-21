@@ -24,7 +24,7 @@ export const ProductsDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-products-confirm', { count: productIds.length }),
+          message: t('delete-products-confirm', 'Are you sure you want to delete the {{count}} selected products?', { count: productIds.length }),
         }).then(() => {
           removeProducts({
             variables: {
@@ -40,7 +40,7 @@ export const ProductsDelete = ({
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

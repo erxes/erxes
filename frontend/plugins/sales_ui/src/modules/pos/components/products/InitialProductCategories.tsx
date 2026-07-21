@@ -19,7 +19,7 @@ export const InitialProductCategories: React.FC<
       render={({ field }) => (
         <Form.Item>
           <Label>
-            {t('product-categories')} <span className="text-destructive">*</span>
+            {t('product-categories', 'Product Categories')} <span className="text-destructive">*</span>
           </Label>
 
           <Form.Control>
@@ -27,7 +27,7 @@ export const InitialProductCategories: React.FC<
               mode="multiple"
               value={field.value}
               onValueChange={field.onChange}
-              placeholder={t('select-initial-product-categories')}
+              placeholder={t('select-initial-product-categories', 'Select initial product categories')}
             />
           </Form.Control>
         </Form.Item>

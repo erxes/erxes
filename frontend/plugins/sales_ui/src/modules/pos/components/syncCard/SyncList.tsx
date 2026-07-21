@@ -41,7 +41,7 @@ export const SyncList: React.FC<SyncListProps> = ({
 
       {fields.length === 0 ? (
         <div className="py-8 text-center text-muted-foreground">
-          {t('no-configs-yet')}
+          {t('no-configs-yet', 'No configurations yet')}
         </div>
       ) : (
         <div className="space-y-2">
@@ -52,7 +52,7 @@ export const SyncList: React.FC<SyncListProps> = ({
             >
               <div>
                 <div className="font-medium">
-                  {(field as unknown as CardConfig).title || t('untitled')}
+                  {(field as unknown as CardConfig).title || t('untitled', 'Untitled')}
                 </div>
               </div>
               <div className="flex gap-2">

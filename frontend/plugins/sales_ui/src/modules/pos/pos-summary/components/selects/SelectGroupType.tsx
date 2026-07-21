@@ -106,7 +106,7 @@ const SelectGroupTypeValue = ({
   if (!selectedGroupType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-group-type')}
+        {placeholder || t('select-group-type', 'Select group type')}
       </span>
     );
   }
@@ -147,9 +147,9 @@ const SelectGroupTypeContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-group-type')} />
+      <Command.Input placeholder={t('search-group-type', 'Search group type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-group-types-found')}</span>
+        <span className="text-muted-foreground">{t('no-group-types-found', 'No group types found')}</span>
       </Command.Empty>
       <Command.List>
         {groupTypes?.map((groupType) => (
@@ -168,7 +168,7 @@ export const SelectGroupTypeFilterItem = () => {
   return (
     <Filter.Item value="groupField">
       <IconTag />
-      {t('group-type')}
+      {t('group-type', 'Group Type')}
     </Filter.Item>
   );
 };
@@ -223,7 +223,7 @@ export const SelectGroupTypeFilterBar = ({
     <Filter.BarItem queryKey={'groupField'}>
       <Filter.BarName>
         <IconTag />
-        {t('group-type')}
+        {t('group-type', 'Group Type')}
       </Filter.BarName>
       <SelectGroupTypeProvider
         mode={mode}

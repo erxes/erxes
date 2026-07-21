@@ -32,27 +32,27 @@ export const PosOrderBySubsFilterPopover = () => {
   return (
     <>
       <Filter.Popover scope={PosOrderBySubsHotKeyScope.PosOrderBySubsPage}>
-        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter', 'Filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="customer">
                   <IconCashRegister />
-                  {t('customer')}
+                  {t('customer', 'Customer')}
                 </Filter.Item>
                 <Filter.Item value="company">
                   <IconBuilding />
-                  {t('company')}
+                  {t('company', 'Company')}
                 </Filter.Item>
                 <Filter.Item value="user">
                   <IconUser />
-                  {t('assign-to')}
+                  {t('assign-to', 'Assign To')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -114,7 +114,7 @@ export const PosOrderBySubsFilter = () => {
         <Filter.BarItem queryKey={'customer'}>
           <Filter.BarName>
             <IconUser />
-            {t('customer')}
+            {t('customer', 'Customer')}
           </Filter.BarName>
           <SelectCustomer.Provider
             mode="single"
@@ -139,7 +139,7 @@ export const PosOrderBySubsFilter = () => {
         <Filter.BarItem queryKey={'company'}>
           <Filter.BarName>
             <IconBuilding />
-            {t('company')}
+            {t('company', 'Company')}
           </Filter.BarName>
           <SelectCompany.Provider
             mode="single"
@@ -164,7 +164,7 @@ export const PosOrderBySubsFilter = () => {
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            {t('assign-to')}
+            {t('assign-to', 'Assign To')}
           </Filter.BarName>
           <SelectMember.Provider
             mode="single"

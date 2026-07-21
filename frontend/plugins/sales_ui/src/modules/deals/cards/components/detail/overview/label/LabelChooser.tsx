@@ -20,7 +20,7 @@ const LabelChooser = ({
           <SelectLabels.FilterBar
             filterKey=""
             mode="multiple"
-            label={t('by-label')}
+            label={t('by-label', 'By Label')}
             variant="card"
             targetId={targetId}
           />

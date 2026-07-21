@@ -60,7 +60,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
             onClick={() => setShowForm(false)}
             className="text-sm text-blue-600 hover:underline"
           >
-            {t('back')}
+            {t('back', 'Back')}
           </button>
 
         </div>
@@ -78,7 +78,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
   return (
     <>
       <h3 className="text-sm font-semibold text-gray-600 border-b pb-2">
-        {t('labels')}
+        {t('labels', 'Labels')}
       </h3>
       <div className="flex-auto overflow-hidden py-2">
         <div className="space-y-4">
@@ -86,7 +86,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('search-labels')}
+            placeholder={t('search-labels', 'Search Labels')}
             className="w-full border px-3 py-2 rounded-md"
           />
 
@@ -134,7 +134,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
               ))}
               {filteredLabels.length === 0 && (
                 <li className="text-sm text-gray-400">
-                  {t('no-matching-labels-found')}
+                  {t('no-matching-labels-found', 'No matching labels found')}
                 </li>
               )}
             </ul>
@@ -149,7 +149,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
             }}
           >
             <IconPlus size={16} />
-            {t('create-new-label')}
+            {t('create-new-label', 'Create a New Label')}
           </Button>
         </div>
       </div>

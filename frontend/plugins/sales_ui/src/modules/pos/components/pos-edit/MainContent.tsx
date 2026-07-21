@@ -136,7 +136,7 @@ export const MainContent: React.FC<MainContentProps> = ({
     return (
       <div className="p-6 text-center">
         <p className="text-destructive">
-          {t('failed-to-load-pos-details', { message: error.message })}
+          {t('failed-to-load-pos-details', 'Failed to load POS details: {{message}}', { message: error.message })}
         </p>
       </div>
     );
@@ -147,7 +147,7 @@ export const MainContent: React.FC<MainContentProps> = ({
       <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-background shrink-0">
         <div className="flex flex-1 gap-4 items-center min-w-0">
           <h1 className="max-w-[100px] text-xl font-semibold truncate text-foreground">
-            {posDetail?.name || t('new-pos')}
+            {posDetail?.name || t('new-pos', 'New POS')}
           </h1>
 
           <Badge variant="secondary" className="text-xs shrink-0">

@@ -71,7 +71,7 @@ export const useCoversList = (
         description: cover.description,
         note: cover.note,
         createdAt: cover.createdAt,
-        createdBy: cover?.createdUser?.email || t('unknown'),
+        createdBy: cover?.createdUser?.email || t('unknown', 'Unknown'),
       })) || [],
     [data?.posCovers],
   );

@@ -50,37 +50,37 @@ const PosFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  {t('search')}
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <TagsFilter />
                 <Filter.Item value="brand">
                   <IconLabel />
-                  {t('brand')}
+                  {t('brand', 'Brand')}
                 </Filter.Item>
                 <SelectMember.FilterItem />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="created">
                   <IconCalendarPlus />
-                  {t('created-at')}
+                  {t('created-at', 'Created At')}
                 </Filter.Item>
                 <Filter.Item value="updated">
                   <IconCalendarUp />
-                  {t('updated-at')}
+                  {t('updated-at', 'Updated At')}
                 </Filter.Item>
                 <Filter.Item value="lastSeen">
                   <IconCalendarTime />
-                  {t('last-seen-at')}
+                  {t('last-seen-at', 'Last Seen At')}
                 </Filter.Item>
                 <Filter.Item value="birthday">
                   <IconCalendar />
-                  {t('birthday')}
+                  {t('birthday', 'Birthday')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -134,7 +134,7 @@ export const PosFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            {t('search')}
+            {t('search', 'Search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -144,28 +144,28 @@ export const PosFilter = () => {
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
-            {t('created-at')}
+            {t('created-at', 'Created At')}
           </Filter.BarName>
           <Filter.Date filterKey="created" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updated">
           <Filter.BarName>
             <IconCalendarUp />
-            {t('updated-at')}
+            {t('updated-at', 'Updated At')}
           </Filter.BarName>
           <Filter.Date filterKey="updated" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="lastSeen">
           <Filter.BarName>
             <IconCalendarTime />
-            {t('last-seen-at')}
+            {t('last-seen-at', 'Last Seen At')}
           </Filter.BarName>
           <Filter.Date filterKey="lastSeen" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="birthday">
           <Filter.BarName>
             <IconCalendar />
-            {t('birthday')}
+            {t('birthday', 'Birthday')}
           </Filter.BarName>
           <Filter.Date filterKey="birthday" />
         </Filter.BarItem>

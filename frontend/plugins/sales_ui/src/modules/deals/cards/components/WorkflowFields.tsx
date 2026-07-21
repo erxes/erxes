@@ -28,7 +28,7 @@ const WorkflowFields = ({ control }: { control: any }) => {
         name="boardId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('select-board')}</Form.Label>
+            <Form.Label>{t('select-board', 'Select Board')}</Form.Label>
             <SelectBoard.FormItem
               mode="single"
               onValueChange={field.onChange}
@@ -44,7 +44,7 @@ const WorkflowFields = ({ control }: { control: any }) => {
         name="pipelineId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('select-pipeline')}</Form.Label>
+            <Form.Label>{t('select-pipeline', 'Select Pipeline')}</Form.Label>
             <SelectPipeline.FormItem
               mode="single"
               onValueChange={field.onChange}
@@ -60,7 +60,7 @@ const WorkflowFields = ({ control }: { control: any }) => {
         name="stageId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('select-stage')}</Form.Label>
+            <Form.Label>{t('select-stage', 'Select Stage')}</Form.Label>
             <SelectStage.FormItem
               mode="single"
               onValueChange={field.onChange}

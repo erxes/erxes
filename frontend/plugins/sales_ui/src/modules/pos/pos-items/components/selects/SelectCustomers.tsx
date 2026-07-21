@@ -129,7 +129,7 @@ const SelectCustomersValue = ({
   if (!selectedCustomer) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-customer')}
+        {placeholder || t('select-customer', 'Select customer')}
       </span>
     );
   }
@@ -141,7 +141,7 @@ const SelectCustomersValue = ({
     selectedCustomer.primaryEmail ||
     selectedCustomer.primaryPhone ||
     selectedCustomer.code ||
-    t('unknown');
+    t('unknown', 'Unknown');
 
   return (
     <div className="flex items-center gap-2">
@@ -162,7 +162,7 @@ const SelectCustomersCommandItem = ({ customer }: { customer: ICustomer }) => {
     primaryEmail ||
     primaryPhone ||
     code ||
-    t('unknown');
+    t('unknown', 'Unknown');
 
   return (
     <Command.Item
@@ -186,10 +186,10 @@ const SelectCustomersContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder={t('search-customers')} />
+        <Command.Input placeholder={t('search-customers', 'Search customers')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">{t('loading-customers')}</span>
+            <span className="text-muted-foreground">{t('loading-customers', 'Loading customers...')}</span>
           </div>
         </Command.List>
       </Command>
@@ -198,9 +198,9 @@ const SelectCustomersContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-customers')} />
+      <Command.Input placeholder={t('search-customers', 'Search customers')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-customers-found')}</span>
+        <span className="text-muted-foreground">{t('no-customers-found', 'No customers found')}</span>
       </Command.Empty>
       <Command.List>
         {customers?.map((customer) => (
@@ -216,7 +216,7 @@ export const SelectCustomersFilterItem = () => {
   return (
     <Filter.Item value="customers">
       <IconUsers />
-      {t('customers')}
+      {t('customers', 'Customers')}
     </Filter.Item>
   );
 };
@@ -276,7 +276,7 @@ export const SelectCustomersFilterBar = ({
     <Filter.BarItem queryKey={'customers'}>
       <Filter.BarName>
         <IconUsers />
-        {t('customers')}
+        {t('customers', 'Customers')}
       </Filter.BarName>
       <SelectCustomersProvider
         mode={mode}

@@ -33,8 +33,8 @@ const ChecklistItemContent = ({
   const { salesChecklistItemsRemove } = useChecklistItemsRemove({
     onError: (error) => {
       toast({
-        title: t('error'),
-        description: error.message || t('failed-to-remove-item'),
+        title: t('error', 'Error'),
+        description: error.message || t('failed-to-remove-item', 'Failed to remove item'),
         variant: 'destructive',
       });
     },
@@ -72,7 +72,7 @@ const ChecklistItemContent = ({
 
   const handleRemove = (id: string) => {
     confirm({
-      message: t('are-you-sure'),
+      message: t('are-you-sure', 'Are you sure?'),
     }).then(() => {
       salesChecklistItemsRemove({
         variables: {
@@ -125,16 +125,16 @@ const ChecklistItemContent = ({
 
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('checklist-item-converted'),
+          title: t('success', 'Success'),
+          description: t('checklist-item-converted', 'Checklist item converted to deal successfully'),
           variant: 'default',
         });
         handleRemove(item._id);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-convert-to-deal'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-convert-to-deal', 'Failed to convert to deal'),
           variant: 'destructive',
         });
       },
@@ -180,7 +180,7 @@ const ChecklistItemContent = ({
           onPointerDown={(e) => e.stopPropagation()}
           onPointerUp={(e) => e.stopPropagation()}
           className="opacity-0 group-hover:opacity-100 transition"
-          aria-label={t('more-actions')}
+          aria-label={t('more-actions', 'More actions')}
         >
           <IconDotsVertical size={18} />
         </button>
@@ -192,7 +192,7 @@ const ChecklistItemContent = ({
               className="flex items-center gap-2 px- py-2 hover:bg-gray-100 w-full text-sm"
             >
               <IconRefresh size={16} className="ml-3" />
-              {t('convert-to-deal')}
+              {t('convert-to-deal', 'Convert to Deal')}
             </button>
             <button
               onClick={() => {
@@ -201,7 +201,7 @@ const ChecklistItemContent = ({
               className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 w-full text-sm"
             >
               <IconTrash size={16} />
-              {t('delete')}
+              {t('delete', 'Delete')}
             </button>
           </div>
         )}

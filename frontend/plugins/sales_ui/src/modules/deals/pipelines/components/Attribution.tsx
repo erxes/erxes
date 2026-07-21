@@ -16,8 +16,8 @@ const Attribution = ({ config, value, onChange }: Props) => {
   const handleSelect = (val: string) => {
     if (val.startsWith(' ')) {
       toast({
-        title: t('error'),
-        description: t('attribution-no-leading-space'),
+        title: t('error', 'Error'),
+        description: t('attribution-no-leading-space', 'Please make sure the attribution doesn\'t start with a space'),
         variant: 'destructive',
       });
       return;
@@ -38,7 +38,7 @@ const Attribution = ({ config, value, onChange }: Props) => {
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <span className="text-sm text-foreground/50 font-semibold flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors duration-200">
-          {t('attribution')} <IconArrowDown size={13} />
+          {t('attribution', 'Attribution')} <IconArrowDown size={13} />
         </span>
       </Popover.Trigger>
       <Popover.Content className="p-1">

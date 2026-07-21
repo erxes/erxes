@@ -21,7 +21,7 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
     if (!posId) return;
 
     confirm({
-      message: t('confirm-remove-selected'),
+      message: t('confirm-remove-selected', 'Are you sure you want to remove the selected?'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -31,15 +31,15 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
           onDelete();
         }
         toast({
-          title: t('success'),
-          description: t('pos-delete-success'),
+          title: t('success', 'Success'),
+          description: t('pos-delete-success', 'POS has been deleted successfully.'),
           variant: 'success',
         });
         navigate('/settings/sales/pos');
       } catch (e: any) {
         toast({
-          title: t('error'),
-          description: e.message || t('pos-delete-failed'),
+          title: t('error', 'Error'),
+          description: e.message || t('pos-delete-failed', 'Failed to delete POS. Please try again.'),
           variant: 'destructive',
         });
       }
@@ -54,7 +54,7 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
       disabled={loading}
     >
       <IconTrash className="w-4 h-4 mr-2" />
-      {loading ? t('deleting') : t('remove-pos')}
+      {loading ? t('deleting', 'Deleting...') : t('remove-pos', 'Remove POS')}
     </Button>
   );
 };

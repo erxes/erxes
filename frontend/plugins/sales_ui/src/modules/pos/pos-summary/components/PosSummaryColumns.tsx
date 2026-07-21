@@ -61,7 +61,7 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
     accessorKey: 'paidDate',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('group')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('group', 'Group')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
@@ -80,7 +80,7 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
     accessorKey: 'amounts.count',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconMobiledata} label={t('count')} />;
+      return <RecordTable.InlineHead icon={IconMobiledata} label={t('count', 'Count')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
@@ -99,7 +99,7 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
     accessorKey: 'amounts.cashAmount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconPhone} label={t('cash-amount')} />;
+      return <RecordTable.InlineHead icon={IconPhone} label={t('cash-amount', 'Cash Amount')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
@@ -118,7 +118,7 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
     accessorKey: 'amounts.mobileAmount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('mobile-amount')} />;
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('mobile-amount', 'Mobile Amount')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
@@ -139,7 +139,7 @@ export const secondPosSummaryColumns: ColumnDef<IPosSummary>[] = [
     accessorKey: 'totalAmount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconChartBar} label={t('amount')} />;
+      return <RecordTable.InlineHead icon={IconChartBar} label={t('amount', 'Amount')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;

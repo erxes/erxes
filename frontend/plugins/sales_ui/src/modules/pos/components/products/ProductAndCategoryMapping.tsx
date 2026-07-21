@@ -22,7 +22,7 @@ export const ProductAndCategoryMapping: React.FC<
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground">
-          {t('map-product-categories-description')}
+          {t('map-product-categories-description', 'Map product categories to specific products based on code and name patterns')}
         </p>
         <AddMappingSheet
           onMappingAdded={onMappingAdded}
@@ -34,7 +34,7 @@ export const ProductAndCategoryMapping: React.FC<
 
       {!mappings || mappings.length === 0 ? (
         <div className="py-8 text-center text-gray-500">
-          <p>{t('no-mappings-found')}</p>
+          <p>{t('no-mappings-found', 'No mappings found. Create your first mapping to get started.')}</p>
         </div>
       ) : (
         <div className="space-y-2">

@@ -89,7 +89,7 @@ const AttachmentUploader = () => {
         ) : (
           <IconPaperclip size={16} />
         )}
-        {t('add-attachments')}
+        {t('add-attachments', 'Add Attachments')}
       </Upload.Button>
     </Upload.Root>
   );

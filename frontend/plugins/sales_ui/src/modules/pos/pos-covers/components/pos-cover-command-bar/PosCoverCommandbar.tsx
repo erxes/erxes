@@ -10,7 +10,7 @@ export const PosCoverCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <PosCoverDelete
           productIds={table

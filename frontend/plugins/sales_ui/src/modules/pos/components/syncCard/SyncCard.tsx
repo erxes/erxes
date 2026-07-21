@@ -71,8 +71,8 @@ const SyncCard: React.FC<SyncCardProps> = ({
     async (data: SyncCardFormData) => {
       if (!posId) {
         toast({
-          title: t('error'),
-          description: t('pos-id-required'),
+          title: t('error', 'Error'),
+          description: t('pos-id-required', 'POS ID is required'),
           variant: 'destructive',
         });
         return;
@@ -104,14 +104,14 @@ const SyncCard: React.FC<SyncCardProps> = ({
         });
 
         toast({
-          title: t('success'),
-          description: t('cards-config-saved'),
+          title: t('success', 'Success'),
+          description: t('cards-config-saved', 'Cards config saved successfully'),
         });
         reset(data);
       } catch {
         toast({
-          title: t('error'),
-          description: t('cards-config-save-failed'),
+          title: t('error', 'Error'),
+          description: t('cards-config-save-failed', 'Failed to save cards config'),
           variant: 'destructive',
         });
       }
@@ -132,7 +132,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? t('saving') : t('save-changes')}
+          {saving ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -174,7 +174,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            {t('failed-to-load-pos-details')}: {error.message}
+            {t('failed-to-load-pos-details', 'Failed to load POS details: {{message}}')}: {error.message}
           </p>
         </div>
       );
@@ -188,7 +188,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>{t('sync-cards')}</Label>
+            <Label>{t('sync-cards', 'Sync Cards')}</Label>
             <SyncList
               fields={fields}
               onConfigAdded={handleConfigAdded}
@@ -206,7 +206,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('sync-configuration')}>
+      <InfoCard title={t('sync-configuration', 'Sync Configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

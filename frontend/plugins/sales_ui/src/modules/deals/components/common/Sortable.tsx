@@ -278,7 +278,7 @@ export function Sortable({
           className="flex flex-col w-full py-4 h-48 justify-center items-center"
         >
           <IconFolderCancel />
-          <p className="text-muted-foreground pt-2">{t('no-item-found')}</p>
+          <p className="text-muted-foreground pt-2">{t('no-item-found', 'No Item Found')}</p>
         </div>
       )}
       {useDragOverlay

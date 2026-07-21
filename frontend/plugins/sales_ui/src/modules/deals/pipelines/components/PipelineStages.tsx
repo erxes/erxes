@@ -78,7 +78,7 @@ const PipelineStages = ({ form, stagesLoading }: Props) => {
         className="flex gap-2 items-center shadow-xs p-4 rounded-md cursor-pointer hover:shadow-sm hover:text-primary transition-all duration-200"
         onClick={onStageAdd}
       >
-        <IconPlus /> {t('add-another-stage')}
+        <IconPlus /> {t('add-another-stage', 'Add Another Stage')}
       </div>
     </div>
   );

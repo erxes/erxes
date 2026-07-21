@@ -278,8 +278,8 @@ const ProductsList = ({
         .join(', ');
       return toast({
         variant: 'destructive',
-        title: t('error'),
-        description: t('assign-service-before-saving', { names }),
+        title: t('error', 'Error'),
+        description: t('assign-service-before-saving', 'Please assign a team member to the following service item(s) before saving: {{names}}.', { names }),
       });
     }
     const formattedProductsData = localProductsData.map((data) => ({
@@ -301,13 +301,13 @@ const ProductsList = ({
       <Filter id="product-filter">
         <div className="flex items-center gap-4 flex-wrap">
           <Input
-            placeholder={t('vat-percent')}
+            placeholder={t('vat-percent', 'Vat percent')}
             className="w-[40%]"
             value={vatPercent}
             onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
           />
           <Button className="ml-3" onClick={() => applyVat()}>
-            {t('apply-vat')}
+            {t('apply-vat', 'Apply VAT')}
           </Button>
         </div>
         <div className="w-full mt-3 flex items-center justify-between">
@@ -317,7 +317,7 @@ const ProductsList = ({
               size={16}
             />
             <Input
-              placeholder={t('search')}
+              placeholder={t('search', 'Search')}
               className="pl-9 w-full"
               value={filters.productSearch || ''}
               onChange={(e) =>
@@ -327,7 +327,7 @@ const ProductsList = ({
           </div>
           <div className="flex items-center gap-6">
             <div>
-              <Label className="mr-3">{t('advanced-view')}</Label>
+              <Label className="mr-3">{t('advanced-view', 'Advanced view')}</Label>
               <Switch
                 checked={showAdvancedView}
                 onCheckedChange={(checked) => {

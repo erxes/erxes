@@ -26,7 +26,7 @@ export const CashierPermissions: React.FC<CashierPermissionsProps> = ({
         render={({ field }) => (
           <Form.Item>
             <Label>
-              {t('POS-CASHIER')} <span className="text-destructive">*</span>
+              {t('POS-CASHIER', 'POS CASHIER')} <span className="text-destructive">*</span>
             </Label>
 
             <Form.Control>
@@ -54,7 +54,7 @@ export const CashierPermissions: React.FC<CashierPermissionsProps> = ({
           render={({ field }) => (
             <Form.Item>
               <div className="flex gap-2 items-center">
-                <Label className="text-xs">{t('IS-PRINT-TEMP-BILL')}</Label>
+                <Label className="text-xs">{t('IS-PRINT-TEMP-BILL', 'IS PRINT TEMP BILL')}</Label>
                 <Form.Control>
                   <Switch
                     checked={field.value}
@@ -72,7 +72,7 @@ export const CashierPermissions: React.FC<CashierPermissionsProps> = ({
           render={({ field }) => (
             <Form.Item>
               <div className="flex gap-2 items-center">
-                <Label className="text-xs">{t('DIRECT-DISCOUNT')}</Label>
+                <Label className="text-xs">{t('DIRECT-DISCOUNT', 'DIRECT DISCOUNT')}</Label>
                 <Form.Control>
                   <Switch
                     checked={field.value}
@@ -91,11 +91,11 @@ export const CashierPermissions: React.FC<CashierPermissionsProps> = ({
             render={({ field }) => (
               <Form.Item>
                 <div className="flex gap-2 items-center">
-                  <Label className="text-xs">{t('DIRECT-DISCOUNT-LIMIT')}</Label>
+                  <Label className="text-xs">{t('DIRECT-DISCOUNT-LIMIT', 'DIRECT DISCOUNT LIMIT')}</Label>
                   <Form.Control>
                     <Input
                       type="number"
-                      placeholder={t('enter-limit')}
+                      placeholder={t('enter-limit', 'Enter limit')}
                       className="w-32 h-8"
                       {...field}
                     />

@@ -13,7 +13,7 @@ const ActivityLogs = () => {
 
   return (
     <div className="px-8 py-4">
-      <h4 className="uppercase text-sm text-gray-500 pb-2">{t('activity')}</h4>
+      <h4 className="uppercase text-sm text-gray-500 pb-2">{t('activity', 'Activity')}</h4>
       <Tabs
         defaultValue={activeType}
         className="flex flex-col h-full shadow-none border-none items-start"

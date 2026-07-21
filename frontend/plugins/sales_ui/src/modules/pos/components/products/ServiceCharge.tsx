@@ -36,7 +36,7 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
         name="serviceCharge"
         render={({ field }) => (
           <Form.Item>
-            <Label htmlFor="serviceCharge">{t('service-charge-percent')}</Label>
+            <Label htmlFor="serviceCharge">{t('service-charge-percent', 'Service Charge (%)')}</Label>
 
             <Form.Control>
               <div className="relative">
@@ -74,7 +74,7 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
         name="serviceChargeApplicableProductId"
         render={({ field }) => (
           <Form.Item>
-            <Label>{t('applicable-products')}</Label>
+            <Label>{t('applicable-products', 'Applicable Products')}</Label>
 
             <Form.Control>
               <SelectProduct
@@ -87,7 +87,7 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
 
                   field.onChange(nextValue);
                 }}
-                placeholder={t('select-products-to-apply-service-charge')}
+                placeholder={t('select-products-to-apply-service-charge', 'Select products to apply service charge')}
               />
             </Form.Control>
           </Form.Item>

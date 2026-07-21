@@ -15,14 +15,14 @@ export const useRemoveProducts = () => {
       variables: { ...options?.variables },
       onCompleted: (data) => {
         toast({
-          title: t('products-deleted'),
+          title: t('products-deleted', 'Products deleted successfully'),
           variant: 'success',
         });
         options?.onCompleted?.(data);
       },
       onError: (e: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

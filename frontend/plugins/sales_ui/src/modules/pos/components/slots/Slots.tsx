@@ -14,7 +14,7 @@ const Slots: React.FC<SlotsProps> = ({ posId }) => {
   if (loading) {
     return (
       <div className="flex flex-col p-6 h-full overflow-hidden">
-        <InfoCard title={t('slots')}>
+        <InfoCard title={t('slots', 'Slots')}>
           <InfoCard.Content>
             <div className="h-64 rounded animate-pulse bg-muted" />
           </InfoCard.Content>
@@ -25,7 +25,7 @@ const Slots: React.FC<SlotsProps> = ({ posId }) => {
 
   return (
     <div className="flex flex-col p-6 h-full overflow-hidden">
-      <InfoCard title={t('slots')} className="flex-1 min-h-0 flex flex-col">
+      <InfoCard title={t('slots', 'Slots')} className="flex-1 min-h-0 flex flex-col">
         <InfoCard.Content className="flex-1 min-h-0">
           <POSSlotsManager
             posId={posId}

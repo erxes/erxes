@@ -5,19 +5,19 @@ export const SalesSettingsNavigation = () => {
   const { t } = useTranslation('sales');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">{t('sales')}</Sidebar.GroupLabel>
+      <Sidebar.GroupLabel className="h-4">{t('sales', 'Sales')}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
             pathPrefix="sales"
             path="/deals"
-            name={t('deals')}
+            name={t('deals', 'Deals')}
           />
 
           <SettingsNavigationMenuLinkItem
             pathPrefix="sales"
             path="/pos"
-            name={t('pos')}
+            name={t('pos', 'POS')}
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

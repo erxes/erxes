@@ -43,7 +43,7 @@ export default function ArchivedDeals() {
         className="gap-2"
       >
         <IconArchive size={18} />
-        {isArchivedMode ? t('show-active-items') : t('show-archived-items')}
+        {isArchivedMode ? t('show-active-items', 'Show active items') : t('show-archived-items', 'Show archived items')}
       </Button>
 
       {isArchivedMode && (
@@ -53,8 +53,8 @@ export default function ArchivedDeals() {
               variant="ghost"
               size="icon"
               className="size-8 ml-1"
-              title={t('sort-by-created-date')}
-              aria-label={t('sort-by-created-date')}
+              title={t('sort-by-created-date', 'Sort by created date')}
+              aria-label={t('sort-by-created-date', 'Sort by created date')}
             >
               {sortDir === 'asc' ? (
                 <IconSortAscending size={16} />
@@ -64,14 +64,14 @@ export default function ArchivedDeals() {
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end" className="w-52">
-            <DropdownMenu.Label>{t('sort-by-created-date')}</DropdownMenu.Label>
+            <DropdownMenu.Label>{t('sort-by-created-date', 'Sort by created date')}</DropdownMenu.Label>
             <DropdownMenu.Separator />
             <DropdownMenu.Item
               onClick={() => handleSortChange('desc')}
               className={sortDir === 'desc' ? 'text-primary' : ''}
             >
               <IconSortDescending className="size-4 mr-2" />
-              {t('newest-first')}
+              {t('newest-first', 'Newest first')}
               {sortDir === 'desc' && (
                 <DropdownMenu.Shortcut>✓</DropdownMenu.Shortcut>
               )}
@@ -81,7 +81,7 @@ export default function ArchivedDeals() {
               className={sortDir === 'asc' ? 'text-primary' : ''}
             >
               <IconSortAscending className="size-4 mr-2" />
-              {t('oldest-first')}
+              {t('oldest-first', 'Oldest first')}
               {sortDir === 'asc' && (
                 <DropdownMenu.Shortcut>✓</DropdownMenu.Shortcut>
               )}

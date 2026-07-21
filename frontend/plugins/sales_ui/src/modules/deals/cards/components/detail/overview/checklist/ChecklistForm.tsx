@@ -27,14 +27,14 @@ const ChecklistForm = () => {
         ...data,
       },
       onCompleted: () => {
-        toast({ title: t('success') });
+        toast({ title: t('success', 'Success') });
         form.reset();
 
         closeRef.current?.click();
       },
       onError: (error) =>
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -48,7 +48,7 @@ const ChecklistForm = () => {
         className="flex flex-col h-full overflow-hidden"
       >
         <h3 className="text-sm font-semibold text-gray-600 border-b pb-2">
-          {t('add-checklist')}
+          {t('add-checklist', 'Add Checklist')}
         </h3>
         <div className="flex-auto overflow-hidden py-2 px-1">
           <Form.Field
@@ -56,7 +56,7 @@ const ChecklistForm = () => {
             name="title"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('name')}</Form.Label>
+                <Form.Label>{t('name', 'Name')}</Form.Label>
                 <Form.Control>
                   <Input {...field} className="" />
                 </Form.Control>
@@ -73,7 +73,7 @@ const ChecklistForm = () => {
               variant="ghost"
               className="bg-background hover:bg-background/90"
             >
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Popover.Close>
           <Button
@@ -84,7 +84,7 @@ const ChecklistForm = () => {
                 : 'bg-primary text-primary-foreground hover:bg-primary/90',
             )}
           >
-            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : t('save')}
+            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : t('save', 'Save')}
           </Button>
         </div>
       </form>

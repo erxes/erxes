@@ -108,8 +108,8 @@ export const useSlotManager = (
   useEffect(() => {
     if (slotsError) {
       toast({
-        title: t('failed-to-load-slots'),
-        description: t('error-loading-slots-data'),
+        title: t('failed-to-load-slots', 'Failed to load slots'),
+        description: t('error-loading-slots-data', 'There was an error loading the slots data'),
         variant: 'destructive',
       });
     }
@@ -341,8 +341,8 @@ export const useSlotManager = (
         ),
       );
       toast({
-        title: t('connection-created'),
-        description: t('connected-source-to-target', { source: params.source, target: params.target }),
+        title: t('connection-created', 'Connection created'),
+        description: t('connected-source-to-target', 'Connected {{source}} to {{target}}', { source: params.source, target: params.target }),
       });
     },
     [setEdges, toast],
@@ -420,8 +420,8 @@ export const useSlotManager = (
     setHookNodes((nds) => [...nds, newNode]);
 
     toast({
-      title: t('slot-added'),
-      description: t('added-new-slot', { label: newNode.data.label }),
+      title: t('slot-added', 'Slot added'),
+      description: t('added-new-slot', 'Added new slot: {{label}}', { label: newNode.data.label }),
     });
   }, [generateNextId, setNodes, setHookNodes, toast, clampPositionForNode, t]);
 
@@ -471,8 +471,8 @@ export const useSlotManager = (
     );
 
     toast({
-      title: t('slot-updated'),
-      description: t('updated-slot', { name: slotDetail.name }),
+      title: t('slot-updated', 'Slot updated'),
+      description: t('updated-slot', 'Updated slot: {{name}}', { name: slotDetail.name }),
     });
     setSidebarView('list');
     setSelectedNode(null);
@@ -500,8 +500,8 @@ export const useSlotManager = (
       }
 
       toast({
-        title: t('slot-deleted'),
-        description: t('deleted-slot', { id }),
+        title: t('slot-deleted', 'Slot deleted'),
+        description: t('deleted-slot', 'Deleted slot: {{id}}', { id }),
       });
     },
     [
@@ -552,8 +552,8 @@ export const useSlotManager = (
       setNodes((nds) => [...nds, newNode]);
       setHookNodes((nds) => [...nds, newNode]);
       toast({
-        title: t('slot-duplicated'),
-        description: t('duplicated-slot', { label: nodeToDuplicate.data.label }),
+        title: t('slot-duplicated', 'Slot duplicated'),
+        description: t('duplicated-slot', 'Duplicated slot: {{label}}', { label: nodeToDuplicate.data.label }),
       });
     },
     [setNodes, setHookNodes, toast, generateNextId, clampPositionForNode],
@@ -577,8 +577,8 @@ export const useSlotManager = (
     setNodes(arrangedNodes);
     setHookNodes(arrangedNodes);
     toast({
-      title: t('layout-arranged'),
-      description: t('slots-arranged-grid'),
+      title: t('layout-arranged', 'Layout arranged'),
+      description: t('slots-arranged-grid', 'Slots have been arranged in a grid layout'),
     });
   }, [setNodes, setHookNodes, toast, clampPositionForNode]);
 
@@ -612,8 +612,8 @@ export const useSlotManager = (
       setNodes((nds) => [...nds, newNode]);
       setHookNodes((nds) => [...nds, newNode]);
       toast({
-        title: t('slot-added'),
-        description: t('added-new-slot', { label: newNode.data.label }),
+        title: t('slot-added', 'Slot added'),
+        description: t('added-new-slot', 'Added new slot: {{label}}', { label: newNode.data.label }),
       });
     },
     [setNodes, setHookNodes, toast, generateNextId, clampPositionForNode, t],
@@ -623,15 +623,15 @@ export const useSlotManager = (
     try {
       await hookSaveSlots(posId);
       toast({
-        title: t('changes-saved'),
-        description: t('slot-changes-saved-successfully'),
+        title: t('changes-saved', 'Changes saved'),
+        description: t('slot-changes-saved-successfully', 'All slot changes have been saved successfully'),
       });
       return true;
     } catch (error) {
       console.error('Failed to save changes:', error);
       toast({
-        title: t('failed-to-save-changes'),
-        description: t('please-try-again-later'),
+        title: t('failed-to-save-changes', 'Failed to save changes'),
+        description: t('please-try-again-later', 'Please try again later'),
         variant: 'destructive',
       });
       return false;

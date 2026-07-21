@@ -51,7 +51,7 @@ export const PosOrdersByCustomerMoreColumnCell = ({
               onSelect={() => handleSeeOrders(_id)}
               disabled={!_id}
             >
-              <IconEye /> {t('see-orders')}
+              <IconEye /> {t('see-orders', 'See Orders')}
             </Command.Item>
           </Command.List>
         </Command>

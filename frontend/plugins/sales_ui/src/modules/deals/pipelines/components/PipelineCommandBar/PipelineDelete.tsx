@@ -38,7 +38,7 @@ export const PipelineDelete = ({ pipelines, rows }: PipelineDeleteProps) => {
       onClick={handleDelete}
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

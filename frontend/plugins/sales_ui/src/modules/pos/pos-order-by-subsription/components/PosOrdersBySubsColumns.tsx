@@ -24,7 +24,7 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
     accessorKey: 'group',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('group')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('group', 'Group')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -39,7 +39,7 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
     accessorKey: 'count',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconMobiledata} label={t('count')} />;
+      return <RecordTable.InlineHead icon={IconMobiledata} label={t('count', 'Count')} />;
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('sales');
@@ -47,7 +47,7 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
       return (
         <RecordTableInlineCell>
           <Badge variant={value ? 'success' : 'secondary'}>
-            {value ? t('online') : t('offline')}
+            {value ? t('online', 'Online') : t('offline', 'Offline')}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -58,14 +58,14 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
     accessorKey: 'cashAmount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconPhone} label={t('cash-amount')} />;
+      return <RecordTable.InlineHead icon={IconPhone} label={t('cash-amount', 'Cash Amount')} />;
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('sales');
       const value = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
-          <Badge variant="default">{value ? t('on-server') : t('local-only')}</Badge>
+          <Badge variant="default">{value ? t('on-server', 'On Server') : t('local-only', 'Local Only')}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -75,7 +75,7 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
     accessorKey: 'mobileAmount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('mobile-amount')} />;
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('mobile-amount', 'Mobile Amount')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -90,7 +90,7 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
     accessorKey: 'amount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconChartBar} label={t('amount')} />;
+      return <RecordTable.InlineHead icon={IconChartBar} label={t('amount', 'Amount')} />;
     },
     cell: ({ cell }) => {
       return (

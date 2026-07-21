@@ -19,14 +19,14 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
         name="kioskExcludeCategoryIds"
         render={({ field }) => (
           <Form.Item>
-            <Label>{t('category')}</Label>
+            <Label>{t('category', 'Category')}</Label>
 
             <Form.Control>
               <SelectCategory
                 mode="multiple"
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={t('select-categories-to-exclude')}
+                placeholder={t('select-categories-to-exclude', 'Select categories to exclude')}
               />
             </Form.Control>
           </Form.Item>
@@ -38,7 +38,7 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
         name="kioskExcludeProductIds"
         render={({ field }) => (
           <Form.Item>
-            <Label>{t('products')}</Label>
+            <Label>{t('products', 'Products')}</Label>
 
             <Form.Control>
               <SelectProduct

@@ -20,7 +20,7 @@ const DealCreatedRow = ({ activity }: { activity: TActivityLog }) => {
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">{t('created-deal')}</span>
+      <span className="text-muted-foreground">{t('created-deal', 'Created Deal')}</span>
       {activity.target?.text && (
         <span className="font-medium">{activity.target.text}</span>
       )}
@@ -37,7 +37,7 @@ const DealMovedRow = ({ activity }: { activity: TActivityLog }) => {
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">{t('move-deal')}</span>
+      <span className="text-muted-foreground">{t('move-deal', 'Move Deal')}</span>
       {description ? (
         <span className="font-medium">{description}</span>
       ) : (
@@ -96,11 +96,11 @@ const DealAssigneeRow = ({ activity }: { activity: TActivityLog }) => {
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">
-        {isAdded ? t('assigned') : t('unassigned')}
+        {isAdded ? t('assigned', 'assigned') : t('unassigned', 'unassigned')}
       </span>
       <MembersInline
         memberIds={Array.isArray(memberIds) ? memberIds : []}
-        placeholder={t('unknown-member')}
+        placeholder={t('unknown-member', 'Unknown member')}
       />
     </Sentence>
   );
@@ -180,7 +180,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">{t('created-checklist')}</span>
+        <span className="text-muted-foreground">{t('created-checklist', 'Created Checklist')}</span>
         {checklistName && (
           <Badge variant="secondary" className="font-medium">
             {checklistName}
@@ -194,7 +194,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">{t('removed-checklist')}</span>
+        <span className="text-muted-foreground">{t('removed-checklist', 'Removed Checklist')}</span>
         {checklistName && (
           <Badge variant="secondary" className="font-medium">
             {checklistName}
@@ -209,7 +209,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
         <span className="text-muted-foreground">
-          {t('added-checklist-item')}
+          {t('added-checklist-item', 'Added Checklist Item')}
         </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
@@ -231,7 +231,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
         <span className="text-muted-foreground">
-          {t('removed-checklist-item')}
+          {t('removed-checklist-item', 'Removed Checklist Item')}
         </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
@@ -253,7 +253,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
         <span className="text-muted-foreground">
-          {t('checked-off-checklist-item')}
+          {t('checked-off-checklist-item', 'Checked off Checklist Item')}
         </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
@@ -275,7 +275,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
         <span className="text-muted-foreground">
-          {t('unchecked-checklist-item')}
+          {t('unchecked-checklist-item', 'Unchecked Checklist Item')}
         </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">

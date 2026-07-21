@@ -29,23 +29,23 @@ export const PosCoverFilterPopover = () => {
   return (
     <>
       <Filter.Popover scope={PosCoverHotKeyScope.PosCoverPage}>
-        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter', 'Filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="user">
                   <IconUser />
-                  {t('users')}
+                  {t('users', 'Users')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  {t('date-range')}
+                  {t('date-range', 'Date Range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -88,14 +88,14 @@ export const PosCoverFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconClock />
-            {t('date-range')}
+            {t('date-range', 'Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            {t('users')}
+            {t('users', 'Users')}
           </Filter.BarName>
           <SelectUsers.Provider
             mode="single"

@@ -54,10 +54,10 @@ export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-covers-yet')}
+                {t('no-covers-yet', 'No covers yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('create-first-cover')}
+                {t('create-first-cover', 'Get started by creating your first cover.')}
               </p>
             </div>
           </div>

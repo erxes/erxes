@@ -37,18 +37,18 @@ export const useCoverMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: t('delete-pos-cover-single-confirm'),
+      message: t('delete-pos-cover-single-confirm', 'Are you sure you want to delete this pos cover?'),
     }).then(() => {
       removePosCover([_id], {
         onCompleted: () => {
           toast({
-            title: t('success'),
-            description: t('pos-cover-deleted', { count: 1 }),
+            title: t('success', 'Success'),
+            description: t('pos-cover-deleted', '{{count}} pos covers deleted successfully.', { count: 1 }),
           });
         },
         onError: (e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -69,14 +69,14 @@ export const useCoverMoreColumnCell = ({
               onSelect={() => setOpen(_id)}
               disabled={!_id}
             >
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item
               value="delete"
               onSelect={handleDelete}
               disabled={!_id}
             >
-              <IconTrash /> {t('delete')}
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

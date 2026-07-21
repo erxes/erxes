@@ -21,7 +21,7 @@ export const MoreOptionsButton = ({
       className="mx-auto flex w-fit items-center justify-center gap-1 text-muted-foreground"
     >
       {showMore ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
-      {showMore ? t('hide-more-options') : t('more-options')}
+      {showMore ? t('hide-more-options', 'Hide more options') : t('more-options', 'More options')}
     </Button>
   );
 };

@@ -67,7 +67,7 @@ export const DealCardDetails = ({
         </div>
       ))}
       {remainingCount > 0 && (
-        <Badge variant="ghost">{t('more-items', { count: remainingCount })}</Badge>
+        <Badge variant="ghost">{t('more-items', '+{{count}} more', { count: remainingCount })}</Badge>
       )}
     </div>
   );

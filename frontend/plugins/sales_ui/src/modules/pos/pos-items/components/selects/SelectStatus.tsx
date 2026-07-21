@@ -103,7 +103,7 @@ const SelectStatusValue = ({
   if (!selectedStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-status')}
+        {placeholder || t('select-status', 'Select status')}
       </span>
     );
   }
@@ -140,9 +140,9 @@ const SelectStatusContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-status')} />
+      <Command.Input placeholder={t('search-status', 'Search status')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-statuses-found')}</span>
+        <span className="text-muted-foreground">{t('no-statuses-found', 'No statuses found')}</span>
       </Command.Empty>
       <Command.List>
         {statuses?.map((status) => (
@@ -158,7 +158,7 @@ export const SelectStatusFilterItem = () => {
   return (
     <Filter.Item value="status">
       <IconFlag />
-      {t('status')}
+      {t('status', 'Status')}
     </Filter.Item>
   );
 };
@@ -211,7 +211,7 @@ export const SelectStatusFilterBar = ({
     <Filter.BarItem queryKey={'status'}>
       <Filter.BarName>
         <IconFlag />
-        {t('status')}
+        {t('status', 'Status')}
       </Filter.BarName>
       <SelectStatusProvider
         mode={mode}

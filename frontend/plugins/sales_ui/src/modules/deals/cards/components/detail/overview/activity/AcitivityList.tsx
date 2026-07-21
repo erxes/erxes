@@ -18,7 +18,7 @@ const ActivityList = () => {
         targetId={salesItemId}
         limit={50}
         customActivities={customActivitiesRows}
-        emptyMessage={t('no-activity-logs-found')}
+        emptyMessage={t('no-activity-logs-found', 'No activity logs found')}
       />
     </div>
   );

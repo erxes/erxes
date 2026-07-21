@@ -8,7 +8,7 @@ export const SalesItemSidebar = () => {
   return (
     <Sidebar.Content>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('general')}</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('general', 'General')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
             {['overview', 'properties', 'activity'].map((tab) => (
@@ -27,7 +27,7 @@ export const SalesItemSidebar = () => {
         </Sidebar.GroupContent>
       </Sidebar.Group>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('plugins')}</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('plugins', 'Plugins')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
             {['products'].map((tab) => (

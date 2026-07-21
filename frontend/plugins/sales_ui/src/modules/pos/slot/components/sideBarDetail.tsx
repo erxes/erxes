@@ -23,7 +23,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
       <div className="p-4 space-y-3">
         <div className="space-y-2">
           <Label htmlFor="name" className="uppercase">
-            {t('name')}
+            {t('name', 'Name')}
           </Label>
           <Input
             id="name"
@@ -36,7 +36,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="code" className="uppercase">
-              {t('code')}
+              {t('code', 'Code')}
             </Label>
             <Input
               id="code"
@@ -49,7 +49,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="rounded" className="uppercase">
-              {t('rounded')}
+              {t('rounded', 'Rounded')}
             </Label>
 
             <Input
@@ -65,7 +65,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="width" className="uppercase">
-              {t('width')}
+              {t('width', 'WIDTH')}
             </Label>
             <Input
               id="width"
@@ -78,7 +78,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="height" className="uppercase">
-              {t('height')}
+              {t('height', 'Height')}
             </Label>
             <Input
               id="height"
@@ -93,7 +93,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="top" className="uppercase">
-              {t('top')}
+              {t('top', 'Top')}
             </Label>
             <Input
               id="top"
@@ -106,7 +106,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="left" className="uppercase">
-              {t('left')}
+              {t('left', 'Left')}
             </Label>
             <Input
               id="left"
@@ -121,7 +121,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="rotateAngle" className="uppercase">
-              {t('rotate-angle')}
+              {t('rotate-angle', 'Rotate Angle')}
             </Label>
             <Input
               id="rotateAngle"
@@ -134,7 +134,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="zIndex" className="uppercase">
-              {t('z-index')}
+              {t('z-index', 'Z Index')}
             </Label>
             <Input
               id="zIndex"
@@ -149,7 +149,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="color" className="uppercase">
-              {t('color')}
+              {t('color', 'Color')}
             </Label>
             <div className="flex space-x-2">
               <ColorPicker
@@ -170,7 +170,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
             />
 
             <Label htmlFor="disabled" className="uppercase">
-              {t('disabled')}
+              {t('disabled', 'Disabled')}
             </Label>
           </div>
         </div>

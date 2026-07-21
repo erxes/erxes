@@ -29,7 +29,7 @@ export const ProductMoreColumnCell = ({
 
   const onRemove = () => {
     confirm({
-      message: t('confirm-remove-selected'),
+      message: t('confirm-remove-selected', 'Are you sure you want to remove the selected?'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -40,7 +40,7 @@ export const ProductMoreColumnCell = ({
         });
       } catch (e) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -62,7 +62,7 @@ export const ProductMoreColumnCell = ({
               className="text-destructive"
               onSelect={onRemove}
             >
-              <IconTrash /> {t('delete')}
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

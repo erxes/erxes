@@ -58,14 +58,14 @@ const itemColumns: ColumnDef<any>[] = [
     accessorKey: 'productName',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />;
+      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('product', 'Product')} />;
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('sales');
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip
-            value={(cell.getValue() as string) || t('unknown-product')}
+            value={(cell.getValue() as string) || t('unknown-product', 'Unknown Product')}
           />
         </RecordTableInlineCell>
       );
@@ -77,7 +77,7 @@ const itemColumns: ColumnDef<any>[] = [
     accessorKey: 'count',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('count')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('count', 'Count')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-center">
@@ -93,7 +93,7 @@ const itemColumns: ColumnDef<any>[] = [
     accessorKey: 'unitPrice',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('unit-price', 'Unit Price')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-right">
@@ -121,7 +121,7 @@ const itemColumns: ColumnDef<any>[] = [
     },
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('amount')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('amount', 'Amount')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-right font-medium">
@@ -225,8 +225,8 @@ export const PosOrderSheet = () => {
           posOrder?.status === 'completed'
         ) {
           toast({
-            title: t('cannot-modify-payment'),
-            description: t('order-returned-cannot-modify'),
+            title: t('cannot-modify-payment', 'Cannot modify payment'),
+            description: t('order-returned-cannot-modify', 'This order has been returned and cannot be modified.'),
             variant: 'destructive',
           });
           return;
@@ -249,8 +249,8 @@ export const PosOrderSheet = () => {
 
         if (expectedTotal > 0 && sum !== expectedTotal) {
           toast({
-            title: t('amount-mismatch'),
-            description: t('payments-sum-mismatch', { sum: sum.toLocaleString(), total: expectedTotal.toLocaleString() }),
+            title: t('amount-mismatch', 'Amount mismatch'),
+            description: t('payments-sum-mismatch', 'Sum of payments ({{sum}}) must equal total amount ({{total}}).', { sum: sum.toLocaleString(), total: expectedTotal.toLocaleString() }),
             variant: 'destructive',
           });
           return;
@@ -262,21 +262,21 @@ export const PosOrderSheet = () => {
 
         await refetch();
 
-        toast({ title: t('order-updated-successfully'), variant: 'success' });
+        toast({ title: t('order-updated-successfully', 'Order updated successfully'), variant: 'success' });
         updatePosOrderId('');
       } catch (error) {
-        let errorMessage = t('unknown-error');
+        let errorMessage = t('unknown-error', 'Unknown error');
         if (error instanceof Error) {
           if (error.message.includes('Already returned')) {
-            errorMessage = t('order-returned-no-payment-changes');
+            errorMessage = t('order-returned-no-payment-changes', 'This order has been returned and payment changes are not allowed.');
           } else if (error.message.includes('not balanced')) {
-            errorMessage = t('payments-must-sum', { total: posOrder?.totalAmount?.toLocaleString() || 0 });
+            errorMessage = t('payments-must-sum', 'Payments must sum to the total amount ({{total}}).', { total: posOrder?.totalAmount?.toLocaleString() || 0 });
           } else {
             errorMessage = error.message;
           }
         }
         toast({
-          title: t('order-update-failed'),
+          title: t('order-update-failed', 'Failed to update order'),
           variant: 'destructive',
           description: errorMessage,
         });
@@ -308,7 +308,7 @@ export const PosOrderSheet = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>{t('order-detail')}</Sheet.Title>
+              <Sheet.Title>{t('order-detail', 'Order detail')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4 overflow-auto">
@@ -316,7 +316,7 @@ export const PosOrderSheet = () => {
                 <div className="flex flex-col gap-4 w-full my-4">
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('customer')}:
+                      {t('customer', 'Customer')}:
                     </span>
                     <span className="text-base font-medium">
                       {posOrder.customer?.primaryEmail || '-'}
@@ -324,7 +324,7 @@ export const PosOrderSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('bill-number')}:
+                      {t('bill-number', 'Bill Number')}:
                     </span>
                     <span className="text-base font-medium">
                       {posOrder.number}
@@ -332,7 +332,7 @@ export const PosOrderSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('date')}:
+                      {t('date', 'Date')}:
                     </span>
                     <span className="text-base font-medium">
                       {new Date(posOrder.createdAt).toLocaleDateString()}
@@ -340,7 +340,7 @@ export const PosOrderSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('transaction')}:
+                      {t('transaction', 'Transaction')}:
                     </span>
                     <span className="text-base font-medium">
                       {(transaction && transactionNumber) || transactionTotalCount ? (
@@ -360,7 +360,7 @@ export const PosOrderSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('accounting-response')}:
+                      {t('accounting-response', 'Accounting response')}:
                     </span>
                     <span className="text-base font-medium text-right max-w-[60%] break-words">
                       {posOrder.accountingResponse || '-'}
@@ -368,7 +368,7 @@ export const PosOrderSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('bill-id')}:
+                      {t('bill-id', 'Bill Id')}:
                     </span>
                     <span className="text-base font-medium">
                       {posOrder.billId}
@@ -376,7 +376,7 @@ export const PosOrderSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('ebarimt-date')}:
+                      {t('ebarimt-date', 'Ebarimt Date')}:
                     </span>
                     <span className="text-base font-medium">
                       {posOrder.putResponses?.[0]?.createdAt
@@ -404,7 +404,7 @@ export const PosOrderSheet = () => {
                   )}
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('total-amount')}:
+                      {t('total-amount', 'Total Amount')}:
                     </span>
                     <span className="text-base font-medium">
                       {posOrder.totalAmount ? posOrder.totalAmount : '0'}
@@ -421,7 +421,7 @@ export const PosOrderSheet = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button type="submit" disabled={mutationLoading || loading}>
-                {t('save-payments-change')}
+                {t('save-payments-change', 'Save payments change')}
               </Button>
             </Sheet.Footer>
           </form>

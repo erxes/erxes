@@ -126,15 +126,15 @@ export const useBoards = (
         awaitRefetchQueries: true,
         onCompleted: (...args) => {
           toast({
-            title: t('board-removed'),
+            title: t('board-removed', 'Successfully removed a board'),
             variant: 'default',
           });
           options?.onCompleted?.(...args);
         },
         onError: (err) => {
           toast({
-            title: t('error'),
-            description: err.message || t('remove-failed'),
+            title: t('error', 'Error'),
+            description: err.message || t('remove-failed', 'Remove failed'),
             variant: 'destructive',
           });
         },

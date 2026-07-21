@@ -126,7 +126,7 @@ const LabelForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
+                  <Form.Label>{t('name', 'Name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -140,7 +140,7 @@ const LabelForm = ({
               name="colorCode"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('select-color')}</Form.Label>
+                  <Form.Label>{t('select-color', 'Select a Color')}</Form.Label>
                   <TwitterPicker
                     colors={COLORS}
                     color={field.value}
@@ -163,7 +163,7 @@ const LabelForm = ({
               disabled={deleteLoading}
               className="mt-2"
             >
-              {t('delete')}
+              {t('delete', 'Delete')}
             </Button>
           )}
           <Popover.Close ref={closeRef}>
@@ -172,7 +172,7 @@ const LabelForm = ({
               variant="ghost"
               className="bg-background hover:bg-background/90 mt-2"
             >
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Popover.Close>
           <Button
@@ -183,7 +183,7 @@ const LabelForm = ({
                 : 'bg-primary text-primary-foreground hover:bg-primary/90 mt-2',
             )}
           >
-            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : t('save')}
+            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : t('save', 'Save')}
           </Button>
         </div>
       </form>

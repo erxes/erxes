@@ -60,15 +60,15 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: t('label-added'),
+          title: t('label-added', 'Successfully added a label'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
-          description: err.message || t('label-add-failed'),
+          title: t('error', 'Error'),
+          description: err.message || t('label-add-failed', 'Label add failed'),
           variant: 'destructive',
         });
       },
@@ -103,15 +103,15 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: t('label-removed'),
+          title: t('label-removed', 'Successfully removed a label'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
-          description: err.message || t('label-remove-failed'),
+          title: t('error', 'Error'),
+          description: err.message || t('label-remove-failed', 'Label remove failed'),
           variant: 'destructive',
         });
       },
@@ -146,15 +146,15 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: t('label-edited'),
+          title: t('label-edited', 'Successfully edited a label'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
-          description: err.message || t('label-edit-failed'),
+          title: t('error', 'Error'),
+          description: err.message || t('label-edit-failed', 'Label edit failed'),
           variant: 'destructive',
         });
       },
@@ -188,15 +188,15 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: t('deal-labeled'),
+          title: t('deal-labeled', 'Successfully labeled a deal'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
-          description: err.message || t('deal-label-failed'),
+          title: t('error', 'Error'),
+          description: err.message || t('deal-label-failed', 'Label label failed'),
           variant: 'destructive',
         });
       },

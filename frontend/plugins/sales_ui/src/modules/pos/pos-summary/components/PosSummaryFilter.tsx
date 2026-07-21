@@ -66,53 +66,53 @@ export const PosSummaryFilterPopover = () => {
   return (
     <>
       <Filter.Popover scope={PosSummaryHotKeyScope.PosSummaryPage}>
-        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter', 'Filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  {t('number')}
+                  {t('number', 'Number')}
                 </Filter.Item>
                 <Filter.Item value="customer">
                   <IconCashRegister />
-                  {t('customer')}
+                  {t('customer', 'Customer')}
                 </Filter.Item>
                 <Filter.Item value="company">
                   <IconBuilding />
-                  {t('company')}
+                  {t('company', 'Company')}
                 </Filter.Item>
                 <Filter.Item value="user">
                   <IconUser />
-                  {t('users')}
+                  {t('users', 'Users')}
                 </Filter.Item>
                 <SelectGroupType.FilterItem />
                 <Filter.Item value="types">
                   <IconCategory />
-                  {t('types')}
+                  {t('types', 'Types')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconFlag />
-                  {t('status')}
+                  {t('status', 'Status')}
                 </Filter.Item>
                 <Filter.Item value="excludeStatus">
                   <IconX />
-                  {t('exclude-status')}
+                  {t('exclude-status', 'Exclude Status')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdDateRange">
                   <IconClock />
-                  {t('created-date-range')}
+                  {t('created-date-range', 'Created Date Range')}
                 </Filter.Item>
                 <Filter.Item value="paidDateRange">
                   <IconCalendar />
-                  {t('paid-date-range')}
+                  {t('paid-date-range', 'Paid Date Range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -202,7 +202,7 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            {t('number')}
+            {t('number', 'Number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -211,7 +211,7 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey={'customer'}>
           <Filter.BarName>
             <IconUser />
-            {t('customer')}
+            {t('customer', 'Customer')}
           </Filter.BarName>
           <SelectCustomers.Provider
             mode="single"
@@ -236,7 +236,7 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey={'company'}>
           <Filter.BarName>
             <IconBuilding />
-            {t('company')}
+            {t('company', 'Company')}
           </Filter.BarName>
           <SelectCompanies.Provider
             mode="single"
@@ -261,7 +261,7 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            {t('users')}
+            {t('users', 'Users')}
           </Filter.BarName>
           <SelectUsers.Provider
             mode="single"
@@ -286,14 +286,14 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconClock />
-            {t('created-date-range')}
+            {t('created-date-range', 'Created Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="paidDateRange">
           <Filter.BarName>
             <IconCalendar />
-            {t('paid-date-range')}
+            {t('paid-date-range', 'Paid Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>
