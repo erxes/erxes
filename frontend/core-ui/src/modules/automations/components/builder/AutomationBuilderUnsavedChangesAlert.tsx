@@ -16,15 +16,15 @@ export const AutomationBuilderUnsavedChangesAlert = () => {
     >
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>{t('unsaved-changes-title')}</AlertDialog.Title>
+          <AlertDialog.Title>{t('unsaved-changes-title', 'Discard unsaved changes?')}</AlertDialog.Title>
           <AlertDialog.Description>
-            {t('unsaved-changes-description')}
+            {t('unsaved-changes-description', 'You have unsaved changes in this automation. If you leave now, your edits will be lost.')}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>{t('stay-here')}</AlertDialog.Cancel>
+          <AlertDialog.Cancel>{t('stay-here', 'Stay here')}</AlertDialog.Cancel>
           <AlertDialog.Action onClick={processWithoutSaving}>
-            {t('leave-without-saving')}
+            {t('leave-without-saving', 'Leave without saving')}
           </AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>

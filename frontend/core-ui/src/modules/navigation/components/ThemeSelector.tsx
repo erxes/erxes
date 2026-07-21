@@ -9,7 +9,7 @@ export const ThemeSelector = () => {
 
   return (
     <div className="flex items-center gap-2 px-2 font-medium h-7 text-sm">
-      {t('change-theme')}
+      {t('change-theme', 'Change Theme')}
       <Tooltip.Provider delayDuration={100}>
         <ToggleGroup
           value={theme}
@@ -28,7 +28,7 @@ export const ThemeSelector = () => {
                 <IconSun />
               </Tooltip.Trigger>
             </ToggleGroup.Item>
-            <Tooltip.Content alignOffset={4}>{t('light')}</Tooltip.Content>
+            <Tooltip.Content alignOffset={4}>{t('light', 'Light')}</Tooltip.Content>
           </Tooltip>
           <Tooltip>
             <ToggleGroup.Item
@@ -40,7 +40,7 @@ export const ThemeSelector = () => {
                 <IconMoon />
               </Tooltip.Trigger>
             </ToggleGroup.Item>
-            <Tooltip.Content alignOffset={4}>{t('dark')}</Tooltip.Content>
+            <Tooltip.Content alignOffset={4}>{t('dark', 'Dark')}</Tooltip.Content>
           </Tooltip>
           <Tooltip>
             <ToggleGroup.Item
@@ -53,7 +53,7 @@ export const ThemeSelector = () => {
               </Tooltip.Trigger>
             </ToggleGroup.Item>
 
-            <Tooltip.Content alignOffset={4}>{t('system')}</Tooltip.Content>
+            <Tooltip.Content alignOffset={4}>{t('system', 'System')}</Tooltip.Content>
           </Tooltip>
         </ToggleGroup>
       </Tooltip.Provider>

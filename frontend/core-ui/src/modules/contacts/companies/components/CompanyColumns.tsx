@@ -70,7 +70,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       id: 'primaryName',
       accessorKey: 'primaryName',
       header: () => (
-        <RecordTable.InlineHead icon={IconLabelFilled} label={t('name')} />
+        <RecordTable.InlineHead icon={IconLabelFilled} label={t('name', 'Name')} />
       ),
       cell: ({ cell }) => {
         const { primaryName, _id } = cell.row.original;
@@ -103,7 +103,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       id: 'emails',
       accessorKey: 'primaryEmail',
       header: () => (
-        <RecordTable.InlineHead icon={IconMail} label={t('emails')} />
+        <RecordTable.InlineHead icon={IconMail} label={t('emails', 'Emails')} />
       ),
       cell: ({ cell }) => {
         const { primaryEmail, _id, emails, emailValidationStatus } =
@@ -125,7 +125,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       id: 'phones',
       accessorKey: 'primaryPhone',
       header: () => (
-        <RecordTable.InlineHead icon={IconPhone} label={t('phones')} />
+        <RecordTable.InlineHead icon={IconPhone} label={t('phones', 'Phones')} />
       ),
       cell: ({ cell }) => {
         const { _id, phones, phoneValidationStatus, primaryPhone } =
@@ -147,7 +147,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       id: 'owner',
       accessorKey: 'ownerId',
       header: () => (
-        <RecordTable.InlineHead icon={IconUser} label={t('owner')} />
+        <RecordTable.InlineHead icon={IconUser} label={t('owner', 'Owner')} />
       ),
       cell: ({ cell }) => {
         const { companiesEdit } = useCompaniesEdit();
@@ -178,7 +178,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconNumber}
-          label={t('field.code') || 'Code'}
+          label={t('field.code', 'Code') || 'Code'}
         />
       ),
       cell: ({ cell }) => (
@@ -194,7 +194,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconBuilding}
-          label={t('field.parentCompanyId') || 'Parent Company'}
+          label={t('field.parentCompanyId', 'Parent Company') || 'Parent Company'}
         />
       ),
       cell: ({ cell }) => (
@@ -212,7 +212,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconBuildingFactory}
-          label={t('field.industry')}
+          label={t('field.industry', 'Industries')}
         />
       ),
       cell: ({ cell }) => (
@@ -230,7 +230,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconUsers}
-          label={t('field.size') || 'Size'}
+          label={t('field.size', 'Size') || 'Size'}
         />
       ),
       cell: ({ cell }) => (
@@ -246,7 +246,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconBriefcase}
-          label={t('field.businessType') || 'Business Type'}
+          label={t('field.businessType', 'Business Type') || 'Business Type'}
         />
       ),
       cell: ({ cell }) => (
@@ -262,7 +262,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconWorld}
-          label={t('field.website') || 'Website'}
+          label={t('field.website', 'Website') || 'Website'}
         />
       ),
       cell: ({ cell }) => (
@@ -278,7 +278,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconMapPin}
-          label={t('field.location') || 'Location'}
+          label={t('field.location', 'Headquarters country') || 'Location'}
         />
       ),
       cell: ({ cell }) => (
@@ -292,7 +292,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       id: 'tagIds',
       accessorKey: 'tagIds',
       header: () => (
-        <RecordTable.InlineHead icon={IconTags} label={t('tags')} />
+        <RecordTable.InlineHead icon={IconTags} label={t('tags', 'Tags')} />
       ),
       cell: ({ cell }) => {
         return (
@@ -324,7 +324,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       id: 'lastSeenAt',
       accessorKey: 'lastSeenAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconClock} label={t('last-seen')} />
+        <RecordTable.InlineHead icon={IconClock} label={t('last-seen', 'Last Seen')} />
       ),
       cell: ({ cell }) => {
         return (
@@ -340,7 +340,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconChartBar}
-          label={t('profile-score')}
+          label={t('profile-score', 'Profile Score')}
         />
       ),
       cell: ({ cell }) => (

@@ -26,7 +26,7 @@ export const NavigationCoreModules = () => {
   }, [CORE_MODULES, isLoaded, isWildcard, hasModulePermission]);
 
   return (
-    <NavigationMenuGroup name={t('_')}>
+    <NavigationMenuGroup name={t('_', 'Core modules')}>
       {filteredModules.map((item) => (
         <NavigationMenuLinkItem
           key={item.name}

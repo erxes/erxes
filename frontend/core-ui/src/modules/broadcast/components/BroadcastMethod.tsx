@@ -1,7 +1,9 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, DropdownMenu, Label, useSetQueryStateByKey } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
+  const { t } = useTranslation('broadcasts');
   const setQueryStateByKey = useSetQueryStateByKey();
 
   const handleSelect = (method: string) => {
@@ -14,7 +16,7 @@ export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
       <DropdownMenu.Trigger asChild>
         <Button>
           <IconPlus />
-          New broadcast
+          {t('new-broadcast', 'New broadcast')}
         </Button>
       </DropdownMenu.Trigger>
 
@@ -22,9 +24,9 @@ export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
         <DropdownMenu.RadioGroup onValueChange={handleSelect}>
           <DropdownMenu.RadioItem value="email" className="cursor-pointer">
             <div className="flex flex-col gap-1 p-2">
-              <Label variant="peer">Email</Label>
+              <Label variant="peer">{t('email', 'Email')}</Label>
               <div className="text-xs text-accent-foreground">
-                Master email marketing with fully customized templates
+                {t('method-option.email-description', 'Master email marketing with fully customized templates')}
               </div>
             </div>
           </DropdownMenu.RadioItem>
@@ -34,9 +36,9 @@ export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
             disabled
           >
             <div className="flex flex-col gap-1 p-2">
-              <Label variant="peer">Messenger</Label>
+              <Label variant="peer">{t('messenger', 'Messenger')}</Label>
               <div className="text-xs text-accent-foreground">
-                Interact personally with direct in-app-messaging
+                {t('method-option.messenger-description', 'Interact personally with direct in-app-messaging')}
               </div>
             </div>
           </DropdownMenu.RadioItem>
@@ -45,9 +47,9 @@ export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
             className="cursor-pointer"
           >
             <div className="flex flex-col  gap-1 p-2">
-              <Label variant="peer">Notification</Label>
+              <Label variant="peer">{t('notification', 'Notification')}</Label>
               <div className="text-xs text-accent-foreground">
-                Send automated notifications to your customers
+                {t('method-option.notification-description', 'Send automated notifications to your customers')}
               </div>
             </div>
           </DropdownMenu.RadioItem>

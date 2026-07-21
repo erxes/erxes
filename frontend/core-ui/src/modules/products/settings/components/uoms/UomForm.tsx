@@ -198,10 +198,10 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
         className="flex overflow-hidden flex-col h-full"
       >
         <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
-          <Sheet.Title>{uom ? t('edit-uom') : t('add-uom')}</Sheet.Title>
+          <Sheet.Title>{uom ? t('edit-uom', 'Edit UOM') : t('add-uom', 'Add UOM')}</Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
-            {uom ? t('edit-uom') : t('add-uom')}
+            {uom ? t('edit-uom', 'Edit UOM') : t('add-uom', 'Add UOM')}
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="overflow-hidden flex-auto">
@@ -213,10 +213,10 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
                 render={({ field }) => (
                   <Form.Item className="w-full">
                     <Form.Label>
-                      {t('name')} <span className="text-destructive">*</span>
+                      {t('name', 'Name')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
-                      <Input placeholder={t('name')} {...field} autoFocus />
+                      <Input placeholder={t('name', 'Name')} {...field} autoFocus />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -228,11 +228,11 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
                 render={({ field }) => (
                   <Form.Item className="w-full">
                     <Form.Label>
-                      {t('code')} <span className="text-destructive">*</span>
+                      {t('code', 'Code')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
                       <Input
-                        placeholder={t('code')}
+                        placeholder={t('code', 'Code')}
                         {...field}
                         className="w-full"
                       />
@@ -556,10 +556,10 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button type="button" variant="outline" onClick={handleCancel}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={loadingAdd || loadingEdit}>
-            {loadingAdd || loadingEdit ? t('creating') : t('create')}
+            {loadingAdd || loadingEdit ? t('creating', 'Creating') : t('create', 'Create')}
           </Button>
         </Sheet.Footer>
       </form>

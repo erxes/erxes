@@ -1,8 +1,10 @@
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
 import { Button, Tooltip } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderSecondarySidebarToggle = () => {
+  const { t } = useTranslation('automations');
   const { isSecondarySidebarOpen, toggleSecondarySidebarOpen } =
     useAutomationBuilderSidebarHooks();
 
@@ -15,8 +17,8 @@ export const AutomationBuilderSecondarySidebarToggle = () => {
           onClick={toggleSecondarySidebarOpen}
           aria-label={
             isSecondarySidebarOpen
-              ? 'Hide variables panel'
-              : 'Open variables panel'
+              ? t('hide-variables-panel', 'Hide variables panel')
+              : t('open-variables-panel', 'Open variables panel')
           }
         >
           <IconLayoutSidebarLeftCollapse />
@@ -24,8 +26,8 @@ export const AutomationBuilderSecondarySidebarToggle = () => {
       </Tooltip.Trigger>
       <Tooltip.Content side="left">
         {isSecondarySidebarOpen
-          ? 'Hide variables panel'
-          : 'Open variables panel'}
+          ? t('hide-variables-panel', 'Hide variables panel')
+          : t('open-variables-panel', 'Open variables panel')}
       </Tooltip.Content>
     </Tooltip>
   );

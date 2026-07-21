@@ -1,6 +1,7 @@
 import { IconUser } from '@tabler/icons-react';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { BroadcastSelectTargetType } from '../select/BroadcastSelectTargetType';
 import { BroadcastBrandStep } from './BroadcastBrandStep';
 import { BroadcastSegmentStep } from './BroadcastSegmentStep';
@@ -25,6 +26,7 @@ const BROADCAST_TARGET_STEPS = {
 };
 
 export const BroadcastTargetStep = () => {
+  const { t } = useTranslation('broadcasts');
   const { control, watch } = useFormContext();
 
   const targetType: 'tag' | 'segment' = watch('targetType');
@@ -40,9 +42,9 @@ export const BroadcastTargetStep = () => {
         rules={{ required: 'Title is required' }}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Title</Form.Label>
+            <Form.Label>{t('title', 'Title')}</Form.Label>
             <Form.Control>
-              <Input {...field} placeholder="Title" />
+              <Input {...field} placeholder={t('title', 'Title')} />
             </Form.Control>
           </Form.Item>
         )}
@@ -54,7 +56,7 @@ export const BroadcastTargetStep = () => {
         rules={{ required: 'Target type is required' }}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Target Type</Form.Label>
+            <Form.Label>{t('target-type', 'Target Type')}</Form.Label>
             <Form.Control>
               <BroadcastSelectTargetType
                 value={field.value}
@@ -76,7 +78,7 @@ export const BroadcastTargetStep = () => {
                 className={`flex items-center gap-1`}
               >
                 <IconUser size={16} />
-                <span>Customer</span>
+                <span>{t('customer', 'Customer')}</span>
               </div>
               <span className="text-xs">
                 {targetCount || 0}

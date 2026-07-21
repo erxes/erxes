@@ -20,6 +20,7 @@ import {
 } from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { IconClock, IconLoader2, IconX } from '@tabler/icons-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const readContextFile = async (
   file: TAiAgentContextFile | TAiAgentContextFileVersion,
@@ -86,6 +87,7 @@ export const AiAgentContextFileEditorDialog = ({
   onOpenChange: (open: boolean) => void;
   onSave: (file: TAiAgentContextFile) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -118,9 +120,9 @@ export const AiAgentContextFileEditorDialog = ({
       }
 
       toast({
-        title: 'Failed to load context file',
+        title: t('failed-to-load-context-file', 'Failed to load context file'),
         description:
-          error instanceof Error ? error.message : 'Please try again.',
+          error instanceof Error ? error.message : t('please-try-again', 'Please try again.'),
         variant: 'destructive',
       });
 
@@ -168,9 +170,9 @@ export const AiAgentContextFileEditorDialog = ({
       onOpenChange(false);
     } catch (error: any) {
       toast({
-        title: 'Failed to save context file',
+        title: t('failed-to-save-context-file', 'Failed to save context file'),
         description:
-          error instanceof Error ? error.message : 'Please try again.',
+          error instanceof Error ? error.message : t('please-try-again', 'Please try again.'),
         variant: 'destructive',
       });
     } finally {
@@ -337,7 +339,7 @@ export const AiAgentContextFileEditorDialog = ({
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
           >
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="button"
@@ -347,10 +349,10 @@ export const AiAgentContextFileEditorDialog = ({
             {isSaving ? (
               <>
                 <IconLoader2 className="mr-2 size-4 animate-spin" />
-                Saving...
+                {t('saving', 'Saving...')}
               </>
             ) : (
-              'Save'
+              t('save', 'Save')
             )}
           </Button>
         </Dialog.Footer>

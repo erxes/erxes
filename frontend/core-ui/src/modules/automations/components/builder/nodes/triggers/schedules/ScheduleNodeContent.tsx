@@ -14,7 +14,7 @@ export const ScheduleNodeContent = ({
   return (
     <div className="space-y-1 text-xs text-muted-foreground">
       <p className="font-mono text-foreground">
-        {config?.cron || t('schedule-not-configured')}
+        {config?.cron || t('schedule-not-configured', 'Schedule not configured')}
       </p>
       <p>{config?.timezone || 'UTC'}</p>
     </div>

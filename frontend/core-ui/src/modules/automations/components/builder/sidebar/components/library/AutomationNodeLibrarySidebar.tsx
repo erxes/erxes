@@ -101,7 +101,7 @@ const AutomationNodeLibrarySidebarContent = ({
     <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
       <div className="flex shrink-0 flex-row gap-2 px-5 py-4">
         <Command.Input
-          placeholder={t('search')}
+          placeholder={t('search', 'Search')}
           variant="primary"
           wrapperClassName="m-0 flex-1 rounded-md bg-background shadow-xs"
           autoFocus
@@ -175,7 +175,7 @@ const AutomationNodeLibrarySidebarFilters = ({
             activeGroup &&
               'border-primary/40 bg-primary/5 text-primary hover:bg-primary/10',
           )}
-          aria-label={t('filter-by-type')}
+          aria-label={t('filter-by-type', 'Filter by type')}
         >
           <IconFilter className="size-4" />
           {activeGroup ? (
@@ -190,7 +190,7 @@ const AutomationNodeLibrarySidebarFilters = ({
       >
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {t('filter-by-type')}
+            {t('filter-by-type', 'Filter by type')}
           </span>
           {activeGroup ? (
             <button
@@ -201,7 +201,7 @@ const AutomationNodeLibrarySidebarFilters = ({
                 setIsGroupPopoverOpen(false);
               }}
             >
-              Clear
+              {t('clear', 'Clear')}
             </button>
           ) : null}
         </div>

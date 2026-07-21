@@ -21,9 +21,11 @@ import {
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ITag, useTagEdit, useTagRemove } from 'ui-modules';
 
 export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
+  const { t } = useTranslation('settings');
   const [menuContent, setMenuContent] = useState<'main' | 'groupSelect'>(
     'main',
   );
@@ -82,7 +84,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                 }}
               >
                 <IconTransform />
-                Convert to {tag.isGroup ? 'tag' : 'group'}
+                {tag.isGroup ? t('tags.convert-to-tag', 'Convert to tag') : t('tags.convert-to-group', 'Convert to group')}
               </Command.Item>
               {tag.isGroup ? (
                 <Command.Item
@@ -92,12 +94,12 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                   }}
                 >
                   <IconPlus />
-                  Add tag to group
+                  {t('tags.add-tag-to-group', 'Add tag to group')}
                 </Command.Item>
               ) : (
                 <Command.Item onSelect={() => setMenuContent('groupSelect')}>
                   <IconArrowMoveRight />
-                  {!tag.parentId ? 'Move to group' : 'Change group'}
+                  {tag.parentId ? t('tags.change-group', 'Change group') : t('tags.move-to-group', 'Move to group')}
                   <IconCaretRightFilled className="size-5 absolute right-1 text-accent-foreground" />
                 </Command.Item>
               )}
@@ -106,7 +108,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                 onSelect={() => removeTag(tag._id)}
               >
                 <IconTrash />
-                Delete
+                {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>
@@ -116,9 +118,9 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
             <Command.Input
               variant="secondary"
               focusOnMount
-              placeholder="Search tag groups"
+              placeholder={t('tags.search-tag-groups', 'Search tag groups')}
             />
-            <Command.Empty>No groups found</Command.Empty>
+            <Command.Empty>{t('tags.no-groups-found', 'No groups found')}</Command.Empty>
             <Command.List className="[&>div>div]:cursor-pointer">
               {tagGroupsFiltered.map((group) => (
                 <Command.Item

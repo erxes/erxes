@@ -16,6 +16,7 @@ import {
 } from 'erxes-ui';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { SelectMember } from '../../team-members/components/SelectMember';
 import { useAddCustomer } from '../hooks/useAddCustomer';
@@ -69,6 +70,8 @@ export function AddCustomerForm({
   state?: 'lead' | 'customer';
   onSuccess?: (id: string) => void;
 }>) {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  const { t: tRoot } = useTranslation('contact');
   const { customersAdd, loading } = useAddCustomer();
   const [activeTab] = useQueryState<string>('tab');
 
@@ -112,7 +115,7 @@ export function AddCustomerForm({
       variables: { ...rest, state, propertiesData: cleanPropertiesData },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: tRoot('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -120,11 +123,11 @@ export function AddCustomerForm({
       onCompleted: (result) => {
         onSuccess?.(result.customersAdd._id);
         toast({
-          title: 'Success',
+          title: tRoot('success', 'Success'),
           description:
             state === 'lead'
-              ? 'Lead created successfully'
-              : 'Customer created successfully',
+              ? t('lead-created-success', 'Lead created successfully')
+              : t('customer-created-success', 'Customer created successfully'),
           variant: 'success',
         });
         form.reset();
@@ -134,7 +137,10 @@ export function AddCustomerForm({
   }
 
   const propertiesData = form.watch('propertiesData') || {};
-  const title = state === 'lead' ? 'Create Lead' : 'Create Customer';
+  const title =
+    state === 'lead'
+      ? t('title-lead', 'Create Lead')
+      : t('title-customer', 'Create Customer');
   const isPropertiesTab = activeTab === 'properties';
 
   return (
@@ -160,10 +166,10 @@ export function AddCustomerForm({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {tRoot('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? 'Creating...' : title}
+            {loading ? t('creating', 'Creating...') : title}
           </Button>
         </div>
       </form>
@@ -176,8 +182,9 @@ function GeneralTab({
 }: Readonly<{
   form: ReturnType<typeof useForm<FormValues>>;
 }>) {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
-    <InfoCard title="Customer Information">
+    <InfoCard title={t('customer-information', 'Customer Information')}>
       <InfoCard.Content>
         <Form.Field
           name="avatar"
@@ -198,7 +205,7 @@ function GeneralTab({
                   <div className="flex flex-col justify-center gap-2">
                     <div className="flex gap-4">
                       <Upload.Button size="sm" variant="outline" type="button">
-                        Upload
+                        {t('upload', 'Upload')}
                       </Upload.Button>
                       <Upload.RemoveButton
                         size="sm"
@@ -207,7 +214,7 @@ function GeneralTab({
                       />
                     </div>
                     <Form.Description>
-                      Upload an avatar for the customer
+                      {t('avatar-upload-description', 'Upload an avatar for the customer')}
                     </Form.Description>
                   </div>
                 </Upload.Root>
@@ -223,7 +230,7 @@ function GeneralTab({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  First Name <span className="text-destructive">*</span>
+                  {t('first-name', 'First name')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <Input {...field} />
@@ -238,7 +245,7 @@ function GeneralTab({
             name="lastName"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Last Name</Form.Label>
+                <Form.Label>{t('last-name', 'Last name')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -252,7 +259,7 @@ function GeneralTab({
             name="code"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Code</Form.Label>
+                <Form.Label>{t('code', 'Code')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -266,13 +273,13 @@ function GeneralTab({
             name="ownerId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Owner</Form.Label>
+                <Form.Label>{t('owner', 'Owner')}</Form.Label>
                 <Form.Control>
                   <div className="w-full">
                     <SelectMember.FormItem
                       value={field.value || ''}
                       onValueChange={field.onChange}
-                      placeholder="Select owner"
+                      placeholder={t('select-owner', 'Select owner')}
                     />
                   </div>
                 </Form.Control>
@@ -286,7 +293,7 @@ function GeneralTab({
             name="primaryEmail"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Email</Form.Label>
+                <Form.Label>{t('email', 'Email')}</Form.Label>
                 <Form.Control>
                   <Input
                     type="email"
@@ -304,11 +311,11 @@ function GeneralTab({
             name="emailValidationStatus"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Email Verification Status</Form.Label>
+                <Form.Label>{t('email-verification-status', 'Email verification status')}</Form.Label>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Form.Control>
                     <Select.Trigger>
-                      <Select.Value placeholder="Choose">
+                      <Select.Value placeholder={t('choose', 'Choose')}>
                         {
                           EMAIL_VALIDATION_STATUSES.find(
                             (s) => s.value === field.value,
@@ -337,7 +344,7 @@ function GeneralTab({
             name="primaryPhone"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Phone</Form.Label>
+                <Form.Label>{t('phone', 'Phone')}</Form.Label>
                 <Form.Control>
                   <Input placeholder="+1 234 567 8900" {...field} />
                 </Form.Control>
@@ -351,11 +358,11 @@ function GeneralTab({
             name="phoneValidationStatus"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Phone Verification Status</Form.Label>
+                <Form.Label>{t('phone-verification-status', 'Phone verification status')}</Form.Label>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Form.Control>
                     <Select.Trigger>
-                      <Select.Value placeholder="Choose">
+                      <Select.Value placeholder={t('choose', 'Choose')}>
                         {
                           PHONE_VALIDATION_STATUSES.find(
                             (s) => s.value === field.value,
@@ -385,7 +392,7 @@ function GeneralTab({
           name="description"
           render={({ field }) => (
             <Form.Item className="mt-4">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description', 'Description')}</Form.Label>
               <Form.Control>
                 <Editor
                   initialContent={field.value}
@@ -411,7 +418,7 @@ function GeneralTab({
                   }
                 />
               </Form.Control>
-              <Form.Label variant="peer">Subscribed</Form.Label>
+              <Form.Label variant="peer">{t('subscribed', 'Subscribed')}</Form.Label>
               <Form.Message />
             </Form.Item>
           )}
@@ -428,13 +435,14 @@ function CustomerPropertiesSection({
   propertiesData: Record<string, unknown>;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }>) {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   const { fieldGroups, loading } = useFieldGroups({
     contentType: 'core:customer',
   });
 
   if (loading) {
     return (
-      <InfoCard title="Customer Properties">
+      <InfoCard title={t('customer-properties', 'Customer Properties')}>
         <InfoCard.Content>
           <Spinner containerClassName="py-6" />
         </InfoCard.Content>
@@ -444,10 +452,13 @@ function CustomerPropertiesSection({
 
   if (fieldGroups.length === 0) {
     return (
-      <InfoCard title="Customer Properties">
+      <InfoCard title={t('customer-properties', 'Customer Properties')}>
         <InfoCard.Content>
           <p className="text-sm text-muted-foreground py-4 text-center">
-            No properties found. Create properties in Settings.
+            {t(
+              'no-properties-found',
+              'No properties found. Create properties in Settings.',
+            )}
           </p>
         </InfoCard.Content>
       </InfoCard>
@@ -455,7 +466,7 @@ function CustomerPropertiesSection({
   }
 
   return (
-    <InfoCard title="Customer Properties">
+    <InfoCard title={t('customer-properties', 'Customer Properties')}>
       <InfoCard.Content>
         <div className="flex flex-col gap-4">
           {fieldGroups.map((group) => (

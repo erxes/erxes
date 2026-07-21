@@ -1,11 +1,13 @@
 import { RecordTable, RecordTableTree } from 'erxes-ui';
 import { usePositionsList } from '../../hooks/usePositionsList';
-import { PositionsColumns } from './PositionsColumns';
+import { getPositionsColumns } from './PositionsColumns';
+import { useTranslation } from 'react-i18next';
 import { PositionEdit } from './detail/PositionEdit';
 import { PositionsFilter } from './PositionsFilter';
 import { PositionsCommandBar } from './PositionsCommandBar';
 
 export function PositionsSettings() {
+  const { t } = useTranslation('settings');
   const { sortedPositions, loading } = usePositionsList();
   return (
     <div className="w-full overflow-hidden flex flex-col">
@@ -13,7 +15,7 @@ export function PositionsSettings() {
       <PositionsFilter />
       <RecordTable.Provider
         data={sortedPositions || []}
-        columns={PositionsColumns}
+        columns={getPositionsColumns(t)}
         stickyColumns={['more', 'checkbox', 'code', 'title']}
         className="m-3"
       >

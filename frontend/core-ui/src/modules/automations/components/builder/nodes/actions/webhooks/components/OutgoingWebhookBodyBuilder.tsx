@@ -8,6 +8,7 @@ import {
   useAutomationVariableCodeMirrorDrop,
 } from 'ui-modules';
 import { normalizeOutgoingWebhookBodyValue } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
+import { useTranslation } from 'react-i18next';
 
 function createTheme() {
   return CMEditorView.theme({
@@ -62,6 +63,7 @@ export function OutgoingWebhookBodyBuilder({
   onChange: (value: string) => void;
   onBodyModeChange: (value: 'json' | 'text') => void;
 }) {
+  const { t } = useTranslation('automations');
   const extensions = useMemo(() => [json(), createTheme()], []);
   const normalizedValue = normalizeOutgoingWebhookBodyValue(value, bodyMode);
   const { isDragActive, editorExtensions } =
@@ -76,14 +78,14 @@ export function OutgoingWebhookBodyBuilder({
   return (
     <Form.Item className="flex flex-col h-full">
       <div className="flex items-center justify-between gap-3">
-        <Form.Label>Body</Form.Label>
+        <Form.Label>{t('body', 'Body')}</Form.Label>
         <Select value={bodyMode} onValueChange={onBodyModeChange}>
           <Select.Trigger className="w-36">
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
             <Select.Item value="json">JSON</Select.Item>
-            <Select.Item value="text">Text</Select.Item>
+            <Select.Item value="text">{t('text', 'Text')}</Select.Item>
           </Select.Content>
         </Select>
       </div>

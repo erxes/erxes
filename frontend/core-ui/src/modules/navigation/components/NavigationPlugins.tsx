@@ -40,7 +40,7 @@ export const NavigationPluginExitButton = () => {
           <Sidebar.MenuButton onClick={() => setActivePlugin(null)}>
             <IconChevronLeft className="text-accent-foreground" />
             <span className="font-sans font-semibold text-accent-foreground">
-              {t('exit', { name: pluginName })}
+              {t('exit', 'Exit {{name}}', { name: pluginName })}
             </span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
@@ -82,7 +82,7 @@ const NavigationPluginModules = ({ activePlugin }: { activePlugin: string }) => 
 
   return (
     <>
-      <NavigationMenuGroup name={t('modules', { name: pluginName })} separate>
+      <NavigationMenuGroup name={t('modules', '{{name}} modules', { name: pluginName })} separate>
         {contents.map((Content, index) => (
           <Content key={index} />
         ))}
@@ -109,7 +109,7 @@ export const NavigationPlugins = () => {
   }
 
   return (
-    <NavigationMenuGroup name={t('plugins')}>
+    <NavigationMenuGroup name={t('plugins', 'Plugins')}>
       {Object.entries(navigationGroups).map(([name, group]) => (
         <NavigationPluginMenu key={name} name={name} group={group} setActivePlugin={setActivePlugin} />
       ))}

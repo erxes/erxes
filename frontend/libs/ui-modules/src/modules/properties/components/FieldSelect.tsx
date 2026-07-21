@@ -7,6 +7,7 @@ import {
 } from 'erxes-ui';
 import { IField } from '../types/fieldsTypes';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SpecificFieldProps } from './Field';
 
 export const FieldSelect = (props: SpecificFieldProps) => {
@@ -52,11 +53,12 @@ export const FieldSelectContent = ({
   value: string;
   onChange: (value: string) => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'properties-field' });
   const options = field.options || [];
   return (
     <Command shouldFilter={options.length > 7}>
       <Command.Input
-        placeholder="Search options"
+        placeholder={t('search-options', 'Search options')}
         focusOnMount
         wrapperClassName={cn(options.length < 7 && 'opacity-0 h-0')}
       />

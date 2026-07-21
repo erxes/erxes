@@ -29,8 +29,10 @@ import { useRemovePermissionGroup } from '@/settings/permissions/hooks/useRemove
 import { PermissionGroupEdit } from './form/PermissionGroupEdit';
 import { PermissionGroupDetails } from './PermissionGroupDetails';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const PermissionGroups = () => {
+  const { t } = useTranslation('settings');
   const { defaultGroups, loading: defaultLoading } =
     useGetPermissionDefaultGroups();
   const { permissionGroups, loading: customLoading } = useGetPermissionGroups();
@@ -42,8 +44,8 @@ export const PermissionGroups = () => {
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head>Name</Table.Head>
-                <Table.Head>Description</Table.Head>
+                <Table.Head>{t('name', 'Name')}</Table.Head>
+                <Table.Head>{t('description', 'Description')}</Table.Head>
                 <Table.Head className="w-12"></Table.Head>
               </Table.Row>
             </Table.Header>
@@ -133,7 +135,7 @@ export const PermissionGroups = () => {
                                   onSelect={(e) => e.preventDefault()}
                                 >
                                   <IconEye size={16} />
-                                  View
+                                  {t('view', 'View')}
                                 </DropdownMenu.Item>
                               }
                             />
@@ -213,6 +215,7 @@ export const PermissionGroups = () => {
 };
 
 const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
+  const { t } = useTranslation('settings');
   const { confirm } = useConfirm();
   const { removePermissionGroup } = useRemovePermissionGroup();
 
@@ -253,7 +256,7 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
           trigger={
             <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
               <IconEye size={16} />
-              View
+              {t('view', 'View')}
             </DropdownMenu.Item>
           }
         />
@@ -264,7 +267,7 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
               trigger={
                 <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
                   <IconEdit size={16} />
-                  Edit
+                  {t('edit', 'Edit')}
                 </DropdownMenu.Item>
               }
             />
@@ -274,7 +277,7 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
               onClick={handleDelete}
             >
               <IconTrash size={16} />
-              Delete
+              {t('delete', 'Delete')}
             </DropdownMenu.Item>
           </>
         </Can>

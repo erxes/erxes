@@ -10,7 +10,7 @@ export function ProductDetailInfo() {
   const form = useFormContext<ProductFormValues>();
 
   return (
-    <InfoCard title={t('more-info')}>
+    <InfoCard title={t('more-info', 'More info')}>
       <InfoCard.Content>
         <div className="grid grid-cols-3 gap-4">
           <Form.Field
@@ -18,7 +18,7 @@ export function ProductDetailInfo() {
             name="scopeBrandIds"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('brand')}</Label>
+                <Label>{t('brand', 'Brand')}</Label>
                 <SelectBrand
                   value={field.value || []}
                   onValueChange={field.onChange}
@@ -32,7 +32,7 @@ export function ProductDetailInfo() {
             name="vendorId"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('vendor')}</Label>
+                <Label>{t('vendor', 'Vendor')}</Label>
                 <SelectCompany
                   value={field.value}
                   onValueChange={field.onChange}
@@ -45,7 +45,7 @@ export function ProductDetailInfo() {
             name="currency"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('currency')}</Label>
+                <Label>{t('currency', 'Currency')}</Label>
                 <CurrencyField.SelectCurrency
                   value={(field.value as CurrencyCode) ?? undefined}
                   onChange={field.onChange}

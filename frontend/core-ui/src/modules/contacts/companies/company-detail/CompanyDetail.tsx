@@ -19,8 +19,10 @@ import {
 } from 'ui-modules';
 import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
 import { companyCustomActivities } from './CompanyActivityRows';
+import { useTranslation } from 'react-i18next';
 
 export const CompanyDetail = () => {
+  const { t } = useTranslation('contact');
   const [open, setOpen] = useQueryState<string>('companyId');
   const { companyDetail, loading, error } = useCompanyDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -34,7 +36,7 @@ export const CompanyDetail = () => {
         errorState={<CompanyDetailErrorState />}
         error={!!error}
       >
-        <FocusSheet.Header title="Company Details" />
+        <FocusSheet.Header title={t('company.detail._', 'Company Details')} />
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <ContactSidebar />
@@ -104,6 +106,7 @@ export const CompanyDetail = () => {
 };
 
 const CompanyDetailEmptyState = () => {
+  const { t } = useTranslation('contact');
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
@@ -112,9 +115,9 @@ const CompanyDetailEmptyState = () => {
             <IconCloudExclamation />
           </Empty.Media>
         </Empty.Header>
-        <Empty.Title>Company not found</Empty.Title>
+        <Empty.Title>{t('company.detail.not-found', 'Company not found')}</Empty.Title>
         <Empty.Description>
-          There seems to be no company with this ID.
+          {t('company.detail.not-found-description', 'There seems to be no company with this ID.')}
         </Empty.Description>
       </Empty>
     </div>
@@ -122,6 +125,7 @@ const CompanyDetailEmptyState = () => {
 };
 
 const CompanyDetailErrorState = () => {
+  const { t } = useTranslation('contact');
   const { error } = useCompanyDetailWithQuery();
   return (
     <div className="flex items-center justify-center h-full">
@@ -130,7 +134,7 @@ const CompanyDetailErrorState = () => {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>Error</Empty.Title>
+          <Empty.Title>{t('error', 'Error')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
       </Empty>

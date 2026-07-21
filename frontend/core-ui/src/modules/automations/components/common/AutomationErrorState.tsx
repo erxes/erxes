@@ -7,6 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, Collapsible } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AutomationErrorStateProps {
   title?: string;
@@ -25,6 +26,7 @@ export function AutomationErrorState({
   onRetry,
   onDismiss,
 }: AutomationErrorStateProps) {
+  const { t } = useTranslation('automations');
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -69,7 +71,7 @@ export function AutomationErrorState({
                 data-collapsible-trigger="true"
               >
                 <span className="text-xs underline underline-offset-2">
-                  {isOpen ? 'Hide details' : 'Show details'}
+                  {isOpen ? t('hide-details', 'Hide details') : t('show-details', 'Show details')}
                 </span>
                 {isOpen ? (
                   <IconChevronUp className="h-3 w-3 ml-1" />
@@ -96,7 +98,7 @@ export function AutomationErrorState({
             onClick={onRetry}
           >
             <IconRefresh className="h-3.5 w-3.5 mr-1.5" />
-            Try again
+            {t('try-again', 'Try again')}
           </Button>
         </div>
       )}

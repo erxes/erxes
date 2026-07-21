@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Button, Card, DropdownMenu } from 'erxes-ui';
 import { Link } from 'react-router';
 import { IAutomationEmailTemplate } from '@/automations/components/settings/components/email-templates/types/automationEmailTemplates';
+import { useTranslation } from 'react-i18next';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 
 interface EmailTemplateCardProps {
@@ -14,6 +15,7 @@ export function EmailTemplateCard({
   template,
   onRemove,
 }: EmailTemplateCardProps) {
+  const { t } = useTranslation('automations');
   const handleRemove = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -66,7 +68,7 @@ export function EmailTemplateCard({
                 className="text-destructive focus:text-destructive"
               >
                 <IconTrash className="size-4 mr-2" />
-                Remove
+                {t('remove', 'Remove')}
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu>

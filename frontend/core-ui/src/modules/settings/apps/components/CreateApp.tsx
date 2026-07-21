@@ -7,6 +7,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppsForm } from '../hooks/useAppsForm';
 import { useAppsAdd } from '../hooks/useAppsAdd';
 import { SubmitHandler } from 'react-hook-form';
@@ -14,6 +15,7 @@ import { AppsForm } from './AppsForm';
 import { TAppsForm } from '../hooks/useAppsForm';
 
 export const CreateApp = () => {
+  const { t } = useTranslation('settings');
   const { toast } = useToast();
   const { appsAdd, loading } = useAppsAdd();
   const {
@@ -30,14 +32,14 @@ export const CreateApp = () => {
         onCompleted: () => {
           toast({
             variant: 'success',
-            title: 'App created successfully',
+            title: t('apps.created-successfully', 'App created successfully'),
           });
           reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -51,7 +53,7 @@ export const CreateApp = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Create App
+          {t('apps.create', 'Create App')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0">
@@ -62,7 +64,7 @@ export const CreateApp = () => {
           >
             <Sheet.Header>
               <IconShieldCog />
-              <Sheet.Title>Create App</Sheet.Title>
+              <Sheet.Title>{t('apps.create', 'Create App')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -70,10 +72,10 @@ export const CreateApp = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'secondary'} onClick={() => setOpen(false)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create App'}
+                {loading ? <Spinner /> : t('apps.create', 'Create App')}
               </Button>
             </Sheet.Footer>
           </form>

@@ -6,12 +6,14 @@ import { CLIENTPORTAL_MANUAL_VERIFICATION_SCHEMA } from '../constants/clientPort
 import { SelectMember } from 'ui-modules';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { useTranslation } from 'react-i18next';
 
 export function ClientPortalDetailManual({
   clientPortal,
 }: {
   clientPortal: IClientPortal;
 }) {
+  const { t } = useTranslation('client-portal');
   const isActive = clientPortal.enableManualVerification ?? false;
   const form = useForm<z.infer<typeof CLIENTPORTAL_MANUAL_VERIFICATION_SCHEMA>>(
     {
@@ -51,7 +53,7 @@ export function ClientPortalDetailManual({
           disabled={loading}
         />
         <Label variant="peer" htmlFor="enableManualVerification">
-          Enable manual verification
+          {t('enable-manual-verification', 'Enable manual verification')}
         </Label>
       </div>
       {isActive && (
@@ -65,15 +67,15 @@ export function ClientPortalDetailManual({
               name="userIds"
               render={({ field }) => (
                 <Form.Item className="col-span-2">
-                  <Form.Label>Team Members</Form.Label>
+                  <Form.Label>{t('team-members', 'Team Members')}</Form.Label>
                   <SelectMember.FormItem
                     mode="multiple"
                     value={field.value}
                     onValueChange={field.onChange}
-                    placeholder="Select team members"
+                    placeholder={t('select-team-members', 'Select team members')}
                   />
                   <Form.Description>
-                    Select team members who can verify
+                    {t('select-team-members-who-can-verify', 'Select team members who can verify')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -91,7 +93,7 @@ export function ClientPortalDetailManual({
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label variant="peer">Verify customer</Form.Label>
+                    <Form.Label variant="peer">{t('verify-customer', 'Verify customer')}</Form.Label>
                   </div>
                   <Form.Message />
                 </Form.Item>
@@ -109,7 +111,7 @@ export function ClientPortalDetailManual({
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label variant="peer">Verify company</Form.Label>
+                    <Form.Label variant="peer">{t('verify-company', 'Verify company')}</Form.Label>
                   </div>
                   <Form.Message />
                 </Form.Item>
@@ -122,7 +124,7 @@ export function ClientPortalDetailManual({
               variant="secondary"
             >
               {loading && <Spinner containerClassName="w-auto flex-none" />}
-              Save
+              {t('save', 'Save')}
             </Button>
           </form>
         </Form>

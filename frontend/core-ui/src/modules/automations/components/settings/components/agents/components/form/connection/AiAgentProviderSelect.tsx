@@ -8,8 +8,10 @@ import { buildDefaultAiAgentConnection } from '@/automations/components/settings
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Select } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const AiAgentProviderSelect = () => {
+  const { t } = useTranslation('automations');
   const { control, setValue, watch } = useFormContext<TAiAgentForm>();
   const provider = watch('connection.provider');
 
@@ -19,7 +21,7 @@ export const AiAgentProviderSelect = () => {
       name="connection.provider"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Provider</Form.Label>
+          <Form.Label>{t('provider', 'Provider')}</Form.Label>
           <Form.Control>
             <Select
               value={field.value}
@@ -35,7 +37,7 @@ export const AiAgentProviderSelect = () => {
               }}
             >
               <Select.Trigger>
-                <Select.Value placeholder="Select provider" />
+                <Select.Value placeholder={t('select-provider', 'Select Provider')} />
               </Select.Trigger>
               <Select.Content>
                 {AI_AGENT_PROVIDER_TYPES.map((type) => (

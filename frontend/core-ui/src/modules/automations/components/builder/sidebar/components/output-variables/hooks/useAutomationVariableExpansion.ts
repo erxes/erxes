@@ -2,6 +2,7 @@ import { AUTOMATION_REFERENCE_FIELDS } from '@/automations/graphql/automationQue
 import { useLazyQuery } from '@apollo/client';
 import type React from 'react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   TAutomationOutputVariable,
   TAutomationReferenceFieldsResponse,
@@ -20,6 +21,7 @@ import { useAutomationVariableList } from '../context/AutomationVariableListCont
 export const useAutomationVariableExpansion = (
   variable: TAutomationOutputVariable,
 ) => {
+  const { t } = useTranslation('automations');
   const { sourceNode } = useAutomationVariableList();
   const [expanded, setExpanded] = useState(false);
   const [loadReferenceFields, { data, loading }] =
@@ -41,10 +43,10 @@ export const useAutomationVariableExpansion = (
   const isExpandable =
     variable.exposure === 'reference' || nestedFields.length > 0;
   const expandLabel = expanded
-    ? 'Hide fields'
+    ? t('hide-fields', 'Hide fields')
     : variable.exposure === 'reference'
-      ? 'Reference'
-      : 'Fields';
+      ? t('reference', 'Reference')
+      : t('fields', 'Fields');
 
   const toggleExpanded = (event: React.MouseEvent) => {
     event.stopPropagation();

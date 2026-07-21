@@ -68,7 +68,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
       <Filter.BarItem queryKey="searchValue">
         <Filter.BarName>
           <IconSearch />
-          {t('search')}
+          {t('search', 'Search')}
         </Filter.BarName>
         <Filter.BarButton filterKey="searchValue" inDialog>
           {searchValue}
@@ -78,7 +78,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          {t('created-at')}
+          {t('created-at', 'Created At')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
@@ -96,21 +96,21 @@ const DocumentFilterView = () => {
       <Filter.View>
         <Command>
           <Filter.CommandInput
-            placeholder="Filter"
+            placeholder={t('filter', 'Filter')}
             variant="secondary"
             className="bg-background"
           />
           <Command.List className="p-1">
             <Filter.Item value="searchValue" inDialog>
               <IconSearch />
-              {t('search')}
+              {t('search', 'Search')}
             </Filter.Item>
 
             <SelectMember.FilterItem value="createdBy" label="Created By" />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdAt">
               <IconCalendarPlus />
-              {t('created-at')}
+              {t('created-at', 'Created At')}
             </Filter.Item>
           </Command.List>
         </Command>

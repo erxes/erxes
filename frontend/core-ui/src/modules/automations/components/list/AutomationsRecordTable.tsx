@@ -59,7 +59,7 @@ export const AutomationsRecordTable = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconAffiliate />
-                  {t('automations')}
+                  {t('automations', 'Automations')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -73,13 +73,13 @@ export const AutomationsRecordTable = () => {
               onClick={() => setAutomationSettingsReturnPath('/automations')}
             >
               <IconSettings />
-              {t('go-to-settings')}
+              {t('go-to-settings', 'Go to settings')}
             </Link>
           </Button>
           <Can action="automationsCreate">
             <Button asChild>
               <Link to={'/automations/create'}>
-                {t('create')}
+                {t('create', 'Create a new automation')}
                 <Kbd>C</Kbd>
               </Link>
             </Button>

@@ -2,8 +2,10 @@ import { TOutgoingWebhookForm } from '@/automations/components/builder/nodes/act
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const OutgoingWebhookHeaders = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TOutgoingWebhookForm>();
 
   return (
@@ -23,17 +25,17 @@ export const OutgoingWebhookHeaders = () => {
               return (
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-row justify-between">
-                    <Form.Label>Headers</Form.Label>
+                    <Form.Label>{t('headers', 'Headers')}</Form.Label>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleAddHeader}
                     >
-                      <IconPlus /> Add Header
+                      <IconPlus /> {t('add-header', 'Add Header')}
                     </Button>
                   </div>
                   <div className="text-sm text-muted-foreground text-center py-8">
-                    No headers added yet. Click "Add Header" to get started.
+                    {t('no-headers-added', 'No headers added yet. Click \'Add Header\' to get started.')}
                   </div>
                 </div>
               );
@@ -42,10 +44,10 @@ export const OutgoingWebhookHeaders = () => {
             return (
               <>
                 <div className="flex items-center justify-between mb-6">
-                  <Label className="text-sm font-medium">Headers</Label>
+                  <Label className="text-sm font-medium">{t('headers', 'Headers')}</Label>
                   <Button variant="outline" size="sm" onClick={handleAddHeader}>
                     <IconPlus className="h-4 w-4 mr-2" />
-                    Add Header
+                    {t('add-header', 'Add Header')}
                   </Button>
                 </div>
 

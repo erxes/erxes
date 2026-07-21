@@ -25,14 +25,18 @@ import {
   BROADCAST_METHODS,
 } from '../constants';
 
-export const broadcastColumns: ColumnDef<any>[] = [
+export const broadcastColumns = (
+  t: (key: string, defaultValue: string) => string,
+): ColumnDef<any>[] => [
   RecordTable.checkboxColumn,
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => (
-      <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
-    ),
+    header: () => {
+      return (
+        <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />
+      );
+    },
     cell: ({ cell }) => {
       const [_, setMessageId] = useQueryState('messageId');
 
@@ -52,37 +56,39 @@ export const broadcastColumns: ColumnDef<any>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconLabelFilled} />
-    ),
+    header: () => {
+      return (
+        <RecordTable.InlineHead label={t('status', 'Status')} icon={IconLabelFilled} />
+      );
+    },
     cell: ({ cell }) => {
       const { kind, isLive, runCount, isDraft, status, progress } =
         cell.row.original;
 
       let labelStyle: BadgeProps['variant'] = 'default';
-      let labelText = 'Sending';
+      let labelText: string;
 
       if (!isLive) {
         labelStyle = 'warning';
-        labelText = 'Paused';
+        labelText = t('paused', 'Paused');
       } else {
         labelStyle = 'info';
-        labelText = 'Sending';
+        labelText = t('sending', 'Sending');
       }
 
       if (kind === BROADCAST_MESSAGE_KINDS.MANUAL) {
         if (runCount > 0) {
           labelStyle = 'success';
-          labelText = 'Sent';
+          labelText = t('sent', 'Sent');
         } else {
           labelStyle = 'warning';
-          labelText = 'Not Sent';
+          labelText = t('not-sent', 'Not Sent');
         }
       }
 
       if (isDraft === true) {
         labelStyle = 'secondary';
-        labelText = 'Draft';
+        labelText = t('draft', 'Draft');
       }
 
       if (status) {
@@ -100,9 +106,11 @@ export const broadcastColumns: ColumnDef<any>[] = [
   {
     id: 'totalCustomersCount',
     accessorKey: 'totalCustomersCount',
-    header: () => (
-      <RecordTable.InlineHead label="Total" icon={IconLabelFilled} />
-    ),
+    header: () => {
+      return (
+        <RecordTable.InlineHead label={t('total', 'Total')} icon={IconLabelFilled} />
+      );
+    },
     cell: ({ cell }) => {
       const { validCustomersCount, totalCustomersCount } = cell.row.original;
 
@@ -134,7 +142,10 @@ export const broadcastColumns: ColumnDef<any>[] = [
                   side="right"
                   align="start"
                 >
-                  {`${validCustomersCount} of ${totalCustomersCount} customers are valid`}
+                  {t('column.customers-valid', '{{valid}} of {{total}} customers are valid', {
+                    valid: validCustomersCount,
+                    total: totalCustomersCount,
+                  })}
                 </Tooltip.Content>
               ) : null}
             </Tooltip>
@@ -146,34 +157,36 @@ export const broadcastColumns: ColumnDef<any>[] = [
   {
     id: 'method',
     accessorKey: 'method',
-    header: () => (
-      <RecordTable.InlineHead label="Type" icon={IconLabelFilled} />
-    ),
+    header: () => {
+      return (
+        <RecordTable.InlineHead label={t('type', 'Type')} icon={IconLabelFilled} />
+      );
+    },
     cell: ({ cell }) => {
       const { method, kind } = cell.row.original;
 
       let MethodIcon: Icon = IconInfoSquareRounded;
-      let label: string = 'Unknown';
+      let label: string = t('unknown', 'Unknown');
 
       switch (method) {
         case BROADCAST_METHODS.EMAIL:
           MethodIcon = IconMail;
-          label = 'Email';
+          label = t('email', 'Email');
 
           break;
         case BROADCAST_METHODS.SMS:
           MethodIcon = IconMessage2;
-          label = 'Sms';
+          label = t('sms', 'Sms');
 
           break;
         case BROADCAST_METHODS.MESSENGER:
           MethodIcon = IconBrandMessenger;
-          label = 'Messenger';
+          label = t('messenger', 'Messenger');
 
           break;
         case BROADCAST_METHODS.NOTIFICATION:
           MethodIcon = IconBellRinging;
-          label = 'Notification';
+          label = t('notification', 'Notification');
 
           break;
         default:
@@ -196,15 +209,17 @@ export const broadcastColumns: ColumnDef<any>[] = [
   {
     id: 'brandId',
     accessorKey: 'brandId',
-    header: () => (
-      <RecordTable.InlineHead label="Brand" icon={IconLabelFilled} />
-    ),
+    header: () => {
+      return (
+        <RecordTable.InlineHead label={t('brand', 'Brand')} icon={IconLabelFilled} />
+      );
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
           <BrandsInline
             brandIds={[cell.getValue() as string]}
-            placeholder="No Brand"
+            placeholder={t('no-brand', 'No Brand')}
           />
         </RecordTableInlineCell>
       );
@@ -213,15 +228,17 @@ export const broadcastColumns: ColumnDef<any>[] = [
   {
     id: 'fromUserId',
     accessorKey: 'fromUserId',
-    header: () => (
-      <RecordTable.InlineHead label="From" icon={IconLabelFilled} />
-    ),
+    header: () => {
+      return (
+        <RecordTable.InlineHead label={t('from', 'From')} icon={IconLabelFilled} />
+      );
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
           <MembersInline
             memberIds={[cell.getValue() as string]}
-            placeholder="No Member"
+            placeholder={t('no-member', 'No Member')}
           />
         </RecordTableInlineCell>
       );

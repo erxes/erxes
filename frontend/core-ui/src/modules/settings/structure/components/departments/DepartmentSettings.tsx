@@ -1,5 +1,6 @@
 import { RecordTable, RecordTableTree } from 'erxes-ui';
-import { DepartmentColumns } from './DepartmentColumns';
+import { getDepartmentColumns } from './DepartmentColumns';
+import { useTranslation } from 'react-i18next';
 import { useDepartmentsList } from '../../hooks/useDepartmentsList';
 import { DepartmentEdit } from './detail/DepartmentEdit';
 import { DepartmentsFilter } from './DepartmentsFilter';
@@ -7,6 +8,7 @@ import { DepartmentsCommandBar } from './DepartmentsCommandBar';
 import { DepartmentWorkingHoursSheet } from './detail/DepartmentWorkingHoursSheet';
 
 export function DepartmentSettings() {
+  const { t } = useTranslation('settings');
   const { sortedDepartments, loading } = useDepartmentsList();
   return (
     <div className="w-full overflow-hidden flex flex-col">
@@ -15,7 +17,7 @@ export function DepartmentSettings() {
       <DepartmentsFilter />
       <RecordTable.Provider
         data={sortedDepartments || []}
-        columns={DepartmentColumns}
+        columns={getDepartmentColumns(t)}
         stickyColumns={['more', 'checkbox', 'code', 'title']}
         className="m-3"
       >

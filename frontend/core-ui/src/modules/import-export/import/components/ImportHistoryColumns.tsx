@@ -33,7 +33,8 @@ const IMPORT_STATUS_META: Record<
 };
 
 export const importHistoryColumns = (
-  contentTypes: ImportExportContentType[] = [],
+  contentTypes: ImportExportContentType[],
+  t: (key: string, defaultValue: string) => string,
 ): ColumnDef<TImportProgress>[] => [
   {
     id: 'actions',
@@ -46,7 +47,7 @@ export const importHistoryColumns = (
     accessorKey: 'fileName',
     size: 220,
     minSize: 180,
-    header: () => <RecordTable.InlineHead label="File" />,
+    header: () => { return <RecordTable.InlineHead label={t('file', 'File')} />; },
     cell: ({ cell }) => (
       <RecordTableInlineCell className="max-w-xs gap-2">
         <IconFileText className="size-4 text-muted-foreground flex-shrink-0" />
@@ -59,7 +60,7 @@ export const importHistoryColumns = (
     accessorKey: 'entityType',
     size: 120,
     minSize: 100,
-    header: () => <RecordTable.InlineHead label="Type" />,
+    header: () => { return <RecordTable.InlineHead label={t('type', 'Type')} />; },
     cell: ({ row }) => (
       <RecordTableInlineCell className="whitespace-nowrap">
         <Badge variant="secondary" className="font-normal">
@@ -76,7 +77,7 @@ export const importHistoryColumns = (
     accessorKey: 'status',
     size: 100,
     minSize: 90,
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => { return <RecordTable.InlineHead label={t('status', 'Status')} />; },
     cell: ({ row }) => {
       const rawStatus = row.original.status;
       const status =
@@ -103,7 +104,7 @@ export const importHistoryColumns = (
     accessorKey: 'totalRows',
     size: 84,
     minSize: 72,
-    header: () => <RecordTable.InlineHead label="Records" />,
+    header: () => { return <RecordTable.InlineHead label={t('records', 'Records')} />; },
     cell: ({ row }) => {
       const totalRows = row.original.totalRows || 0;
       return (
@@ -118,7 +119,7 @@ export const importHistoryColumns = (
     accessorKey: 'successRows',
     size: 90,
     minSize: 78,
-    header: () => <RecordTable.InlineHead label="Succeeded" />,
+    header: () => { return <RecordTable.InlineHead label={t('succeeded', 'Succeeded')} />; },
     cell: ({ row }) => {
       const successRows = row.original.successRows || 0;
       return (
@@ -133,7 +134,7 @@ export const importHistoryColumns = (
     accessorKey: 'errorRows',
     size: 80,
     minSize: 72,
-    header: () => <RecordTable.InlineHead label="Failed" />,
+    header: () => { return <RecordTable.InlineHead label={t('failed', 'Failed')} />; },
     cell: ({ row }) => {
       const errorRows = row.original.errorRows || 0;
       return (
@@ -148,7 +149,7 @@ export const importHistoryColumns = (
     accessorKey: 'createdAt',
     size: 118,
     minSize: 108,
-    header: () => <RecordTable.InlineHead label="Created" />,
+    header: () => { return <RecordTable.InlineHead label={t('created', 'Created')} />; },
     cell: ({ row }) => {
       const { createdAt } = row.original;
       return (
@@ -163,7 +164,7 @@ export const importHistoryColumns = (
     accessorKey: 'completedAt',
     size: 118,
     minSize: 108,
-    header: () => <RecordTable.InlineHead label="Completed" />,
+    header: () => { return <RecordTable.InlineHead label={t('completed', 'Completed')} />; },
     cell: ({ row }) => {
       const { completedAt } = row.original;
       return (
@@ -181,7 +182,7 @@ export const importHistoryColumns = (
     id: 'duration',
     size: 82,
     minSize: 72,
-    header: () => <RecordTable.InlineHead label="Duration" />,
+    header: () => { return <RecordTable.InlineHead label={t('duration', 'Duration')} />; },
     cell: ({ row }) => {
       const { startedAt, completedAt } =
         row.original || ({} as TImportProgress);

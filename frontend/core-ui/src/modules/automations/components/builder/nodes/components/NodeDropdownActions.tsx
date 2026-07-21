@@ -18,6 +18,7 @@ export const NodeDropdownActions = ({
   id: string;
   data: NodeData;
 }) => {
+  const { t } = useTranslation('automations');
   const {
     fieldName,
     isOpenDialog,
@@ -71,7 +72,7 @@ export const NodeDropdownActions = ({
             onClick={(e) => openNodeConfigurationForm(id)}
           >
             <IconSettings className="size-4" />
-            Configuration
+            {t('configuration', 'Configuration')}
           </Button>
         </DropdownMenu.Item>
         <NodeRemoveActionDialog
@@ -106,21 +107,21 @@ export const NodeRemoveActionDialog = ({
             onDoubleClick={(e) => e.stopPropagation()}
           >
             <IconTrash className="size-4" />
-            {t('delete')}
+            {t('delete', 'Delete')}
           </Button>
         </DropdownMenu.Item>
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>{t('delete-confirm-title')}</AlertDialog.Title>
+          <AlertDialog.Title>{t('delete-confirm-title', 'Are you absolutely sure?')}</AlertDialog.Title>
           <AlertDialog.Description>
-            {t('delete-confirm-description')}
+            {t('delete-confirm-description', 'This action cannot be undone.')}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+          <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
           <AlertDialog.Action onClick={onRemoveNode}>
-            {t('continue')}
+            {t('continue', 'Continue')}
           </AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>
@@ -157,7 +158,7 @@ const NodeEditMetaDataDialog = ({
             onDoubleClick={(e) => e.stopPropagation()}
           >
             <IconEdit className="size-4" />
-            {t('edit')}
+            {t('edit', 'Edit')}
           </Button>
         </DropdownMenu.Item>
       </Dialog.Trigger>

@@ -25,13 +25,17 @@ function displayName(user: ICPUser) {
   return user.email || user.phone || user.username || '-';
 }
 
-export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
+export const clientPortalUserColumns = (
+  t: (key: string, defaultValue: string) => string,
+): ColumnDef<ICPUser>[] => [
   clientPortalUserMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICPUser>,
   {
     id: 'name',
     accessorKey: 'firstName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
+    header: () => {
+      return <RecordTable.InlineHead icon={IconUser} label={t('customer.name', 'Name')} />;
+    },
     cell: ({ cell }) => {
       const row = cell.row.original;
       const [, setCpUserId] = useQueryState<string>('cpUserId');
@@ -48,7 +52,9 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'email',
     accessorKey: 'email',
-    header: () => <RecordTable.InlineHead icon={IconMail} label="Email" />,
+    header: () => {
+      return <RecordTable.InlineHead icon={IconMail} label={t('customer.add.email', 'Email')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -58,7 +64,9 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'phone',
     accessorKey: 'phone',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label="Phone" />,
+    header: () => {
+      return <RecordTable.InlineHead icon={IconPhone} label={t('customer.add.phone', 'Phone')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -68,7 +76,9 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Type" />,
+    header: () => {
+      return <RecordTable.InlineHead icon={IconUser} label={t('clientPortalUser.detail.type', 'Type')} />;
+    },
     cell: ({ cell }) => {
       const type = cell.getValue() as string;
       return (
@@ -85,9 +95,9 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'companyName',
     accessorKey: 'companyName',
-    header: () => (
-      <RecordTable.InlineHead icon={IconBuilding} label="Company" />
-    ),
+    header: () => {
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('clientPortalUser.detail.company', 'Company')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -97,9 +107,9 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'clientPortal',
     accessorKey: 'clientPortal',
-    header: () => (
-      <RecordTable.InlineHead icon={IconWorld} label="Client portal" />
-    ),
+    header: () => {
+      return <RecordTable.InlineHead icon={IconWorld} label={t('clientPortal', 'Client portal')} />;
+    },
     cell: ({ cell }) => {
       const clientPortal = cell.getValue() as ICPUser['clientPortal'];
       return (
@@ -112,13 +122,15 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'isVerified',
     accessorKey: 'isVerified',
-    header: () => <RecordTable.InlineHead icon={IconCheck} label="Verified" />,
+    header: () => {
+      return <RecordTable.InlineHead icon={IconCheck} label={t('verified', 'Verified')} />;
+    },
     cell: ({ cell }) => {
       const isVerified = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
           <Badge variant={isVerified ? 'success' : 'secondary'}>
-            {isVerified ? 'Yes' : 'No'}
+            {isVerified ? t('yes', 'Yes') : t('no', 'No')}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -127,9 +139,9 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created" />
-    ),
+    header: () => {
+      return <RecordTable.InlineHead icon={IconCalendar} label={t('clientPortalUser.detail.created', 'Created')} />;
+    },
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell>

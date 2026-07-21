@@ -1,10 +1,12 @@
 import { TTransformConfigForm } from '@/automations/components/builder/nodes/actions/transform/states/transformForm';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { AutomationNodeMetaInfoRow } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const TransformNodeContent = ({
   config,
 }: NodeContentComponentProps<TTransformConfigForm>) => {
+  const { t } = useTranslation('automations');
   const mappings = config?.mappings || [];
   const keys = mappings
     .map((mapping) => mapping.key)
@@ -20,7 +22,7 @@ export const TransformNodeContent = ({
           ? `${keys.join(', ')}${
               remainingCount > 0 ? ` +${remainingCount}` : ''
             }`
-          : 'No mappings'
+          : t('no-mappings', 'No mappings')
       }
     />
   );

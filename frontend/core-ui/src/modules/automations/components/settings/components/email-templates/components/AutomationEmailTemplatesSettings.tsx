@@ -6,9 +6,11 @@ import { useRemoveAutomationEmailTemplate } from '@/automations/components/setti
 import { useAutomationEmailTemplates } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplates';
 import { EmailTemplatesList } from '@/automations/components/settings/components/email-templates/components/EmailTemplatesList';
 import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
+import { useTranslation } from 'react-i18next';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 
 export function AutomationEmailTemplatesSettings() {
+  const { t } = useTranslation('automations');
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(1);
 
@@ -35,13 +37,13 @@ export function AutomationEmailTemplatesSettings() {
 
   return (
     <AutomationSettingsPageShell
-      title="Email Templates"
-      description="Create and manage email templates for your automation workflows"
+      title={t('email-templates', 'Email Templates')}
+      description={t('email-templates-description', 'Create and manage email templates for your automation workflows')}
       actions={
         <Button asChild>
           <Link to={AutomationSettingsPath.EmailTemplateCreate}>
             <IconPlus />
-            Create Template
+            {t('create-template', 'Create Template')}
           </Link>
         </Button>
       }
@@ -50,7 +52,7 @@ export function AutomationEmailTemplatesSettings() {
         <div className="relative flex-1 max-w-sm">
           <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
-            placeholder="Search email templates..."
+            placeholder={t('search-email-templates', 'Search email templates...')}
             value={searchValue}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-10"
@@ -61,8 +63,8 @@ export function AutomationEmailTemplatesSettings() {
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           {loading
-            ? 'Loading...'
-            : `${totalCount} template${totalCount !== 1 ? 's' : ''}`}
+            ? t('loading', 'Loading...')
+            : t('email-templates-count', '{{count}} templates', { count: totalCount })}
         </span>
       </div>
 

@@ -8,7 +8,7 @@ export function SidebarNavigationFavorites() {
   const favorites = useFavorites();
 
   return (
-    <NavigationMenuGroup name={t('favorites')} separate={false}>
+    <NavigationMenuGroup name={t('favorites', 'Favorites')} separate={false}>
       <MyInboxNavigationItem />
       {favorites.map(({ _id, ...item }) => {
         return <SidebarNavigationFavoritesItem key={_id} {...item} />;

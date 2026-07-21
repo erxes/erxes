@@ -40,7 +40,7 @@ const checkBoxColumn =
   RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
 
 export const getAutomationColumns: (
-  t: (key: string) => string,
+  t: (key: string, defaultValue: string) => string,
 ) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
   {
     id: 'more',
@@ -97,7 +97,7 @@ export const getAutomationColumns: (
                 className="w-full justify-start"
               >
                 <IconEdit className="size-4" />
-                {t('edit')}
+                {t('edit', 'Edit')}
               </Button>
             </DropdownMenu.Item>
             <DropdownMenu.Item asChild>
@@ -109,7 +109,7 @@ export const getAutomationColumns: (
                 onClick={() => onRemove()}
               >
                 <IconTrash className="size-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Button>
             </DropdownMenu.Item>
           </DropdownMenu.Content>
@@ -124,7 +124,7 @@ export const getAutomationColumns: (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label={t('name')} />,
+    header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       const currentName = cell.getValue() as string;
       const automationId = cell.row.original._id;
@@ -204,7 +204,7 @@ export const getAutomationColumns: (
   },
   {
     id: 'visibility',
-    header: () => <RecordTable.InlineHead label={t('visibility')} />,
+    header: () => <RecordTable.InlineHead label={t('visibility', 'Visibility')} />,
     cell: ({ cell }) => {
       const lockState = cell.row.original.approvalLockState;
       const isPrivate = lockState?.locked === true;
@@ -214,7 +214,7 @@ export const getAutomationColumns: (
           {isPrivate ? (
             <ApprovalLockedBadge state={lockState} />
           ) : (
-            <Badge variant="secondary">{t('public')}</Badge>
+            <Badge variant="secondary">{t('public', 'Public')}</Badge>
           )}
         </RecordTableInlineCell>
       );
@@ -224,7 +224,7 @@ export const getAutomationColumns: (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} />,
+    header: () => <RecordTable.InlineHead label={t('status', 'Status')} />,
     cell: ({ cell }) => {
       return <AutomationRecordTableStatusInlineCell cell={cell} />;
     },
@@ -234,7 +234,7 @@ export const getAutomationColumns: (
   {
     id: 'triggers',
     accessorKey: 'triggers',
-    header: () => <RecordTable.InlineHead label={t('triggers')} />,
+    header: () => <RecordTable.InlineHead label={t('triggers', 'Triggers')} />,
     cell: ({ cell }) => {
       const triggers = (cell.getValue() || []) as TAutomationTrigger[];
       return (
@@ -249,7 +249,7 @@ export const getAutomationColumns: (
   {
     id: 'actions',
     accessorKey: 'actions',
-    header: () => <RecordTable.InlineHead label={t('actions')} />,
+    header: () => <RecordTable.InlineHead label={t('actions', 'Actions')} />,
     cell: ({ cell }) => {
       const actions = (cell.getValue() || []) as TAutomationAction[];
       return (
@@ -264,7 +264,7 @@ export const getAutomationColumns: (
   {
     id: 'tagIds',
     accessorKey: 'tagIds',
-    header: () => <RecordTable.InlineHead label={t('tags')} />,
+    header: () => <RecordTable.InlineHead label={t('tags', 'Tags')} />,
     cell: ({ cell }) => {
       const tagIds = cell.getValue() as string[];
 
@@ -295,19 +295,19 @@ export const getAutomationColumns: (
   {
     id: 'updatedUser',
     accessorKey: 'updatedUser',
-    header: () => <RecordTable.InlineHead label={t('updated-user')} />,
+    header: () => <RecordTable.InlineHead label={t('updated-user', 'Updated user')} />,
     cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
   },
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead label={t('created-user')} />,
+    header: () => <RecordTable.InlineHead label={t('created-user', 'Created user')} />,
     cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
   },
   {
     id: 'updatedAt',
     accessorKey: 'updatedAt',
-    header: () => <RecordTable.InlineHead label={t('last-updated-at')} />,
+    header: () => <RecordTable.InlineHead label={t('last-updated-at', 'Last updated at')} />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -321,7 +321,7 @@ export const getAutomationColumns: (
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label={t('created-at')} />,
+    header: () => <RecordTable.InlineHead label={t('created-at', 'Created at')} />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>

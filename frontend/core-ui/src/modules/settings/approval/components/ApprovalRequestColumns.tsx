@@ -51,7 +51,7 @@ export const approvalRequestColumns = ({
   t,
   onCompleted,
 }: {
-  t: (key: string) => string;
+  t: (key: string, defaultValue: string) => string;
   onCompleted: () => void;
 }): ColumnDef<ApprovalRequest>[] => [
   {
@@ -69,7 +69,7 @@ export const approvalRequestColumns = ({
         >
           <Button variant="ghost" size="icon" className="size-7">
             <IconEye className="size-4" />
-            <span className="sr-only">{t('view-details')}</span>
+            <span className="sr-only">{t('view-details', 'View details')}</span>
           </Button>
         </ApprovalRequestDetailSheet>
       </RecordTableInlineCell>
@@ -80,7 +80,7 @@ export const approvalRequestColumns = ({
     accessorKey: 'status',
     size: 120,
     minSize: 110,
-    header: () => <RecordTable.InlineHead label={t('status')} />,
+    header: () => <RecordTable.InlineHead label={t('status', 'Status')} />,
     cell: ({ row }) => {
       const status = row.original.status;
       const { icon: Icon, variant } = statusMeta[status];
@@ -92,7 +92,7 @@ export const approvalRequestColumns = ({
             className="uppercase tracking-wide text-[11px] px-2 py-0.5"
           >
             <Icon className="size-3.5" />
-            {t(`status-${status}`)}
+            {t(`status-${status}`, status)}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -103,7 +103,7 @@ export const approvalRequestColumns = ({
     size: 240,
     minSize: 180,
     header: () => (
-      <RecordTable.InlineHead icon={IconLock} label={t('target')} />
+      <RecordTable.InlineHead icon={IconLock} label={t('target', 'Target')} />
     ),
     cell: ({ row }) => {
       const { content, contentType } = row.original;
@@ -127,7 +127,7 @@ export const approvalRequestColumns = ({
     size: 180,
     minSize: 150,
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('requester')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('requester', 'Requester')} />
     ),
     cell: ({ row }) => (
       <RecordTableInlineCell className="min-w-0">
@@ -143,7 +143,7 @@ export const approvalRequestColumns = ({
     size: 220,
     minSize: 160,
     header: () => (
-      <RecordTable.InlineHead icon={IconMessage} label={t('reason')} />
+      <RecordTable.InlineHead icon={IconMessage} label={t('reason', 'Reason')} />
     ),
     cell: ({ row }) => (
       <RecordTableInlineCell className="min-w-0">
@@ -156,7 +156,7 @@ export const approvalRequestColumns = ({
     size: 220,
     minSize: 160,
     header: () => (
-      <RecordTable.InlineHead icon={IconUsers} label={t('approvers')} />
+      <RecordTable.InlineHead icon={IconUsers} label={t('approvers', 'Approvers')} />
     ),
     cell: ({ row }) => {
       const approverNames = (row.original.requiredApprovers || [])
@@ -178,7 +178,7 @@ export const approvalRequestColumns = ({
     size: 130,
     minSize: 118,
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarTime} label={t('created')} />
+      <RecordTable.InlineHead icon={IconCalendarTime} label={t('created', 'Created')} />
     ),
     cell: ({ row }) => (
       <RecordTableInlineCell className="whitespace-nowrap">
@@ -191,7 +191,7 @@ export const approvalRequestColumns = ({
     accessorKey: 'resolvedAt',
     size: 130,
     minSize: 118,
-    header: () => <RecordTable.InlineHead label={t('resolved')} />,
+    header: () => <RecordTable.InlineHead label={t('resolved', 'Resolved')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell className="whitespace-nowrap">
         {row.original.resolvedAt ? (

@@ -23,7 +23,7 @@ export const AutomationStatusFilter = () => {
           onSelect={() => setQueries({ status: 'draft' })}
         >
           <IconProgressX className="text-muted-foreground" />
-          {t('draft')}
+          {t('draft', 'Draft')}
           {status === 'draft' && <IconCheck className="ml-auto" />}
         </Command.Item>
         <Command.Item
@@ -32,7 +32,7 @@ export const AutomationStatusFilter = () => {
           onSelect={() => setQueries({ status: 'active' })}
         >
           <IconProgressCheck className="text-success" />
-          {t('active')}
+          {t('active', 'Active')}
           {status === 'active' && <IconCheck className="ml-auto" />}
         </Command.Item>
       </Command.List>

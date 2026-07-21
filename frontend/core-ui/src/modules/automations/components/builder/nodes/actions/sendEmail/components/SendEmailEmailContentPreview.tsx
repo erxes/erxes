@@ -1,6 +1,7 @@
 import { IconEdit } from '@tabler/icons-react';
 import { BlockEditorReadOnly, Button } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const SendEmailEmailContentPreview = ({
   content,
@@ -9,6 +10,7 @@ export const SendEmailEmailContentPreview = ({
   content: string;
   onEdit: () => void;
 }) => {
+  const { t } = useTranslation('automations');
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -35,7 +37,7 @@ export const SendEmailEmailContentPreview = ({
             }}
           >
             <IconEdit className="size-4" />
-            Edit Content
+            {t('edit-content', 'Edit Content')}
           </Button>
         </div>
       )}

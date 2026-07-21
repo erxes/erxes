@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TAutomationVariableDragPayload } from 'ui-modules';
 import {
   TAutomationOutputVariable,
@@ -28,8 +29,13 @@ export const AutomationOutputVariableList = ({
   sourceNode: TAutomationVariableSourceNode;
   variables: TAutomationOutputVariable[];
 }) => {
+  const { t } = useTranslation('automations');
   if (loading) {
-    return <AutomationVariableBrowserLoadingState text="Loading outputs..." />;
+    return (
+      <AutomationVariableBrowserLoadingState
+        text={t('loading-outputs', 'Loading outputs...')}
+      />
+    );
   }
 
   if (variables.length === 0) {
@@ -37,8 +43,8 @@ export const AutomationOutputVariableList = ({
       <AutomationVariableBrowserEmptyState
         text={
           searchQuery
-            ? 'No matching output variables.'
-            : 'No output variables available.'
+            ? t('no-matching-output-variables', 'No matching output variables.')
+            : t('no-output-variables-available', 'No output variables available.')
         }
       />
     );

@@ -2,10 +2,12 @@ import { useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SAVE_DOCUMENT } from '../graphql/documentMutations';
 import { GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
 export const useDocument = () => {
+  const { t } = useTranslation('documents');
   const [documentId, setDocumentId] = useQueryState('documentId');
   const [contentType] = useQueryState('contentType');
 
@@ -78,12 +80,12 @@ export const useDocument = () => {
             }, 0);
           }
 
-          toast({ title: 'Successfully saved document', variant: 'success' });
+          toast({ title: t('successfully-saved-document', 'Successfully saved document'), variant: 'success' });
         }
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error?.message,
           variant: 'destructive',
         });

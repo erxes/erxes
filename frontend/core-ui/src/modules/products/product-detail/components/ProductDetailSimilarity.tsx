@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button, Empty, Form, InfoCard, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconLayoutGrid, IconLoader2, IconPlus } from '@tabler/icons-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useFields } from 'ui-modules';
@@ -34,6 +35,7 @@ export const ProductDetailSimilarity = ({
   product,
   callBack,
 }: ProductDetailSimilarityProps) => {
+  const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const { fields } = useFields({ contentType: 'core:product' });
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -56,17 +58,15 @@ export const ProductDetailSimilarity = ({
             <Empty.Media variant="icon">
               <IconLayoutGrid />
             </Empty.Media>
-            <Empty.Title>Not part of a similarity group</Empty.Title>
+            <Empty.Title>{t('not-in-similarity-group', 'Not part of a similarity group')}</Empty.Title>
             <Empty.Description>
-              This product isn't linked to a similarity group. Create one to
-              generate and manage variants together, prefilled from this
-              product.
+              {t('not-in-similarity-group-description', "This product isn't linked to a similarity group. Create one to generate and manage variants together, prefilled from this product.")}
             </Empty.Description>
           </Empty.Header>
           <Empty.Content>
             <Button onClick={() => setCreateOpen(true)}>
               <IconPlus />
-              Create similarity group
+              {t('create-similarity-group', 'Create similarity group')}
             </Button>
           </Empty.Content>
         </Empty>
@@ -93,7 +93,7 @@ export const ProductDetailSimilarity = ({
       <div className="flex flex-col flex-1 overflow-hidden">
         <div className="flex-1 overflow-auto p-4 flex flex-col gap-4">
           <div className="relative">
-            <InfoCard title="Property fields">
+            <InfoCard title={t('property-fields', 'Property fields')}>
               <InfoCard.Content>
                 <VariantFieldPicker />
               </InfoCard.Content>
@@ -103,7 +103,7 @@ export const ProductDetailSimilarity = ({
             </div>
           </div>
 
-          <InfoCard title="Products">
+          <InfoCard title={t('products', 'Products')}>
             <InfoCard.Content>
               <ProductsWithUnitPrice fieldName={fieldName} />
             </InfoCard.Content>
@@ -117,7 +117,7 @@ export const ProductDetailSimilarity = ({
             onClick={() => form.handleSubmit(handleSave)()}
           >
             {saving && <IconLoader2 size={16} className="animate-spin" />}
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? t('saving', 'Saving...') : t('save', 'Save')}
           </Button>
         </div>
       </div>

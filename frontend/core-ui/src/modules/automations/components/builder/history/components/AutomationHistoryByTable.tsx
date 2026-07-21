@@ -111,20 +111,20 @@ const SetPropertyActionResult = ({ result }: { result: any }) => {
   }
 
   const target = result.target || {};
-  const targetLabel = target.label || result.module || t('property-type');
+  const targetLabel = target.label || result.module || t('property-type', 'Property Type');
   const targetCount = target.count ?? result.changes.length;
 
   return (
     <div className="min-w-[420px] max-w-[560px] space-y-3 text-sm">
       <div>
         <div className="font-medium">
-          {t('set-property-updated-target', {
+          {t('set-property-updated-target', 'Updated {{count}} {{target}}', {
             count: targetCount,
             target: targetLabel,
           })}
         </div>
         <div className="text-xs text-muted-foreground">
-          {t('set-property-change-count', {
+          {t('set-property-change-count', '{{count}} changes', {
             count: result.changes.length,
           })}
         </div>
@@ -146,17 +146,17 @@ const SetPropertyActionResult = ({ result }: { result: any }) => {
             </div>
 
             <div className="mt-1 grid grid-cols-[56px_1fr] gap-x-2 gap-y-1 text-xs">
-              <span className="text-muted-foreground">{t('value')}</span>
+              <span className="text-muted-foreground">{t('value', 'Value')}</span>
               <span className="break-words font-medium">
                 {formatSetPropertyValue(
                   change.value,
-                  t('set-property-empty-value'),
+                  t('set-property-empty-value', 'Empty'),
                 )}
               </span>
               {change.placeholder && (
                 <>
                   <span className="text-muted-foreground">
-                    {t('set-property-from')}
+                    {t('set-property-from', 'From')}
                   </span>
                   <span className="break-all font-mono text-muted-foreground">
                     {change.placeholder}
@@ -417,7 +417,7 @@ export const AutomationHistoryByTable = () => {
     <div className="flex h-full min-h-0 flex-col px-4">
       <div className="flex justify-end py-2">
         <Button variant="ghost" disabled={loading} onClick={() => refetch()}>
-          Reload <IconRefresh />
+          {t('reload', 'Reload')} <IconRefresh />
         </Button>
       </div>
       <RecordTable.Provider
@@ -447,7 +447,7 @@ export const AutomationHistoryByTable = () => {
                     colSpan={automationHistoryActionColumns.length}
                     className="py-10 text-center text-sm text-muted-foreground"
                   >
-                    {t('no-results')}
+                    {t('no-results', 'No results')}
                   </td>
                 </tr>
               )}

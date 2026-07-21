@@ -9,8 +9,10 @@ import { usePositionForm } from '@/settings/structure/hooks/usePositionForm';
 import { TPositionForm } from '@/settings/structure/types/position';
 import { PositionForm } from '../PositionForm';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const PositionEdit = () => {
+  const { t } = useTranslation('settings');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('position_id');
@@ -46,16 +48,16 @@ export const PositionEdit = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success', 'Success!'),
           variant: 'success',
-          description: 'Position updated successfully',
+          description: t('position.updated-successfully', 'Position updated successfully'),
         });
         methods.reset();
         setOpen(null);
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -98,11 +100,11 @@ export const PositionEdit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Can action="positionsManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save', 'Save')}
                 </Button>
               </Can>
             </Sheet.Footer>

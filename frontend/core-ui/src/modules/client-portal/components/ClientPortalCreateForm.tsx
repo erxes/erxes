@@ -2,8 +2,10 @@ import { useFormContext } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 
 import { TClientPortalAddForm } from '@/client-portal/hooks/useClientPortalForm';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalCreateForm = () => {
+  const { t } = useTranslation('client-portal');
   const form = useFormContext<TClientPortalAddForm>();
   return (
     <div className="flex flex-col gap-3">
@@ -12,8 +14,8 @@ export const ClientPortalCreateForm = () => {
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Client portal name</Form.Label>
-            <Form.Description className="sr-only">name</Form.Description>
+            <Form.Label>{t('client-portal-name', 'Client portal name')}</Form.Label>
+            <Form.Description className="sr-only">{t('name', 'name')}</Form.Description>
             <Form.Control>
               <Input {...field} />
             </Form.Control>

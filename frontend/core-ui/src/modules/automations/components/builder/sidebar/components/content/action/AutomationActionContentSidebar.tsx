@@ -6,8 +6,10 @@ import { RenderPluginsComponentWrapper } from '@/automations/components/common/R
 import { Card, Spinner, toast } from 'erxes-ui';
 import { Suspense, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationActionContentSidebar = () => {
+  const { t } = useTranslation('automations');
   const formRef = useRef<{ submit: () => void }>(null);
   const {
     currentIndex,
@@ -33,8 +35,8 @@ export const AutomationActionContentSidebar = () => {
             typeof formRef.current.submit !== 'function'
           ) {
             toast({
-              title: 'Form is not configured',
-              description: 'Please configure the action form before saving',
+              title: t('form-is-not-configured', 'Form is not configured'),
+              description: t('please-configure-action-form', 'Please configure the action form before saving'),
               variant: 'destructive',
             });
             return;

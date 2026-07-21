@@ -255,5 +255,395 @@
   "schedule-timezone-description": "Use an IANA timezone such as UTC, Asia/Ulaanbaatar, or America/New_York.",
   "schedule-not-configured": "Schedule not configured",
   "error": "Error",
-  "success": "Success"
+  "success": "Success",
+
+  "hide-minimap": "Hide minimap",
+  "show-minimap": "Show minimap",
+  "hide-grid": "Hide grid",
+  "show-grid": "Show grid",
+  "direction": "Direction",
+  "edge-type": "Edge type",
+  "download": "Download",
+  "png": "PNG",
+  "with-background": "With background",
+  "transparent": "Transparent",
+  "svg": "SVG",
+  "export-json": "Export JSON",
+
+  "variables": "Variables",
+  "output-variables-panel-description": "Output variables panel will live here.",
+
+  "select-node": "Select node",
+  "search-nodes": "Search nodes...",
+  "no-nodes-found": "No nodes found.",
+
+  "no-output-variables-yet": "No output variables yet",
+  "no-output-variables-description": "Add a trigger or action to the workflow and configure it to see available output variables here.",
+
+  "no-permission": "No permission",
+
+  "hide-details": "Hide details",
+  "show-details": "Show details",
+  "try-again": "Try again",
+
+  "payload-schema": "Payload Schema",
+  "no-payload-schema-defined": "No payload schema defined",
+
+  "edit-content": "Edit Content",
+  "edit-email-content": "Edit Email Content",
+  "edit-email-content-description": "Use the editor to compose your email. Insert variables from the panel on the right to personalize each message.",
+  "no-variables-available-yet": "No variables available yet",
+  "no-variables-available-description": "Add a trigger or configure an action above this node to see available output variables.",
+  "variable-sources": "Variable sources",
+
+  "see-emails": "See Emails",
+  "recipient-emails": "Recipient emails",
+
+  "sent-successfully": "Sent successfully",
+  "see-content": "See Content",
+
+  "search-email-templates": "Search email templates...",
+  "no-email-templates-found": "No email templates found",
+
+  "output-mappings": "Output mappings",
+  "add-mapping": "Add mapping",
+
+  "authentication": "Authentication",
+  "none": "None",
+  "basic-auth": "Basic Auth",
+  "bearer-token-auth": "Bearer Token Auth",
+  "jwt-bearer": "JWT Bearer",
+  "user": "User",
+  "password": "Password",
+  "jwt-secret": "JWT Secret",
+  "algorithm": "Algorithm",
+  "jwt-header-json": "JWT Header (JSON)",
+  "jwt-payload-json": "JWT Payload (JSON)",
+  "token-placement": "Token Placement",
+  "authorization-header": "Authorization Header",
+  "query-parameter": "Query Parameter",
+  "request-body": "Request Body",
+  "jwt-token-generation": "JWT Token Generation",
+
+  "method": "Method",
+  "url": "URL",
+  "query-parameters": "Query Parameters",
+  "add-parameter": "Add Parameter",
+
+  "hide-raw": "Hide raw",
+  "edit-raw": "Edit raw",
+  "apply": "Apply",
+
+  "retry-configuration": "Retry Configuration",
+  "delay-between-retry-attempts": "Delay between retry attempts",
+  "proxy-configuration": "Proxy Configuration",
+
+  "add-header": "Add Header",
+  "no-headers-added": "No headers added yet...",
+
+  "no-document-configured": "No document configured",
+
+  "split-options-description": "Build each split option with segment conditions.",
+  "add-option": "Add option",
+  "save-condition-before-split": "Save each changed condition before saving the split configuration.",
+
+  "form-error": "There is some error in the form",
+  "settings": "Settings",
+
+  "enter-topic-label": "Enter topic label",
+  "explain-topic-selection": "Explain when this topic should be selected",
+  "add-topic": "Add Topic",
+
+  "field-key": "Field Key",
+  "data-type": "Data Type",
+  "validation": "Validation",
+  "add-classification-field": "Add Classification Field",
+
+  "execution-history": "Execution history",
+  "execution-history-description": "Step-by-step trace of this automation run. Expand each node to inspect inputs, outputs, and timing.",
+  "view-as-table": "View as table",
+  "view-as-flow": "View as flow",
+
+  "filter-by-created-at": "Filter by created at",
+  "filter-by-created": "Filter by created",
+
+  "agents": "Agents",
+  "bots": "Bots",
+
+  "payload-schema-validation": "Payload Schema Validation",
+  "payload-schema-validation-description": "Define required properties and data types.",
+  "required-properties": "Required Properties",
+  "add-root-property": "Add Root Property",
+  "expected-payload-structure": "Expected Payload Structure",
+  "updates-in-realtime": "Updates in real-time as you edit.",
+
+  "configure-split-options": "Configure split options",
+  "fallback": "Fallback",
+
+  "invalid-form": "Invalid form",
+  "review-highlighted-fields": "Please review the highlighted fields and try again.",
+  "edit-ai-agent": "Edit AI Agent",
+  "create-ai-agent": "Create AI Agent",
+  "update-your-ai-agent": "Update your AI agent configuration",
+  "create-new-ai-agent": "Create a new AI agent to connect your automations to an external AI provider.",
+
+  "remove": "Remove",
+
+  "ai-agents": "AI Agents",
+  "ai-agents-description": "Configure credential-backed AI agents, attach context files, and validate provider readiness before wiring them into automation actions.",
+  "automation-bots": "Automation bots",
+  "automation-bots-description": "Set up your bots and start connecting with your customers",
+  "no-automation-bots-available": "No automation bots available",
+  "no-bot-integrations-description": "There are no bot integrations enabled for this workspace yet. Once a bot integration is added, it will appear here.",
+
+  "email-templates": "Email Templates",
+  "email-templates-description": "Create and manage reusable email templates for your automations.",
+  "create-template": "Create Template",
+  "email-templates-count": "{{count}} templates",
+  "loading": "Loading...",
+
+  "clear": "Clear",
+
+  "webhook-url": "Webhook URL",
+
+  "required": "Required",
+  "optional": "Optional",
+  "add-array-item-property": "Add Array Item Property",
+
+  "updated-by": "Updated By",
+  "trigger-types": "Trigger Types",
+  "action-types": "Action Types",
+
+  "no-ai-agents-found": "No AI agents found",
+  "create-first-ai-agent-description": "Create your first AI agent to start automating conversations with your customers.",
+  "create-first-agent": "Create First Agent",
+
+  "configured-agents": "Configured agents",
+  "pick-existing-agent": "Pick an existing agent for editing or create a new one with the same provider contract.",
+  "create-agents": "Create Agents",
+
+  "replace-secret": "Replace secret",
+  "keep-existing-secret": "Keep existing secret",
+
+  "failed-to-load-context-file": "Failed to load context file",
+  "please-try-again": "Please try again.",
+  "failed-to-save-context-file": "Failed to save context file",
+  "saving": "Saving...",
+
+  "instructions": "Instructions",
+  "knowledge": "Knowledge",
+  "system-prompt": "System Prompt",
+
+  "general": "General",
+  "connection": "Connection",
+  "context": "Context",
+  "health": "Health",
+
+  "unsupported-file-format": "Unsupported file format",
+  "context-file-too-large": "Context file is too large",
+  "too-many-context-files": "Too many context files",
+  "combined-context-too-large": "Combined context is too large",
+  "upload-context-files": "Upload Context Files",
+  "uploading": "Uploading...",
+  "choose-files": "Choose Files",
+  "uploading-files": "Uploading files...",
+  "drop-more-files": "Drop more files or click to add",
+
+  "health-schema": "Schema",
+  "health-credentials": "Credentials",
+  "health-context-files": "Context Files",
+  "health-endpoint": "Endpoint",
+  "health-model-access": "Model Access",
+  "ready": "Ready",
+  "needs-attention": "Needs attention",
+  "checking": "Checking...",
+  "run-health-check": "Run health check",
+  "agent-ready-for-calls": "This agent is ready for provider calls.",
+  "agent-needs-attention": "This agent still needs attention before execution.",
+  "provider-health": "Provider Health",
+  "warnings": "Warnings",
+  "errors": "Errors",
+  "save-the-agent-first": "Save the agent first",
+
+  "edit-email-template": "Edit Email Template",
+  "create-email-template": "Create Email Template",
+  "update-your-email-template": "Update your email template",
+  "create-new-email-template": "Create a new email template for automation",
+  "update-template": "Update Template",
+
+  "email-template-created": "Email template created successfully",
+  "email-template-updated": "Email template updated successfully",
+  "email-template-removed": "Email template removed successfully",
+
+  "automation-status-updated": "Automation status updated successfully",
+
+  "unsaved": "Unsaved",
+
+  "activate-automation": "Activate this automation?",
+  "deactivate-automation": "Deactivate this automation?",
+  "activate-automation-description": "This will save your latest changes and start running this automation.",
+  "deactivate-automation-description": "This will save your latest changes and stop this automation from running.",
+  "save-and-activate": "Save and activate",
+  "save-and-deactivate": "Save and deactivate",
+
+  "hide-variables-panel": "Hide variables panel",
+  "open-variables-panel": "Open variables panel",
+
+  "form-is-not-configured": "Form is not configured",
+  "please-configure-action-form": "Please configure the action form before saving",
+
+  "no-matching-property-fields": "No matching property fields.",
+  "no-property-fields-available": "No property fields available.",
+
+  "hide-fields": "Hide fields",
+  "reference": "Reference",
+  "fields": "Fields",
+  "no-matching-output-variables": "No matching output variables.",
+  "no-output-variables-available": "No output variables available.",
+  "no-reference-fields-available": "No reference fields available.",
+  "loading-reference-fields": "Loading reference fields...",
+  "loading-outputs": "Loading outputs...",
+
+  "see-request-and-response": "See Request & Response",
+  "outgoing-webhook-result": "Outgoing Webhook Result",
+  "response": "Response",
+
+  "unsaved-condition-changes": "Unsaved condition changes",
+  "condition-is-not-saved": "Condition is not saved",
+  "condition-saved": "Condition saved",
+  "save-condition": "Save condition",
+  "saved": "Saved",
+
+  "no-mappings": "No mappings",
+
+  "copy-url": "Copy Url",
+
+  "add-item": "Add item",
+
+  "add": "Add",
+
+  "no-headers-added-yet-click": "No headers added yet. Click \"Add Header\" to get started.",
+
+  "edit-payload-schema": "Edit Payload Schema",
+
+  "drop-to-add-node": "Drop to add node",
+  "dragging": "Dragging",
+
+  "webhook-is-received": "Webhook is received",
+  "trigger-condition-is-met": "Trigger condition is met",
+  "action-condition-is-met": "Action condition is met",
+
+  "reindex-queued": "Reindex queued",
+  "reindex-queued-description": "Knowledge chunks will refresh in the background.",
+  "could-not-queue-reindex": "Could not queue reindex",
+
+  "reload": "Reload",
+
+  "something-went-wrong": "Something went wrong",
+  "save-successful": "Save successful",
+  "passed": "Passed",
+
+  "memory-description": "Reuse saved AI results in later steps and optionally persist this AI result for future actions.",
+  "read-from-memory": "Read From Memory",
+  "read-from-memory-description": "Load previously saved automation memory into this AI step.",
+  "read-namespace": "Read Namespace",
+  "read-namespace-description": "Use the same namespace across related AI actions to share memory.",
+  "save-result-to-memory": "Save Result To Memory",
+  "save-result-to-memory-description": "Persist this AI result so later actions can reuse it.",
+  "write-namespace": "Write Namespace",
+  "memory-key": "Memory Key",
+  "memory-key-description": "Examples: `lastTopic`, `attributes`, `lastReplyText`",
+  "result-path": "Result Path",
+  "result-path-description": "Leave empty to save the whole result. Examples: `topicId`, `attributes`, `text`",
+  "write-mode": "Write Mode",
+  "select-mode": "Select mode",
+  "replace": "Replace",
+  "merge": "Merge",
+  "write-mode-description": "Use `merge` when saving structured attributes.",
+  "ttl-minutes": "TTL (minutes)",
+  "ttl-minutes-description": "Saved memory expires automatically after this duration.",
+
+  "classification": "Classification",
+  "reads-memory": "reads memory",
+  "saves-result": "saves",
+  "result": "result",
+  "generate-text": "Generate text",
+
+  "string": "String",
+  "number": "Number",
+  "boolean": "Boolean",
+  "object": "Object",
+  "array": "Array",
+  "optional-validation-hints": "Optional validation or enum hints",
+  "field-extraction-prompt": "Describe what this field should extract from the input",
+
+  "content-type-label": "Content Type:",
+  "field": "Field",
+  "select-a-field": "Select a field",
+  "operator": "Operator",
+  "select-an-operator": "Select an operator",
+
+  "document-type": "Document type",
+  "select-a-document-type": "Select a document type",
+  "document-type-description": "Narrows the document list below to documents of this type.",
+  "document": "Document",
+  "select-a-document": "Select a document",
+  "document-render-description": "The selected document is rendered with the trigger/target record and exposed as this action's output.",
+
+  "select-email-template-to-load": "Select email template to load",
+  "enter-email-address": "Enter email address",
+
+  "add-condition": "Add condition",
+
+  "conditions": "Conditions",
+  "select-target-to-configure-conditions": "Select a target to configure conditions",
+  "define-conditions-description": "Define conditions that must be met before continuing.",
+
+  "search-variables": "Search variables...",
+  "output-variables": "Output Variables",
+  "custom-properties": "Custom Properties",
+
+  "file-added": "Added",
+  "reindex-knowledge": "Reindex knowledge",
+
+  "agent-name-placeholder": "Facebook Order Router",
+  "agent-name-description": "Give the agent a clear name so it is easy to pick inside automation actions.",
+  "agent-description-placeholder": "Routes Facebook conversations, classifies intents, and extracts order attributes for downstream automation steps.",
+  "agent-description-helper": "Describe what this agent is meant to do for the team and for future automation builders.",
+
+  "temperature": "Temperature",
+  "temperature-description": "Lower values keep routing and extraction more deterministic.",
+  "max-tokens": "Max Tokens",
+  "max-tokens-description": "Caps the length of the AI response so automation steps stay fast.",
+  "timeout-ms": "Timeout (ms)",
+  "timeout-ms-description": "The automation waits for the provider until this timeout is reached.",
+
+  "model": "Model",
+  "select-model": "Select model",
+  "model-description": "Choose the model this automation agent should use.",
+
+  "provider": "Provider",
+  "description": "Description",
+  "created": "Created",
+
+  "gateway-mode": "Gateway Mode",
+  "select-gateway-mode": "Select gateway mode",
+  "compat": "Compat",
+  "openai-provider": "OpenAI Provider",
+  "gateway-mode-description": "Compat keeps one OpenAI-compatible endpoint while the model name selects the downstream provider.",
+  "account-id": "Account ID",
+  "use-platform-default": "Use platform default",
+  "account-id-description": "Leave empty to use the platform Cloudflare account.",
+  "gateway-id": "Gateway ID",
+  "gateway-id-description": "Leave empty to use the platform AI Gateway.",
+  "base-url-override": "Base URL Override",
+  "base-url-override-placeholder": "Generated from account, gateway, and mode",
+  "base-url-override-description": "Optional. When empty, the backend builds the Cloudflare Gateway URL from the account, gateway, and mode.",
+
+  "base-url": "Base URL",
+
+  "no-email-templates": "No email templates",
+  "no-email-templates-description": "Create your first email template to get started with automated email campaigns.",
+
+  "text": "Text"
 }

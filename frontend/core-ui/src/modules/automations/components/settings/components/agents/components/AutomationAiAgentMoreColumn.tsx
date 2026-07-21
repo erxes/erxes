@@ -38,7 +38,11 @@ export const AutomationAiAgentMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('ai-agent-delete-confirm-message', { name }),
+      message: t(
+        'ai-agent-delete-confirm-message',
+        'Are you sure you want to delete "{{name}}"?',
+        { name },
+      ),
       options: confirmOptions,
     }).then(() => {
       removeAiAgent({
@@ -49,15 +53,15 @@ export const AutomationAiAgentMoreColumnCell = ({
         ],
         onError: (e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
         },
         onCompleted: () => {
           toast({
-            title: t('success'),
-            description: t('ai-agent-delete-success'),
+            title: t('success', 'Success'),
+            description: t('ai-agent-delete-success', 'AI agent deleted successfully'),
             variant: 'success',
           });
         },
@@ -78,7 +82,7 @@ export const AutomationAiAgentMoreColumnCell = ({
             <Can action="automationsAiAgentEdit">
               <Command.Item value="edit" asChild>
                 <Link to={`${AutomationSettingsPath.Agents}/${_id}`}>
-                  <IconEdit /> {t('edit')}
+                  <IconEdit /> {t('edit', 'Edit')}
                 </Link>
               </Command.Item>
             </Can>
@@ -89,7 +93,7 @@ export const AutomationAiAgentMoreColumnCell = ({
                 disabled={loading}
                 className="text-destructive"
               >
-                <IconTrash /> {t('delete')}
+                <IconTrash /> {t('delete', 'Delete')}
               </Command.Item>
             </Can>
           </Command.List>

@@ -41,7 +41,7 @@ export const AutomationBuilderHeader = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/automations">
                     <IconAffiliate />
-                    {t('automations')}
+                    {t('automations', 'Automations')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -63,7 +63,7 @@ export const AutomationBuilderHeader = () => {
               onClick={gotoAutomationSettings}
             >
               <IconSettings />
-              {t('go-to-settings')}
+              {t('go-to-settings', 'Go to settings')}
             </Link>
           </Button>
           <Can
@@ -75,7 +75,7 @@ export const AutomationBuilderHeader = () => {
               onClick={handleSubmit(handleSave, handleError)}
             >
               <IconDeviceFloppy />
-              {loading ? <Spinner /> : t('save')}
+              {loading ? <Spinner /> : t('save', 'Save')}
             </Button>
           </Can>
         </PageHeader.End>
@@ -85,7 +85,7 @@ export const AutomationBuilderHeader = () => {
           <AutomationBuilderNameInput />
           {isDirty && (
             <Badge variant="warning" className="shrink-0">
-              <IconAlertTriangle className="size-3.5" /> Unsaved
+              <IconAlertTriangle className="size-3.5" /> {t('unsaved', 'Unsaved')}
             </Badge>
           )}
           <AutomationHeaderTabs toggleTabs={toggleTabs} />

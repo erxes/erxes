@@ -2,6 +2,7 @@ import { IconDownload, IconLoader, IconUpload } from '@tabler/icons-react';
 import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { TNotification } from 'ui-modules';
 import { useExportNotificationData } from '../hooks/useExportNotificationData';
+import { useTranslation } from 'react-i18next';
 
 export const ExportNotificationContent = ({
   createdAt,
@@ -19,6 +20,7 @@ export const ExportNotificationContent = ({
     canDownload,
   } = useExportNotificationData(metadata);
 
+  const { t } = useTranslation('notification');
   const statusView = buildStatus(status);
 
   return (
@@ -44,27 +46,27 @@ export const ExportNotificationContent = ({
           <span className="text-foreground font-semibold">
             {totalRows?.toLocaleString?.() || '—'}
           </span>
-          <span>Rows</span>
+          <span>{t('rows', 'Rows')}</span>
         </div>
         <span>•</span>
         <div className="flex items-center gap-1 text-success">
           <span className="text-success font-semibold">
             {successRows.toLocaleString()}
           </span>
-          <span>Exported</span>
+          <span>{t('exported', 'Exported')}</span>
         </div>
         <span>•</span>
         <div className="flex items-center gap-1 text-destructive">
           <span className="text-destructive font-semibold">
             {errorRows.toLocaleString()}
           </span>
-          <span>Errors</span>
+          <span>{t('errors', 'Errors')}</span>
         </div>
       </div>
 
       {status === 'failed' && (
         <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive inline-flex text-left">
-          {errorMessage || 'An error occurred during export.'}
+          {errorMessage || t('error-occurred-during-export', 'An error occurred during export.')}
         </div>
       )}
 
@@ -72,7 +74,7 @@ export const ExportNotificationContent = ({
         <Button asChild variant="default" size="lg" className="gap-2">
           <a href={fileUrl} target="_blank" rel="noopener noreferrer">
             <IconDownload className="size-4" />
-            Download File
+            {t('download-file', 'Download File')}
           </a>
         </Button>
       )}

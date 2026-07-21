@@ -12,6 +12,7 @@ import { AutomationNodeType, NodeData } from '@/automations/types';
 import { Handle, Position } from '@xyflow/react';
 import { cn, IconComponent } from 'erxes-ui';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ActionNodeSourceHandler = ({
   id,
@@ -112,13 +113,14 @@ const ActionNodeHeader = ({
 };
 
 const ActionNode = ({ data, selected, id, ...props }: any) => {
+  const { t } = useTranslation('automations');
   const { beforeTitleContent, config, nextActionId, workflowId, error } = data;
   const isVertical = data.flowDirection === 'vertical';
 
   return (
     <div className="flex flex-col" key={id}>
       <div className="w-1/4 ml-1 bg-success/10 text-success text-center px-2 py-1 rounded-t-md">
-        <p className="font-medium font-bold">Action</p>
+        <p className="font-medium font-bold">{t('action', 'Action')}</p>
       </div>
       <div
         className={cn(

@@ -5,6 +5,7 @@ import {
   GET_STRUCTURE_DETAILS,
 } from '../graphql';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useStructureDetails = () => {
   const { data, loading, error } = useQuery(GET_STRUCTURE_DETAILS);
@@ -18,6 +19,7 @@ export const useStructureDetails = () => {
 };
 
 export const useEditStructureDetail = () => {
+  const { t } = useTranslation('settings');
   const [edit, { loading, error }] = useMutation(EDIT_STRUCTURE);
   const { toast } = useToast();
 
@@ -45,11 +47,11 @@ export const useEditStructureDetail = () => {
         });
       },
       onCompleted: () => {
-        toast({ title: 'Updated', variant: 'success' });
+        toast({ title: t('updated', 'Updated'), variant: 'success' });
       },
       onError(error) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -61,6 +63,7 @@ export const useEditStructureDetail = () => {
 };
 
 export const useAddStructureDetail = () => {
+  const { t } = useTranslation('settings');
   const [add, { loading, error }] = useMutation(ADD_STRUCTURE);
   const { toast } = useToast();
 
@@ -71,11 +74,11 @@ export const useAddStructureDetail = () => {
       ...operationVariables,
       variables,
       onCompleted: () => {
-        toast({ title: 'Created successfully!', variant: 'success' });
+        toast({ title: t('created-successfully', 'Created successfully!'), variant: 'success' });
       },
       onError(error) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

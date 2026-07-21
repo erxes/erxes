@@ -5,6 +5,7 @@ import {
 import { Button, Sheet, cn } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { MergeTooltip } from '@/contacts/customers/components/customers-command-bar/merge/MergeTooltip';
+import { useTranslation } from 'react-i18next';
 
 const noop = () => {
   //
@@ -25,13 +26,14 @@ export const MergeSheet = ({
   onSave = noop,
   ...props
 }: MergeSheetProps) => {
+  const { t } = useTranslation('contact');
   return (
     <Sheet {...props}>
       <MergeTooltip disabled={!disabled}>
         <Sheet.Trigger asChild>
           <Button variant={'secondary'} disabled={disabled}>
             <IconArrowMerge />
-            Merge
+            {t('merge', 'Merge')}
           </Button>
         </Sheet.Trigger>
       </MergeTooltip>
@@ -48,15 +50,18 @@ export const MergeSheet = ({
   );
 };
 
-const MergeSheetHeader = () => (
-  <Sheet.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
-    <Button variant="ghost" size="icon">
-      <IconLayoutSidebarLeftCollapse />
-    </Button>
-    <Sheet.Title>Merge Customers</Sheet.Title>
-    <Sheet.Close />
-  </Sheet.Header>
-);
+const MergeSheetHeader = () => {
+  const { t } = useTranslation('contact');
+  return (
+    <Sheet.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
+      <Button variant="ghost" size="icon">
+        <IconLayoutSidebarLeftCollapse />
+      </Button>
+      <Sheet.Title>{t('customer.merge-customers', 'Merge Customers')}</Sheet.Title>
+      <Sheet.Close />
+    </Sheet.Header>
+  );
+};
 
 interface MergeSheetFooterProps {
   onDiscard: () => void;
@@ -64,6 +69,7 @@ interface MergeSheetFooterProps {
 }
 
 const MergeSheetFooter = ({ onDiscard, onSave }: MergeSheetFooterProps) => {
+  const { t } = useTranslation('contact');
   return (
     <Sheet.Footer className="flex justify-end p-5">
       <Button
@@ -72,14 +78,14 @@ const MergeSheetFooter = ({ onDiscard, onSave }: MergeSheetFooterProps) => {
         }}
         variant="secondary"
       >
-        Discard
+        {t('discard', 'Discard')}
       </Button>
       <Button
         onClick={() => {
           onSave();
         }}
       >
-        Save
+        {t('save', 'Save')}
       </Button>
     </Sheet.Footer>
   );

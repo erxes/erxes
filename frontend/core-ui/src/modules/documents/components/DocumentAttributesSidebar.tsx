@@ -5,6 +5,7 @@ import {
 import { IconGripVertical, IconX } from '@tabler/icons-react';
 import { Button, Command, IBlockEditor, ScrollArea } from 'erxes-ui';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Attribute {
   label?: string;
@@ -26,6 +27,7 @@ export const DocumentAttributesSidebar = ({
   loading?: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation('documents');
   const [search, setSearch] = useState('');
 
   const grouped = useMemo(() => {
@@ -63,14 +65,14 @@ export const DocumentAttributesSidebar = ({
     <aside className="flex h-full w-80 flex-none flex-col border-l bg-muted/20">
       <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">Attributes</span>
+          <span className="text-sm font-semibold">{t('attributes', 'Attributes')}</span>
         </div>
         <Button
           variant="ghost"
           size="icon"
           className="size-7 text-muted-foreground"
           onClick={onClose}
-          aria-label="Close attributes"
+          aria-label={t('close-attributes', 'Close attributes')}
         >
           <IconX />
         </Button>
@@ -79,7 +81,7 @@ export const DocumentAttributesSidebar = ({
         <div className="px-3">
           <Command.Input
             variant="primary"
-            placeholder="Search attributes"
+            placeholder={t('search-attributes', 'Search attributes')}
             value={search}
             onValueChange={setSearch}
           />
@@ -97,7 +99,7 @@ export const DocumentAttributesSidebar = ({
               </div>
             )}
             {!loading && (
-              <Command.Empty>No attributes match your search.</Command.Empty>
+              <Command.Empty>{t('no-attributes-match', 'No attributes match your search.')}</Command.Empty>
             )}
             {!loading &&
               Object.entries(grouped).map(([groupName, items]) => (

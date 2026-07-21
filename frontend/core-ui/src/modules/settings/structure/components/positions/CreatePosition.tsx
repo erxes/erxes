@@ -17,8 +17,10 @@ import { usePositionAdd } from '../../hooks/usePositionActions';
 import { PositionHotKeyScope, TPositionForm } from '../../types/position';
 import { PositionForm } from './PositionForm';
 import { Can, usePermissionCheck } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CreatePosition = () => {
+  const { t } = useTranslation('settings');
   const {
     methods,
     methods: { handleSubmit },
@@ -63,16 +65,16 @@ export const CreatePosition = () => {
         variables: data,
         onCompleted: () => {
           toast({
-            title: 'Success!',
+            title: t('success', 'Success!'),
             variant: 'success',
-            description: 'Position created successfully',
+            description: t('position.created-successfully', 'Position created successfully'),
           });
           methods.reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -85,7 +87,7 @@ export const CreatePosition = () => {
       <Can action="positionsManage">
         <Sheet.Trigger asChild>
           <Button>
-            <IconPlus /> Create Position
+            <IconPlus /> {t('position.create', 'Create Position')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -104,7 +106,7 @@ export const CreatePosition = () => {
             <Sheet.Header>
               <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconBriefcase size={16} />
-                Create position
+                {t('position.create-title', 'Create position')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -113,10 +115,10 @@ export const CreatePosition = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

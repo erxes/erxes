@@ -5,12 +5,33 @@
     "company" : "Company",
     "product" : "Product",
     "team-member" : "Team member",
+    "broadcast" : "Broadcast",
     "add-document" : "Add document",
     "no-document-title" : "No document yet",
     "no-document-description" : "Get started by creating your first document.",
+    "attributes": "Attributes",
+    "close-attributes": "Close attributes",
+    "search-attributes": "Search attributes",
+    "no-attributes-match": "No attributes match your search.",
+    "untitled": "Untitled",
+    "no-document-found": "No document found",
+    "no-document-found-description": "This document may have been deleted. Pick another from the list to keep editing.",
+    "delete": "Delete",
+    "delete-document": "Delete document",
+    "delete-document-description": "This document will be permanently deleted. This action cannot be undone.",
+    "cancel": "Cancel",
+    "add-document-btn": "Add Document",
+    "save-document": "Save Document",
+    "all-documents": "All documents",
+    "newest-first": "Newest First",
+    "oldest-first": "Oldest First",
+    "document-removed-successfully": "Document removed successfully",
+    "error": "Error",
+    "successfully-saved-document": "Successfully saved document",
     "filter" : {
-    "search": "Search",
-    "created-at": "Created At",
-    "assigned-to": "Assigned To"
-  }
+        "search": "Search",
+        "created-at": "Created At",
+        "assigned-to": "Assigned To",
+        "filter": "Filter"
+    }
 }

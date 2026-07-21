@@ -90,10 +90,10 @@ export const useEmailDocumentPlaceholder = ({
   const additionalSlashMenuItems = useMemo<DefaultReactSuggestionItem[]>(
     () => [
       {
-        title: t('document-placeholder'),
-        subtext: t('document-placeholder-description'),
+        title: t('document-placeholder', 'Document'),
+        subtext: t('document-placeholder-description', 'Insert a document placeholder'),
         aliases: ['document', 'doc', 'file'],
-        group: t('email-content'),
+        group: t('email-content', 'Email Content'),
         icon: <IconFileText size={18} />,
         onItemClick: () => {
           editor.suggestionMenus.clearQuery();
@@ -154,9 +154,9 @@ const EmailDocumentPlaceholderPicker = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-xl overflow-hidden p-0">
         <Dialog.Header className="relative border-b px-4 py-3 pr-12">
-          <Dialog.Title>{t('select-document')}</Dialog.Title>
+          <Dialog.Title>{t('select-document', 'Select document')}</Dialog.Title>
           <Dialog.Description>
-            {t('select-document-description')}
+            {t('select-document-description', 'This placeholder will be replaced with the full document when the email is sent.')}
           </Dialog.Description>
           <Dialog.Close asChild>
             <Button
@@ -174,12 +174,12 @@ const EmailDocumentPlaceholderPicker = ({
             value={search}
             onValueChange={setSearch}
             variant="secondary"
-            placeholder={t('search-documents')}
+            placeholder={t('search-documents', 'Search documents...')}
             focusOnMount
           />
           <Command.List className="max-h-80">
             <Command.Empty>
-              {loading ? t('loading-documents') : t('no-documents-found')}
+              {loading ? t('loading-documents', 'Loading documents...') : t('no-documents-found', 'No documents found.')}
             </Command.Empty>
             {documents.map((document: EmailDocument) => (
               <Command.Item
@@ -191,12 +191,12 @@ const EmailDocumentPlaceholderPicker = ({
                 <IconFileText className="mt-0.5 size-4 text-muted-foreground" />
                 <div className="min-w-0">
                   <div className="truncate font-medium">
-                    {document.name || t('untitled-document')}
+                    {document.name || t('untitled-document', 'Untitled document')}
                   </div>
                   <div className="truncate text-xs text-muted-foreground">
                     {getDocumentPreview(document.content) ||
                       document.code ||
-                      t('document-placeholder')}
+                      t('document-placeholder', 'Document')}
                   </div>
                 </div>
               </Command.Item>
@@ -214,7 +214,7 @@ const EmailDocumentPlaceholderPicker = ({
                   className="w-full"
                   onClick={handleFetchMore}
                 >
-                  {t('load-more')}
+                  {t('load-more', 'Load more')}
                 </Button>
               </div>
             )}

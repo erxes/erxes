@@ -4,6 +4,7 @@ import { Sheet } from 'erxes-ui/components/sheet';
 import { GET_DEPARTMENT_MEMBERS } from '../../graphql';
 import { useState } from 'react';
 import { IUser, MembersInline } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const MemberRow = ({ member }: { member: IUser }) => {
   return (
@@ -30,6 +31,7 @@ export const DepartmentMembersSheet = ({
   departmentId: string;
   count: number;
 }) => {
+  const { t } = useTranslation('settings');
   const [open, setOpen] = useState(false);
 
   const { data, loading, error } = useQuery(GET_DEPARTMENT_MEMBERS, {
@@ -42,7 +44,10 @@ export const DepartmentMembersSheet = ({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
-        <button className="w-full h-full font-medium text-sm hover:underline">
+        <button
+          type="button"
+          className="w-full h-full font-medium text-sm hover:underline"
+        >
           {count}
         </button>
       </Sheet.Trigger>
@@ -59,13 +64,13 @@ export const DepartmentMembersSheet = ({
             </div>
           ) : error ? (
             <p className="px-2 py-4 text-destructive text-sm">
-              Failed to load members
+              {t('failed-to-load-members', 'Failed to load members')}
             </p>
           ) : members.length === 0 ? (
             <div className="flex flex-col justify-center items-center py-16 text-center">
-              <p className="font-medium text-muted-foreground">No members</p>
+              <p className="font-medium text-muted-foreground">{t('no-members', 'No members')}</p>
               <p className="mt-1 text-muted-foreground/70 text-sm">
-                No team members in this department
+                {t('no-team-members-in-department', 'No team members in this department')}
               </p>
             </div>
           ) : (
@@ -73,7 +78,7 @@ export const DepartmentMembersSheet = ({
               <Table>
                 <Table.Header>
                   <Table.Row>
-                    <Table.Head className="pl-2 w-auto">Member</Table.Head>
+                    <Table.Head className="pl-2 w-auto">{t('member', 'Member')}</Table.Head>
                     <Table.Head className="w-8" />
                   </Table.Row>
                 </Table.Header>

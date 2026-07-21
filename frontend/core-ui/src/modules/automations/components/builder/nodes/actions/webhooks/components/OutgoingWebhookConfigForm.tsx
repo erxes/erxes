@@ -62,7 +62,7 @@ export const OutgoingWebhookConfigForm = ({
       >
         <Tabs.List className="w-full" defaultValue="request">
           <Tabs.Trigger className="w-1/5" value="request">
-            {t('request')}
+            {t('request', 'Request')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['method', 'url', 'queryParams']}
@@ -70,7 +70,7 @@ export const OutgoingWebhookConfigForm = ({
             />
           </Tabs.Trigger>
           <Tabs.Trigger className="w-1/5" value="body">
-            {t('body')}
+            {t('body', 'Body')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['body']}
@@ -79,7 +79,7 @@ export const OutgoingWebhookConfigForm = ({
           </Tabs.Trigger>
 
           <Tabs.Trigger className="w-1/5" value="auth">
-            {t('auth')}
+            {t('auth', 'Auth')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['auth']}
@@ -87,7 +87,7 @@ export const OutgoingWebhookConfigForm = ({
             />
           </Tabs.Trigger>
           <Tabs.Trigger className="w-1/5" value="header">
-            {t('headers')}
+            {t('headers', 'Headers')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['headers']}
@@ -96,7 +96,7 @@ export const OutgoingWebhookConfigForm = ({
           </Tabs.Trigger>
 
           <Tabs.Trigger className="w-1/5" value="options">
-            {t('options')}
+            {t('options', 'Options')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['options']}
@@ -150,7 +150,7 @@ export const OutgoingWebhookConfigForm = ({
       </Tabs>
       <div className="p-2 flex justify-end border-t bg-background">
         <Button onClick={form.handleSubmit(handleSave, handleValidationErrors)}>
-          {t('save-configuration')}
+          {t('save-configuration', 'Save Configuration')}
         </Button>
       </div>
     </div>

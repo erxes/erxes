@@ -27,6 +27,7 @@ import {
   TPlaceholderInputSuggestion,
   useFormValidationErrorHandler,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const generateDefaultValues = (
   currentAction: TAutomationAction<TTransformConfigForm>,
@@ -48,6 +49,7 @@ export const TransformConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TTransformConfigForm>) => {
+  const { t } = useTranslation('automations');
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Transform Configuration',
   });
@@ -68,7 +70,7 @@ export const TransformConfigForm = ({
         <div className="flex w-[560px] flex-col gap-5">
           <div className="flex items-center justify-between">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Output mappings
+              {t('output-mappings', 'Output mappings')}
             </Label>
             <Button
               type="button"
@@ -83,7 +85,7 @@ export const TransformConfigForm = ({
               }
             >
               <IconPlus />
-              Add mapping
+              {t('add-mapping', 'Add mapping')}
             </Button>
           </div>
 

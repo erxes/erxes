@@ -20,7 +20,7 @@ export const ChangePasswordHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to={SettingsPath.ChangePassword} aria-current="page">
                   <IconKey />
-                  {t('_')}
+                  {t('_', 'Change Password')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

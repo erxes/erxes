@@ -29,7 +29,7 @@ export const AutomationRecordTableFilterBar = () => {
       <Filter.BarItem queryKey="searchValue">
         <Filter.BarName>
           <IconSearch />
-          {t('search-filter')}
+          {t('search-filter', 'Search')}
         </Filter.BarName>
 
         <Popover>
@@ -41,7 +41,7 @@ export const AutomationRecordTableFilterBar = () => {
           <Popover.Content className="p-0">
             <Command>
               <Filter.CommandInput
-                placeholder={t('search-filter')}
+                placeholder={t('search-filter', 'Search')}
                 variant="secondary"
                 className="bg-background"
                 defaultValue={searchValue || ''}
@@ -58,7 +58,7 @@ export const AutomationRecordTableFilterBar = () => {
       <Filter.BarItem queryKey="status">
         <Filter.BarName>
           <IconProgressCheck />
-          {t('status-filter')}
+          {t('status-filter', 'Status')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
@@ -72,27 +72,27 @@ export const AutomationRecordTableFilterBar = () => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendar />
-          {t('created-at-filter')}
+          {t('created-at-filter', 'Created At')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
-      <SelectMember.FilterBar label={t('created-by')} queryKey="createdByIds" />
+      <SelectMember.FilterBar label={t('created-by', 'Created by')} queryKey="createdByIds" />
       <Filter.BarItem queryKey="updatedAt">
         <Filter.BarName>
           <IconCalendar />
-          {t('updated-at-filter')}
+          {t('updated-at-filter', 'Updated At')}
         </Filter.BarName>
         <Filter.Date filterKey="updatedAt" />
       </Filter.BarItem>
       <SelectMember.FilterBar
-        label={t('updated-user')}
+        label={t('updated-user', 'Updated user')}
         queryKey="updatedByIds"
       />
       {triggerTypes && triggerTypes.length > 0 && (
         <Filter.BarItem queryKey="triggerTypes">
           <Filter.BarName>
             <IconProgressCheck />
-            {t('trigger-types-filter')}
+            {t('trigger-types-filter', 'Trigger Types')}
           </Filter.BarName>
           <Popover>
             <Popover.Trigger>
@@ -133,7 +133,7 @@ export const AutomationRecordTableFilterBar = () => {
       <Filter.BarItem queryKey="tagIds">
         <Filter.BarName>
           <IconTags />
-          {t('tags')}
+          {t('tags', 'Tags')}
         </Filter.BarName>
         <TagsSelect.Provider
           type="core:automation"

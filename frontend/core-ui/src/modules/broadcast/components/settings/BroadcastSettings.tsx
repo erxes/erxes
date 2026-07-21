@@ -3,11 +3,13 @@ import { useConfig } from '@/settings/file-upload/hook/useConfigs';
 import { Form, Input } from 'erxes-ui';
 import { useEffect } from 'react';
 import { ControllerRenderProps, FieldValues, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useVersion } from 'ui-modules';
 import { BroadcastSettingsVerifiedEmail } from './BroadcastSettingsVerifiedEmail';
 import { useBroadcastConfig } from '@/broadcast/hooks/useBroadcastConfig';
 
 export const BroadcastSettings = () => {
+  const { t } = useTranslation('broadcasts');
   const form = useForm();
   const isSaas = useVersion('saas');
 
@@ -75,7 +77,7 @@ export const BroadcastSettings = () => {
           control={form.control}
           render={() => (
             <Form.Item>
-              <Form.Label>Verified emails</Form.Label>
+              <Form.Label>{t('verified-emails', 'Verified emails')}</Form.Label>
               <Form.Control>
                 <BroadcastSettingsVerifiedEmail />
               </Form.Control>
