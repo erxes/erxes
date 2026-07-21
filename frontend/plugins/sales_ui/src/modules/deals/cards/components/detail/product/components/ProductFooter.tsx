@@ -150,7 +150,7 @@ export const ProductFooter = ({
                 </Label>
                 <NumberInput
                   id={`discount-percent-${currency}`}
-                  className="h-8 w-20 text-right tabular-nums"
+                  className="h-8 w-20 tabular-nums"
                   value={formatEditablePercent(discount[currency]?.percent)}
                   onChange={(value) =>
                     handlePercentChange(
@@ -169,7 +169,7 @@ export const ProductFooter = ({
                 </Label>
                 <CurrencyField.ValueInput
                   id={`discount-amount-${currency}`}
-                  className="h-8 w-32 text-right tabular-nums"
+                  className="h-8 w-32 tabular-nums"
                   value={Math.round(discount[currency]?.value || 0)}
                   onChange={(value) =>
                     handleDiscountAmountChange(currency, Math.max(0, value))
@@ -189,7 +189,7 @@ export const ProductFooter = ({
                 </Label>
                 <NumberInput
                   id={`tax-percent-${currency}`}
-                  className="h-8 w-20 text-right tabular-nums"
+                  className="h-8 w-20 tabular-nums"
                   value={formatEditablePercent(tax[currency]?.percent)}
                   onChange={(value) =>
                     handlePercentChange(

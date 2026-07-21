@@ -638,7 +638,7 @@ export const ProductsPayment = ({
                 updatePayment('cash', 'amount', parseNumber(e.target.value))
               }
               onClick={() => fillRemainingIfEmpty('cash')}
-              className="text-right font-medium tabular-nums"
+              className="font-medium tabular-nums"
               placeholder={t('type-amount')}
             />
           </div>
@@ -675,7 +675,7 @@ export const ProductsPayment = ({
                   updateMobileAmount(parseNumber(e.target.value))
                 }
                 onClick={fillMobileRemainingIfEmpty}
-                className="text-right font-medium tabular-nums"
+                className="font-medium tabular-nums"
                 placeholder={t('type-amount')}
               />
             </div>
@@ -751,7 +751,7 @@ export const ProductsPayment = ({
               <Input
                 readOnly
                 value={formatNumber(mobilePayment.amount || 0)}
-                className="text-right font-medium tabular-nums"
+                className="font-medium tabular-nums"
               />
             </div>
             <div className="flex items-center justify-end text-sm text-muted-foreground">
@@ -799,7 +799,7 @@ export const ProductsPayment = ({
                   {showQrUnlockInput ? (
                     <Input
                       readOnly
-                      className="cursor-pointer text-right font-medium tabular-nums text-muted-foreground"
+                      className="cursor-pointer font-medium tabular-nums text-muted-foreground"
                       placeholder={t('read-qrcode')}
                       onClick={() => openQrModal(paymentType)}
                       value={
@@ -825,7 +825,7 @@ export const ProductsPayment = ({
                       onClick={() =>
                         fillRemainingIfEmpty(typeName, payInfo.maxVal)
                       }
-                      className="text-right font-medium tabular-nums"
+                      className="font-medium tabular-nums"
                       placeholder={t('type-amount')}
                     />
                   )}

@@ -341,7 +341,7 @@ export const ProductsList = ({
                   min={0}
                   max={100}
                   step="any"
-                  className="h-7 w-20 border-0 bg-transparent px-2 text-right shadow-none focus-visible:ring-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  className="h-7 w-20 border-0 bg-transparent px-2 shadow-none focus-visible:ring-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   value={vatPercentDraft ?? vatPercent}
                   onChange={(event) => {
                     const inputValue = event.target.value;
