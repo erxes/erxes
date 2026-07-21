@@ -57,6 +57,7 @@ export const NumberField = React.forwardRef<
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.stopPropagation();
         resetEditing();
         setIsOpen(false);
       }
