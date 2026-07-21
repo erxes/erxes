@@ -181,7 +181,9 @@ export const ReorderableCustomFields = ({
 
   return (
     <div className="space-y-3 mt-6 pt-6 border-t">
-      <div className="text-sm font-semibold text-foreground">{t('custom-fields')}</div>
+      <div className="text-sm font-semibold text-foreground">
+        {t('custom-fields')}
+      </div>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
