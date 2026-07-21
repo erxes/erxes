@@ -64,6 +64,25 @@ interface ISettingsFormProps {
   onDelete: () => Promise<void> | void;
 }
 
+const updateLanguages = (
+  selected: Array<{ value: string; label: string }>,
+  defaultLanguage: string,
+  updateSetting: UpdateSetting,
+) => {
+  const languages = selected.map((language) => language.value);
+
+  updateSetting('languages', languages);
+
+  if (!languages.length) {
+    updateSetting('defaultLanguage', '');
+    return;
+  }
+
+  if (!languages.includes(defaultLanguage)) {
+    updateSetting('defaultLanguage', languages[0]);
+  }
+};
+
 export const SettingsForm = ({
   cms,
   isDeleting,
@@ -123,20 +142,7 @@ export const SettingsForm = ({
 
   const handleLanguagesChange = (
     selected: Array<{ value: string; label: string }>,
-  ) => {
-    const languages = selected.map((language) => language.value);
-
-    updateSetting('languages', languages);
-
-    if (!languages.length) {
-      updateSetting('defaultLanguage', '');
-      return;
-    }
-
-    if (!languages.includes(settings.defaultLanguage)) {
-      updateSetting('defaultLanguage', languages[0]);
-    }
-  };
+  ) => updateLanguages(selected, settings.defaultLanguage, updateSetting);
 
   const handleKeywordChange = (selected: MultiSelectOption[]) => {
     const keywords = selected.reduce<string[]>((acc, keyword) => {
