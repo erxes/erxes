@@ -3,7 +3,6 @@ import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  AlertDialog,
   Avatar,
   Badge,
   Button,
@@ -24,7 +23,6 @@ import {
   IconMessageOff,
   IconMoodSmile,
   IconPencil,
-  IconTrash,
   IconX,
 } from '@tabler/icons-react';
 import {
@@ -33,6 +31,10 @@ import {
   PostCommentStatus,
 } from '../hooks/usePostComments';
 import { groupPostCommentThreads } from '../utils/postCommentThreads';
+import {
+  PostModerationDeleteAction,
+  PostModerationLoadMore,
+} from './PostModerationControls';
 
 interface PostCommentsProps {
   postId: string;
@@ -232,37 +234,12 @@ const CommentItem = ({
           )}
 
           {canDelete && (
-            <AlertDialog>
-              <AlertDialog.Trigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                  disabled={busy}
-                >
-                  <IconTrash /> {t('delete')}
-                </Button>
-              </AlertDialog.Trigger>
-              <AlertDialog.Content>
-                <AlertDialog.Header>
-                  <AlertDialog.Title>
-                    {t('delete-comment-title')}
-                  </AlertDialog.Title>
-                  <AlertDialog.Description>
-                    {t('delete-comment-description')}
-                  </AlertDialog.Description>
-                </AlertDialog.Header>
-                <AlertDialog.Footer>
-                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
-                  <AlertDialog.Action
-                    onClick={() => onDelete(comment._id)}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {t('delete')}
-                  </AlertDialog.Action>
-                </AlertDialog.Footer>
-              </AlertDialog.Content>
-            </AlertDialog>
+            <PostModerationDeleteAction
+              disabled={busy}
+              title={t('delete-comment-title')}
+              description={t('delete-comment-description')}
+              onDelete={() => onDelete(comment._id)}
+            />
           )}
         </div>
       )}
@@ -461,17 +438,12 @@ export const PostComments = ({
       <div className="space-y-3">
         {roots.map((comment) => renderThread(comment, 0))}
         {hasMore && (
-          <div className="flex justify-center pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void loadMore()}
-              disabled={loadingMore}
-            >
-              {loadingMore && <Spinner size="sm" />}
-              {loadingMore ? t('loading-comments') : t('load-more-comments')}
-            </Button>
-          </div>
+          <PostModerationLoadMore
+            loading={loadingMore}
+            loadingLabel={t('loading-comments')}
+            loadMoreLabel={t('load-more-comments')}
+            onLoadMore={() => void loadMore()}
+          />
         )}
       </div>
     );

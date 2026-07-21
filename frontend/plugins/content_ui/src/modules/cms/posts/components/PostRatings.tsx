@@ -1,21 +1,17 @@
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import {
-  AlertDialog,
-  Avatar,
-  Badge,
-  Button,
-  Skeleton,
-  Spinner,
-  Tooltip,
-} from 'erxes-ui';
+import { Avatar, Badge, Button, Skeleton, Tooltip } from 'erxes-ui';
 import { usePermissionCheck } from 'ui-modules';
-import { IconCheck, IconStarOff, IconTrash, IconX } from '@tabler/icons-react';
+import { IconCheck, IconStarOff, IconX } from '@tabler/icons-react';
 import {
   IPostRating,
   PostRatingStatus,
   usePostRatings,
 } from '../hooks/usePostRatings';
+import {
+  PostModerationDeleteAction,
+  PostModerationLoadMore,
+} from './PostModerationControls';
 import { StarRating } from './StarRating';
 
 interface PostRatingsProps {
@@ -128,37 +124,12 @@ const RatingItem = ({
             </Button>
           )}
           {canDelete && (
-            <AlertDialog>
-              <AlertDialog.Trigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                  disabled={busy}
-                >
-                  <IconTrash /> {t('delete')}
-                </Button>
-              </AlertDialog.Trigger>
-              <AlertDialog.Content>
-                <AlertDialog.Header>
-                  <AlertDialog.Title>
-                    {t('delete-rating-title')}
-                  </AlertDialog.Title>
-                  <AlertDialog.Description>
-                    {t('delete-rating-description')}
-                  </AlertDialog.Description>
-                </AlertDialog.Header>
-                <AlertDialog.Footer>
-                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
-                  <AlertDialog.Action
-                    onClick={() => onDelete(rating._id)}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {t('delete')}
-                  </AlertDialog.Action>
-                </AlertDialog.Footer>
-              </AlertDialog.Content>
-            </AlertDialog>
+            <PostModerationDeleteAction
+              disabled={busy}
+              title={t('delete-rating-title')}
+              description={t('delete-rating-description')}
+              onDelete={() => onDelete(rating._id)}
+            />
           )}
         </div>
       )}
@@ -239,17 +210,12 @@ export const PostRatings = ({
           />
         ))}
         {hasMore && (
-          <div className="flex justify-center pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void loadMore()}
-              disabled={loadingMore}
-            >
-              {loadingMore && <Spinner size="sm" />}
-              {loadingMore ? t('loading-ratings') : t('load-more-ratings')}
-            </Button>
-          </div>
+          <PostModerationLoadMore
+            loading={loadingMore}
+            loadingLabel={t('loading-ratings')}
+            loadMoreLabel={t('load-more-ratings')}
+            onLoadMore={() => void loadMore()}
+          />
         )}
       </div>
     );

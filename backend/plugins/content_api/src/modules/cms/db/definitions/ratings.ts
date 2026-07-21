@@ -33,3 +33,4 @@ postRatingSchema.index(
   { unique: true },
 );
 postRatingSchema.index({ clientPortalId: 1, postId: 1, status: 1, rating: 1 });
+postRatingSchema.index({ clientPortalId: 1, postId: 1, createdAt: -1 });

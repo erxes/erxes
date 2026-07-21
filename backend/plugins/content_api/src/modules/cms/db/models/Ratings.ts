@@ -6,6 +6,7 @@ import {
   PostRatingStatus,
 } from '@/cms/@types/ratings';
 import { postRatingSchema } from '@/cms/db/definitions/ratings';
+import { assertValidPostRating } from '@/cms/utils/ratingValidation';
 
 export { IPostRatingModel } from '@/cms/@types/ratings';
 
@@ -14,18 +15,12 @@ interface RatingGroup {
   count: number;
 }
 
-const assertValidRating = (rating: number): void => {
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    throw new Error('Rating must be an integer from 1 to 5');
-  }
-};
-
 export const loadPostRatingClass = (models: IModels) => {
   class PostRatings {
     public static readonly setRating = async (
       doc: IPostRating,
     ): Promise<IPostRatingDocument> => {
-      assertValidRating(doc.rating);
+      assertValidPostRating(doc.rating);
 
       const rating = await models.PostRatings.findOneAndUpdate(
         {

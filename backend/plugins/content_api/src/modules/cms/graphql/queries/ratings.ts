@@ -1,13 +1,12 @@
 import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { requireClientPortalId } from '@/cms/graphql/utils/clientPortal';
 import {
-  requireClientPortalId,
-  getClientPortalUserId,
-} from '@/cms/graphql/utils/clientPortal';
-import { getPostRatingOverview } from '@/cms/graphql/utils/ratings';
-import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
-import { assertCmsDocumentAccess } from '@/cms/utils/permissions';
+  assertStaffRatingAccess,
+  getPostRatingOverview,
+  getPublishedPost,
+} from '@/cms/graphql/utils/ratings';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 
 interface StaffRatingQueryArgs extends ICursorPaginateParams {
@@ -27,21 +26,11 @@ export const postRatingQueries: Record<string, Resolver> = {
   ) => {
     const { models } = context;
 
-    await assertCmsAccessByClientPortal(context, args.clientPortalId);
-
-    const post = await models.Posts.findOne({
-      _id: args.postId,
-      clientPortalId: args.clientPortalId,
-    }).lean();
-
-    if (!post) {
-      throw new Error('Post not found');
-    }
-
-    await assertCmsDocumentAccess({
+    await assertStaffRatingAccess({
       context,
-      actions: CMS_POST_ACTIONS.read,
-      document: post,
+      postId: args.postId,
+      clientPortalId: args.clientPortalId,
+      action: CMS_POST_ACTIONS.read,
     });
 
     const query = {
@@ -69,22 +58,12 @@ export const postRatingQueries: Record<string, Resolver> = {
   ) => {
     const { models } = context;
     const clientPortalId = requireClientPortalId(context);
-    const authorId = getClientPortalUserId(context);
+    const authorId = context.cpUser?._id;
 
-    const [cms, post] = await Promise.all([
+    const [cms] = await Promise.all([
       models.CMS.findOne({ clientPortalId }).lean(),
-      models.Posts.findOne({
-        _id: args.postId,
-        clientPortalId,
-        status: 'published',
-      })
-        .select({ _id: 1 })
-        .lean(),
+      getPublishedPost(context, args.postId, clientPortalId),
     ]);
-
-    if (!post) {
-      throw new Error('Published post not found');
-    }
 
     return getPostRatingOverview({
       models,
