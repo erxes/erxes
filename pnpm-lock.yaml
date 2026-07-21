@@ -1011,20 +1011,11 @@ importers:
         specifier: ^2.7.0
         version: 2.7.1
 
-  backend/plugins/accounting_api:
+  backend/gateway/dist:
     dependencies:
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../erxes-api-shared
-      graphql-tag:
-        specifier: ^2.12.6
-        version: 2.12.6(graphql@16.10.0)
-      underscore:
-        specifier: ^1.13.7
-        version: 1.13.7
-
-  backend/plugins/accounting_api/dist:
-    dependencies:
+      '@apollo/client':
+        specifier: ^3.11.8
+        version: 3.13.6(@types/react@19.1.12)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@apollo/server':
         specifier: 4.11.3
         version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
@@ -1037,21 +1028,39 @@ importers:
       '@babel/preset-env':
         specifier: 7.26.9
         version: 7.26.9(@babel/core@7.29.7)
+      '@bull-board/api':
+        specifier: ^6.7.7
+        version: 6.9.0(@bull-board/ui@6.9.0)
+      '@bull-board/express':
+        specifier: ^6.7.7
+        version: 6.9.0
       '@elastic/elasticsearch':
         specifier: 7.17.14
         version: 7.17.14
+      '@envelop/core':
+        specifier: ^5.2.3
+        version: 5.2.3
+      '@escape.tech/graphql-armor-character-limit':
+        specifier: ^2.3.0
+        version: 2.3.0
+      '@escape.tech/graphql-armor-max-aliases':
+        specifier: ^2.6.0
+        version: 2.6.0
+      '@escape.tech/graphql-armor-max-depth':
+        specifier: ^2.4.0
+        version: 2.4.0
       '@google-cloud/storage':
         specifier: 7.17.3
         version: 7.17.3(encoding@0.1.13)
+      '@graphql-tools/schema':
+        specifier: ^10.0.23
+        version: 10.0.23(graphql@16.10.0)
       '@preconstruct/cli':
         specifier: 2.8.12
         version: 2.8.12
       '@prettier/sync':
         specifier: 0.5.5
         version: 0.5.5(prettier@3.6.2)
-      '@sentry/node':
-        specifier: 10.57.0
-        version: 10.57.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))
       '@sniptt/guards':
         specifier: 0.2.0
         version: 0.2.0
@@ -1102,7 +1111,7 @@ importers:
         version: 16.4.7
       erxes-api-shared:
         specifier: workspace:^
-        version: link:../../../erxes-api-shared
+        version: link:../../erxes-api-shared
       exceljs:
         specifier: 4.4.0
         version: 4.4.0
@@ -1124,21 +1133,30 @@ importers:
       graphql:
         specifier: 16.10.0
         version: 16.10.0
+      graphql-parse-resolve-info:
+        specifier: ^4.14.1
+        version: 4.14.1(graphql@16.10.0)
       graphql-redis-subscriptions:
         specifier: 2.7.0
         version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
       graphql-subscriptions:
         specifier: 3.0.0
         version: 3.0.0(graphql@16.10.0)
-      graphql-tag:
-        specifier: ^2.12.6
-        version: 2.12.6(graphql@16.10.0)
+      graphql-ws:
+        specifier: ^5.16.0
+        version: 5.16.2(graphql@16.10.0)
       helmet:
         specifier: 8.1.0
         version: 8.1.0
+      http-proxy-middleware:
+        specifier: ^3.0.3
+        version: 3.0.5
       ioredis:
         specifier: ^5.6.1
         version: 5.6.1
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -1154,21 +1172,39 @@ importers:
       node-fetch:
         specifier: 2.7.0
         version: 2.7.0(encoding@0.1.13)
-      sift:
-        specifier: 17.1.3
-        version: 17.1.3
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       strip-ansi:
         specifier: 6.0.1
         version: 6.0.1
       tslib:
         specifier: 2.8.1
         version: 2.8.1
+      ws:
+        specifier: ^8.18.2
+        version: 8.21.0
+      yaml:
+        specifier: ^2.7.0
+        version: 2.7.1
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
+
+  backend/plugins/accounting_api:
+    dependencies:
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
       underscore:
         specifier: ^1.13.7
         version: 1.13.7
-      zod:
-        specifier: 3.24.2
-        version: 3.24.2
 
   backend/plugins/content_api:
     dependencies:
@@ -1193,6 +1229,12 @@ importers:
 
   backend/plugins/frontline_api:
     dependencies:
+      '@discordjs/rest':
+        specifier: ^2.6.1
+        version: 2.6.3
+      '@discordjs/ws':
+        specifier: ^2.0.4
+        version: 2.0.4
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
@@ -1205,6 +1247,9 @@ importers:
       debug:
         specifier: ^4.4.0
         version: 4.4.0(supports-color@5.5.0)
+      discord-api-types:
+        specifier: 0.38.49
+        version: 0.38.49
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
@@ -1217,6 +1262,9 @@ importers:
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
+      ioredis:
+        specifier: ^5.6.1
+        version: 5.6.1
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -1259,6 +1307,204 @@ importers:
       ws:
         specifier: ^8.18.2
         version: 8.19.0
+
+  backend/plugins/frontline_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.29.7)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sentry/node':
+        specifier: 10.57.0
+        version: 10.57.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: ^2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      base64-stream:
+        specifier: ^1.0.0
+        version: 1.0.0
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      debug:
+        specifier: ^4.4.0
+        version: 4.4.3(supports-color@8.1.1)
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 8.0.1
+        version: 8.0.1(express@4.21.2)
+      fast-xml-parser:
+        specifier: 5.2.5
+        version: 5.2.5
+      fbgraph:
+        specifier: ^1.4.4
+        version: 1.4.4
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: ^5.6.1
+        version: 5.6.1
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      mailparser:
+        specifier: ^3.9.1
+        version: 3.9.1
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      moment-timezone:
+        specifier: ^0.5.48
+        version: 0.5.48
+      mongodb:
+        specifier: ^6.18.0
+        version: 6.18.0(socks@2.8.7)
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      node-imap:
+        specifier: ^0.9.6
+        version: 0.9.6
+      nodemailer:
+        specifier: ^6.9.10
+        version: 6.9.10
+      redlock:
+        specifier: 5.0.0-beta.2
+        version: 5.0.0-beta.2
+      string-strip-html:
+        specifier: ^13.4.12
+        version: 13.4.12
+      strip:
+        specifier: ^3.0.0
+        version: 3.0.0
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      strip-html:
+        specifier: ^1.0.2
+        version: 1.0.2
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      underscore:
+        specifier: ^1.13.7
+        version: 1.13.7
+      uuid-by-string:
+        specifier: ^4.0.0
+        version: 4.0.0
+      validator:
+        specifier: ^13.15.0
+        version: 13.15.0
+      ws:
+        specifier: ^8.18.2
+        version: 8.21.0
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/insurance_api:
     dependencies:
@@ -1477,171 +1723,6 @@ importers:
       ws:
         specifier: ^8.18.2
         version: 8.19.0
-
-  backend/plugins/posclient_api/dist:
-    dependencies:
-      '@apollo/server':
-        specifier: 4.11.3
-        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
-      '@apollo/subgraph':
-        specifier: 2.10.0
-        version: 2.10.0(graphql@16.10.0)
-      '@azure/storage-blob':
-        specifier: 12.29.1
-        version: 12.29.1
-      '@babel/preset-env':
-        specifier: 7.26.9
-        version: 7.26.9(@babel/core@7.29.7)
-      '@elastic/elasticsearch':
-        specifier: 7.17.14
-        version: 7.17.14
-      '@google-cloud/storage':
-        specifier: 7.17.3
-        version: 7.17.3(encoding@0.1.13)
-      '@graphql-tools/schema':
-        specifier: ^10.0.23
-        version: 10.0.23(graphql@16.10.0)
-      '@preconstruct/cli':
-        specifier: 2.8.12
-        version: 2.8.12
-      '@prettier/sync':
-        specifier: 0.5.5
-        version: 0.5.5(prettier@3.6.2)
-      '@sniptt/guards':
-        specifier: 0.2.0
-        version: 0.2.0
-      '@trpc/client':
-        specifier: 11.0.4
-        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
-      '@trpc/server':
-        specifier: 11.0.4
-        version: 11.0.4(typescript@5.8.3)
-      '@types/babel__preset-env':
-        specifier: 7.10.0
-        version: 7.10.0
-      '@types/graphql':
-        specifier: 14.5.0
-        version: 14.5.0
-      '@types/ioredis':
-        specifier: 5.0.0
-        version: 5.0.0
-      '@types/lodash':
-        specifier: 4.17.21
-        version: 4.17.21
-      aws-sdk:
-        specifier: ^2.1692.0
-        version: 2.1692.0
-      babel-plugin-module-resolver:
-        specifier: 5.0.2
-        version: 5.0.2
-      bcryptjs:
-        specifier: ^3.0.2
-        version: 3.0.2
-      bullmq:
-        specifier: 5.40.4
-        version: 5.40.4
-      cookie-parser:
-        specifier: 1.4.7
-        version: 1.4.7
-      cors:
-        specifier: 2.8.5
-        version: 2.8.5
-      csv-parse:
-        specifier: 6.2.1
-        version: 6.2.1
-      dataloader:
-        specifier: 2.2.3
-        version: 2.2.3
-      dayjs:
-        specifier: 1.11.13
-        version: 1.11.13
-      debug:
-        specifier: ^4.4.0
-        version: 4.4.3(supports-color@8.1.1)
-      dotenv:
-        specifier: 16.4.7
-        version: 16.4.7
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../../erxes-api-shared
-      exceljs:
-        specifier: 4.4.0
-        version: 4.4.0
-      express:
-        specifier: 4.21.2
-        version: 4.21.2
-      express-rate-limit:
-        specifier: 8.0.1
-        version: 8.0.1(express@4.21.2)
-      fbgraph:
-        specifier: ^1.4.4
-        version: 1.4.4
-      file-type:
-        specifier: 20.5.0
-        version: 20.5.0
-      form-data:
-        specifier: 4.0.2
-        version: 4.0.2
-      glob:
-        specifier: 11.0.1
-        version: 11.0.1
-      graphql:
-        specifier: 16.10.0
-        version: 16.10.0
-      graphql-redis-subscriptions:
-        specifier: 2.7.0
-        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
-      graphql-subscriptions:
-        specifier: 3.0.0
-        version: 3.0.0(graphql@16.10.0)
-      graphql-tag:
-        specifier: ^2.12.6
-        version: 2.12.6(graphql@16.10.0)
-      graphql-ws:
-        specifier: ^5.16.0
-        version: 5.16.2(graphql@16.10.0)
-      helmet:
-        specifier: 8.1.0
-        version: 8.1.0
-      ioredis:
-        specifier: ^5.6.1
-        version: 5.6.1
-      jsonwebtoken:
-        specifier: ^9.0.2
-        version: 9.0.2
-      lodash:
-        specifier: 4.17.21
-        version: 4.17.21
-      moment:
-        specifier: 2.30.1
-        version: 2.30.1
-      moment-timezone:
-        specifier: ^0.5.48
-        version: 0.5.48
-      mongoose:
-        specifier: 8.13.2
-        version: 8.13.2(socks@2.8.7)
-      nanoid:
-        specifier: 3.3.11
-        version: 3.3.11
-      node-fetch:
-        specifier: 2.7.0
-        version: 2.7.0(encoding@0.1.13)
-      sha256:
-        specifier: ^0.2.0
-        version: 0.2.0
-      strip-ansi:
-        specifier: 6.0.1
-        version: 6.0.1
-      tslib:
-        specifier: 2.8.1
-        version: 2.8.1
-      ws:
-        specifier: ^8.18.2
-        version: 8.21.0
-      zod:
-        specifier: 3.24.2
-        version: 3.24.2
 
   backend/plugins/sales_api:
     dependencies:
@@ -3052,6 +3133,22 @@ packages:
 
   '@date-fns/tz@1.4.1':
     resolution: {integrity: sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==}
+
+  '@discordjs/collection@2.1.1':
+    resolution: {integrity: sha512-LiSusze9Tc7qF03sLCujF5iZp7K+vRNEDBZ86FT9aQAv3vxMLihUvKvpsCWiQ2DJq1tVckopKm1rxomgNUc9hg==}
+    engines: {node: '>=18'}
+
+  '@discordjs/rest@2.6.3':
+    resolution: {integrity: sha512-wvOylxNYJkwKjctS/Mn5GP1w9r3/rzyH+ThD1JlAca6zEdlHs8QWBBUQJpU5Q+W6DoIj/Ljh1IPlZs7hTU+UAg==}
+    engines: {node: '>=18'}
+
+  '@discordjs/util@1.2.0':
+    resolution: {integrity: sha512-3LKP7F2+atl9vJFhaBjn4nOaSWahZ/yWjOvA4e5pnXkt2qyXRCHLxoBQy81GFtLGCq7K9lPm9R517M1U+/90Qg==}
+    engines: {node: '>=18'}
+
+  '@discordjs/ws@2.0.4':
+    resolution: {integrity: sha512-ARXnE+qi+D7Y4trd1bKA9uhiUxQvLbOKcdehDa6NLd7FiqmDvvk8N5RGk6Ho9gdT/Wap09dz/IuLv7hNpUzt6g==}
+    engines: {node: '>=20'}
 
   '@discoveryjs/json-ext@0.5.7':
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
@@ -7382,6 +7479,14 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
+  '@sapphire/async-queue@1.5.5':
+    resolution: {integrity: sha512-cvGzxbba6sav2zZkH8GPf2oGk9yYoD5qrNWdu9fRehifgnFZJMV+nuy2nON2roRO4yQQ+v7MK/Pktl/HgfsUXg==}
+    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
+
+  '@sapphire/snowflake@3.5.5':
+    resolution: {integrity: sha512-xzvBr1Q1c4lCe7i6sRnrofxeO1QTP/LKQ6A6qy0iB4x5yfiSfARMEQEghojzTNALDTcv8En04qYNIco9/K9eZQ==}
+    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
+
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
@@ -9120,6 +9225,10 @@ packages:
 
   '@vitest/utils@2.1.9':
     resolution: {integrity: sha512-v0psaMSkNJ3A2NMrUEHFRzJtDPFn+/VWZ5WxImB21T9fjucJRmS7xCS3ppEnARb9y11OAzaD+P2Ps+b+BGX5iQ==}
+
+  '@vladfrangu/async_event_emitter@2.4.7':
+    resolution: {integrity: sha512-Xfe6rpCTxSxfbswi/W/Pz7zp1WWSNn4A0eW4mLkQUewCrXXtMj31lCg+iQyTkh/CkusZSq9eDflu7tjEDXUY6g==}
+    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -11133,6 +11242,12 @@ packages:
 
   discontinuous-range@1.0.0:
     resolution: {integrity: sha512-c68LpLbO+7kP/b1Hr1qs8/BJ09F5khZGTxqxZuhzxpmwJKOgRFHJWIb9/KmqnqHhLdO55aOxFH/EGBvUQbL/RQ==}
+
+  discord-api-types@0.38.49:
+    resolution: {integrity: sha512-XnqcWmnFZFAE8ZM8SHAw9DIV8D3Or00rMQ8iQLotrEA2PmXhl+ykaf6L6q4l474hrSUH1JaYcv+iOMRWp2p6Tg==}
+
+  discord-api-types@0.38.50:
+    resolution: {integrity: sha512-J2n/bpIETX3DQ6AJ7/0xbsTLmYiJQtO/LKcXKC1YDbB56OUwtDbdXOFE8Q4g8jVGHBR2VAy1+D4ngaIgkMNV9w==}
 
   dlv@1.1.3:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
@@ -14307,6 +14422,9 @@ packages:
   macos-release@3.4.0:
     resolution: {integrity: sha512-wpGPwyg/xrSp4H4Db4xYSeAr6+cFQGHfspHzDUdYxswDnUW0L5Ov63UuJiSr8NMSpyaChO4u1n0MXUvVPtrN6A==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  magic-bytes.js@1.13.0:
+    resolution: {integrity: sha512-afO2mnxW7GDTXMm5/AoN1WuOcdoKhtgXjIvHmobqTD1grNplhGdv3PFOyjCVmrnOZBIT/gD/koDKpYG+0mvHcg==}
 
   magic-string@0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
@@ -18015,6 +18133,10 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici@6.27.0:
+    resolution: {integrity: sha512-YmfV3YnEDzXRC5lZ2jWtWWHKGUm1zIt8AhesR1tens+HTNv+YZlN/dp6G727LOvMJ8xjP9Be7Y2Sdr96LDm+pg==}
+    engines: {node: '>=18.17'}
+
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
     engines: {node: '>=4'}
@@ -18908,6 +19030,29 @@ snapshots:
       optimism: 0.18.1
       prop-types: 15.8.1
       rehackt: 0.1.0(@types/react@18.3.1)(react@18.3.1)
+      symbol-observable: 4.0.0
+      ts-invariant: 0.10.3
+      tslib: 2.8.1
+      zen-observable-ts: 1.2.5
+    optionalDependencies:
+      graphql-ws: 5.16.2(graphql@16.10.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@apollo/client@3.13.6(@types/react@19.1.12)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
+      '@wry/caches': 1.0.1
+      '@wry/equality': 0.5.7
+      '@wry/trie': 0.5.0
+      graphql: 16.10.0
+      graphql-tag: 2.12.6(graphql@16.10.0)
+      hoist-non-react-statics: 3.3.2
+      optimism: 0.18.1
+      prop-types: 15.8.1
+      rehackt: 0.1.0(@types/react@19.1.12)(react@18.3.1)
       symbol-observable: 4.0.0
       ts-invariant: 0.10.3
       tslib: 2.8.1
@@ -21474,6 +21619,39 @@ snapshots:
     optional: true
 
   '@date-fns/tz@1.4.1': {}
+
+  '@discordjs/collection@2.1.1': {}
+
+  '@discordjs/rest@2.6.3':
+    dependencies:
+      '@discordjs/collection': 2.1.1
+      '@discordjs/util': 1.2.0
+      '@sapphire/async-queue': 1.5.5
+      '@sapphire/snowflake': 3.5.5
+      '@vladfrangu/async_event_emitter': 2.4.7
+      discord-api-types: 0.38.50
+      magic-bytes.js: 1.13.0
+      tslib: 2.8.1
+      undici: 6.27.0
+
+  '@discordjs/util@1.2.0':
+    dependencies:
+      discord-api-types: 0.38.49
+
+  '@discordjs/ws@2.0.4':
+    dependencies:
+      '@discordjs/collection': 2.1.1
+      '@discordjs/rest': 2.6.3
+      '@discordjs/util': 1.2.0
+      '@sapphire/async-queue': 1.5.5
+      '@types/ws': 8.18.1
+      '@vladfrangu/async_event_emitter': 2.4.7
+      discord-api-types: 0.38.49
+      tslib: 2.8.1
+      ws: 8.21.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@discoveryjs/json-ext@0.5.7': {}
 
@@ -27309,6 +27487,10 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
+  '@sapphire/async-queue@1.5.5': {}
+
+  '@sapphire/snowflake@3.5.5': {}
+
   '@sec-ant/readable-stream@0.4.1': {}
 
   '@selderee/plugin-htmlparser2@0.11.0':
@@ -29494,6 +29676,8 @@ snapshots:
       '@vitest/pretty-format': 2.1.9
       loupe: 3.1.3
       tinyrainbow: 1.2.0
+
+  '@vladfrangu/async_event_emitter@2.4.7': {}
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
@@ -31810,6 +31994,10 @@ snapshots:
       path-type: 4.0.0
 
   discontinuous-range@1.0.0: {}
+
+  discord-api-types@0.38.49: {}
+
+  discord-api-types@0.38.50: {}
 
   dlv@1.1.3: {}
 
@@ -36109,6 +36297,8 @@ snapshots:
 
   macos-release@3.4.0: {}
 
+  magic-bytes.js@1.13.0: {}
+
   magic-string@0.25.9:
     dependencies:
       sourcemap-codec: 1.4.8
@@ -37422,7 +37612,7 @@ snapshots:
     dependencies:
       is-ssh: 1.4.1
       protocols: 1.4.8
-      qs: 6.14.0
+      qs: 6.15.2
       query-string: 6.14.1
 
   parse-path@7.1.0:
@@ -38916,6 +39106,11 @@ snapshots:
   rehackt@0.1.0(@types/react@18.3.1)(react@18.3.1):
     optionalDependencies:
       '@types/react': 18.3.1
+      react: 18.3.1
+
+  rehackt@0.1.0(@types/react@19.1.12)(react@18.3.1):
+    optionalDependencies:
+      '@types/react': 19.1.12
       react: 18.3.1
 
   rehackt@0.1.0(@types/react@19.1.12)(react@19.1.1):
@@ -40665,6 +40860,8 @@ snapshots:
   underscore@1.13.7: {}
 
   undici-types@6.21.0: {}
+
+  undici@6.27.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 

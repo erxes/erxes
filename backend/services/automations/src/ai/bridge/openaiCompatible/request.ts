@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import { nativeFetch as fetch } from '../nativeFetch';
 import { AI_AGENT_DEFAULTS } from '../../aiAgent/constants';
 import {
   TAiBridgeConnection,

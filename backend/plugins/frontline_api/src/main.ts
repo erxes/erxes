@@ -1,5 +1,6 @@
 import initCallApp from '@/integrations/call/initApp';
 import onServerInitImap from '@/integrations/imap/initApp';
+import { initDiscord } from '@/integrations/discord/initApp';
 import { startPlugin } from 'erxes-api-shared/utils';
 import {
   createCoreModuleProducerHandler,
@@ -71,6 +72,7 @@ startPlugin({
   onServerInit: async (app) => {
     await initCallApp(app);
     await onServerInitImap(app);
+    initDiscord();
   },
 
   apolloServerContext: async (subdomain, context) => {
