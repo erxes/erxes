@@ -58,7 +58,9 @@ const itemColumns: ColumnDef<any>[] = [
     accessorKey: 'productName',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />;
+      return (
+        <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />
+      );
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('sales');
@@ -186,8 +188,8 @@ export const PosOrderSheet = () => {
   const transactionNumber = transaction?.number || transaction?.ptrNumber;
   const transactionHref = transaction
     ? `/accounting/transaction/edit?parentId=${encodeURIComponent(
-      transaction.parentId || transaction._id,
-    )}`
+        transaction.parentId || transaction._id,
+      )}`
     : '';
 
   const paidAmountsSummary = React.useMemo(() => {
@@ -250,7 +252,10 @@ export const PosOrderSheet = () => {
         if (expectedTotal > 0 && sum !== expectedTotal) {
           toast({
             title: t('amount-mismatch'),
-            description: t('payments-sum-mismatch', { sum: sum.toLocaleString(), total: expectedTotal.toLocaleString() }),
+            description: t('payments-sum-mismatch', {
+              sum: sum.toLocaleString(),
+              total: expectedTotal.toLocaleString(),
+            }),
             variant: 'destructive',
           });
           return;
@@ -270,7 +275,9 @@ export const PosOrderSheet = () => {
           if (error.message.includes('Already returned')) {
             errorMessage = t('order-returned-no-payment-changes');
           } else if (error.message.includes('not balanced')) {
-            errorMessage = t('payments-must-sum', { total: posOrder?.totalAmount?.toLocaleString() || 0 });
+            errorMessage = t('payments-must-sum', {
+              total: posOrder?.totalAmount?.toLocaleString() || 0,
+            });
           } else {
             errorMessage = error.message;
           }
@@ -322,6 +329,21 @@ export const PosOrderSheet = () => {
                       {posOrder.customer?.primaryEmail || '-'}
                     </span>
                   </div>
+                  {posOrder.brokerType && (
+                    <div className="flex justify-between w-full gap-1">
+                      <span className="text-base font-medium text-muted-foreground">
+                        {t('broker')}:
+                      </span>
+                      <span className="text-base font-medium">
+                        {posOrder.brokerName || posOrder.brokerId || '-'}
+                        {posOrder.brokerType && (
+                          <span className="ml-1 text-xs text-muted-foreground">
+                            ({t(posOrder.brokerType)})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
                       {t('bill-number')}:
@@ -343,7 +365,8 @@ export const PosOrderSheet = () => {
                       {t('transaction')}:
                     </span>
                     <span className="text-base font-medium">
-                      {(transaction && transactionNumber) || transactionTotalCount ? (
+                      {(transaction && transactionNumber) ||
+                      transactionTotalCount ? (
                         <a
                           href={transactionHref}
                           target="_blank"
@@ -381,8 +404,8 @@ export const PosOrderSheet = () => {
                     <span className="text-base font-medium">
                       {posOrder.putResponses?.[0]?.createdAt
                         ? new Date(
-                          posOrder.putResponses?.[0].createdAt,
-                        ).toLocaleDateString()
+                            posOrder.putResponses?.[0].createdAt,
+                          ).toLocaleDateString()
                         : '-'}
                     </span>
                   </div>

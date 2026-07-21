@@ -13,6 +13,8 @@ export const orderFields = `
   slotCode
   customerId
   customerType
+  brokerId
+  brokerType
   printedEbarimt
   origin
   type

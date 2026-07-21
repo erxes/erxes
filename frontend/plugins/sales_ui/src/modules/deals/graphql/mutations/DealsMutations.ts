@@ -6,6 +6,8 @@ const dealMutationVariables = `
   $mobileAmounts: JSON,
   $paymentsData: JSON,
   $extraData: JSON,
+  $brokerType: String,
+  $brokerId: String,
 `;
 
 const dealMutationParams = `
@@ -14,6 +16,8 @@ const dealMutationParams = `
   mobileAmounts: $mobileAmounts,
   paymentsData: $paymentsData,
   extraData: $extraData,
+  brokerType: $brokerType,
+  brokerId: $brokerId,
 `;
 
 const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
@@ -31,6 +35,8 @@ export const dealFields = `
   paymentsData
   unUsedAmount
   amount
+  brokerType
+  brokerId
   stageId
 `;
 

@@ -86,6 +86,8 @@ export interface IDeal {
   mobileAmounts?: Array<{ _id?: string; amount: number }>;
   paymentsData?: IPaymentsData;
   extraData?: any;
+  brokerType?: 'customer' | 'company' | 'user';
+  brokerId?: string;
 }
 
 export interface IDealDocument extends IDeal, Document {

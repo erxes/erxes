@@ -92,6 +92,13 @@ export const orderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Customer type',
     }),
+    brokerId: field({ type: String, optional: true, label: 'Broker' }),
+    brokerType: field({
+      type: String,
+      optional: true,
+      enum: ['customer', 'company', 'user'],
+      label: 'Broker type',
+    }),
     cashAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Cash amount',
