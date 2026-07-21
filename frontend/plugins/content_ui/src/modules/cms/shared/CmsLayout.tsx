@@ -1,5 +1,5 @@
 import { Button, Breadcrumb, Sidebar, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import {
   IconFileText,
@@ -138,6 +138,18 @@ export function CmsLayout({
   };
 
   const currentActiveNav = activeNav || getCurrentActiveNav();
+  const currentNavLabel =
+    navigationItems.find((item) => item.id === currentActiveNav)?.label ||
+    t('posts');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    ...(breadcrumbItems
+      ? breadcrumbItems.map((item) => item.label)
+      : [
+          t('cms'),
+          websiteId && (websiteName || t('website')),
+          currentNavLabel,
+        ]),
+  );
 
   return (
     <div className="flex h-full">
@@ -202,7 +214,10 @@ export function CmsLayout({
               </Breadcrumb.List>
             </Breadcrumb>
             <Separator.Inline />
-            <PageHeader.FavoriteToggleButton />
+            <PageHeader.FavoriteToggleButton
+              breadcrumb={favoriteBreadcrumb}
+              icon="IconBooks"
+            />
           </PageHeader.Start>
           <PageHeader.End>
             {headerActions || (
@@ -222,7 +237,9 @@ export function CmsLayout({
           {showSidebar && (
             <Sidebar collapsible="none" className="border-r flex-none">
               <Sidebar.Group>
-                <Sidebar.GroupLabel>{t('content-management')}</Sidebar.GroupLabel>
+                <Sidebar.GroupLabel>
+                  {t('content-management')}
+                </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   {navigationItems.map((item) => (
                     <Sidebar.Menu key={item.id}>
