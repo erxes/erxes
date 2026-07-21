@@ -7,6 +7,7 @@ import {
 import { PosSummaryCommandBar } from '@/pos/pos-summary/components/pos-summary-command-bar/PosSummaryCommandBar';
 import { usePosSummaryList } from '~/modules/pos/pos-summary/hooks/UsePosSummaryList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
@@ -14,11 +15,17 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
   const { posSummaryList, handleFetchMore, loading, pageInfo, columns } =
     usePosSummaryList({ posId });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const allColumns = [
-    ...firstPosSummaryColumns(t),
-    ...generateOtherPaymentColumns(posSummaryList?.[0]?.amounts || {}, columns),
-    ...secondPosSummaryColumns(t),
-  ];
+  const allColumns = useMemo(
+    () => [
+      ...firstPosSummaryColumns(t),
+      ...generateOtherPaymentColumns(
+        posSummaryList?.[0]?.amounts || {},
+        columns,
+      ),
+      ...secondPosSummaryColumns(t),
+    ],
+    [columns, posSummaryList, t],
+  );
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
   return (
     <RecordTable.Provider

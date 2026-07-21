@@ -151,6 +151,7 @@ export const PosOrderSheet = () => {
   );
 
   const { t } = useTranslation('sales');
+  const orderItemColumns = React.useMemo(() => itemColumns(t), [t]);
   const { toast } = useToast();
   const { posOrder, loading, refetch } = usePosOrderQuery(
     posOrderId || undefined,
@@ -188,7 +189,7 @@ export const PosOrderSheet = () => {
 
     return posOrder.paidAmounts.reduce((acc: Record<string, number>, item) => {
       if (item?.type) {
-        acc[item.type] = Number(item.amount) || 0;
+        acc[item.type] = (acc[item.type] || 0) + (Number(item.amount) || 0);
       }
       return acc;
     }, {});
@@ -373,7 +374,7 @@ export const PosOrderSheet = () => {
                     <span className="text-base font-medium text-muted-foreground">
                       {t('accounting-response')}:
                     </span>
-                    <span className="text-base font-medium text-right max-w-[60%] wrap-break-word">
+                    <span className="text-base font-medium text-right max-w-[60%] break-words">
                       {posOrder.accountingResponse || '-'}
                     </span>
                   </div>
@@ -400,7 +401,7 @@ export const PosOrderSheet = () => {
                   {posOrder?.items?.length && (
                     <div className="rounded-md overflow-hidden">
                       <RecordTable.Provider
-                        columns={itemColumns(t)}
+                        columns={orderItemColumns}
                         data={posOrder.items}
                         className="w-full"
                       >

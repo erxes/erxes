@@ -120,6 +120,7 @@ export const PosCoversSheet = () => {
 
   const { posCovers } = usePosCoversQuery(posCoverId || undefined);
   const { t } = useTranslation('sales');
+  const coverItemColumns = React.useMemo(() => itemColumns(t), [t]);
 
   const form = useForm<{ note?: string }>({
     defaultValues: {
@@ -204,7 +205,7 @@ export const PosCoversSheet = () => {
 
                   <div className="rounded-md overflow-hidden relative">
                     <RecordTable.Provider
-                      columns={itemColumns(t)}
+                      columns={coverItemColumns}
                       data={(posCovers.details || []).flatMap((d) =>
                         (d?.paidSummary || []).map((s) => ({
                           paidType: d.paidType,

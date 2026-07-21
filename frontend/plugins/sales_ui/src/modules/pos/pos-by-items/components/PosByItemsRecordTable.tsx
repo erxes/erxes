@@ -2,18 +2,20 @@ import { RecordTable, Spinner } from 'erxes-ui';
 import { usePosByItemsList } from '@/pos/pos-by-items/hooks/UsePosByItemsList';
 import { PosByItemsColumns } from '@/pos/pos-by-items/components/PosByItemsColumn';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const PosByItemsRecordTable = () => {
   const { t } = useTranslation('sales');
   const { posByItemsList, handleFetchMore, loading, pageInfo } =
     usePosByItemsList();
+  const columns = useMemo(() => PosByItemsColumns(t), [t]);
 
   if (loading) return <Spinner />;
 
   return (
     <RecordTable.Provider
-      columns={PosByItemsColumns(t)}
+      columns={columns}
       data={posByItemsList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'code', 'name']}

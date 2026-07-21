@@ -10,9 +10,6 @@ interface ProductConfigProps {
   form: UseFormReturn<TPipelineForm>;
 }
 
-const getSelectedCategoryId = (value: string | string[]) =>
-  Array.isArray(value) ? value[0] : value;
-
 export const ProductConfig = ({ form }: ProductConfigProps) => {
   const { t } = useTranslation('sales');
   const { control } = form;
@@ -31,17 +28,9 @@ export const ProductConfig = ({ form }: ProductConfigProps) => {
           render={({ field }) => {
             return (
               <SelectCategory
-                selected={field.value?.[0] || ''}
-                onValueChange={(value) => {
-                  const id = getSelectedCategoryId(value);
-                  if (!id) return;
-
-                  const current = field.value || [];
-                  const updated = current.includes(id)
-                    ? current.filter((i: string) => i !== id)
-                    : [...current, id];
-                  field.onChange(updated);
-                }}
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={field.onChange}
               />
             );
           }}
@@ -63,17 +52,9 @@ export const ProductConfig = ({ form }: ProductConfigProps) => {
                   {t('exclude-categories')}
                 </Form.Label>
                 <SelectCategory
-                  selected={field.value?.[0] || ''}
-                  onValueChange={(value) => {
-                    const id = getSelectedCategoryId(value);
-                    if (!id) return;
-
-                    const current = field.value || [];
-                    const updated = current.includes(id)
-                      ? current.filter((i: string) => i !== id)
-                      : [...current, id];
-                    field.onChange(updated);
-                  }}
+                  mode="multiple"
+                  value={field.value || []}
+                  onValueChange={field.onChange}
                 />
               </Form.Item>
             )}

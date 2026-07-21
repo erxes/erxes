@@ -17,11 +17,14 @@ export const updateDealProductsCache = (
       productsData() {
         return productsData;
       },
-      products(existingProducts = [], { readField }) {
-        const cachedProducts: Array<Reference | StoreObject> = Array.isArray(
+      products(
+        existingProducts: readonly (Reference | StoreObject)[] = [],
+        { readField },
+      ) {
+        const cachedProducts: (Reference | StoreObject)[] = Array.isArray(
           existingProducts,
         )
-          ? existingProducts
+          ? [...existingProducts]
           : [];
         const existingProductsById = new Map<string, Reference | StoreObject>();
 

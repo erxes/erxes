@@ -61,9 +61,10 @@ export const PosOrdersByCustomerColumns: (
       <RecordTable.InlineHead icon={IconLabel} label={t('orders-count')} />
     ),
     cell: ({ cell }) => {
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
         </RecordTableInlineCell>
       );
     },
@@ -75,9 +76,10 @@ export const PosOrdersByCustomerColumns: (
       <RecordTable.InlineHead icon={IconLabel} label={t('total-amount')} />
     ),
     cell: ({ cell }) => {
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
         </RecordTableInlineCell>
       );
     },
