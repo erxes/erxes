@@ -70,7 +70,7 @@ export const firstSpinColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at', 'Created At')} />
     ),
     size: 100,
     cell: ({ row }) => <CreatedAtCell spin={row.original} />,
@@ -79,7 +79,7 @@ export const firstSpinColumns = (
     id: 'ownerType',
     accessorKey: 'ownerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type', 'Owner Type')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -98,7 +98,7 @@ export const secondSpinColumns = (
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner', 'Owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -109,7 +109,7 @@ export const secondSpinColumns = (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status', 'Status')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

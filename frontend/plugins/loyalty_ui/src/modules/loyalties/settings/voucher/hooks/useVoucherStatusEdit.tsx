@@ -29,15 +29,15 @@ export function useVoucherStatusEdit() {
       },
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('voucher-status-updated'),
+          title: t('success', 'Success'),
+          description: t('voucher-status-updated', 'Voucher status updated successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

@@ -27,19 +27,19 @@ export const SpinRemove = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-spin-confirm', { count: spinIds.length }),
+          message: t('delete-spin-confirm', 'Are you sure you want to delete {{count}} selected spin(s)?', { count: spinIds.length }),
         }).then(async () => {
           try {
             await deleteSpin({ variables: { _ids: spinIds } });
             rows.forEach((row) => row.toggleSelected(false));
             toast({
-              title: t('success'),
+              title: t('success', 'Success'),
               variant: 'success',
-              description: t('spins-deleted', { count: spinIds.length }),
+              description: t('spins-deleted', '{{count}} spin(s) deleted successfully', { count: spinIds.length }),
             });
           } catch (e: unknown) {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e instanceof Error ? e.message : String(e),
               variant: 'destructive',
             });
@@ -48,7 +48,7 @@ export const SpinRemove = ({
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

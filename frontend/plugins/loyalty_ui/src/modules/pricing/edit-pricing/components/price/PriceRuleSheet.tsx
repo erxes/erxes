@@ -102,7 +102,7 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
         <Sheet.Trigger asChild>
           <Button variant="outline">
             {' '}
-            <IconPlus size={16} className="mr-2" /> {t('add-rule')}
+            <IconPlus size={16} className="mr-2" /> {t('add-rule', 'Add rule')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -110,7 +110,7 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
-            {isEditing ? t('edit-price-rule') : t('add-price-rule')}
+            {isEditing ? t('edit-price-rule', 'Edit price rule') : t('add-price-rule', 'Add price rule')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -127,19 +127,19 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
                 name="ruleType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('rule-type')}</Form.Label>
+                    <Form.Label>{t('rule-type', 'Rule type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-rule-type')} />
+                          <Select.Value placeholder={t('choose-rule-type', 'Choose rule type')} />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="exact">{t('exact')}</Select.Item>
-                          <Select.Item value="every">{t('every')}</Select.Item>
-                          <Select.Item value="minimum">{t('minimum')}</Select.Item>
+                          <Select.Item value="exact">{t('exact', 'Exact')}</Select.Item>
+                          <Select.Item value="every">{t('every', 'Every')}</Select.Item>
+                          <Select.Item value="minimum">{t('minimum', 'Minimum')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -152,7 +152,7 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
                 name="ruleValue"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('rule-value')}</Form.Label>
+                    <Form.Label>{t('rule-value', 'Rule value')}</Form.Label>
                     <Form.Control>
                       <Input placeholder="0.00$" type="number" {...field} />
                     </Form.Control>
@@ -165,14 +165,14 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
                 name="discountType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('discount-type')}</Form.Label>
+                    <Form.Label>{t('discount-type', 'Discount type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-discount-type')} />
+                          <Select.Value placeholder={t('choose-discount-type', 'Choose discount type')} />
                         </Select.Trigger>
                         <Select.Content>
                           {DISCOUNT_TYPES.map((option) => (
@@ -196,7 +196,7 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
                   name="discountValue"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('discount-value')}</Form.Label>
+                      <Form.Label>{t('discount-value', 'Discount value')}</Form.Label>
                       <Form.Control>
                         <Input
                           type="number"
@@ -217,7 +217,7 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
                   name="bonusProductId"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('discount-value')}</Form.Label>
+                      <Form.Label>{t('discount-value', 'Discount value')}</Form.Label>
                       <Form.Control>
                         <SelectProduct
                           mode="single"
@@ -237,14 +237,14 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
                 name="priceAdjustType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('price-adjust-type')}</Form.Label>
+                    <Form.Label>{t('price-adjust-type', 'Price adjust type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-type')} />
+                          <Select.Value placeholder={t('choose-type', 'Choose type')} />
                         </Select.Trigger>
                         <Select.Content>
                           {PRICE_ADJUST_TYPES.map((option) => (
@@ -267,7 +267,7 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
                 name="priceAdjustFactor"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('price-adjust-factor')}</Form.Label>
+                    <Form.Label>{t('price-adjust-factor', 'Price adjust factor')}</Form.Label>
                     <Form.Control>
                       <Input placeholder="0" type="number" {...field} />
                     </Form.Control>
@@ -277,9 +277,9 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
 
               <div className="flex gap-2 justify-end pt-4">
                 <Button type="button" variant="outline" onClick={handleClose}>
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
-                <Button type="submit">{t('save')}</Button>
+                <Button type="submit">{t('save', 'Save')}</Button>
               </div>
             </form>
           </Form>

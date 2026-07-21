@@ -35,7 +35,7 @@ export const PricingDelete = ({
     }
 
     confirm({
-      message: t('delete-pricing-confirm', { count: pricingCount }),
+      message: t('delete-pricing-confirm', 'Are you sure you want to delete the {{count}} selected pricing item(s)?', { count: pricingCount }),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -46,17 +46,17 @@ export const PricingDelete = ({
         }
 
         toast({
-          title: t('success'),
-          description: t('pricing-deleted', { count: pricingCount }),
+          title: t('success', 'Success'),
+          description: t('pricing-deleted', '{{count}} pricing item(s) deleted successfully.', { count: pricingCount }),
           variant: 'success',
         });
 
         navigate('/settings/loyalty/pricing');
       } catch (error: unknown) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description:
-            error instanceof Error ? error.message : t('pricing-delete-failed'),
+            error instanceof Error ? error.message : t('pricing-delete-failed', 'Failed to delete pricing. Please try again.'),
           variant: 'destructive',
         });
       }
@@ -71,7 +71,7 @@ export const PricingDelete = ({
       disabled={loading}
     >
       <IconTrash className="w-4 h-4 mr-2" />
-      {loading ? t('deleting') : t('delete')}
+      {loading ? t('deleting', 'Deleting...') : t('delete', 'Delete')}
     </Button>
   );
 };

@@ -53,10 +53,10 @@ export const VoucherRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    {t('no-voucher-yet')}
+                    {t('no-voucher-yet', 'No voucher yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    {t('get-started-voucher')}
+                    {t('get-started-voucher', 'Get started by creating your first voucher.')}
                   </p>
                 </div>
                 <LoyaltyVoucherAddSheet />

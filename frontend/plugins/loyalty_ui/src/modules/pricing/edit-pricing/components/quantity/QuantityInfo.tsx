@@ -20,12 +20,12 @@ export function QuantityInfo(props: QuantityInfoProps) {
   return (
     <PricingRuleInfo<QuantityRuleConfig>
       {...props}
-      title={t('quantity')}
+      title={t('quantity', 'Quantity')}
       rulesKey="quantityRules"
       enabledKey="isQuantityEnabled"
-      successTitle={t('quantity-rules-updated')}
-      errorTitle={t('failed-to-update-quantity-rules')}
-      emptyMessage={<>{t('no-quantity-rules')}</>}
+      successTitle={t('quantity-rules-updated', 'Quantity rules updated')}
+      errorTitle={t('failed-to-update-quantity-rules', 'Failed to update quantity rules')}
+      emptyMessage={<>{t('no-quantity-rules', 'No quantity rules yet. Click "Add rule" to add one.')}</>}
       RuleSheet={QuantityRuleSheet}
     />
   );

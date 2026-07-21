@@ -21,7 +21,7 @@ export const donationColumns = (
     id: 'name',
     accessorKey: 'title',
     header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('name')} />
+      <RecordTable.InlineHead icon={IconTag} label={t('name', 'Name')} />
     ),
     cell: ({ cell }) => {
       return (

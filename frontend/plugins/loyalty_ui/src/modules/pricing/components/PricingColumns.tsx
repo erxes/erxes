@@ -38,7 +38,7 @@ export const pricingColumns = (
     id: 'name',
     accessorKey: 'name',
     header: () => (
-      <RecordTable.InlineHead label={t('name')} icon={IconAlignLeft} />
+      <RecordTable.InlineHead label={t('name', 'Name')} icon={IconAlignLeft} />
     ),
     cell: ({ cell, row }) => {
       const pricingId = row.original._id;
@@ -58,7 +58,7 @@ export const pricingColumns = (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} icon={IconHash} />,
+    header: () => <RecordTable.InlineHead label={t('status', 'Status')} icon={IconHash} />,
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (
@@ -78,7 +78,7 @@ export const pricingColumns = (
     id: 'priority',
     accessorKey: 'priority',
     header: () => (
-      <RecordTable.InlineHead label={t('priority')} icon={IconTag} />
+      <RecordTable.InlineHead label={t('priority', 'Priority')} icon={IconTag} />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as IPricing['priority'];
@@ -89,7 +89,7 @@ export const pricingColumns = (
     id: 'applyType',
     accessorKey: 'applyType',
     header: () => (
-      <RecordTable.InlineHead label={t('apply-type')} icon={IconTag} />
+      <RecordTable.InlineHead label={t('apply-type', 'Apply Type')} icon={IconTag} />
     ),
     cell: ({ cell }) => {
       return (
@@ -105,7 +105,7 @@ export const pricingColumns = (
     id: 'createdBy',
     accessorKey: 'createdBy',
     header: () => (
-      <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />
+      <RecordTable.InlineHead label={t('created-by', 'Created By')} icon={IconUser} />
     ),
     cell: ({ cell }) => {
       const createdById = cell.getValue() as string;
@@ -125,7 +125,7 @@ export const pricingColumns = (
     accessorKey: 'createdAt',
     header: () => (
       <RecordTable.InlineHead
-        label={t('date-created')}
+        label={t('date-created', 'Date Created')}
         icon={IconCalendarPlus}
       />
     ),
@@ -144,7 +144,7 @@ export const pricingColumns = (
     accessorKey: 'updatedAt',
     header: () => (
       <RecordTable.InlineHead
-        label={t('last-updated-at')}
+        label={t('last-updated-at', 'Last Updated At')}
         icon={IconCalendarPlus}
       />
     ),

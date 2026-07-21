@@ -16,7 +16,7 @@ export const LotteryCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {t('selected-count', { count: selectedRows.length })}
+          {t('selected-count', '{{count}} selected', { count: selectedRows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <LotteryRemove lotteryIds={lotteryIds} rows={selectedRows} />

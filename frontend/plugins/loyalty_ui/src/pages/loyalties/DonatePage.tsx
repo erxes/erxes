@@ -15,7 +15,7 @@ const DonateHeaderActions = () => {
       <Button variant="outline" size="sm" asChild>
         <Link to="/settings/loyalty/config/donate">
           <IconSettings className="size-4" />
-          {t('go-to-settings')}
+          {t('go-to-settings', 'Go to settings')}
         </Link>
       </Button>
       <DonateAddSheet />

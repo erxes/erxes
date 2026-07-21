@@ -61,7 +61,7 @@ export const LoyaltySpinAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-spin-campaign')}
+          {t('add-spin-campaign', 'Add spin campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -72,7 +72,7 @@ export const LoyaltySpinAddSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>{t('add-spin-campaign')}</Sheet.Title>
+          <Sheet.Title>{t('add-spin-campaign', 'Add spin campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

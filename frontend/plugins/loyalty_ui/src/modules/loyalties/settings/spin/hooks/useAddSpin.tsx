@@ -93,15 +93,15 @@ export const useAddSpin = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('spin-campaign-created'),
+          title: t('success', 'Success'),
+          description: t('spin-campaign-created', 'Spin campaign created successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

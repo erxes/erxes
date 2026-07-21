@@ -11,7 +11,7 @@ export const DonateTotalCount = () => {
       {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        `${totalCount} ${t('records-found')}`
+        `${totalCount} ${t('records-found', 'records found')}`
       )}
     </div>
   );

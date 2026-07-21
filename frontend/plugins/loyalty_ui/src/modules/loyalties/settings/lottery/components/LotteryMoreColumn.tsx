@@ -40,20 +40,20 @@ export const LotteryMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: t('delete-lottery-confirm', { count: 1 }),
+      message: t('delete-lottery-confirm', 'Are you sure you want to delete {{count}} selected lottery(s)?', { count: 1 }),
     }).then(() => {
       removeLottery({
         variables: { _ids: [_id] },
       })
         .then(() => {
           toast({
-            title: t('lotteries-deleted', { count: 1 }),
+            title: t('lotteries-deleted', '{{count}} lottery(s) deleted successfully', { count: 1 }),
             variant: 'success',
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -74,10 +74,10 @@ export const LotteryMoreColumnCell = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="see-lotteries" onSelect={handleSeeLotteries}>
-              <IconTicket /> {t('see-lotteries')}
+              <IconTicket /> {t('see-lotteries', 'See lotteries')}
             </Command.Item>
             <Command.Item asChild>
               <Button
@@ -88,7 +88,7 @@ export const LotteryMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Button>
             </Command.Item>
           </Command.List>

@@ -126,14 +126,14 @@ export function AddLoyaltyScoreForm({
             className="bg-background hover:bg-background/90"
             onClick={handleCancel}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={editLoading}
           >
-            {editLoading ? t('saving') : t('save')}
+            {editLoading ? t('saving', 'Saving...') : t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </form>

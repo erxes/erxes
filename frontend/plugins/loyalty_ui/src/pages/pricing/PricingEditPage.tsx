@@ -34,7 +34,7 @@ export const PricingEditPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/settings/loyalty/pricing">
                     <IconCoins />
-                    {t('pricing')}
+                    {t('pricing', 'Pricing')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -45,8 +45,8 @@ export const PricingEditPage = () => {
                     <Select.Value
                       placeholder={
                         loading
-                          ? t('loading')
-                          : currentPricing?.name || t('select-pricing')
+                          ? t('loading', 'Loading...')
+                          : currentPricing?.name || t('select-pricing', 'Select Pricing')
                       }
                     />
                   </Select.Trigger>

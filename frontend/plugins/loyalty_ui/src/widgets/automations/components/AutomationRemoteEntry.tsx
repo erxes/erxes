@@ -25,10 +25,10 @@ const AutomationRemoteErrorFallback = ({
   const { t } = useTranslation('loyalty');
   return (
     <div className="flex size-full flex-col items-center justify-center gap-3 p-4 text-center">
-      <p className="text-sm font-medium">{t('unable-to-load-loyalty-automation')}</p>
+      <p className="text-sm font-medium">{t('unable-to-load-loyalty-automation', 'Unable to load loyalty automation')}</p>
       <p className="text-xs text-accent-foreground">{error?.message}</p>
       <Button size="sm" variant="secondary" onClick={resetErrorBoundary}>
-        {t('try-again')}
+        {t('try-again', 'Try again')}
       </Button>
     </div>
   );

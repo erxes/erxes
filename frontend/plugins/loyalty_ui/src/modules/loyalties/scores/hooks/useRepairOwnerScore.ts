@@ -24,14 +24,14 @@ export const useRepairOwnerScore = (
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('score-repaired'),
+          title: t('success', 'Success'),
+          description: t('score-repaired', 'Score repaired successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

@@ -61,10 +61,10 @@ export const ScoreRecordTable = () => {
               <div className="flex flex-col items-center text-center">
                 <IconStar size={48} className="text-gray-400 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {t('no-scores-yet')}
+                  {t('no-scores-yet', 'No scores yet')}
                 </h3>
                 <p className="mt-1 text-sm text-gray-500 mb-4">
-                  {t('get-started-score')}
+                  {t('get-started-score', 'Get started by giving your first score.')}
                 </p>
                 <GiveScoreModal />
               </div>

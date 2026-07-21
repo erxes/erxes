@@ -80,14 +80,14 @@ const NotFound = ({ title }: { title: string }) => {
         />
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-semibold w-full text-center">
-            {t('details-not-found', { title })}
+            {t('details-not-found', '{{title}} details not found', { title })}
           </h2>
           <p className="text-accent-foreground w-full text-center">
-            {t('no-data-on-title', { title })}
+            {t('no-data-on-title', 'There seems to be no data on this {{title}}', { title })}
           </p>
         </div>
         <Sheet.Close asChild>
-          <Button variant="outline">{t('close')}</Button>
+          <Button variant="outline">{t('close', 'Close')}</Button>
         </Sheet.Close>
       </div>
     </div>

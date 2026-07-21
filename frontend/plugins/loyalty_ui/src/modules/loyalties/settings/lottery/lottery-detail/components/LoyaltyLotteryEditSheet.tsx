@@ -115,7 +115,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
         <Sheet.Trigger asChild>
           <Button variant="ghost" size="sm">
             <IconEdit className="h-4 w-4" />
-            {t('edit')}
+            {t('edit', 'Edit')}
             <Kbd>E</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -127,7 +127,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>{t('edit-lottery-campaign')}</Sheet.Title>
+          <Sheet.Title>{t('edit-lottery-campaign', 'Edit Lottery campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

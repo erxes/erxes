@@ -24,7 +24,7 @@ export const LoyaltyConfigFormFields = () => {
         className="h-full w-full mx-auto max-w-2xl px-9 py-5 flex flex-col gap-8"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h1 className="text-lg font-semibold">{t('general-settings')}</h1>
+        <h1 className="text-lg font-semibold">{t('general-settings', 'General settings')}</h1>
 
         <Form.Field
           name="loyaltyRatioCurrency"
@@ -32,13 +32,13 @@ export const LoyaltyConfigFormFields = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Label className="font-sans normal-case text-foreground text-sm font-medium leading-none">
-                {t('loyalty-ratio-currency')}
+                {t('loyalty-ratio-currency', 'Loyalty ratio currency')}
               </Form.Label>
               <Form.Message />
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder={t('enter-loyalty-ratio-currency')}
+                  placeholder={t('enter-loyalty-ratio-currency', 'Enter loyalty ratio currency')}
                   className="h-8"
                   {...field}
                 />
@@ -46,20 +46,20 @@ export const LoyaltyConfigFormFields = () => {
             </Form.Item>
           )}
         />
-        <h1 className="text-lg font-semibold">{t('share-settings')}</h1>
+        <h1 className="text-lg font-semibold">{t('share-settings', 'Share settings')}</h1>
         <Form.Field
           name="feeForScoreSharing"
           control={form.control}
           render={({ field }) => (
             <Form.Item>
               <Form.Label className="font-sans normal-case text-foreground text-sm font-medium leading-none">
-                {t('fee-for-score-sharing')}
+                {t('fee-for-score-sharing', 'Fee for score sharing')}
               </Form.Label>
               <Form.Message />
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder={t('enter-fee-for-score-sharing')}
+                  placeholder={t('enter-fee-for-score-sharing', 'Enter fee for score sharing')}
                   className="h-8"
                   {...field}
                 />
@@ -74,7 +74,7 @@ export const LoyaltyConfigFormFields = () => {
             type="submit"
             disabled={isUpdating}
           >
-            {isUpdating ? t('saving') : t('save')}
+            {isUpdating ? t('saving', 'Saving...') : t('save', 'Save')}
           </Button>
         </div>
       </form>

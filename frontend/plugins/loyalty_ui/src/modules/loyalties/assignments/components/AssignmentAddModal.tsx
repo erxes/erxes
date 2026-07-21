@@ -37,15 +37,15 @@ export const AssignmentAddModal = () => {
         },
       });
       toast({
-        title: t('success'),
-        description: t('assignment-created'),
+        title: t('success', 'Success'),
+        description: t('assignment-created', 'Assignment created successfully'),
         variant: 'default',
       });
       setOpen(false);
       form.reset();
     } catch (e: unknown) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: e instanceof Error ? e.message : String(e),
         variant: 'destructive',
       });
@@ -57,12 +57,12 @@ export const AssignmentAddModal = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-assignment')}
+          {t('add-assignment', 'Add assignment')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-md p-0">
         <Sheet.Header className="border-b gap-3 px-6 py-4">
-          <Sheet.Title>{t('new-assignment')}</Sheet.Title>
+          <Sheet.Title>{t('new-assignment', 'New Assignment')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-6">
@@ -74,14 +74,14 @@ export const AssignmentAddModal = () => {
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: t('campaign-required') }}
+                rules={{ required: t('campaign-required', 'Campaign is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('campaign')}</Form.Label>
+                    <Form.Label>{t('campaign', 'Campaign')}</Form.Label>
                     <SelectAssignmentCampaignFormItem
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder={t('choose-assignment-campaign')}
+                      placeholder={t('choose-assignment-campaign', 'Choose assignment campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -91,10 +91,10 @@ export const AssignmentAddModal = () => {
               <Form.Field
                 control={form.control}
                 name="ownerId"
-                rules={{ required: t('owner-required') }}
+                rules={{ required: t('owner-required', 'Owner is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-label')}</Form.Label>
+                    <Form.Label>{t('owner-label', 'Owner *')}</Form.Label>
                     <Form.Control>
                       <SelectCustomer
                         value={field.value ? [field.value] : []}
@@ -115,10 +115,10 @@ export const AssignmentAddModal = () => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  {t('close')}
+                  {t('close', 'Close')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('saving') : t('save')}
+                  {loading ? t('saving', 'Saving...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

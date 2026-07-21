@@ -27,19 +27,19 @@ export const LotteryRemove = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-lottery-confirm', { count: lotteryIds.length }),
+          message: t('delete-lottery-confirm', 'Are you sure you want to delete {{count}} selected lottery(s)?', { count: lotteryIds.length }),
         }).then(async () => {
           try {
             await deleteLottery({ variables: { _ids: lotteryIds } });
             rows.forEach((row) => row.toggleSelected(false));
             toast({
-              title: t('success'),
+              title: t('success', 'Success'),
               variant: 'success',
-              description: t('lotteries-deleted', { count: lotteryIds.length }),
+              description: t('lotteries-deleted', '{{count}} lottery(s) deleted successfully', { count: lotteryIds.length }),
             });
           } catch (e: unknown) {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e instanceof Error ? e.message : String(e),
               variant: 'destructive',
             });
@@ -48,7 +48,7 @@ export const LotteryRemove = ({
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

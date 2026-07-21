@@ -15,20 +15,20 @@ export const LoyaltyScoreDelete = ({ scoreIds }: { scoreIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-score-confirm', { count: scoreIds.length }),
+          message: t('delete-score-confirm', 'Are you sure you want to delete {{count}} selected score campaign(s)?', { count: scoreIds.length }),
         }).then(() => {
           removeScore({
             variables: { _ids: scoreIds },
           })
             .then(() => {
               toast({
-                title: t('scores-deleted', { count: scoreIds.length }),
+                title: t('scores-deleted', '{{count}} score campaign(s) deleted successfully', { count: scoreIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -37,7 +37,7 @@ export const LoyaltyScoreDelete = ({ scoreIds }: { scoreIds: string[] }) => {
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

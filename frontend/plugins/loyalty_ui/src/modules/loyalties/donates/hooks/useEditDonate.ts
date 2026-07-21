@@ -24,14 +24,14 @@ export const useEditDonate = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('donation-updated'),
+          title: t('success', 'Success'),
+          description: t('donation-updated', 'Donation updated successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

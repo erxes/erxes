@@ -38,14 +38,14 @@ export const useDeleteAgent = () => {
       },
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('agent-deleted'),
+          title: t('success', 'Success'),
+          description: t('agent-deleted', 'Agent deleted successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

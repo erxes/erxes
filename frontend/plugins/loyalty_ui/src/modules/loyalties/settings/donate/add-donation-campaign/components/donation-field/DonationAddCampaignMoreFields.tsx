@@ -58,7 +58,7 @@ const DateSelectFormField = ({
                 <>
                   <IconCalendarPlus className="text-accent-foreground" />
                   <span className="text-accent-foreground font-medium">
-                    {placeholder || t('select-date')}
+                    {placeholder || t('select-date', 'Select date...')}
                   </span>
                 </>
               )}
@@ -85,11 +85,11 @@ export const DonationAddCampaignMoreFields: React.FC<
           name="startDate"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('start-date')}</Form.Label>
+              <Form.Label>{t('start-date', 'Start Date')}</Form.Label>
               <DateSelectFormField
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={t('select-start-date')}
+                placeholder={t('select-start-date', 'Select start date')}
               />
               <Form.Message />
             </Form.Item>
@@ -103,11 +103,11 @@ export const DonationAddCampaignMoreFields: React.FC<
           name="endDate"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('end-date')}</Form.Label>
+              <Form.Label>{t('end-date', 'End Date')}</Form.Label>
               <DateSelectFormField
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={t('select-end-date')}
+                placeholder={t('select-end-date', 'Select end date')}
               />
               <Form.Message />
             </Form.Item>

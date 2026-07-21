@@ -81,7 +81,7 @@ export const scoreLogColumns = (
   {
     id: 'ownerName',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('owner-name')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-name', 'Owner Name')} />
     ),
     size: 180,
     cell: ({ row }) => <ScoreOwnerNameCell row={row} />,
@@ -90,7 +90,7 @@ export const scoreLogColumns = (
     id: 'ownerType',
     accessorKey: 'ownerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />
+      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type', 'Owner Type')} />
     ),
     size: 120,
     cell: ({ cell }) => (
@@ -103,7 +103,7 @@ export const scoreLogColumns = (
     id: 'totalScore',
     accessorKey: 'totalScore',
     header: () => (
-      <RecordTable.InlineHead icon={IconStar} label={t('total-score')} />
+      <RecordTable.InlineHead icon={IconStar} label={t('total-score', 'Total Score')} />
     ),
     size: 140,
     cell: ({ cell }) => (
@@ -116,7 +116,7 @@ export const scoreLogColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date', 'Date')} />
     ),
     size: 120,
     cell: ({ cell }) => (
@@ -129,7 +129,7 @@ export const scoreLogColumns = (
     id: 'dealNumber',
     accessorFn: (row) => row.target?.number,
     header: () => (
-      <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />
+      <RecordTable.InlineHead icon={IconHash} label={t('deal-number', 'Deal Number')} />
     ),
     size: 200,
     cell: ({ cell }) => (
@@ -141,7 +141,7 @@ export const scoreLogColumns = (
   {
     id: 'action',
     accessorKey: 'action',
-    header: () => <RecordTable.InlineHead icon={IconTag} label={t('type')} />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('type', 'Type')} />,
     size: 90,
     cell: ({ cell }) => {
       const action = cell.getValue() as string | undefined;
@@ -165,7 +165,7 @@ export const scoreLogColumns = (
     id: 'pointsEarned',
     accessorFn: (row) => (row.action === 'add' ? row.change : undefined),
     header: () => (
-      <RecordTable.InlineHead icon={IconCoins} label={t('points-earned')} />
+      <RecordTable.InlineHead icon={IconCoins} label={t('points-earned', 'Points Earned')} />
     ),
     size: 130,
     cell: ({ cell }) => {
@@ -181,7 +181,7 @@ export const scoreLogColumns = (
     id: 'pointsSpent',
     accessorFn: (row) => (row.action === 'subtract' ? row.change : undefined),
     header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label={t('points-spent')} />
+      <RecordTable.InlineHead icon={IconChartBar} label={t('points-spent', 'Points Spent')} />
     ),
     size: 130,
     cell: ({ cell }) => {
@@ -197,7 +197,7 @@ export const scoreLogColumns = (
     id: 'pointsRefunded',
     accessorFn: (row) => (row.action === 'refund' ? row.change : undefined),
     header: () => (
-      <RecordTable.InlineHead icon={IconRefresh} label={t('points-refunded')} />
+      <RecordTable.InlineHead icon={IconRefresh} label={t('points-refunded', 'Points Refunded')} />
     ),
     size: 150,
     cell: ({ cell }) => {
@@ -213,7 +213,7 @@ export const scoreLogColumns = (
     id: 'pointsSet',
     accessorFn: (row) => (row.action === 'set' ? row.change : undefined),
     header: () => (
-      <RecordTable.InlineHead icon={IconCoins} label={t('score-set')} />
+      <RecordTable.InlineHead icon={IconCoins} label={t('score-set', 'Score Set')} />
     ),
     size: 120,
     cell: ({ cell }) => {
@@ -229,7 +229,7 @@ export const scoreLogColumns = (
     id: 'campaign',
     accessorFn: (row) => row.campaign?.title,
     header: () => (
-      <RecordTable.InlineHead icon={IconTrophy} label={t('campaign')} />
+      <RecordTable.InlineHead icon={IconTrophy} label={t('campaign', 'Campaign')} />
     ),
     size: 140,
     cell: ({ cell }) => (
@@ -242,7 +242,7 @@ export const scoreLogColumns = (
     id: 'description',
     accessorKey: 'description',
     header: () => (
-      <RecordTable.InlineHead icon={IconNote} label={t('description')} />
+      <RecordTable.InlineHead icon={IconNote} label={t('description', 'Description')} />
     ),
     size: 160,
     cell: ({ cell }) => (

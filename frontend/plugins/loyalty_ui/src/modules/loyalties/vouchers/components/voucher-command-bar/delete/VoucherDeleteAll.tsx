@@ -18,19 +18,19 @@ export const VoucherDeleteAll = ({ totalCount }: { totalCount: number }) => {
 
   const handleDeleteAll = () => {
     confirm({
-      message: t('delete-all-vouchers-confirm', { count: totalCount }),
+      message: t('delete-all-vouchers-confirm', 'Are you sure you want to delete all {{count}} vouchers?', { count: totalCount }),
     }).then(async () => {
       try {
         const result = await removeByFilter({ variables });
         const deleted = result.data?.vouchersRemoveByFilter ?? 0;
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
           variant: 'success',
-          description: t('vouchers-deleted', { count: deleted }),
+          description: t('vouchers-deleted', '{{count}} voucher(s) deleted successfully', { count: deleted }),
         });
       } catch (e: any) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -46,7 +46,7 @@ export const VoucherDeleteAll = ({ totalCount }: { totalCount: number }) => {
       disabled={loading}
     >
       <IconTrash />
-      {t('delete-all-count', { count: totalCount })}
+      {t('delete-all-count', 'Delete All ({{count}})', { count: totalCount })}
     </Button>
   );
 };

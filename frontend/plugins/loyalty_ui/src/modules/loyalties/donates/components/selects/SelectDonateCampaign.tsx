@@ -123,7 +123,7 @@ const SelectDonateCampaignValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-campaign')}
+        {placeholder || t('select-campaign', 'Select campaign')}
       </span>
     );
   }
@@ -165,9 +165,9 @@ const SelectDonateCampaignContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-campaigns')} />
+      <Command.Input placeholder={t('search-campaigns', 'Search campaigns...')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-campaigns-found')}</span>
+        <span className="text-muted-foreground">{t('no-campaigns-found', 'No campaigns found')}</span>
       </Command.Empty>
       <Command.List>
         {options.map((option) => (
@@ -183,7 +183,7 @@ export const SelectDonateCampaignFilterItem = () => {
   return (
     <Filter.Item value="donateCampaign">
       <IconTag />
-      {t('campaign')}
+      {t('campaign', 'Campaign')}
     </Filter.Item>
   );
 };
@@ -238,7 +238,7 @@ export const SelectDonateCampaignFilterBar = ({
     <Filter.BarItem queryKey="donateCampaign">
       <Filter.BarName>
         <IconTag />
-        {!iconOnly && t('campaign')}
+        {!iconOnly && t('campaign', 'Campaign')}
       </Filter.BarName>
       <SelectDonateCampaignProvider
         mode={mode}

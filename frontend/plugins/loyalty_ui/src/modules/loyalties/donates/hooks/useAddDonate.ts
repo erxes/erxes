@@ -23,14 +23,14 @@ export const useAddDonate = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('donation-created'),
+          title: t('success', 'Success'),
+          description: t('donation-created', 'Donation created successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

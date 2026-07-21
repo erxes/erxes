@@ -103,7 +103,7 @@ const SelectOrderTypeValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-order-type')}
+        {placeholder || t('select-order-type', 'Select order type')}
       </span>
     );
   }
@@ -144,9 +144,9 @@ const SelectOrderTypeContent = () => {
   const { t } = useTranslation('loyalty');
   return (
     <Command>
-      <Command.Input placeholder={t('search-order-types')} />
+      <Command.Input placeholder={t('search-order-types', 'Search order types...')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-order-types-found')}</span>
+        <span className="text-muted-foreground">{t('no-order-types-found', 'No order types found')}</span>
       </Command.Empty>
       <Command.List>
         {ORDER_TYPE_OPTIONS.map((option) => (
@@ -162,7 +162,7 @@ export const SelectOrderTypeFilterItem = () => {
   return (
     <Filter.Item value="orderType">
       <IconArrowsSort />
-      {t('sort-order')}
+      {t('sort-order', 'Sort Order')}
     </Filter.Item>
   );
 };
@@ -217,7 +217,7 @@ export const SelectOrderTypeFilterBar = ({
     <Filter.BarItem queryKey="orderType">
       <Filter.BarName>
         <IconArrowsSort />
-        {!iconOnly && t('sort-order')}
+        {!iconOnly && t('sort-order', 'Sort Order')}
       </Filter.BarName>
       <SelectOrderTypeProvider
         mode={mode}

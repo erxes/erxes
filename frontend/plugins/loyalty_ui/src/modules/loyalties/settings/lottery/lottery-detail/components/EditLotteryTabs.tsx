@@ -20,8 +20,8 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
   const handleSubmit = async () => {
     if (!lotteryId) {
       toast({
-        title: t('error'),
-        description: t('no-lottery-id-provided'),
+        title: t('error', 'Error'),
+        description: t('no-lottery-id-provided', 'No lottery ID provided'),
         variant: 'destructive',
       });
       return;
@@ -58,7 +58,7 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -78,7 +78,7 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        {t('cancel')}
+        {t('cancel', 'Cancel')}
       </Button>
       <Button
         type="button"
@@ -86,7 +86,7 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? t('saving') : t('save')}
+        {editLoading ? t('saving', 'Saving...') : t('save', 'Save')}
       </Button>
     </Sheet.Footer>
   );

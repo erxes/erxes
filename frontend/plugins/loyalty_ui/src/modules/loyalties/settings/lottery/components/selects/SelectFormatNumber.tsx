@@ -136,7 +136,7 @@ const SelectFormatNumberValue = ({
   if (!selectedFormatOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-format-option')}
+        {placeholder || t('select-format-option', 'Select format option')}
       </span>
     );
   }
@@ -177,9 +177,9 @@ const SelectFormatNumberContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-format-option')} />
+      <Command.Input placeholder={t('search-format-option', 'Search format option')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-format-options-found')}</span>
+        <span className="text-muted-foreground">{t('no-format-options-found', 'No format options found')}</span>
       </Command.Empty>
       <Command.List>
         {formatOptions?.map((formatOption) => (
@@ -198,7 +198,7 @@ export const SelectFormatNumberFilterItem = () => {
   return (
     <Filter.Item value="formatNumber">
       <IconFilter />
-      {t('format-number')}
+      {t('format-number', 'Format Number')}
     </Filter.Item>
   );
 };
@@ -253,7 +253,7 @@ export const SelectFormatNumberFilterBar = ({
     <Filter.BarItem queryKey={'formatNumber'}>
       <Filter.BarName>
         <IconFilter />
-        {t('format-number')}
+        {t('format-number', 'Format Number')}
       </Filter.BarName>
       <SelectFormatNumberProvider
         mode={mode}

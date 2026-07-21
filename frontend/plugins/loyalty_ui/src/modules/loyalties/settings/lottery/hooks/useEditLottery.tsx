@@ -36,15 +36,15 @@ export function useEditLottery() {
       },
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('lottery-updated'),
+          title: t('success', 'Success'),
+          description: t('lottery-updated', 'Lottery updated successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

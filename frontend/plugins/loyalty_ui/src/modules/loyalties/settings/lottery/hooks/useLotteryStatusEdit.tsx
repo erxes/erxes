@@ -29,15 +29,15 @@ export function useLotteryStatusEdit() {
       },
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('lottery-status-updated'),
+          title: t('success', 'Success'),
+          description: t('lottery-status-updated', 'Lottery status updated successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

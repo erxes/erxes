@@ -14,7 +14,7 @@ export const SpinCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('selected-count', { count: selectedRows.length })}</CommandBar.Value>
+        <CommandBar.Value>{t('selected-count', '{{count}} selected', { count: selectedRows.length })}</CommandBar.Value>
         <Separator.Inline />
         <SpinRemove spinIds={spinIds} rows={selectedRows} />
       </CommandBar.Bar>

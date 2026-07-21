@@ -31,14 +31,14 @@ export const useAddCoupon = () => {
       onCompleted: (data) => {
         const count = data?.couponAdd?.length || 1;
         toast({
-          title: t('success'),
-          description: t('coupon-created', { count }),
+          title: t('success', 'Success'),
+          description: t('coupon-created', '{{count}} coupon(s) created successfully', { count }),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

@@ -41,7 +41,7 @@ export const MonthPicker = ({
     setOpen(false);
   };
 
-  const label = value ? dayjs(value).format('MMM YYYY') : (placeholder || t('pick-a-month'));
+  const label = value ? dayjs(value).format('MMM YYYY') : (placeholder || t('pick-a-month', 'Pick a month'));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

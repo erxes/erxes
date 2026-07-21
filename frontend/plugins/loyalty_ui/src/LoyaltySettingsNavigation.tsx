@@ -12,12 +12,12 @@ export const LoyaltySettingsNavigation = () => {
           <SettingsNavigationMenuLinkItem
             pathPrefix={LoyaltySettingsPaths.Loyalty}
             path={LoyaltySettingsPaths.Config}
-            name={t('configs')}
+            name={t('configs', 'Configs')}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix={LoyaltySettingsPaths.Loyalty}
             path={LoyaltySettingsPaths.Pricing}
-            name={t('pricing')}
+            name={t('pricing', 'Pricing')}
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

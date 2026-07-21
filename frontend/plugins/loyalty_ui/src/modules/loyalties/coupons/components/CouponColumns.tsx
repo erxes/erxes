@@ -26,7 +26,7 @@ const CodeCell = ({ code }: { code?: string }) => {
   const handleCopy = () => {
     if (!code) return;
     navigator.clipboard.writeText(code);
-    toast({ title: t('copied'), description: code, variant: 'default' });
+    toast({ title: t('copied', 'Copied!'), description: code, variant: 'default' });
   };
 
   return (
@@ -72,7 +72,7 @@ export const couponColumns = (
     id: 'campaignId',
     accessorKey: 'campaign',
     header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('campaign')} />
+      <RecordTable.InlineHead icon={IconTag} label={t('campaign', 'Campaign')} />
     ),
     size: 160,
     cell: ({ row }) => (
@@ -84,7 +84,7 @@ export const couponColumns = (
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     size: 140,
     cell: ({ row }) => <CodeCell code={row.original.code} />,
   },
@@ -92,7 +92,7 @@ export const couponColumns = (
     id: 'usageCount',
     accessorKey: 'usageCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label={t('usage')} />
+      <RecordTable.InlineHead icon={IconChartBar} label={t('usage', 'Usage')} />
     ),
     size: 90,
     cell: ({ cell }) => (
@@ -104,7 +104,7 @@ export const couponColumns = (
   {
     id: 'usageLimit',
     accessorKey: 'usageLimit',
-    header: () => <RecordTable.InlineHead icon={IconLock} label={t('limit')} />,
+    header: () => <RecordTable.InlineHead icon={IconLock} label={t('limit', 'Limit')} />,
     size: 90,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -116,7 +116,7 @@ export const couponColumns = (
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status', 'Status')} />
     ),
     size: 100,
     cell: ({ cell }) => {
@@ -134,7 +134,7 @@ export const couponColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created At')} />
     ),
     size: 150,
     cell: ({ cell }) => (

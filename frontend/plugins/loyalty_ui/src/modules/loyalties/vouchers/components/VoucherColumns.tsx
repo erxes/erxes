@@ -102,7 +102,7 @@ export const firstVoucherColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at', 'Created At')} />
     ),
     cell: ({ row }) => <CreatedAtCell voucher={row.original} />,
   },
@@ -110,7 +110,7 @@ export const firstVoucherColumns = (
     id: 'ownerType',
     accessorKey: 'ownerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type', 'Owner Type')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -129,7 +129,7 @@ export const secondVoucherColumns = (
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner', 'Owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -140,7 +140,7 @@ export const secondVoucherColumns = (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status', 'Status')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

@@ -62,7 +62,7 @@ const PricingDateSelectValue = ({
   if (!value) {
     return (
       <span className="text-sm text-accent-foreground/80">
-        {placeholder || t('select-date')}
+        {placeholder || t('select-date', 'Select date...')}
       </span>
     );
   }
@@ -93,7 +93,7 @@ const PricingDateSelectFormItemValue = ({
         ) : (
           <IconCalendarQuestion className="size-4" />
         )}
-        {placeholder || t('select-date')}
+        {placeholder || t('select-date', 'Select date...')}
       </span>
     );
   }

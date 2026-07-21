@@ -65,7 +65,7 @@ export const ParticipantsInfo = ({
           size="sm"
           disabled={loading}
         >
-          {loading ? t('saving') : t('save-changes')}
+          {loading ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -90,13 +90,13 @@ export const ParticipantsInfo = ({
       setInitialSnapshot(participantDoc);
 
       toast({
-        title: t('participants-updated'),
-        description: t('changes-saved'),
+        title: t('participants-updated', 'Participants updated'),
+        description: t('changes-saved', 'Changes have been saved successfully.'),
       });
     } catch {
       toast({
-        title: t('failed-to-update-participants'),
-        description: t('unexpected-error'),
+        title: t('failed-to-update-participants', 'Failed to update participants'),
+        description: t('unexpected-error', 'An unexpected error occurred.'),
         variant: 'destructive',
       });
     }
@@ -104,7 +104,7 @@ export const ParticipantsInfo = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('participants')}>
+      <InfoCard title={t('participants', 'Participants')}>
         <InfoCard.Content>
           <Form {...form}>
             <form

@@ -29,14 +29,14 @@ export const useDonationEdit = () => {
       refetchQueries: ['getCampaigns'],
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('donation-updated'),
+          title: t('success', 'Success'),
+          description: t('donation-updated', 'Donation updated successfully'),
           variant: 'default',
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

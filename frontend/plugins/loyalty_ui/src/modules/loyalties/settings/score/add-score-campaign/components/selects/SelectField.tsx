@@ -132,7 +132,7 @@ const SelectFieldValue = ({
   if (!selectedField) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-field')}
+        {placeholder || t('select-field', 'Select field')}
       </span>
     );
   }
@@ -176,10 +176,10 @@ const SelectFieldContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder={t('search-fields')} />
+        <Command.Input placeholder={t('search-fields', 'Search fields')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">{t('loading-fields')}</span>
+            <span className="text-muted-foreground">{t('loading-fields', 'Loading fields...')}</span>
           </div>
         </Command.List>
       </Command>
@@ -188,9 +188,9 @@ const SelectFieldContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-fields')} />
+      <Command.Input placeholder={t('search-fields', 'Search fields')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-fields-found')}</span>
+        <span className="text-muted-foreground">{t('no-fields-found', 'No fields found')}</span>
       </Command.Empty>
       <Command.List>
         {fieldsArray.map((field) => (
@@ -206,7 +206,7 @@ export const SelectFieldFilterItem = () => {
   return (
     <Filter.Item value="fields">
       <IconTextSize />
-      {t('fields')}
+      {t('fields', 'Fields')}
     </Filter.Item>
   );
 };
@@ -268,7 +268,7 @@ export const SelectFieldFilterBar = ({
     <Filter.BarItem queryKey={'fields'}>
       <Filter.BarName>
         <IconTextSize />
-        {t('fields')}
+        {t('fields', 'Fields')}
       </Filter.BarName>
       <SelectFieldProvider
         mode={mode}

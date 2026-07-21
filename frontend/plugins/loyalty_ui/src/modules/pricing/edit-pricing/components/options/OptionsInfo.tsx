@@ -244,7 +244,7 @@ export const OptionsInfo = ({
           size="sm"
           disabled={loading}
         >
-          {loading ? t('saving') : t('save-changes')}
+          {loading ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -337,13 +337,13 @@ export const OptionsInfo = ({
       );
 
       toast({
-        title: t('options-updated'),
-        description: t('changes-saved'),
+        title: t('options-updated', 'Options updated'),
+        description: t('changes-saved', 'Changes have been saved successfully.'),
       });
     } catch {
       toast({
-        title: t('failed-to-update-options'),
-        description: t('unexpected-error'),
+        title: t('failed-to-update-options', 'Failed to update options'),
+        description: t('unexpected-error', 'An unexpected error occurred.'),
         variant: 'destructive',
       });
     }
@@ -351,7 +351,7 @@ export const OptionsInfo = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('options')}>
+      <InfoCard title={t('options', 'Options')}>
         <InfoCard.Content>
           <Form {...form}>
             <form
@@ -362,7 +362,7 @@ export const OptionsInfo = ({
             >
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">{t('location')}</Label>
+                <Label className="mx-2">{t('location', 'Location')}</Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -373,7 +373,7 @@ export const OptionsInfo = ({
                     name="branchIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('branches-caps')}</Form.Label>
+                        <Form.Label>{t('branches-caps', 'BRANCHES')}</Form.Label>
                         <Form.Control>
                           <SelectBranches.FormItem
                             mode="multiple"
@@ -389,7 +389,7 @@ export const OptionsInfo = ({
                     name="departmentIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('departments-caps')}</Form.Label>
+                        <Form.Label>{t('departments-caps', 'DEPARTMENTS')}</Form.Label>
                         <Form.Control>
                           <SelectDepartments.FormItem
                             mode="multiple"
@@ -405,7 +405,7 @@ export const OptionsInfo = ({
 
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">{t('pipeline')}</Label>
+                <Label className="mx-2">{t('pipeline', 'Pipeline')}</Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -416,12 +416,12 @@ export const OptionsInfo = ({
                     name="boardId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('board-caps')}</Form.Label>
+                        <Form.Label>{t('board-caps', 'BOARD')}</Form.Label>
                         <Form.Control>
                           <SelectBoardFormItem
                             value={field.value}
                             onValueChange={handleBoardChange}
-                            placeholder={t('choose-a-board')}
+                            placeholder={t('choose-a-board', 'Choose a board')}
                           />
                         </Form.Control>
                       </Form.Item>
@@ -433,13 +433,13 @@ export const OptionsInfo = ({
                     name="pipelineId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('pipeline-caps')}</Form.Label>
+                        <Form.Label>{t('pipeline-caps', 'PIPELINE')}</Form.Label>
                         <Form.Control>
                           <SelectPipelineFormItem
                             value={field.value}
                             onValueChange={field.onChange}
                             boardId={form.watch('boardId')}
-                            placeholder={t('choose-a-pipeline')}
+                            placeholder={t('choose-a-pipeline', 'Choose a pipeline')}
                           />
                         </Form.Control>
                       </Form.Item>
@@ -450,7 +450,7 @@ export const OptionsInfo = ({
 
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">{t('repeat')}</Label>
+                <Label className="mx-2">{t('repeat', 'Repeat')}</Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -467,7 +467,7 @@ export const OptionsInfo = ({
 
                   {repeatRules.length === 0 ? (
                     <div className="py-6 text-sm text-center text-muted-foreground">
-                      {t('no-repeat-rules')}
+                      {t('no-repeat-rules', 'No repeat rules yet. Click "Add rule" to add one.')}
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -483,7 +483,7 @@ export const OptionsInfo = ({
                               variant="outline"
                               size="icon"
                               type="button"
-                              aria-label={t('edit-repeat-rule')}
+                              aria-label={t('edit-repeat-rule', 'Edit repeat rule')}
                               onClick={() => setEditingRule(rule)}
                             >
                               <IconEdit size={14} />
@@ -493,7 +493,7 @@ export const OptionsInfo = ({
                               size="icon"
                               type="button"
                               className="text-destructive"
-                              aria-label={t('delete-repeat-rule')}
+                              aria-label={t('delete-repeat-rule', 'Delete repeat rule')}
                               onClick={() => handleRuleDelete(rule)}
                             >
                               <IconTrash size={14} />

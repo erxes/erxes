@@ -142,7 +142,7 @@ export const RulesInfo = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('rules')}>
+      <InfoCard title={t('rules', 'Rules')}>
         <InfoCard.Content className="space-y-4">
           <Tabs value={currentRule} onValueChange={handleTabChange}>
             <Tabs.List className="w-fit">

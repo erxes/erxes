@@ -48,7 +48,7 @@ export const AwardSpinActionConfigForm = ({
           name="attribution"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('recipient')}</Form.Label>
+              <Form.Label>{t('recipient', 'Recipient')}</Form.Label>
               <PlaceholderInput
                 propertyType={targetType}
                 value={field.value}
@@ -73,11 +73,11 @@ export const AwardSpinActionConfigForm = ({
           name="spinCampaignId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('spin-campaign')}</Form.Label>
+              <Form.Label>{t('spin-campaign', 'Spin Campaign')}</Form.Label>
               <SelectSpinCampaign.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={t('select-spin-campaign')}
+                placeholder={t('select-spin-campaign', 'Select spin campaign')}
               />
               <Form.Message />
             </Form.Item>

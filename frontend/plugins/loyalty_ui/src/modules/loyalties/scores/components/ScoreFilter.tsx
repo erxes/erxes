@@ -74,7 +74,7 @@ const ScoreFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -85,28 +85,28 @@ const ScoreFilterPopover = () => {
                 <SelectScoreAction.FilterItem />
                 <Filter.Item value="scoreBoardId">
                   <IconLabel />
-                  {t('board')}
+                  {t('board', 'Board')}
                 </Filter.Item>
                 <Filter.Item value="scorePipelineId">
                   <IconArrowsRight />
-                  {t('pipeline')}
+                  {t('pipeline', 'Pipeline')}
                 </Filter.Item>
                 <Filter.Item value="scoreStageId">
                   <IconListCheck />
-                  {t('stage')}
+                  {t('stage', 'Stage')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconSearch />
-                  {t('number')}
+                  {t('number', 'Number')}
                 </Filter.Item>
                 <Filter.Item value="description" inDialog>
                   <IconFileDescription />
-                  {t('description')}
+                  {t('description', 'Description')}
                 </Filter.Item>
                 <SelectScoreActionTypeFilterItem />
                 <Filter.Item value="scoreDate">
                   <IconCalendar />
-                  {t('date')}
+                  {t('date', 'Date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -195,7 +195,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconSearch />
-            {t('number')}
+            {t('number', 'Number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -204,7 +204,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="description">
           <Filter.BarName>
             <IconFileDescription />
-            {t('description')}
+            {t('description', 'Description')}
           </Filter.BarName>
           <Filter.BarButton filterKey="description" inDialog>
             {description}
@@ -215,7 +215,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="scoreDate">
           <Filter.BarName>
             <IconCalendar />
-            {t('date')}
+            {t('date', 'Date')}
           </Filter.BarName>
           <Filter.Date filterKey="scoreDate" />
         </Filter.BarItem>

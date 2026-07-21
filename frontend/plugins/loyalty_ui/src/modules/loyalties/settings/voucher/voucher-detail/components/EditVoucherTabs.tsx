@@ -67,8 +67,8 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
     (data) => {
       if (!voucherDetail?._id) {
         toast({
-          title: t('error'),
-          description: t('no-voucher-id-provided'),
+          title: t('error', 'Error'),
+          description: t('no-voucher-id-provided', 'No voucher ID provided'),
           variant: 'destructive',
         });
         return;
@@ -126,14 +126,14 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
         variables,
         onError: (e: ApolloError) =>
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           }),
         onCompleted: () => {
           toast({
-            title: t('success'),
-            description: t('voucher-campaign-updated'),
+            title: t('success', 'Success'),
+            description: t('voucher-campaign-updated', 'Voucher campaign updated successfully'),
             variant: 'default',
           });
           onOpenChange(false);
@@ -143,8 +143,8 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
     () => {
       setActiveTab('campaign');
       toast({
-        title: t('validation-error'),
-        description: t('fill-required-fields'),
+        title: t('validation-error', 'Validation Error'),
+        description: t('fill-required-fields', 'Please fill in all required fields'),
         variant: 'destructive',
       });
     },
@@ -158,28 +158,28 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
     >
       <Tabs.List className="flex justify-center">
         <Tabs.Trigger asChild value="campaign">
-          <Button variant="outline">{t('campaign')}</Button>
+          <Button variant="outline">{t('campaign', 'Campaign')}</Button>
         </Tabs.Trigger>
 
         <Tabs.Trigger asChild value="restriction">
-          <Button variant="outline">{t('restriction')}</Button>
+          <Button variant="outline">{t('restriction', 'Restriction')}</Button>
         </Tabs.Trigger>
 
         {showProductBonusTab && (
           <Tabs.Trigger asChild value="productBonus">
-            <Button variant="outline">{t('product-bonus')}</Button>
+            <Button variant="outline">{t('product-bonus', 'Product Bonus')}</Button>
           </Tabs.Trigger>
         )}
 
         {showLotteryTab && (
           <Tabs.Trigger asChild value="lottery">
-            <Button variant="outline">{t('lottery-campaign')}</Button>
+            <Button variant="outline">{t('lottery-campaign', 'Lottery Campaign')}</Button>
           </Tabs.Trigger>
         )}
 
         {showSpinTab && (
           <Tabs.Trigger asChild value="spin">
-            <Button variant="outline">{t('spin-campaign')}</Button>
+            <Button variant="outline">{t('spin-campaign', 'Spin Campaign')}</Button>
           </Tabs.Trigger>
         )}
       </Tabs.List>
@@ -231,15 +231,15 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
 
       <Sheet.Footer className="flex justify-end gap-2 p-2">
         <Button variant="ghost" onClick={() => onOpenChange(false)}>
-          {t('cancel')}
+          {t('cancel', 'Cancel')}
         </Button>
 
         {isLast ? (
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? t('updating') : t('update')}
+            {loading ? t('updating', 'Updating...') : t('update', 'Update')}
           </Button>
         ) : (
-          <Button onClick={handleNext}>{t('next')}</Button>
+          <Button onClick={handleNext}>{t('next', 'Next')}</Button>
         )}
       </Sheet.Footer>
     </Tabs>

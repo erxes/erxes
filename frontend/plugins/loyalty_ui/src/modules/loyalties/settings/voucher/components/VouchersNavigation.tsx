@@ -15,7 +15,7 @@ export const VouchersNavigation = () => {
             <Button variant="ghost" asChild name="vouchers">
               <Link to="/loyalty/vouchers">
                 <IconTicket />
-                {t('vouchers')}
+                {t('vouchers', 'Vouchers')}
               </Link>
             </Button>
           </Breadcrumb.Item>
@@ -29,7 +29,7 @@ export const VouchersNavigation = () => {
             >
               <Link to="/loyalty/vouchers/categories">
                 <IconCategory />
-                {t('categories')}
+                {t('categories', 'Categories')}
               </Link>
             </Toggle>
           </Breadcrumb.Page>

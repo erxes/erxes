@@ -49,7 +49,7 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -68,7 +68,7 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        {t('cancel')}
+        {t('cancel', 'Cancel')}
       </Button>
       <Button
         type="button"
@@ -76,7 +76,7 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? t('updating') : t('update')}
+        {editLoading ? t('updating', 'Updating...') : t('update', 'Update')}
       </Button>
     </Sheet.Footer>
   );

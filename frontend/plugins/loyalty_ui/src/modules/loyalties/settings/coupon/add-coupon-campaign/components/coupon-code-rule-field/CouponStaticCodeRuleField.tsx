@@ -20,10 +20,10 @@ export const CouponStaticCodeRuleField: React.FC<
           name="staticCode"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('code')}</Form.Label>
+              <Form.Label>{t('code', 'Code')}</Form.Label>
               <Form.Control>
                 <Input
-                  placeholder={t('enter-coupon-code')}
+                  placeholder={t('enter-coupon-code', 'Enter the coupon code here')}
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value)}
                 />
@@ -39,11 +39,11 @@ export const CouponStaticCodeRuleField: React.FC<
           name="usageLimit"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('usage-limit')}</Form.Label>
+              <Form.Label>{t('usage-limit', 'Usage Limit')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder={t('enter-usage-limit')}
+                  placeholder={t('enter-usage-limit', 'Enter usage limit')}
                   {...field}
                   value={field.value ?? ''}
                   onChange={(e) =>
@@ -66,11 +66,11 @@ export const CouponStaticCodeRuleField: React.FC<
           name="redemptionLimitPerUser"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('redemption-limit-per-user')}</Form.Label>
+              <Form.Label>{t('redemption-limit-per-user', 'Redemption Limit Per User')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder={t('enter-redemption-limit-per-user')}
+                  placeholder={t('enter-redemption-limit-per-user', 'Enter redemption limit per user')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(

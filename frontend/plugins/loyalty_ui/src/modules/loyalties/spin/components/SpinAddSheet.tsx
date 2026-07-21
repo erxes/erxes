@@ -56,12 +56,12 @@ export const SpinAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-spin')}
+          {t('add-spin', 'Add Spin')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>{t('add-spin')}</Sheet.Title>
+          <Sheet.Title>{t('add-spin', 'Add Spin')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -76,11 +76,11 @@ export const SpinAddSheet = () => {
                 rules={{ required: 'Campaign is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('campaign-label')}</Form.Label>
+                    <Form.Label>{t('campaign-label', 'Campaign *')}</Form.Label>
                     <SelectSpinCampaign
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
-                      placeholder={t('select-campaign')}
+                      placeholder={t('select-campaign', 'Select campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -92,7 +92,7 @@ export const SpinAddSheet = () => {
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-type')}</Form.Label>
+                    <Form.Label>{t('owner-type', 'Owner Type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -105,10 +105,10 @@ export const SpinAddSheet = () => {
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">{t('customer')}</Select.Item>
-                          <Select.Item value="company">{t('company')}</Select.Item>
-                          <Select.Item value="user">{t('user')}</Select.Item>
-                          <Select.Item value="cpUser">{t('cp-user')}</Select.Item>
+                          <Select.Item value="customer">{t('customer', 'Customer')}</Select.Item>
+                          <Select.Item value="company">{t('company', 'Company')}</Select.Item>
+                          <Select.Item value="user">{t('user', 'User')}</Select.Item>
+                          <Select.Item value="cpUser">{t('cp-user', 'Client Portal User')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -123,7 +123,7 @@ export const SpinAddSheet = () => {
                 rules={{ required: 'Owner is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-label')}</Form.Label>
+                    <Form.Label>{t('owner-label', 'Owner *')}</Form.Label>
                     <Form.Control>
                       <SelectOwnerByType
                         ownerType={ownerType}
@@ -141,7 +141,7 @@ export const SpinAddSheet = () => {
                 name="status"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('status')}</Form.Label>
+                    <Form.Label>{t('status', 'Status')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -151,9 +151,9 @@ export const SpinAddSheet = () => {
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="new">{t('new')}</Select.Item>
-                          <Select.Item value="loss">{t('loss')}</Select.Item>
-                          <Select.Item value="won">{t('won')}</Select.Item>
+                          <Select.Item value="new">{t('new', 'New')}</Select.Item>
+                          <Select.Item value="loss">{t('loss', 'Loss')}</Select.Item>
+                          <Select.Item value="won">{t('won', 'Won')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -167,11 +167,11 @@ export const SpinAddSheet = () => {
                 name="voucherCampaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('voucher-campaign')}</Form.Label>
+                    <Form.Label>{t('voucher-campaign', 'Voucher Campaign')}</Form.Label>
                     <SelectVoucherCampaign.FormItem
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
-                      placeholder={t('choose-voucher-campaign')}
+                      placeholder={t('choose-voucher-campaign', 'Choose voucher campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -184,10 +184,10 @@ export const SpinAddSheet = () => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('creating') : t('save')}
+                  {loading ? t('creating', 'Creating...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

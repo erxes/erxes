@@ -21,11 +21,11 @@ export const VoucherAddRestrictionCoreField: React.FC<
           name="minimumSpend"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('minimum-spend')}</Form.Label>
+              <Form.Label>{t('minimum-spend', 'Minimum Spend')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder={t('enter-minimum-spend')}
+                  placeholder={t('enter-minimum-spend', 'Enter minimum spend')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
@@ -45,7 +45,7 @@ export const VoucherAddRestrictionCoreField: React.FC<
           name="categoryIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('product-category')}</Form.Label>
+              <Form.Label>{t('product-category', 'Product Category')}</Form.Label>
               <Form.Control>
                 <SelectCategory
                   mode="multiple"
@@ -66,11 +66,11 @@ export const VoucherAddRestrictionCoreField: React.FC<
           name="maximumSpend"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('maximum-spend')}</Form.Label>
+              <Form.Label>{t('maximum-spend', 'Maximum Spend')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder={t('enter-maximum-spend')}
+                  placeholder={t('enter-maximum-spend', 'Enter maximum spend')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
@@ -90,7 +90,7 @@ export const VoucherAddRestrictionCoreField: React.FC<
           name="excludeCategoryIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('or-exclude-product-category')}</Form.Label>
+              <Form.Label>{t('or-exclude-product-category', 'Or Exclude Product Category')}</Form.Label>
               <Form.Control>
                 <SelectCategory
                   mode="multiple"

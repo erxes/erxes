@@ -102,7 +102,7 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
         <Sheet.Trigger asChild>
           <Button variant="outline">
             {' '}
-            <IconPlus size={16} className="mr-2" /> {t('add-rule')}
+            <IconPlus size={16} className="mr-2" /> {t('add-rule', 'Add rule')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -110,7 +110,7 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
-            {isEditing ? t('edit-expiry-rule') : t('add-new-expiry-rule')}
+            {isEditing ? t('edit-expiry-rule', 'Edit Expiry Rule') : t('add-new-expiry-rule', 'Add New Expiry Rule')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -127,21 +127,21 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                 name="ruleType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('rule-type')}</Form.Label>
+                    <Form.Label>{t('rule-type', 'Rule type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-rule-type')} />
+                          <Select.Value placeholder={t('choose-rule-type', 'Choose rule type')} />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="hour">{t('hour')}</Select.Item>
-                          <Select.Item value="day">{t('day')}</Select.Item>
-                          <Select.Item value="week">{t('week')}</Select.Item>
-                          <Select.Item value="month">{t('month')}</Select.Item>
-                          <Select.Item value="year">{t('year')}</Select.Item>
+                          <Select.Item value="hour">{t('hour', 'Hour')}</Select.Item>
+                          <Select.Item value="day">{t('day', 'Day')}</Select.Item>
+                          <Select.Item value="week">{t('week', 'Week')}</Select.Item>
+                          <Select.Item value="month">{t('month', 'Month')}</Select.Item>
+                          <Select.Item value="year">{t('year', 'Year')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -154,10 +154,10 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                 name="ruleValue"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('rule-value')}</Form.Label>
+                    <Form.Label>{t('rule-value', 'Rule value')}</Form.Label>
                     <Form.Control>
                       <Input
-                        placeholder={t('enter-number')}
+                        placeholder={t('enter-number', 'Enter number')}
                         type="number"
                         {...field}
                       />
@@ -171,14 +171,14 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                 name="discountType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('discount-type')}</Form.Label>
+                    <Form.Label>{t('discount-type', 'Discount type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-discount-type')} />
+                          <Select.Value placeholder={t('choose-discount-type', 'Choose discount type')} />
                         </Select.Trigger>
                         <Select.Content>
                           {DISCOUNT_TYPES.map((option) => (
@@ -202,7 +202,7 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                   name="discountValue"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('discount-value')}</Form.Label>
+                      <Form.Label>{t('discount-value', 'Discount value')}</Form.Label>
                       <Form.Control>
                         <Input
                           type="number"
@@ -223,7 +223,7 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                   name="bonusProductId"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('discount-value')}</Form.Label>
+                      <Form.Label>{t('discount-value', 'Discount value')}</Form.Label>
                       <Form.Control>
                         <SelectProduct
                           mode="single"
@@ -243,14 +243,14 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                 name="priceAdjustType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('price-adjust-type')}</Form.Label>
+                    <Form.Label>{t('price-adjust-type', 'Price adjust type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-type')} />
+                          <Select.Value placeholder={t('choose-type', 'Choose type')} />
                         </Select.Trigger>
                         <Select.Content>
                           {PRICE_ADJUST_TYPES.map((option) => (
@@ -273,7 +273,7 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
                 name="priceAdjustFactor"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('price-adjust-factor')}</Form.Label>
+                    <Form.Label>{t('price-adjust-factor', 'Price adjust factor')}</Form.Label>
                     <Form.Control>
                       <Input placeholder="0" type="number" {...field} />
                     </Form.Control>
@@ -283,9 +283,9 @@ export const ExpiryRuleSheet: React.FC<ExpiryRuleSheetProps> = ({
 
               <div className="flex gap-2 justify-end pt-4">
                 <Button type="button" variant="outline" onClick={handleClose}>
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
-                <Button type="submit">{t('save')}</Button>
+                <Button type="submit">{t('save', 'Save')}</Button>
               </div>
             </form>
           </Form>

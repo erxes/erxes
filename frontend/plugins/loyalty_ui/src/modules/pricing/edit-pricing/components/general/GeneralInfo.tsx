@@ -189,11 +189,11 @@ export const GeneralInfo = ({
     if (!isDateRangeValid(values.startDate, values.endDate)) {
       form.setError('endDate', {
         type: 'validate',
-        message: t('end-date-after-start'),
+        message: t('end-date-after-start', 'End date must be after start date.'),
       });
       toast({
-        title: t('invalid-date-range'),
-        description: t('end-date-after-start'),
+        title: t('invalid-date-range', 'Invalid date range'),
+        description: t('end-date-after-start', 'End date must be after start date.'),
         variant: 'destructive',
       });
       return;
@@ -255,13 +255,13 @@ export const GeneralInfo = ({
       await editPricing(baseDoc);
       form.reset(values);
       toast({
-        title: t('pricing-updated'),
-        description: t('changes-saved'),
+        title: t('pricing-updated', 'Pricing updated'),
+        description: t('changes-saved', 'Changes have been saved successfully.'),
       });
     } catch {
       toast({
-        title: t('failed-to-update-pricing'),
-        description: t('unexpected-error'),
+        title: t('failed-to-update-pricing', 'Failed to update pricing'),
+        description: t('unexpected-error', 'An unexpected error occurred.'),
         variant: 'destructive',
       });
     }
@@ -280,7 +280,7 @@ export const GeneralInfo = ({
           size="sm"
           disabled={loading || !pricingId}
         >
-          {loading ? t('saving') : t('save-changes')}
+          {loading ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -296,7 +296,7 @@ export const GeneralInfo = ({
           onSubmit={form.handleSubmit(handleSubmit)}
           noValidate
         >
-          <InfoCard title={t('general')}>
+          <InfoCard title={t('general', 'General')}>
             <InfoCard.Content className="grid w-full grid-cols-2 gap-6">
               <div className="flex flex-col w-full space-y-4">
                 <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
@@ -305,10 +305,10 @@ export const GeneralInfo = ({
                     name="name"
                     render={({ field }) => (
                       <Form.Item className="min-w-0">
-                        <Form.Label>{t('name')}</Form.Label>
+                        <Form.Label>{t('name', 'Name')}</Form.Label>
                         <Form.Control>
                           <Input
-                            placeholder={t('enter-pricing-name')}
+                            placeholder={t('enter-pricing-name', 'Enter pricing name')}
                             {...field}
                           />
                         </Form.Control>
@@ -321,27 +321,27 @@ export const GeneralInfo = ({
                     name="status"
                     render={({ field }) => (
                       <Form.Item className="min-w-0">
-                        <Form.Label>{t('status')}</Form.Label>
+                        <Form.Label>{t('status', 'Status')}</Form.Label>
                         <Form.Control>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger>
-                              <Select.Value placeholder={t('select-status')} />
+                              <Select.Value placeholder={t('select-status', 'Select status')} />
                             </Select.Trigger>
                             <Select.Content>
                               <Select.Item value="active">
-                                {t('active')}
+                                {t('active', 'Active')}
                               </Select.Item>
                               <Select.Item value="archived">
-                                {t('archived')}
+                                {t('archived', 'Archived')}
                               </Select.Item>
                               <Select.Item value="draft">
-                                {t('draft')}
+                                {t('draft', 'Draft')}
                               </Select.Item>
                               <Select.Item value="completed">
-                                {t('completed')}
+                                {t('completed', 'Completed')}
                               </Select.Item>
                             </Select.Content>
                           </Select>
@@ -356,7 +356,7 @@ export const GeneralInfo = ({
                   name="priority"
                   render={({ field }) => (
                     <Form.Item className="min-w-0">
-                      <Form.Label>{t('priority')}</Form.Label>
+                      <Form.Label>{t('priority', 'Priority')}</Form.Label>
                       <Form.Control>
                         <Select
                           value={field.value}
@@ -385,15 +385,15 @@ export const GeneralInfo = ({
                   <GeneralDateField
                     control={form.control}
                     name="startDate"
-                    label={t('start-date')}
-                    placeholder={t('select-start-date')}
+                    label={t('start-date', 'Start Date')}
+                    placeholder={t('select-start-date', 'Select start date')}
                   />
 
                   <GeneralDateField
                     control={form.control}
                     name="endDate"
-                    label={t('end-date')}
-                    placeholder={t('select-end-date')}
+                    label={t('end-date', 'End Date')}
+                    placeholder={t('select-end-date', 'Select end date')}
                   />
                 </div>
               </div>
@@ -405,33 +405,33 @@ export const GeneralInfo = ({
                     name="appliesTo"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('applies-to')}</Form.Label>
+                        <Form.Label>{t('applies-to', 'APPLIES TO')}</Form.Label>
                         <Form.Control>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger>
-                              <Select.Value placeholder={t('select-target')} />
+                              <Select.Value placeholder={t('select-target', 'Select target')} />
                             </Select.Trigger>
                             <Select.Content>
                               <Select.Item value="category">
-                                {t('specific-category')}
+                                {t('specific-category', 'Specific Category')}
                               </Select.Item>
                               <Select.Item value="product">
-                                {t('specific-product')}
+                                {t('specific-product', 'Specific Product')}
                               </Select.Item>
                               <Select.Item value="segment">
-                                {t('specific-segment')}
+                                {t('specific-segment', 'Specific Segment')}
                               </Select.Item>
                               <Select.Item value="vendor">
-                                {t('specific-vendor')}
+                                {t('specific-vendor', 'Specific Vendor')}
                               </Select.Item>
                               <Select.Item value="tag">
-                                {t('specific-tag')}
+                                {t('specific-tag', 'Specific Tag')}
                               </Select.Item>
                               <Select.Item value="bundle">
-                                {t('specific-bundle')}
+                                {t('specific-bundle', 'Specific Bundle')}
                               </Select.Item>
                             </Select.Content>
                           </Select>
@@ -449,7 +449,7 @@ export const GeneralInfo = ({
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>
-                            {t('product-categories-label')}
+                            {t('product-categories-label', 'PRODUCT CATEGORIES')}
                           </Form.Label>
                           <Form.Control>
                             <SelectCategory
@@ -469,7 +469,7 @@ export const GeneralInfo = ({
                       name="excludeCategoryIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('exclude-categories')}</Form.Label>
+                          <Form.Label>{t('exclude-categories', 'EXCLUDE CATEGORIES')}</Form.Label>
                           <Form.Control>
                             <SelectCategory
                               mode="multiple"
@@ -488,7 +488,7 @@ export const GeneralInfo = ({
                       name="excludeProductIds"
                       render={({ field }) => (
                         <Form.Item className="lg:col-span-2">
-                          <Form.Label>{t('exclude-products')}</Form.Label>
+                          <Form.Label>{t('exclude-products', 'EXCLUDE PRODUCTS')}</Form.Label>
                           <Form.Control>
                             <SelectProduct
                               mode="multiple"
@@ -511,7 +511,7 @@ export const GeneralInfo = ({
                       name="appliesProductIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('products-label')}</Form.Label>
+                          <Form.Label>{t('products-label', 'PRODUCTS')}</Form.Label>
                           <Form.Control>
                             <SelectProduct
                               mode="multiple"
@@ -534,7 +534,7 @@ export const GeneralInfo = ({
                       name="segmentId"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('segment-label')}</Form.Label>
+                          <Form.Label>{t('segment-label', 'SEGMENT')}</Form.Label>
                           <Form.Control>
                             <SelectSegment
                               selected={field.value || undefined}
@@ -554,7 +554,7 @@ export const GeneralInfo = ({
                       name="vendorCompanyIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('vendors')}</Form.Label>
+                          <Form.Label>{t('vendors', 'VENDORS')}</Form.Label>
                           <Form.Control>
                             <SelectCompany
                               mode="multiple"
@@ -577,7 +577,7 @@ export const GeneralInfo = ({
                       name="productTagIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('product-tags')}</Form.Label>
+                          <Form.Label>{t('product-tags', 'PRODUCT TAGS')}</Form.Label>
                           <Form.Control>
                             <SelectTags
                               tagType="sales:product"
@@ -597,7 +597,7 @@ export const GeneralInfo = ({
                       name="excludeTagIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('exclude-tags')}</Form.Label>
+                          <Form.Label>{t('exclude-tags', 'EXCLUDE TAGS')}</Form.Label>
                           <Form.Control>
                             <SelectTags
                               tagType="sales:product"
@@ -617,7 +617,7 @@ export const GeneralInfo = ({
                       name="excludeProductIds"
                       render={({ field }) => (
                         <Form.Item className="lg:col-span-2">
-                          <Form.Label>{t('exclude-products')}</Form.Label>
+                          <Form.Label>{t('exclude-products', 'EXCLUDE PRODUCTS')}</Form.Label>
                           <Form.Control>
                             <SelectProduct
                               mode="multiple"
@@ -640,7 +640,7 @@ export const GeneralInfo = ({
                       name="bundleProductIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('products-to-bundle')}</Form.Label>
+                          <Form.Label>{t('products-to-bundle', 'PRODUCTS TO BUNDLE')}</Form.Label>
                           <Form.Control>
                             <SelectProduct
                               mode="multiple"

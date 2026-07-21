@@ -100,7 +100,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -116,7 +116,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        {t('cancel')}
+        {t('cancel', 'Cancel')}
       </Button>
       {isLastTab() ? (
         <Button
@@ -125,7 +125,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
           onClick={handleSubmit}
           disabled={editLoading}
         >
-          {editLoading ? t('updating') : t('update')}
+          {editLoading ? t('updating', 'Updating...') : t('update', 'Update')}
         </Button>
       ) : (
         <Button
@@ -133,7 +133,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
           className="bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={handleNext}
         >
-          {t('next')}
+          {t('next', 'Next')}
         </Button>
       )}
     </Sheet.Footer>
@@ -151,7 +151,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            {t('campaign')}
+            {t('campaign', 'Campaign')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="restriction">
@@ -159,7 +159,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            {t('restriction')}
+            {t('restriction', 'Restriction')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="codeRule">
@@ -167,7 +167,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            {t('code-rule')}
+            {t('code-rule', 'Code rule')}
           </Button>
         </Tabs.Trigger>
       </Tabs.List>

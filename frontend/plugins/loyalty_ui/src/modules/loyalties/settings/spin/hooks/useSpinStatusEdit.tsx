@@ -26,15 +26,15 @@ export function useSpinStatusEdit() {
       },
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('spin-status-updated'),
+          title: t('success', 'Success'),
+          description: t('spin-status-updated', 'Spin status updated successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

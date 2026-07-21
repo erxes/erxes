@@ -30,14 +30,14 @@ export const useChangeScore = (
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('score-given'),
+          title: t('success', 'Success'),
+          description: t('score-given', 'Score given successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

@@ -33,12 +33,12 @@ export const CouponAddModal = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-coupon')}
+          {t('add-coupon', 'Add coupon')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-md p-0">
         <Sheet.Header className="border-b gap-3 px-6 py-4">
-          <Sheet.Title>{t('new-coupon')}</Sheet.Title>
+          <Sheet.Title>{t('new-coupon', 'New Coupon')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-6">
@@ -50,14 +50,14 @@ export const CouponAddModal = () => {
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: t('campaign-required') }}
+                rules={{ required: t('campaign-required', 'Campaign is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('campaign')}</Form.Label>
+                    <Form.Label>{t('campaign', 'Campaign')}</Form.Label>
                     <SelectCouponCampaignFormItem
                       value={field.value}
                       onValueChange={(val) => field.onChange(val)}
-                      placeholder={t('choose-coupon-campaign')}
+                      placeholder={t('choose-coupon-campaign', 'Choose coupon campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -69,10 +69,10 @@ export const CouponAddModal = () => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  {t('close')}
+                  {t('close', 'Close')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('saving') : t('save')}
+                  {loading ? t('saving', 'Saving...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

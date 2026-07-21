@@ -15,20 +15,20 @@ export const DeleteVoucher = ({ voucherIds }: { voucherIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-voucher-confirm', { count: voucherIds.length }),
+          message: t('delete-voucher-confirm', 'Are you sure you want to delete {{count}} selected voucher(s)?', { count: voucherIds.length }),
         }).then(() => {
           removeVoucher({
             variables: { _ids: voucherIds },
           })
             .then(() => {
               toast({
-                title: t('vouchers-deleted', { count: voucherIds.length }),
+                title: t('vouchers-deleted', '{{count}} voucher(s) deleted successfully', { count: voucherIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -37,7 +37,7 @@ export const DeleteVoucher = ({ voucherIds }: { voucherIds: string[] }) => {
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

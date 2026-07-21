@@ -20,8 +20,8 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
   const handleSubmit = async () => {
     if (!spinId) {
       toast({
-        title: t('error'),
-        description: t('no-spin-id-provided'),
+        title: t('error', 'Error'),
+        description: t('no-spin-id-provided', 'No spin ID provided'),
         variant: 'destructive',
       });
       return;
@@ -56,7 +56,7 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -76,7 +76,7 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        {t('cancel')}
+        {t('cancel', 'Cancel')}
       </Button>
       <Button
         type="button"
@@ -84,7 +84,7 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? t('saving') : t('save')}
+        {editLoading ? t('saving', 'Saving...') : t('save', 'Save')}
       </Button>
     </Sheet.Footer>
   );

@@ -122,13 +122,13 @@ export const CommonRuleInfo = ({
       form.reset(values);
 
       toast({
-        title: t('common-rule-updated'),
-        description: t('changes-saved'),
+        title: t('common-rule-updated', 'Common rule updated'),
+        description: t('changes-saved', 'Changes have been saved successfully.'),
       });
     } catch {
       toast({
-        title: t('failed-to-update-common-rule'),
-        description: t('unexpected-error'),
+        title: t('failed-to-update-common-rule', 'Failed to update common rule'),
+        description: t('unexpected-error', 'An unexpected error occurred.'),
         variant: 'destructive',
       });
     }
@@ -147,7 +147,7 @@ export const CommonRuleInfo = ({
           size="sm"
           disabled={loading}
         >
-          {loading ? t('saving') : t('save-changes')}
+          {loading ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -168,11 +168,11 @@ export const CommonRuleInfo = ({
           name="discountType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('discount-type')}</Form.Label>
+              <Form.Label>{t('discount-type', 'Discount type')}</Form.Label>
               <Form.Control>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder={t('select-discount-type')} />
+                    <Select.Value placeholder={t('select-discount-type', 'Select discount type')} />
                   </Select.Trigger>
                   <Select.Content>
                     {DISCOUNT_TYPES.map((option) => (
@@ -195,7 +195,7 @@ export const CommonRuleInfo = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t('discount-value')}{' '}
+                    {t('discount-value', 'Discount value')}{' '}
                     <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
@@ -216,11 +216,11 @@ export const CommonRuleInfo = ({
               name="priceAdjustType"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('price-adjust-type')}</Form.Label>
+                  <Form.Label>{t('price-adjust-type', 'Price adjust type')}</Form.Label>
                   <Form.Control>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
-                        <Select.Value placeholder={t('none')} />
+                        <Select.Value placeholder={t('none', 'None')} />
                       </Select.Trigger>
                       <Select.Content>
                         {PRICE_ADJUST_TYPES.map((option) => (
@@ -240,7 +240,7 @@ export const CommonRuleInfo = ({
               name="priceAdjustFactor"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('price-adjust-factor')}</Form.Label>
+                  <Form.Label>{t('price-adjust-factor', 'Price adjust factor')}</Form.Label>
                   <Form.Control>
                     <Input
                       type="number"
@@ -260,7 +260,7 @@ export const CommonRuleInfo = ({
                 name="bonusProductId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('bonus-product')}</Form.Label>
+                    <Form.Label>{t('bonus-product', 'Bonus Product')}</Form.Label>
                     <Form.Control>
                       <SelectProduct
                         value={field.value || ''}
@@ -293,7 +293,7 @@ export const CommonRuleInfo = ({
   }
 
   return (
-    <InfoCard title={t('common')}>
+    <InfoCard title={t('common', 'Common')}>
       <InfoCard.Content>{content}</InfoCard.Content>
     </InfoCard>
   );

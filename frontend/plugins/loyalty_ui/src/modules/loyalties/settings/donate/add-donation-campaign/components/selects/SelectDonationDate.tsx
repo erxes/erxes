@@ -72,7 +72,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
       <>
         <IconCalendarPlus className="text-accent-foreground" />
         <span className="text-accent-foreground font-medium">
-          {placeholder || t('select-date')}
+          {placeholder || t('select-date', 'Select date...')}
         </span>
       </>
     );
@@ -168,7 +168,7 @@ export const DateSelectTaskRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
-          <DateSelectValue placeholder={t('not-specified')} />
+          <DateSelectValue placeholder={t('not-specified', 'Not specified')} />
         </DateSelectTrigger>
         <Content className="w-auto p-0" onClick={(e) => e.stopPropagation()}>
           <DateSelectContent />

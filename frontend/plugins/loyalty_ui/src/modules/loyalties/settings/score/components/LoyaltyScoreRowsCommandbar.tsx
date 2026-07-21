@@ -16,7 +16,7 @@ export const LoyaltyScoreRowsCommandbar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {t('selected-count', { count: table.getFilteredSelectedRowModel().rows.length })}
+          {t('selected-count', '{{count}} selected', { count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <LoyaltyScoreRowsDelete />
@@ -33,10 +33,10 @@ export const LoyaltyScoreRowsDelete = () => {
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-score-rows-confirm'),
+      message: t('delete-score-rows-confirm', 'Are you sure you want to delete these loyalty score rows?'),
       options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
+        okLabel: t('delete', 'Delete'),
+        cancelLabel: t('cancel', 'Cancel'),
       },
     }).then(() => {
       const loyaltyScoreRowIds = table
@@ -47,7 +47,7 @@ export const LoyaltyScoreRowsDelete = () => {
         variables: { _ids: loyaltyScoreRowIds },
         onError: (error: Error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -55,8 +55,8 @@ export const LoyaltyScoreRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: t('success'),
-            description: t('score-rows-deleted'),
+            title: t('success', 'Success'),
+            description: t('score-rows-deleted', 'Loyalty score rows deleted successfully'),
           });
         },
       });
@@ -66,7 +66,7 @@ export const LoyaltyScoreRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

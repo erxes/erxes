@@ -92,7 +92,7 @@ const SelectOwnerTypeValue = ({
   if (!selected) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-owner-type')}
+        {placeholder || t('select-owner-type', 'Select owner type')}
       </span>
     );
   }
@@ -110,9 +110,9 @@ const SelectOwnerTypeContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-owner-types')} />
+      <Command.Input placeholder={t('search-owner-types', 'Search owner types...')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-owner-types-found')}</span>
+        <span className="text-muted-foreground">{t('no-owner-types-found', 'No owner types found')}</span>
       </Command.Empty>
       <Command.List>
         {OWNER_TYPE_OPTIONS.map((opt) => (
@@ -135,7 +135,7 @@ export const SelectOwnerTypeFilterItem = () => {
   return (
     <Filter.Item value="scoreOwnerType">
       <IconUsers />
-      {t('owner-type')}
+      {t('owner-type', 'Owner Type')}
     </Filter.Item>
   );
 };
@@ -176,7 +176,7 @@ export const SelectOwnerTypeFilterBar = ({
     <Filter.BarItem queryKey="scoreOwnerType">
       <Filter.BarName>
         <IconUsers />
-        {!iconOnly && t('owner-type')}
+        {!iconOnly && t('owner-type', 'Owner Type')}
       </Filter.BarName>
       <SelectOwnerTypeProvider
         value={value || ''}

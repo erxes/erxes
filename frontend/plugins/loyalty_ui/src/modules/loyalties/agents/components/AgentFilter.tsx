@@ -26,7 +26,7 @@ const AgentFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -34,11 +34,11 @@ const AgentFilterPopover = () => {
                 <SelectAgentStatus.FilterItem />
                 <SelectCustomer.FilterItem
                   value="agentCustomerId"
-                  label={t('customers')}
+                  label={t('customers', 'Customers')}
                 />
                 <SelectCompany.FilterItem
                   value="agentCompanyId"
-                  label={t('companies')}
+                  label={t('companies', 'Companies')}
                 />
               </Command.List>
             </Command>
@@ -80,22 +80,22 @@ export const AgentFilter = () => {
         <Filter.BarItem queryKey="agentCustomerId">
           <Filter.BarName>
             <IconUsers size={14} />
-            {t('customers')}
+            {t('customers', 'Customers')}
           </Filter.BarName>
           <SelectCustomer.FilterBar
             filterKey="agentCustomerId"
-            label={t('customers')}
+            label={t('customers', 'Customers')}
             mode="single"
           />
         </Filter.BarItem>
         <Filter.BarItem queryKey="agentCompanyId">
           <Filter.BarName>
             <IconBuilding size={14} />
-            {t('companies')}
+            {t('companies', 'Companies')}
           </Filter.BarName>
           <SelectCompany.FilterBar
             filterKey="agentCompanyId"
-            label={t('companies')}
+            label={t('companies', 'Companies')}
             mode="single"
           />
         </Filter.BarItem>

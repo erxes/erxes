@@ -31,7 +31,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-pricing-by-name', { name: pricing.name }),
+      message: t('delete-pricing-by-name', 'Are you sure you want to delete "{{name}}"?', { name: pricing.name }),
       options: {
         confirmationValue: 'delete',
       },
@@ -40,16 +40,16 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
         await deletePricing(pricing._id);
 
         toast({
-          title: t('success'),
-          description: t('pricing-deleted', { count: 1 }),
+          title: t('success', 'Success'),
+          description: t('pricing-deleted', '{{count}} pricing item(s) deleted successfully.', { count: 1 }),
           variant: 'success',
         });
       } catch (error: unknown) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: getErrorMessage(
             error,
-            t('pricing-delete-failed'),
+            t('pricing-delete-failed', 'Failed to delete pricing. Please try again.'),
           ),
           variant: 'destructive',
         });
@@ -79,7 +79,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
                 onClick={handleEdit}
               >
                 <IconEdit className="size-4" />
-                {t('edit')}
+                {t('edit', 'Edit')}
               </Button>
             </Command.Item>
             <Command.Item asChild>
@@ -91,7 +91,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Button>
             </Command.Item>
           </Command.List>

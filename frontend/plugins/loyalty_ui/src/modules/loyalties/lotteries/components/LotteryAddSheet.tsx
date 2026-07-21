@@ -57,12 +57,12 @@ export const LotteryAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-lottery')}
+          {t('add-lottery', 'Add Lottery')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>{t('add-lottery')}</Sheet.Title>
+          <Sheet.Title>{t('add-lottery', 'Add Lottery')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -74,14 +74,14 @@ export const LotteryAddSheet = () => {
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: t('campaign-required') }}
+                rules={{ required: t('campaign-required', 'Campaign is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('campaign-label')}</Form.Label>
+                    <Form.Label>{t('campaign-label', 'Campaign *')}</Form.Label>
                     <SelectLotteryCampaign
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
-                      placeholder={t('select-campaign')}
+                      placeholder={t('select-campaign', 'Select campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -93,7 +93,7 @@ export const LotteryAddSheet = () => {
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-type')}</Form.Label>
+                    <Form.Label>{t('owner-type', 'Owner Type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -106,9 +106,9 @@ export const LotteryAddSheet = () => {
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">{t('customer')}</Select.Item>
-                          <Select.Item value="company">{t('company')}</Select.Item>
-                          <Select.Item value="user">{t('team-members')}</Select.Item>
+                          <Select.Item value="customer">{t('customer', 'Customer')}</Select.Item>
+                          <Select.Item value="company">{t('company', 'Company')}</Select.Item>
+                          <Select.Item value="user">{t('team-members', 'Team Members')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -120,10 +120,10 @@ export const LotteryAddSheet = () => {
               <Form.Field
                 control={form.control}
                 name="ownerId"
-                rules={{ required: t('owner-required') }}
+                rules={{ required: t('owner-required', 'Owner is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-label')}</Form.Label>
+                    <Form.Label>{t('owner-label', 'Owner *')}</Form.Label>
                     <Form.Control>
                       {ownerType === 'company' ? (
                         <SelectCompany
@@ -149,7 +149,7 @@ export const LotteryAddSheet = () => {
                 name="status"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('status')}</Form.Label>
+                    <Form.Label>{t('status', 'Status')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -159,9 +159,9 @@ export const LotteryAddSheet = () => {
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="new">{t('new')}</Select.Item>
-                          <Select.Item value="loss">{t('loss')}</Select.Item>
-                          <Select.Item value="won">{t('won')}</Select.Item>
+                          <Select.Item value="new">{t('new', 'New')}</Select.Item>
+                          <Select.Item value="loss">{t('loss', 'Loss')}</Select.Item>
+                          <Select.Item value="won">{t('won', 'Won')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -175,11 +175,11 @@ export const LotteryAddSheet = () => {
                 name="voucherCampaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('voucher-campaign')}</Form.Label>
+                    <Form.Label>{t('voucher-campaign', 'Voucher Campaign')}</Form.Label>
                     <SelectVoucherCampaign.FormItem
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
-                      placeholder={t('choose-voucher-campaign')}
+                      placeholder={t('choose-voucher-campaign', 'Choose voucher campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -192,10 +192,10 @@ export const LotteryAddSheet = () => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('creating') : t('save')}
+                  {loading ? t('creating', 'Creating...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

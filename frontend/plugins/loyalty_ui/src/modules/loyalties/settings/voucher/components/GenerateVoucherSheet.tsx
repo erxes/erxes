@@ -101,7 +101,7 @@ export const GenerateVoucherSheet = () => {
       <Sheet.Trigger asChild>
         <Button variant="outline">
           <IconSparkles />
-          {t('generate-voucher')}
+          {t('generate-voucher', 'Generate voucher')}
           <Kbd>G</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -112,7 +112,7 @@ export const GenerateVoucherSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>{t('generate-voucher')}</Sheet.Title>
+          <Sheet.Title>{t('generate-voucher', 'Generate voucher')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">
@@ -123,7 +123,7 @@ export const GenerateVoucherSheet = () => {
                 name="campaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('voucher-campaign')}</Form.Label>
+                    <Form.Label>{t('voucher-campaign', 'Voucher Campaign')}</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
@@ -133,7 +133,7 @@ export const GenerateVoucherSheet = () => {
                           className={field.value ? '' : 'text-muted-foreground'}
                         >
                           {campaignList.find((c) => c._id === field.value)
-                            ?.title || t('select-voucher-campaign')}
+                            ?.title || t('select-voucher-campaign', 'Select voucher campaign')}
                         </Select.Trigger>
                         <Select.Content>
                           {campaignList.map((campaign) => (
@@ -141,7 +141,7 @@ export const GenerateVoucherSheet = () => {
                               key={campaign._id}
                               value={campaign._id}
                             >
-                              {campaign.title || t('unnamed-campaign')}
+                              {campaign.title || t('unnamed-campaign', 'Unnamed campaign')}
                             </Select.Item>
                           ))}
                         </Select.Content>
@@ -157,7 +157,7 @@ export const GenerateVoucherSheet = () => {
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-type')}</Form.Label>
+                    <Form.Label>{t('owner-type', 'Owner Type')}</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
@@ -186,9 +186,9 @@ export const GenerateVoucherSheet = () => {
                 name="ownerId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-id')}</Form.Label>
+                    <Form.Label>{t('owner-id', 'Owner Id')}</Form.Label>
                     <Form.Control>
-                      <Input placeholder={t('enter-owner-id')} {...field} />
+                      <Input placeholder={t('enter-owner-id', 'Enter owner ID')} {...field} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -200,7 +200,7 @@ export const GenerateVoucherSheet = () => {
                 name="status"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('status')}</Form.Label>
+                    <Form.Label>{t('status', 'Status')}</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
@@ -228,10 +228,10 @@ export const GenerateVoucherSheet = () => {
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end gap-2 p-4 border-t">
           <Button variant="ghost" onClick={onClose}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? t('generating') : t('generate')}
+            {loading ? t('generating', 'Generating...') : t('generate', 'Generate')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

@@ -19,8 +19,8 @@ export const DonateRemove = ({ donateIds, rows }: DonateRemoveProps) => {
     try {
       await deleteDonate({ _ids: donateIds });
       toast({
-        title: t('success'),
-        description: t('donations-deleted', { count: donateIds.length }),
+        title: t('success', 'Success'),
+        description: t('donations-deleted', '{{count}} donation(s) deleted successfully', { count: donateIds.length }),
         variant: 'default',
       });
     } catch {
@@ -31,7 +31,7 @@ export const DonateRemove = ({ donateIds, rows }: DonateRemoveProps) => {
   return (
     <Button variant="ghost" size="sm" onClick={handleDelete} disabled={loading}>
       <IconTrash className="h-4 w-4" />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

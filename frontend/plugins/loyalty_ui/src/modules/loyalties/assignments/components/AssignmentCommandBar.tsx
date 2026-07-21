@@ -34,19 +34,19 @@ const AssignmentRemove = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-assignment-confirm', { count: ids.length }),
+          message: t('delete-assignment-confirm', 'Are you sure you want to delete {{count}} selected assignment(s)?', { count: ids.length }),
         }).then(async () => {
           try {
             await removeAssignments({ variables: { _ids: ids } });
             rows.forEach((row) => row.toggleSelected(false));
             toast({
-              title: t('success'),
+              title: t('success', 'Success'),
               variant: 'success',
-              description: t('assignments-deleted', { count: ids.length }),
+              description: t('assignments-deleted', '{{count}} assignment(s) deleted successfully', { count: ids.length }),
             });
           } catch (e: unknown) {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e instanceof Error ? e.message : String(e),
               variant: 'destructive',
             });
@@ -55,7 +55,7 @@ const AssignmentRemove = ({
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };
@@ -70,7 +70,7 @@ export const AssignmentCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('selected-count', { count: selectedRows.length })}</CommandBar.Value>
+        <CommandBar.Value>{t('selected-count', '{{count}} selected', { count: selectedRows.length })}</CommandBar.Value>
         <Separator.Inline />
         <AssignmentRemove ids={ids} rows={selectedRows} />
       </CommandBar.Bar>

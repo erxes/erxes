@@ -23,14 +23,14 @@ export const useLoyaltyConfig = () => {
     refetchQueries: [{ query: LOYALTY_CONFIGS_QUERY }],
     onCompleted: () => {
       toast({
-        title: t('success'),
-        description: t('loyalty-config-updated'),
+        title: t('success', 'Success'),
+        description: t('loyalty-config-updated', 'Loyalty config updated successfully'),
         variant: 'default',
       });
     },
     onError: (err) => {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: err.message,
         variant: 'destructive',
       });

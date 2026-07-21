@@ -54,10 +54,10 @@ export const DonateRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-donations-yet')}
+                {t('no-donations-yet', 'No donations yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('get-started-donation')}
+                {t('get-started-donation', 'Get started by creating your first donation.')}
               </p>
             </div>
           </div>
