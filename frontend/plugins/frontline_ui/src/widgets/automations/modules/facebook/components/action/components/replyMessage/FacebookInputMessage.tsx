@@ -87,7 +87,7 @@ export const FacebookInputMessage = ({
               <InputTextCounter count={field.value?.length || 0} limit={2000} />
             </Form.Label>
             <Form.Control>
-              <Textarea {...field} />
+              <Textarea {...field} maxLength={2000} />
             </Form.Control>
             {fieldState.error?.message && (
               <p className={cn('text-xs', 'text-destructive')}>
