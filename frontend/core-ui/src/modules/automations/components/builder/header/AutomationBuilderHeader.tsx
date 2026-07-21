@@ -41,7 +41,7 @@ export const AutomationBuilderHeader = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/automations">
                     <IconAffiliate />
-                    {t('automations')}ы
+                    {t('automations')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

@@ -12,14 +12,16 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useAutomationBilderWorkSpace } from '@/automations/components/builder/hooks/useAutomationBilderWorkSpace';
+import { WorkflowEditView } from '@/automations/components/builder/nodes/components/WorkflowEditView';
 import { AutomationBuilderSidebar } from './sidebar/components/AutomationBuilderSidebar';
 
 export const AutomationBuilderWorkspace = () => {
-  const { loading } = useAutomation();
+  const { loading, editingWorkflowId } = useAutomation();
 
   const {
     onOpen,
     // isMac,
+    // isPanelOpen,
   } = useAutomationBilderWorkSpace();
 
   useScopedHotkeys(`mod+i`, () => onOpen(), AutomationsHotKeyScope.Builder);
@@ -37,12 +39,18 @@ export const AutomationBuilderWorkspace = () => {
         minSize={30}
         className="relative flex min-h-0 w-full flex-row overflow-hidden"
       >
-        <AutomationBuilderCanvas />
-        <AutomationBuilderSidebar />
+        {editingWorkflowId ? (
+          <WorkflowEditView workflowId={editingWorkflowId} />
+        ) : (
+          <>
+            <AutomationBuilderCanvas />
+            <AutomationBuilderSidebar />
+          </>
+        )}
       </Resizable.Panel>
 
       {/* TODO: Add inspector panel when it is implemented */}
-      {/* {isPanelOpen && (
+      {/* {isPanelOpen && editingWorkflowId && (
         <>
           <Resizable.Handle />
 
@@ -52,14 +60,7 @@ export const AutomationBuilderWorkspace = () => {
             minSize={5}
             className="bg-background"
           >
-            <PageSubHeader>Inspect</PageSubHeader>
-            <Resizable.PanelGroup direction="horizontal">
-              <Resizable.Panel minSize={20} maxSize={50} defaultSize={30}>
-                Executions
-              </Resizable.Panel>
-              <Resizable.Handle />
-              <Resizable.Panel> Outputs</Resizable.Panel>
-            </Resizable.PanelGroup>
+            <WorkflowEditView workflowId={editingWorkflowId} />
           </Resizable.Panel>
         </>
       )} */}

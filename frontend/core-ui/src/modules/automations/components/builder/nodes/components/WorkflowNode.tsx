@@ -2,7 +2,6 @@ import { useNodeDropDownActions } from '@/automations/components/builder/nodes/h
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { WorkflowActionMapper } from '@/automations/components/builder/nodes/components/WorkflowActionMapper';
-import { WorkflowCanvasSheet } from '@/automations/components/builder/nodes/components/WorkflowCanvasSheet';
 import {
   WorkflowInputBindings,
   WorkflowInputsBadge,
@@ -11,6 +10,7 @@ import {
   useWorkflowNodeContext,
   WorkflowNodeProvider,
 } from '@/automations/context/WorkflowNodeProvider';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { NodeData, WorkflowNodeData } from '@/automations/types';
 import { useConvertSelectionToWorkflow } from '@/automations/components/builder/hooks/useConvertSelectionToWorkflow';
 import { useWorkflowTemplates } from '@/automations/components/builder/hooks/useWorkflowTemplates';
@@ -52,6 +52,7 @@ const WorkflowNodeContent = ({
   } = useNodeDropDownActions(id, data.nodeType);
   const { unconvertWorkflow } = useConvertSelectionToWorkflow();
   const { saveAsTemplate } = useWorkflowTemplates();
+  const { setEditingWorkflowId } = useAutomation();
   const { workflows } = useAutomationNodes();
   const hasMemberActions = !!(workflows || []).find(
     (workflow) => workflow.id === id,
@@ -93,7 +94,14 @@ const WorkflowNodeContent = ({
             {data.automationId ? (
               <WorkflowActionSelectorSheet data={data} />
             ) : (
-              <WorkflowCanvasSheet workflowId={id} />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => setEditingWorkflowId(id)}
+              >
+                <IconArrowsMaximize className="size-4" />
+              </Button>
             )}
             <DropdownMenu open={isOpenDropDown} onOpenChange={setOpenDropDown}>
               <DropdownMenu.Trigger asChild>

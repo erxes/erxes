@@ -1,21 +1,12 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import type { TWorkflowTemplate } from '@/automations/hooks/useWorkflowTemplateList';
 import { AutomationNodesType, NodeData } from '@/automations/types';
-import { TWorkflowInputBindings } from '@/automations/utils/workflowInputs';
 import { Node, useReactFlow } from '@xyflow/react';
 import { generateAutomationElementId, TAutomationAction } from 'ui-modules';
 
-export type TWorkflowTemplate = {
-  _id: string;
-  name: string;
-  description?: string;
-  entryActionId?: string;
-  actions: TAutomationAction[];
-  // Default binding expressions for the derived input.* refs in actions
-  inputs?: TWorkflowInputBindings;
-  createdAt?: string;
-};
+export type { TWorkflowTemplate };
 
 export const useInsertWorkflowTemplate = () => {
   const { setAutomationBuilderFormValue } = useAutomationFormController();

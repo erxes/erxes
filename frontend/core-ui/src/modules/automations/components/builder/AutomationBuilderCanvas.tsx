@@ -3,11 +3,18 @@ import { AutomationBuilderCanvasDragOverlay } from '@/automations/components/bui
 import { AutomationBuilderControls } from '@/automations/components/builder/AutomationBuilderControls';
 import { edgeTypes } from '@/automations/components/builder/edges/edgeTypesRegistry';
 import { nodeTypes } from '@/automations/components/builder/nodes/nodeTypesRegistry';
-import { CANVAS_FIT_VIEW_OPTIONS } from '@/automations/constants';
+import {
+  CANVAS_FIT_VIEW_OPTIONS,
+  CANVAS_MAX_ZOOM,
+  CANVAS_MIN_ZOOM,
+} from '@/automations/constants';
 import { MarqueeSelectionPanel } from '@/automations/components/builder/MarqueeSelectionPanel';
 import { useReactFlowEditor } from '@/automations/hooks/useReactFlowEditor';
 import { Background, MiniMap, ReactFlow, SelectionMode } from '@xyflow/react';
 import { useState } from 'react';
+// Every surface that renders <ReactFlow> must pull in its stylesheet itself:
+// without it the flow stops clipping and the minimap/controls lose all styling.
+import '@xyflow/react/dist/style.css';
 
 export const AutomationBuilderCanvas = () => {
   const [showGrid, setShowGrid] = useState(true);
@@ -57,7 +64,8 @@ export const AutomationBuilderCanvas = () => {
         fitViewOptions={CANVAS_FIT_VIEW_OPTIONS}
         connectionLineComponent={ConnectionLine}
         colorMode={theme}
-        minZoom={0.1}
+        minZoom={CANVAS_MIN_ZOOM}
+        maxZoom={CANVAS_MAX_ZOOM}
         selectionOnDrag={isMarqueeMode}
         panOnDrag={isMarqueeMode ? [1, 2] : true}
         selectionMode={SelectionMode.Partial}

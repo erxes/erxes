@@ -3,6 +3,7 @@ import { IconComponent, cn } from 'erxes-ui';
 import { useAutomationVariableBrowserContext } from '../context/AutomationVariableBrowserContext';
 import { AutomationVariableBrowserSection } from './AutomationVariableBrowserSection';
 import { AutomationVariableSourceNodeList } from './AutomationVariableSourceNodeList';
+import { getNodeColor } from '@/automations/utils/automationBuilderUtils/getNodeColor';
 
 export const AutomationVariableBrowserHeader = () => {
   const {
@@ -28,17 +29,12 @@ export const AutomationVariableBrowserHeader = () => {
         <div className="flex items-center gap-3 rounded-md border bg-background px-3 py-3">
           {activeSourceNode.icon ? (
             <div
-              className={cn('rounded-lg p-2', {
-                'bg-primary/10 text-primary':
-                  activeSourceNode.nodeType === AutomationNodeType.Trigger,
-                'bg-success/10 text-success':
-                  activeSourceNode.nodeType === AutomationNodeType.Action,
-              })}
+              className={cn(
+                'rounded-lg p-2',
+                getNodeColor(activeSourceNode.nodeType),
+              )}
             >
-              <IconComponent
-                className="size-5"
-                name={activeSourceNode.icon}
-              />
+              <IconComponent className="size-5" name={activeSourceNode.icon} />
             </div>
           ) : null}
           <div className="min-w-0">

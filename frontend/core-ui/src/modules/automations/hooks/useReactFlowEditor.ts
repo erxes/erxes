@@ -65,6 +65,19 @@ export const useReactFlowEditor = () => {
 
   // Memoize nodes and edges generation to prevent multiple executions
   const generatedNodes = useMemo(() => {
+    // Inside a workflow with no members yet: show only the Input marker. A
+    // workflow has no trigger, so never fall back to the trigger placeholder.
+    if (workflowEditScope && actions.length === 0) {
+      return [
+        {
+          id: WORKFLOW_INPUT_NODE_ID,
+          type: 'workflowInput',
+          position: { x: 0, y: 0 },
+          data: {},
+        },
+      ] as Node<NodeData>[];
+    }
+
     const nodes = generateNodes(
       triggers,
       actions,
@@ -91,7 +104,14 @@ export const useReactFlowEditor = () => {
     }
 
     return nodes;
-  }, [triggers, actions, workflows, flowDirection, entryActionId]);
+  }, [
+    triggers,
+    actions,
+    workflows,
+    flowDirection,
+    entryActionId,
+    workflowEditScope,
+  ]);
 
   const computedEdges = useMemo(() => {
     const edges = generateEdges(

@@ -6,6 +6,7 @@ import { AutomationTriggerContentSidebar } from '@/automations/components/builde
 import { AutomationWorkflowContentSidebar } from '@/automations/components/builder/sidebar/components/content/workflow/AutomationWorkflowContentSidebar';
 import { AutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibrarySidebar';
 import { AutomationNodeType, NodeData } from '@/automations/types';
+import { getNodeColor } from '@/automations/utils/automationBuilderUtils/getNodeColor';
 import { Card, IconComponent, Separator, cn } from 'erxes-ui';
 
 export const AutomationBuilderPrimarySidebar = ({
@@ -64,14 +65,7 @@ const AutomationBuilderSidebarHeader = ({
           <div
             className={cn(
               'shrink-0 rounded-lg bg-primary/10 p-2 text-primary',
-              {
-                'bg-primary/10 text-primary':
-                  activeNode.nodeType === AutomationNodeType.Trigger,
-                'bg-success/10 text-success':
-                  activeNode.nodeType === AutomationNodeType.Action,
-                'bg-info/10 text-info':
-                  activeNode.nodeType === AutomationNodeType.Workflow,
-              },
+              getNodeColor(activeNode.nodeType),
             )}
           >
             <IconComponent className="size-6" name={activeNode.icon} />

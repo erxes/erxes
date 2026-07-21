@@ -253,3 +253,62 @@ export const removeNodeReferences = ({
     triggerMap,
   };
 };
+
+/**
+ * Bulk variant of `removeNodeReferences`: drops every removed node and clears
+ * all references to them across actions, triggers and workflows. References are
+ * cleared per id in sequence so a node pointing at another removed node ends up
+ * clean regardless of the order they were selected in.
+ */
+export const removeNodesReferences = ({
+  removedNodeIds,
+  actions = [],
+  triggers = [],
+  workflows = [],
+  actionFolks = {},
+}: {
+  removedNodeIds: string[];
+  actions?: TAutomationBuilderForm['actions'];
+  triggers?: TAutomationBuilderForm['triggers'];
+  workflows?: TAutomationBuilderForm['workflows'];
+  actionFolks?: Record<string, { key: string }[]>;
+}) => {
+  let updatedActions = actions || [];
+  let updatedTriggers = triggers || [];
+
+  for (const removedNodeId of removedNodeIds) {
+    const next = removeNodeReferences({
+      removedNodeId,
+      actions: updatedActions,
+      triggers: updatedTriggers,
+      actionFolks,
+    });
+
+    updatedActions = next.updatedActions;
+    updatedTriggers = next.updatedTriggers;
+  }
+
+  const removed = new Set(removedNodeIds);
+
+  // Leaving a removed node in the workflow list revives it on the next
+  // canvas regeneration, so drop the entries and their dangling refs too.
+  const updatedWorkflows = (workflows || [])
+    .filter((workflow) => !removed.has(workflow.id))
+    .map((workflow) => ({
+      ...workflow,
+      nextActionId:
+        workflow.nextActionId && removed.has(workflow.nextActionId)
+          ? undefined
+          : workflow.nextActionId,
+    }));
+
+  return {
+    updatedActions,
+    updatedTriggers,
+    updatedWorkflows,
+    actionMap: new Map(updatedActions.map((action) => [action.id, action])),
+    triggerMap: new Map(
+      updatedTriggers.map((trigger) => [trigger.id, trigger]),
+    ),
+  };
+};

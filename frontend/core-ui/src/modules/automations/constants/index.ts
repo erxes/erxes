@@ -7,6 +7,11 @@ import {
 
 export const CANVAS_FIT_VIEW_OPTIONS = { padding: 4, minZoom: 0.8 };
 
+// Canvas zoom bounds. Shared so the ReactFlow instance and the zoom slider in
+// the canvas controls can never drift apart.
+export const CANVAS_MIN_ZOOM = 0.1;
+export const CANVAS_MAX_ZOOM = 2;
+
 export const PROPERTY_OPERATOR = {
   String: [
     {

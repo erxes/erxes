@@ -1,17 +1,11 @@
 import {
-  AUTOMATION_WORKFLOW_TEMPLATE_ADD,
-  AUTOMATION_WORKFLOW_TEMPLATE_EDIT,
-  AUTOMATION_WORKFLOW_TEMPLATE_REMOVE,
-} from '@/automations/graphql/automationMutations';
-import { AUTOMATION_WORKFLOW_TEMPLATES } from '@/automations/graphql/automationQueries';
-import {
   TWorkflowTemplate,
   useInsertWorkflowTemplate,
 } from '@/automations/components/builder/hooks/useInsertWorkflowTemplate';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { useWorkflowTemplateList } from '@/automations/hooks/useWorkflowTemplateList';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { Path } from 'react-hook-form';
 
@@ -22,24 +16,15 @@ export const useWorkflowTemplates = () => {
   const { insertTemplate } = useInsertWorkflowTemplate();
   const { setAutomationBuilderFormValue } = useAutomationFormController();
 
-  const { data, loading } = useQuery<{
-    automationWorkflowTemplates: TWorkflowTemplate[];
-  }>(AUTOMATION_WORKFLOW_TEMPLATES);
-
-  const [addTemplate, { loading: saving }] = useMutation(
-    AUTOMATION_WORKFLOW_TEMPLATE_ADD,
-    { refetchQueries: [AUTOMATION_WORKFLOW_TEMPLATES] },
-  );
-  const [editTemplateMutation, { loading: updatingTemplate }] = useMutation(
-    AUTOMATION_WORKFLOW_TEMPLATE_EDIT,
-    { refetchQueries: [AUTOMATION_WORKFLOW_TEMPLATES] },
-  );
-  const [removeTemplateMutation] = useMutation(
-    AUTOMATION_WORKFLOW_TEMPLATE_REMOVE,
-    { refetchQueries: [AUTOMATION_WORKFLOW_TEMPLATES] },
-  );
-
-  const templates = data?.automationWorkflowTemplates || [];
+  const {
+    templates,
+    loading,
+    saving,
+    updatingTemplate,
+    addTemplate,
+    editTemplate: editTemplateMutation,
+    removeTemplate,
+  } = useWorkflowTemplateList();
 
   const saveAsTemplate = async (workflowNodeId: string) => {
     const workflowIndex = (workflows || []).findIndex(
@@ -107,10 +92,6 @@ export const useWorkflowTemplates = () => {
         variant: 'destructive',
       });
     }
-  };
-
-  const removeTemplate = (templateId: string) => {
-    removeTemplateMutation({ variables: { _id: templateId } });
   };
 
   return {

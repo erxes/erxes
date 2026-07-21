@@ -54,7 +54,7 @@ query AutomationDetail($id: String!) {
       name
       description
       config
-      actions
+      actions 
       icon
       position
     }

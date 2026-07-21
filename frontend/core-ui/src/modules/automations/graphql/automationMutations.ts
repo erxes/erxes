@@ -105,12 +105,16 @@ export const AUTOMATION_WORKFLOW_TEMPLATE_ADD = gql`
 export const AUTOMATION_WORKFLOW_TEMPLATE_EDIT = gql`
   mutation AutomationWorkflowTemplatesEdit(
     $_id: String!
+    $name: String
+    $description: String
     $entryActionId: String
     $actions: JSON
     $inputs: JSON
   ) {
     automationWorkflowTemplatesEdit(
       _id: $_id
+      name: $name
+      description: $description
       entryActionId: $entryActionId
       actions: $actions
       inputs: $inputs

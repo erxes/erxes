@@ -13,6 +13,7 @@ import {
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { TAutomationVariableSourceNode } from '../AutomationVariableBrowserTypes';
+import { getNodeColor } from '@/automations/utils/automationBuilderUtils/getNodeColor';
 
 export const AutomationVariableSourceNodeList = ({
   activeSourceNodeId,
@@ -104,19 +105,12 @@ const AutomationVariableSourceNodeValue = ({
 }) => {
   return (
     <div className="flex min-w-0 items-center gap-2">
-      {node.icon ? (
-        <span
-          className={cn(
-            'rounded-md p-1.5',
-            node.nodeType === AutomationNodeType.Action
-              ? 'bg-success/10 text-success'
-              : 'bg-primary/10 text-primary',
-          )}
-        >
-          <IconComponent className="size-4" name={node.icon} />
-        </span>
-      ) : null}
-      <span className="min-w-0 flex-1 truncate font-medium">{node.label}</span>
+      <span className={cn('rounded-md p-1.5', getNodeColor(node.nodeType))}>
+        <IconComponent className="size-4" name={node.icon} />
+      </span>
+      <span className="min-w-0 flex-1 truncate font-medium">
+        {node.label || node.id}
+      </span>
       <span className="text-xs text-muted-foreground">
         {node.kindLabel ??
           (node.nodeType === AutomationNodeType.Trigger ? 'Trigger' : 'Action')}

@@ -73,6 +73,11 @@ interface AutomationContextType {
   isSecondarySidebarOpen: boolean;
   setSecondarySidebarOpen: (open: boolean) => void;
   toggleSecondarySidebar: () => void;
+  // Drill-in editing: the id of the workflow whose members are being edited on
+  // the main workspace, or null when the root automation is shown. Lives on the
+  // root provider so the WorkflowNode maximize control and the workspace agree.
+  editingWorkflowId: string | null;
+  setEditingWorkflowId: (workflowId: string | null) => void;
   selectedNode: TAutomationSelectedNode;
   setSelectedNode: Dispatch<SetStateAction<TAutomationSelectedNode>>;
   queryParams: QueryValues<AutomationQueryParams>;
@@ -155,6 +160,10 @@ export const AutomationProvider = ({
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const toggleSecondarySidebar = () =>
     setSecondarySidebarOpen(!isSecondarySidebarOpen);
+
+  const [editingWorkflowId, setEditingWorkflowId] = useState<string | null>(
+    null,
+  );
 
   const { pathname } = useLocation();
   const isCreatePage = pathname === '/automations/create';
@@ -242,6 +251,8 @@ export const AutomationProvider = ({
         isSecondarySidebarOpen,
         setSecondarySidebarOpen,
         toggleSecondarySidebar,
+        editingWorkflowId,
+        setEditingWorkflowId,
         selectedNode,
         setSelectedNode,
         queryParams,

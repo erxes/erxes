@@ -1,6 +1,5 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect } from 'react';
-import '@xyflow/react/dist/style.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';

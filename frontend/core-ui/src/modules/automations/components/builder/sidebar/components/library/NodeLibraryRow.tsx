@@ -3,6 +3,7 @@ import {
   useDnDMetaState,
 } from '@/automations/context/AutomationBuilderDnDProvider';
 import { AutomationNodeType } from '@/automations/types';
+import { getNodeColor } from '@/automations/utils/automationBuilderUtils/getNodeColor';
 import { cn, Command, IconComponent } from 'erxes-ui';
 import React from 'react';
 
@@ -22,7 +23,9 @@ interface NodeLibraryRowProps {
     event: React.DragEvent<HTMLDivElement>,
     { type, label, description, icon, isCustom }: any,
   ) => void;
-  onSelectNode: (node: TNodeLibraryRowItem & { nodeType: AutomationNodeType }) => void;
+  onSelectNode: (
+    node: TNodeLibraryRowItem & { nodeType: AutomationNodeType },
+  ) => void;
 }
 
 const GHOST_COLORS: Record<
@@ -194,13 +197,7 @@ export const NodeLibraryRow = ({
         <div
           className={cn(
             'node-library-row-icon flex size-10 shrink-0 items-center justify-center rounded-lg transition-[background-color,color] duration-150 ease-out [&>svg]:size-5',
-            {
-              'bg-success/10 text-success':
-                nodeType === AutomationNodeType.Action,
-              'bg-primary/10 text-primary':
-                nodeType === AutomationNodeType.Trigger,
-              'bg-info/10 text-info': nodeType === AutomationNodeType.Workflow,
-            },
+            getNodeColor(nodeType),
           )}
         >
           <IconComponent name={iconName} />

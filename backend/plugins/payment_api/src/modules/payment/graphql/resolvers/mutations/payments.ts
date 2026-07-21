@@ -38,7 +38,10 @@ async function handleQPaySetup(input: any) {
 
   // Fallback for missing name (for company registration)
   if (isCompany && !input.config.name) {
-    input.config.name = input.config.companyName || input.config.businessName || "Default Contact";
+    input.config.name =
+      input.config.companyName ||
+      input.config.businessName ||
+      'Default Contact';
   }
 
   const response = isCompany
@@ -46,7 +49,9 @@ async function handleQPaySetup(input: any) {
     : await api.createCustomer(input.config);
 
   if (!response?.id) {
-    throw new Error(`QPay did not return merchant id: ${JSON.stringify(response)}`);
+    throw new Error(
+      `QPay did not return merchant id: ${JSON.stringify(response)}`,
+    );
   }
 
   input.config.merchantId = response.id;
@@ -87,33 +92,33 @@ async function registerWebhookIfNeeded(
 
 const mutations = {
   async paymentAdd(_root: any, args: any, { models, subdomain }: IContext) {
-  const { input } = args;
+    const { input } = args;
 
-  if (!input?.kind) {
-    throw new Error('Payment kind is required');
-  }
+    if (!input?.kind) {
+      throw new Error('Payment kind is required');
+    }
 
-  const paymentConfig = validatePaymentKind(input.kind);
+    const paymentConfig = validatePaymentKind(input.kind);
 
-  const domain = resolveDomain(subdomain);
+    const domain = resolveDomain(subdomain);
 
-  input.acceptedCurrencies = input.config?.currency
-    ? [input.config.currency]
-    : paymentConfig.acceptedCurrencies;
+    input.acceptedCurrencies = input.config?.currency
+      ? [input.config.currency]
+      : paymentConfig.acceptedCurrencies;
 
-  try {
-    await handleQPaySetup(input);
-  } catch (e: any) {
-    throw new Error(extractErrorMessage(e));
-  }
+    try {
+      await handleQPaySetup(input);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
+    }
 
-  const payment = await models.PaymentMethods.createPayment(input);
+    const payment = await models.PaymentMethods.createPayment(input);
 
-  await authorizePayment(payment, models, subdomain);
-  await registerWebhookIfNeeded(input, payment, domain, models);
+    await authorizePayment(payment, models, subdomain);
+    await registerWebhookIfNeeded(input, payment, domain, models);
 
-  return payment;
-},
+    return payment;
+  },
 
   async paymentRemove(
     _root: any,

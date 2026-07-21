@@ -24,6 +24,10 @@ import {
   AUTOMATION_FLOW_DIRECTIONS,
   TAutomationFlowDirection,
 } from '@/automations/constants/flowDirection';
+import {
+  CANVAS_MAX_ZOOM,
+  CANVAS_MIN_ZOOM,
+} from '@/automations/constants';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import {
   Panel,
@@ -31,7 +35,15 @@ import {
   useOnViewportChange,
   useReactFlow,
 } from '@xyflow/react';
-import { Button, DropdownMenu, Separator, Tooltip, cn } from 'erxes-ui';
+import {
+  Button,
+  DropdownMenu,
+  Popover,
+  Separator,
+  Slider,
+  Tooltip,
+  cn,
+} from 'erxes-ui';
 import { toPng, toSvg } from 'html-to-image';
 import type React from 'react';
 import { useState } from 'react';
@@ -126,12 +138,15 @@ export const AutomationBuilderControls = ({
     getZoom,
     zoomIn,
     zoomOut,
+    zoomTo,
   } = useReactFlow();
   const [zoom, setZoom] = useState(() => getZoom());
 
   useOnViewportChange({
     onChange: ({ zoom }) => setZoom(zoom),
   });
+
+  const zoomPercent = Math.round(zoom * 100);
 
   const handleExportJson = () => {
     downloadJsonFile('automation-flow.json', {
@@ -281,9 +296,29 @@ export const AutomationBuilderControls = ({
         >
           <IconPlus />
         </ControlButton>
-        <div className="flex h-7 w-full items-center justify-center text-xs font-medium text-muted-foreground tabular-nums">
-          {Math.round(zoom * 100)}%
-        </div>
+        <Popover>
+          <Popover.Trigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              title="Zoom level"
+              className="h-7 w-full rounded px-0 text-xs font-medium text-accent-foreground tabular-nums hover:bg-accent hover:text-foreground"
+            >
+              {zoomPercent}%
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content side="right" align="center" className="w-40">
+            <Slider
+              aria-label="Zoom level"
+              value={[zoomPercent]}
+              // Drives the canvas; `zoom` state only mirrors the viewport back
+              onValueChange={([value]) => zoomTo(value / 100)}
+              min={CANVAS_MIN_ZOOM * 100}
+              max={CANVAS_MAX_ZOOM * 100}
+              step={1}
+            />
+          </Popover.Content>
+        </Popover>
         <ControlButton
           label="Zoom out"
           onClick={() => zoomOut({ duration: 200 })}

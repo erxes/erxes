@@ -3,6 +3,7 @@ import { AutomationRecordTableFilters } from '@/automations/components/list/filt
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
 import { AutomationsRecordTableContent } from '@/automations/components/list/AutomationsRecordTableContent';
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
+import { AutomationsViewToggle } from '@/automations/components/list/AutomationsViewToggle';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import {
   Breadcrumb,
@@ -65,6 +66,7 @@ export const AutomationsRecordTable = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
+          <AutomationsViewToggle />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
