@@ -14,7 +14,7 @@ export const VoucherRecordTable = ({ posId }: { posId?: string }) => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [...firstVoucherColumns, ...secondVoucherColumns];
+  const allColumns = [...firstVoucherColumns(t), ...secondVoucherColumns(t)];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;

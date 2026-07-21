@@ -19,7 +19,7 @@ export const ExchangeRatesTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={exchangeRatesColumns}
+      columns={exchangeRatesColumns(t)}
       data={rows}
       className="m-3"
       stickyColumns={['more', 'checkbox']}

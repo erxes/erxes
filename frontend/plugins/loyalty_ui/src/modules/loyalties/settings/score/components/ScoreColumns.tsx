@@ -11,61 +11,61 @@ import {
   RecordTableInlineCell,
   Switch,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { ScoreNameCell } from '../score-detail/components/ScoreNameCell';
 import { IScore } from '../types/loyaltyScoreTypes';
 import { scoreMoreColumn } from './LoyaltyScoreMoreColumn';
 
-export const scoreColumns: (
+export const scoreColumns = (
+  t: TFunction,
   editStatus: (options: any) => void,
-) => ColumnDef<IScore>[] = (editStatus) => [
+): ColumnDef<IScore>[] => [
   scoreMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IScore>,
-
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTag} label={t('title')} />; },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <ScoreNameCell
-          score={cell.row.original}
-          name={cell.getValue() as string}
-        />
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('title')} />,
+    cell: ({ cell }: { cell: any }) => (
+      <ScoreNameCell
+        score={cell.row.original}
+        name={cell.getValue() as string}
+      />
+    ),
     size: 150,
   },
   {
     id: 'order',
     accessorKey: 'order',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconListNumbers} label={t('order')} />; },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={`${cell.getValue() ?? ''}`} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconListNumbers} label={t('order')} />
+    ),
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={`${cell.getValue() ?? ''}`} />
+      </RecordTableInlineCell>
+    ),
     size: 80,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />; },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />
+    ),
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
+    ),
     cell: ({ cell }) => {
       const { _id } = cell.row.original || {};
       const currentStatus = cell.getValue() as string;

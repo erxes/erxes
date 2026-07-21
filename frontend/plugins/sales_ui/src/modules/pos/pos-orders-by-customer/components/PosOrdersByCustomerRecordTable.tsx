@@ -10,7 +10,7 @@ export const PosOrdersByCustomerRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={PosOrdersByCustomerColumns}
+      columns={PosOrdersByCustomerColumns(t)}
       data={posOrderByCustomerList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'type']}

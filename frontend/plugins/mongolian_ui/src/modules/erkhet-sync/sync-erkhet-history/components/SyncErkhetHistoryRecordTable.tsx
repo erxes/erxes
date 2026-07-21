@@ -14,7 +14,7 @@ export const SyncErkhetHistoryRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={syncErkhetHistoryColumns}
+      columns={syncErkhetHistoryColumns(t)}
       data={SyncHistories || []}
       className="m-3"
       stickyColumns={['more', 'createdAt']}

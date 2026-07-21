@@ -13,7 +13,7 @@ export const ByDateRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={ByDateColumns}
+      columns={ByDateColumns(t)}
       data={byDate || []}
       className="m-3"
       stickyColumns={['more']}

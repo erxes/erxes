@@ -11,7 +11,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { AssignmentNameCell } from '../assignment-detail/components/AssignmentNameCell';
 import { IAssignment } from '../types/assignmentTypes';
 import { assignmentMoreColumn } from './AssignmentMoreColumn';
@@ -37,68 +37,56 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const assignmentColumns: (
+export const assignmentColumns = (
+  t: TFunction,
   editStatus: (options: any) => void,
-) => ColumnDef<IAssignment>[] = (editStatus) => [
+): ColumnDef<IAssignment>[] => [
   assignmentMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IAssignment>,
-
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTag} label={t('title')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <AssignmentNameCell
-          assignment={cell.row.original}
-          name={cell.getValue() as string}
-        />
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('title')} />,
+    cell: ({ cell }: { cell: any }) => (
+      <AssignmentNameCell
+        assignment={cell.row.original}
+        name={cell.getValue() as string}
+      />
+    ),
     size: 150,
   },
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <SafeRelativeDate value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
+    ),
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+        <SafeRelativeDate value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <SafeRelativeDate value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />
+    ),
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+        <SafeRelativeDate value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('status')} icon={IconHash} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (

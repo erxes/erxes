@@ -1,15 +1,24 @@
 import { IconClock } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { TextOverflowTooltip, RecordTableInlineCell } from 'erxes-ui';
-import { HeaderCell } from '../../components/HeaderCell';
+import {
+  TextOverflowTooltip,
+  RecordTableInlineCell,
+  RecordTable,
+} from 'erxes-ui';
 
-export const syncedInfoColumn = <T extends { syncedDate?: string; syncedBillNumber?: string; syncedCustomer?: string }>(
+export const syncedInfoColumn = <
+  T extends {
+    syncedDate?: string;
+    syncedBillNumber?: string;
+    syncedCustomer?: string;
+  },
+>(
   accessorKey: 'syncedDate' | 'syncedBillNumber' | 'syncedCustomer',
   label: string,
 ): ColumnDef<T> => ({
   id: accessorKey,
   accessorKey,
-  header: () => <HeaderCell icon={IconClock} label={label} />,
+  header: () => <RecordTable.InlineHead icon={IconClock} label={label} />,
   cell: ({ cell }) => {
     const value = cell.getValue() as string | undefined;
 

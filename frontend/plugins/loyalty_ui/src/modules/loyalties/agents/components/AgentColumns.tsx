@@ -1,6 +1,7 @@
 import { IconTag, IconRefresh, IconBox } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import { RecordTable, RecordTableInlineCell, Badge } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IAgent } from '../types/agent';
@@ -43,34 +44,33 @@ const ProductRulesCell = ({ agent }: { agent: IAgent }) => {
   );
 };
 
-export const agentColumns: ColumnDef<IAgent>[] = [
+export const agentColumns = (t: TFunction): ColumnDef<IAgent>[] => [
   agentMoreColumn as ColumnDef<IAgent>,
   RecordTable.checkboxColumn as ColumnDef<IAgent>,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTag} label={t('number')} />; },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('number')} />,
     size: 150,
     cell: ({ row }) => <NumberCell agent={row.original} />,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTag} label={t('status')} />; },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
     size: 100,
-    cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
-      return (
-        <RecordTableInlineCell>
-          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Badge variant="default">{t(cell.getValue() as string)}</Badge>
+      </RecordTableInlineCell>
+    ),
   },
   {
     id: 'hasReturn',
     accessorKey: 'hasReturn',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconRefresh} label={t('has-return')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconRefresh} label={t('has-return')} />
+    ),
     size: 100,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -86,11 +86,12 @@ export const agentColumns: ColumnDef<IAgent>[] = [
       </RecordTableInlineCell>
     ),
   },
-
   {
     id: 'productRules',
     accessorKey: 'rulesOfProducts',
-    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconBox} label={t('product-rules')} />; },
+    header: () => (
+      <RecordTable.InlineHead icon={IconBox} label={t('product-rules')} />
+    ),
     cell: ({ row }) => <ProductRulesCell agent={row.original} />,
   },
 ];

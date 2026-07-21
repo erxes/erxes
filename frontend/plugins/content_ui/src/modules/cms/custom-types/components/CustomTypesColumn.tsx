@@ -8,18 +8,18 @@ import {
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { customTypeMoreColumn } from './CustomTypesMoreColumn';
+import type { TFunction } from 'i18next';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { IconLayout, IconCalendar, IconArticle } from '@tabler/icons-react';
 import { ICustomPostType } from '../types/customTypeTypes';
 import { useEditCustomType } from '../hooks/useEditCustomType';
 
 export const createCustomTypesColumns = (
+  t: TFunction,
   websiteId: string,
   onEdit?: (customType: any) => void,
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
-  const { t } = useTranslation('content');
   const { editType } = useEditCustomType(onRefetch);
 
   return [

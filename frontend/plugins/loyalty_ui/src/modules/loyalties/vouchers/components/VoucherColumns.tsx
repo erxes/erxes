@@ -7,8 +7,8 @@ import {
   Badge,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { IVoucher } from '@/loyalties/vouchers/types/voucher';
 import { VOUCHER_CP_USER_QUERY } from '@/loyalties/vouchers/graphql/queries/queries';
@@ -95,43 +95,35 @@ const OwnerCell = ({
   );
 };
 
-export const firstVoucherColumns: ColumnDef<IVoucher>[] = [
+export const firstVoucherColumns = (t: TFunction): ColumnDef<IVoucher>[] => [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+    ),
     cell: ({ row }) => <CreatedAtCell voucher={row.original} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
-      return (
-        <RecordTableInlineCell>
-          <span className="capitalize">{t(cell.getValue() as string)}</span>
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <span className="capitalize">{t(cell.getValue() as string)}</span>
+      </RecordTableInlineCell>
+    ),
     size: 130,
   },
 ];
 
-export const secondVoucherColumns: ColumnDef<IVoucher>[] = [
+export const secondVoucherColumns = (t: TFunction): ColumnDef<IVoucher>[] => [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -142,23 +134,17 @@ export const secondVoucherColumns: ColumnDef<IVoucher>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTag} label={t('status')} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
-      return (
-        <RecordTableInlineCell>
-          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Badge variant="default">{t(cell.getValue() as string)}</Badge>
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
 ];
 
-export const voucherColumns: ColumnDef<IVoucher>[] = [
-  ...firstVoucherColumns,
-  ...secondVoucherColumns,
+export const voucherColumns = (t: TFunction): ColumnDef<IVoucher>[] => [
+  ...firstVoucherColumns(t),
+  ...secondVoucherColumns(t),
 ];

@@ -20,7 +20,7 @@ export const CheckCategoryRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={checkCategoryColumns}
+      columns={checkCategoryColumns(t)}
       data={filteredCategories || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'createdAt']}

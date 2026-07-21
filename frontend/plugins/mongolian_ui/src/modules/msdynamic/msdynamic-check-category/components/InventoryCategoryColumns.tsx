@@ -11,7 +11,7 @@ import {
   RecordTableInlineCell,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 import {
   InventoryCategoryAction,
@@ -47,15 +47,13 @@ const getStatusBadgeVariant = (action: InventoryCategoryAction) => {
 
 /* Builds RecordTable columns for the selected MSDynamic category action. */
 export const getInventoryCategoryColumns = (
+  t: TFunction,
   action: InventoryCategoryAction,
 ): ColumnDef<InventoryCategoryItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<InventoryCategoryItem>,
   {
     id: 'code',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconHash} label={t('code')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell className="font-mono text-xs">
         <TextOverflowTooltip value={getCategoryCode(row.original, action)} />
@@ -64,10 +62,9 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'name',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('name')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('name')} />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={getCategoryName(row.original, action)} />
@@ -76,10 +73,12 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'description',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconFileDescription} label={t('description')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconFileDescription}
+        label={t('description')}
+      />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-muted-foreground">
         <TextOverflowTooltip
@@ -90,21 +89,17 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'status',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconStatusChange} label={t('status')} />;
-    },
-    cell: ({ row }) => {
-      const { t } = useTranslation('mongolian');
-      return (
-        <RecordTableInlineCell>
-          {row.original.syncStatus === true ? (
-            <Badge variant={getStatusBadgeVariant(action)}>{t('synced')}</Badge>
-          ) : (
-            <Badge variant="warning">{t('pending')}</Badge>
-          )}
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconStatusChange} label={t('status')} />
+    ),
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        {row.original.syncStatus === true ? (
+          <Badge variant={getStatusBadgeVariant(action)}>{t('synced')}</Badge>
+        ) : (
+          <Badge variant="warning">{t('pending')}</Badge>
+        )}
+      </RecordTableInlineCell>
+    ),
   },
 ];

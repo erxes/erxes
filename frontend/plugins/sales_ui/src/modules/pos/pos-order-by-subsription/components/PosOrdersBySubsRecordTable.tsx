@@ -11,7 +11,7 @@ export const PosOrdersBySubsRecordTable = ({ posId }: { posId?: string }) => {
 
   return (
     <RecordTable.Provider
-      columns={PosOrdersBySubsColumns}
+      columns={PosOrdersBySubsColumns(t)}
       data={posOrderBySubscriptionList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'group']}

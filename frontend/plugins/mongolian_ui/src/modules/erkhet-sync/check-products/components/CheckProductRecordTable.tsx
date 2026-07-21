@@ -15,7 +15,7 @@ export const CheckProductRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={checkProductColumns}
+      columns={checkProductColumns(t)}
       data={filteredProducts || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'createdAt']}

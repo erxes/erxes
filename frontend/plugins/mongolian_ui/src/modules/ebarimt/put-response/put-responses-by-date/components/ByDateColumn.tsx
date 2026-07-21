@@ -1,4 +1,5 @@
 import { ColumnDef } from '@tanstack/table-core';
+import type { TFunction } from 'i18next';
 import {
   amountColumn,
   cityTaxColumn,
@@ -9,11 +10,11 @@ import {
 import { byDateMoreColumn } from '~/modules/ebarimt/put-response/put-responses-by-date/components/ByDateMoreColumn';
 import { IByDate } from '~/modules/ebarimt/put-response/put-responses-by-date/types/ByDateType';
 
-export const ByDateColumns: ColumnDef<IByDate>[] = [
+export const ByDateColumns = (t: TFunction): ColumnDef<IByDate>[] => [
   byDateMoreColumn,
-  dateColumn as ColumnDef<IByDate>,
-  counterColumn as ColumnDef<IByDate>,
-  cityTaxColumn as ColumnDef<IByDate>,
-  vatColumn as ColumnDef<IByDate>,
-  amountColumn as ColumnDef<IByDate>,
+  dateColumn(t) as ColumnDef<IByDate>,
+  counterColumn(t) as ColumnDef<IByDate>,
+  cityTaxColumn(t) as ColumnDef<IByDate>,
+  vatColumn(t) as ColumnDef<IByDate>,
+  amountColumn(t) as ColumnDef<IByDate>,
 ];

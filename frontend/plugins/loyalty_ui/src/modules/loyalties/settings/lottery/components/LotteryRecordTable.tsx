@@ -15,7 +15,7 @@ export const LotteryRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={lotteryColumns}
+      columns={lotteryColumns(t)}
       data={lottery || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}
@@ -48,7 +48,9 @@ export const LotteryRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-lotteries-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-lotteries-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
                     {t('get-started-lottery')}
                   </p>

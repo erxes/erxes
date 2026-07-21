@@ -23,15 +23,17 @@ import { SubmitHandler } from 'react-hook-form';
 import { TPosItemFormData } from '../types/posItemType';
 import { IPosItem } from '../types/posItem';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
-const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
+const itemColumns = (
+  t: TFunction,
+): ColumnDef<NonNullable<IPosItem['items']>>[] => [
   {
     id: 'productName',
     accessorKey: 'productName',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
       return (
@@ -45,10 +47,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('count')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('count')} />,
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -62,10 +61,9 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -79,10 +77,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('amount')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('amount')} />,
     cell: ({ row }) => {
       const count = row.original.count || 0;
       const unitPrice = row.original.unitPrice || 0;
@@ -213,7 +208,7 @@ export const PosItemDetailSheet = () => {
     return (
       <div className="rounded-md overflow-hidden">
         <RecordTable.Provider
-          columns={itemColumns}
+          columns={itemColumns(t)}
           data={[posItem.items]}
           className="w-full"
         >
@@ -277,7 +272,10 @@ export const PosItemDetailSheet = () => {
         if (expectedTotal > 0 && sum !== expectedTotal) {
           toast({
             title: t('amount-mismatch'),
-            description: t('payments-sum-must-equal', { sum: sum.toLocaleString(), expectedTotal: expectedTotal.toLocaleString() }),
+            description: t('payments-sum-must-equal', {
+              sum: sum.toLocaleString(),
+              expectedTotal: expectedTotal.toLocaleString(),
+            }),
             variant: 'destructive',
           });
           return;
@@ -297,7 +295,9 @@ export const PosItemDetailSheet = () => {
           if (error.message.includes('Already returned')) {
             errorMessage = t('item-already-returned');
           } else if (error.message.includes('not balanced')) {
-            errorMessage = t('payments-not-balanced', { totalAmount: posItem?.totalAmount?.toLocaleString() || 0 });
+            errorMessage = t('payments-not-balanced', {
+              totalAmount: posItem?.totalAmount?.toLocaleString() || 0,
+            });
           } else {
             errorMessage = error.message;
           }

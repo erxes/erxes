@@ -6,13 +6,17 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { TextOverflowTooltip, RecordTableInlineCell } from 'erxes-ui';
-import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
+import {
+  TextOverflowTooltip,
+  RecordTableInlineCell,
+  RecordTable,
+} from 'erxes-ui';
+import type { TFunction } from 'i18next';
 
-export const dateColumn: ColumnDef<unknown> = {
+export const dateColumn = (t: TFunction): ColumnDef<unknown> => ({
   id: 'date',
   accessorKey: 'date',
-  header: () => <HeaderCell icon={IconHash} label="date" />,
+  header: () => <RecordTable.InlineHead icon={IconHash} label={t('date')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -20,12 +24,12 @@ export const dateColumn: ColumnDef<unknown> = {
       </RecordTableInlineCell>
     );
   },
-};
+});
 
-export const counterColumn: ColumnDef<unknown> = {
+export const counterColumn = (t: TFunction): ColumnDef<unknown> => ({
   id: 'values.counter',
   accessorKey: 'values.counter',
-  header: () => <HeaderCell icon={IconLabel} label="count" />,
+  header: () => <RecordTable.InlineHead icon={IconLabel} label={t('count')} />,
   cell: ({ row }) => {
     const counter = (row.original as any).values?.counter || 0;
     return (
@@ -34,12 +38,14 @@ export const counterColumn: ColumnDef<unknown> = {
       </RecordTableInlineCell>
     );
   },
-};
+});
 
-export const cityTaxColumn: ColumnDef<unknown> = {
+export const cityTaxColumn = (t: TFunction): ColumnDef<unknown> => ({
   id: 'values.cityTax',
   accessorKey: 'values.cityTax',
-  header: () => <HeaderCell icon={IconCurrencyDollar} label="city-tax" />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('city-tax')} />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -47,12 +53,12 @@ export const cityTaxColumn: ColumnDef<unknown> = {
       </RecordTableInlineCell>
     );
   },
-};
+});
 
-export const vatColumn: ColumnDef<unknown> = {
+export const vatColumn = (t: TFunction): ColumnDef<unknown> => ({
   id: 'values.vat',
   accessorKey: 'values.vat',
-  header: () => <HeaderCell icon={IconUser} label="vat" />,
+  header: () => <RecordTable.InlineHead icon={IconUser} label={t('vat')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -60,12 +66,14 @@ export const vatColumn: ColumnDef<unknown> = {
       </RecordTableInlineCell>
     );
   },
-};
+});
 
-export const amountColumn: ColumnDef<unknown> = {
+export const amountColumn = (t: TFunction): ColumnDef<unknown> => ({
   id: 'values.amount',
   accessorKey: 'values.amount',
-  header: () => <HeaderCell icon={IconCategory} label="amount" />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconCategory} label={t('amount')} />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -73,4 +81,4 @@ export const amountColumn: ColumnDef<unknown> = {
       </RecordTableInlineCell>
     );
   },
-};
+});

@@ -24,9 +24,19 @@ export const StageInErkhetConfigRecordTable = ({
   return (
     <ErkhetConfigRecordTable
       configs={configs}
-      columns={buildStageInErkhetConfigColumns(onEdit, onDelete, editLoading)}
+      columns={buildStageInErkhetConfigColumns(
+        t,
+        onEdit,
+        onDelete,
+        editLoading,
+      )}
       emptyDescription={t('create-first-stage-in-erkhet-config')}
-      commandBar={<StageInErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+      commandBar={
+        <StageInErkhetConfigCommandBar
+          onDeleteMany={onDeleteMany}
+          loading={editLoading}
+        />
+      }
     />
   );
 };

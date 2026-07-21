@@ -11,24 +11,22 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   IPriceItem,
   PriceStatus,
   PRICE_STATUS_LABELS,
 } from '../types/checkPrice';
 
-export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
+export const checkPriceColumns = (t: TFunction): ColumnDef<IPriceItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<IPriceItem>,
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('type')} icon={IconCategory} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('type')} icon={IconCategory} />
+    ),
     cell: ({ cell }) => {
-      const { t } = useTranslation('mongolian');
       const value = cell.getValue() as PriceStatus;
       return (
         <RecordTableInlineCell>
@@ -42,10 +40,7 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
   {
     id: 'code',
     accessorKey: 'Item_No',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('code')} icon={IconCode} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('code')} icon={IconCode} />,
     cell: ({ cell }) => {
       const row = cell.row.original;
       const displayCode = row.status === 'DELETE' ? row.code : row.Item_No;
@@ -59,10 +54,9 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'Unit_Price',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const row = cell.row.original;
       const price = row.status === 'DELETE' ? row.unitPrice : row.Unit_Price;
@@ -79,10 +73,9 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
   {
     id: 'endingDate',
     accessorKey: 'Ending_Date',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('ending-date')} icon={IconHash} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('ending-date')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const row = cell.row.original;
       const value = row.status === 'DELETE' ? '' : row.Ending_Date;
@@ -96,12 +89,10 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
   {
     id: 'syncedStatus',
     accessorKey: 'isSynced',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />
+    ),
     cell: ({ row }) => {
-      const { t } = useTranslation('mongolian');
       const isSynced = row.original.isSynced;
       return (
         <RecordTableInlineCell>

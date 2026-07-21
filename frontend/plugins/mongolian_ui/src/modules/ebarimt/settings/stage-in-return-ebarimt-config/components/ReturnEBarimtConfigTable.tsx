@@ -10,7 +10,14 @@ import {
   Command,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { IconClipboardList, IconCode, IconEdit, IconToggleLeft, IconTrash } from '@tabler/icons-react';
+import type { TFunction } from 'i18next';
+import {
+  IconClipboardList,
+  IconCode,
+  IconEdit,
+  IconToggleLeft,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
@@ -115,26 +122,22 @@ const returnEbarimtMoreColumn = {
   size: 33,
 };
 
-const returnEbarimtColumns: ColumnDef<IReturnEbarimtConfigRow>[] = [
+const returnEbarimtColumns = (
+  t: TFunction,
+): ColumnDef<IReturnEbarimtConfigRow>[] => [
   returnEbarimtMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IReturnEbarimtConfigRow>,
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('title')} icon={IconCode} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('title')} icon={IconCode} />,
     cell: ({ cell }) => <ReturnEBarimtConfigTitleCell cell={cell} />,
     size: 200,
   },
   {
     id: 'stageId',
     accessorKey: 'stageId',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('stage')} icon={IconCode} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('stage')} icon={IconCode} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -145,35 +148,27 @@ const returnEbarimtColumns: ColumnDef<IReturnEbarimtConfigRow>[] = [
   {
     id: 'hasVat',
     accessorKey: 'hasVat',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('mongolian');
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
   {
     id: 'hasCitytax',
     accessorKey: 'hasCitytax',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('has-citytax')} icon={IconToggleLeft} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('mongolian');
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('has-citytax')} icon={IconToggleLeft} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
 ];
@@ -183,7 +178,7 @@ export const ReturnEBarimtConfigTable = () => {
   const { rows, loading } = useReturnEbarimtConfigRows();
 
   return (
-    <RecordTable.Provider columns={returnEbarimtColumns} data={rows}>
+    <RecordTable.Provider columns={returnEbarimtColumns(t)} data={rows}>
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />

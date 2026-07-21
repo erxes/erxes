@@ -37,6 +37,7 @@ import { PipelineCommandBar } from './PipelineCommandBar';
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 export const PipelineMoreColumnCell = ({
   cell,
@@ -49,7 +50,7 @@ export const PipelineMoreColumnCell = ({
     pipelineId: string;
     tab: string;
   }>(['pipelineId', 'tab']);
-  const [activeBoardId] = useQueryState('activeBoardId')
+  const [activeBoardId] = useQueryState('activeBoardId');
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
@@ -91,7 +92,10 @@ export const PipelineMoreColumnCell = ({
 
   const onArchive = () => {
     confirm({
-      message: status === 'active' ? t('archive-pipeline-confirm') : t('unarchive-pipeline-confirm'),
+      message:
+        status === 'active'
+          ? t('archive-pipeline-confirm')
+          : t('unarchive-pipeline-confirm'),
     }).then(async () => {
       try {
         archivePipeline({
@@ -144,7 +148,9 @@ export const PipelineMoreColumnCell = ({
             </Command.Item>
             <Command.Item
               onSelect={() => {
-                navigate(`/sales/deals?boardId=${activeBoardId}&pipelineId=${_id}`)
+                navigate(
+                  `/sales/deals?boardId=${activeBoardId}&pipelineId=${_id}`,
+                );
               }}
             >
               <IconSandbox /> {t('go-to-pipeline')}
@@ -163,122 +169,118 @@ export const PipelineMoreColumnCell = ({
   );
 };
 
-export const pipelinesColumns: ColumnDef<
+type PipelineColumnDef = ColumnDef<
   IPipeline & { hasChildren: boolean; type?: string }
->[] = [
-    RecordTable.checkboxColumn as ColumnDef<
-      IPipeline & { hasChildren: boolean; type?: string }
-    >,
-    {
-      id: 'more',
-      cell: PipelineMoreColumnCell,
-      size: 33,
+>;
+
+export const pipelinesColumns = (t: TFunction): PipelineColumnDef[] => [
+  RecordTable.checkboxColumn as PipelineColumnDef,
+  {
+    id: 'more',
+    cell: PipelineMoreColumnCell,
+    size: 33,
+  },
+  {
+    id: 'name',
+    header: () => t('name'),
+    accessorKey: 'name',
+    cell: ({ cell }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { pipelineEdit, loading } = usePipelineEdit();
+      const { _id, name, type } = cell.row.original;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [open, setOpen] = React.useState<boolean>(false);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [_name, setName] = React.useState<string>(name);
+
+      const onSave = () => {
+        if (name !== _name) {
+          pipelineEdit({
+            variables: {
+              id: _id,
+              type: type,
+              name: _name,
+            },
+          });
+        }
+      };
+
+      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
+        setName(el.currentTarget.value);
+      };
+
+      return (
+        <Popover
+          open={open}
+          onOpenChange={(open) => {
+            setOpen(open);
+            if (!open) {
+              onSave();
+            }
+          }}
+        >
+          <RecordTableInlineCell.Trigger>
+            <RecordTableTree.Trigger
+              order=""
+              name={cell.getValue() as string}
+              hasChildren={cell.row.original.hasChildren}
+            >
+              {cell.getValue() as string}
+            </RecordTableTree.Trigger>
+          </RecordTableInlineCell.Trigger>
+          <RecordTableInlineCell.Content>
+            <Input value={_name} onChange={onChange} disabled={loading} />
+          </RecordTableInlineCell.Content>
+        </Popover>
+      );
     },
-    {
-      id: 'name',
-      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('name'); },
-      accessorKey: 'name',
-      cell: ({ cell }) => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const { pipelineEdit, loading } = usePipelineEdit();
-        const { _id, name, type } = cell.row.original;
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [open, setOpen] = React.useState<boolean>(false);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [_name, setName] = React.useState<string>(name);
+    size: 300,
+  },
+  {
+    header: () => t('status'),
+    accessorKey: 'status',
+    cell: ({ cell }) => {
+      const status = cell.getValue() as string;
 
+      const variant =
+        status === 'active'
+          ? 'success'
+          : status === 'archived'
+            ? 'warning'
+            : 'default';
 
-        const onSave = () => {
-          if (name !== _name) {
-            pipelineEdit({
-              variables: {
-                id: _id,
-                type: type,
-                name: _name,
-              },
-            });
-          }
-        };
-
-        const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-          setName(el.currentTarget.value);
-        };
-
-        return (
-          <Popover
-            open={open}
-            onOpenChange={(open) => {
-              setOpen(open);
-              if (!open) {
-                onSave();
-              }
-            }}
-          >
-            <RecordTableInlineCell.Trigger>
-              <RecordTableTree.Trigger
-                // order={cell.row.original.order || ''}
-                order=""
-                name={cell.getValue() as string}
-                hasChildren={cell.row.original.hasChildren}
-              >
-                {cell.getValue() as string}
-              </RecordTableTree.Trigger>
-            </RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Content>
-              <Input value={_name} onChange={onChange} disabled={loading} />
-            </RecordTableInlineCell.Content>
-          </Popover>
-        );
-      },
-      size: 300,
+      return (
+        <RecordTableInlineCell>
+          <Badge variant={variant}>{(cell.getValue() as string) || '-'}</Badge>
+        </RecordTableInlineCell>
+      );
     },
-    {
-      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('status'); },
-      accessorKey: 'status',
-      cell: ({ cell }) => {
-        const status = cell.getValue() as string;
-
-        const variant =
-          status === 'active'
-            ? 'success'
-            : status === 'archived'
-              ? 'warning'
-              : 'default';
-
-        return (
-          <RecordTableInlineCell>
-            <Badge variant={variant}>{(cell.getValue() as string) || '-'}</Badge>
-          </RecordTableInlineCell>
-        );
-      },
-    },
-    {
-      id: 'createdAt',
-      accessorKey: 'createdAt',
-      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />; },
-      cell: ({ cell }) => {
-        return (
-          <RelativeDateDisplay value={cell.getValue() as string} asChild>
-            <RecordTableInlineCell>
-              <RelativeDateDisplay.Value value={cell.getValue() as string} />
-            </RecordTableInlineCell>
-          </RelativeDateDisplay>
-        );
-      },
-    },
-    {
-      id: 'createdBy',
-      accessorKey: 'createdUser.details.fullName',
-      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />; },
-      cell: ({ cell }) => {
-        return (
-          <RecordTableInlineCell>
-            {cell.getValue() as string}
-          </RecordTableInlineCell>
-        );
-      },
-    },
-  ];
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />
+    ),
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
+  },
+  {
+    id: 'createdBy',
+    accessorKey: 'createdUser.details.fullName',
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
+    ),
+  },
+];
 
 const PipelineRecordTable = () => {
   const { t } = useTranslation('sales');
@@ -301,9 +303,11 @@ const PipelineRecordTable = () => {
 
   return (
     <>
-      <PageSubHeader>{t('pipelines-with-count', { count: totalCount })}</PageSubHeader>
+      <PageSubHeader>
+        {t('pipelines-with-count', { count: totalCount })}
+      </PageSubHeader>
       <RecordTable.Provider
-        columns={pipelinesColumns}
+        columns={pipelinesColumns(t)}
         data={pipelines || []}
         className="m-3"
         stickyColumns={['checkbox', 'more', 'name']}

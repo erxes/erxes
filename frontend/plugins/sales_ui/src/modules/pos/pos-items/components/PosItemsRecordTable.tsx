@@ -13,7 +13,7 @@ export const PosItemsRecordTable = ({ posId }: { posId?: string }) => {
   if (loading) return <Spinner />;
   return (
     <RecordTable.Provider
-      columns={PosItemColumns}
+      columns={PosItemColumns(t)}
       data={posItemList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'number']}

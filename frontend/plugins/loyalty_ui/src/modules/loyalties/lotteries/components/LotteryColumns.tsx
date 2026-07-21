@@ -7,8 +7,8 @@ import {
   Badge,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { ILottery } from '@/loyalties/lotteries/types/lottery';
 import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
@@ -77,54 +77,45 @@ const OwnerCell = ({
   );
 };
 
-export const firstLotteryColumns: ColumnDef<ILottery>[] = [
+export const firstLotteryColumns = (t: TFunction): ColumnDef<ILottery>[] => [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconHash} label={t('number')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('number')} />
+    ),
     cell: ({ row }) => <NumberCell lottery={row.original} />,
     size: 300,
   },
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+    ),
     size: 100,
     cell: ({ row }) => <CreatedAtCell lottery={row.original} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
-      return (
-        <RecordTableInlineCell>
-          <span className="capitalize">{t(cell.getValue() as string)}</span>
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <span className="capitalize">{t(cell.getValue() as string)}</span>
+      </RecordTableInlineCell>
+    ),
     size: 130,
   },
 ];
 
-export const secondLotteryColumns: ColumnDef<ILottery>[] = [
+export const secondLotteryColumns = (t: TFunction): ColumnDef<ILottery>[] => [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -135,23 +126,17 @@ export const secondLotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTag} label={t('status')} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
-      return (
-        <RecordTableInlineCell>
-          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Badge variant="default">{t(cell.getValue() as string)}</Badge>
+      </RecordTableInlineCell>
+    ),
     size: 60,
   },
 ];
 
-export const lotteryColumns: ColumnDef<ILottery>[] = [
-  ...firstLotteryColumns,
-  ...secondLotteryColumns,
+export const lotteryColumns = (t: TFunction): ColumnDef<ILottery>[] => [
+  ...firstLotteryColumns(t),
+  ...secondLotteryColumns(t),
 ];

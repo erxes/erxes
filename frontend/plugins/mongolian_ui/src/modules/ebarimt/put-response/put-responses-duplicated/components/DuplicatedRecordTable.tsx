@@ -14,7 +14,7 @@ export const DuplicatedRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={DuplicatedColumns}
+      columns={DuplicatedColumns(t)}
       data={putResponsesDuplicated || []}
       className="m-3"
       stickyColumns={['more']}

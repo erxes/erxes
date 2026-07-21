@@ -16,7 +16,7 @@ export const MSDynamicCheckProductsRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={msDynamicCheckProductColumns}
+      columns={msDynamicCheckProductColumns(t)}
       data={filteredProducts}
       className="h-full w-full px-2 overflow-y-auto"
       stickyColumns={['checkbox']}

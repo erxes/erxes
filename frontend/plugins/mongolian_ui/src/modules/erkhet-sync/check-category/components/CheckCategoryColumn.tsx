@@ -5,16 +5,18 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import { CategoryItem } from '../types/categoryItem';
-import { HeaderCell } from '../../components/HeaderCell';
 import { SyncedStatusCell } from '../../shared/components/SyncedStatusCell';
 
-export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
+export const checkCategoryColumns = (
+  t: TFunction,
+): ColumnDef<CategoryItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<CategoryItem>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <HeaderCell icon={IconCode} label="code" />,
+    header: () => <RecordTable.InlineHead icon={IconCode} label={t('code')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -26,7 +28,7 @@ export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <HeaderCell icon={IconHash} label="name" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('name')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -38,7 +40,9 @@ export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
   {
     id: 'status',
     accessorKey: 'isSynced',
-    header: () => <HeaderCell icon={IconCircleCheck} label="status" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCircleCheck} label={t('status')} />
+    ),
     cell: ({ row }) => <SyncedStatusCell isSynced={row.original.isSynced} />,
   },
 ];

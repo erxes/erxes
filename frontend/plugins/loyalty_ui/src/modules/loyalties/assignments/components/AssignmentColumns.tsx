@@ -11,7 +11,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { IAssignmentItem } from '../types/assignment';
 
 const statusVariant = (status?: string) => {
@@ -39,15 +39,16 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const assignmentColumns: ColumnDef<IAssignmentItem>[] = [
+export const assignmentColumns = (
+  t: TFunction,
+): ColumnDef<IAssignmentItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<IAssignmentItem>,
   {
     id: 'campaign',
     accessorKey: 'campaign',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTag} label={t('campaign')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('campaign')} />
+    ),
     size: 180,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">
@@ -58,10 +59,9 @@ export const assignmentColumns: ColumnDef<IAssignmentItem>[] = [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner-id')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-id')} />
+    ),
     size: 180,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs">
@@ -72,10 +72,9 @@ export const assignmentColumns: ColumnDef<IAssignmentItem>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
+    ),
     size: 100,
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
@@ -91,10 +90,9 @@ export const assignmentColumns: ColumnDef<IAssignmentItem>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
+    ),
     size: 150,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">

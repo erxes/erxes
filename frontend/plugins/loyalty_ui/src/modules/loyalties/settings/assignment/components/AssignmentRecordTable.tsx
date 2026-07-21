@@ -18,7 +18,7 @@ export const AssignmentRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={assignmentColumns(editStatus)}
+      columns={assignmentColumns(t, editStatus)}
       data={assignments || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}

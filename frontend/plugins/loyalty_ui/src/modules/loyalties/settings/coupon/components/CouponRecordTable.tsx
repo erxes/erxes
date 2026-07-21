@@ -18,7 +18,7 @@ export const CouponRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={couponColumns(editStatus)}
+      columns={couponColumns(t, editStatus)}
       data={coupons || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}
@@ -51,7 +51,9 @@ export const CouponRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-coupons-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-coupons-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
                     {t('get-started-coupon')}
                   </p>

@@ -15,7 +15,7 @@ export const CheckSyncedDealsRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={checkSyncedDealsColumns}
+      columns={checkSyncedDealsColumns(t)}
       data={Deals || []}
       className="m-3"
       stickyColumns={['checkbox', 'toSync', 'createdAt']}

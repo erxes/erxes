@@ -15,9 +15,10 @@ import {
   SelectUOM,
 } from 'ui-modules';
 import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
 
 import { ColumnDef } from '@tanstack/table-core';
+
+import type { TFunction } from 'i18next';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import clsx from 'clsx';
 import { useUpdateProductRecord } from '../hooks/useProductRecord';
@@ -223,124 +224,101 @@ export const ProductDepartmentField = ({
   );
 };
 
-export const taxPercent: ColumnDef<IProductData> = {
+export const taxPercent = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'taxPercent',
   accessorKey: 'taxPercent',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('tax-percent')} />;
-  },
-  cell: ({ cell }) => {
-    return (
-      <RecordTableInlineCell>
-        <ProductCalculatedNumberField
-          value={Number(cell.getValue()) || 0}
-          field="taxPercent"
-          _id={cell.row.original._id}
-          product={cell.row.original}
-        />
-      </RecordTableInlineCell>
-    );
-  },
-  size: 100,
-};
-
-export const tax: ColumnDef<IProductData> = {
-  id: 'tax',
-  accessorKey: 'tax',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('tax')} />;
-  },
-  cell: ({ cell }) => {
-    return (
-      <RecordTableInlineCell>
-        <ProductCalculatedNumberField
-          value={Number(cell.getValue()) || 0}
-          field="tax"
-          _id={cell.row.original._id}
-          product={cell.row.original}
-        />
-      </RecordTableInlineCell>
-    );
-  },
-  size: 100,
-};
-
-export const currency: ColumnDef<IProductData> = {
-  id: 'currency',
-  accessorKey: 'currency',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('currency')} />;
-  },
-  cell: ({ cell }) => {
-    return (
-      <RecordTableInlineCell>
-        <ProductCurrencyField
-          value={cell.getValue() as CurrencyCode}
-          field="currency"
-          product={cell.row.original}
-        />
-      </RecordTableInlineCell>
-    );
-  },
-};
-
-export const uom: ColumnDef<IProductData> = {
-  id: 'uom',
-  accessorKey: 'uom',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('uom')} />;
-  },
-  cell: ({ cell }) => {
-    return (
-      <RecordTableInlineCell>
-        <ProductUOMField
-          value={cell.getValue() as string}
-          field="uom"
-          product={cell.row.original}
-        />
-      </RecordTableInlineCell>
-    );
-  },
-};
-
-export const branch: ColumnDef<IProductData> = {
-  id: 'branchId',
-  accessorKey: 'branchId',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead icon={IconGitBranch} label={t('branch')} />;
-  },
-  cell: ({ cell }) => {
-    return (
-      <ProductBranchField
-        value={cell.getValue() as string}
-        field="branchId"
+  header: () => <RecordTable.InlineHead label={t('tax-percent')} />,
+  cell: ({ cell }) => (
+    <RecordTableInlineCell>
+      <ProductCalculatedNumberField
+        value={Number(cell.getValue()) || 0}
+        field="taxPercent"
+        _id={cell.row.original._id}
         product={cell.row.original}
       />
-    );
-  },
-};
+    </RecordTableInlineCell>
+  ),
+  size: 100,
+});
 
-export const department: ColumnDef<IProductData> = {
+export const tax = (t: TFunction): ColumnDef<IProductData> => ({
+  id: 'tax',
+  accessorKey: 'tax',
+  header: () => <RecordTable.InlineHead label={t('tax')} />,
+  cell: ({ cell }) => (
+    <RecordTableInlineCell>
+      <ProductCalculatedNumberField
+        value={Number(cell.getValue()) || 0}
+        field="tax"
+        _id={cell.row.original._id}
+        product={cell.row.original}
+      />
+    </RecordTableInlineCell>
+  ),
+  size: 100,
+});
+
+export const currency = (t: TFunction): ColumnDef<IProductData> => ({
+  id: 'currency',
+  accessorKey: 'currency',
+  header: () => <RecordTable.InlineHead label={t('currency')} />,
+  cell: ({ cell }) => (
+    <RecordTableInlineCell>
+      <ProductCurrencyField
+        value={cell.getValue() as CurrencyCode}
+        field="currency"
+        product={cell.row.original}
+      />
+    </RecordTableInlineCell>
+  ),
+});
+
+export const uom = (t: TFunction): ColumnDef<IProductData> => ({
+  id: 'uom',
+  accessorKey: 'uom',
+  header: () => <RecordTable.InlineHead label={t('uom')} />,
+  cell: ({ cell }) => (
+    <RecordTableInlineCell>
+      <ProductUOMField
+        value={cell.getValue() as string}
+        field="uom"
+        product={cell.row.original}
+      />
+    </RecordTableInlineCell>
+  ),
+});
+
+export const branch = (t: TFunction): ColumnDef<IProductData> => ({
+  id: 'branchId',
+  accessorKey: 'branchId',
+  header: () => (
+    <RecordTable.InlineHead icon={IconGitBranch} label={t('branch')} />
+  ),
+  cell: ({ cell }) => (
+    <ProductBranchField
+      value={cell.getValue() as string}
+      field="branchId"
+      product={cell.row.original}
+    />
+  ),
+});
+
+export const department = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'departmentId',
   accessorKey: 'departmentId',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead icon={IconBuildingSkyscraper} label={t('department')} />;
-  },
-  cell: ({ cell }) => {
-    return (
-      <RecordTableInlineCell>
-        <ProductDepartmentField
-          value={cell.getValue() as string}
-          field="departmentId"
-          product={cell.row.original}
-        />
-      </RecordTableInlineCell>
-    );
-  },
-};
+  header: () => (
+    <RecordTable.InlineHead
+      icon={IconBuildingSkyscraper}
+      label={t('department')}
+    />
+  ),
+  cell: ({ cell }) => (
+    <RecordTableInlineCell>
+      <ProductDepartmentField
+        value={cell.getValue() as string}
+        field="departmentId"
+        product={cell.row.original}
+      />
+    </RecordTableInlineCell>
+  ),
+});
