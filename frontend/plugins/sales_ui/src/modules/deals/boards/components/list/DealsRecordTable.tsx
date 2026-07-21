@@ -11,6 +11,7 @@ import { useStages } from '@/deals/stage/hooks/useStages';
 export const DealsRecordTable = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');
   const [searchParams] = useSearchParams();
+  const columns = DealsColumn();
 
   const { stages, loading: stagesLoading } = useStages({
     variables: {
@@ -45,7 +46,7 @@ export const DealsRecordTable = () => {
   return (
     <div className="flex flex-col overflow-hidden h-full relative">
       <RecordTable.Provider
-        columns={DealsColumn()}
+        columns={columns}
         data={filteredDeals || (loading ? [{}] : [])}
         className="m-3 h-full"
         stickyColumns={['checkbox', 'name']}
