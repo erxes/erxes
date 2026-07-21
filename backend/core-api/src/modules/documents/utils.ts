@@ -27,23 +27,32 @@ export const prepareContent = ({
   const width = toDimension(paperWidth ?? config?.width);
   const height = toDimension(paperHeight ?? config?.height);
 
-  const pageSize = width ? `${width} ${height || 'auto'}` : 'auto';
-
   const pageStyle = width
     ? `
             @page {
-              size: ${pageSize};
               margin: 0;
             }
             html,
             body {
-              width: ${width};
               margin: 0;
               padding: 0;
+            }
+            .label-item {
+              width: ${width};${
+        height ? `\n              min-height: ${height};` : ''
+      }
+              box-sizing: border-box;
+              overflow: hidden;
             }
             img,
             svg {
               max-width: 100%;
+              height: auto;
+            }
+            table {
+              width: 100%;
+              max-width: 100%;
+              table-layout: fixed;
             }`
     : '';
 
@@ -52,7 +61,11 @@ export const prepareContent = ({
   for (const content of contents) {
     const html = blocksToHtml(content, {});
 
-    htmlContents.push(`<div style="margin-bottom: 2mm">${html}</div>`);
+    htmlContents.push(
+      width
+        ? `<div class="label-item">${html}</div>`
+        : `<div style="margin-bottom: 2mm">${html}</div>`,
+    );
   }
 
   if (copies > 1) {
@@ -63,11 +76,16 @@ export const prepareContent = ({
     htmlContents = [...htmlContents, ...copiedContents];
   }
 
-  return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>${pageStyle}
+  const tableStyles = width
+    ? `
+            table {
+              border-collapse: collapse;
+            }
+            td {
+              padding: 0;
+              border: 0;
+            }`
+    : `
             table {
               border-collapse: collapse;
             }
@@ -80,7 +98,13 @@ export const prepareContent = ({
             td {
               border: 1px solid #ddd;
               padding: 5px 10px;
-            }
+            }`;
+
+  return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>${pageStyle}${tableStyles}
             blockquote {
               margin-left: 0;
               border-left: 2px solid rgb(125, 121, 122);

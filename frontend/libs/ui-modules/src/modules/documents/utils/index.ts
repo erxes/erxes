@@ -12,11 +12,7 @@ export const paper = (size: string, orientation: 'portrait' | 'landscape') => {
   return PAPER_SIZE;
 };
 
-export const layout = (
-  document: string,
-  config: any,
-  iframe: HTMLIFrameElement,
-) => {
+export const buildLayoutHtml = (document: string, config: any) => {
   const { size, margin, scale, orientation } = config;
 
   const SCALE_FACTOR = scale / 100;
@@ -28,24 +24,64 @@ export const layout = (
 
   const pageSize = `${width}mm ${height}mm`;
 
-  const doc = iframe.contentDocument || iframe.contentWindow?.document;
+  const isLabel = width <= 120 && height <= 200;
 
-  if (!doc) return;
+  const styleContent = isLabel
+    ? `
+    @page {
+      size: ${width}mm auto;
+      margin: 0;
+    }
 
-  doc.documentElement.innerHTML = '';
+    * {
+      box-sizing: border-box;
+    }
 
-  const style = doc.createElement('style');
+    html,
+    body {
+      width: ${width}mm;
+      margin: 0;
+      padding: 0;
+      background: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.3;
+    }
 
-  style.innerHTML = `
+    .scaled-content {
+      width: ${width}mm;
+      box-sizing: border-box;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    table {
+      width: 100%;
+      max-width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+
+    @media print {
+      .scaled-content {
+        transform: none !important;
+        zoom: 1 !important;
+      }
+    }
+    `
+    : `
     @page {
       size: ${pageSize};
       margin: ${margin}mm;
     }
-      
+
     * {
       box-sizing: border-box;
     }
-      
+
     body {
       margin: 0;
       padding: 0;
@@ -86,12 +122,22 @@ export const layout = (
     }
   `;
 
-  doc.head.appendChild(style);
+  return `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>${styleContent}</style>
+  </head>
+  <body>
+    <div class="scaled-content">${document}</div>
+  </body>
+</html>`;
+};
 
-  const container = doc.createElement('div');
-
-  container.className = 'scaled-content';
-  container.innerHTML = document;
-
-  doc.body.appendChild(container);
+export const layout = (
+  document: string,
+  config: any,
+  iframe: HTMLIFrameElement,
+) => {
+  iframe.srcdoc = buildLayoutHtml(document, config);
 };
