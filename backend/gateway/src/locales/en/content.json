@@ -489,5 +489,18 @@
   "untitled-tag": "Untitled tag",
   "web-project-created": "Web project created!",
   "web-project-updated": "Web project updated!",
-  "web-project-removed": "Web project removed!"
+  "web-project-removed": "Web project removed!",
+  "unsaved-changes-title": "Discard unsaved changes?",
+  "unsaved-changes-description": "You have unsaved changes in this post. If you leave now, your edits will be lost.",
+  "stay-here": "Stay here",
+  "leave-without-saving": "Leave without saving",
+  "draft-autosaved": "Draft autosaved",
+  "seo-title": "SEO title",
+  "seo-title-placeholder": "Title shown in search results",
+  "seo-title-desc": "Overrides the post title in search engines and link previews. Up to 70 characters.",
+  "seo-description": "SEO description",
+  "seo-description-placeholder": "Description shown in search results",
+  "seo-description-desc": "Shown under the title in search results. Up to 160 characters.",
+  "duplicate": "Duplicate",
+  "post-duplicated-successfully": "Post duplicated as a draft"
 }

@@ -29,15 +29,25 @@ const Preview = () => {
 
   const { watch, trigger } = useFormContext();
 
-  const { _id, replacerIds, copies, size, orientation, scale, margin } =
-    watch();
+  const {
+    _id,
+    replacerIds,
+    copies,
+    size,
+    orientation,
+    scale,
+    margin,
+    width: formWidth,
+    height: formHeight,
+  } = watch();
 
   const [config, setConfig] = useState({
     margin: 15,
     scale: 100,
   });
 
-  const { width, height } = utils.paper(size, orientation);
+  const width = Number(formWidth) || utils.paper(size, orientation).width;
+  const height = Number(formHeight) || utils.paper(size, orientation).height;
 
   const {
     data: { documentsProcess: document } = {},
@@ -77,7 +87,11 @@ const Preview = () => {
     const iframe = iframeRef.current;
     if (!iframe || !document) return;
 
-    utils.layout(document, { size, orientation, ...debouncedConfig }, iframe);
+    utils.layout(
+      document,
+      { size, orientation, width, height, ...debouncedConfig },
+      iframe,
+    );
 
     const container = iframe.contentDocument?.querySelector('.scaled-content');
 
@@ -94,7 +108,7 @@ const Preview = () => {
     resizeObserver.observe(container);
 
     return () => resizeObserver.disconnect();
-  }, [document, size, orientation, debouncedConfig]);
+  }, [document, size, orientation, width, height, debouncedConfig]);
 
   if (loading) {
     return <Spinner />;
@@ -128,6 +142,8 @@ const Preview = () => {
 const Controller = ({ contentType }: { contentType: string }) => {
   const form = useFormContext();
 
+  const size = form.watch('size');
+
   const [items, setItems] = useState<string[]>(['three']);
   const [selectedValues, setSelectedValues] = useState<Record<string, any>>({});
 
@@ -148,10 +164,14 @@ const Controller = ({ contentType }: { contentType: string }) => {
       const value = values[name as keyof typeof values];
 
       const selectedValue =
-        selectedValues[value as keyof typeof selectedValues] || value;
+        name === 'size'
+          ? value === 'CUSTOM'
+            ? `${values.width} × ${values.height} mm`
+            : PAPER_SIZES[value as keyof typeof PAPER_SIZES]?.label || value
+          : selectedValues[value as keyof typeof selectedValues] || value;
 
       if (selectedValue) {
-        if (replacer === 'value') {
+        if (replacer === 'value' || name === 'size') {
           strings.push(selectedValue);
         } else {
           strings.push(`${selectedValue} ${showAll ? keyName : ''}`);
@@ -176,7 +196,7 @@ const Controller = ({ contentType }: { contentType: string }) => {
               <div className="flex flex-col gap-2">
                 <Form.Label>Copies & Width</Form.Label>
                 <Form.Description className="leading-5 capitalize">
-                  {renderDescription('one', ['copies', 'width'])}
+                  {renderDescription('one', ['copies'])}
                 </Form.Description>
               </div>
             </Accordion.Trigger>
@@ -193,25 +213,6 @@ const Controller = ({ contentType }: { contentType: string }) => {
                         min={1}
                         type="number"
                         placeholder="Copies"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="width"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{field.name}</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        value={field.value as number}
-                        type="number"
-                        min={100}
-                        max={1200}
-                        placeholder="Width"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -244,11 +245,14 @@ const Controller = ({ contentType }: { contentType: string }) => {
                       <Select
                         {...field}
                         onValueChange={(value) => {
-                          form.setValue(
-                            'width',
-                            PAPER_SIZES[value as keyof typeof PAPER_SIZES]
-                              .width,
-                          );
+                          const paperSize =
+                            PAPER_SIZES[value as keyof typeof PAPER_SIZES];
+
+                          if (paperSize) {
+                            form.setValue('width', paperSize.width);
+                            form.setValue('height', paperSize.height);
+                            form.setValue('margin', paperSize.margin);
+                          }
 
                           field.onChange(value);
                         }}
@@ -258,11 +262,14 @@ const Controller = ({ contentType }: { contentType: string }) => {
                             <Select.Value placeholder="Select paper size" />
                           </Select.Trigger>
                           <Select.Content>
-                            {Object.keys(PAPER_SIZES).map((key) => (
-                              <Select.Item key={key} value={key}>
-                                {key}
-                              </Select.Item>
-                            ))}
+                            {Object.entries(PAPER_SIZES).map(
+                              ([key, { label }]) => (
+                                <Select.Item key={key} value={key}>
+                                  {label}
+                                </Select.Item>
+                              ),
+                            )}
+                            <Select.Item value="CUSTOM">Custom size</Select.Item>
                           </Select.Content>
                         </div>
                       </Select>
@@ -271,6 +278,48 @@ const Controller = ({ contentType }: { contentType: string }) => {
                   </Form.Item>
                 )}
               />
+              {size === 'CUSTOM' && (
+                <div className="flex gap-3">
+                  <Form.Field
+                    name="width"
+                    render={({ field }) => (
+                      <Form.Item className="flex-1">
+                        <Form.Label>Width (mm)</Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            value={field.value as number}
+                            type="number"
+                            min={10}
+                            max={1000}
+                            placeholder="Width (mm)"
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    name="height"
+                    render={({ field }) => (
+                      <Form.Item className="flex-1">
+                        <Form.Label>Height (mm)</Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            value={field.value as number}
+                            type="number"
+                            min={10}
+                            max={1000}
+                            placeholder="Height (mm)"
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              )}
               <Form.Field
                 name="margin"
                 rules={{
@@ -512,6 +561,7 @@ export const PrintDocument = (props: Props) => {
     defaultValues: {
       copies: 1,
       width: PAPER_SIZES.A4.width,
+      height: PAPER_SIZES.A4.height,
       orientation: 'portrait',
       margin: 15,
       scale: 100,

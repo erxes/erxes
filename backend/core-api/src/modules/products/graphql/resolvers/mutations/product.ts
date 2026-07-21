@@ -48,10 +48,6 @@ export const productMutations = {
   ) {
     await checkPermission('productsDelete');
 
-    console.log(
-      `[graphql:productsRemove] called with ${productIds?.length ?? 0} id(s)`,
-    );
-
     return models.Products.removeProducts(productIds);
   },
 

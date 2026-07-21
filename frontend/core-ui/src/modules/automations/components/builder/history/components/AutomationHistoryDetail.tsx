@@ -1,5 +1,10 @@
 import { AutomationHistoryByFlow } from '@/automations/components/builder/history/components/AutomationHistoryByFlow';
 import { AutomationHistoryByTable } from '@/automations/components/builder/history/components/AutomationHistoryByTable';
+import { AutomationHistoryResultName } from '@/automations/components/builder/history/components/AutomationHistoryResultName';
+import {
+  AutomationExecutionDetailProvider,
+  useAutomationExecutionDetail,
+} from '@/automations/components/builder/history/context/AutomationExecutionDetailContext';
 import { AutomationHistoryDetailProvider } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
 import {
   IconAutomaticGearbox,
@@ -34,33 +39,56 @@ export const AutomationHistoryDetail = ({
   );
 };
 
+const AutomationHistorySheetHeader = () => {
+  return (
+    <Sheet.Header>
+      <div>
+        <div className="flex items-center gap-2">
+          <Sheet.Title>Execution history</Sheet.Title>
+        </div>
+        <Sheet.Description>
+          View the execution log of your automation in table or flow format.
+        </Sheet.Description>
+      </div>
+      <Sheet.Close />
+    </Sheet.Header>
+  );
+};
+
+const AutomationHistorySheetResultName = () => {
+  const { executionDetail } = useAutomationExecutionDetail();
+  if (!executionDetail) {
+    return null;
+  }
+
+  return (
+    <div>
+      <AutomationHistoryResultName executionDetail={executionDetail} />
+    </div>
+  );
+};
 const AutomationHistorySheetContent = ({ isOpen }: { isOpen: boolean }) => {
   if (!isOpen) {
     return null;
   }
   return (
-    <>
-      <Sheet.Header>
-        <div>
-          <Sheet.Title>Execution history</Sheet.Title>
-          <Sheet.Description>
-            View the execution log of your automation in table or flow format.
-          </Sheet.Description>
-        </div>
-        <Sheet.Close />
-      </Sheet.Header>
+    <AutomationExecutionDetailProvider>
+      <AutomationHistorySheetHeader />
       <Sheet.Content>
         <Tabs defaultValue="table" className="h-full">
-          <Tabs.List className="w-full">
-            <Tabs.Trigger value="table">
-              <IconAutomaticGearbox />
-              View as table
-            </Tabs.Trigger>
-            <Tabs.Trigger value="flow">
-              <IconTournament className="scale-x-[-1]" />
-              View as flow
-            </Tabs.Trigger>
-          </Tabs.List>
+          <div className="w-full flex items-center justify-between p-2 border-b">
+            <Tabs.List variant="segment">
+              <Tabs.Trigger value="table">
+                <IconAutomaticGearbox />
+                View as table
+              </Tabs.Trigger>
+              <Tabs.Trigger value="flow">
+                <IconTournament className="scale-x-[-1]" />
+                View as flow
+              </Tabs.Trigger>
+            </Tabs.List>
+            <AutomationHistorySheetResultName />
+          </div>
           <Tabs.Content value="flow" className="h-[calc(100%-36px)]">
             <AutomationHistoryByFlow />
           </Tabs.Content>
@@ -70,6 +98,6 @@ const AutomationHistorySheetContent = ({ isOpen }: { isOpen: boolean }) => {
           </Tabs.Content>
         </Tabs>
       </Sheet.Content>
-    </>
+    </AutomationExecutionDetailProvider>
   );
 };

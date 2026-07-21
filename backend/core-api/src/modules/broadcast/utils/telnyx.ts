@@ -90,11 +90,13 @@ export const prepareNotificationStats = async (
   models: IModels,
   engageMessageId: string,
 ) => {
-  const clientPortalNotifications = 0; // models.ClientPortalNotifications.countDocuments({ isRead: true, groupId: engageMessageId })
+  const read = await models.CPNotifications.countDocuments({
+    contentTypeId: engageMessageId,
+    contentType: 'core:broadcast',
+    isRead: true,
+  });
 
-  const result: any = { read: clientPortalNotifications || 0 };
-
-  return result;
+  return { read };
 };
 
 // alphanumeric sender id only works for countries outside north america

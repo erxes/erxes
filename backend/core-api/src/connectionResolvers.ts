@@ -254,6 +254,16 @@ import {
   loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
 import {
+  IApprovalLockModel,
+  loadApprovalLockClass,
+} from '@/approval/db/models/ApprovalLocks';
+import {
+  IApprovalRequestModel,
+  loadApprovalRequestClass,
+} from '@/approval/db/models/ApprovalRequests';
+import { IApprovalLockDocument } from '@/approval/db/definitions/approvalLocks';
+import { IApprovalRequestDocument } from '@/approval/db/definitions/approvalRequests';
+import {
   ITemplateCategoryModal,
   loadTemplateCategoryClass,
 } from '@/template/db/models/Category';
@@ -327,6 +337,8 @@ export interface IModels {
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
   PermissionGroups: IPermissionGroupModel;
+  ApprovalLocks: IApprovalLockModel;
+  ApprovalRequests: IApprovalRequestModel;
 
   NotificationSettings: Model<NotificationSettings>;
 
@@ -671,6 +683,16 @@ export const loadClasses = (
     IPermissionGroupDocument,
     IPermissionGroupModel
   >('permission_groups', loadPermissionGroupClass(models));
+
+  models.ApprovalLocks = db.model<IApprovalLockDocument, IApprovalLockModel>(
+    'approval_locks',
+    loadApprovalLockClass(models),
+  );
+
+  models.ApprovalRequests = db.model<
+    IApprovalRequestDocument,
+    IApprovalRequestModel
+  >('approval_requests', loadApprovalRequestClass(models));
 
   models.Template = db.model<ITemplateDocument, ITemplateModal>(
     'templates',

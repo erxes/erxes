@@ -14,6 +14,7 @@ import { couponExportHandlers } from '~/modules/coupon/meta/import-export/export
 import { automationMeta } from './meta/automations';
 import { permissions } from '~/meta/permissions';
 import { loyaltyReferences } from '~/meta/references';
+import { afterProcess } from '~/meta/afterProcess';
 
 startPlugin({
   name: 'loyalty',
@@ -44,32 +45,34 @@ startPlugin({
   },
   meta: {
     automations: automationMeta,
+    afterProcess,
     permissions,
     references: loyaltyReferences,
-  },
-  importExport: {
-    export: {
-      types: [
-        {
-          label: 'Coupon',
-          contentType: 'loyalty:coupon.coupon',
-          permissions: ['couponExportManage'],
-        },
-      ],
-      getExportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { coupon: couponExportHandlers },
-        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
-        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-      getExportData: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { coupon: couponExportHandlers },
-        methodName: TImportExportProducers.GET_EXPORT_DATA,
-        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
-        generateModels,
-      }),
+    importExport: {
+      export: {
+        types: [
+          {
+            label: 'Coupon',
+            contentType: 'loyalty:coupon.coupon',
+            permissions: ['couponExportManage'],
+          },
+        ],
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { coupon: couponExportHandlers },
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { coupon: couponExportHandlers },
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
+      },
     },
   },
 });

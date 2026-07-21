@@ -89,6 +89,41 @@ export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
   ) {
     return models.CPUser.findOne({ _id }).lean();
   },
+  async checkTokiUserLegalAge(_root, { token }, _context: IContext) {
+    const apiKey = process.env.TOKI_API_KEY;
+    const apiUrl = process.env.TOKI_API_URL;
+
+    if (!apiKey) {
+      throw new Error('Toki api key is not set');
+    }
+
+    if (!apiUrl) {
+      throw new Error('Toki API URL is not set');
+    }
+
+    const response = await fetch(
+      `https://${apiUrl}/third-party-service/v1/shoppy/user`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'api-key': apiKey,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Toki API error: ${text}`);
+    }
+
+    const data = await response.json();
+
+    const age = data?.data?.age ?? data?.age;
+
+    return age >= 21;
+  },
 };
 
 cpUserQueries.clientPortalCurrentUser.wrapperConfig = {

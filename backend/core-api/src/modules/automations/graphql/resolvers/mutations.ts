@@ -4,6 +4,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import {
   mergeAiAgentConnectionSecrets,
   sanitizeAiAgent,
@@ -13,6 +14,17 @@ import {
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
+const requestScheduleReconcile = async (subdomain: string) => {
+  try {
+    await sendWorkerQueue('automations', 'schedule').add(
+      'reconcile-recurring-automations',
+      { kind: 'reconcile', subdomain },
+      { removeOnComplete: 10, removeOnFail: 10 },
+    );
+  } catch {
+    // The recurring scheduler retries reconciliation every 60 seconds.
+  }
+};
 
 export const automationMutations = {
   /**
@@ -21,7 +33,7 @@ export const automationMutations = {
   async automationsAdd(
     _root,
     doc: IAutomation,
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsCreate');
 
@@ -31,6 +43,7 @@ export const automationMutations = {
       createdBy: user._id,
       updatedBy: user._id,
     });
+    await requestScheduleReconcile(subdomain);
 
     return models.Automations.getAutomation(automation._id);
   },
@@ -41,7 +54,7 @@ export const automationMutations = {
   async automationsEdit(
     _root,
     { _id, ...doc }: IAutomationsEdit,
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
 
@@ -50,10 +63,19 @@ export const automationMutations = {
       throw new Error('Automation not found');
     }
 
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
+      contentId: _id,
+      ownerId: automation.createdBy,
+      action: 'edit',
+    });
+
     await models.Automations.updateOne(
       { _id },
       { $set: { ...doc, updatedAt: new Date(), updatedBy: user._id } },
     );
+    await requestScheduleReconcile(subdomain);
 
     return models.Automations.getAutomation(_id);
   },
@@ -65,9 +87,23 @@ export const automationMutations = {
   async archiveAutomations(
     _root,
     { automationIds, isRestore },
-    { models, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
+
+    const automations = await models.Automations.find({
+      _id: { $in: automationIds },
+    }).lean();
+
+    for (const automation of automations) {
+      await models.ApprovalLocks.assertAccess({
+        user,
+        contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
+        contentId: automation._id,
+        ownerId: automation.createdBy,
+        action: 'edit',
+      });
+    }
 
     await models.Automations.updateMany(
       { _id: { $in: automationIds } },
@@ -79,6 +115,7 @@ export const automationMutations = {
         },
       },
     );
+    await requestScheduleReconcile(subdomain);
     return automationIds;
   },
   /**
@@ -87,13 +124,23 @@ export const automationMutations = {
   async automationsRemove(
     _root,
     { automationIds }: { automationIds: string[] },
-    { models, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsDelete');
 
     const automations = await models.Automations.find({
       _id: { $in: automationIds },
     });
+
+    for (const automation of automations) {
+      await models.ApprovalLocks.assertAccess({
+        user,
+        contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
+        contentId: automation._id,
+        ownerId: automation.createdBy,
+        action: 'delete',
+      });
+    }
 
     let segmentIds: string[] = [];
 
@@ -115,6 +162,7 @@ export const automationMutations = {
     await models.AutomationExecutions.removeExecutions(automationIds);
 
     await models.Segments.deleteMany({ _id: { $in: segmentIds } });
+    await requestScheduleReconcile(subdomain);
 
     return automationIds;
   },
@@ -135,7 +183,7 @@ export const automationMutations = {
   async automationsAiAgentEdit(
     _root,
     { _id, ...doc },
-    { models, subdomain, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('automationsAiAgentEdit');
 
@@ -144,6 +192,13 @@ export const automationMutations = {
     if (!currentAgent) {
       throw new Error('AI agent not found');
     }
+
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentId: _id,
+      action: 'edit',
+    });
 
     const mergedDoc = mergeAiAgentConnectionSecrets(currentAgent, doc);
 
@@ -166,7 +221,7 @@ export const automationMutations = {
   async automationsAiAgentRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('automationsAiAgentRemove');
 
@@ -175,6 +230,13 @@ export const automationMutations = {
     if (!agent) {
       throw new Error('AI agent not found');
     }
+
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentId: _id,
+      action: 'delete',
+    });
 
     await models.AiAgents.deleteOne({ _id });
     await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: _id });
@@ -185,13 +247,20 @@ export const automationMutations = {
   async automationsAiAgentReindex(
     _root,
     { _id, fileId }: { _id: string; fileId?: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const agent = await models.AiAgents.findOne({ _id }).lean();
 
     if (!agent) {
       throw new Error('AI agent not found');
     }
+
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentId: _id,
+      action: 'edit',
+    });
 
     if (
       fileId &&

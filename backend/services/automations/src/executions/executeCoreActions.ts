@@ -140,6 +140,12 @@ export const executeCoreActions = async (
       execAction.nextActionId = aiResponse.nextActionId;
     }
 
+    // Classification found nothing — downstream actions would only receive
+    // empty values, so stop this execution here.
+    if (aiResponse?.attributesEmpty) {
+      execAction.nextActionId = undefined;
+    }
+
     actionResponse = aiResponse?.result ?? aiResponse;
   }
   return { actionResponse, shouldBreak };

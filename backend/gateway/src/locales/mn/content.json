@@ -489,5 +489,18 @@
   "untitled-tag": "Нэргүй шошго",
   "web-project-created": "Вэб төсөл үүслээ!",
   "web-project-updated": "Вэб төсөл шинэчлэгдлээ!",
-  "web-project-removed": "Вэб төсөл устгагдлаа!"
+  "web-project-removed": "Вэб төсөл устгагдлаа!",
+  "unsaved-changes-title": "Хадгалаагүй өөрчлөлтийг устгах уу?",
+  "unsaved-changes-description": "Энэ нийтлэлд хадгалаагүй өөрчлөлт байна. Одоо гарвал таны засварууд устана.",
+  "stay-here": "Үлдэх",
+  "leave-without-saving": "Хадгалахгүйгээр гарах",
+  "draft-autosaved": "Ноорог автоматаар хадгалагдлаа",
+  "seo-title": "SEO гарчиг",
+  "seo-title-placeholder": "Хайлтын үр дүнд харагдах гарчиг",
+  "seo-title-desc": "Хайлтын систем болон холбоосын урьдчилсан харагдацад нийтлэлийн гарчгийг орлоно. Дээд тал нь 70 тэмдэгт.",
+  "seo-description": "SEO тайлбар",
+  "seo-description-placeholder": "Хайлтын үр дүнд харагдах тайлбар",
+  "seo-description-desc": "Хайлтын үр дүнд гарчгийн доор харагдана. Дээд тал нь 160 тэмдэгт.",
+  "duplicate": "Хувилах",
+  "post-duplicated-successfully": "Нийтлэл ноорог болж хувилагдлаа"
 }

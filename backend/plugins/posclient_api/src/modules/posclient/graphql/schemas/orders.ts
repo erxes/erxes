@@ -45,6 +45,8 @@ export const orderTypeFields = `
   origin: String
   customer: PosCustomer
   customerType: String,
+  brokerId: String,
+  brokerType: String,
   items: [PosOrderItem]
   user: PosUser
   putResponses: [PosPutResponse]
@@ -64,6 +66,8 @@ const addEditParams = `
   branchId: String,
   customerId: String,
   customerType: String,
+  brokerId: String,
+  brokerType: String,
   deliveryInfo: JSON,
   billType: String,
   registerNumber: String,
@@ -225,6 +229,7 @@ export const mutations = `
   cpOrdersEdit(_id: String!, ${addEditParams}): Order
   cpOrderChangeSaleStatus(_id: String!, saleStatus: String): Order
   cpOrdersCancel(_id: String!): JSON
+  cpOrdersAddPayment(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: [PaidAmountInput] ): Order
 `;
 
 export const queries = `

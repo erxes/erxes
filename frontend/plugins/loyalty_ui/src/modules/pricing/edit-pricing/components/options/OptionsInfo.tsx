@@ -27,7 +27,11 @@ interface OptionsFormValues {
   pipelineId: string;
 }
 
-interface OptionsSnapshot extends OptionsFormValues {
+interface OptionsSnapshot {
+  departmentIds: string[];
+  branchIds: string[];
+  boardId: string;
+  pipelineId: string;
   repeatRules: RepeatRuleConfig[];
 }
 
@@ -214,25 +218,17 @@ export const OptionsInfo = ({
     const branchIds = pricingDetail.branchIds || [];
     const rules = getRepeatRules(pricingDetail);
 
-    reset({
+    const values: OptionsFormValues = {
       departmentIds,
       branchIds,
       boardId: pricingDetail.boardId || '',
       pipelineId: pricingDetail.pipelineId || '',
-    });
+    };
+
+    reset(values);
 
     setRepeatRules(rules);
-    setInitialSnapshot(
-      getOptionsSnapshot({
-        values: {
-          departmentIds,
-          branchIds,
-          boardId: pricingDetail.boardId || '',
-          pipelineId: pricingDetail.pipelineId || '',
-        },
-        repeatRules: rules,
-      }),
-    );
+    setInitialSnapshot(getOptionsSnapshot({ values, repeatRules: rules }));
   }, [pricingDetail, reset]);
 
   useEffect(() => {
@@ -328,22 +324,16 @@ export const OptionsInfo = ({
         repeatRules: nextRepeatRules,
       });
 
-      reset({
+      const savedValues: OptionsFormValues = {
         departmentIds,
         branchIds,
         boardId: boardId || '',
         pipelineId: pipelineId || '',
-      });
+      };
+
+      reset(savedValues);
       setInitialSnapshot(
-        getOptionsSnapshot({
-          values: {
-            departmentIds,
-            branchIds,
-            boardId: boardId || '',
-            pipelineId: pipelineId || '',
-          },
-          repeatRules,
-        }),
+        getOptionsSnapshot({ values: savedValues, repeatRules }),
       );
 
       toast({
@@ -372,9 +362,7 @@ export const OptionsInfo = ({
             >
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">
-                  {t('location')}
-                </Label>
+                <Label className="mx-2">{t('location')}</Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -385,9 +373,7 @@ export const OptionsInfo = ({
                     name="branchIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>
-                          {t('branches-caps')}
-                        </Form.Label>
+                        <Form.Label>{t('branches-caps')}</Form.Label>
                         <Form.Control>
                           <SelectBranches.FormItem
                             mode="multiple"
@@ -403,9 +389,7 @@ export const OptionsInfo = ({
                     name="departmentIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>
-                          {t('departments-caps')}
-                        </Form.Label>
+                        <Form.Label>{t('departments-caps')}</Form.Label>
                         <Form.Control>
                           <SelectDepartments.FormItem
                             mode="multiple"
@@ -421,9 +405,7 @@ export const OptionsInfo = ({
 
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">
-                  {t('pipeline')}
-                </Label>
+                <Label className="mx-2">{t('pipeline')}</Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -434,9 +416,7 @@ export const OptionsInfo = ({
                     name="boardId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>
-                          {t('board-caps')}
-                        </Form.Label>
+                        <Form.Label>{t('board-caps')}</Form.Label>
                         <Form.Control>
                           <SelectBoardFormItem
                             value={field.value}
@@ -453,9 +433,7 @@ export const OptionsInfo = ({
                     name="pipelineId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>
-                          {t('pipeline-caps')}
-                        </Form.Label>
+                        <Form.Label>{t('pipeline-caps')}</Form.Label>
                         <Form.Control>
                           <SelectPipelineFormItem
                             value={field.value}
@@ -472,9 +450,7 @@ export const OptionsInfo = ({
 
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">
-                  {t('repeat')}
-                </Label>
+                <Label className="mx-2">{t('repeat')}</Label>
                 <div className="flex-1 border-t" />
               </div>
 

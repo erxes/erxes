@@ -6,7 +6,7 @@ import {
   IconPlus,
   IconGripVertical,
 } from '@tabler/icons-react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DndContext,
@@ -30,6 +30,9 @@ import {
   ICustomField,
   FIELD_TYPES_OBJECT,
 } from '../types/customFieldTypes';
+import { useSyncedState } from '../hooks/useSyncedState';
+
+const EMPTY_FIELDS: ICustomField[] = [];
 
 interface CustomFieldGroupItemProps {
   group: ICustomFieldGroup;
@@ -149,16 +152,9 @@ export function CustomFieldGroupItem({
   dragHandleProps,
 }: CustomFieldGroupItemProps) {
   const { t } = useTranslation('content');
-  const groupFields = group.fields || [];
+  const groupFields = group.fields || EMPTY_FIELDS;
 
-  // Local order so a drag-drop reflects immediately; re-synced whenever the
-  // stored fields change. Depend on the `group.fields` reference (stable from
-  // the Apollo cache until the data changes) rather than just the set of field
-  // ids, so edits to a field's label/type/options show without a page refresh.
-  const [fields, setFields] = useState(groupFields);
-  useEffect(() => {
-    setFields(group.fields || []);
-  }, [group.fields]);
+  const [fields, setFields] = useSyncedState(groupFields);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),

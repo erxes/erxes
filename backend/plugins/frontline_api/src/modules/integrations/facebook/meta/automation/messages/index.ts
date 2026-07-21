@@ -147,9 +147,7 @@ export const checkMessageTrigger = async (
           );
         }
 
-        // When no direct-message conditions are configured, any non-empty text
-        // message should be able to trigger the automation.
-        if (String(target?.content || '').trim()) {
+        if (String(target?.content || '').trim() && !payload?.btnId) {
           return true;
         }
       }

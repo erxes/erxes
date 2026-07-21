@@ -52,6 +52,13 @@
         "build"
       ],
       "command": "docker build -f backend/plugins/loyalty_api/Dockerfile . -t erxes/erxes-next-loyalty_api"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "backend/plugins/loyalty_api/jest.config.ts"
+      }
     }
   }
 }

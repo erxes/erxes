@@ -8,7 +8,7 @@ import {
   cn,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import {
@@ -39,7 +39,9 @@ import { FieldGroupDrawer } from './components/field-group-drawer/FieldGroupDraw
 import { FieldDrawer } from './components/field-drawer/FieldDrawer';
 import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
+import { useSyncedState } from './hooks/useSyncedState';
 
+/** Provides drag positioning and handle props for a custom-field group. */
 function SortableGroup({
   group,
   children,
@@ -93,15 +95,8 @@ export function CustomFields() {
   } = useCustomFieldGroups(websiteId);
 
   // Local order so a drop reflects immediately (no snap-back while the
-  // persisted order round-trips); re-synced whenever the stored data changes.
-  // `groups` is memoized in the hook, so its reference only changes when the
-  // underlying list changes (add/remove/edit of a group, or of a field within
-  // a group). Depending on the array reference — rather than just the set of
-  // ids — ensures label/field edits are reflected without a page refresh.
-  const [orderedGroups, setOrderedGroups] = useState(groups);
-  useEffect(() => {
-    setOrderedGroups(groups);
-  }, [groups]);
+  // persisted order round-trips); re-synced whenever the stored order changes.
+  const [orderedGroups, setOrderedGroups] = useSyncedState(groups);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),

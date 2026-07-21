@@ -179,10 +179,13 @@ export const generateStandarConnection = (
 export const checkValidOptionalConnect = (
   source: Node<NodeData>,
   target: Node<NodeData>,
+  optionalConnectId?: string,
 ) => {
   return !(source?.data.config?.optionalConnects || []).find(
-    ({ sourceId, actionId }: TAutomationOptionalConnect) =>
-      sourceId === source.id && actionId === target.id,
+    (optConnect: TAutomationOptionalConnect) =>
+      optConnect.sourceId === source.id &&
+      optConnect.actionId === target.id &&
+      optConnect.optionalConnectId === optionalConnectId,
   );
 };
 

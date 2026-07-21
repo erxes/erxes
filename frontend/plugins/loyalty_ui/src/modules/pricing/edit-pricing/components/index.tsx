@@ -13,6 +13,14 @@ export const DISCOUNT_TYPES: { value: DiscountType; label: string }[] = [
   { value: 'bonus', label: 'bonus' },
 ];
 
+// Used for quantity/price/expiry sub-rule sheets — 'fixed' is only valid on the Common tab
+export const RULE_DISCOUNT_TYPES: { value: DiscountType; label: string }[] = [
+  { value: 'default', label: 'default' },
+  { value: 'subtraction', label: 'subtraction' },
+  { value: 'percentage', label: 'percentage' },
+  { value: 'bonus', label: 'bonus' },
+];
+
 export type PriceAdjustType =
   | 'none'
   | 'round'
@@ -36,5 +44,6 @@ export const PRICE_ADJUST_TYPES: {
 export const PRICING_STEPS = [
   { value: 'general', title: 'general' },
   { value: 'options', title: 'options' },
+  { value: 'participants', title: 'participants' },
   { value: 'rules', title: 'rules' },
 ];

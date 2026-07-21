@@ -63,6 +63,9 @@ const command = async () => {
   db = client.db(targetDbName) as Db;
   Products = db.collection('products');
 
+  const totalProducts = await Products.countDocuments();
+  console.log(`Connected products collection has ${totalProducts} document(s).`);
+
   try {
     const duplicateGroups = await Products.aggregate([
       { $match: { name: { $exists: true, $nin: [null, ''] } } },

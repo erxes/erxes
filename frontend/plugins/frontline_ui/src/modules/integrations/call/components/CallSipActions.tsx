@@ -9,8 +9,9 @@ import {
   IconPlayerPause,
   IconPlayerPlay,
   IconPower,
+  IconRefresh,
 } from '@tabler/icons-react';
-import { Badge, Button } from 'erxes-ui';
+import { Badge, Button, Tooltip } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -28,21 +29,47 @@ export const TurnOffButton = () => {
   const { t } = useTranslation('frontline');
   const sipState = useAtomValue(sipStateAtom);
   const setCallInfo = useSetAtom(callInfoAtom);
-  const { unregisterSip, registerSip } = useSip();
+  const { unregisterSip, registerSip, reconnectSip } = useSip();
 
-  const isConnected = sipState?.sipStatus === SipStatusEnum.REGISTERED;
+  const isRegistered = sipState?.sipStatus === SipStatusEnum.REGISTERED;
+  const canRegister = sipState?.sipStatus === SipStatusEnum.CONNECTED;
+  const needsReconnect =
+    sipState?.sipStatus === SipStatusEnum.ERROR ||
+    sipState?.sipStatus === SipStatusEnum.DISCONNECTED;
 
   const handleConnection = () => {
-    isConnected ? unregisterSip() : registerSip();
-    setCallInfo((prev) => ({
-      ...prev,
-      isUnregistered: isConnected,
-    }));
+    if (isRegistered) {
+      unregisterSip();
+      setCallInfo((prev) => ({ ...prev, isUnregistered: true }));
+    } else if (canRegister) {
+      registerSip();
+      setCallInfo((prev) => ({ ...prev, isUnregistered: false }));
+    }
   };
 
+  if (needsReconnect) {
+    return (
+      <Button
+        size="sm"
+        variant="secondary"
+        onClick={() => {
+          setCallInfo((prev) => ({ ...prev, isUnregistered: false }));
+          reconnectSip();
+        }}
+      >
+        <IconRefresh /> {t('reconnect')}
+      </Button>
+    );
+  }
+
   return (
-    <Button size="sm" variant="secondary" onClick={handleConnection}>
-      <IconPower /> {isConnected ? t('turn-off') : t('turn-on')}
+    <Button
+      size="sm"
+      variant="secondary"
+      onClick={handleConnection}
+      disabled={!isRegistered && !canRegister}
+    >
+      <IconPower /> {isRegistered ? t('turn-off') : t('turn-on')}
     </Button>
   );
 };
@@ -68,8 +95,36 @@ export const SipPauseButton = () => {
 export const SipStatusBadge = () => {
   const { t } = useTranslation('frontline');
   const sipState = useAtomValue(sipStateAtom);
+  const callInfo = useAtomValue(callInfoAtom);
+  const { sipStatus, sipErrorMessage } = sipState || {};
 
-  const isConnected = sipState?.sipStatus === SipStatusEnum.REGISTERED;
+  const isManuallyTurnedOff =
+    sipStatus === SipStatusEnum.CONNECTED && callInfo?.isUnregistered;
+
+  if (
+    !isManuallyTurnedOff &&
+    (sipStatus === SipStatusEnum.CONNECTING ||
+      sipStatus === SipStatusEnum.CONNECTED)
+  ) {
+    return <Badge variant="warning">{t('connecting')}</Badge>;
+  }
+
+  if (sipStatus === SipStatusEnum.ERROR) {
+    return (
+      <Tooltip.Provider>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <Badge variant="destructive">{t('connection-error')}</Badge>
+          </Tooltip.Trigger>
+          {sipErrorMessage && (
+            <Tooltip.Content>{sipErrorMessage}</Tooltip.Content>
+          )}
+        </Tooltip>
+      </Tooltip.Provider>
+    );
+  }
+
+  const isConnected = sipStatus === SipStatusEnum.REGISTERED;
 
   return (
     <Badge variant={isConnected ? 'success' : 'destructive'}>

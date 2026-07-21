@@ -30,6 +30,24 @@ export const CREATE_TICKET = gql`
       attachments: $attachments
     ) {
       _id
+      name
+      description
+      statusId
+      priority
+      labelIds
+      tagIds
+      assigneeId
+      userId
+      startDate
+      targetDate
+      createdAt
+      createdBy
+      updatedAt
+      channelId
+      statusChangedDate
+      number
+      pipelineId
+      state
     }
   }
 `;

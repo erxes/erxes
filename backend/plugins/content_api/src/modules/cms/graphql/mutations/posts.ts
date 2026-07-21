@@ -1,5 +1,7 @@
+import { Model } from 'mongoose';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { POST_REACTION_TYPES, PostReactionType } from '@/cms/@types/posts';
+import { ITranslation } from '@/cms/@types/translations';
 import { IContext } from '~/connectionResolvers';
 import {
   assertOwnedDocument,
@@ -25,10 +27,23 @@ const getDefaultLanguage = async (
   return cms?.language;
 };
 
+// Translation entries arrive from PostInput without an objectId; it is
+// assigned from the saved post before upserting.
+type TPostTranslationInput = Omit<ITranslation, 'objectId'> & {
+  objectId?: string;
+};
+
+// Minimal shape shared by every document type that supports translations.
+type TTranslatableDocument = {
+  _id: string;
+  clientPortalId: string;
+  authorId?: string | null;
+};
+
 const saveTranslations = async (
   models: IContext['models'],
   objectId: string,
-  translations: any[],
+  translations: TPostTranslationInput[],
 ) => {
   if (!Array.isArray(translations) || translations.length === 0) return;
 
@@ -93,7 +108,9 @@ export const postMutations: Record<string, Resolver> = {
 
       const fallback =
         (defaultLanguage &&
-          translations.find((t: any) => t?.language === defaultLanguage)) ||
+          translations.find(
+            (t: TPostTranslationInput) => t?.language === defaultLanguage,
+          )) ||
         translations[0];
 
       if (fallback) {
@@ -166,7 +183,9 @@ export const postMutations: Record<string, Resolver> = {
 
       const fallback =
         (defaultLanguage &&
-          translations.find((t: any) => t?.language === defaultLanguage)) ||
+          translations.find(
+            (t: TPostTranslationInput) => t?.language === defaultLanguage,
+          )) ||
         translations[0];
 
       if (fallback) {
@@ -227,7 +246,11 @@ export const postMutations: Record<string, Resolver> = {
       const defaultLanguage = rawDefault || 'en';
 
       if (language !== defaultLanguage) {
-        const translationDoc: any = { objectId: _id, language, type: 'post' };
+        const translationDoc: ITranslation = {
+          objectId: _id,
+          language,
+          type: 'post',
+        };
 
         if (postInput.title !== undefined)
           translationDoc.title = postInput.title;
@@ -253,9 +276,9 @@ export const postMutations: Record<string, Resolver> = {
 
         const post = await models.Posts.updatePost(_id, safePostInput);
 
-        const remainingTranslations = (translations || []).filter(
-          (t: any) => t?.language !== language,
-        );
+        const remainingTranslations = (
+          (translations || []) as TPostTranslationInput[]
+        ).filter((t) => t?.language !== language);
         await saveTranslations(models, _id, remainingTranslations);
 
         return post;
@@ -363,6 +386,38 @@ export const postMutations: Record<string, Resolver> = {
     return updatedPost;
   },
 
+  cmsPostsDuplicate: async (_parent, args, context: IContext) => {
+    const { models, user } = context;
+    const { _id } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
+
+    await requireCmsPermission(context, [
+      CMS_POST_ACTIONS.createPublished,
+      CMS_POST_ACTIONS.createReview,
+    ]);
+
+    // Duplicating copies the source content, so the user must also be
+    // allowed to read this specific post.
+    await assertCmsDocumentAccess({
+      context,
+      actions: CMS_POST_ACTIONS.read,
+      document: post,
+    });
+
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: post.clientPortalId,
+    });
+
+    return models.Posts.duplicatePost(_id, user._id);
+  },
+
   cmsPostsToggleFeatured: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id } = args;
@@ -426,13 +481,15 @@ export const postMutations: Record<string, Resolver> = {
     const { input } = args;
     const { type } = input;
 
-    const modelMap: Record<string, any> = {
+    // The concrete model classes have divergent generics, so they are widened
+    // to the minimal document shape the translation flow reads.
+    const modelMap = {
       post: models.Posts,
       page: models.Pages,
       category: models.Categories,
       tag: models.PostTags,
       menu: models.MenuItems,
-    };
+    } as unknown as Record<string, Model<TTranslatableDocument>>;
 
     const model = modelMap[type];
     if (!model) throw new Error(`Invalid type: ${type}`);

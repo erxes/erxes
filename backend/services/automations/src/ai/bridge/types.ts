@@ -30,6 +30,7 @@ export type TAiBridgeInvokeInput = {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
+  responseFormat?: 'json' | 'text';
 };
 
 export type TAiBridgeInvokeResult = {

@@ -24,6 +24,7 @@ const generateTextSchema = z.object({
   goalType: z.literal('generateText'),
   prompt: z.string().optional().default(''),
   fallbackText: z.string().optional().default(''),
+  captureFields: z.array(aiAgentObjectFieldSchema).optional().default([]),
 });
 
 const splitTopicSchema = z.object({
@@ -109,6 +110,7 @@ export type TAiActionExecutionResult =
   | {
       type: 'generateText';
       text: string;
+      attributes?: Record<string, unknown>;
       usage?: {
         inputTokens?: number;
         outputTokens?: number;

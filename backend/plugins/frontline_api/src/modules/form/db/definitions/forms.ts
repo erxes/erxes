@@ -95,6 +95,7 @@ export interface IFormSubmission {
   value?: JSON;
   submittedAt?: Date;
   groupId?: string;
+  conversationId?: string;
 }
 
 export interface IFormSubmissionDocument extends IFormSubmission, Document {
@@ -114,6 +115,7 @@ export const formSubmissionSchema = schemaWrapper(
     formId: field({ type: String, optional: true }),
     formFieldId: field({ type: String, optional: true }),
     groupId: field({ type: String, optional: true }),
+    conversationId: field({ type: String, optional: true }),
   }),
 );
 

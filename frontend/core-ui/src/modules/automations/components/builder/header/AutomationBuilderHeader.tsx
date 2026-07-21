@@ -2,6 +2,8 @@ import { AutomationBuilderHeaderActions } from '@/automations/components/builder
 import { AutomationBuilderNameInput } from '@/automations/components/builder/header/AutomationBuilderNameInput';
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
+import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import {
   IconAffiliate,
   IconAlertTriangle,
@@ -10,10 +12,9 @@ import {
 } from '@tabler/icons-react';
 import { Badge, Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router';
-import { Can, PageHeader } from 'ui-modules';
+import { Link } from 'react-router';
+import { ApprovalLockButton, Can, PageHeader } from 'ui-modules';
 import { AutomationButtonPermissionFallback } from '../../common/AutomationButtonPermissionFallback';
-import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 
 export const AutomationBuilderHeader = () => {
   const {
@@ -23,9 +24,12 @@ export const AutomationBuilderHeader = () => {
     handleSave,
     handleError,
     toggleTabs,
+    automationId,
+    automationCreatedBy,
+    isAutomationCreator,
+    gotoAutomationSettings,
   } = useAutomationHeader();
   const { t } = useTranslation('automations');
-  const { pathname } = useLocation();
 
   return (
     <div>
@@ -45,10 +49,18 @@ export const AutomationBuilderHeader = () => {
           </Breadcrumb>
         </PageHeader.Start>
         <PageHeader.End>
+          {automationId && isAutomationCreator && (
+            <ApprovalLockButton
+              contentType={AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION}
+              contentId={automationId}
+              ownerId={automationCreatedBy}
+              action="edit"
+            />
+          )}
           <Button variant="outline" asChild>
             <Link
-              to="/settings/automations"
-              onClick={() => setAutomationSettingsReturnPath(pathname)}
+              to={AutomationSettingsPath.Index}
+              onClick={gotoAutomationSettings}
             >
               <IconSettings />
               {t('go-to-settings')}

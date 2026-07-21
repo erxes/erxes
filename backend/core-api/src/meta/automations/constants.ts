@@ -44,6 +44,21 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
   },
   triggers: [
     {
+      type: AUTOMATION_CORE_TRIGGER_TYPES.SCHEDULE,
+      moduleName: 'schedules',
+      collectionName: 'recurring',
+      icon: 'IconCalendarClock',
+      label: 'Recurring schedule',
+      description: 'Run an automation on a recurring cron schedule',
+      isCustom: true,
+      output: {
+        variables: [
+          { key: 'scheduledAt', label: 'Scheduled at' },
+          { key: 'timezone', label: 'Timezone' },
+        ],
+      },
+    },
+    {
       type: AUTOMATION_CORE_TRIGGER_TYPES.INCOMING_WEBHOOK,
       moduleName: 'webhooks',
       collectionName: 'incoming',
