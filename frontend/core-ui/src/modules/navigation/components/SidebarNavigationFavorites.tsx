@@ -10,8 +10,8 @@ export function SidebarNavigationFavorites() {
   return (
     <NavigationMenuGroup name={t('favorites')} separate={false}>
       <MyInboxNavigationItem />
-      {favorites.map(({ _id, ...item }) => {
-        return <SidebarNavigationFavoritesItem key={_id} {...item} />;
+      {favorites.map((item) => {
+        return <SidebarNavigationFavoritesItem key={item.path} {...item} />;
       })}
     </NavigationMenuGroup>
   );

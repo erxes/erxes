@@ -11,7 +11,7 @@ import {
   IconEdit,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Badge, Skeleton } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
 import {
   generateContractPDF,
@@ -86,16 +86,34 @@ export const ContractDetailPage = () => {
     );
   }
 
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('contracts'),
+    contract.contractNumber,
+  );
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800">{t('active')}</Badge>;
+        return (
+          <Badge className="bg-green-100 text-green-800">{t('active')}</Badge>
+        );
       case 'expired':
-        return <Badge className="bg-red-100 text-red-800">{t('expired')}</Badge>;
+        return (
+          <Badge className="bg-red-100 text-red-800">{t('expired')}</Badge>
+        );
       case 'cancelled':
-        return <Badge className="bg-gray-100 text-gray-800">{t('cancelled-label')}</Badge>;
+        return (
+          <Badge className="bg-gray-100 text-gray-800">
+            {t('cancelled-label')}
+          </Badge>
+        );
       default:
-        return <Badge className="bg-yellow-100 text-yellow-800">{t('pending-label')}</Badge>;
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800">
+            {t('pending-label')}
+          </Badge>
+        );
     }
   };
 
@@ -126,7 +144,10 @@ export const ContractDetailPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
@@ -220,13 +241,17 @@ export const ContractDetailPage = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">{t('start-date')}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t('start-date')}
+                  </p>
                   <p className="font-medium">
                     {new Date(contract.startDate).toLocaleDateString('mn-MN')}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t('end-date')}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t('end-date')}
+                  </p>
                   <p className="font-medium">
                     {new Date(contract.endDate).toLocaleDateString('mn-MN')}
                   </p>
@@ -250,7 +275,9 @@ export const ContractDetailPage = () => {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t('payment-method')}:</span>
+                  <span className="text-muted-foreground">
+                    {t('payment-method')}:
+                  </span>
                   <span className="font-medium">
                     {contract.paymentKind === 'cash' ? t('cash') : t('qpay')}
                   </span>

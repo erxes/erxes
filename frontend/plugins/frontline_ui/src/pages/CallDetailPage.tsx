@@ -21,7 +21,7 @@ import {
   formatPhoneNumber,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import {
   ICallQueueAgent,
@@ -86,6 +86,13 @@ export const CallDetailPage = ({
     return <Spinner size="md" />;
   }
 
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    backPath.includes('/statistics')
+      ? t('calls-statistics')
+      : t('calls-dashboard'),
+    id,
+  );
+
   return (
     <PageContainer>
       <PageHeader>
@@ -117,6 +124,12 @@ export const CallDetailPage = ({
                 >
                   {id}
                 </Button>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item className="ml-1">
+                <PageHeader.FavoriteToggleButton
+                  breadcrumb={favoriteBreadcrumb}
+                  icon="IconPhone"
+                />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
@@ -197,7 +210,9 @@ export const CallDetailAgents = ({
 
   return (
     <div className="row-span-2 flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">{t('agents')}</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">
+        {t('agents')}
+      </h5>
       <div className="relative">
         <IconSearch className="size-4 absolute left-2 top-1/2 -translate-y-1/2 text-accent-foreground" />
         <Input
@@ -207,7 +222,10 @@ export const CallDetailAgents = ({
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <RecordTable.Provider columns={useAgentColumns()} data={filteredMembersList}>
+      <RecordTable.Provider
+        columns={useAgentColumns()}
+        data={filteredMembersList}
+      >
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
@@ -224,92 +242,92 @@ export const CallDetailAgents = ({
 export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
   const { t } = useTranslation('frontline');
   return [
-  {
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <Badge
-          variant={
-            cell.getValue() === 'Idle'
-              ? 'success'
-              : ['Ringing', 'InUse'].includes(cell.getValue() as string)
-                ? 'warning'
-                : cell.getValue() === 'Paused'
-                  ? 'destructive'
-                  : 'secondary'
-          }
-        >
-          {cell.getValue() as string}
-        </Badge>
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    accessorKey: 'member_extension',
-    header: () => <RecordTable.InlineHead label={t('extension')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-mono">
-        <Badge variant="secondary">{cell.getValue() as string}</Badge>
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-
-  {
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label={t('name')} />,
-    cell: ({ cell }) => {
-      const { first_name, last_name } = cell.row.original;
-      return (
-        <RecordTableInlineCell className="font-medium">
-          {first_name} {last_name}
+    {
+      accessorKey: 'status',
+      header: () => <RecordTable.InlineHead label={t('status')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <Badge
+            variant={
+              cell.getValue() === 'Idle'
+                ? 'success'
+                : ['Ringing', 'InUse'].includes(cell.getValue() as string)
+                  ? 'warning'
+                  : cell.getValue() === 'Paused'
+                    ? 'destructive'
+                    : 'secondary'
+            }
+          >
+            {cell.getValue() as string}
+          </Badge>
         </RecordTableInlineCell>
-      );
+      ),
+      size: 100,
     },
-    size: 200,
-  },
-  {
-    accessorKey: 'answer',
-    header: () => <RecordTable.InlineHead label={t('answered')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {cell.getValue() as number}
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    accessorKey: 'abandon',
-    header: () => <RecordTable.InlineHead label={t('abandoned')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {cell.getValue() as number}
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    accessorKey: 'talktime',
-    header: () => <RecordTable.InlineHead label={t('talk-time')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {formatSeconds(cell.getValue() as number)}
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    accessorKey: 'pausetime',
-    header: () => <RecordTable.InlineHead label={t('pause-time')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {safeFormatDate(cell?.getValue())}
-      </RecordTableInlineCell>
-    ),
-    size: 200,
-  },
+    {
+      accessorKey: 'member_extension',
+      header: () => <RecordTable.InlineHead label={t('extension')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-mono">
+          <Badge variant="secondary">{cell.getValue() as string}</Badge>
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+
+    {
+      accessorKey: 'name',
+      header: () => <RecordTable.InlineHead label={t('name')} />,
+      cell: ({ cell }) => {
+        const { first_name, last_name } = cell.row.original;
+        return (
+          <RecordTableInlineCell className="font-medium">
+            {first_name} {last_name}
+          </RecordTableInlineCell>
+        );
+      },
+      size: 200,
+    },
+    {
+      accessorKey: 'answer',
+      header: () => <RecordTable.InlineHead label={t('answered')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as number}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+    {
+      accessorKey: 'abandon',
+      header: () => <RecordTable.InlineHead label={t('abandoned')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as number}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+    {
+      accessorKey: 'talktime',
+      header: () => <RecordTable.InlineHead label={t('talk-time')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {formatSeconds(cell.getValue() as number)}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+    {
+      accessorKey: 'pausetime',
+      header: () => <RecordTable.InlineHead label={t('pause-time')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {safeFormatDate(cell?.getValue())}
+        </RecordTableInlineCell>
+      ),
+      size: 200,
+    },
   ];
 };
 
@@ -353,40 +371,53 @@ export const CallDetailCard = ({
   );
 };
 
+type WaitingCall = {
+  callerid: string;
+  callerchannel: string;
+};
+
+export const useWaitingColumns = (): ColumnDef<WaitingCall>[] => {
+  const { t } = useTranslation('frontline');
+
+  return [
+    {
+      accessorKey: 'callerid',
+      header: () => <RecordTable.InlineHead label={t('caller-id')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {formatPhoneNumber({
+            defaultCountry: 'MN',
+            value: cell.getValue() as string,
+          })}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      accessorKey: 'callerchannel',
+      header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      ),
+      size: 300,
+    },
+  ];
+};
+
 export const CallDetailWaiting = ({
   waitingList,
 }: {
-  waitingList: { callerid: string; callerchannel: string }[];
+  waitingList: WaitingCall[];
 }) => {
   const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">{t('waiting')}</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">
+        {t('waiting')}
+      </h5>
       <RecordTable.Provider
-        columns={[
-          {
-            accessorKey: 'callerid',
-            header: () => <RecordTable.InlineHead label={t('caller-id')} />,
-            cell: ({ cell }) => (
-              <RecordTableInlineCell className="font-medium">
-                {formatPhoneNumber({
-                  defaultCountry: 'MN',
-                  value: cell.getValue() as string,
-                })}
-              </RecordTableInlineCell>
-            ),
-          },
-          {
-            accessorKey: 'callerchannel',
-            header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
-            cell: ({ cell }) => (
-              <RecordTableInlineCell className="font-medium">
-                {cell.getValue() as string}
-              </RecordTableInlineCell>
-            ),
-            size: 300,
-          },
-        ]}
+        columns={useWaitingColumns()}
         data={waitingList}
       >
         <RecordTable.Scroll>
@@ -402,54 +433,66 @@ export const CallDetailWaiting = ({
   );
 };
 
+type TalkingCall = {
+  callerid: string;
+  calleeid?: string;
+  bridge_time?: Date;
+};
+
+export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
+  const { t } = useTranslation('frontline');
+
+  return [
+    {
+      accessorKey: 'callerid',
+      header: () => <RecordTable.InlineHead label={t('caller-id')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {formatPhoneNumber({
+            defaultCountry: 'MN',
+            value: cell.getValue() as string,
+          })}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      accessorKey: 'calleeid',
+      header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      accessorKey: 'bridge_time',
+      header: () => <RecordTable.InlineHead label={t('duration')} />,
+      cell: ({ cell }) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const duration = useCallDurationFromDate(cell.getValue() as Date);
+        return (
+          <RecordTableInlineCell className="font-medium">
+            {duration}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+  ];
+};
+
 export const CallDetailTalking = ({
   talkingList,
 }: {
-  talkingList: {
-    callerid: string;
-  }[];
+  talkingList: TalkingCall[];
 }) => {
   const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">{t('talking')}</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">
+        {t('talking')}
+      </h5>
       <RecordTable.Provider
-        columns={[
-          {
-            accessorKey: 'callerid',
-            header: () => <RecordTable.InlineHead label={t('caller-id')} />,
-            cell: ({ cell }) => (
-              <RecordTableInlineCell className="font-medium">
-                {formatPhoneNumber({
-                  defaultCountry: 'MN',
-                  value: cell.getValue() as string,
-                })}
-              </RecordTableInlineCell>
-            ),
-          },
-          {
-            accessorKey: 'calleeid',
-            header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
-            cell: ({ cell }) => (
-              <RecordTableInlineCell className="font-medium">
-                {cell.getValue() as string}
-              </RecordTableInlineCell>
-            ),
-          },
-          {
-            accessorKey: 'bridge_time',
-            header: () => <RecordTable.InlineHead label={t('duration')} />,
-            cell: ({ cell }) => {
-              // eslint-disable-next-line react-hooks/rules-of-hooks
-              const duration = useCallDurationFromDate(cell.getValue() as Date);
-              return (
-                <RecordTableInlineCell className="font-medium">
-                  {duration}
-                </RecordTableInlineCell>
-              );
-            },
-          },
-        ]}
+        columns={useTalkingColumns()}
         data={talkingList}
       >
         <RecordTable.Scroll>
