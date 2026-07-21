@@ -244,6 +244,16 @@
       }
     }
   },
+  "schedule-cron-required": "Cron expression is required",
+  "schedule-cron-format-error": "Use a 5, 6, or 7 field cron expression",
+  "schedule-timezone-required": "Timezone is required",
+  "schedule-validation-title": "Check the schedule configuration",
+  "schedule-validation-description": "A valid cron expression and timezone are required.",
+  "schedule-cron-label": "Cron expression",
+  "schedule-cron-description": "Five to seven fields. For example, 0 9 * * 1 runs every Monday at 09:00.",
+  "schedule-timezone-label": "Timezone",
+  "schedule-timezone-description": "Use an IANA timezone such as UTC, Asia/Ulaanbaatar, or America/New_York.",
+  "schedule-not-configured": "Schedule not configured",
   "error": "Error",
   "success": "Success"
 }
