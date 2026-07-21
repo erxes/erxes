@@ -18,7 +18,7 @@ export const InvoiceKindFilter = () => {
           onSelect={() => setView('root')}
         >
           <IconChevronLeft className="w-3 h-3" />
-          {t('back')}
+          {t('back', 'Back')}
         </Command.Item>
         <Command.Separator />
         {Object.entries(PAYMENT_KINDS).map(([value, config]) => (

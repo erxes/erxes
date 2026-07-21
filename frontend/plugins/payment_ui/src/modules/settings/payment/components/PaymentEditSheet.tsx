@@ -18,7 +18,7 @@ export const PaymentEditSheet = ({
       <Sheet.Trigger asChild>
         <>
           <IconEdit className="w-4 h-4" />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </>
       </Sheet.Trigger>
       <Sheet.View

@@ -5,18 +5,18 @@ export const PaymentSettingsNavigation = () => {
   const { t } = useTranslation('payment');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">{t('payment')}</Sidebar.GroupLabel>
+      <Sidebar.GroupLabel className="h-4">{t('payment', 'Payment')}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
             path="/methods"
-            name={t('payment-method')}
+            name={t('payment-method', 'Payment')}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
             path="invoices"
-            name={t('invoices')}
+            name={t('invoices', 'Invoices')}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"

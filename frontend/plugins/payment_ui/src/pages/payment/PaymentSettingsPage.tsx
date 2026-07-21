@@ -18,7 +18,7 @@ const PaymentSettingsPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/settings/payment">
                     <IconCurrencyDollar />
-                    {t('payment')}
+                    {t('payment', 'Payment')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -29,7 +29,7 @@ const PaymentSettingsPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/settings/payment/methods">
                     <IconSettings />
-                    {t('methods')}
+                    {t('methods', 'Methods')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
