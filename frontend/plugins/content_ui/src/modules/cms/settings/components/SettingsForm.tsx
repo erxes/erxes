@@ -83,6 +83,27 @@ const updateLanguages = (
   }
 };
 
+const getCmsName = (cms: CmsSettingsData | undefined, websiteName: string) =>
+  cms?.name?.trim() || websiteName.trim() || 'this CMS';
+
+const isCmsDeletionAllowed = ({
+  cmsId,
+  cmsName,
+  deleteNameConfirmation,
+  deletePhraseConfirmation,
+  isDeleting,
+}: {
+  cmsId?: string;
+  cmsName: string;
+  deleteNameConfirmation: string;
+  deletePhraseConfirmation: string;
+  isDeleting: boolean;
+}) =>
+  Boolean(cmsId) &&
+  deleteNameConfirmation.trim() === cmsName &&
+  deletePhraseConfirmation.trim() === DELETE_CONFIRMATION_PHRASE &&
+  !isDeleting;
+
 export const SettingsForm = ({
   cms,
   isDeleting,
@@ -99,8 +120,7 @@ export const SettingsForm = ({
   const getLanguageLabel = (language: string) =>
     LANGUAGES.find((option) => option.value === language)?.label || language;
 
-  const cmsName =
-    cms?.name?.trim() || settings.websiteName.trim() || 'this CMS';
+  const cmsName = getCmsName(cms, settings.websiteName);
   const selectedPostUrlField =
     POST_URL_FIELD_OPTIONS.find(
       (option) => option.value === settings.postUrlField,
@@ -115,11 +135,13 @@ export const SettingsForm = ({
     PREVIEW_POST,
     { allowRelative: true },
   );
-  const canDeleteCMS =
-    Boolean(cms?._id) &&
-    deleteNameConfirmation.trim() === cmsName &&
-    deletePhraseConfirmation.trim() === DELETE_CONFIRMATION_PHRASE &&
-    !isDeleting;
+  const canDeleteCMS = isCmsDeletionAllowed({
+    cmsId: cms?._id,
+    cmsName,
+    deleteNameConfirmation,
+    deletePhraseConfirmation,
+    isDeleting,
+  });
 
   const selectedLanguageOptions = settings.languages.map((language) => ({
     value: language,
