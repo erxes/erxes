@@ -1,7 +1,8 @@
 import { PAPER_SIZES } from 'ui-modules/modules/documents/constants';
 
 export const paper = (size: string, orientation: 'portrait' | 'landscape') => {
-  const BASE_SIZE = PAPER_SIZES[size as keyof typeof PAPER_SIZES];
+  const BASE_SIZE =
+    PAPER_SIZES[size as keyof typeof PAPER_SIZES] || PAPER_SIZES.A4;
 
   const PAPER_SIZE = {
     portrait: { width: BASE_SIZE.width, height: BASE_SIZE.height },
@@ -21,7 +22,9 @@ export const layout = (
   const SCALE_FACTOR = scale / 100;
   const SCALE_TO_FIT = scale < 100;
 
-  const { width, height } = paper(size, orientation);
+  const preset = paper(size, orientation);
+  const width = Number(config.width) || preset.width;
+  const height = Number(config.height) || preset.height;
 
   const pageSize = `${width}mm ${height}mm`;
 
