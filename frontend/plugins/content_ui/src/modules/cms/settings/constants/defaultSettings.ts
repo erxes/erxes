@@ -20,6 +20,8 @@ export const DEFAULT_SETTINGS: SettingsFormState = {
   defaultPostStatus: 'draft',
   allowComments: false,
   autoApproveComments: false,
+  allowRatings: false,
+  autoApproveRatings: false,
   languages: [],
   defaultLanguage: '',
   siteLogo: null,

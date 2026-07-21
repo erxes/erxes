@@ -508,6 +508,48 @@ export const SettingsForm = ({
             </label>
           </div>
         </Field>
+
+        <Field
+          id="allowRatings"
+          label={t('allow-ratings')}
+          hint={t('allow-ratings-hint')}
+        >
+          <div className="flex items-center gap-3 pt-1">
+            <Switch
+              id="allowRatings"
+              checked={settings.allowRatings}
+              onCheckedChange={(checked) =>
+                updateSetting('allowRatings', checked)
+              }
+            />
+            <label htmlFor="allowRatings" className="cursor-pointer text-sm">
+              {t(settings.allowRatings ? 'enabled' : 'disabled')}
+            </label>
+          </div>
+        </Field>
+
+        <Field
+          id="autoApproveRatings"
+          label={t('auto-approve-ratings')}
+          hint={t('auto-approve-ratings-hint')}
+        >
+          <div className="flex items-center gap-3 pt-1">
+            <Switch
+              id="autoApproveRatings"
+              checked={settings.autoApproveRatings}
+              disabled={!settings.allowRatings}
+              onCheckedChange={(checked) =>
+                updateSetting('autoApproveRatings', checked)
+              }
+            />
+            <label
+              htmlFor="autoApproveRatings"
+              className="cursor-pointer text-sm"
+            >
+              {t(settings.autoApproveRatings ? 'enabled' : 'disabled')}
+            </label>
+          </div>
+        </Field>
       </SettingsSection>
 
       <SettingsSection id="languages" title={t('languages')}>

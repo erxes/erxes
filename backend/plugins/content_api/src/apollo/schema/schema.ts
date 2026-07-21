@@ -66,6 +66,11 @@ import {
   queries as commentQueries,
   types as commentTypes,
 } from '@/cms/graphql/schemas/comments';
+import {
+  mutations as ratingMutations,
+  queries as ratingQueries,
+  types as ratingTypes,
+} from '@/cms/graphql/schemas/ratings';
 
 export const types = `
 
@@ -109,6 +114,7 @@ export const types = `
     ${pageInputs}
     ${commentTypes}
     ${commentInputs}
+    ${ratingTypes}
 `;
 
 export const queries = `
@@ -122,6 +128,7 @@ export const queries = `
     ${menuQueries}
     ${pageQueries}
     ${commentQueries}
+    ${ratingQueries}
   `;
 
 export const mutations = `
@@ -135,6 +142,7 @@ export const mutations = `
     ${menuMutations}
     ${pageMutations}
     ${commentMutations}
+    ${ratingMutations}
 `;
 
 export default { types, queries, mutations };

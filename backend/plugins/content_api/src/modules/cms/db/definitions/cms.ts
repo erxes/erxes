@@ -32,6 +32,8 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     defaultPostStatus: { type: String, optional: true },
     allowComments: { type: Boolean, optional: true },
     autoApproveComments: { type: Boolean, optional: true },
+    allowRatings: { type: Boolean, optional: true },
+    autoApproveRatings: { type: Boolean, optional: true },
     siteLogo: { type: attachmentSchema, optional: true },
     favicon: { type: attachmentSchema, optional: true },
     language: { type: String, optional: true },

@@ -17,4 +17,5 @@ export interface IWebsite {
   accessPolicy?: 'open' | 'assigned';
   assignedMemberIds?: string[];
   allowComments?: boolean;
+  allowRatings?: boolean;
 }

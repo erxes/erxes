@@ -17,6 +17,8 @@ export const types = `
     defaultPostStatus: String
     allowComments: Boolean
     autoApproveComments: Boolean
+    allowRatings: Boolean
+    autoApproveRatings: Boolean
     siteLogo: Attachment
     favicon: Attachment
     language: String
@@ -49,6 +51,8 @@ export const inputs = `
     defaultPostStatus: String
     allowComments: Boolean
     autoApproveComments: Boolean
+    allowRatings: Boolean
+    autoApproveRatings: Boolean
     siteLogo: AttachmentInput
     favicon: AttachmentInput
     language: String
