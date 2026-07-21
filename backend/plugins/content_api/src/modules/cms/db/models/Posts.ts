@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model, SortOrder } from 'mongoose';
 
 import {
   IPost,
@@ -17,7 +17,7 @@ import {
 } from '@/cms/utils/common';
 
 export interface IPostModel extends Model<IPostDocument> {
-  getPosts: (query: any) => Promise<IPostDocument[]>;
+  getPosts: (query: FilterQuery<IPostDocument>) => Promise<IPostDocument[]>;
   createPost: (doc: IPost) => Promise<IPostDocument>;
   updatePost: (_id: string, doc: IPost) => Promise<IPostDocument>;
   deletePost: (_id: string) => Promise<IPostDocument>;
@@ -25,6 +25,7 @@ export interface IPostModel extends Model<IPostDocument> {
     _id: string,
     status: 'draft' | 'published' | 'archived' | 'scheduled',
   ) => Promise<IPostDocument>;
+  duplicatePost: (_id: string, authorId?: string) => Promise<IPostDocument>;
   increaseViewCount: (_id: string) => Promise<IPostDocument>;
   updateReactionCount: (
     _id: string,
@@ -106,8 +107,11 @@ export const loadPostClass = (models: IModels) => {
       return models.Posts.countDocuments({ clientPortalId });
     };
 
-    public static getPosts = async (query: any, sort: any) => {
-      return models.Posts.find(query).sort(sort).lean();
+    public static readonly getPosts = async (
+      query: FilterQuery<IPostDocument>,
+      sort: Record<string, SortOrder>,
+    ) => {
+      return await models.Posts.find(query).sort(sort).lean();
     };
 
     public static createPost = async (doc: IPost) => {
@@ -181,6 +185,63 @@ export const loadPostClass = (models: IModels) => {
 
     public static deletePost = async (_id: string) => {
       return models.Posts.deleteOne({ _id });
+    };
+
+    public static readonly duplicatePost = async (
+      _id: string,
+      authorId?: string,
+    ) => {
+      const post = await models.Posts.findOne({ _id }).lean();
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      const {
+        _id: _sourceId,
+        count: _count,
+        slug: _slug,
+        viewCount: _viewCount,
+        recentViewCount: _recentViewCount,
+        reactionCounts: _reactionCounts,
+        publishedDate: _publishedDate,
+        featuredDate: _featuredDate,
+        scheduledDate: _scheduledDate,
+        autoArchiveDate: _autoArchiveDate,
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        ...rest
+      } = post as unknown as IPost & {
+        _id: string;
+        createdAt?: Date;
+        updatedAt?: Date;
+      };
+
+      const duplicated = await this.createPost({
+        ...rest,
+        title: `${post.title} (Copy)`,
+        // createPost regenerates a unique slug from the new title
+        slug: '',
+        status: 'draft',
+        featured: false,
+        ...(authorId ? { authorId, authorKind: 'user' } : {}),
+      });
+
+      const translations = await models.Translations.find({
+        objectId: _id,
+      }).lean();
+
+      if (translations.length) {
+        await models.Translations.insertMany(
+          translations.map(({ _id: _translationId, ...translation }) => ({
+            ...translation,
+            objectId: duplicated._id,
+            title: translation.title ? `${translation.title} (Copy)` : '',
+          })),
+        );
+      }
+
+      return duplicated;
     };
 
     public static changeStatus = async (
