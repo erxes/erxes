@@ -30,7 +30,7 @@ export const TourGroupMoreColumn = ({
           <Command.List>
             <Command.Item value="add-tour" onSelect={() => onAddTour?.(row)}>
               <IconPlus className="w-4 h-4" />
-              {t('add-tour')}
+              {t('add-tour', 'Add tour')}
             </Command.Item>
           </Command.List>
         </Command>

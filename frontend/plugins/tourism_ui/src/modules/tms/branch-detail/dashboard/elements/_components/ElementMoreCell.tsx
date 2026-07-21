@@ -40,20 +40,20 @@ export const ElementMoreColumn = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-element'),
+      message: t('confirm-delete-element', 'Are you sure you want to delete this element?'),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removeElements([element._id])
         .then(() => {
           toast({
-            title: t('success'),
+            title: t('success', 'Success'),
             variant: 'success',
-            description: t('element-deleted-successfully'),
+            description: t('element-deleted-successfully', 'Element deleted successfully'),
           });
         })
         .catch((e: any) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -72,7 +72,7 @@ export const ElementMoreColumn = ({
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                {t('edit')}
+                {t('edit', 'Edit')}
               </Command.Item>
               <ElementDuplicate element={element} branchId={branchId}>
                 {({ onClick, disabled }) => (
@@ -82,13 +82,13 @@ export const ElementMoreColumn = ({
                     disabled={disabled}
                   >
                     <IconCopy className="w-4 h-4" />
-                    {t('duplicate')}
+                    {t('duplicate', 'Duplicate')}
                   </Command.Item>
                 )}
               </ElementDuplicate>
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash className="w-4 h-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>

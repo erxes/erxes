@@ -18,7 +18,7 @@ const Lock = ({ control }: { control: Control<PmsBranchFormType> }) => {
         name={'websiteReservationLock'}
         render={({ field }) => (
           <div className="flex flex-col gap-3">
-            <Label>{t('website-reservation-lock')}</Label>
+            <Label>{t('website-reservation-lock', 'Website Reservation Lock')}</Label>
             <Switch
               checked={Boolean(field.value)}
               onCheckedChange={field.onChange}
@@ -34,11 +34,11 @@ const Lock = ({ control }: { control: Control<PmsBranchFormType> }) => {
           name={'time'}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('reservation-lock-duration')}</Form.Label>
+              <Form.Label>{t('reservation-lock-duration', 'Reservation lock duration')}</Form.Label>
               <Form.Control>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder={t('choose-lock-duration')} />
+                    <Select.Value placeholder={t('choose-lock-duration', 'Choose lock duration')} />
                   </Select.Trigger>
                   <Select.Content className="max-h-52">
                     {lockDurations.map((duration, index) => (

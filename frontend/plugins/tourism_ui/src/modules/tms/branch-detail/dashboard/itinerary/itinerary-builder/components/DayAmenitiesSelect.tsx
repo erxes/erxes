@@ -30,7 +30,7 @@ export const DayAmenitiesSelect = ({ field, availableAmenities }: Props) => {
 
   return (
     <Form.Item>
-      <Form.Label>{t('amenities')}</Form.Label>
+      <Form.Label>{t('amenities', 'Amenities')}</Form.Label>
 
       <Form.Control>
         <Popover open={open} onOpenChange={setOpen}>
@@ -44,8 +44,8 @@ export const DayAmenitiesSelect = ({ field, availableAmenities }: Props) => {
             >
               <span className="truncate">
                 {selectedIds.length > 0
-                  ? t('amenities-selected', { count: selectedIds.length })
-                  : t('select-amenities')}
+                  ? t('amenities-selected', '{{count}} amenit{{count, plural, one{y} other{ies}}} selected', { count: selectedIds.length })
+                  : t('select-amenities', 'Select amenities')}
               </span>
             </Button>
           </Popover.Trigger>
@@ -53,11 +53,11 @@ export const DayAmenitiesSelect = ({ field, availableAmenities }: Props) => {
           <Popover.Content className="w-[320px] p-0" align="start">
             <Command>
               <Command.Input
-                placeholder={t('search-amenities')}
+                placeholder={t('search-amenities', 'Search amenities...')}
                 className="h-9"
               />
 
-              <Command.Empty>{t('no-amenities-found')}</Command.Empty>
+              <Command.Empty>{t('no-amenities-found', 'No amenities found.')}</Command.Empty>
 
               <Command.Group className="max-h-[300px] overflow-auto">
                 {amenities.map((amenity) => {

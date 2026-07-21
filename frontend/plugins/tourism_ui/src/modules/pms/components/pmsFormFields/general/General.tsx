@@ -12,7 +12,7 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
   return (
     <PmsFormFieldsLayout>
       <div className="space-y-3">
-        <InfoCard title={t('basic-information')}>
+        <InfoCard title={t('basic-information', 'Basic Information')}>
           <InfoCard.Content className="space-y-2">
             <Form.Field
               control={control}
@@ -20,10 +20,10 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t('name')} <span className="text-destructive">*</span>
+                    {t('name', 'Name')} <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('write-here')} />
+                    <Input {...field} placeholder={t('write-here', 'Write here')} />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -35,9 +35,9 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('description')}</Form.Label>
+                  <Form.Label>{t('description', 'Description')}</Form.Label>
                   <Form.Control>
-                    <Textarea {...field} placeholder={t('description-placeholder')} />
+                    <Textarea {...field} placeholder={t('description-placeholder', 'Description...')} />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -46,19 +46,19 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
           </InfoCard.Content>
         </InfoCard>
 
-        <InfoCard title={t('check-in-check-out-time')}>
+        <InfoCard title={t('check-in-check-out-time', 'Check In Check Out Time')}>
           <InfoCard.Content>
             <CheckInCheckOutTime control={control} />
           </InfoCard.Content>
         </InfoCard>
 
-        <InfoCard title={t('discount')}>
+        <InfoCard title={t('discount', 'Discount')}>
           <InfoCard.Content>
             <Discount control={control} />
           </InfoCard.Content>
         </InfoCard>
 
-        <InfoCard title={t('lock')}>
+        <InfoCard title={t('lock', 'Lock')}>
           <InfoCard.Content>
             <Lock control={control} />
           </InfoCard.Content>

@@ -17,7 +17,7 @@ function SelectCategoryFilterItem() {
   return (
     <Filter.Item value="category">
       <IconTags />
-      {t('category')}
+      {t('category', 'Category')}
     </Filter.Item>
   );
 }
@@ -31,9 +31,9 @@ function SelectCategoryFilterView() {
   return (
     <Filter.View filterKey="category">
       <Command>
-        <Command.Input placeholder={t('search-category')} />
+        <Command.Input placeholder={t('search-category', 'Search category')} />
         <Command.List>
-          <Command.Empty>{t('no-category-found')}</Command.Empty>
+          <Command.Empty>{t('no-category-found', 'No category found.')}</Command.Empty>
           <CategorySelector
             value={categoryId ?? undefined}
             onChange={(value) => setCategoryId(value)}
@@ -53,7 +53,7 @@ const ElementFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
                 <Command.Separator className="my-1" />
@@ -95,10 +95,10 @@ export const ElementFilter = () => {
         <Filter.BarItem queryKey="categoryId">
           <Filter.BarName>
             <IconTags />
-            {t('category')}
+            {t('category', 'Category')}
           </Filter.BarName>
           <Filter.BarButton filterKey="category">
-            {selectedCategoryLabel || t('select-category')}
+            {selectedCategoryLabel || t('select-category', 'Select category')}
           </Filter.BarButton>
         </Filter.BarItem>
         <ElementsTotalCount />

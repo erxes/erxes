@@ -54,20 +54,20 @@ export const ElementsPanel = ({
   const handleDelete = async (element: IElement) => {
     try {
       await confirm({
-        message: t('confirm-delete-named-element', { name: element.name }),
+        message: t('confirm-delete-named-element', 'Are you sure you want to delete "{{name}}"?', { name: element.name }),
         options: confirmOptions,
       });
 
       await removeElements([element._id]);
 
       toast({
-        title: t('success'),
-        description: t('element-deleted-successfully'),
+        title: t('success', 'Success'),
+        description: t('element-deleted-successfully', 'Element deleted successfully'),
         variant: 'success',
       });
     } catch (e: unknown) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: (e as Error).message,
         variant: 'destructive',
       });
@@ -106,7 +106,7 @@ export const ElementsPanel = ({
               />
 
               <Input
-                placeholder={t('search-elements')}
+                placeholder={t('search-elements', 'Search elements...')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -119,7 +119,7 @@ export const ElementsPanel = ({
               onClick={handleCreateOpen}
             >
               <IconPlus size={16} />
-              {t('add-element')}
+              {t('add-element', 'Add Element')}
             </Button>
           </div>
         </div>
@@ -127,7 +127,7 @@ export const ElementsPanel = ({
         <div className="overflow-y-auto flex-1 p-3 space-y-2">
           {!filteredElements.length && (
             <p className="py-6 text-sm text-center text-muted-foreground">
-              {search ? t('no-elements-found') : t('no-elements-available')}
+              {search ? t('no-elements-found', 'No elements found') : t('no-elements-available', 'No elements available')}
             </p>
           )}
 
@@ -153,7 +153,7 @@ export const ElementsPanel = ({
                     size="icon"
                     variant="outline"
                     className="w-6 h-6"
-                    aria-label={t('edit-element-label')}
+                    aria-label={t('edit-element-label', 'Edit element')}
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditElement(element);
@@ -167,7 +167,7 @@ export const ElementsPanel = ({
                     size="icon"
                     variant="outline"
                     className="w-6 h-6"
-                    aria-label={t('delete-element-label')}
+                    aria-label={t('delete-element-label', 'Delete element')}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDelete(element);

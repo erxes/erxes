@@ -159,10 +159,10 @@ function EmptyStateRow({
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconRoute size={64} stroke={1.5} className="text-muted-foreground" />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        {t('no-itinerary-yet')}
+        {t('no-itinerary-yet', 'No itinerary yet')}
       </h2>
       <p className="max-w-sm text-sm text-muted-foreground">
-        {t('no-itinerary-yet-desc')}
+        {t('no-itinerary-yet-desc', 'Create your first itinerary to get started.')}
       </p>
       <ItineraryCreateSheet
         branchId={branchId}

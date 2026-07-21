@@ -135,7 +135,7 @@ export const BranchDetailIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to={basePath}>
                     <IconBox />
-                    {t('tms-index-breadcrumb')}
+                    {t('tms-index-breadcrumb', 'Tour management system')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -148,15 +148,15 @@ export const BranchDetailIndexPage = () => {
                     <Select.Value
                       placeholder={
                         listLoading
-                          ? t('loading-branches')
-                          : selectedBranch?.name || t('select-branch')
+                          ? t('loading-branches', 'Loading branches...')
+                          : selectedBranch?.name || t('select-branch', 'Select branch')
                       }
                     />
                   </Select.Trigger>
                   <Select.Content>
                     {list.map((branch) => (
                       <Select.Item key={branch._id} value={branch._id}>
-                        {branch.name || t('unnamed-branch')}
+                        {branch.name || t('unnamed-branch', 'Unnamed Branch')}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -170,7 +170,7 @@ export const BranchDetailIndexPage = () => {
                   <Breadcrumb.Item>
                     <Select value={activeLang} onValueChange={onSelectLanguage}>
                       <Select.Trigger className="w-[180px]">
-                        <Select.Value placeholder={t('select-language')} />
+                        <Select.Value placeholder={t('select-language', 'Select language')} />
                       </Select.Trigger>
                       <Select.Content>
                         {availableLanguages.map((lang) => (

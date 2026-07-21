@@ -31,12 +31,12 @@ export const ActionMenu = ({
   const { t } = useTranslation('tourism');
   const dropdownItems: DropdownItem[] = [
     {
-      label: t('edit'),
+      label: t('edit', 'Edit'),
       icon: <IconEdit size={16} stroke={1.5} />,
       onClick: () => onEdit(),
     },
     {
-      label: duplicateLoading ? t('duplicating') : t('duplicate'),
+      label: duplicateLoading ? t('duplicating', 'Duplicating…') : t('duplicate', 'Duplicate'),
       icon: duplicateLoading ? (
         <Spinner className="w-4 h-4" />
       ) : (
@@ -46,7 +46,7 @@ export const ActionMenu = ({
       disabled: duplicateLoading,
     },
     {
-      label: t('delete'),
+      label: t('delete', 'Delete'),
       icon: <IconTrash size={16} stroke={1.5} />,
       onClick: () => onDelete(),
     },
@@ -60,7 +60,7 @@ export const ActionMenu = ({
           aria-label="Open action menu"
           aria-haspopup="true"
         >
-          {t('action')}
+          {t('action', 'Action')}
           <IconChevronDown size={18} stroke={2} />
         </button>
       </Popover.Trigger>

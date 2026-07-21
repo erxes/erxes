@@ -48,7 +48,7 @@ export const PmsCreateSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('create-pms')}
+          {t('create-pms', 'Create PMS')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View
@@ -72,7 +72,7 @@ export const PmsCreateSheetHeader = ({
   return (
     <Sheet.Header className="p-5">
       <Sheet.Title>
-        {mode === 'edit' ? t('edit-pms') : t('create-pms-full')}
+        {mode === 'edit' ? t('edit-pms', 'Edit PMS /Property Management System/') : t('create-pms-full', 'Create PMS /Property Management System/')}
       </Sheet.Title>
       <Sheet.Close />
     </Sheet.Header>
@@ -126,7 +126,7 @@ export const PmsCreateSheetFooter = ({
   return (
     <Sheet.Footer className="flex sm:justify-between lg:p-5">
       <Button variant={'outline'} onClick={handlePreviousButton} type="button">
-        {currentStep === 1 ? t('cancel') : t('previous')}
+        {currentStep === 1 ? t('cancel', 'Cancel') : t('previous', 'Previous')}
       </Button>
       <Button
         disabled={currentStep === steps.length && loading}
@@ -136,12 +136,12 @@ export const PmsCreateSheetFooter = ({
         {currentStep === steps.length
           ? loading
             ? mode === 'edit'
-              ? t('saving')
-              : t('creating')
+              ? t('saving', 'Saving...')
+              : t('creating', 'Creating...')
             : mode === 'edit'
-              ? t('save')
-              : t('create')
-          : t('next')}
+              ? t('save', 'Save')
+              : t('create', 'Create')
+          : t('next', 'Next')}
       </Button>
     </Sheet.Footer>
   );

@@ -49,21 +49,21 @@ export const CategoryMoreColumn = (
 
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-category'),
+      message: t('confirm-delete-category', 'Are you sure you want to delete this category?'),
       options: { confirmationValue: 'delete' },
     })
       .then(() => {
         deleteCategory({ variables: { id: category._id } })
           .then(() => {
             toast({
-              title: t('success'),
+              title: t('success', 'Success'),
               variant: 'success',
-              description: t('category-deleted-successfully'),
+              description: t('category-deleted-successfully', 'Category deleted successfully'),
             });
           })
           .catch((e: any) => {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -72,7 +72,7 @@ export const CategoryMoreColumn = (
       .catch((e: unknown) => {
         if (e instanceof Error) {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -91,11 +91,11 @@ export const CategoryMoreColumn = (
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                {t('edit')}
+                {t('edit', 'Edit')}
               </Command.Item>
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash className="w-4 h-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>

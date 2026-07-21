@@ -29,7 +29,7 @@ export const TourCalendarRowActions = ({
       <DropdownMenu.Content align="end" className="w-24 min-w-0">
         <DropdownMenu.Item onClick={onEdit}>
           <IconEdit size={16} />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -38,7 +38,7 @@ export const TourCalendarRowActions = ({
           className="text-destructive"
         >
           {deleting ? <Spinner className="size-4" /> : <IconTrash size={16} />}
-          {t('delete')}
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

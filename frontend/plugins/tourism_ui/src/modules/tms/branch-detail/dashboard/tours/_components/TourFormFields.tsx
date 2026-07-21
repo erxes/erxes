@@ -59,11 +59,11 @@ export const TourNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name', 'Name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder={t('tour-name')} {...field} />
+            <Input placeholder={t('tour-name', 'Tour name')} {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -85,11 +85,11 @@ export const TourRefNumberField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('ref-number')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('ref-number', 'Ref Number')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder={t('ref-number-label')} {...field} />
+            <Input placeholder={t('ref-number-label', 'Ref number')} {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -116,7 +116,7 @@ export const TourStatusField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('status')} <span className="text-destructive">*</span>
+            {t('status', 'Status')} <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Select onValueChange={field.onChange} value={field.value}>
@@ -126,7 +126,7 @@ export const TourStatusField = ({
                 {field.value
                   ? TOUR_STATUS_OPTIONS.find((opt) => opt.value === field.value)
                       ?.label
-                  : t('select-status')}
+                  : t('select-status', 'Select status')}
               </Select.Trigger>
               <Select.Content>
                 {TOUR_STATUS_OPTIONS.map((option) => (
@@ -157,7 +157,7 @@ export const TourDescriptionField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('content')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('content', 'Content')}<span className="text-primary">{labelSuffix}</span>{' '}
           </Form.Label>
           <Form.Control>
             <Editor
@@ -185,7 +185,7 @@ export const TourDurationField = ({
       name="duration"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('duration-days')}</Form.Label>
+          <Form.Label>{t('duration-days', 'Duration (days)')}</Form.Label>
           <Form.Control>
             <Input type="number" placeholder="1" {...field} disabled />
           </Form.Control>
@@ -208,7 +208,7 @@ export const TourGroupSizeField = ({
       name="groupSize"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('group-size')}</Form.Label>
+          <Form.Label>{t('group-size', 'Group Size')}</Form.Label>
           <Form.Control>
             <Input type="number" placeholder="0" {...field} />
           </Form.Control>
@@ -327,7 +327,7 @@ export const TourInfo5Field = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Description>
-            {t('not-visible-for-clients')}
+            {t('not-visible-for-clients', 'Not visible for clients and agents.')}
           </Form.Description>
           <Form.Control>
             <Editor
@@ -359,7 +359,7 @@ export const TourAdvanceCheckField = ({
             <Switch checked={field.value} onCheckedChange={field.onChange} />
           </Form.Control>
 
-          <Form.Label className="cursor-pointer">{t('advance-check')}</Form.Label>
+          <Form.Label className="cursor-pointer">{t('advance-check', 'Advance Check')}</Form.Label>
 
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -379,7 +379,7 @@ export const TourAdvancePercentField = ({
       name="advancePercent"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('advance-percent')}</Form.Label>
+          <Form.Label>{t('advance-percent', 'Advance Percent')}</Form.Label>
           <Form.Control>
             <Input type="number" placeholder="0" min="0" max="100" {...field} />
           </Form.Control>
@@ -402,7 +402,7 @@ export const TourJoinPercentField = ({
       name="joinPercent"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('join-percent')}</Form.Label>
+          <Form.Label>{t('join-percent', 'Join Percent')}</Form.Label>
           <Form.Control>
             <Input type="number" placeholder="0" min="0" max="100" {...field} />
           </Form.Control>
@@ -430,14 +430,14 @@ export const TourItineraryIdField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('itinerary-required')}
+            {t('itinerary-required', 'Itinerary *')}
           </Form.Label>
           <SelectItinerary.FormItem
             value={field.value}
             onValueChange={field.onChange}
             branchId={branchId}
             language={language}
-            placeholder={t('select-itinerary-placeholder')}
+            placeholder={t('select-itinerary-placeholder', 'Select itinerary')}
           />
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -462,12 +462,12 @@ export const TourCategoryField = ({
       name="categoryIds"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('categories')}</Form.Label>
+          <Form.Label>{t('categories', 'Categories')}</Form.Label>
           <Form.Control>
             <SelectTourCategory
               value={field.value}
               onValueChange={field.onChange}
-              placeholder={t('select-categories-placeholder')}
+              placeholder={t('select-categories-placeholder', 'Select categories')}
               branchId={branchId}
               language={language}
             />
@@ -493,7 +493,7 @@ export const TourImageThumbnailField = ({
       name="imageThumbnail"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('thumbnail-image')}</Form.Label>
+          <Form.Label>{t('thumbnail-image', 'Thumbnail Image')}</Form.Label>
 
           <Form.Control>
             <Upload.Root
@@ -525,11 +525,11 @@ export const TourImageThumbnailField = ({
                 {!field.value && (
                   <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
                     {isLoading ? (
-                      <span>{t('uploading')}</span>
+                      <span>{t('uploading', 'Uploading...')}</span>
                     ) : (
                       <>
                         <IconUpload size={22} />
-                        <span>{t('upload-thumbnail')}</span>
+                        <span>{t('upload-thumbnail', 'Upload thumbnail')}</span>
                       </>
                     )}
                   </div>
@@ -538,7 +538,7 @@ export const TourImageThumbnailField = ({
                 {field.value && (
                   <div className="absolute inset-0 flex items-center justify-center transition bg-black/0 group-hover:bg-black/30">
                     <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
-                      {t('change-image')}
+                      {t('change-image', 'Change image')}
                     </span>
                   </div>
                 )}
@@ -584,7 +584,7 @@ export const TourImagesField = ({
       name="images"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('tour-images')}</Form.Label>
+          <Form.Label>{t('tour-images', 'Tour Images')}</Form.Label>
 
           <Form.Control>
             <ImageUploadGrid
@@ -615,7 +615,7 @@ export const TourAttachmentsField = ({
       name="attachment"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('attachment-pdf')}</Form.Label>
+          <Form.Label>{t('attachment-pdf', 'Attachment (PDF)')}</Form.Label>
 
           <Form.Control>
             <Upload.Root
@@ -643,11 +643,11 @@ export const TourAttachmentsField = ({
                 {!field.value ? (
                   <div className="flex items-center justify-center w-full gap-2 text-sm text-muted-foreground">
                     {isLoading ? (
-                      <span>{t('uploading')}</span>
+                      <span>{t('uploading', 'Uploading...')}</span>
                     ) : (
                       <>
                         <IconUpload size={18} />
-                        <span>{t('upload-pdf')}</span>
+                        <span>{t('upload-pdf', 'Upload PDF')}</span>
                       </>
                     )}
                   </div>
@@ -708,22 +708,22 @@ export const TourGuidesField = ({
         <div className='space-y-2'>
           <Form.Label className="flex items-center gap-2">
             <IconUsers size={16} />
-            {t('tour-crew')}
+            {t('tour-crew', 'Tour Crew')}
           </Form.Label>
           <Form.Description>
-            {t('assign-crew-desc')}
+            {t('assign-crew-desc', 'Assign team members as tour leader, driver, guide, etc.')}
           </Form.Description>
         </div>
 
         <Button type="button" variant="outline" size="sm" onClick={handleAdd}>
           <IconPlus size={16} />
-          {t('add-crew-member')}
+          {t('add-crew-member', 'Add Crew Member')}
         </Button>
       </div>
 
       {fields.length === 0 ? (
         <div className="px-4 py-6 text-sm text-center border border-dashed rounded-lg text-muted-foreground">
-          {t('no-crew-assigned')}
+          {t('no-crew-assigned', 'No crew assigned yet. Click "Add Crew Member" to assign roles.')}
         </div>
       ) : (
         <div className="space-y-3">
@@ -740,7 +740,7 @@ export const TourGuidesField = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      {t('role-required')}
+                      {t('role-required', 'Role *')}
                     </Form.Label>
                     <Select
                       onValueChange={roleField.onChange}
@@ -755,7 +755,7 @@ export const TourGuidesField = ({
                           ? GUIDE_TYPES.find(
                               (opt) => opt.value === roleField.value,
                             )?.label ?? roleField.value
-                          : t('select-role')}
+                          : t('select-role', 'Select role')}
                       </Select.Trigger>
                       <Select.Content>
                         {GUIDE_TYPES.map((option) => (
@@ -781,7 +781,7 @@ export const TourGuidesField = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      {t('team-member-required')}
+                      {t('team-member-required', 'Team Member *')}
                     </Form.Label>
                     <SelectMember.FormItem
                       mode="single"
@@ -791,7 +791,7 @@ export const TourGuidesField = ({
                           typeof value === 'string' ? value : '',
                         )
                       }
-                      placeholder={t('select-team-member')}
+                      placeholder={t('select-team-member', 'Select team member')}
                     />
                     <Form.Message>{fieldState.error?.message}</Form.Message>
                   </div>
@@ -803,7 +803,7 @@ export const TourGuidesField = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => remove(index)}
-                aria-label={t('remove-crew-member', { index: index + 1 })}
+                aria-label={t('remove-crew-member', 'Remove crew member {{index}}', { index: index + 1 })}
                 className="mt-7"
               >
                 <IconTrash size={16} />
@@ -873,16 +873,16 @@ const TourPricingOptionsFieldContent = ({
     <Form.Item className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <Form.Label>{t('pricing-options')}</Form.Label>
+          <Form.Label>{t('pricing-options', 'Pricing Options')}</Form.Label>
           <Form.Description>
-            {t('pricing-options-desc')}
+            {t('pricing-options-desc', 'Define packages, group sizes and pricing')}
           </Form.Description>
         </div>
 
         <div className="flex gap-2">
           <Button type="button" variant="outline" size="sm" onClick={handleAdd}>
             <IconPlus size={16} />
-            {t('add-pricing-option')}
+            {t('add-pricing-option', 'Add Pricing Option')}
           </Button>
         </div>
       </div>
@@ -895,7 +895,7 @@ const TourPricingOptionsFieldContent = ({
           >
             <div className="flex items-start justify-between">
               <Label className="flex items-center gap-2">
-                {t('package')}
+                {t('package', 'Package:')}
                 <Badge variant="secondary" className="px-2 py-0.5 font-medium">
                   {index + 1}
                 </Badge>
@@ -905,7 +905,7 @@ const TourPricingOptionsFieldContent = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => handleRemove(index)}
-                aria-label={t('remove-pricing-option', { index: index + 1 })}
+                aria-label={t('remove-pricing-option', 'Remove pricing option {{index}}', { index: index + 1 })}
               >
                 <IconTrash size={16} />
               </Button>
@@ -920,14 +920,14 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      {t('package-title')}
+                      {t('package-title', 'Package Title')}
                       <span className="text-primary">{labelSuffix}</span>{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
                     <Input
                       {...field}
                       value={field.value ?? ''}
-                      placeholder={t('package-title-placeholder')}
+                      placeholder={t('package-title-placeholder', 'e.g., Standard - Solo, Standard - Group')}
                     />
                     <Form.Message>{fieldState.error?.message}</Form.Message>
                   </div>
@@ -943,7 +943,7 @@ const TourPricingOptionsFieldContent = ({
                       <Form.Label
                         className={fieldState.error ? 'text-destructive' : ''}
                       >
-                        {t('min-persons-required')}
+                        {t('min-persons-required', 'Min Persons *')}
                       </Form.Label>
                       <Input type="number" min="1" {...field} placeholder="1" />
                       <Form.Message>{fieldState.error?.message}</Form.Message>
@@ -959,7 +959,7 @@ const TourPricingOptionsFieldContent = ({
                       <Form.Label
                         className={fieldState.error ? 'text-destructive' : ''}
                       >
-                        {t('max-persons')}
+                        {t('max-persons', 'Max Persons')}
                       </Form.Label>
                       <Input
                         type="number"
@@ -968,7 +968,7 @@ const TourPricingOptionsFieldContent = ({
                         onChange={(e) =>
                           field.onChange(toOptionalNumber(e.target.value))
                         }
-                        placeholder={t('max-persons-placeholder')}
+                        placeholder={t('max-persons-placeholder', 'Leave empty for unlimited')}
                       />
                       <Form.Message>{fieldState.error?.message}</Form.Message>
                     </div>
@@ -985,7 +985,7 @@ const TourPricingOptionsFieldContent = ({
                   <Form.Label
                     className={fieldState.error ? 'text-destructive' : ''}
                   >
-                    {t('accommodation-type')}
+                    {t('accommodation-type', 'Accommodation Type')}
                     <span className="text-primary">{labelSuffix}</span>
                   </Form.Label>
                   <Input
@@ -994,7 +994,7 @@ const TourPricingOptionsFieldContent = ({
                     onChange={(e) =>
                       field.onChange(toOptionalString(e.target.value))
                     }
-                    placeholder={t('accommodation-type-placeholder')}
+                    placeholder={t('accommodation-type-placeholder', 'e.g., Hotel, Resort, etc.')}
                   />
                   <Form.Message>{fieldState.error?.message}</Form.Message>
                 </div>
@@ -1010,7 +1010,7 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      {t('adult-price')}
+                      {t('adult-price', 'Adult Price')}
                       <span className="text-primary">{labelSuffix}</span>{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
@@ -1044,7 +1044,7 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      {t('child-price')}
+                      {t('child-price', 'Child Price')}
                       <span className="text-primary">{labelSuffix}</span>
                     </Form.Label>
                     <div className="relative">
@@ -1060,7 +1060,7 @@ const TourPricingOptionsFieldContent = ({
                         onChange={(e) =>
                           field.onChange(toOptionalNumber(e.target.value))
                         }
-                        placeholder={t('optional')}
+                        placeholder={t('optional', 'Optional')}
                         className="pl-7"
                       />
                     </div>
@@ -1077,7 +1077,7 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      {t('infant-price')}
+                      {t('infant-price', 'Infant Price')}
                       <span className="text-primary">{labelSuffix}</span>
                     </Form.Label>
                     <div className="relative">
@@ -1093,7 +1093,7 @@ const TourPricingOptionsFieldContent = ({
                         onChange={(e) =>
                           field.onChange(toOptionalNumber(e.target.value))
                         }
-                        placeholder={t('optional')}
+                        placeholder={t('optional', 'Optional')}
                         className="pl-7"
                       />
                     </div>
@@ -1112,7 +1112,7 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      {t('domestic-flight')}
+                      {t('domestic-flight', 'Domestic Flight')}
                     </Form.Label>
                     <div className="relative">
                       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -1142,7 +1142,7 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      {t('single-supplement')}
+                      {t('single-supplement', 'Single Supplement')}
                     </Form.Label>
                     <div className="relative">
                       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -1173,7 +1173,7 @@ const TourPricingOptionsFieldContent = ({
                   <Form.Label
                     className={fieldState.error ? 'text-destructive' : ''}
                   >
-                    {t('note')}<span className="text-primary">{labelSuffix}</span>
+                    {t('note', 'Note')}<span className="text-primary">{labelSuffix}</span>
                   </Form.Label>
                   <Textarea
                     {...field}
@@ -1181,7 +1181,7 @@ const TourPricingOptionsFieldContent = ({
                     onChange={(e) =>
                       field.onChange(toOptionalString(e.target.value))
                     }
-                    placeholder={t('additional-info-placeholder')}
+                    placeholder={t('additional-info-placeholder', 'Additional information...')}
                   />
                   <Form.Message>{fieldState.error?.message}</Form.Message>
                 </div>

@@ -222,8 +222,8 @@ export const ItineraryEditSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: t('error'),
-        description: t('enter-main-lang-before-updating'),
+        title: t('error', 'Error'),
+        description: t('enter-main-lang-before-updating', 'Please enter values for the main language before updating.'),
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
@@ -233,7 +233,7 @@ export const ItineraryEditSheet = ({
     const firstError = extractFirstError(errors);
     if (firstError) {
       toast({
-        title: t('validation-error'),
+        title: t('validation-error', 'Validation Error'),
         description: firstError,
         variant: 'destructive',
       });
@@ -243,8 +243,8 @@ export const ItineraryEditSheet = ({
   const handleSubmit = async (values: ItineraryCreateFormType) => {
     if (!itineraryId) {
       toast({
-        title: t('error'),
-        description: t('itinerary-id-required'),
+        title: t('error', 'Error'),
+        description: t('itinerary-id-required', 'Itinerary ID is required'),
         variant: 'destructive',
       });
       return;
@@ -252,8 +252,8 @@ export const ItineraryEditSheet = ({
 
     if (!values.groupDays || values.groupDays.length === 0) {
       toast({
-        title: t('error'),
-        description: t('at-least-one-day-required'),
+        title: t('error', 'Error'),
+        description: t('at-least-one-day-required', 'At least one day is required'),
         variant: 'destructive',
       });
       return;
@@ -320,17 +320,17 @@ export const ItineraryEditSheet = ({
       });
 
       toast({
-        title: t('success'),
-        description: t('itinerary-updated-successfully'),
+        title: t('success', 'Success'),
+        description: t('itinerary-updated-successfully', 'Itinerary updated successfully'),
       });
 
       handleOpenChange(false);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : t('failed-to-update-itinerary');
+        error instanceof Error ? error.message : t('failed-to-update-itinerary', 'Failed to update itinerary');
 
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: message,
         variant: 'destructive',
       });
@@ -358,7 +358,7 @@ export const ItineraryEditSheet = ({
               className="flex flex-col h-full"
             >
               <Sheet.Header>
-                <Sheet.Title>{t('edit-itinerary')}</Sheet.Title>
+                <Sheet.Title>{t('edit-itinerary', 'Edit itinerary')}</Sheet.Title>
                 {allLanguages.length > 1 && (
                   <div className="flex items-center gap-2 ml-auto">
                     <TourFieldLanguageSwitch
@@ -469,8 +469,8 @@ export const ItineraryEditSheet = ({
                             size="sm"
                           >
                             {showMoreOptions
-                              ? t('hide-more-options')
-                              : t('show-more-options')}
+                              ? t('hide-more-options', 'Hide more options')
+                              : t('show-more-options', 'Show more options')}
                             <IconChevronDown
                               size={12}
                               strokeWidth={2}
@@ -495,7 +495,7 @@ export const ItineraryEditSheet = ({
                       onClick={() => handleOpenChange(false)}
                       disabled={editLoading}
                     >
-                      {t('cancel')}
+                      {t('cancel', 'Cancel')}
                     </Button>
 
                     <Button
@@ -503,7 +503,7 @@ export const ItineraryEditSheet = ({
                       disabled={editLoading}
                       onClick={handleNextStep}
                     >
-                      {t('next')}
+                      {t('next', 'Next')}
                     </Button>
                   </div>
                 ) : (
@@ -517,11 +517,11 @@ export const ItineraryEditSheet = ({
                       }}
                       disabled={editLoading}
                     >
-                      {t('back')}
+                      {t('back', 'Back')}
                     </Button>
 
                     <Button type="submit" disabled={editLoading}>
-                      {editLoading ? t('updating') : t('update')}
+                      {editLoading ? t('updating', 'Updating...') : t('update', 'Update')}
                     </Button>
                   </div>
                 )}

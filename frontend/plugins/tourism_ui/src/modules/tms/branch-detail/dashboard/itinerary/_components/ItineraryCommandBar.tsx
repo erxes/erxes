@@ -55,21 +55,21 @@ export const ItineraryCommandBar = ({
     }
 
     confirm({
-      message: t('confirm-delete-itineraries', { count: selectedCount }),
+      message: t('confirm-delete-itineraries', 'Are you sure you want to delete the {{count}} selected itineraries?', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       removeItineraries(itineraryIds)
         .then(() => {
           table.resetRowSelection();
           toast({
-            title: t('success'),
+            title: t('success', 'Success'),
             variant: 'success',
-            description: t('itineraries-deleted-successfully'),
+            description: t('itineraries-deleted-successfully', 'Itineraries deleted successfully'),
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -88,7 +88,7 @@ export const ItineraryCommandBar = ({
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', '{{count}} selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         {selectedCount === 1 && (
           <>
@@ -112,7 +112,7 @@ export const ItineraryCommandBar = ({
           onClick={handleRemove}
         >
           {loading ? <Spinner /> : <IconTrash />}
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

@@ -194,8 +194,8 @@ export const TourCalendar = ({
   const handleDelete = (tourId: string, tourName?: string) => {
     confirm({
       message: tourName
-        ? t('confirm-delete-named-tour', { name: tourName })
-        : t('confirm-delete-tour'),
+        ? t('confirm-delete-named-tour', 'Are you sure you want to delete {{name}}?', { name: tourName })
+        : t('confirm-delete-tour', 'Are you sure you want to delete this tour?'),
       options: confirmOptions,
     })
       .then(() => {
@@ -207,7 +207,7 @@ export const TourCalendar = ({
           onError: (error: ApolloError) => {
             setDeletingTourId(null);
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: error.message,
               variant: 'destructive',
             });
@@ -215,8 +215,8 @@ export const TourCalendar = ({
           onCompleted: () => {
             setDeletingTourId(null);
             toast({
-              title: t('success'),
-              description: t('tour-deleted-successfully'),
+              title: t('success', 'Success'),
+              description: t('tour-deleted-successfully', 'Tour deleted successfully'),
               variant: 'success',
             });
           },
@@ -228,7 +228,7 @@ export const TourCalendar = ({
   return (
     <div className="flex flex-col overflow-hidden border rounded-md bg-sidebar">
       <div className="flex items-center justify-between gap-2 px-4 py-2 border-b bg-sidebar">
-        <div className="text-sm font-medium">{t('tours-calendar')}</div>
+        <div className="text-sm font-medium">{t('tours-calendar', 'Tours calendar')}</div>
 
         <div className="flex items-center gap-2">
           <Button
@@ -276,7 +276,7 @@ export const TourCalendar = ({
       {showEmptyMonthMessage ? (
         <div className="flex items-center justify-center px-6 py-10 bg-background">
           <div className="inline-flex items-center justify-center flex-1 max-w-xl px-4 py-3 text-sm text-center border border-dashed rounded-md bg-background text-muted-foreground">
-            {t('no-tours-in-month', { month: monthLabel, year: currentYear })}
+            {t('no-tours-in-month', 'No tours start in {{month}} {{year}}.', { month: monthLabel, year: currentYear })}
           </div>
         </div>
       ) : (
@@ -289,7 +289,7 @@ export const TourCalendar = ({
               }}
             >
               <div className="sticky left-0 z-40 px-3 py-2 font-medium border-r bg-background text-foreground">
-                {t('calendar-tours-col')}
+                {t('calendar-tours-col', 'Tours')}
               </div>
 
               {days.map((day) => {
@@ -327,13 +327,13 @@ export const TourCalendar = ({
 
               {!loading && error && (
                 <div className="flex items-center justify-center py-10 text-sm text-destructive">
-                  {error.message || t('failed-to-load-tours')}
+                  {error.message || t('failed-to-load-tours', 'Failed to load tours')}
                 </div>
               )}
 
               {!loading && !error && (!tours || tours.length === 0) && (
                 <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
-                  {t('no-tours-to-display')}
+                  {t('no-tours-to-display', 'No tours to display')}
                 </div>
               )}
               {visibleRows.map((tour: ITour) => (

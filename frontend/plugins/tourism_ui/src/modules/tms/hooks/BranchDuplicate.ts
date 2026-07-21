@@ -68,7 +68,7 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
         },
         onCompleted: async () => {
           toast({
-            title: t('branch-duplicated-successfully'),
+            title: t('branch-duplicated-successfully', 'Branch duplicated successfully'),
           });
           if (refetch) {
             await refetch();
@@ -77,8 +77,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
       });
     } catch (error) {
       toast({
-        title: t('failed-to-duplicate-branch'),
-        description: error?.message || t('unknown-error-occurred'),
+        title: t('failed-to-duplicate-branch', 'Failed to duplicate branch'),
+        description: error?.message || t('unknown-error-occurred', 'Unknown error occurred'),
         variant: 'destructive',
       });
       throw error;

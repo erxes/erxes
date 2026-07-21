@@ -76,7 +76,7 @@ export const SelectElementCategories = ({
 
         return (
           <Form.Item>
-            <Form.Label>{t('categories')}</Form.Label>
+            <Form.Label>{t('categories', 'Categories')}</Form.Label>
             <Form.Control>
               <div className="space-y-3">
                 <Popover open={open} onOpenChange={setOpen}>
@@ -90,24 +90,24 @@ export const SelectElementCategories = ({
                     >
                       <span className="truncate">
                         {selectedIds.length > 0
-                          ? t('categories-selected', { count: selectedIds.length })
-                          : t('select-categories')}
+                          ? t('categories-selected', '{{count}} categor{{count, plural, one{y} other{ies}}} selected', { count: selectedIds.length })
+                          : t('select-categories', 'Select categories')}
                       </span>
                     </Button>
                   </Popover.Trigger>
                   <Popover.Content className="w-[400px] p-0" align="start">
                     <Command className="rounded-lg border shadow-md">
                       <Command.Input
-                        placeholder={t('search-categories')}
+                        placeholder={t('search-categories', 'Search categories')}
                         className="h-8"
                       />
                       <Command.Empty className="py-6 text-sm text-center">
-                        {t('no-categories-found')}
+                        {t('no-categories-found', 'No categories found')}
                       </Command.Empty>
                       <Command.Group className="max-h-[300px] overflow-auto">
                         {loading ? (
                           <Command.Item disabled className="h-8">
-                            {t('loading')}
+                            {t('loading', 'Loading...')}
                           </Command.Item>
                         ) : (
                           flattenedCategories.map(({ category, level }) => {

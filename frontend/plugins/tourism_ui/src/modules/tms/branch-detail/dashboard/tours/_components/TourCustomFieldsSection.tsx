@@ -27,19 +27,19 @@ export const TourTypeField = ({
       name="customTourTypeId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('tour-type')}</Form.Label>
+          <Form.Label>{t('tour-type', 'Tour Type')}</Form.Label>
           <Form.Control>
             <Select
               value={field.value || ''}
               onValueChange={(value) => field.onChange(value)}
             >
               <Select.Trigger className="w-full">
-                <Select.Value placeholder={t('select-tour-type')} />
+                <Select.Value placeholder={t('select-tour-type', 'Select tour type')} />
               </Select.Trigger>
               <Select.Content>
                 {customTypes.map((type) => (
                   <Select.Item key={type._id} value={type._id}>
-                    {type.label || type.code || t('unnamed-type')}
+                    {type.label || type.code || t('unnamed-type', 'Unnamed type')}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -71,7 +71,7 @@ export const TourCustomFieldsSection = ({
 
   return (
     <div className="pt-6 mt-2 space-y-3 border-t">
-      <div className="text-sm font-semibold text-foreground">{t('tour-custom-fields')}</div>
+      <div className="text-sm font-semibold text-foreground">{t('tour-custom-fields', 'Custom Fields')}</div>
       {fieldGroups.map((group) => (
         <Collapsible key={group._id} defaultOpen className="group">
           <Collapsible.Trigger asChild>

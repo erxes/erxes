@@ -105,11 +105,11 @@ function EmptyStateRow({
       <IconPuzzle size={64} stroke={1.5} className="text-muted-foreground" />
 
       <h2 className="text-lg font-semibold text-muted-foreground">
-        {t('no-elements-yet')}
+        {t('no-elements-yet', 'No elements yet')}
       </h2>
 
       <p className="max-w-sm text-sm text-muted-foreground">
-        {t('no-elements-yet-desc')}
+        {t('no-elements-yet-desc', 'Create your first element to get started.')}
       </p>
 
       <ElementCreateSheet

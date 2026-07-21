@@ -57,12 +57,12 @@ export const ItineraryNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name', 'Name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input
-              placeholder={t('itinerary-name')}
+              placeholder={t('itinerary-name', 'Itinerary name')}
               {...field}
               value={field.value || ''}
             />
@@ -86,7 +86,7 @@ export const ItineraryColorField = ({
       name="color"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('color')}</Form.Label>
+          <Form.Label>{t('color', 'Color')}</Form.Label>
           <Form.Control>
             <ColorPicker
               value={field.value}
@@ -116,7 +116,7 @@ export const ItineraryContentField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('content')}<span className="text-primary">{labelSuffix}</span>
+            {t('content', 'Content')}<span className="text-primary">{labelSuffix}</span>
           </Form.Label>
           <Form.Control>
             <Editor
@@ -147,7 +147,7 @@ export const ItineraryGuideCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('guides-daily-wage')}</Form.Label>
+          <Form.Label>{t('guides-daily-wage', 'Guide\'s daily wage')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -186,7 +186,7 @@ export const ItineraryDriverCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('drivers-daily-wage')}</Form.Label>
+          <Form.Label>{t('drivers-daily-wage', 'Driver\'s daily wage')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -225,7 +225,7 @@ export const ItineraryFoodCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('daily-cost-of-food')}</Form.Label>
+          <Form.Label>{t('daily-cost-of-food', 'Daily cost of food per person')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -264,7 +264,7 @@ export const ItineraryGasCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('gasoline-fee-per-car')}</Form.Label>
+          <Form.Label>{t('gasoline-fee-per-car', 'Gasoline fee per car')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -303,7 +303,7 @@ export const ItineraryGuideCostExtraField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('total-price-additive-assistant')}</Form.Label>
+          <Form.Label>{t('total-price-additive-assistant', 'Total price of a additive assistant')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -344,7 +344,7 @@ export const ItineraryImageField = ({
 
         return (
           <Form.Item>
-            <Form.Label>{t('itinerary-image')}</Form.Label>
+            <Form.Label>{t('itinerary-image', 'Itinerary Image')}</Form.Label>
 
             <Form.Control>
               <Upload.Root
@@ -379,11 +379,11 @@ export const ItineraryImageField = ({
                   {!imageUrl && (
                     <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
                       {isLoading ? (
-                        <span>{t('uploading')}</span>
+                        <span>{t('uploading', 'Uploading...')}</span>
                       ) : (
                         <>
                           <IconUpload size={22} />
-                          <span>{t('upload-itinerary-image')}</span>
+                          <span>{t('upload-itinerary-image', 'Upload itinerary image')}</span>
                         </>
                       )}
                     </div>
@@ -392,7 +392,7 @@ export const ItineraryImageField = ({
                   {imageUrl && (
                     <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
                       <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 bg-black/70 group-hover:opacity-100">
-                        {t('change-image')}
+                        {t('change-image', 'Change image')}
                       </span>
                     </div>
                   )}
@@ -436,7 +436,7 @@ export const ItineraryPersonCostField = ({
   const { t } = useTranslation('tourism');
   return (
     <div className="space-y-3">
-      <Form.Label>{t('daily-cost-per-person')}</Form.Label>
+      <Form.Label>{t('daily-cost-per-person', 'The daily cost per person')}</Form.Label>
       <div className="grid grid-cols-1 gap-2">
         {Array.from({ length: duration }, (_, i) => {
           const dayKey = `day${i + 1}`;
@@ -450,7 +450,7 @@ export const ItineraryPersonCostField = ({
                   <Form.Control className="flex-1">
                     <Input
                       type="number"
-                      placeholder={t('cost-for-day', { day: i + 1 })}
+                      placeholder={t('cost-for-day', 'Cost for day {{day}}', { day: i + 1 })}
                       value={field.value || 0}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />

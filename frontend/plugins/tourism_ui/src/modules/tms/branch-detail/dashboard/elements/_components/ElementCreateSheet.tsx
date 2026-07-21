@@ -101,8 +101,8 @@ export const ElementCreateSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: t('error'),
-        description: t('enter-main-lang-before-creating'),
+        title: t('error', 'Error'),
+        description: t('enter-main-lang-before-creating', 'Please enter values for the main language before creating.'),
         variant: 'destructive',
       });
       setSelectedLang(resolvedPrimaryLanguage);
@@ -112,8 +112,8 @@ export const ElementCreateSheet = ({
   const handleSubmit = async (values: ElementCreateFormType) => {
     if (!branchId) {
       toast({
-        title: t('error'),
-        description: t('branch-required'),
+        title: t('error', 'Error'),
+        description: t('branch-required', 'Branch required'),
         variant: 'destructive',
       });
       return;
@@ -135,7 +135,7 @@ export const ElementCreateSheet = ({
         },
       });
 
-      toast({ title: t('success'), description: t('element-created-successfully') });
+      toast({ title: t('success', 'Success'), description: t('element-created-successfully', 'Element created successfully') });
       form.reset({
         name: '',
         note: '',
@@ -151,7 +151,7 @@ export const ElementCreateSheet = ({
       toast({
         title: 'Error',
         description:
-          error instanceof Error ? error.message : t('failed-to-create-element'),
+          error instanceof Error ? error.message : t('failed-to-create-element', 'Failed to create element'),
         variant: 'destructive',
       });
     }
@@ -163,7 +163,7 @@ export const ElementCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button type="button">
             <IconPlus />
-            {t('create-element')}
+            {t('create-element', 'Create element')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -178,7 +178,7 @@ export const ElementCreateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>{t('create-element')}</Sheet.Title>
+              <Sheet.Title>{t('create-element', 'Create element')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -230,10 +230,10 @@ export const ElementCreateSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? t('creating') : t('create')}
+                {loading ? t('creating', 'Creating...') : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>
