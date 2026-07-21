@@ -7,6 +7,7 @@ import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { IntegrationType } from '@/types/Integration';
 import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
 import { InstagramIntegrationRepair } from '../instagram/components/InstagramIntegrationRepair';
+import { DiscordIntegrationRepair } from '../discord/components/DiscordIntegrationActions';
 import { EMInstallScript } from '../erxes-messenger/components/EMInstallScript';
 import { lazy, Suspense } from 'react';
 
@@ -44,6 +45,12 @@ const InstagramIntegrationActions = lazy(() =>
   ),
 );
 
+const DiscordIntegrationActions = lazy(() =>
+  import('../discord/components/DiscordIntegrationActions').then((module) => ({
+    default: module.DiscordIntegrationActions,
+  })),
+);
+
 export const IntegrationMoreColumnCell = ({
   cell,
 }: {
@@ -79,6 +86,9 @@ export const IntegrationMoreColumnCell = ({
                   integrationType === IntegrationType.INSTAGRAM_POST) && (
                   <InstagramIntegrationActions cell={cell} />
                 )}
+                {integrationType === IntegrationType.DISCORD_MESSENGER && (
+                  <DiscordIntegrationActions cell={cell} />
+                )}
               </Suspense>
             </Command.Item>
             {integrationType === IntegrationType.ERXES_MESSENGER && (
@@ -96,6 +106,11 @@ export const IntegrationMoreColumnCell = ({
             IntegrationType.INSTAGRAM_POST === integrationType ? (
               <Command.Item value="repair">
                 <InstagramIntegrationRepair cell={cell} />
+              </Command.Item>
+            ) : null}
+            {integrationType === IntegrationType.DISCORD_MESSENGER ? (
+              <Command.Item value="repair">
+                <DiscordIntegrationRepair cell={cell} />
               </Command.Item>
             ) : null}
             <Command.Item value="archive">

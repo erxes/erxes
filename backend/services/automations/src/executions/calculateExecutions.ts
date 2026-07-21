@@ -121,7 +121,7 @@ export const calculateExecution = async ({
   eventUpdateDescription?: Record<string, any>;
 }): Promise<IAutomationExecutionDocument | null | undefined> => {
   const { id, type = '', config } = trigger;
-  const { reEnrollment, reEnrollmentRules } = config || {};
+  const { reEnrollment, reEnrollmentRules = [] } = config || {};
   const executionTarget = buildExecutionTarget(target, eventUpdateDescription);
 
   try {
