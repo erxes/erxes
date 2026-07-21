@@ -6460,6 +6460,9 @@ packages:
   '@module-federation/webpack-bundler-runtime@0.6.6':
     resolution: {integrity: sha512-0UnY9m1fBgHwTpacYWbht1jB5X4Iqspiu1q8kfjUrv6y+R224//ydUFYYO8xfWx4V9SGQFKlU8XFH0FP/r0Hng==}
 
+  '@mongodb-js/saslprep@1.2.2':
+    resolution: {integrity: sha512-EB0O3SCSNRUFk66iRCpI+cXzIjdswfCs7F6nOC3RAGJ7xr5YhaicvsRwJ9eyzYvYRlCSDUO/c7g4yNulxKC1WA==}
+
   '@mongodb-js/saslprep@1.4.11':
     resolution: {integrity: sha512-o9rAHc0IpIjuPSxRutWpE1F62x7n+4mVS4rCNHkzhIUMQcc18bb6xEq5wd2NdN0WjepIyXIppRshYI2kQDOZVA==}
 
@@ -21955,8 +21958,8 @@ snapshots:
 
   '@babel/helper-member-expression-to-functions@7.25.9':
     dependencies:
-      '@babel/traverse': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/traverse': 7.27.0
+      '@babel/types': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
@@ -22010,7 +22013,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.25.9':
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.27.0
 
   '@babel/helper-optimise-call-expression@7.29.7':
     dependencies:
@@ -22043,7 +22046,7 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/helper-member-expression-to-functions': 7.25.9
       '@babel/helper-optimise-call-expression': 7.25.9
-      '@babel/traverse': 7.29.7
+      '@babel/traverse': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
@@ -22052,7 +22055,7 @@ snapshots:
       '@babel/core': 7.29.7
       '@babel/helper-member-expression-to-functions': 7.25.9
       '@babel/helper-optimise-call-expression': 7.25.9
-      '@babel/traverse': 7.29.7
+      '@babel/traverse': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
@@ -22076,8 +22079,8 @@ snapshots:
 
   '@babel/helper-skip-transparent-expression-wrappers@7.25.9':
     dependencies:
-      '@babel/traverse': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/traverse': 7.27.0
+      '@babel/types': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
@@ -22256,7 +22259,7 @@ snapshots:
   '@babel/plugin-syntax-decorators@7.25.9(@babel/core@7.26.10)':
     dependencies:
       '@babel/core': 7.26.10
-      '@babel/helper-plugin-utils': 7.29.7
+      '@babel/helper-plugin-utils': 7.26.5
 
   '@babel/plugin-syntax-import-assertions@7.26.0(@babel/core@7.26.10)':
     dependencies:
@@ -22301,12 +22304,12 @@ snapshots:
   '@babel/plugin-syntax-jsx@7.25.9(@babel/core@7.26.10)':
     dependencies:
       '@babel/core': 7.26.10
-      '@babel/helper-plugin-utils': 7.29.7
+      '@babel/helper-plugin-utils': 7.26.5
 
   '@babel/plugin-syntax-jsx@7.25.9(@babel/core@7.29.7)':
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/helper-plugin-utils': 7.29.7
+      '@babel/helper-plugin-utils': 7.26.5
 
   '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.26.10)':
     dependencies:
@@ -22391,12 +22394,12 @@ snapshots:
   '@babel/plugin-syntax-typescript@7.25.9(@babel/core@7.26.10)':
     dependencies:
       '@babel/core': 7.26.10
-      '@babel/helper-plugin-utils': 7.29.7
+      '@babel/helper-plugin-utils': 7.26.5
 
   '@babel/plugin-syntax-typescript@7.25.9(@babel/core@7.29.7)':
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/helper-plugin-utils': 7.29.7
+      '@babel/helper-plugin-utils': 7.26.5
 
   '@babel/plugin-syntax-unicode-sets-regex@7.18.6(@babel/core@7.26.10)':
     dependencies:
@@ -22712,7 +22715,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.10
       '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.10)
-      '@babel/helper-plugin-utils': 7.29.7
+      '@babel/helper-plugin-utils': 7.26.5
     transitivePeerDependencies:
       - supports-color
 
@@ -23061,7 +23064,7 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/helper-annotate-as-pure': 7.25.9
       '@babel/helper-create-class-features-plugin': 7.27.0(@babel/core@7.26.10)
-      '@babel/helper-plugin-utils': 7.29.7
+      '@babel/helper-plugin-utils': 7.26.5
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
     transitivePeerDependencies:
@@ -23549,7 +23552,7 @@ snapshots:
     dependencies:
       '@simple-libs/child-process-utils': 1.0.2
       '@simple-libs/stream-utils': 1.2.0
-      semver: 7.8.4
+      semver: 7.7.3
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -24659,7 +24662,7 @@ snapshots:
 
   '@jest/transform@28.1.3':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.26.10
       '@jest/types': 28.1.3
       '@jridgewell/trace-mapping': 0.3.25
       babel-plugin-istanbul: 6.1.1
@@ -25301,6 +25304,10 @@ snapshots:
     dependencies:
       '@module-federation/runtime': 0.6.6
       '@module-federation/sdk': 0.6.6
+
+  '@mongodb-js/saslprep@1.2.2':
+    dependencies:
+      sparse-bitfield: 3.0.3
 
   '@mongodb-js/saslprep@1.4.11':
     dependencies:
@@ -26635,7 +26642,7 @@ snapshots:
       extract-zip: 2.0.1(supports-color@8.1.1)
       progress: 2.0.3
       proxy-agent: 6.5.0
-      semver: 7.8.4
+      semver: 7.7.3
       tar-fs: 3.1.1
       yargs: 17.7.2
     transitivePeerDependencies:
@@ -31670,7 +31677,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.8.4
+      semver: 7.7.3
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -32716,7 +32723,7 @@ snapshots:
   bin-version-check@5.1.0:
     dependencies:
       bin-version: 6.0.0
-      semver: 7.8.4
+      semver: 7.7.3
       semver-truncate: 3.0.0
 
   bin-version@6.0.0:
@@ -35427,17 +35434,17 @@ snapshots:
 
   fork-ts-checker-webpack-plugin@8.0.0(typescript@5.7.3)(webpack@5.99.5):
     dependencies:
-      '@babel/code-frame': 7.29.7
+      '@babel/code-frame': 7.26.2
       chalk: 4.1.2
       chokidar: 3.6.0
       cosmiconfig: 7.1.0
       deepmerge: 4.3.1
       fs-extra: 10.1.0
       memfs: 3.5.3
-      minimatch: 3.1.5
+      minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.8.4
+      semver: 7.7.3
       tapable: 2.2.1
       typescript: 5.7.3
       webpack: 5.99.5(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack-cli@5.1.4)
@@ -35701,7 +35708,7 @@ snapshots:
   git-semver-tags@7.0.1:
     dependencies:
       meow: 12.1.1
-      semver: 7.8.4
+      semver: 7.7.3
 
   git-semver-tags@8.0.1:
     dependencies:
@@ -36952,7 +36959,7 @@ snapshots:
 
   istanbul-lib-instrument@5.2.1:
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.26.10
       '@babel/parser': 7.27.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
@@ -37027,7 +37034,7 @@ snapshots:
       async: 3.2.6
       chalk: 4.1.2
       filelist: 1.0.4
-      minimatch: 3.1.5
+      minimatch: 3.1.2
 
   javascript-natural-sort@0.7.1: {}
 
@@ -37335,7 +37342,7 @@ snapshots:
 
   jest-message-util@28.1.3:
     dependencies:
-      '@babel/code-frame': 7.29.7
+      '@babel/code-frame': 7.26.2
       '@jest/types': 28.1.3
       '@types/stack-utils': 2.0.3
       chalk: 4.1.2
@@ -37567,9 +37574,9 @@ snapshots:
 
   jest-snapshot@28.1.3:
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.26.10
       '@babel/generator': 7.27.0
-      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.29.7)
+      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
       '@babel/traverse': 7.27.0
       '@babel/types': 7.27.0
       '@jest/expect-utils': 28.1.3
@@ -37577,7 +37584,7 @@ snapshots:
       '@jest/types': 28.1.3
       '@types/babel__traverse': 7.20.7
       '@types/prettier': 2.7.3
-      babel-preset-current-node-syntax: 1.1.0(@babel/core@7.29.7)
+      babel-preset-current-node-syntax: 1.1.0(@babel/core@7.26.10)
       chalk: 4.1.2
       expect: 28.1.3
       graceful-fs: 4.2.11
@@ -37589,7 +37596,7 @@ snapshots:
       jest-util: 28.1.3
       natural-compare: 1.4.0
       pretty-format: 28.1.3
-      semver: 7.8.4
+      semver: 7.7.3
     transitivePeerDependencies:
       - supports-color
 
@@ -38991,7 +38998,7 @@ snapshots:
 
   mongodb@6.18.0(socks@2.8.7):
     dependencies:
-      '@mongodb-js/saslprep': 1.4.11
+      '@mongodb-js/saslprep': 1.2.2
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
     optionalDependencies:
@@ -39704,7 +39711,7 @@ snapshots:
 
   parse-json@7.1.1:
     dependencies:
-      '@babel/code-frame': 7.29.7
+      '@babel/code-frame': 7.26.2
       error-ex: 1.3.2
       json-parse-even-better-errors: 3.0.2
       lines-and-columns: 2.0.3
@@ -39718,7 +39725,7 @@ snapshots:
     dependencies:
       is-ssh: 1.4.1
       protocols: 1.4.8
-      qs: 6.15.2
+      qs: 6.14.0
       query-string: 6.14.1
 
   parse-path@7.1.0:
@@ -42474,7 +42481,7 @@ snapshots:
   telnyx@1.27.0:
     dependencies:
       lodash.isplainobject: 4.0.6
-      qs: 6.15.2
+      qs: 6.14.0
       safe-buffer: 5.2.1
       tweetnacl: 1.0.3
       uuid: 9.0.1
@@ -42518,7 +42525,7 @@ snapshots:
   terser@5.39.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.17.0
+      acorn: 8.14.1
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -42526,7 +42533,7 @@ snapshots:
     dependencies:
       '@istanbuljs/schema': 0.1.3
       glob: 7.2.3
-      minimatch: 3.1.5
+      minimatch: 3.1.2
 
   text-decoder@1.2.3:
     dependencies:
@@ -43004,7 +43011,7 @@ snapshots:
 
   union@0.5.0:
     dependencies:
-      qs: 6.15.2
+      qs: 6.14.0
 
   unique-string@2.0.0:
     dependencies:
@@ -43121,7 +43128,7 @@ snapshots:
   url@0.11.4:
     dependencies:
       punycode: 1.4.1
-      qs: 6.15.2
+      qs: 6.14.0
 
   use-callback-ref@1.3.3(@types/react@18.3.1)(react@18.3.1):
     dependencies:
