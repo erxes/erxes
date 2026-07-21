@@ -85,7 +85,7 @@ const CustomDateDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="sm:max-w-[425px]">
         <Dialog.Header>
-          <Dialog.Title>{t('select-custom-date')}</Dialog.Title>
+          <Dialog.Title>{t('select-custom-date', 'Select custom date')}</Dialog.Title>
         </Dialog.Header>
         <div className="py-4 flex justify-center">
           <Calendar
@@ -98,11 +98,11 @@ const CustomDateDialog = ({
         <Dialog.Footer className="sm:space-x-3">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Dialog.Close>
           <Button size="lg" onClick={handleApply} disabled={!selectedDate}>
-            {t('apply')}
+            {t('apply', 'Apply')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>
@@ -172,7 +172,7 @@ const SelectDateFilterView = ({
             value="custom"
           >
             <IconCalendar className="w-4 h-4 mr-2" />
-            {t('custom-date')}
+            {t('custom-date', 'Custom date')}
           </Command.Item>
         </Command.List>
       </Command>
@@ -217,7 +217,7 @@ const SelectDateFilterBar = ({
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey={filterKey}>
             <div className="flex items-center gap-3">
-              <span className="text-muted-foreground ">{t('before')}</span>
+              <span className="text-muted-foreground ">{t('before', 'before')}</span>
               {icon || <IconCalendarTime className="w-4 h-4" />}
               <span className="font-medium">{getDateLabel(dateValue)}</span>
             </div>
@@ -249,7 +249,7 @@ const SelectDateFilterBar = ({
                 value="custom"
               >
                 <IconCalendar className="w-4 h-4 mr-2" />
-                {t('custom-date')}
+                {t('custom-date', 'Custom date')}
               </Command.Item>
             </Command.List>
           </Command>

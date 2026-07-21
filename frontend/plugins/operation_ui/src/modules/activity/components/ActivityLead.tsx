@@ -13,16 +13,16 @@ export const ActivityLead = ({
 
   return (
     <div className="inline-flex items-center gap-1">
-      {t('changed-lead')}{' '}
+      {t('changed-lead', 'changed lead')}{' '}
       {previousValue && (
         <>
-          {t('from')}
+          {t('from', 'from')}
           <Badge variant="secondary" className="flex-none">
             <MembersInline memberIds={[previousValue]} />
           </Badge>
         </>
       )}
-      {t('to')}
+      {t('to', 'to')}
       {newValue && (
         <Badge variant="secondary" className="flex-none">
           <MembersInline memberIds={[newValue]} />

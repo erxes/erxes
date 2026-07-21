@@ -57,7 +57,7 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
     case ACTIVITY_MODULES.CONVERT:
       return <ActivityConvertToProject metadata={metadata} action={action} />;
     default:
-      return <div>{t('unknown-module')}</div>;
+      return <div>{t('unknown-module', 'Unknown module')}</div>;
   }
 };
 

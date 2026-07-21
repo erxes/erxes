@@ -20,7 +20,7 @@ export const ProjectWidget = ({
         <div className="flex flex-col gap-2 items-center justify-center">
           <IconClipboard className="size-6 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            {t('no-projects-related')}
+            {t('no-projects-related', 'No projects related')}
           </span>
         </div>
       </div>

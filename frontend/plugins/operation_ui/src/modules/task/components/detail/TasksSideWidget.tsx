@@ -55,7 +55,7 @@ export const TasksSideWidget = ({ userId, children }: TasksSideWidgetProps) => {
     <SideMenu defaultValue="">
       {children}
       <SideMenu.Content value="task-report">
-        <SideMenu.Header Icon={IconChartHistogram} label={t('task-report')} />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('task-report', 'Task Report')} />
         <>
           <div className="p-4 border-b">
             <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -66,7 +66,7 @@ export const TasksSideWidget = ({ userId, children }: TasksSideWidgetProps) => {
                   size="sm"
                 >
                   <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                  {t('progress')}
+                  {t('progress', 'Progress')}
                 </Button>
               </Collapsible.Trigger>
               <Collapsible.Content>
@@ -95,7 +95,7 @@ export const TasksSideWidget = ({ userId, children }: TasksSideWidgetProps) => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="task-report"
-          label={t('task-report')}
+          label={t('task-report', 'Task Report')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>
@@ -132,19 +132,19 @@ export const TasksSideWidgetTabs = ({
             value={TasksSideWidgetTabsEnum.Priorities}
             className="flex-auto"
           >
-            {t('priorities')}
+            {t('priorities', 'Priorities')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={TasksSideWidgetTabsEnum.Projects}
             className="flex-auto"
           >
-            {t('projects')}
+            {t('projects', 'Projects')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={TasksSideWidgetTabsEnum.Tags}
             className="flex-auto"
           >
-            {t('tags')}
+            {t('tags', 'Tags')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

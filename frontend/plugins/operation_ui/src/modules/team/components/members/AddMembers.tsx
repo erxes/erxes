@@ -49,13 +49,13 @@ export const AddMembers = () => {
       addTeamMember({
         variables: { ...data, teamId },
         onCompleted: () => {
-          toast({ title: t('success') });
+          toast({ title: t('success', 'Success') });
           form.reset();
           _setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -69,7 +69,7 @@ export const AddMembers = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-members')}
+          {t('add-members', 'Add members')}
           <Kbd>C</Kbd>
         </Button>
       </Dialog.Trigger>
@@ -77,10 +77,10 @@ export const AddMembers = () => {
         <Dialog.Header className="flex-row">
           <Dialog.Title className="flex items-center gap-2">
             {/* <IconTagPlus size={16} /> */}
-            {t('add-members')}
+            {t('add-members', 'Add members')}
           </Dialog.Title>
           <Dialog.Description className="sr-only">
-            {t('add-members-description')}
+            {t('add-members-description', 'Add a new members to the team.')}
           </Dialog.Description>
           <Dialog.Close asChild>
             <Button
@@ -101,11 +101,11 @@ export const AddMembers = () => {
             <div className="flex justify-end gap-2">
               <Dialog.Close asChild>
                 <Button variant="secondary" type="button">
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
               </Dialog.Close>
               <Button type="submit" disabled={loading}>
-                {t('add')}
+                {t('add', 'Add')}
               </Button>
             </div>
           </form>

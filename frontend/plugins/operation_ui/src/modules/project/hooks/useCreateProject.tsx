@@ -21,15 +21,15 @@ export const useCreateProject = () => {
       ],
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('project-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('project-created-successfully', 'Project created successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

@@ -30,7 +30,7 @@ export const SelectTemplate = ({ teamId, onSelect }: SelectTemplateProps) => {
           <span className="flex items-center">
             <IconTemplateFilled className="size-4 mr-2 shrink-0" />
             <span className="truncate">
-              {selected ? selected.name : t('template')}
+              {selected ? selected.name : t('template', 'Template')}
             </span>
           </span>
           <IconChevronDown className="size-4 opacity-50 shrink-0" />
@@ -38,9 +38,9 @@ export const SelectTemplate = ({ teamId, onSelect }: SelectTemplateProps) => {
       </Popover.Trigger>
       <Popover.Content className="w-[200px] p-0" align="start">
         <Command>
-          <Command.Input placeholder={t('search-template')} />
+          <Command.Input placeholder={t('search-template', 'Search template...')} />
           <Command.List>
-            <Command.Empty>{t('no-templates-found')}</Command.Empty>
+            <Command.Empty>{t('no-templates-found', 'No templates found')}</Command.Empty>
             <Command.Group>
               {templates.map((template) => (
                 <Command.Item

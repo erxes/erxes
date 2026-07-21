@@ -48,7 +48,7 @@ export const AutomationRemoteEntries = ({
 
   return (
     <Suspense fallback={<Spinner />}>
-      <ErrorBoundary FallbackComponent={() => { const { t } = useTranslation('operation'); return <div>{t('error')}</div>; }}>
+      <ErrorBoundary FallbackComponent={() => { const { t } = useTranslation('operation'); return <div>{t('error', 'Error')}</div>; }}>
         <RemoteComponent {...props} />
       </ErrorBoundary>
     </Suspense>

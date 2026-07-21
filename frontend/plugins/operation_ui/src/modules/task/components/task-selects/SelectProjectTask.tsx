@@ -98,7 +98,7 @@ const SelectProjectValue = () => {
   };
 
   const { t } = useTranslation('operation');
-  const projectName = name || project?.name || t('no-project');
+  const projectName = name || project?.name || t('no-project', 'No project');
 
   return (
     <div
@@ -114,7 +114,7 @@ const SelectProjectValue = () => {
           variant="ghost"
           className="h-6 w-6 shrink-0"
           onClick={handleNavigateToProject}
-          title={t('go-to-project', { name: projectName })}
+          title={t('go-to-project', 'Go to {{name}} project', { name: projectName })}
         >
           <IconChevronRight className="size-4" />
         </Button>
@@ -159,14 +159,14 @@ const SelectProjectContent = () => {
   return (
     <Command id="project-command-menu">
       <Command.Input
-        placeholder={t('search-project')}
+        placeholder={t('search-project', 'Search project')}
         value={search}
         onValueChange={setSearch}
       />
-      <Command.Empty>{t('no-project-found')}</Command.Empty>
+      <Command.Empty>{t('no-project-found', 'No project found')}</Command.Empty>
       <Command.List>
         <SelectProjectCommandItem
-          project={{ _id: 'no-project', name: t('no-project') } as IProject}
+          project={{ _id: 'no-project', name: t('no-project', 'No project') } as IProject}
         />
         {projects.map((project) => (
           <SelectProjectCommandItem key={project._id} project={project} />

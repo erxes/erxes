@@ -73,7 +73,7 @@ const ExpandableSection = <T,>({
           <Icon className="size-3.5" />
           <span>{title}</span>
         </div>
-        <div className="text-xs text-muted-foreground pl-5">{t('loading')}</div>
+        <div className="text-xs text-muted-foreground pl-5">{t('loading', 'Loading...')}</div>
       </div>
     );
   }
@@ -110,7 +110,7 @@ const ExpandableSection = <T,>({
                   setExpanded(!expanded);
                 }}
               >
-                {expanded ? t('show-less') : t('show-more', { count: remainingCount })}
+                {expanded ? t('show-less', 'Show less') : t('show-more', '+{{count}} more', { count: remainingCount })}
               </Button>
             )}
           </>
@@ -186,15 +186,15 @@ const AssigneeHoverCard = forwardRef(
                 <Avatar.Fallback>{fullName?.charAt(0) || ''}</Avatar.Fallback>
               </Avatar>
               <div className="font-semibold text-sm truncate">
-                {fullName || t('unnamed-user')}
+                {fullName || t('unnamed-user', 'Unnamed user')}
               </div>
             </div>
             <ExpandableSection
-              title={t('teams')}
+              title={t('teams', 'Teams')}
               icon={IconUsers}
               loading={teamsLoading}
               items={teams}
-              emptyText={t('no-teams-assigned')}
+              emptyText={t('no-teams-assigned', 'No teams assigned')}
               keyExtractor={(team) => team._id}
               renderItem={(team) => (
                 <div key={team._id} className="text-xs flex items-center gap-1">
@@ -209,11 +209,11 @@ const AssigneeHoverCard = forwardRef(
               )}
             />
             <ExpandableSection
-              title={t('projects')}
+              title={t('projects', 'Projects')}
               icon={IconClipboard}
               loading={projectsLoading}
               items={projects}
-              emptyText={t('no-projects-assigned')}
+              emptyText={t('no-projects-assigned', 'No projects assigned')}
               keyExtractor={(project) => project._id}
               renderItem={(project) => (
                 <div
@@ -258,7 +258,7 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
-  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
+  return <SelectMember.Value placeholder={placeholder || t('select-assignee', 'Select assignee')} />;
 };
 
 const SelectTeamMemberContent = ({

@@ -36,7 +36,7 @@ export const ProgressByMember = ({ projectId }: { projectId: string }) => {
               <div>
                 <MembersInline
                   memberIds={[item.assigneeId]}
-                  placeholder={t('no-assignee')}
+                  placeholder={t('no-assignee', 'No Assignee')}
                 />
 
                 <ChartContainer config={{}} className="aspect-square size-6">
@@ -80,21 +80,21 @@ export const ProgressByMember = ({ projectId }: { projectId: string }) => {
             <div className="flex flex-col gap-1 text-muted-foreground">
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="total" />
-                {t('total')}
+                {t('total', 'total:')}
                 <span className="text-foreground ml-auto">
                   {item.totalScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="completed" />
-                {t('completed-label')}
+                {t('completed-label', 'completed:')}
                 <span className="text-foreground ml-auto">
                   {item.totalCompletedScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="started" />
-                {t('started-label')}
+                {t('started-label', 'started:')}
                 <span className="text-foreground ml-auto">
                   {item.totalStartedScope}
                 </span>

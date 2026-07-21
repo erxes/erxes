@@ -77,7 +77,7 @@ const SelectStatusValue = ({ placeholder }: { placeholder?: string }) => {
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-status')}
+        {placeholder || t('select-status', 'Select status...')}
       </span>
     );
   }
@@ -131,9 +131,9 @@ const SelectStatusContent = ({
 
   return (
     <Command id="status-command-menu">
-      <Command.Input placeholder={t('search-status')} />
+      <Command.Input placeholder={t('search-status', 'Search status')} />
       <Command.List>
-        <Command.Empty>{t('no-status-found')}</Command.Empty>
+        <Command.Empty>{t('no-status-found', 'No status found')}</Command.Empty>
         {visibleStatuses.map((label) => {
           const originalIndex = STATUS_TYPE_LABELS.indexOf(label);
           return (

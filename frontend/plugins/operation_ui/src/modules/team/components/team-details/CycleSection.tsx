@@ -16,11 +16,11 @@ export const CycleSection = ({ team }: { team: ITeam }) => {
         cycleEnabled: value,
       },
       onCompleted: () => {
-        toast({ title: t('success') });
+        toast({ title: t('success', 'Success') });
       },
       onError: (error: ApolloError) =>
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -31,7 +31,7 @@ export const CycleSection = ({ team }: { team: ITeam }) => {
     <div className="mt-4 w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer">
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>{t('cycle')}</p>
+          <p>{t('cycle', 'Cycle')}</p>
           <div className="flex items-center gap-2">
             <Switch
               onCheckedChange={submitHandler}

@@ -18,7 +18,7 @@ export const TasksAddProjectTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconClipboard className="size-4" />
-        {t('add-project')}
+        {t('add-project', 'Add project')}
       </div>
       <IconChevronRight />
     </Command.Item>

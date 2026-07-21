@@ -16,15 +16,15 @@ export const useCreateTask = () => {
       // refetchQueries: [GET_TASKS],
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('task-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('task-created-successfully', 'Task created successfully'),
           variant: 'default',
         });
         setCursor(null);
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

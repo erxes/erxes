@@ -27,7 +27,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
-    placeholder: t('description-placeholder'),
+    placeholder: t('description-placeholder', 'Description...'),
   });
   const { updateTriage } = useUpdateTriage();
   const { convertTriageToTask } = useConvertTriage();
@@ -84,7 +84,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     <div className="flex flex-col gap-3">
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-        placeholder={t('triage-name')}
+        placeholder={t('triage-name', 'Triage Name')}
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
@@ -130,16 +130,16 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <Dialog.Content>
           <Dialog.Header>
-            <Dialog.Title>{t('convert-to-task')}</Dialog.Title>
+            <Dialog.Title>{t('convert-to-task', 'Convert to Task')}</Dialog.Title>
           </Dialog.Header>
           <div className="py-4">
             <p>
-              {t('convert-triage-confirm')}
+              {t('convert-triage-confirm', 'Changing the status will convert the triage to a task. Are you sure you want to proceed?')}
             </p>
           </div>
           <Dialog.Footer>
             <Dialog.Close asChild>
-              <Button variant="outline">{t('cancel')}</Button>
+              <Button variant="outline">{t('cancel', 'Cancel')}</Button>
             </Dialog.Close>
             <Button
               onClick={() => {
@@ -151,7 +151,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
                 setConfirmOpen(false);
               }}
             >
-              {t('confirm')}
+              {t('confirm', 'Confirm')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

@@ -23,8 +23,8 @@ export const DeleteTeamForm = () => {
       },
       onError: () => {
         toast({
-          title: t('error'),
-          description: t('failed-to-remove-team'),
+          title: t('error', 'Error'),
+          description: t('failed-to-remove-team', 'Failed to remove team'),
           variant: 'destructive',
         });
       },
@@ -33,7 +33,7 @@ export const DeleteTeamForm = () => {
 
   const handleClick = () => {
     confirm({
-      message: t('are-you-sure-delete'),
+      message: t('are-you-sure-delete', 'Are you sure you want to delete?'),
       options: confirmOptions,
     }).then(() => {
       handleRemoveTeam();
@@ -46,7 +46,7 @@ export const DeleteTeamForm = () => {
     <div className="mt-4 w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer">
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>{t('delete-team')}</p>
+          <p>{t('delete-team', 'Delete Team')}</p>
           <div className="flex justify-end">
             <Button
               type="button"
@@ -54,7 +54,7 @@ export const DeleteTeamForm = () => {
               onClick={handleClick}
               disabled={loading}
             >
-              {t('delete')}
+              {t('delete', 'Delete')}
             </Button>
           </div>
         </div>

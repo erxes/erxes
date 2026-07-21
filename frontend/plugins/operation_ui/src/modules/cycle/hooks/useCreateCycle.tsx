@@ -16,14 +16,14 @@ export const useCreateCycle = () => {
       onCompleted: (data) => {
         toast({
           variant: 'default',
-          title: t('cycle-created-successfully'),
+          title: t('cycle-created-successfully', 'Cycle created successfully'),
         });
         options.onCompleted?.(data);
       },
       onError: (e) => {
         toast({
           variant: 'destructive',
-          title: t('failed-to-create-cycle'),
+          title: t('failed-to-create-cycle', 'Failed to create cycle'),
           description: e.message,
         });
         options.onError?.(e);

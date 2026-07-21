@@ -11,7 +11,7 @@ export const CycleStatusDisplay = ({
   const { t } = useTranslation('operation');
   return (
     <Badge variant={isActive ? 'success' : isCompleted ? 'info' : 'secondary'}>
-      {isActive ? t('active') : isCompleted ? t('completed') : t('upcoming')}
+      {isActive ? t('active', 'Active') : isCompleted ? t('completed', 'Completed') : t('upcoming', 'Upcoming')}
     </Badge>
   );
 };

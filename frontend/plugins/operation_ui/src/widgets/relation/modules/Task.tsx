@@ -65,7 +65,7 @@ export const Task = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconCaretLeftRight />
         </div>
-        <span className="text-sm">{t('no-triages-to-display')}</span>
+        <span className="text-sm">{t('no-triages-to-display', 'No triages to display at the moment.')}</span>
         <AddTriageSheet onComplete={onComplete} />
       </div>
     );
@@ -74,7 +74,7 @@ export const Task = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('tasks-and-triages')}</span>
+        <span className="font-medium text-primary">{t('tasks-and-triages', 'Tasks and Triages')}</span>
         <AddTriageSheet onComplete={onComplete} />
       </div>
       <Separator />

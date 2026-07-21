@@ -41,8 +41,8 @@ export const useUpdateCycle = () => {
       onCompleted: (data) => {
         if (data?.updateCycle && options.showSuccessToast) {
           toast({
-            title: t('success'),
-            description: t('cycle-updated-successfully'),
+            title: t('success', 'Success'),
+            description: t('cycle-updated-successfully', 'Cycle updated successfully'),
             variant: 'default',
           });
         }
@@ -50,8 +50,8 @@ export const useUpdateCycle = () => {
       onError: (error) => {
         console.error('Update cycle error:', error);
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-update-cycle'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-update-cycle', 'Failed to update cycle'),
           variant: 'destructive',
         });
       },

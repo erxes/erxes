@@ -20,7 +20,7 @@ export const TasksEditStatusTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconProgressCheck className="size-4" />
-        {t('change-status')}
+        {t('change-status', 'Change Status')}
       </div>
       <IconChevronRight />
     </Command.Item>

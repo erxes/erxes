@@ -10,7 +10,7 @@ export const CyclesBreadcrumb = ({ link }: { link: string }) => {
       <Button variant="ghost" asChild>
         <Link to={link}>
           <IconRestore />
-          {t('cycles')}
+          {t('cycles', 'Cycles')}
         </Link>
       </Button>
     </Breadcrumb.Item>

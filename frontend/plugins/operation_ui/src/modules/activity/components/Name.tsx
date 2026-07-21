@@ -5,7 +5,7 @@ export const Name = ({ metadata }: { metadata: IActivity['metadata'] }) => {
   const { t } = useTranslation('operation');
   return (
     <div>
-      {t('renamed-the-task-to')}{' '}
+      {t('renamed-the-task-to', 'renamed the task to')}{' '}
       <span className="font-bold">"{metadata.newValue}"</span>
     </div>
   );

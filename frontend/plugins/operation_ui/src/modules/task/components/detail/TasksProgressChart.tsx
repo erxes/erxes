@@ -67,7 +67,7 @@ export const TasksProgressChart = ({ tasks }: TasksProgressChartProps) => {
   if (chartData.length === 0) {
     return (
       <div className="flex items-center justify-center h-24 text-sm text-muted-foreground">
-{t('no-data-available')}
+{t('no-data-available', 'No data available')}
       </div>
     );
   }

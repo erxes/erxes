@@ -47,7 +47,7 @@ export const ProjectsSetTargetDateTrigger = ({
   const { t } = useTranslation('operation');
   return (
     <Command.Item onSelect={() => setCurrentContent('targetDate')}>
-      <div className="flex gap-2 items-center">{t('set-target-date')}</div>
+      <div className="flex gap-2 items-center">{t('set-target-date', 'Set Target Date')}</div>
     </Command.Item>
   );
 };
@@ -87,7 +87,7 @@ export const ProjectsSetTargetDateContent = ({
           onClick={() => setShowCalendar(false)}
         >
           <IconChevronLeft className="size-4 mr-1" />
-          {t('back-to-options')}
+          {t('back-to-options', 'Back to options')}
         </Button>
         <Calendar
           mode="single"
@@ -113,7 +113,7 @@ export const ProjectsSetTargetDateContent = ({
           disabled={loading}
         >
           <IconCalendarTime className="size-4 mr-2" />
-          <span>{t('custom-date')}</span>
+          <span>{t('custom-date', 'Custom date')}</span>
         </Command.Item>
 
         <Command.Separator />

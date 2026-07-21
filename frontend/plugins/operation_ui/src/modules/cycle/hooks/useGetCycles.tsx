@@ -51,7 +51,7 @@ export const useGetCycles = (
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     onError: (e) => {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: e.message,
         variant: 'destructive',
       });

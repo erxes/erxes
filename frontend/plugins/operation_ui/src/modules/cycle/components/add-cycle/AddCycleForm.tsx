@@ -45,7 +45,7 @@ export const AddCycleForm = ({ onClose }: { onClose: () => void }) => {
         className="h-full flex flex-col"
       >
         <Sheet.Header className="flex items-center gap-2 ">
-          <Sheet.Title className="">{t('new-cycle')}</Sheet.Title>
+          <Sheet.Title className="">{t('new-cycle', 'New cycle')}</Sheet.Title>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col">
           <Form.Field
@@ -53,12 +53,12 @@ export const AddCycleForm = ({ onClose }: { onClose: () => void }) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">{t('name')}</Form.Label>
+                <Form.Label className="sr-only">{t('name', 'Name')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                    placeholder={t('cycle-name')}
+                    placeholder={t('cycle-name', 'Cycle Name')}
                   />
                 </Form.Control>
               </Form.Item>
@@ -70,11 +70,11 @@ export const AddCycleForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('start-date')}</Form.Label>
+                  <Form.Label className="sr-only">{t('start-date', 'Start Date')}</Form.Label>
                   <DateSelect.FormItem
                     {...field}
                     type="start"
-                    placeholder={t('start-date')}
+                    placeholder={t('start-date', 'Start Date')}
                   />
                 </Form.Item>
               )}
@@ -84,11 +84,11 @@ export const AddCycleForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
+                  <Form.Label className="sr-only">{t('target-date', 'Target Date')}</Form.Label>
                   <DateSelect.FormItem
                     {...field}
                     type="target"
-                    placeholder={t('target-date')}
+                    placeholder={t('target-date', 'Target Date')}
                   />
                 </Form.Item>
               )}
@@ -105,14 +105,14 @@ export const AddCycleForm = ({ onClose }: { onClose: () => void }) => {
               form.reset();
             }}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
             disabled={loading}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {t('save')}
+            {t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </form>
