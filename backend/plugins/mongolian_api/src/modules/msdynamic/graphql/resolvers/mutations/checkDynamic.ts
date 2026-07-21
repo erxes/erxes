@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { IContext, generateModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-
+import { getExchangeRates, getPrice } from '../../../utils';
 /**
  * Get DYNAMIC config from mnconfigs module
  */
@@ -61,7 +61,6 @@ export const msdynamicCheckMutations = {
       input: { query: { status: { $ne: 'deleted' } } },
       defaultValue: [],
     });
-
     const productCodes = products.map((p: any) => p.code);
 
     const response = await fetch(
@@ -133,5 +132,198 @@ export const msdynamicCheckMutations = {
       syncedBillNumber: syncMap[_id]?.syncedBillNumber || null,
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,
     }));
+  },
+  async toCheckMsdPrices(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (
+      !config.priceApi ||
+      !config.username ||
+      !config.password ||
+      !config.pricePriority
+    ) {
+      throw new Error('MS Dynamic price config not found.');
+    }
+
+    const { priceApi, username, password, pricePriority } = config;
+
+    const productQry: any = {
+      status: { $ne: 'deleted' },
+    };
+
+    if (brandId && brandId !== 'noBrand') {
+      productQry.scopeBrandIds = { $in: [brandId] };
+    } else {
+      productQry.$or = [
+        { scopeBrandIds: { $exists: false } },
+        { scopeBrandIds: { $size: 0 } },
+      ];
+    }
+
+    const products = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: { query: productQry },
+      defaultValue: [],
+    });
+
+    let exchangeRates = {};
+
+    if (config.exchangeRateApi) {
+      exchangeRates = (await getExchangeRates(config)) ?? {};
+    }
+
+    const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
+
+    let filterSection = '';
+
+    for (const price of salesCodeFilter) {
+      filterSection += `Sales_Code eq '${price}' or `;
+    }
+
+    const response = await fetch(
+      `${priceApi}?$filter=${filterSection} Sales_Code eq ''`,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`,
+          ).toString('base64')}`,
+        },
+      },
+    ).then((res) => res.json());
+
+    const groupedItems: Record<string, any[]> = {};
+
+    if (Array.isArray(response?.value)) {
+      for (const item of response.value) {
+        if (!groupedItems[item.Item_No]) {
+          groupedItems[item.Item_No] = [];
+        }
+
+        groupedItems[item.Item_No].push(item);
+      }
+    }
+    const productsByCode: Record<string, any> = {};
+
+    for (const product of products) {
+      productsByCode[product.code] = product;
+    }
+
+    const dynamicCodes = new Set(Object.keys(groupedItems));
+
+    const result = {
+      update: { items: [] as any[] },
+      match: { items: [] as any[] },
+      create: { items: [] as any[] },
+      delete: { items: [] as any[] },
+      error: { items: [] as any[] },
+    };
+
+    for (const Item_No of Object.keys(groupedItems)) {
+      try {
+        const { resPrice, resProd } = await getPrice(
+          groupedItems[Item_No],
+          pricePriority,
+          exchangeRates,
+        );
+
+        const foundProduct = productsByCode[Item_No];
+
+        if (!foundProduct) {
+          result.create.items.push({
+            Item_No,
+            Unit_Price: resPrice,
+            Ending_Date: resProd?.Ending_Date,
+            syncStatus: false,
+          });
+
+          continue;
+        }
+
+        const item = {
+          _id: foundProduct._id,
+          Item_No,
+          Unit_Price: resPrice,
+          Ending_Date: resProd?.Ending_Date,
+          code: foundProduct.code,
+          unitPrice: foundProduct.unitPrice,
+          syncStatus: foundProduct.unitPrice === resPrice,
+        };
+
+        if (foundProduct.unitPrice === resPrice) {
+          result.match.items.push(item);
+        } else {
+          result.update.items.push(item);
+        }
+      } catch (e) {
+        result.error.items.push({
+          Item_No,
+        });
+      }
+    }
+
+    for (const product of products) {
+      if (!dynamicCodes.has(product.code)) {
+        result.delete.items.push({
+          _id: product._id,
+          code: product.code,
+          unitPrice: product.unitPrice,
+          syncStatus: false,
+        });
+      }
+    }
+
+    return result;
+  },
+  async toSyncMsdPrices(
+    _root,
+    { prices = [] }: { prices: any[] },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdSync');
+
+    try {
+      for (const price of prices) {
+        if (!price._id) {
+          continue;
+        }
+
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'products',
+          action: 'updateProduct',
+          input: {
+            _id: price._id,
+            doc: {
+              unitPrice: Number(price.Unit_Price) || 0,
+              currency: 'MNT',
+            },
+          },
+          defaultValue: null,
+        });
+      }
+
+      return {
+        status: 'success',
+      };
+    } catch (e) {
+      console.error('Failed to sync MS Dynamic prices:', e);
+
+      return {
+        status: 'failed',
+      };
+    }
   },
 };
