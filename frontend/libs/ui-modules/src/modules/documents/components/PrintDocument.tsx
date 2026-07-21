@@ -87,27 +87,41 @@ const Preview = () => {
     const iframe = iframeRef.current;
     if (!iframe || !document) return;
 
+    let resizeObserver: ResizeObserver | undefined;
+
+    iframe.dataset.printReady = 'false';
+
+    const onLoad = () => {
+      iframe.dataset.printReady = 'true';
+
+      const container =
+        iframe.contentDocument?.querySelector('.scaled-content');
+
+      if (!container) return;
+
+      resizeObserver = new ResizeObserver(() => {
+        requestAnimationFrame(() => {
+          const rect = (container as HTMLElement).getBoundingClientRect();
+
+          iframe.style.height = `${Math.ceil(rect.height)}px`;
+        });
+      });
+
+      resizeObserver.observe(container);
+    };
+
+    iframe.addEventListener('load', onLoad, { once: true });
+
     utils.layout(
       document,
       { size, orientation, width, height, ...debouncedConfig },
       iframe,
     );
 
-    const container = iframe.contentDocument?.querySelector('.scaled-content');
-
-    if (!container) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(() => {
-        const rect = (container as HTMLElement).getBoundingClientRect();
-
-        iframe.style.height = `${Math.ceil(rect.height)}px`;
-      });
-    });
-
-    resizeObserver.observe(container);
-
-    return () => resizeObserver.disconnect();
+    return () => {
+      iframe.removeEventListener('load', onLoad);
+      resizeObserver?.disconnect();
+    };
   }, [document, size, orientation, width, height, debouncedConfig]);
 
   if (loading) {
@@ -598,7 +612,10 @@ export const PrintDocument = (props: Props) => {
       iframe.contentWindow?.print();
     };
 
-    if (iframe.contentDocument?.readyState === 'complete') {
+    // The iframe's content is (re)loaded via `srcdoc` whenever size/margin/
+    // scale change; `printReady` is only "true" once that navigation has
+    // actually finished, so we never print a stale or half-loaded page.
+    if (iframe.dataset.printReady === 'true') {
       printIframe();
     } else {
       const onLoad = () => {
