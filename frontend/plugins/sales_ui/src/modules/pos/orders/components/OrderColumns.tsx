@@ -51,6 +51,71 @@ const getPaidAmountsMap = (
   }, {});
 };
 
+const NumberHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconLabel} label={t('bill-number')} />;
+};
+
+const PaidDateHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconMobiledata} label={t('date')} />;
+};
+
+const CashAmountHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconLabel} label={t('cash-amount')} />;
+};
+
+const MobileAmountHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconLabel} label={t('mobile-amount')} />;
+};
+
+const TotalAmountHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconLabel} label={t('amount')} />;
+};
+
+const CustomerTypeHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconClock} label={t('customer')} />;
+};
+
+const BrokerTypeHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconUser} label={t('broker-type')} />;
+};
+
+const BrokerHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconUser} label={t('broker')} />;
+};
+
+const PosNameHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconUser} label={t('pos')} />;
+};
+
+const TypeHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconTag} label={t('type')} />;
+};
+
+const UserHeader = () => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={IconUser} label={t('user')} />;
+};
+
+const DynamicPaymentHeader = ({ title }: { title: string }) => {
+  const { t } = useTranslation('sales');
+  return (
+    <RecordTable.InlineHead
+      icon={IconClock}
+      label={t(title, { defaultValue: title })}
+    />
+  );
+};
+
 export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
   const otherPayTitles = (summary ? Object.keys(summary) : [])
     .filter(
@@ -63,15 +128,7 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
 
   return otherPayTitles.map((title: string, index) => ({
     id: `${title}_${index}`,
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead
-          icon={IconClock}
-          label={t(title, { defaultValue: title })}
-        />
-      );
-    },
+    header: () => <DynamicPaymentHeader title={title} />,
     cell: ({ row }: { row: PaymentRow }) => {
       const order = row.original;
       const dynamicAmounts = getPaidAmountsMap(order.paidAmounts);
@@ -86,17 +143,13 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
     size: 150,
   }));
 };
+
 export const firstOrderColumns: ColumnDef<IOrder>[] = [
   ordersMoreColumn,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead icon={IconLabel} label={t('bill-number')} />
-      );
-    },
+    header: () => <NumberHeader />,
     cell: ({ cell, row }) => {
       return (
         <ClickableBillNumber value={cell.getValue() as string} row={row} />
@@ -106,10 +159,7 @@ export const firstOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconMobiledata} label={t('date')} />;
-    },
+    header: () => <PaidDateHeader />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -132,12 +182,7 @@ export const firstOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'cashAmount',
     accessorKey: 'cashAmount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead icon={IconLabel} label={t('cash-amount')} />
-      );
-    },
+    header: () => <CashAmountHeader />,
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -151,12 +196,7 @@ export const firstOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'mobileAmount',
     accessorKey: 'mobileAmount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead icon={IconLabel} label={t('mobile-amount')} />
-      );
-    },
+    header: () => <MobileAmountHeader />,
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -173,10 +213,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('amount')} />;
-    },
+    header: () => <TotalAmountHeader />,
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -190,10 +227,35 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'customerType',
     accessorKey: 'customerType',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconClock} label={t('customer')} />;
+    header: () => <CustomerTypeHeader />,
+    cell: ({ cell }) => {
+      const value = cell.getValue() as string;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={value} />
+        </RecordTableInlineCell>
+      );
     },
+    size: 150,
+  },
+  {
+    id: 'brokerType',
+    accessorKey: 'brokerType',
+    header: () => <BrokerTypeHeader />,
+    cell: ({ cell }) => {
+      const value = cell.getValue() as string;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={value} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 120,
+  },
+  {
+    id: 'brokerName',
+    accessorKey: 'brokerName',
+    header: () => <BrokerHeader />,
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
       return (
@@ -207,10 +269,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'posName',
     accessorKey: 'posName',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('pos')} />;
-    },
+    header: () => <PosNameHeader />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -223,10 +282,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('type')} />;
-    },
+    header: () => <TypeHeader />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -239,10 +295,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'user',
     accessorKey: 'user',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('user')} />;
-    },
+    header: () => <UserHeader />,
     cell: ({ cell }) => {
       const user = cell.getValue() as IUser;
       return (

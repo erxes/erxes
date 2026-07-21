@@ -2,9 +2,10 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Document, Schema } from 'mongoose';
 
 export interface IFavorites {
-  type: string;
-  path: string;
   userId: string;
+  path: string;
+  breadcrumb?: string[];
+  icon?: string;
 }
 
 export interface IFavoritesDocument extends IFavorites, Document {
@@ -16,11 +17,6 @@ export interface IFavoritesDocument extends IFavorites, Document {
 export const favoritesSchema = new Schema(
   {
     _id: mongooseStringRandomId,
-    type: {
-      type: String,
-      enum: ['module', 'submenu'],
-      required: true,
-    },
     path: {
       type: String,
       required: true,
@@ -29,6 +25,16 @@ export const favoritesSchema = new Schema(
       type: String,
       required: true,
     },
+    breadcrumb: {
+      type: [String],
+      default: undefined,
+    },
+    icon: {
+      type: String,
+      default: undefined,
+    },
   },
   { timestamps: true },
 );
+
+favoritesSchema.index({ userId: 1, path: 1 }, { unique: true });

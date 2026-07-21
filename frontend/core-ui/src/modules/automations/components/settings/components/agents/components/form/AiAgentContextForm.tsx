@@ -1,26 +1,32 @@
 import { AiAgentKnowledgeSourcesForm } from '@/automations/components/settings/components/agents/components/form/AiAgentKnowledgeSourcesForm';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
+import { useSessionTab } from '@/automations/hooks/useSessionTab';
 import { Form, Tabs, Textarea } from 'erxes-ui';
 import { IconBooks, IconMessageCog } from '@tabler/icons-react';
 import { useFormContext } from 'react-hook-form';
 
+const AI_AGENT_CONTEXT_TABS = ['instructions', 'knowledge'];
+
 export const AiAgentContextForm = () => {
   const { control } = useFormContext<TAiAgentForm>();
+  const [activeTab, setActiveTab] = useSessionTab(
+    'aiAgentContext',
+    'instructions',
+    AI_AGENT_CONTEXT_TABS,
+  );
 
   return (
-    <Tabs defaultValue="instructions" className="flex flex-col ">
-      <Tabs.List className="h-auto w-fit gap-1 rounded-lg border-b-0 bg-muted p-1">
-        <Tabs.Trigger
-          value="instructions"
-          className="gap-2 rounded-md text-muted-foreground after:hidden data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:hover:bg-background"
-        >
+    <Tabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="flex flex-col "
+    >
+      <Tabs.List variant="segment">
+        <Tabs.Trigger value="instructions">
           <IconMessageCog className="size-4" />
           Instructions
         </Tabs.Trigger>
-        <Tabs.Trigger
-          value="knowledge"
-          className="gap-2 rounded-md text-muted-foreground after:hidden data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:hover:bg-background"
-        >
+        <Tabs.Trigger value="knowledge">
           <IconBooks className="size-4" />
           Knowledge
         </Tabs.Trigger>

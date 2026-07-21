@@ -56,6 +56,7 @@ export const types = `
     isCheckRem: Boolean
     hasSimilarity: Boolean
     similarityId: String
+    similarity: JSON
     pdfAttachment: PdfAttachment
   }
 
@@ -97,7 +98,7 @@ const productsQueryParams = `
   segmentData: String,
   isKiosk: Boolean,
   groupedSimilarity: String,
-  similarity: Boolean,
+  isSimilarity: Boolean,
   categoryMeta: String,
   image: String,
   minRemainder: Float

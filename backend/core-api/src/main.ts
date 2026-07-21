@@ -40,10 +40,6 @@ Sentry.getGlobalScope().setTags({
 
 dotenv.config();
 
-// Seed the dynamic revert-capture content-type resolver from core's meta/logs, so
-// auto-journaled deletes (captured generically in the shared schemaWrapper) carry
-// the same `plugin:module.collection` contentType the revert engine already maps
-// to a permission + model. No per-collection wiring needed beyond this one map.
 const collectionToContentType = new Map<string, string>(
   coreLogsConfig.contentTypes.map((c) => [
     c.collectionName,

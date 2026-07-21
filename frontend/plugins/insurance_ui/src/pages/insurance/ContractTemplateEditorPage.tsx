@@ -8,7 +8,7 @@ import {
   IconDeviceFloppy,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Alert } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 // Default template that will be used for all contracts
@@ -195,6 +195,9 @@ const TEMPLATE_STORAGE_KEY = 'insurance_contract_template';
 
 export const ContractTemplateEditorPage = () => {
   const { t } = useTranslation('insurance');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('contract-template-editor'),
+  );
   const [template, setTemplate] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -297,7 +300,10 @@ export const ContractTemplateEditorPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleReset} variant="outline">

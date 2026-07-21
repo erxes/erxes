@@ -6,17 +6,23 @@ import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
 import { usePostSubmission } from './hooks/usePostSubmission';
+import { usePostAutosave } from './hooks/usePostAutosave';
 import { PostEditorColumn } from './PostEditorColumn';
 import { PostSidebarPanel } from './PostSidebarPanel';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
+import { CmsUnsavedChangesAlert } from '~/modules/cms/shared/components/CmsUnsavedChangesAlert';
+
+// A post being edited: only _id matters here, everything else is read via
+// the detail query inside usePostForm.
+type TEditingPost = { _id: string };
 
 interface AddPostFormProps {
   websiteId: string;
-  editingPost?: any;
+  editingPost?: TEditingPost;
   onClose?: () => void;
   onFormReady?: (formState: {
-    form: any;
-    onSubmit: (data?: any) => Promise<void>;
+    form: UseFormReturn<FieldValues>;
+    onSubmit: (data?: FieldValues) => Promise<void>;
     creating: boolean;
     saving: boolean;
     handleLanguageChange: (lang: string) => void;
@@ -29,11 +35,14 @@ export const AddPostForm = ({
   onClose,
   onFormReady,
 }: AddPostFormProps) => {
-  const location = useLocation() as any;
+  const location = useLocation();
+  const locationState = (location.state ?? null) as {
+    post?: TEditingPost;
+  } | null;
   const [searchParams] = useSearchParams();
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
-  const currentEditingPost = editingPost || (location?.state?.post as any);
+  const currentEditingPost = editingPost || locationState?.post;
 
   const {
     form,
@@ -74,6 +83,26 @@ export const AddPostForm = ({
     [availableLanguages, defaultLanguage, translations],
   );
 
+  // After a successful save, re-baseline the form's default values to the
+  // saved snapshot (keeping current values) so edits made while the save was
+  // in flight stay dirty. When the save navigates away right after (non-silent
+  // saves), also stand the guard down via the bypass ref: the reset and the
+  // navigation happen in the same tick, before the blocker re-renders, so its
+  // captured isDirty would still be stale `true`.
+  const guardBypassRef = useRef(false);
+  const handleSaved = useCallback(
+    (savedData: unknown, { navigating }: { navigating: boolean }) => {
+      form.reset(savedData as Parameters<typeof form.reset>[0], {
+        keepValues: true,
+      });
+
+      if (navigating) {
+        guardBypassRef.current = true;
+      }
+    },
+    [form],
+  );
+
   const { onSubmit, creating, saving } = usePostSubmission({
     websiteId,
     editingPost: currentEditingPost,
@@ -82,6 +111,17 @@ export const AddPostForm = ({
     defaultLangData,
     translations,
     onClose,
+    onSaved: handleSaved,
+  });
+
+  // Same safe widening as formForColumns below — the hook only reads known fields.
+  usePostAutosave({
+    form: form as unknown as UseFormReturn<FieldValues>,
+    enabled: Boolean(currentEditingPost?._id),
+    save: onSubmit as unknown as (
+      data: FieldValues,
+      options: { silent: boolean },
+    ) => Promise<void>,
   });
 
   const formInitializedRef = useRef(false);
@@ -118,9 +158,10 @@ export const AddPostForm = ({
 
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
+      // Same safe widening as formForColumns — consumers only read known fields.
       onFormReady({
-        form,
-        onSubmit,
+        form: form as unknown as UseFormReturn<FieldValues>,
+        onSubmit: onSubmit as unknown as (data?: FieldValues) => Promise<void>,
         creating,
         saving,
         handleLanguageChange: handleLanguageChangeStable,
@@ -240,7 +281,9 @@ export const AddPostForm = ({
     if (currentEditingPost || !customTypes.length) return;
     const typeCode = searchParams.get('type');
     if (!typeCode || typeCode === 'post') return;
-    const matched = customTypes.find((t: any) => t.code === typeCode);
+    const matched = customTypes.find(
+      (t: { _id: string; code?: string }) => t.code === typeCode,
+    );
     if (matched) form.setValue('type', matched._id);
   }, [customTypes, currentEditingPost, form, searchParams]);
 
@@ -313,6 +356,10 @@ export const AddPostForm = ({
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
+      <CmsUnsavedChangesAlert
+        isDirty={form.formState.isDirty}
+        bypassRef={guardBypassRef}
+      />
       <Form {...form}>
         <div className="flex flex-col w-full mb-4 px-4 pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

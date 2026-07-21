@@ -15,6 +15,14 @@ export const DISCOUNT_TYPES = {
   ALL: ['default', 'fixed', 'subtraction', 'percentage', 'bonus'] as const,
 };
 
+export const RULE_DISCOUNT_TYPES = {
+  DEFAULT: 'default',
+  SUBTRACTION: 'subtraction',
+  PERCENTAGE: 'percentage',
+  BONUS: 'bonus',
+  ALL: ['default', 'subtraction', 'percentage', 'bonus'] as const,
+};
+
 export const PRICE_ADJUST_TYPES = {
   NONE: 'none',
   DEFAULT: 'default',

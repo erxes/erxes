@@ -107,8 +107,8 @@ const formatEmptyResponseError = (
 export const invokeOpenAiCompatible = async (
   input: TAiBridgeInvokeInput,
 ): Promise<TAiBridgeInvokeResult> => {
-  const response =
-    await requestOpenAiCompatible<TOpenAiCompatibleChatCompletionResponse>({
+  const requestChatCompletion = (responseFormat?: 'json' | 'text') =>
+    requestOpenAiCompatible<TOpenAiCompatibleChatCompletionResponse>({
       connection: input.connection,
       runtime: input.runtime,
       path: '/chat/completions',
@@ -117,8 +117,16 @@ export const invokeOpenAiCompatible = async (
         connection: input.connection,
         runtime: input.runtime,
         messages: input.messages,
+        responseFormat,
       }),
     });
+
+  let response = await requestChatCompletion(input.responseFormat);
+
+  // Some compatible endpoints reject the response_format parameter entirely.
+  if (!response.ok && input.responseFormat === 'json') {
+    response = await requestChatCompletion(undefined);
+  }
 
   if (!response.ok) {
     throw new Error(formatOpenAiCompatibleError(response));

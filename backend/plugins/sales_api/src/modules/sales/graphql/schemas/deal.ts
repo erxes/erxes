@@ -135,6 +135,8 @@ export const types = `
     mobileAmounts: JSON
     paymentsData: JSON
     extraData: JSON
+    brokerType: String
+    brokerId: String
 
     cursor: String
   }
@@ -227,6 +229,8 @@ const mutationParams = `
   mobileAmounts: JSON,
   productsData: JSON,
   extraData: JSON,
+  brokerType: String,
+  brokerId: String,
 `;
 
 export const mutations = `

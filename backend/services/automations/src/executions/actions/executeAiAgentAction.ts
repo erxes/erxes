@@ -1,4 +1,5 @@
 import {
+  isAiClassificationResultEmpty,
   loadAiActionMemory,
   loadAiConversationState,
   parseAiAgentActionConfig,
@@ -24,6 +25,7 @@ import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 type TAiAgentActionWorkerResponse = {
   result: TAiActionExecutionResult;
   nextActionId?: string;
+  attributesEmpty?: boolean;
 };
 
 export const executeAiAgentAction = async (
@@ -82,13 +84,19 @@ export const executeAiAgentAction = async (
       throw new Error('AI agent returned an empty response.');
     }
 
-    await persistAiActionMemory({
-      models,
-      execution,
-      actionConfig: parsedActionConfig,
-      result: response.result,
-      aiContext,
-    });
+    const attributesEmpty = isAiClassificationResultEmpty(response.result);
+
+    // Writing all-empty attributes would pollute merged memory for the
+    // following messages of the same conversation.
+    if (!attributesEmpty) {
+      await persistAiActionMemory({
+        models,
+        execution,
+        actionConfig: parsedActionConfig,
+        result: response.result,
+        aiContext,
+      });
+    }
     await persistAiConversationState({
       models,
       execution,
@@ -100,6 +108,7 @@ export const executeAiAgentAction = async (
     return {
       result: response.result,
       nextActionId: response.nextActionId,
+      attributesEmpty,
     };
   } catch (error) {
     throw new Error(`AI Agent Action failed: ${error.message}`);

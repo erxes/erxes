@@ -80,6 +80,7 @@ export const configSchema = new Schema({
   token: field({ type: String, label: 'Token generated at erxes-api' }),
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
   ebarimtConfig: field({ type: ebarimtConfigSchema, optional: true }),
+  erkhetConfig: field({ type: Object, optional: true }),
   catProdMappings: field({
     type: [Object],
     label: 'Product category mappings',

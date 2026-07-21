@@ -106,6 +106,7 @@
   "forms-status-changed_one": "{{count}} form status changed",
   "forms-status-changed_other": "{{count}} forms status changed",
   "form-updated-successfully": "Form updated successfully",
+  "form-created-successfully": "Form created successfully",
   "general-label": "General",
   "general-settings": "General settings",
   "title-label": "Title",

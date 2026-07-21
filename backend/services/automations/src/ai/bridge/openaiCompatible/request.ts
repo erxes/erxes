@@ -118,10 +118,12 @@ export const buildOpenAiCompatibleChatBody = ({
   connection,
   runtime,
   messages,
+  responseFormat,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
+  responseFormat?: 'json' | 'text';
 }) => {
   const body: Record<string, any> = {
     model: connection.model,
@@ -134,6 +136,10 @@ export const buildOpenAiCompatibleChatBody = ({
     !usesDefaultOnlyTemperature(connection.model)
   ) {
     body.temperature = runtime.temperature;
+  }
+
+  if (responseFormat === 'json') {
+    body.response_format = { type: 'json_object' };
   }
 
   return body;

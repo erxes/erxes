@@ -79,10 +79,13 @@ const pricingProductSchema = z.object({
   unitPrice: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
   quantity: z.number().int().positive(),
-  manufacturedDate: z.string().optional(),
+  manufacturedDate: z.string().nullish(),
 });
 
-const participantKindSchema = z.enum(['customer', 'company', 'user']);
+const participantKindSchema = z.preprocess(
+  (value) => value || 'customer',
+  z.enum(['customer', 'company', 'user']),
+);
 
 const checkPricingInput = z.object({
   prioritizeRule: z.string(),
@@ -90,11 +93,11 @@ const checkPricingInput = z.object({
   departmentId: z.string().optional().default(''),
   branchId: z.string().optional().default(''),
   products: z.array(pricingProductSchema),
-  pipelineId: z.string().optional(),
-  customerType: participantKindSchema.optional().default('customer'),
-  customerId: z.string(),
-  brokerType: participantKindSchema.optional().default('customer'),
-  brokerId: z.string(),
+  pipelineId: z.string().nullish(),
+  customerType: participantKindSchema,
+  customerId: z.string().optional(),
+  brokerType: participantKindSchema,
+  brokerId: z.string().optional(),
 });
 
 const quantityRulesInput = z.object({

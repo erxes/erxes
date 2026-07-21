@@ -100,10 +100,12 @@ export const buildAnthropicMessagesBody = ({
   connection,
   runtime,
   messages,
+  responseFormat,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
+  responseFormat?: 'json' | 'text';
 }) => {
   const system = messages
     .filter((message) => message.role === 'system')
@@ -116,6 +118,11 @@ export const buildAnthropicMessagesBody = ({
       role: message.role === 'assistant' ? 'assistant' : 'user',
       content: message.content,
     }));
+
+  if (responseFormat === 'json') {
+    // Assistant prefill forces the completion to continue a JSON object.
+    chatMessages.push({ role: 'assistant', content: '{' });
+  }
 
   return {
     model: connection.model,
