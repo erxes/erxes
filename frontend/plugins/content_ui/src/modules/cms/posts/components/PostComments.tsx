@@ -1,4 +1,7 @@
+import { TFunction } from 'i18next';
+import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
   Avatar,
@@ -10,9 +13,14 @@ import {
   Tooltip,
   cn,
 } from 'erxes-ui';
-import { MembersInline } from 'ui-modules';
+import {
+  MembersInline,
+  currentUserState,
+  usePermissionCheck,
+} from 'ui-modules';
 import {
   IconCheck,
+  IconCornerDownRight,
   IconMessageOff,
   IconMoodSmile,
   IconPencil,
@@ -24,6 +32,7 @@ import {
   IPostComment,
   PostCommentStatus,
 } from '../hooks/usePostComments';
+import { groupPostCommentThreads } from '../utils/postCommentThreads';
 
 interface PostCommentsProps {
   postId: string;
@@ -34,6 +43,25 @@ interface PostCommentsProps {
 type CommentStatus = PostCommentStatus;
 type IComment = IPostComment;
 
+interface CommentItemProps {
+  comment: IComment;
+  isReply?: boolean;
+  editingId: string | null;
+  editContent: string;
+  setEditContent: (value: string) => void;
+  onEditStart: (comment: IComment) => void;
+  onEditSave: (id: string) => void;
+  onEditCancel: () => void;
+  onDelete: (id: string) => void;
+  onChangeStatus: (id: string, status: CommentStatus) => void;
+  onReplyStart: (id: string) => void;
+  canApprove: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canReply: boolean;
+  busy: boolean;
+}
+
 const STATUS_VARIANT: Record<CommentStatus, 'success' | 'warning' | 'destructive'> =
   {
     approved: 'success',
@@ -41,7 +69,7 @@ const STATUS_VARIANT: Record<CommentStatus, 'success' | 'warning' | 'destructive
     rejected: 'destructive',
   };
 
-const formatRelativeTime = (value?: string) => {
+const formatRelativeTime = (value: string | undefined, t: TFunction) => {
   if (!value) return '';
   const date = new Date(value);
   const diff = Date.now() - date.getTime();
@@ -50,30 +78,32 @@ const formatRelativeTime = (value?: string) => {
   const hr = Math.round(min / 60);
   const day = Math.round(hr / 24);
 
-  if (sec < 60) return 'just now';
-  if (min < 60) return `${min}m ago`;
-  if (hr < 24) return `${hr}h ago`;
-  if (day < 7) return `${day}d ago`;
+  if (sec < 60) return t('comment-just-now');
+  if (min < 60) return t('comment-minutes-ago', { count: min });
+  if (hr < 24) return t('comment-hours-ago', { count: hr });
+  if (day < 7) return t('comment-days-ago', { count: day });
   return date.toLocaleDateString();
 };
 
 const AuthorIdentity = ({ comment }: { comment: IComment }) => {
+  const { t } = useTranslation('content');
+
   if (comment.authorKind === 'user') {
-    return (
-      <MembersInline memberIds={[comment.authorId]} size="lg" />
-    );
+    return <MembersInline memberIds={[comment.authorId]} size="lg" />;
   }
 
-  // Client-portal visitor — no team-member record to resolve.
   const initial = comment.authorId?.charAt(0)?.toUpperCase() || '?';
+
   return (
-    <div className="flex items-center gap-2 min-w-0">
+    <div className="flex min-w-0 items-center gap-2">
       <Avatar size="lg">
         <Avatar.Fallback className="bg-primary/10 text-primary">
           {initial}
         </Avatar.Fallback>
       </Avatar>
-      <span className="truncate text-sm font-medium">Portal visitor</span>
+      <span className="truncate text-sm font-medium">
+        {t('portal-visitor')}
+      </span>
     </div>
   );
 };
@@ -89,21 +119,16 @@ const CommentItem = ({
   onEditCancel,
   onDelete,
   onChangeStatus,
+  onReplyStart,
+  canApprove,
+  canEdit,
+  canDelete,
+  canReply,
   busy,
-}: {
-  comment: IComment;
-  isReply?: boolean;
-  editingId: string | null;
-  editContent: string;
-  setEditContent: (v: string) => void;
-  onEditStart: (c: IComment) => void;
-  onEditSave: (id: string) => void;
-  onEditCancel: () => void;
-  onDelete: (id: string) => void;
-  onChangeStatus: (id: string, status: CommentStatus) => void;
-  busy: boolean;
-}) => {
+}: CommentItemProps) => {
+  const { t } = useTranslation('content');
   const isEditing = editingId === comment._id;
+  const showActions = canApprove || canEdit || canDelete || canReply;
 
   return (
     <div
@@ -114,14 +139,14 @@ const CommentItem = ({
     >
       <div className="flex items-center gap-2">
         <AuthorIdentity comment={comment} />
-        <Badge variant={STATUS_VARIANT[comment.status]} className="capitalize">
-          {comment.status}
+        <Badge variant={STATUS_VARIANT[comment.status]}>
+          {t(`comment-status-${comment.status}`)}
         </Badge>
         {comment.createdAt && (
           <Tooltip>
             <Tooltip.Trigger asChild>
               <span className="ml-auto text-xs text-muted-foreground">
-                {formatRelativeTime(comment.createdAt)}
+                {formatRelativeTime(comment.createdAt, t)}
               </span>
             </Tooltip.Trigger>
             <Tooltip.Content>
@@ -135,15 +160,15 @@ const CommentItem = ({
         <div className="mt-3 space-y-2">
           <Textarea
             value={editContent}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setEditContent(e.target.value)
+            onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+              setEditContent(event.target.value)
             }
             rows={3}
             autoFocus
           />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={onEditCancel}>
-              <IconX /> Cancel
+              <IconX /> {t('cancel')}
             </Button>
             <Button
               variant="default"
@@ -151,7 +176,7 @@ const CommentItem = ({
               onClick={() => onEditSave(comment._id)}
               disabled={busy || !editContent.trim()}
             >
-              <IconCheck /> Save
+              <IconCheck /> {t('save')}
             </Button>
           </div>
         </div>
@@ -161,61 +186,84 @@ const CommentItem = ({
         </p>
       )}
 
-      {!isEditing && (
+      {!isEditing && showActions && (
         <div className="mt-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-          {comment.status !== 'approved' && (
+          {canApprove && comment.status !== 'approved' && (
             <Button
               variant="ghost"
               size="sm"
               className="text-success hover:text-success"
               onClick={() => onChangeStatus(comment._id, 'approved')}
+              disabled={busy}
             >
-              <IconCheck /> Approve
+              <IconCheck /> {t('approve-comment')}
             </Button>
           )}
-          {comment.status === 'approved' && (
+          {canApprove && comment.status !== 'rejected' && (
             <Button
               variant="ghost"
               size="sm"
               className="text-warning hover:text-warning"
               onClick={() => onChangeStatus(comment._id, 'rejected')}
+              disabled={busy}
             >
-              <IconX /> Reject
+              <IconX /> {t('reject-comment')}
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={() => onEditStart(comment)}>
-            <IconPencil /> Edit
-          </Button>
+          {canReply && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onReplyStart(comment._id)}
+              disabled={busy}
+            >
+              <IconCornerDownRight /> {t('reply-to-comment')}
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEditStart(comment)}
+              disabled={busy}
+            >
+              <IconPencil /> {t('edit')}
+            </Button>
+          )}
 
-          <AlertDialog>
-            <AlertDialog.Trigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-              >
-                <IconTrash /> Delete
-              </Button>
-            </AlertDialog.Trigger>
-            <AlertDialog.Content>
-              <AlertDialog.Header>
-                <AlertDialog.Title>Delete comment?</AlertDialog.Title>
-                <AlertDialog.Description>
-                  This comment will be permanently removed. This action cannot be
-                  undone.
-                </AlertDialog.Description>
-              </AlertDialog.Header>
-              <AlertDialog.Footer>
-                <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-                <AlertDialog.Action
-                  onClick={() => onDelete(comment._id)}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          {canDelete && (
+            <AlertDialog>
+              <AlertDialog.Trigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  disabled={busy}
                 >
-                  Delete
-                </AlertDialog.Action>
-              </AlertDialog.Footer>
-            </AlertDialog.Content>
-          </AlertDialog>
+                  <IconTrash /> {t('delete')}
+                </Button>
+              </AlertDialog.Trigger>
+              <AlertDialog.Content>
+                <AlertDialog.Header>
+                  <AlertDialog.Title>
+                    {t('delete-comment-title')}
+                  </AlertDialog.Title>
+                  <AlertDialog.Description>
+                    {t('delete-comment-description')}
+                  </AlertDialog.Description>
+                </AlertDialog.Header>
+                <AlertDialog.Footer>
+                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+                  <AlertDialog.Action
+                    onClick={() => onDelete(comment._id)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {t('delete')}
+                  </AlertDialog.Action>
+                </AlertDialog.Footer>
+              </AlertDialog.Content>
+            </AlertDialog>
+          )}
         </div>
       )}
     </div>
@@ -227,52 +275,57 @@ export const PostComments = ({
   clientPortalId,
   allowComments,
 }: PostCommentsProps) => {
+  const { t } = useTranslation('content');
+  const currentUser = useAtomValue(currentUserState);
+  const { hasActionPermission } = usePermissionCheck();
   const {
     comments,
     totalCount,
+    hasMore,
+    error,
     loading,
+    loadingMore,
     adding,
     updating,
     deleting,
+    changingStatus,
     addComment,
     updateComment,
     deleteComment,
     changeStatus,
+    loadMore,
   } = usePostComments({ postId, clientPortalId });
 
   const [newContent, setNewContent] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [replyingToId, setReplyingToId] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState('');
 
-  const busy = adding || updating || deleting;
+  const canUpdate = hasActionPermission('cmsPostsUpdate');
+  const canApprove = hasActionPermission('cmsPostsApprove');
+  const canRemove = hasActionPermission('cmsPostsRemove');
+  const canReply = allowComments !== false && canUpdate;
+  const busy = adding || updating || deleting || changingStatus;
 
-  // Group flat list into top-level comments + their replies.
-  const { topLevel, repliesByParent } = useMemo(() => {
-    const top: IComment[] = [];
-    const byParent: Record<string, IComment[]> = {};
-    comments.forEach((c) => {
-      if (c.parentId) {
-        const siblings = byParent[c.parentId] ?? [];
-        siblings.push(c);
-        byParent[c.parentId] = siblings;
-      } else {
-        top.push(c);
-      }
-    });
-    return { topLevel: top, repliesByParent: byParent };
-  }, [comments]);
+  const { roots, repliesByParent } = useMemo(
+    () => groupPostCommentThreads(comments),
+    [comments],
+  );
 
   const handleAdd = async () => {
     const trimmed = newContent.trim();
     if (!trimmed) return;
-    await addComment(trimmed);
-    setNewContent('');
+
+    if (await addComment(trimmed)) {
+      setNewContent('');
+    }
   };
 
-  const handleAddKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault();
-      handleAdd();
+  const handleAddKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+      event.preventDefault();
+      void handleAdd();
     }
   };
 
@@ -284,40 +337,98 @@ export const PostComments = ({
   const handleEditSave = async (_id: string) => {
     const trimmed = editContent.trim();
     if (!trimmed) return;
-    await updateComment(_id, trimmed);
-    setEditingId(null);
+
+    if (await updateComment(_id, trimmed)) {
+      setEditingId(null);
+    }
   };
 
-  const itemProps = {
-    editingId,
-    editContent,
-    setEditContent,
-    onEditStart: handleEditStart,
-    onEditSave: handleEditSave,
-    onEditCancel: () => setEditingId(null),
-    onDelete: (id: string) => deleteComment(id),
-    onChangeStatus: (id: string, status: CommentStatus) =>
-      changeStatus(id, status),
-    busy,
+  const handleReply = async (parentId: string) => {
+    const trimmed = replyContent.trim();
+    if (!trimmed) return;
+
+    if (await addComment(trimmed, parentId)) {
+      setReplyingToId(null);
+      setReplyContent('');
+    }
   };
 
-  // Render a comment and all of its descendants recursively so replies to
-  // replies still show up in moderation.
-  const renderThread = (comment: IComment, depth: number): React.ReactNode => (
-    <div key={comment._id} className="space-y-3">
-      <CommentItem comment={comment} isReply={depth > 0} {...itemProps} />
-      {repliesByParent[comment._id]?.map((reply) =>
-        renderThread(reply, depth + 1),
-      )}
-    </div>
-  );
+  const renderThread = (comment: IComment, depth: number): React.ReactNode => {
+    const ownsComment =
+      comment.authorKind === 'user' && comment.authorId === currentUser?._id;
+
+    return (
+      <div key={comment._id} className="space-y-3">
+        <CommentItem
+          comment={comment}
+          isReply={depth > 0}
+          editingId={editingId}
+          editContent={editContent}
+          setEditContent={setEditContent}
+          onEditStart={handleEditStart}
+          onEditSave={(id) => void handleEditSave(id)}
+          onEditCancel={() => setEditingId(null)}
+          onDelete={(id) => void deleteComment(id)}
+          onChangeStatus={(id, status) => void changeStatus(id, status)}
+          onReplyStart={(id) => {
+            setReplyingToId(id);
+            setReplyContent('');
+          }}
+          canApprove={canApprove}
+          canEdit={canRemove || (canUpdate && ownsComment)}
+          canDelete={canRemove || (canUpdate && ownsComment)}
+          canReply={canReply}
+          busy={busy}
+        />
+
+        {replyingToId === comment._id && canReply && (
+          <div className="ml-8 rounded-lg border bg-card p-3">
+            <Textarea
+              placeholder={t('write-reply')}
+              value={replyContent}
+              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setReplyContent(event.target.value)
+              }
+              rows={2}
+              autoFocus
+            />
+            <div className="mt-2 flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setReplyingToId(null);
+                  setReplyContent('');
+                }}
+              >
+                {t('cancel')}
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => void handleReply(comment._id)}
+                disabled={adding || !replyContent.trim()}
+              >
+                {adding ? <Spinner size="sm" /> : <IconCornerDownRight />}
+                {adding ? t('posting-comment') : t('post-reply')}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {repliesByParent[comment._id]?.map((reply) =>
+          renderThread(reply, depth + 1),
+        )}
+      </div>
+    );
+  };
 
   const renderBody = () => {
     if (loading) {
       return (
         <div className="space-y-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="rounded-lg border bg-card p-3">
+          {[0, 1, 2].map((index) => (
+            <div key={index} className="rounded-lg border bg-card p-3">
               <div className="flex items-center gap-2">
                 <Skeleton className="size-6 rounded-full" />
                 <Skeleton className="h-4 w-24" />
@@ -329,18 +440,39 @@ export const PostComments = ({
       );
     }
 
-    if (topLevel.length === 0) {
+    if (error) {
+      return (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          {t('failed-to-load-comments')}: {error.message}
+        </div>
+      );
+    }
+
+    if (roots.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-10 text-muted-foreground">
           <IconMoodSmile className="size-8 opacity-50" />
-          <p className="text-sm">No comments yet. Be the first to comment.</p>
+          <p className="text-sm">{t('no-comments-yet')}</p>
         </div>
       );
     }
 
     return (
       <div className="space-y-3">
-        {topLevel.map((comment) => renderThread(comment, 0))}
+        {roots.map((comment) => renderThread(comment, 0))}
+        {hasMore && (
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void loadMore()}
+              disabled={loadingMore}
+            >
+              {loadingMore && <Spinner size="sm" />}
+              {loadingMore ? t('loading-comments') : t('load-more-comments')}
+            </Button>
+          </div>
+        )}
       </div>
     );
   };
@@ -348,43 +480,40 @@ export const PostComments = ({
   return (
     <div className="mt-6 border-t px-4 pb-8 pt-6">
       <div className="mb-4 flex items-center gap-2">
-        <h3 className="text-base font-semibold">Comments</h3>
+        <h3 className="text-base font-semibold">{t('comments')}</h3>
         <Badge variant="secondary">{totalCount}</Badge>
       </div>
 
       {allowComments === false && (
         <div className="mb-4 flex items-center gap-2 rounded-md border border-info/20 bg-info/10 px-3 py-2 text-sm text-info">
           <IconMessageOff className="size-4 shrink-0" />
-          <span>
-            Comments are disabled for this site. Existing comments remain visible
-            for moderation.
-          </span>
+          <span>{t('comments-disabled-description')}</span>
         </div>
       )}
 
-      {allowComments !== false && (
+      {allowComments !== false && canUpdate && (
         <div className="mb-6 rounded-lg border bg-card p-3">
           <Textarea
-            placeholder="Write a comment…"
+            placeholder={t('write-comment')}
             value={newContent}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setNewContent(e.target.value)
+            onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+              setNewContent(event.target.value)
             }
             onKeyDown={handleAddKeyDown}
             rows={3}
           />
           <div className="mt-2 flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
-              Press ⌘/Ctrl + Enter to submit
+              {t('comment-submit-shortcut')}
             </span>
             <Button
               variant="default"
               size="sm"
-              onClick={handleAdd}
+              onClick={() => void handleAdd()}
               disabled={adding || !newContent.trim()}
             >
               {adding ? <Spinner size="sm" /> : <IconMoodSmile />}
-              {adding ? 'Posting…' : 'Comment'}
+              {adding ? t('posting-comment') : t('post-comment')}
             </Button>
           </div>
         </div>

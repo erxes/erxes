@@ -13,6 +13,11 @@ export interface IPostComment {
   status: PostCommentStatus;
 }
 
+export interface IPostCommentUpdate {
+  content: string;
+  status?: PostCommentStatus;
+}
+
 export interface IPostCommentDocument extends IPostComment, Document {
   _id: string;
   createdAt: Date;
@@ -21,6 +26,9 @@ export interface IPostCommentDocument extends IPostComment, Document {
 
 export interface IPostCommentModel extends Model<IPostCommentDocument> {
   createComment(doc: IPostComment): Promise<IPostCommentDocument>;
-  updateComment(_id: string, content: string): Promise<IPostCommentDocument>;
+  updateComment(
+    _id: string,
+    update: IPostCommentUpdate,
+  ): Promise<IPostCommentDocument>;
   deleteComment(_id: string): Promise<{ deletedCount?: number }>;
 }
