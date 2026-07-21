@@ -11,7 +11,6 @@ import {
   IconArrowBack,
   IconCopy,
   IconEdit,
-  IconPrinter,
 } from '@tabler/icons-react';
 import { useDealsCopy, useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
@@ -56,10 +55,6 @@ export const DealsMoreColumnCell = ({
     });
   };
 
-  const onPrint = () => {
-    window.print();
-  };
-
   return (
     <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <Popover.Trigger asChild>
@@ -88,9 +83,6 @@ export const DealsMoreColumnCell = ({
                   <IconArchive /> {t('archive')}
                 </>
               )}
-            </Command.Item>
-            <Command.Item value="print" onSelect={() => runAction(onPrint)}>
-              <IconPrinter /> {t('print-document')}
             </Command.Item>
           </Command.List>
         </Command>
