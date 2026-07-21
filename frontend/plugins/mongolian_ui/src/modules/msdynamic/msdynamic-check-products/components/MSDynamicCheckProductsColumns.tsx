@@ -18,7 +18,7 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
       accessorKey: 'displayCode',
       header: () => {
         const { t } = useTranslation('mongolian');
-        return <RecordTable.InlineHead label={t('code')} icon={IconCode} />;
+        return <RecordTable.InlineHead label={t('code', 'Code')} icon={IconCode} />;
       },
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -31,7 +31,7 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
       accessorKey: 'displayName',
       header: () => {
         const { t } = useTranslation('mongolian');
-        return <RecordTable.InlineHead label={t('name')} icon={IconHash} />;
+        return <RecordTable.InlineHead label={t('name', 'Name')} icon={IconHash} />;
       },
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -44,7 +44,7 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
       accessorKey: 'displayBarcodes',
       header: () => {
         const { t } = useTranslation('mongolian');
-        return <RecordTable.InlineHead label={t('bar-codes')} icon={IconHash} />;
+        return <RecordTable.InlineHead label={t('bar-codes', 'Bar Codes')} icon={IconHash} />;
       },
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -57,7 +57,7 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
       accessorKey: 'displayUnitPrice',
       header: () => {
         const { t } = useTranslation('mongolian');
-        return <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />;
+        return <RecordTable.InlineHead label={t('unit-price', 'Unit Price')} icon={IconHash} />;
       },
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -72,16 +72,16 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
       accessorKey: 'isSynced',
       header: () => {
         const { t } = useTranslation('mongolian');
-        return <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />;
+        return <RecordTable.InlineHead label={t('status', 'Status')} icon={IconCircleCheck} />;
       },
       cell: ({ row }) => {
         const { t } = useTranslation('mongolian');
         return (
           <RecordTableInlineCell>
             {row.original.isSynced ? (
-              <Badge variant="success">{t('synced')}</Badge>
+              <Badge variant="success">{t('synced', 'Synced')}</Badge>
             ) : (
-              <Badge variant="warning">{t('pending')}</Badge>
+              <Badge variant="warning">{t('pending', 'Pending')}</Badge>
             )}
           </RecordTableInlineCell>
         );

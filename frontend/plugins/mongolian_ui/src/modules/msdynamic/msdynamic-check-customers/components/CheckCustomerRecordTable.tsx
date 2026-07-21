@@ -48,10 +48,10 @@ export const CheckCustomerRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    {t('no-customers-yet')}
+                    {t('no-customers-yet', 'No customers yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    {t('get-started-checking')}
+                    {t('get-started-checking', 'Get started by checking customers.')}
                   </p>
                 </div>
               </div>

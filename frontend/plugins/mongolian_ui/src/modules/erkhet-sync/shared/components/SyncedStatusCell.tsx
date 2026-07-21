@@ -6,7 +6,7 @@ export const SyncedStatusCell = ({ isSynced }: { isSynced?: boolean }) => {
   return (
     <RecordTableInlineCell>
       {isSynced ? (
-        <span className="text-green-600 font-medium">{t('synced')}</span>
+        <span className="text-green-600 font-medium">{t('synced', 'Synced')}</span>
       ) : (
         <span className="text-gray-400"></span>
       )}

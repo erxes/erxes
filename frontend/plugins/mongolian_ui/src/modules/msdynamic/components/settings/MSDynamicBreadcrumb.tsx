@@ -8,11 +8,11 @@ export const MSDynamicBreadCrumb = () => {
     <>
       <Button variant="ghost" className="font-semibold">
         <IconCashBanknote className="w-4 h-4 text-accent-foreground" />
-        {t('settings')}
+        {t('settings', 'Settings')}
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {t('msdynamic-configs')}
+        {t('msdynamic-configs', 'MS Dynamics Configs')}
       </Button>
     </>
   );

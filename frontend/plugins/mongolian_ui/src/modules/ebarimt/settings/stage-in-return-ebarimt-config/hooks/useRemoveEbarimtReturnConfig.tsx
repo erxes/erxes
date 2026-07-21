@@ -19,16 +19,16 @@ export const useRemoveEbarimtReturnConfig = () => {
       });
 
       toast({
-        title: t('success'),
-        description: t('config-removed-successfully'),
+        title: t('success', 'Success'),
+        description: t('config-removed-successfully', 'Configuration removed successfully'),
         variant: 'default',
       });
 
       return 'success';
     } catch (error) {
       toast({
-        title: t('error'),
-        description: t('failed-to-remove-config'),
+        title: t('error', 'Error'),
+        description: t('failed-to-remove-config', 'Failed to remove configuration'),
         variant: 'destructive',
       });
       throw error;

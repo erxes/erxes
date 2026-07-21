@@ -43,37 +43,37 @@ export const CheckPosOrdersFilterPopover = () => {
   return (
     <>
       <Filter.Popover scope={CheckPosOrdersHotKeyScope.CheckPosOrdersPage}>
-        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter', 'Filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="posToken" inDialog>
                   <IconKey />
-                  {t('pos-token')}
+                  {t('pos-token', 'POS Token')}
                 </Filter.Item>
                 <Filter.Item value="pos">
                   <IconCashRegister />
-                  {t('pos')}
+                  {t('pos', 'Pos')}
                 </Filter.Item>
-                <SelectMember.FilterItem value="user" label={t('assigned-to')} />
+                <SelectMember.FilterItem value="user" label={t('assigned-to', 'Assigned To')} />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  {t('number')}
+                  {t('number', 'Number')}
                 </Filter.Item>
                 <Filter.Item value="paidDateRange">
                   <IconCalendar />
-                  {t('paid-date-range')}
+                  {t('paid-date-range', 'Paid Date Range')}
                 </Filter.Item>
                 <Filter.Item value="createdDateRange">
                   <IconClock />
-                  {t('created-date-range')}
+                  {t('created-date-range', 'Created Date Range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -118,7 +118,7 @@ export const CheckPosOrdersFilter = () => {
         <Filter.BarItem queryKey="posToken">
           <Filter.BarName>
             <IconKey />
-            {t('pos-token')}
+            {t('pos-token', 'POS Token')}
           </Filter.BarName>
           <Filter.BarButton filterKey="posToken" inDialog>
             {posToken}
@@ -127,7 +127,7 @@ export const CheckPosOrdersFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            {t('number')}
+            {t('number', 'Number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -136,19 +136,19 @@ export const CheckPosOrdersFilter = () => {
         <Filter.BarItem queryKey="paidDateRange">
           <Filter.BarName>
             <IconCalendar />
-            {t('paid-date-range')}
+            {t('paid-date-range', 'Paid Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconClock />
-            {t('created-date-range')}
+            {t('created-date-range', 'Created Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <SelectPos.FilterBar />
-        <SelectMember.FilterBar queryKey="user" label={t('assigned-to')} />
+        <SelectMember.FilterBar queryKey="user" label={t('assigned-to', 'Assigned To')} />
         <CheckPosOrdersTotalCount />
       </Filter.Bar>
     </Filter>

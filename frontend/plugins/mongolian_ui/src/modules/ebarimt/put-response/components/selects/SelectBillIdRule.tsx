@@ -104,7 +104,7 @@ const SelectBillIdRuleValue = ({
   if (!selectedBillIdRule) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-bill-id-rule')}
+        {placeholder || t('select-bill-id-rule', 'Select bill ID rule')}
       </span>
     );
   }
@@ -146,9 +146,9 @@ const SelectBillIdRuleContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-bill-id-rule')} />
+      <Command.Input placeholder={t('search-bill-id-rule', 'Search bill ID rule')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-bill-id-rules-found')}</span>
+        <span className="text-muted-foreground">{t('no-bill-id-rules-found', 'No bill ID rules found')}</span>
       </Command.Empty>
       <Command.List>
         {billIdRules?.map((billIdRule) => (
@@ -167,7 +167,7 @@ export const SelectBillIdRuleFilterItem = () => {
   return (
     <Filter.Item value="billIdRule">
       <IconFilter />
-      {t('bill-id-rule')}
+      {t('bill-id-rule', 'Bill ID Rule')}
     </Filter.Item>
   );
 };
@@ -222,7 +222,7 @@ export const SelectBillIdRuleFilterBar = ({
     <Filter.BarItem queryKey={'billIdRule'}>
       <Filter.BarName>
         <IconFilter />
-        {t('bill-id-rule')}
+        {t('bill-id-rule', 'Bill ID Rule')}
       </Filter.BarName>
       <SelectBillIdRuleProvider
         mode={mode}

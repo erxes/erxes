@@ -17,7 +17,7 @@ export const ProductRulesOnTaxRowsCommandbar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ProductRulesOnTaxRowsDelete />
@@ -34,10 +34,10 @@ export const ProductRulesOnTaxRowsDelete = () => {
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-product-rules-on-tax-confirm'),
+      message: t('delete-product-rules-on-tax-confirm', 'Are you sure you want to delete these product rules on tax?'),
       options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
+        okLabel: t('delete', 'Delete'),
+        cancelLabel: t('cancel', 'Cancel'),
       },
     }).then(() => {
       const productRulesOnTaxIds = table
@@ -48,7 +48,7 @@ export const ProductRulesOnTaxRowsDelete = () => {
         variables: { ids: productRulesOnTaxIds },
         onError: (error: Error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -56,8 +56,8 @@ export const ProductRulesOnTaxRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: t('success'),
-            description: t('product-rules-on-tax-deleted-successfully'),
+            title: t('success', 'Success'),
+            description: t('product-rules-on-tax-deleted-successfully', 'Product rules on tax deleted successfully'),
           });
         },
       });
@@ -67,7 +67,7 @@ export const ProductRulesOnTaxRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

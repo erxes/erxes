@@ -86,7 +86,7 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
   myWindow.document.close();
   }, [response]);
 
-  return loading ? <div>{t('loading')}</div> : <></>;
+  return loading ? <div>{t('loading', 'Loading...')}</div> : <></>;
 };
 
 export default withCurrentUser(ReturnResponseBody);

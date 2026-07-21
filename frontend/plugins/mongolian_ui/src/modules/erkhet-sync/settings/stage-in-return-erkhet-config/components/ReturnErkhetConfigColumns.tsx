@@ -43,7 +43,7 @@ export const buildReturnErkhetConfigColumns = (
     accessorKey: 'title',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />;
+      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title', 'Title')} />;
     },
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
@@ -66,7 +66,7 @@ export const buildReturnErkhetConfigColumns = (
     accessorKey: 'userEmail',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />;
+      return <RecordTable.InlineHead icon={IconAt} label={t('user-email', 'User Email')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
@@ -78,7 +78,7 @@ export const buildReturnErkhetConfigColumns = (
     accessorKey: 'returnType',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('return-type')} />;
+      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('return-type', 'Return Type')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>{returnTypeLabel(cell.getValue() as string)}</RecordTableInlineCell>

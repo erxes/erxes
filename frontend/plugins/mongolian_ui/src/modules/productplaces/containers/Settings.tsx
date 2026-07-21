@@ -118,7 +118,7 @@ const SettingsContainer = ({
         <div className="flex flex-col items-center gap-4">
           <Spinner />
           <p className="text-sm text-muted-foreground">
-            {t('loading-configurations')}
+            {t('loading-configurations', 'Loading configurations...')}
           </p>
         </div>
       </div>
@@ -128,7 +128,7 @@ const SettingsContainer = ({
   if (error && !data) {
     return (
       <div className="p-4 bg-red-50 text-red-700 rounded">
-        {t('error-loading-configuration', { message: error.message })}
+        {t('error-loading-configuration', 'Error loading configuration: {{message}}', { message: error.message })}
       </div>
     );
   }

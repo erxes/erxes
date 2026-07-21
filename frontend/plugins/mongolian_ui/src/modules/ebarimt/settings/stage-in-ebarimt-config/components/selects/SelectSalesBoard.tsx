@@ -97,7 +97,7 @@ const SelectSalesBoardValue = ({
   if (!selectedBoard) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-board')}
+        {placeholder || t('select-board', 'Select board')}
       </span>
     );
   }
@@ -136,7 +136,7 @@ const SelectSalesBoardContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -144,7 +144,7 @@ const SelectSalesBoardContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error')}: {error.message}
+          {t('error', 'Error')}: {error.message}
         </div>
       );
     }
@@ -156,9 +156,9 @@ const SelectSalesBoardContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-board')} />
+      <Command.Input placeholder={t('search-board', 'Search board')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-boards-found')}</span>
+        <span className="text-muted-foreground">{t('no-boards-found', 'No boards found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

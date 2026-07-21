@@ -103,7 +103,7 @@ const SelectOnLastValue = ({
   if (!selectedOnLast) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-on-last')}
+        {placeholder || t('select-on-last', 'Select on last')}
       </span>
     );
   }
@@ -140,9 +140,9 @@ const SelectOnLastContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-on-last')} />
+      <Command.Input placeholder={t('search-on-last', 'Search on last')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-on-last-options-found')}</span>
+        <span className="text-muted-foreground">{t('no-on-last-options-found', 'No on last options found')}</span>
       </Command.Empty>
       <Command.List>
         {onLasts?.map((onLast) => (
@@ -158,7 +158,7 @@ export const SelectOnLastFilterItem = () => {
   return (
     <Filter.Item value="isLast">
       <IconToggleLeft />
-      {t('on-last')}
+      {t('on-last', 'On Last')}
     </Filter.Item>
   );
 };
@@ -211,7 +211,7 @@ export const SelectOnLastFilterBar = ({
     <Filter.BarItem queryKey={'isLast'}>
       <Filter.BarName>
         <IconToggleLeft />
-        {t('on-last')}
+        {t('on-last', 'On Last')}
       </Filter.BarName>
       <SelectOnLastProvider
         mode={mode}

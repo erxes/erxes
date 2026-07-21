@@ -91,7 +91,7 @@ const SelectPosValue = ({
   if (!selectedPos) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-pos')}
+        {placeholder || t('select-pos', 'Select pos')}
       </span>
     );
   }
@@ -130,7 +130,7 @@ const SelectPosContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -138,7 +138,7 @@ const SelectPosContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error')}: {error.message}
+          {t('error', 'Error')}: {error.message}
         </div>
       );
     }
@@ -150,7 +150,7 @@ const SelectPosContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-pos')} />
+      <Command.Input placeholder={t('search-pos', 'Search pos')} />
       <Command.List>{renderContent()}</Command.List>
     </Command>
   );

@@ -49,10 +49,10 @@ export const MSDynamicConfigTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconClipboardList size={48} className="mb-4 text-gray-400" />
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-ms-dynamic-config-yet')}
+                {t('no-ms-dynamic-config-yet', 'No MS Dynamics configs yet')}
               </h3>
               <p className="mb-4 mt-1 text-sm text-gray-500">
-                {t('create-first-ms-dynamic-config')}
+                {t('create-first-ms-dynamic-config', 'Get started by creating your first MS Dynamics config.')}
               </p>
               <AddMSDynamicConfig />
             </div>

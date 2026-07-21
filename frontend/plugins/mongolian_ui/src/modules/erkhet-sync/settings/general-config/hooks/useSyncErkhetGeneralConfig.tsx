@@ -38,15 +38,15 @@ export const useSyncErkhetGeneralConfig = () => {
   const mutationOptions = {
     onCompleted: () => {
       toast({
-        title: t('success'),
-        description: t('erkhet-sync-general-config-updated-successfully'),
+        title: t('success', 'Success'),
+        description: t('erkhet-sync-general-config-updated-successfully', 'Erkhet sync general config updated successfully'),
         variant: 'default',
       });
       setIsUpdating(false);
     },
     onError: (err: Error) => {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: err.message,
         variant: 'destructive',
       });

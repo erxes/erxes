@@ -35,10 +35,10 @@ const ProductRulesOnTaxEmptyState = () => {
       <div className="flex flex-col items-center text-center">
         <IconClipboardList size={48} className="text-gray-400 mb-4" />
         <h3 className="text-lg font-semibold text-gray-900">
-          {t('no-product-rules-on-tax-config-yet')}
+          {t('no-product-rules-on-tax-config-yet', 'No Product Rules on Tax config yet')}
         </h3>
         <p className="mt-1 text-sm text-gray-500 mb-4">
-          {t('create-first-product-rules-on-tax-config')}
+          {t('create-first-product-rules-on-tax-config', 'Get started by creating your first Product Rules on Tax config.')}
         </p>
         <AddProductRulesOnTax />
       </div>
@@ -117,8 +117,8 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-this-rule-confirm'),
-      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
+      message: t('delete-this-rule-confirm', 'Are you sure you want to delete this rule?'),
+      options: { okLabel: t('delete', 'Delete'), cancelLabel: t('cancel', 'Cancel') },
     }).then(() => removeProductRulesOnTax({ variables: { ids: [cell.row.original._id] } }));
   };
 
@@ -131,10 +131,10 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> {t('delete')}
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -157,14 +157,14 @@ export const useProductRulesOnTaxColumns = (): ColumnDef<IProductRulesOnTax>[] =
     {
       id: 'title',
       accessorKey: 'title',
-      header: () => <RecordTable.InlineHead label={t('title')} icon={IconCode} />,
+      header: () => <RecordTable.InlineHead label={t('title', 'Title')} icon={IconCode} />,
       cell: ({ cell }) => <ProductRulesOnTaxTitleCell cell={cell} />,
       size: 150,
     },
     {
       id: 'kind',
       accessorKey: 'kind',
-      header: () => <RecordTable.InlineHead label={t('kind')} icon={IconTag} />,
+      header: () => <RecordTable.InlineHead label={t('kind', 'Kind')} icon={IconTag} />,
       cell: ({ cell }) => {
         return (
           <RecordTableInlineCell>
@@ -178,7 +178,7 @@ export const useProductRulesOnTaxColumns = (): ColumnDef<IProductRulesOnTax>[] =
       id: 'taxType',
       accessorKey: 'taxType',
       header: () => (
-        <RecordTable.InlineHead label={t('tax-type')} icon={IconReceipt} />
+        <RecordTable.InlineHead label={t('tax-type', 'Tax Type')} icon={IconReceipt} />
       ),
       cell: ({ cell }) => {
         return (
@@ -191,7 +191,7 @@ export const useProductRulesOnTaxColumns = (): ColumnDef<IProductRulesOnTax>[] =
     {
       id: 'taxCode',
       accessorKey: 'taxCode',
-      header: () => <RecordTable.InlineHead label={t('tax-code')} icon={IconCode} />,
+      header: () => <RecordTable.InlineHead label={t('tax-code', 'Tax Code')} icon={IconCode} />,
       cell: ({ row, cell }) => {
         return (
           <RecordTableInlineCell>
@@ -205,7 +205,7 @@ export const useProductRulesOnTaxColumns = (): ColumnDef<IProductRulesOnTax>[] =
       id: 'taxPercent',
       accessorKey: 'taxPercent',
       header: () => (
-        <RecordTable.InlineHead label={t('percent')} icon={IconPercentage} />
+        <RecordTable.InlineHead label={t('percent', 'Percent')} icon={IconPercentage} />
       ),
       cell: ({ cell }) => {
         const value = cell.getValue() as string | number | null | undefined;

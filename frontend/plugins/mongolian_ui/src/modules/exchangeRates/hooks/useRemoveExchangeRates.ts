@@ -21,13 +21,26 @@ export const useRemoveExchangeRates = () => {
 
     confirm({
       message: many
-        ? t('delete-exchange-rates')
-        : t('delete-exchange-rate'),
-      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
+        ? t(
+            'delete-exchange-rates',
+            'Are you sure you want to delete the selected exchange rates?',
+          )
+        : t(
+            'delete-exchange-rate',
+            'Are you sure you want to delete this exchange rate?',
+          ),
+      options: {
+        okLabel: t('delete', 'Delete'),
+        cancelLabel: t('cancel', 'Cancel'),
+      },
     }).then(async () => {
       try {
         await removeExchangeRates({ variables: { rateIds } });
-        notifySuccess(many ? t('exchange-rates-deleted') : t('exchange-rate-deleted'));
+        notifySuccess(
+          many
+            ? t('exchange-rates-deleted', 'Exchange rates deleted')
+            : t('exchange-rate-deleted', 'Exchange rate deleted'),
+        );
         onSuccess?.();
       } catch (e) {
         notifyError(e);

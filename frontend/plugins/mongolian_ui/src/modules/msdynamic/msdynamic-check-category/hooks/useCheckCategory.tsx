@@ -93,14 +93,14 @@ export const useCheckCategory = () => {
         setItems(nextItems);
 
         toast({
-          title: t('success'),
-          description: t('categories-checked-successfully'),
+          title: t('success', 'Success'),
+          description: t('categories-checked-successfully', 'MS Dynamic categories checked successfully'),
         });
       }
     } catch {
       toast({
-        title: t('error'),
-        description: t('failed-to-check-categories'),
+        title: t('error', 'Error'),
+        description: t('failed-to-check-categories', 'Failed to check categories'),
         variant: 'destructive',
       });
     } finally {

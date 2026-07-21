@@ -41,7 +41,7 @@ export const CheckPosOrdersCommandBar = () => {
     <CommandBar open={commandBarOpen}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={handleClose}>
-          {selectedCount} {t('selected')}
+          {selectedCount} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <Button
@@ -49,14 +49,14 @@ export const CheckPosOrdersCommandBar = () => {
           onClick={handleCheck}
           disabled={checking || !selectedIds.length}
         >
-          {checking ? t('checking') : t('check')}
+          {checking ? t('checking', 'Checking...') : t('check', 'Check')}
         </Button>
         <Button
           variant="secondary"
           onClick={handleSync}
           disabled={syncing || !syncSelectedOrderIds.length}
         >
-          {syncing ? t('syncing') : t('sync')}
+          {syncing ? t('syncing', 'Syncing...') : t('sync', 'Sync')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

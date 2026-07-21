@@ -17,7 +17,7 @@ export const ProductGroupRowsCommandbar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ProductGroupRowsDelete />
@@ -34,10 +34,10 @@ export const ProductGroupRowsDelete = () => {
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-product-groups-confirm'),
+      message: t('delete-product-groups-confirm', 'Are you sure you want to delete these product groups?'),
       options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
+        okLabel: t('delete', 'Delete'),
+        cancelLabel: t('cancel', 'Cancel'),
       },
     }).then(() => {
       const productGroupIds = table
@@ -48,7 +48,7 @@ export const ProductGroupRowsDelete = () => {
         variables: { ids: productGroupIds },
         onError: (error: Error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -56,8 +56,8 @@ export const ProductGroupRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: t('success'),
-            description: t('product-groups-deleted-successfully'),
+            title: t('success', 'Success'),
+            description: t('product-groups-deleted-successfully', 'Product groups deleted successfully'),
           });
         },
       });
@@ -67,7 +67,7 @@ export const ProductGroupRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

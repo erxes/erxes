@@ -7,17 +7,17 @@ export const MainNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={t('put-response')}
+        name={t('put-response', 'Put Response')}
         path="mongolian/put-response"
         icon={IconSandbox}
       />
       <NavigationMenuLinkItem
-        name={t('erkhet-sync')}
+        name={t('erkhet-sync', 'Erkhet Sync')}
         path="mongolian/sync-erkhet"
         icon={IconSandbox}
       />
       <NavigationMenuLinkItem
-        name={t('ms-dynamic')}
+        name={t('ms-dynamic', 'MSDynamic')}
         path="mongolian/msdynamic"
         icon={IconSandbox}
       />

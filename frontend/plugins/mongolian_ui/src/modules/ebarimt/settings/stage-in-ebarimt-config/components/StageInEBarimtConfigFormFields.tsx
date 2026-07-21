@@ -50,8 +50,8 @@ export const StageInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-1 gap-4">
           <FormInput
             name="title"
-            label={t('title')}
-            placeholder={t('title')}
+            label={t('title', 'Title')}
+            placeholder={t('title', 'Title')}
             control={form.control}
           />
         </div>
@@ -62,7 +62,7 @@ export const StageInEBarimtConfigFormFields = ({
             name="boardId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('destination-stage-board')}</Form.Label>
+                <Form.Label>{t('destination-stage-board', 'Destination Stage Board')}</Form.Label>
                 <SelectBoard.FormItem
                   value={field.value}
                   onValueChange={onBoardChange}
@@ -76,7 +76,7 @@ export const StageInEBarimtConfigFormFields = ({
             name="pipelineId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('pipeline')}</Form.Label>
+                <Form.Label>{t('pipeline', 'Pipeline')}</Form.Label>
                 <SelectPipeline.FormItem
                   value={field.value}
                   boardId={selectedBoardId}
@@ -91,7 +91,7 @@ export const StageInEBarimtConfigFormFields = ({
             name="stageId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('stage')}</Form.Label>
+                <Form.Label>{t('stage', 'Stage')}</Form.Label>
                 <SelectStage.FormItem
                   value={field.value}
                   pipelineId={selectedPipelineId}
@@ -108,14 +108,14 @@ export const StageInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormInput
             name="companyName"
-            label={t('company-name')}
-            placeholder={t('enter-company-name')}
+            label={t('company-name', 'Company name')}
+            placeholder={t('enter-company-name', 'Enter company name')}
             control={form.control}
           />
           <FormInput
             name="posNo"
-            label={t('pos-no')}
-            placeholder={t('pos-no')}
+            label={t('pos-no', 'Pos No')}
+            placeholder={t('pos-no', 'Pos No')}
             control={form.control}
           />
         </div>
@@ -123,14 +123,14 @@ export const StageInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormInput
             name="companyRD"
-            label={t('company-rd')}
-            placeholder={t('company-rd')}
+            label={t('company-rd', 'Company RD')}
+            placeholder={t('company-rd', 'Company RD')}
             control={form.control}
           />
           <FormInput
             name="merchantTin"
-            label={t('merchant-tin')}
-            placeholder={t('merchant-tin')}
+            label={t('merchant-tin', 'MerchantTin')}
+            placeholder={t('merchant-tin', 'MerchantTin')}
             control={form.control}
           />
         </div>
@@ -141,7 +141,7 @@ export const StageInEBarimtConfigFormFields = ({
             name="branchOfProvince"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('branch-of-province-district')}</Form.Label>
+                <Form.Label>{t('branch-of-province-district', 'Branch of Province / District')}</Form.Label>
                 <SelectBranchDistrict
                   value={field.value || ''}
                   onValueChange={onBranchChange}
@@ -155,7 +155,7 @@ export const StageInEBarimtConfigFormFields = ({
             name="subProvince"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('sub-province-district')}</Form.Label>
+                <Form.Label>{t('sub-province-district', 'Sub Province / District')}</Form.Label>
                 <SelectSubBranchDistrict
                   value={field.value || ''}
                   branchCode={selectedBranchCode || ''}
@@ -167,8 +167,8 @@ export const StageInEBarimtConfigFormFields = ({
           />
           <FormDistrictCode
             name="districtCode"
-            label={t('district-code')}
-            placeholder={t('district-code')}
+            label={t('district-code', 'District Code')}
+            placeholder={t('district-code', 'District Code')}
             control={form.control}
             branchCode={selectedBranchCode || ''}
             subBranchCode={selectedSubBranchCode || ''}
@@ -179,14 +179,14 @@ export const StageInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormInput
             name="defaultUnitedCode"
-            label={t('default-united-code')}
-            placeholder={t('default-united-code')}
+            label={t('default-united-code', 'Default United Code')}
+            placeholder={t('default-united-code', 'Default United Code')}
             control={form.control}
           />
           <FormInput
             name="branchNo"
-            label={t('branch-no')}
-            placeholder={t('branch-no')}
+            label={t('branch-no', 'Branch No')}
+            placeholder={t('branch-no', 'Branch No')}
             control={form.control}
           />
         </div>
@@ -197,21 +197,21 @@ export const StageInEBarimtConfigFormFields = ({
               <div className="grid grid-cols-2 gap-4">
                 <FormCheckbox
                   name="hasVat"
-                  label={t('has-vat')}
+                  label={t('has-vat', 'Has Vat')}
                   control={form.control}
                   labelPosition="before"
                 />
                 <FormInput
                   name="vatPercent"
-                  label={t('vat-percent')}
-                  placeholder={t('enter-vat-percent')}
+                  label={t('vat-percent', 'Vat percent')}
+                  placeholder={t('enter-vat-percent', 'Enter vat percent')}
                   control={form.control}
                   type="number"
                 />
               </div>
               <FormSelectEbarimtProductRules
                 name="reverseVatRules"
-                label={t('another-rules-of-products-on-vat')}
+                label={t('another-rules-of-products-on-vat', 'Another Rules of Products on VAT')}
                 kind="vat"
                 control={form.control}
               />
@@ -219,7 +219,7 @@ export const StageInEBarimtConfigFormFields = ({
           ) : (
             <FormCheckbox
               name="hasVat"
-              label={t('has-vat')}
+              label={t('has-vat', 'Has Vat')}
               control={form.control}
               labelPosition="before"
             />
@@ -231,14 +231,14 @@ export const StageInEBarimtConfigFormFields = ({
             <div className="grid grid-cols-2 gap-4">
               <FormCheckbox
                 name="hasCitytax"
-                label={t('has-all-citytax')}
+                label={t('has-all-citytax', 'Has all Citytax')}
                 control={form.control}
                 labelPosition="before"
               />
               <FormInput
                 name="citytaxPercent"
-                label={t('citytax-percent')}
-                placeholder={t('enter-citytax-percent')}
+                label={t('citytax-percent', 'Citytax Percent')}
+                placeholder={t('enter-citytax-percent', 'Enter citytax percent')}
                 control={form.control}
                 type="number"
               />
@@ -247,13 +247,13 @@ export const StageInEBarimtConfigFormFields = ({
             <>
               <FormCheckbox
                 name="hasCitytax"
-                label={t('has-all-citytax')}
+                label={t('has-all-citytax', 'Has all Citytax')}
                 control={form.control}
                 labelPosition="before"
               />
               <FormSelectEbarimtProductRules
                 name="reverseCtaxRules"
-                label={t('another-rules-of-products-on-citytax')}
+                label={t('another-rules-of-products-on-citytax', 'Another rules of products on citytax')}
                 kind="ctax"
                 control={form.control}
               />
@@ -264,14 +264,14 @@ export const StageInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormArea
             name="headerText"
-            label={t('header-text')}
-            placeholder={t('header-text')}
+            label={t('header-text', 'Header text')}
+            placeholder={t('header-text', 'Header text')}
             control={form.control}
           />
           <FormArea
             name="footerText"
-            label={t('footer-text')}
-            placeholder={t('footer-text')}
+            label={t('footer-text', 'Footer text')}
+            placeholder={t('footer-text', 'Footer text')}
             control={form.control}
           />
         </div>
@@ -279,13 +279,13 @@ export const StageInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4 items-center">
           <FormCheckbox
             name="withDescription"
-            label={t('with-description')}
+            label={t('with-description', 'With Description')}
             control={form.control}
             labelPosition="before"
           />
           <FormCheckbox
             name="skipEbarimt"
-            label={t('skip-ebarimt')}
+            label={t('skip-ebarimt', 'Skip Ebarimt')}
             control={form.control}
             labelPosition="before"
           />

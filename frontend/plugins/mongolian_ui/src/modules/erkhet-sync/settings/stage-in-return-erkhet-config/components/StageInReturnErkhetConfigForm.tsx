@@ -47,9 +47,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="flex justify-between items-center">
-            <h1 className="text-lg font-semibold">{t('return-erkhet-config')}</h1>
+            <h1 className="text-lg font-semibold">{t('return-erkhet-config', 'Return Erkhet Config')}</h1>
             <Button type="button" onClick={onNewConfig}>
-              {t('new-config')}
+              {t('new-config', 'New Config')}
             </Button>
           </div>
 
@@ -58,9 +58,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('title')}</Form.Label>
+                <Form.Label>{t('title', 'Title')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={t('title')} />
+                  <Input {...field} placeholder={t('title', 'Title')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -73,7 +73,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
               name="boardId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('destination-stage-board')}</Form.Label>
+                  <Form.Label>{t('destination-stage-board', 'Destination Stage Board')}</Form.Label>
                   <SelectSalesBoard
                     value={field.value}
                     onValueChange={(value) => {
@@ -92,7 +92,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('pipeline')}</Form.Label>
+                  <Form.Label>{t('pipeline', 'Pipeline')}</Form.Label>
                   <SelectPipeline
                     value={field.value}
                     onValueChange={(value) => {
@@ -112,7 +112,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
               name="stageId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('stage')}</Form.Label>
+                  <Form.Label>{t('stage', 'Stage')}</Form.Label>
                   <SelectStage
                     id="stageId"
                     variant="form"
@@ -131,9 +131,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('user-email')}</Form.Label>
+                <Form.Label>{t('user-email', 'User Email')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={t('user-email')} />
+                  <Input {...field} placeholder={t('user-email', 'User Email')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -144,7 +144,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             name="returnType"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('return-type')}</Form.Label>
+                <Form.Label>{t('return-type', 'Return Type')}</Form.Label>
                 <Select
                   value={field.value}
                   onValueChange={(value) => {
@@ -152,7 +152,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   }}
                 >
                   <Select.Trigger>
-                    <Select.Value placeholder={t('select-return-type')} />
+                    <Select.Value placeholder={t('select-return-type', 'Select return type')} />
                   </Select.Trigger>
                   <Select.Content>
                     {RETURN_TYPES.map((type) => (
@@ -168,7 +168,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
           />
           <div className="flex justify-end">
             <Button type="submit" disabled={loading}>
-              {loading ? t('saving') : t('save')}
+              {loading ? t('saving', 'Saving...') : t('save', 'Save')}
             </Button>
           </div>
         </form>
@@ -202,16 +202,16 @@ const NewConfigForm = ({
           className="w-full mx-auto max-w-2xl flex flex-col gap-6 px-9 py-5"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <h1 className="text-lg font-semibold">{t('return-erkhet-configs')}</h1>
+          <h1 className="text-lg font-semibold">{t('return-erkhet-configs', 'Return Erkhet Configs')}</h1>
 
           <Form.Field
             name="title"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('title')}</Form.Label>
+                <Form.Label>{t('title', 'Title')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={t('title')} />
+                  <Input {...field} placeholder={t('title', 'Title')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -224,7 +224,7 @@ const NewConfigForm = ({
               name="boardId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('destination-stage-board')}</Form.Label>
+                  <Form.Label>{t('destination-stage-board', 'Destination Stage Board')}</Form.Label>
                   <SelectSalesBoard
                     value={field.value}
                     onValueChange={(value) => {
@@ -243,7 +243,7 @@ const NewConfigForm = ({
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('pipeline')}</Form.Label>
+                  <Form.Label>{t('pipeline', 'Pipeline')}</Form.Label>
                   <SelectPipeline
                     value={field.value}
                     onValueChange={(value) => {
@@ -263,7 +263,7 @@ const NewConfigForm = ({
               name="stageId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('stage')}</Form.Label>
+                  <Form.Label>{t('stage', 'Stage')}</Form.Label>
                   <SelectStage
                     id="stageId"
                     variant="form"
@@ -281,9 +281,9 @@ const NewConfigForm = ({
               name="userEmail"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('user-email')}</Form.Label>
+                  <Form.Label>{t('user-email', 'User Email')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('user-email')} />
+                    <Input {...field} placeholder={t('user-email', 'User Email')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -294,7 +294,7 @@ const NewConfigForm = ({
               name="returnType"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('return-type')}</Form.Label>
+                  <Form.Label>{t('return-type', 'Return Type')}</Form.Label>
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
@@ -302,7 +302,7 @@ const NewConfigForm = ({
                     }}
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder={t('select-return-type')} />
+                      <Select.Value placeholder={t('select-return-type', 'Select return type')} />
                     </Select.Trigger>
                     <Select.Content>
                       {RETURN_TYPES.map((type) => (
@@ -320,10 +320,10 @@ const NewConfigForm = ({
 
           <div className="flex justify-end gap-2 mt-6">
             <Button type="button" variant="outline" onClick={onCancel}>
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? t('saving') : t('save')}
+              {loading ? t('saving', 'Saving...') : t('save', 'Save')}
             </Button>
           </div>
         </form>
@@ -381,7 +381,7 @@ export const StageInReturnErkhetConfigForm = () => {
   };
 
   if (loading) {
-    return <div>{t('loading')}</div>;
+    return <div>{t('loading', 'Loading...')}</div>;
   }
 
   return (

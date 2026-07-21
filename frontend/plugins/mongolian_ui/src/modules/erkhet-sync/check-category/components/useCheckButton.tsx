@@ -12,7 +12,7 @@ const CheckButton = () => {
 
   return (
     <Button onClick={handleCheck} disabled={loading}>
-      {loading ? t('checking') : t('check')}
+      {loading ? t('checking', 'Checking...') : t('check', 'Check')}
     </Button>
   );
 };

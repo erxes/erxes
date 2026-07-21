@@ -38,7 +38,7 @@ const PerConditions = ({
         <div className="space-y-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('product-category')}
+              {t('product-category', 'Product Category')}
             </Label>
             <SelectCategory
               value={condition.productCategoryIds ?? []}
@@ -48,7 +48,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('exclude-categories')}
+              {t('exclude-categories', 'Exclude Categories')}
             </Label>
             <SelectCategory
               value={condition.excludeCategoryIds ?? []}
@@ -58,7 +58,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('product-tags')}
+              {t('product-tags', 'Product Tags')}
             </Label>
             <SelectProductTags
               value={condition.productTagIds ?? []}
@@ -68,7 +68,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('exclude-tags')}
+              {t('exclude-tags', 'Exclude Tags')}
             </Label>
             <SelectProductTags
               value={condition.excludeTagIds ?? []}
@@ -78,7 +78,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('exclude-products')}
+              {t('exclude-products', 'Exclude Products')}
             </Label>
             <SelectProducts
               value={condition.excludeProductIds ?? []}
@@ -88,7 +88,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('segment')}
+              {t('segment', 'Segment')}
             </Label>
             <SelectSegments
               contentTypes={['core:product']}
@@ -103,7 +103,7 @@ const PerConditions = ({
         <div className="space-y-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('low-count')}
+              {t('low-count', 'Low Count')}
             </Label>
             <Input
               type="number"
@@ -114,7 +114,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('great-count')}
+              {t('great-count', 'Great Count')}
             </Label>
             <Input
               type="number"
@@ -125,7 +125,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('low-unit-price')}
+              {t('low-unit-price', 'Low Unit Price')}
             </Label>
             <Input
               type="number"
@@ -136,7 +136,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('great-unit-price')}
+              {t('great-unit-price', 'Great Unit Price')}
             </Label>
             <Input
               type="number"
@@ -147,7 +147,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('sub-uom-type')}
+              {t('sub-uom-type', 'Sub Uom Type')}
             </Label>
             <Select
               value={condition.subUomType ?? ''}
@@ -156,13 +156,13 @@ const PerConditions = ({
               }
             >
               <Select.Trigger>
-                <Select.Value placeholder={t('not-use')} />
+                <Select.Value placeholder={t('not-use', 'Not use')} />
               </Select.Trigger>
 
               <Select.Content>
-                <Select.Item value={CLEAR_VALUE}>{t('not-use')}</Select.Item>
-                <Select.Item value="lt">{t('low-than-count')}</Select.Item>
-                <Select.Item value="gte">{t('greater-equal-than-count')}</Select.Item>
+                <Select.Item value={CLEAR_VALUE}>{t('not-use', 'Not use')}</Select.Item>
+                <Select.Item value="lt">{t('low-than-count', 'Low than count')}</Select.Item>
+                <Select.Item value="gte">{t('greater-equal-than-count', 'Greater, equal than count')}</Select.Item>
               </Select.Content>
             </Select>
           </div>
@@ -173,7 +173,7 @@ const PerConditions = ({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('set-branch')}
+              {t('set-branch', 'Set Branch')}
             </Label>
             <SelectBranches
               value={condition.branchId || ''}
@@ -184,7 +184,7 @@ const PerConditions = ({
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              {t('set-department')}
+              {t('set-department', 'Set Department')}
             </Label>
             <SelectDepartments
               value={condition.departmentId || ''}
@@ -205,7 +205,7 @@ const PerConditions = ({
             className="h-6 px-4"
             onClick={onAddCondition}
           >
-            + {t('add-condition')}
+            + {t('add-condition', 'Add Condition')}
           </Button>
         )}
         <Button
@@ -215,7 +215,7 @@ const PerConditions = ({
           onClick={() => onRemove(condition.id)}
         >
           <IconTrash size={16} className="" />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
       </div>
     </div>

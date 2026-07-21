@@ -28,7 +28,7 @@ export const PipelineFields: React.FC<PipelineFieldsProps> = ({
         name="boardId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('board')}</Form.Label>
+            <Form.Label>{t('board', 'Board')}</Form.Label>
             <SelectSalesBoard
               value={field.value}
               onValueChange={(value: string) => {
@@ -45,7 +45,7 @@ export const PipelineFields: React.FC<PipelineFieldsProps> = ({
         name="pipelineId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('pipeline')}</Form.Label>
+            <Form.Label>{t('pipeline', 'Pipeline')}</Form.Label>
             <SelectPipeline
               value={field.value}
               onValueChange={(value: string) => {
@@ -64,7 +64,7 @@ export const PipelineFields: React.FC<PipelineFieldsProps> = ({
         name="stageId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('stage')}</Form.Label>
+            <Form.Label>{t('stage', 'Stage')}</Form.Label>
             <SelectStage
               id="stageId"
               variant="form"

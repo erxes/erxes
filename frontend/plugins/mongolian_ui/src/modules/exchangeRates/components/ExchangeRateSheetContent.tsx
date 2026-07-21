@@ -32,11 +32,11 @@ export const ExchangeRateSheetContent = ({
       <Sheet.Footer className="gap-2 border-t bg-background">
         <Sheet.Close asChild>
           <Button variant="outline" size="lg">
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
         </Sheet.Close>
         <Button type="submit" form={formId} size="lg" disabled={loading}>
-          {loading ? <Spinner /> : t('save')}
+          {loading ? <Spinner /> : t('save', 'Save')}
         </Button>
       </Sheet.Footer>
     </Sheet.View>

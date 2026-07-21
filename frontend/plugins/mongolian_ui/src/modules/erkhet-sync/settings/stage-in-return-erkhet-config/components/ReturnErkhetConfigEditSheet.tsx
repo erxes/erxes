@@ -57,7 +57,7 @@ export const ReturnErkhetConfigEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>{t('edit-return-erkhet-config')}</Sheet.Title>
+          <Sheet.Title>{t('edit-return-erkhet-config', 'Edit Return Erkhet Config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -74,9 +74,9 @@ export const ReturnErkhetConfigEditSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('title')}</Form.Label>
+                          <Form.Label>{t('title', 'Title')}</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder={t('title')} />
+                            <Input {...field} placeholder={t('title', 'Title')} />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -87,9 +87,9 @@ export const ReturnErkhetConfigEditSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('user-email')}</Form.Label>
+                          <Form.Label>{t('user-email', 'User Email')}</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder={t('user-email')} />
+                            <Input {...field} placeholder={t('user-email', 'User Email')} />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -100,10 +100,10 @@ export const ReturnErkhetConfigEditSheet = ({
                       name="returnType"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('return-type')}</Form.Label>
+                          <Form.Label>{t('return-type', 'Return Type')}</Form.Label>
                           <Select value={field.value} onValueChange={field.onChange}>
                             <Select.Trigger className="w-full">
-                              <Select.Value placeholder={t('select-return-type')} />
+                              <Select.Value placeholder={t('select-return-type', 'Select return type')} />
                             </Select.Trigger>
                             <Select.Content>
                               {RETURN_TYPES.map((type) => (
@@ -125,10 +125,10 @@ export const ReturnErkhetConfigEditSheet = ({
               </div>
               <div className="flex justify-end gap-2 p-5 border-t">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('saving') : t('save')}
+                  {loading ? t('saving', 'Saving...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

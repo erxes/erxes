@@ -66,7 +66,7 @@ export const EditMSDynamicConfig = () => {
       onOpenChange={handleClose}
       onSubmit={handleSubmit}
       open={editDetail !== null}
-      title={t('edit-config')}
+      title={t('edit-config', 'Edit Config')}
     />
   );
 };

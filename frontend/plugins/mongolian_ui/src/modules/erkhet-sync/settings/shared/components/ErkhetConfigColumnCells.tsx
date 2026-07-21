@@ -44,7 +44,7 @@ export const ErkhetConfigMoreCell = <TRow extends { _id: string }>({
   const { t } = useTranslation('mongolian');
 
   const handleDelete = () => {
-    confirm({ message: t('delete-this-config-confirm') }).then(
+    confirm({ message: t('delete-this-config-confirm', 'Are you sure you want to delete this config?') }).then(
       () => onDelete(config._id),
     );
   };
@@ -70,7 +70,7 @@ export const ErkhetConfigMoreCell = <TRow extends { _id: string }>({
                   onClick={() => setEditOpen(true)}
                 >
                   <IconEdit className="size-4" />
-                  {t('edit')}
+                  {t('edit', 'Edit')}
                 </Button>
               </Command.Item>
               <Command.Item asChild>
@@ -82,7 +82,7 @@ export const ErkhetConfigMoreCell = <TRow extends { _id: string }>({
                   disabled={editLoading}
                 >
                   <IconTrash className="size-4" />
-                  {t('delete')}
+                  {t('delete', 'Delete')}
                 </Button>
               </Command.Item>
             </Command.List>

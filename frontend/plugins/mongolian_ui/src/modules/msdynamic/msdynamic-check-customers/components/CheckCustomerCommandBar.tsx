@@ -17,10 +17,10 @@ export const CheckCustomerCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} {t('selected')}</CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} {t('selected', 'selected')}</CommandBar.Value>
         <Separator.Inline />
         <Button variant="secondary" onClick={handleSync} disabled={syncing}>
-          {syncing ? t('syncing') : t('sync')}
+          {syncing ? t('syncing', 'Syncing...') : t('sync', 'Sync')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

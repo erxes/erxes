@@ -30,19 +30,19 @@ export const CheckProductFilter = ({
         variant={selectedFilter === 'create' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('create')}
       >
-        {t('create-products')} ({getCount('create')})
+        {t('create-products', 'Create Products')} ({getCount('create')})
       </Button>
       <Button
         variant={selectedFilter === 'update' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('update')}
       >
-        {t('update-products')} ({getCount('update')})
+        {t('update-products', 'Update Products')} ({getCount('update')})
       </Button>
       <Button
         variant={selectedFilter === 'delete' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('delete')}
       >
-        {t('delete-products')} ({getCount('delete')})
+        {t('delete-products', 'Delete Products')} ({getCount('delete')})
       </Button>
     </div>
   );

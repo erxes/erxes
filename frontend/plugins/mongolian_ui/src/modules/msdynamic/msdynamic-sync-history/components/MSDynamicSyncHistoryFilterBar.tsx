@@ -33,7 +33,7 @@ const MSDynamicSyncHistoryUserFilterBarItem = () => {
     <Filter.BarItem queryKey="user">
       <Filter.BarName>
         <IconUser />
-        {t('assigned-to')}
+        {t('assigned-to', 'Assigned To')}
       </Filter.BarName>
       <SelectMember.Provider
         mode="single"
@@ -64,7 +64,7 @@ const MSDynamicSyncHistoryDateFilterBarItem = () => {
     <Filter.BarItem queryKey="dateRange">
       <Filter.BarName>
         <IconCalendar />
-        {t('date-range')}
+        {t('date-range', 'Date Range')}
       </Filter.BarName>
       <Filter.Date filterKey="dateRange" />
     </Filter.BarItem>

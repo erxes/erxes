@@ -85,7 +85,7 @@ const SelectSegmentsValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedSegment) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('choose-segment')}
+        {placeholder || t('choose-segment', 'Choose segment')}
       </span>
     );
   }
@@ -121,7 +121,7 @@ const SelectSegmentsContent = () => {
     if (!contentTypes?.length) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('no-content-types')}</span>
+          <span className="text-muted-foreground">{t('no-content-types', 'No content types')}</span>
         </div>
       );
     }
@@ -129,7 +129,7 @@ const SelectSegmentsContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -137,7 +137,7 @@ const SelectSegmentsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error-colon', { message: error.message })}
+          {t('error-colon', 'Error: {{message}}', { message: error.message })}
         </div>
       );
     }
@@ -149,9 +149,9 @@ const SelectSegmentsContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-segment')} />
+      <Command.Input placeholder={t('search-segment', 'Search segment')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-segments-found')}</span>
+        <span className="text-muted-foreground">{t('no-segments-found', 'No segments found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

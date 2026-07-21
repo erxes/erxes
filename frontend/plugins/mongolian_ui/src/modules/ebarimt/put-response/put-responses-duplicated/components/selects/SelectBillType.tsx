@@ -105,7 +105,7 @@ const SelectBillTypeValue = ({
   if (!selectedBillType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-bill-type')}
+        {placeholder || t('select-bill-type', 'Select bill type')}
       </span>
     );
   }
@@ -142,9 +142,9 @@ const SelectBillTypeContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-bill-type')} />
+      <Command.Input placeholder={t('search-bill-type', 'Search bill type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-bill-types-found')}</span>
+        <span className="text-muted-foreground">{t('no-bill-types-found', 'No bill types found')}</span>
       </Command.Empty>
       <Command.List>
         {billTypes?.map((billType) => (
@@ -160,7 +160,7 @@ export const SelectBillTypeFilterItem = () => {
   return (
     <Filter.Item value="billType">
       <IconSettings />
-      {t('bill-type')}
+      {t('bill-type', 'Bill Type')}
     </Filter.Item>
   );
 };
@@ -213,7 +213,7 @@ export const SelectBillTypeFilterBar = ({
     <Filter.BarItem queryKey={'billType'}>
       <Filter.BarName>
         <IconSettings />
-        {t('bill-type')}
+        {t('bill-type', 'Bill Type')}
       </Filter.BarName>
       <SelectBillTypeProvider
         mode={mode}

@@ -15,15 +15,15 @@ export const useCreatePipelineRemainderConfig = () => {
     useMutation(CREATE_PIPELINE_REMAINDER_CONFIG, {
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('pipeline-remainder-config-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('pipeline-remainder-config-created-successfully', 'Pipeline remainder config created successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

@@ -19,15 +19,15 @@ export const useRemoveStageInEbarimtConfig = () => {
       });
 
       toast({
-        title: t('success'),
-        description: t('config-deleted-successfully'),
+        title: t('success', 'Success'),
+        description: t('config-deleted-successfully', 'Configuration deleted successfully'),
         variant: 'default',
       });
     } catch (error) {
       console.error('Error removing config:', error);
       toast({
-        title: t('error'),
-        description: t('failed-to-delete-config'),
+        title: t('error', 'Error'),
+        description: t('failed-to-delete-config', 'Failed to delete configuration'),
         variant: 'destructive',
       });
       throw error;

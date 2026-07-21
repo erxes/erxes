@@ -54,10 +54,10 @@ export const CheckProductRecordTable = () => {
                       className="text-muted-foreground mx-auto mb-4"
                     />
                     <h3 className="text-xl font-semibold mb-2">
-                      {t('no-product-yet')}
+                      {t('no-product-yet', 'No product yet')}
                     </h3>
                     <p className="text-muted-foreground max-w-md">
-                      {t('create-first-product')}
+                      {t('create-first-product', 'Get started by creating your first product.')}
                     </p>
                   </div>
                 </div>

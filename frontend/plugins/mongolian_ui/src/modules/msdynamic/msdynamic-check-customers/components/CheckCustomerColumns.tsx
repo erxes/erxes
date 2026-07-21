@@ -26,7 +26,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'status',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlertTriangle} label={t('status')} />;
+      return <RecordTable.InlineHead icon={IconAlertTriangle} label={t('status', 'Status')} />;
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('mongolian');
@@ -48,7 +48,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'No',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconHash} label={t('msd-code')} />;
+      return <RecordTable.InlineHead icon={IconHash} label={t('msd-code', 'MSD Code')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -61,7 +61,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'Name',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconUser} label={t('msd-name')} />;
+      return <RecordTable.InlineHead icon={IconUser} label={t('msd-name', 'MSD Name')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -74,7 +74,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'Phone_No',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconPhone} label={t('msd-phone')} />;
+      return <RecordTable.InlineHead icon={IconPhone} label={t('msd-phone', 'MSD Phone')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -87,7 +87,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'E_Mail',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconMail} label={t('msd-email')} />;
+      return <RecordTable.InlineHead icon={IconMail} label={t('msd-email', 'MSD Email')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -100,7 +100,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'code',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconHash} label={t('erxes-code')} />;
+      return <RecordTable.InlineHead icon={IconHash} label={t('erxes-code', 'Erxes Code')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -113,7 +113,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'primaryPhone',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconPhone} label={t('erxes-phone')} />;
+      return <RecordTable.InlineHead icon={IconPhone} label={t('erxes-phone', 'Erxes Phone')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -126,7 +126,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'primaryEmail',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconMail} label={t('erxes-email')} />;
+      return <RecordTable.InlineHead icon={IconMail} label={t('erxes-email', 'Erxes Email')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -139,7 +139,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     accessorKey: 'message',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlertTriangle} label={t('message')} />;
+      return <RecordTable.InlineHead icon={IconAlertTriangle} label={t('message', 'Message')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

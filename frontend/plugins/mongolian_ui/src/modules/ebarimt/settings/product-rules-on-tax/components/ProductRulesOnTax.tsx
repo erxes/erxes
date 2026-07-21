@@ -65,16 +65,16 @@ export const AddProductRulesOnTax = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('product-rule-added-successfully'),
+          title: t('success', 'Success'),
+          description: t('product-rule-added-successfully', 'Product rule added successfully'),
         });
         setOpen(false);
         form.reset();
       },
       onError: (error: any) => {
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-add-product-rule'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-add-product-rule', 'Failed to add product rule'),
           variant: 'destructive',
         });
       },
@@ -86,12 +86,12 @@ export const AddProductRulesOnTax = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-rule')}
+          {t('add-rule', 'Add Rule')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View side="right" className="bg-background sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>{t('add-rule')}</Sheet.Title>
+          <Sheet.Title>{t('add-rule', 'Add Rule')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <div className="flex-1 overflow-y-auto px-5 py-4">
@@ -106,11 +106,11 @@ export const AddProductRulesOnTax = () => {
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Sheet.Close>
           <Button type="submit" form={FORM_ID} size="lg" disabled={loading}>
-            {loading ? <Spinner /> : t('save')}
+            {loading ? <Spinner /> : t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>
@@ -176,16 +176,16 @@ export const AddProductRulesOnTaxForm = ({
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('product-rule-added-successfully'),
+          title: t('success', 'Success'),
+          description: t('product-rule-added-successfully', 'Product rule added successfully'),
         });
         setOpen(false);
         form.reset();
       },
       onError: (error: any) => {
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-add-product-rule'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-add-product-rule', 'Failed to add product rule'),
           variant: 'destructive',
         });
       },

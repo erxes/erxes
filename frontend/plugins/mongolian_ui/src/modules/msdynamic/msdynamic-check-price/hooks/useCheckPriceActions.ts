@@ -89,13 +89,13 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
 
       setPriceItems(allItems);
       toast({
-        title: t('success'),
-        description: t('price-items-found', { count: allItems.length }),
+        title: t('success', 'Success'),
+        description: t('price-items-found', '{{count}} price items found', { count: allItems.length }),
       });
     } catch {
       toast({
-        title: t('error'),
-        description: t('failed-to-check-prices'),
+        title: t('error', 'Error'),
+        description: t('failed-to-check-prices', 'Failed to check MS Dynamic prices'),
         variant: 'destructive',
       });
     } finally {
@@ -121,13 +121,13 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
       setCheckResponseData(refreshedData || null);
 
       toast({
-        title: t('success'),
-        description: t('prices-synced', { count: itemsToSync.length }),
+        title: t('success', 'Success'),
+        description: t('prices-synced', '{{count}} prices synced', { count: itemsToSync.length }),
       });
     } catch {
       toast({
-        title: t('error'),
-        description: t('failed-to-sync-prices'),
+        title: t('error', 'Error'),
+        description: t('failed-to-sync-prices', 'Failed to sync MS Dynamic prices'),
         variant: 'destructive',
       });
     } finally {

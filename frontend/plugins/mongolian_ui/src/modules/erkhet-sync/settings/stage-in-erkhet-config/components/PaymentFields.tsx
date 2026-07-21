@@ -15,10 +15,10 @@ export const PaymentFields: React.FC<PaymentFieldsProps> = ({ control }) => {
       name="defaultPay"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('default-pay')}</Form.Label>
+          <Form.Label>{t('default-pay', 'Default Pay')}</Form.Label>
           <Select value={field.value} onValueChange={field.onChange}>
             <Select.Trigger className="w-full">
-              <Select.Value placeholder={t('default-pay')} />
+              <Select.Value placeholder={t('default-pay', 'Default Pay')} />
             </Select.Trigger>
             <Select.Content>
               {DEFAULT_PAY_DATA.map((type) => (

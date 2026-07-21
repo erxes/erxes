@@ -15,8 +15,8 @@ export const useSyncProduct = () => {
   ): Promise<ProductItem[] | undefined> => {
     if (!toCheckProducts || toCheckProducts.length === 0) {
       toast({
-        title: t('error'),
-        description: t('sync-products-not-found'),
+        title: t('error', 'Error'),
+        description: t('sync-products-not-found', 'No products found to sync'),
         variant: 'destructive',
       });
       return;
@@ -28,8 +28,8 @@ export const useSyncProduct = () => {
 
     if (productsToSync.length === 0) {
       toast({
-        title: t('info'),
-        description: t('all-products-already-synced'),
+        title: t('info', 'Info'),
+        description: t('all-products-already-synced', 'All products are already synced'),
       });
       return toCheckProducts;
     }
@@ -67,7 +67,7 @@ export const useSyncProduct = () => {
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -89,8 +89,8 @@ export const useSyncProduct = () => {
         });
 
         toast({
-          title: t('success'),
-          description: t('products-synced', { count: productsToSync.length }),
+          title: t('success', 'Success'),
+          description: t('products-synced', '{{count}} products synced', { count: productsToSync.length }),
         });
 
         return updatedProducts;
@@ -98,8 +98,8 @@ export const useSyncProduct = () => {
     } catch (err) {
       console.error('Sync products error:', err);
       toast({
-        title: t('error'),
-        description: t('sync-products-error'),
+        title: t('error', 'Error'),
+        description: t('sync-products-error', 'Sync products error'),
         variant: 'destructive',
       });
     }

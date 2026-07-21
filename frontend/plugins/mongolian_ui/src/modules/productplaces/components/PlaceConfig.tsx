@@ -59,7 +59,7 @@ const PlaceConfig: React.FC = () => {
     <div className="w-full flex justify-center overflow-y-auto">
       <div className="w-full max-w-6xl px-6 py-6 space-y-8">
         <ConfigHeader
-          title={t('product-places-config')}
+          title={t('product-places-config', 'Product Places Config')}
           onNew={reset}
           disabled={loading}
         />
@@ -74,10 +74,10 @@ const PlaceConfig: React.FC = () => {
           <Card.Content className="space-y-6">
             <div className="space-y-2 pt-4">
               <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                {t('title')}
+                {t('title', 'Title')}
               </Label>
               <Input
-                placeholder={t('enter-configuration-title')}
+                placeholder={t('enter-configuration-title', 'Enter configuration title')}
                 value={formData.title}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, title: e.target.value }))
@@ -88,32 +88,32 @@ const PlaceConfig: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
-                  {t('select-board')}
+                  {t('select-board', 'Select board')}
                 </Label>
                 <SelectBoard
                   mode="single"
                   value={formData.boardId}
                   onValueChange={(v) => handleBoardChange(v as string)}
-                  placeholder={t('choose-board')}
+                  placeholder={t('choose-board', 'Choose board')}
                 />
               </div>
 
               <div>
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
-                  {t('select-pipeline')}
+                  {t('select-pipeline', 'Select pipeline')}
                 </Label>
                 <SelectPipeline
                   mode="single"
                   boardId={formData.boardId}
                   value={formData.pipelineId}
                   onValueChange={(v) => handlePipelineChange(v as string)}
-                  placeholder={t('choose-pipeline')}
+                  placeholder={t('choose-pipeline', 'Choose pipeline')}
                 />
               </div>
 
               <div>
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
-                  {t('select-stage')}
+                  {t('select-stage', 'Select stage')}
                 </Label>
                 <SelectStage
                   mode="single"
@@ -122,7 +122,7 @@ const PlaceConfig: React.FC = () => {
                   onValueChange={(v) =>
                     setFormData((prev) => ({ ...prev, stageId: v as string }))
                   }
-                  placeholder={t('choose-stage')}
+                  placeholder={t('choose-stage', 'Choose stage')}
                 />
               </div>
             </div>
@@ -131,17 +131,17 @@ const PlaceConfig: React.FC = () => {
 
         <Card>
           <Card.Header>
-            <Card.Title>{t('conditions', { count: formData.conditions.length })}</Card.Title>
+            <Card.Title>{t('conditions', 'Conditions ({{count}})', { count: formData.conditions.length })}</Card.Title>
           </Card.Header>
 
           <Card.Content>
             {formData.conditions.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-muted-foreground gap-4">
                 <p className="text-sm">
-                  {t('no-conditions-yet')}
+                  {t('no-conditions-yet', 'No conditions added yet. Click "Add Condition" to get started.')}
                 </p>
                 <Button onClick={addCondition} variant="outline" className="text-xs">
-                  <IconPlus /> {t('add-condition')}
+                  <IconPlus /> {t('add-condition', 'Add Condition')}
                 </Button>
               </div>
             ) : (

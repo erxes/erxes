@@ -48,7 +48,7 @@ export const buildMovementConfigColumns = (
     accessorKey: 'title',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />;
+      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title', 'Title')} />;
     },
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
@@ -71,7 +71,7 @@ export const buildMovementConfigColumns = (
     accessorKey: 'userEmail',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />;
+      return <RecordTable.InlineHead icon={IconAt} label={t('user-email', 'User Email')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -85,7 +85,7 @@ export const buildMovementConfigColumns = (
     accessorKey: 'defaultCustomer',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconUser} label={t('default-customer')} />;
+      return <RecordTable.InlineHead icon={IconUser} label={t('default-customer', 'Default Customer')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -99,7 +99,7 @@ export const buildMovementConfigColumns = (
     accessorKey: 'responseField',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field')} />;
+      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field', 'Response Field')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

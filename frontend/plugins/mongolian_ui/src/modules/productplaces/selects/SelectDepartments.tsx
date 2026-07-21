@@ -109,7 +109,7 @@ const SelectDepartmentsValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedDepartment) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('choose-department')}
+        {placeholder || t('choose-department', 'Choose department')}
       </span>
     );
   }
@@ -145,7 +145,7 @@ const SelectDepartmentsContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -153,7 +153,7 @@ const SelectDepartmentsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error-colon', { message: error.message })}
+          {t('error-colon', 'Error: {{message}}', { message: error.message })}
         </div>
       );
     }
@@ -165,9 +165,9 @@ const SelectDepartmentsContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-department')} />
+      <Command.Input placeholder={t('search-department', 'Search department')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-departments-found')}</span>
+        <span className="text-muted-foreground">{t('no-departments-found', 'No departments found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

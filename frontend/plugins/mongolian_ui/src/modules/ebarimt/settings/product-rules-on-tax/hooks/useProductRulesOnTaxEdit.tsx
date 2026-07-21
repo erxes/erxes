@@ -24,15 +24,15 @@ export const useProductRulesOnTaxEdit = () => {
           cache.gc();
 
           toast({
-            title: t('success'),
-            description: t('product-rules-on-tax-updated-successfully'),
+            title: t('success', 'Success'),
+            description: t('product-rules-on-tax-updated-successfully', 'Product rules on tax updated successfully'),
           });
         }
       },
       onError: (error) => {
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-update-product-rules-on-tax'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-update-product-rules-on-tax', 'Failed to update product rules on tax'),
           variant: 'destructive',
         });
       },

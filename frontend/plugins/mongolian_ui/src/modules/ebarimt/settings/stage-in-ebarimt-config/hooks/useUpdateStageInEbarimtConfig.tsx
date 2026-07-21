@@ -12,14 +12,14 @@ export const useUpdateStageInEbarimtConfig = () => {
     {
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('stage-in-ebarimt-config-updated-successfully'),
+          title: t('success', 'Success'),
+          description: t('stage-in-ebarimt-config-updated-successfully', 'Stage in ebarimt config updated successfully'),
           variant: 'default',
         });
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

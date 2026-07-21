@@ -7,7 +7,7 @@ export const useNotification = () => {
 
   const showSuccess = (message: string) => {
     toast({
-      title: t('success'),
+      title: t('success', 'Success'),
       description: message,
       variant: 'default',
     });
@@ -15,22 +15,22 @@ export const useNotification = () => {
 
   const showError = (message: string) => {
     toast({
-      title: t('error'),
+      title: t('error', 'Error'),
       description: message,
       variant: 'destructive',
     });
   };
 
   const showConfigCreated = () => {
-    showSuccess(t('ebarimt-return-config-created-successfully'));
+    showSuccess(t('ebarimt-return-config-created-successfully', 'Ebarimt return config created successfully'));
   };
 
   const showConfigUpdated = () => {
-    showSuccess(t('ebarimt-return-config-updated-successfully'));
+    showSuccess(t('ebarimt-return-config-updated-successfully', 'Ebarimt return config updated successfully'));
   };
 
   const showConfigDeleted = () => {
-    showSuccess(t('ebarimt-return-config-deleted-successfully'));
+    showSuccess(t('ebarimt-return-config-deleted-successfully', 'Ebarimt return config deleted successfully'));
   };
 
   return {

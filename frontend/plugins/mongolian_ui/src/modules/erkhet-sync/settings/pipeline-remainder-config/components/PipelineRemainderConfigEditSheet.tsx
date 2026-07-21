@@ -56,7 +56,7 @@ export const PipelineRemainderConfigEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>{t('edit-pipeline-remainder-config')}</Sheet.Title>
+          <Sheet.Title>{t('edit-pipeline-remainder-config', 'Edit Pipeline Remainder Config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -73,9 +73,9 @@ export const PipelineRemainderConfigEditSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('title')}</Form.Label>
+                          <Form.Label>{t('title', 'Title')}</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder={t('title')} />
+                            <Input {...field} placeholder={t('title', 'Title')} />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -86,9 +86,9 @@ export const PipelineRemainderConfigEditSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('account')}</Form.Label>
+                          <Form.Label>{t('account', 'Account')}</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder={t('account')} />
+                            <Input {...field} placeholder={t('account', 'Account')} />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -99,9 +99,9 @@ export const PipelineRemainderConfigEditSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('location')}</Form.Label>
+                          <Form.Label>{t('location', 'Location')}</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder={t('location')} />
+                            <Input {...field} placeholder={t('location', 'Location')} />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -115,10 +115,10 @@ export const PipelineRemainderConfigEditSheet = ({
               </div>
               <div className="flex justify-end gap-2 p-5 border-t">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('saving') : t('save')}
+                  {loading ? t('saving', 'Saving...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

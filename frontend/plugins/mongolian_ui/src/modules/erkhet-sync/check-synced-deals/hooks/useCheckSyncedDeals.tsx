@@ -229,8 +229,8 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
-          title: t('warning'),
-          description: t('no-deals-to-check'),
+          title: t('warning', 'Warning'),
+          description: t('no-deals-to-check', 'No deals to check'),
           variant: 'destructive',
         });
       }
@@ -241,7 +241,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
       variables: { ids, contentType: 'sales:deal' },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -290,7 +290,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     });
     if (!checkOptions?.silent) {
       toast({
-        title: t('success'),
+        title: t('success', 'Success'),
         description: t('deals-checked', { count: checked.length }),
       });
     }
@@ -303,7 +303,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
 
     if (!syncableIds.length) {
       toast({
-        title: t('warning'),
+        title: t('warning', 'Warning'),
         description: t('no-checked-deals-to-sync'),
         variant: 'destructive',
       });
@@ -348,7 +348,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -449,7 +449,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     const syncedCount = summary.success - summary.resynced;
 
     toast({
-      title: t('sync-complete'),
+      title: t('sync-complete', 'Sync Complete'),
       description: t('synced-summary', {
         synced: syncedCount,
         resynced: summary.resynced,

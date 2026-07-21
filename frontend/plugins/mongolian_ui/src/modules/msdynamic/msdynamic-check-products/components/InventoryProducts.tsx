@@ -21,7 +21,7 @@ export const MSDynamicCheckProducts = () => {
             value={selectedBrandId}
             onValueChange={(value) => setBrand(value as string)}
             mode="single"
-            placeholder={t('choose-brand')}
+            placeholder={t('choose-brand', 'Choose brand')}
           />
           <MSDynamicCheckProductsCheckButton />
         </div>

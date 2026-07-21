@@ -38,10 +38,10 @@ const ProductGroupEmptyState = () => {
       <div className="flex flex-col items-center text-center">
         <IconClipboardList size={48} className="text-gray-400 mb-4" />
         <h3 className="text-lg font-semibold text-gray-900">
-          {t('no-product-group-config-yet')}
+          {t('no-product-group-config-yet', 'No Product Group config yet')}
         </h3>
         <p className="mt-1 text-sm text-gray-500 mb-4">
-          {t('create-first-product-group-config')}
+          {t('create-first-product-group-config', 'Get started by creating your first Product Group config.')}
         </p>
         <AddProductGroup />
       </div>
@@ -154,8 +154,8 @@ export const ProductGroupRowMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-product-group-confirm'),
-      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
+      message: t('delete-product-group-confirm', 'Are you sure you want to delete this product group?'),
+      options: { okLabel: t('delete', 'Delete'), cancelLabel: t('cancel', 'Cancel') },
     }).then(() =>
       removeProductGroup({ variables: { ids: [cell.row.original._id] } }),
     );
@@ -170,10 +170,10 @@ export const ProductGroupRowMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> {t('delete')}
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -198,7 +198,7 @@ export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
       id: 'mainProductId',
       accessorKey: 'mainProductId',
       header: () => (
-        <RecordTable.InlineHead icon={IconPackage} label={t('main-product')} />
+        <RecordTable.InlineHead icon={IconPackage} label={t('main-product', 'Main Product')} />
       ),
       cell: ({ cell }) => <ProductGroupMainProductCell cell={cell} />,
       size: 250,
@@ -206,7 +206,7 @@ export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
     {
       id: 'subProductId',
       accessorKey: 'subProductId',
-      header: () => <RecordTable.InlineHead icon={IconTag} label={t('sub-product')} />,
+      header: () => <RecordTable.InlineHead icon={IconTag} label={t('sub-product', 'Sub Product')} />,
       cell: ({ cell }) => <ProductGroupSubProductCell cell={cell} />,
       size: 250,
     },
@@ -214,7 +214,7 @@ export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
       id: 'sortNum',
       accessorKey: 'sortNum',
       header: () => (
-        <RecordTable.InlineHead icon={IconSortAscending} label={t('sort-number')} />
+        <RecordTable.InlineHead icon={IconSortAscending} label={t('sort-number', 'Sort Number')} />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -226,7 +226,7 @@ export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
       id: 'ratio',
       accessorKey: 'ratio',
       header: () => (
-        <RecordTable.InlineHead icon={IconPercentage} label={t('ratio')} />
+        <RecordTable.InlineHead icon={IconPercentage} label={t('ratio', 'Ratio')} />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -238,11 +238,11 @@ export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
       id: 'isActive',
       accessorKey: 'isActive',
       header: () => (
-        <RecordTable.InlineHead icon={IconToggleLeft} label={t('is-active')} />
+        <RecordTable.InlineHead icon={IconToggleLeft} label={t('is-active', 'Is Active')} />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() ? t('active') : t('inactive')} />
+          <TextOverflowTooltip value={cell.getValue() ? t('active', 'Active') : t('inactive', 'Inactive')} />
         </RecordTableInlineCell>
       ),
     },

@@ -14,11 +14,11 @@ const CheckButton = () => {
     <div className="flex items-center gap-3">
       {typeof toCheckProductsData?.matched?.count === 'number' && (
         <div className="text-sm text-muted-foreground">
-          {t('matched')}: {toCheckProductsData.matched.count}
+          {t('matched', 'Matched')}: {toCheckProductsData.matched.count}
         </div>
       )}
       <Button onClick={handleCheck} disabled={loading}>
-        {loading ? t('checking') : t('check')}
+        {loading ? t('checking', 'Checking...') : t('check', 'Check')}
       </Button>
     </div>
   );

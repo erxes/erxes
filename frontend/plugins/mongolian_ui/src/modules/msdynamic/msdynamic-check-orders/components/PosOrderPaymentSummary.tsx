@@ -13,28 +13,28 @@ export const PosOrderPaymentSummary = ({
   const { t } = useTranslation('mongolian');
   return (
   <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.4fr]">
-    <DetailSection title={t('totals')}>
+    <DetailSection title={t('totals', 'Totals')}>
       <div className="rounded-md border border-border/70 px-4">
         <DetailRow
-          label={t('total-amount')}
+          label={t('total-amount', 'Total Amount')}
           value={formatAmount(orders.totalAmount)}
           strong
         />
       </div>
     </DetailSection>
 
-    <DetailSection title={t('payment-breakdown')}>
+    <DetailSection title={t('payment-breakdown', 'Payment Breakdown')}>
       <div className="grid grid-cols-1 gap-x-6 rounded-md border border-border/70 px-4 md:grid-cols-2">
         {orders.cashAmount !== undefined && (
           <DetailRow
-            label={t('cash-amount')}
+            label={t('cash-amount', 'Cash Amount')}
             value={formatAmount(orders.cashAmount)}
             strong
           />
         )}
         {orders.mobileAmount !== undefined && (
           <DetailRow
-            label={t('mobile-amount')}
+            label={t('mobile-amount', 'Mobile Amount')}
             value={formatAmount(orders.mobileAmount)}
           />
         )}

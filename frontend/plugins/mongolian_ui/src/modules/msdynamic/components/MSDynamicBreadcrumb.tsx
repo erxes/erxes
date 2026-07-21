@@ -11,7 +11,7 @@ export const MSDynamicBreadCrumb = () => {
     <>
       <Button variant="ghost" className="font-semibold">
         <IconSandbox className="w-4 h-4 mr-1.5" />
-        {t('ms-dynamic')}
+        {t('ms-dynamic', 'MSDynamic')}
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="hover:bg-transparent font-semibold">

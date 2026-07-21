@@ -42,7 +42,7 @@ export const buildStageInErkhetConfigColumns = (
     accessorKey: 'title',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />;
+      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title', 'Title')} />;
     },
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
@@ -65,7 +65,7 @@ export const buildStageInErkhetConfigColumns = (
     accessorKey: 'userEmail',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />;
+      return <RecordTable.InlineHead icon={IconAt} label={t('user-email', 'User Email')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -79,7 +79,7 @@ export const buildStageInErkhetConfigColumns = (
     accessorKey: 'responseField',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field')} />;
+      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field', 'Response Field')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -93,7 +93,7 @@ export const buildStageInErkhetConfigColumns = (
     accessorKey: 'defaultPay',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('default-pay')} />;
+      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('default-pay', 'Default Pay')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

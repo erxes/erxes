@@ -17,7 +17,7 @@ export const PosInEBarimtConfigCommandbar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <PosInEBarimtConfigDelete />
@@ -34,10 +34,10 @@ const PosInEBarimtConfigDelete = () => {
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-pos-in-ebarimt-config-confirm'),
+      message: t('delete-pos-in-ebarimt-config-confirm', 'Are you sure you want to delete selected configs?'),
       options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
+        okLabel: t('delete', 'Delete'),
+        cancelLabel: t('cancel', 'Cancel'),
       },
     }).then(() => {
       const ids = table
@@ -48,13 +48,13 @@ const PosInEBarimtConfigDelete = () => {
         .then(() => {
           table.setRowSelection({});
           toast({
-            title: t('success'),
-            description: t('configs-deleted-successfully'),
+            title: t('success', 'Success'),
+            description: t('configs-deleted-successfully', 'Configurations deleted successfully'),
           });
         })
         .catch((error: Error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -65,7 +65,7 @@ const PosInEBarimtConfigDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

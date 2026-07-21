@@ -52,8 +52,8 @@ export const useSyncCategory = () => {
 
     if (categoriesToSync.length === 0) {
       toast({
-        title: t('info'),
-        description: t('all-categories-synced', { filter: selectedFilter }),
+        title: t('info', 'Info'),
+        description: t('all-categories-synced', 'All {{filter}} categories are already synced', { filter: selectedFilter }),
       });
       return items;
     }
@@ -92,8 +92,8 @@ export const useSyncCategory = () => {
         };
 
         toast({
-          title: t('success'),
-          description: t('categories-synced', { count: categoriesToSync.length, filter: selectedFilter }),
+          title: t('success', 'Success'),
+          description: t('categories-synced', '{{count}} {{filter}} categories synced', { count: categoriesToSync.length, filter: selectedFilter }),
         });
 
         return updatedItems;
@@ -102,8 +102,8 @@ export const useSyncCategory = () => {
       return undefined;
     } catch {
       toast({
-        title: t('error'),
-        description: t('failed-to-sync-categories'),
+        title: t('error', 'Error'),
+        description: t('failed-to-sync-categories', 'Failed to sync MS Dynamic categories'),
         variant: 'destructive',
       });
       return undefined;

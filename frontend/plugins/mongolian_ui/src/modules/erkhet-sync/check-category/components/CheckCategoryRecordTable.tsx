@@ -61,10 +61,10 @@ export const CheckCategoryRecordTable = () => {
                       className="text-muted-foreground mx-auto mb-4"
                     />
                     <h3 className="text-xl font-semibold mb-2">
-                      {t('no-category-yet')}
+                      {t('no-category-yet', 'No category yet')}
                     </h3>
                     <p className="text-muted-foreground max-w-md">
-                      {t('create-first-category')}
+                      {t('create-first-category', 'Get started by creating your first category.')}
                     </p>
                   </div>
                 </div>

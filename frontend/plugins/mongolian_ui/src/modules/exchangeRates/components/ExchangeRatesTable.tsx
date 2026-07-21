@@ -56,13 +56,22 @@ export const ExchangeRatesTable = () => {
                 />
                 <h3 className="text-lg font-semibold text-foreground">
                   {searchValue
-                    ? t('no-matching-exchange-rates')
-                    : t('no-exchange-rates-yet')}
+                    ? t(
+                        'no-matching-exchange-rates',
+                        'No matching exchange rates',
+                      )
+                    : t('no-exchange-rates-yet', 'No exchange rates yet')}
                 </h3>
                 <p className="mt-1 mb-4 text-sm text-muted-foreground">
                   {searchValue
-                    ? t('try-different-currency')
-                    : t('create-first-exchange-rate')}
+                    ? t(
+                        'try-different-currency',
+                        'Try a different currency filter.',
+                      )
+                    : t(
+                        'create-first-exchange-rate',
+                        'Get started by adding your first exchange rate.',
+                      )}
                 </p>
                 {!searchValue && <AddExchangeRate />}
               </div>

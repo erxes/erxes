@@ -25,10 +25,10 @@ export const MSDynamicCheckOrderCommandBar = ({
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} {t('selected')}</CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} {t('selected', 'selected')}</CommandBar.Value>
         <Separator.Inline />
         <Button variant="secondary" onClick={handleCheck} disabled={checking}>
-          {checking ? t('checking') : t('check')}
+          {checking ? t('checking', 'Checking...') : t('check', 'Check')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

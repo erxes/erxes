@@ -33,21 +33,21 @@ export const CheckCategoryFilter = ({
         variant={selectedFilter === 'create' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('create')}
       >
-        {t('create-categories')} ({getCount('create')})
+        {t('create-categories', 'Create Categories')} ({getCount('create')})
       </Button>
 
       <Button
         variant={selectedFilter === 'update' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('update')}
       >
-        {t('update-categories')} ({getCount('update')})
+        {t('update-categories', 'Update Categories')} ({getCount('update')})
       </Button>
 
       <Button
         variant={selectedFilter === 'delete' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('delete')}
       >
-        {t('delete-categories')} ({getCount('delete')})
+        {t('delete-categories', 'Delete Categories')} ({getCount('delete')})
       </Button>
     </div>
   );

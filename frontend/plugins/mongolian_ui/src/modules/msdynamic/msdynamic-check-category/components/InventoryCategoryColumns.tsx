@@ -54,7 +54,7 @@ export const getInventoryCategoryColumns = (
     id: 'code',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconHash} label={t('code')} />;
+      return <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />;
     },
     cell: ({ row }) => (
       <RecordTableInlineCell className="font-mono text-xs">
@@ -66,7 +66,7 @@ export const getInventoryCategoryColumns = (
     id: 'name',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('name')} />;
+      return <RecordTable.InlineHead icon={IconCategory} label={t('name', 'Name')} />;
     },
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -78,7 +78,7 @@ export const getInventoryCategoryColumns = (
     id: 'description',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconFileDescription} label={t('description')} />;
+      return <RecordTable.InlineHead icon={IconFileDescription} label={t('description', 'Description')} />;
     },
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-muted-foreground">
@@ -92,16 +92,16 @@ export const getInventoryCategoryColumns = (
     id: 'status',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconStatusChange} label={t('status')} />;
+      return <RecordTable.InlineHead icon={IconStatusChange} label={t('status', 'Status')} />;
     },
     cell: ({ row }) => {
       const { t } = useTranslation('mongolian');
       return (
         <RecordTableInlineCell>
           {row.original.syncStatus === true ? (
-            <Badge variant={getStatusBadgeVariant(action)}>{t('synced')}</Badge>
+            <Badge variant={getStatusBadgeVariant(action)}>{t('synced', 'Synced')}</Badge>
           ) : (
-            <Badge variant="warning">{t('pending')}</Badge>
+            <Badge variant="warning">{t('pending', 'Pending')}</Badge>
           )}
         </RecordTableInlineCell>
       );

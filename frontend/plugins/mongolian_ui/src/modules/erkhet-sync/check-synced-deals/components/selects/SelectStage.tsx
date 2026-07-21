@@ -116,7 +116,7 @@ const SelectStageValue = ({
   if (!selectedStage && mode === 'single') {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-stage')}
+        {placeholder || t('select-stage', 'Select stage')}
       </span>
     );
   }
@@ -129,7 +129,7 @@ const SelectStageValue = ({
     if (!selectedStages?.length) {
       return (
         <span className="text-accent-foreground/80">
-          {placeholder || t('select-stages')}
+          {placeholder || t('select-stages', 'Select stages')}
         </span>
       );
     }
@@ -181,7 +181,7 @@ const SelectStageContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -189,7 +189,7 @@ const SelectStageContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error')}: {error.message}
+          {t('error', 'Error')}: {error.message}
         </div>
       );
     }
@@ -199,11 +199,11 @@ const SelectStageContent = () => {
     ));
   }, [pipelineId, loading, error, stages, t]);
 
-  const emptyMessage = pipelineId ? t('no-stage-found') : '';
+  const emptyMessage = pipelineId ? t('no-stage-found', 'No stage found') : '';
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-stage')} />
+      <Command.Input placeholder={t('search-stage', 'Search stage')} />
       <Command.Empty>
         <span className="text-muted-foreground">{emptyMessage}</span>
       </Command.Empty>
@@ -262,7 +262,7 @@ export const SelectStageFilterItem = () => {
   return (
     <Filter.Item value="stageId">
       <IconLabel />
-      {t('stage')}
+      {t('stage', 'Stage')}
     </Filter.Item>
   );
 };
@@ -324,7 +324,7 @@ export const SelectStageFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'stageId'}>
       <Filter.BarName>
         <IconLabel />
-        {!iconOnly && t('stage')}
+        {!iconOnly && t('stage', 'Stage')}
       </Filter.BarName>
       <SelectStageProvider
         mode={mode}

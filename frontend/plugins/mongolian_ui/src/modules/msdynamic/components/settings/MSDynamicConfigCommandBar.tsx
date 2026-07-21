@@ -31,7 +31,7 @@ export const MSDynamicConfigCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={clearSelection}>
-          {selectedRows.length} {t('selected')}
+          {selectedRows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <MSDynamicConfigBulkDelete
@@ -61,11 +61,11 @@ const MSDynamicConfigBulkDelete = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-selected-ms-dynamics-configs'),
+      message: t('delete-selected-ms-dynamics-configs', 'Are you sure you want to delete the selected MS Dynamics configs?'),
       options: {
-        description: t('this-will-delete-selected-configs'),
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
+        description: t('this-will-delete-selected-configs', 'This action cannot be undone and will permanently delete the selected configurations.'),
+        okLabel: t('delete', 'Delete'),
+        cancelLabel: t('cancel', 'Cancel'),
       },
     }).then(async () => {
       try {
@@ -73,11 +73,11 @@ const MSDynamicConfigBulkDelete = ({
         onCompleted();
       } catch (error) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description:
             error instanceof Error
               ? error.message
-              : t('failed-to-delete-selected-configs'),
+              : t('failed-to-delete-selected-configs', 'Failed to delete the selected configurations'),
           variant: 'destructive',
         });
       }
@@ -87,7 +87,7 @@ const MSDynamicConfigBulkDelete = ({
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

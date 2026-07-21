@@ -68,10 +68,10 @@ export const ProductRulesOnTaxForm = ({
               name="title"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('title')}</Form.Label>
+                  <Form.Label>{t('title', 'Title')}</Form.Label>
                   <Form.Control>
                     <Input
-                      placeholder={t('enter-title')}
+                      placeholder={t('enter-title', 'Enter title')}
                       value={field.value}
                       onChange={(e) => field.onChange(e.target.value)}
                     />
@@ -84,11 +84,11 @@ export const ProductRulesOnTaxForm = ({
               name="taxType"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('tax-type')}</Form.Label>
+                  <Form.Label>{t('tax-type', 'Tax Type')}</Form.Label>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Form.Control>
                       <Select.Trigger className="text-muted-foreground">
-                        <Select.Value placeholder={t('select-a-tax-type')} />
+                        <Select.Value placeholder={t('select-a-tax-type', 'Select a tax type')} />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
@@ -111,11 +111,11 @@ export const ProductRulesOnTaxForm = ({
               name="taxCode"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('tax-code')}</Form.Label>
+                  <Form.Label>{t('tax-code', 'Tax Code')}</Form.Label>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Form.Control>
                       <Select.Trigger className="text-muted-foreground">
-                        <Select.Value placeholder={t('select-a-tax-code')} />
+                        <Select.Value placeholder={t('select-a-tax-code', 'Select a tax code')} />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
@@ -140,7 +140,7 @@ export const ProductRulesOnTaxForm = ({
               name="kind"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('kind')}</Form.Label>
+                  <Form.Label>{t('kind', 'Kind')}</Form.Label>
                   <Form.Control>
                     <Input
                       value={field.value}
@@ -156,7 +156,7 @@ export const ProductRulesOnTaxForm = ({
               name="taxPercent"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('percent')}</Form.Label>
+                  <Form.Label>{t('percent', 'Percent')}</Form.Label>
                   <Form.Control>
                     <Input
                       type="text"
@@ -165,7 +165,7 @@ export const ProductRulesOnTaxForm = ({
                       onChange={(e) => {
                         handleNumberChange(e.target.value, field.onChange);
                       }}
-                      placeholder={t('enter-percent')}
+                      placeholder={t('enter-percent', 'Enter percent')}
                       disabled={!!TAX_TYPES[taxType]?.percent}
                     />
                   </Form.Control>
@@ -180,7 +180,7 @@ export const ProductRulesOnTaxForm = ({
               name="productCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('product-categories')}</Form.Label>
+                  <Form.Label>{t('product-categories', 'Product Categories')}</Form.Label>
                   <Form.Control>
                     <SelectCategory
                       value={field.value}
@@ -196,7 +196,7 @@ export const ProductRulesOnTaxForm = ({
               name="excludeCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('exclude-categories')}</Form.Label>
+                  <Form.Label>{t('exclude-categories', 'Exclude Categories')}</Form.Label>
                   <SelectCategory
                     value={field.value}
                     onSelect={field.onChange}
@@ -210,7 +210,7 @@ export const ProductRulesOnTaxForm = ({
               name="productIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('products')}</Form.Label>
+                  <Form.Label>{t('products', 'Products')}</Form.Label>
                   <SelectProduct
                     value={field.value}
                     onValueChange={field.onChange}
@@ -224,7 +224,7 @@ export const ProductRulesOnTaxForm = ({
               name="excludeProductIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('exclude-products')}</Form.Label>
+                  <Form.Label>{t('exclude-products', 'Exclude Products')}</Form.Label>
                   <SelectProduct
                     value={field.value}
                     onValueChange={field.onChange}
@@ -238,7 +238,7 @@ export const ProductRulesOnTaxForm = ({
               name="tagIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('tags')}</Form.Label>
+                  <Form.Label>{t('tags', 'Tags')}</Form.Label>
                   <SelectTags
                     value={field.value}
                     onValueChange={field.onChange}
@@ -252,7 +252,7 @@ export const ProductRulesOnTaxForm = ({
               name="excludeTagIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('exclude-tags')}</Form.Label>
+                  <Form.Label>{t('exclude-tags', 'Exclude Tags')}</Form.Label>
                   <SelectTags
                     value={field.value}
                     onValueChange={field.onChange}
@@ -268,11 +268,11 @@ export const ProductRulesOnTaxForm = ({
           <Dialog.Footer className="col-span-2 mt-3 gap-2">
             <Dialog.Close asChild>
               <Button variant="outline" size="lg">
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
             </Dialog.Close>
             <Button type="submit" disabled={loading} size="lg">
-              {loading ? <Spinner /> : t('save')}
+              {loading ? <Spinner /> : t('save', 'Save')}
             </Button>
           </Dialog.Footer>
         )}

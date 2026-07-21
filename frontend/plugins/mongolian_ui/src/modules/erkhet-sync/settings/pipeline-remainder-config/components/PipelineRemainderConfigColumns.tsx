@@ -39,7 +39,7 @@ export const buildRemainderConfigColumns = (
     accessorKey: 'title',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />;
+      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title', 'Title')} />;
     },
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
@@ -62,7 +62,7 @@ export const buildRemainderConfigColumns = (
     accessorKey: 'account',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAt} label={t('account')} />;
+      return <RecordTable.InlineHead icon={IconAt} label={t('account', 'Account')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
@@ -74,7 +74,7 @@ export const buildRemainderConfigColumns = (
     accessorKey: 'location',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('location')} />;
+      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('location', 'Location')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
