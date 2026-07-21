@@ -1,32 +1,26 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
-import {
-  automationBuilderSecondarySidebarOpenState,
-  automationBuilderSiderbarOpenState,
-  toggleAutomationBuilderSecondarySidebar,
-  toggleAutomationBuilderOpenSidebar,
-} from '@/automations/states/automationState';
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { Node, useReactFlow } from '@xyflow/react';
-import { useAtom, useSetAtom } from 'jotai';
 
 export const useAutomationBuilderSidebarHooks = () => {
-  const [isOpenSideBar, setIsOpenSideBar] = useAtom(
-    automationBuilderSiderbarOpenState,
-  );
-  const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useAtom(
-    automationBuilderSecondarySidebarOpenState,
-  );
-  const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
-  const toggleSecondarySidebarOpen = useSetAtom(
-    toggleAutomationBuilderSecondarySidebar,
-  );
-  const { queryParams, setQueryParams } = useAutomation();
+  const {
+    queryParams,
+    setQueryParams,
+    setAwaitingToConnectNodeId,
+    isSidebarOpen: isOpenSideBar,
+    setSidebarOpen: setIsOpenSideBar,
+    toggleSidebar: toggleSideBarOpen,
+    isSecondarySidebarOpen,
+    setSecondarySidebarOpen: setIsSecondarySidebarOpen,
+    toggleSecondarySidebar: toggleSecondarySidebarOpen,
+  } = useAutomation();
   const { getNode } = useReactFlow<Node<NodeData>>();
   const activeNode = getNode(queryParams?.activeNodeId || '')?.data;
 
   const handleClose = () => {
+    setIsOpenSideBar(false);
     setIsSecondarySidebarOpen(false);
-    toggleSideBarOpen();
+    setAwaitingToConnectNodeId('');
     setQueryParams({
       activeNodeId: null,
       activeNodeTab: null,

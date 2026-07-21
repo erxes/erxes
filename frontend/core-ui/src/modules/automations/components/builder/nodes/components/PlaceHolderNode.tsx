@@ -1,17 +1,14 @@
 import { CANVAS_FIT_VIEW_OPTIONS } from '@/automations/constants';
 import { useAutomation } from '@/automations/context/AutomationProvider';
-import { automationBuilderSiderbarOpenState } from '@/automations/states/automationState';
 import { IconBolt, IconPlus } from '@tabler/icons-react';
 import { Node, NodeProps } from '@xyflow/react';
 import { Button, Card, cn } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { memo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const PlaceHolderNode = memo(
   ({ id, selected }: NodeProps<Node<any>>) => {
-    const { reactFlowInstance } = useAutomation();
-    const setSidebarOpen = useSetAtom(automationBuilderSiderbarOpenState);
+    const { reactFlowInstance, setSidebarOpen } = useAutomation();
     const openSidebar = () => setSidebarOpen(true);
     const { t } = useTranslation('automations');
 

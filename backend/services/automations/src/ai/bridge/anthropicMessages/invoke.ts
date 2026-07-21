@@ -1,9 +1,28 @@
-import { TAiBridgeInvokeInput, TAiBridgeInvokeResult } from '../types';
+import {
+  TAiBridgeInvokeInput,
+  TAiBridgeInvokeResult,
+  TAiBridgeToolCall,
+} from '../types';
 import {
   buildAnthropicMessagesBody,
   formatAnthropicMessagesError,
   requestAnthropicMessages,
 } from './request';
+
+const extractToolCalls = (response: any): TAiBridgeToolCall[] => {
+  if (!Array.isArray(response?.content)) {
+    return [];
+  }
+
+  return response.content
+    .filter((part: any) => part?.type === 'tool_use' && part?.name)
+    .map((part: any, index: number) => ({
+      id: part.id || `call_${index}`,
+      name: part.name,
+      arguments:
+        part.input && typeof part.input === 'object' ? part.input : {},
+    }));
+};
 
 const extractText = (response: any) => {
   const content = response?.content;
@@ -44,18 +63,27 @@ export const invokeAnthropicMessages = async (
   }
 
   let text = extractText(response.json);
+  const toolCalls = extractToolCalls(response.json);
 
-  if (!text) {
+  // Tool-call turns legitimately carry no visible text
+  if (!text && !toolCalls.length) {
     throw new Error('AI provider returned an empty response.');
   }
 
   // The "{" prefill is not echoed back, so restore it for the parser.
-  if (input.responseFormat === 'json' && !text.startsWith('{')) {
+  // (Prefill is skipped when tools are present.)
+  if (
+    input.responseFormat === 'json' &&
+    !input.tools?.length &&
+    text &&
+    !text.startsWith('{')
+  ) {
     text = `{${text}`;
   }
 
   return {
     text,
+    ...(toolCalls.length ? { toolCalls } : {}),
     raw: response.json,
     usage: {
       inputTokens: response.json?.usage?.input_tokens,

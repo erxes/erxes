@@ -11,6 +11,7 @@ import {
   TAiAgentActionConfig,
 } from '../../ai';
 import { generateModels } from '../../connectionResolver';
+import { buildAiAgentTools } from './aiAgentTools';
 import {
   getContentType,
   getModuleName,
@@ -66,6 +67,13 @@ export const executeAiAgentAction = async (
     if (!agent) {
       throw new Error('AI Agent not found.');
     }
+    const tools = await buildAiAgentTools({
+      subdomain,
+      models,
+      execution,
+      actionConfig: parsedActionConfig,
+    });
+
     const timerLabel = `runAiAction:${execution._id}:${action.id}`;
     console.time(timerLabel);
     const response = await runAiAction({
@@ -78,6 +86,7 @@ export const executeAiAgentAction = async (
       aiContext,
       memory,
       conversationState,
+      tools: tools.length ? tools : undefined,
     });
     console.timeEnd(timerLabel);
     if (!response) {

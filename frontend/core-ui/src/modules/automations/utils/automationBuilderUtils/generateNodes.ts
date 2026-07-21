@@ -1,3 +1,4 @@
+import { AUTOMATION_NODE_TYPE_LIST_PROERTY } from '@/automations/constants';
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { generateNodePosition } from '@/automations/utils/automationBuilderUtils/nodePosition';
@@ -28,6 +29,7 @@ export const generateNodeData = (
       config,
       nodeType: AutomationNodeType.Workflow,
       automationId,
+      icon: (node as any).icon || 'IconArrowsSplit2',
       ...props,
     };
   }
@@ -105,7 +107,13 @@ export const generateNode = (
 ) => {
   const doc: any = {
     id: node.id,
-    data: generateNodeData(node, nodeType, props),
+    data: generateNodeData(node, nodeType, {
+      // Every node carries the form path of its entry; consumers read this
+      // instead of rebuilding paths from nodeIndex. Callers may override it
+      // for nodes living outside the root lists (e.g. workflow members).
+      formPath: `${AUTOMATION_NODE_TYPE_LIST_PROERTY[nodeType]}.${props?.nodeIndex}`,
+      ...props,
+    }),
     position: generateNodePosition(nodes, node, generatedNodes, flowDirection),
     isConnectable: true,
     type: nodeType,
@@ -140,7 +148,11 @@ export const generateNodes = (
   props: any = {},
   flowDirection: TAutomationFlowDirection = 'horizontal',
 ) => {
-  if (triggers.length === 0 && actions.length === 0) {
+  if (
+    triggers.length === 0 &&
+    actions.length === 0 &&
+    workflows.length === 0
+  ) {
     return [
       {
         id: 'scratch-node',

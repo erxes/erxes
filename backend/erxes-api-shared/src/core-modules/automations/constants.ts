@@ -56,6 +56,7 @@ export const AUTOMATION_CORE_ACTIONS = {
   MESSAGE_PRO: 'messagePro',
   WAIT_EVENT: 'waitEvent',
   AI_AGENT: 'aiAgent',
+  WORKFLOW: 'workflow',
 };
 
 export const AUTOMATION_CORE_TRIGGER_TYPES = {
