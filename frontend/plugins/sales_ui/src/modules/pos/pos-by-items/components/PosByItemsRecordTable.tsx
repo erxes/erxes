@@ -13,10 +13,11 @@ export const PosByItemsRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={PosByItemsColumns}
+      columns={PosByItemsColumns(t)}
       data={posByItemsList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'code', 'name']}
+      tableId="pos_by_items_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={pageInfo?.hasPreviousPage}
@@ -25,7 +26,7 @@ export const PosByItemsRecordTable = () => {
         sessionKey="pos_by_items_cursor"
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}

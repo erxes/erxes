@@ -2,25 +2,18 @@ import { SelectCategory, SelectProduct } from 'ui-modules';
 
 import { Form } from 'erxes-ui';
 import { OtherPaymentsField, PaymentIdsField } from '@/payments';
-import { UseFormReturn } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-
-interface ProductConfigFormValues {
-  numberSize?: string;
-  isCheckDate?: boolean;
-  isCheckUser?: boolean;
-  isCheckDepartment?: boolean;
-  initialCategoryIds?: string[];
-  excludeCategoryIds?: string[];
-  excludeProductIds?: string[];
-  paymentIds?: string[];
-}
+import type { TPipelineForm } from '@/deals/types/pipelines';
 
 interface ProductConfigProps {
-  form: UseFormReturn<ProductConfigFormValues>;
+  form: UseFormReturn<TPipelineForm>;
 }
 
-const ProductConfig = ({ form }: ProductConfigProps) => {
+const getSelectedCategoryId = (value: string | string[]) =>
+  Array.isArray(value) ? value[0] : value;
+
+export const ProductConfig = ({ form }: ProductConfigProps) => {
   const { t } = useTranslation('sales');
   const { control } = form;
 
@@ -39,9 +32,12 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
             return (
               <SelectCategory
                 selected={field.value?.[0] || ''}
-                onSelect={(id) => {
+                onValueChange={(value) => {
+                  const id = getSelectedCategoryId(value);
+                  if (!id) return;
+
                   const current = field.value || [];
-                  const updated = current.includes(id as string)
+                  const updated = current.includes(id)
                     ? current.filter((i: string) => i !== id)
                     : [...current, id];
                   field.onChange(updated);
@@ -68,9 +64,12 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
                 </Form.Label>
                 <SelectCategory
                   selected={field.value?.[0] || ''}
-                  onSelect={(id) => {
+                  onValueChange={(value) => {
+                    const id = getSelectedCategoryId(value);
+                    if (!id) return;
+
                     const current = field.value || [];
-                    const updated = current.includes(id as string)
+                    const updated = current.includes(id)
                       ? current.filter((i: string) => i !== id)
                       : [...current, id];
                     field.onChange(updated);
@@ -89,7 +88,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
                 </Form.Label>
                 <SelectProduct
                   mode="multiple"
-                  value={field.value || ([] as string[])}
+                  value={field.value || []}
                   onValueChange={field.onChange}
                   placeholder={t('select-products-to-exclude')}
                 />
@@ -112,5 +111,3 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
     </div>
   );
 };
-
-export default ProductConfig;

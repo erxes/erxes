@@ -12,6 +12,7 @@ import {
   Sheet,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -26,14 +27,13 @@ interface ICoverItemRow {
   amount: number;
 }
 
-const itemColumns: ColumnDef<ICoverItemRow>[] = [
+const itemColumns: (t: TFunction) => ColumnDef<ICoverItemRow>[] = (t) => [
   {
     id: 'paidType',
     accessorKey: 'paidType',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -44,10 +44,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('kind')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('kind')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -58,10 +55,9 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
   {
     id: 'kindOfVal',
     accessorKey: 'kindOfVal',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('kind-of-val')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('kind-of-val')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -72,10 +68,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
   {
     id: 'value',
     accessorKey: 'value',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('value')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('value')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -86,10 +79,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('amount')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('amount')} />,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
       return (
@@ -214,7 +204,7 @@ export const PosCoversSheet = () => {
 
                   <div className="rounded-md overflow-hidden relative">
                     <RecordTable.Provider
-                      columns={itemColumns}
+                      columns={itemColumns(t)}
                       data={(posCovers.details || []).flatMap((d) =>
                         (d?.paidSummary || []).map((s) => ({
                           paidType: d.paidType,

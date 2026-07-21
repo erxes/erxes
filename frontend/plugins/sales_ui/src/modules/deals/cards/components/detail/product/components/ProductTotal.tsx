@@ -11,7 +11,7 @@ type ProductTotalProps = {
   updateTotal?: (data: IProductData[]) => void;
 };
 
-const ProductTotal = ({
+export const ProductTotal = ({
   kindTxt,
   total,
   productsData = [],
@@ -140,5 +140,3 @@ const ProductTotal = ({
     </div>
   );
 };
-
-export default ProductTotal;

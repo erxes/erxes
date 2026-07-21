@@ -121,7 +121,10 @@ export const RecordTableColumnSelector = ({
 
   const columns = table
     .getAllLeafColumns()
-    .filter((col) => col.id !== 'select' && col.id !== 'more');
+    .filter(
+      (col) =>
+        col.id !== 'checkbox' && col.id !== 'select' && col.id !== 'more',
+    );
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -155,7 +158,10 @@ export const RecordTableColumnSelector = ({
         )}
       </DropdownMenu.Trigger>
 
-      <DropdownMenu.Content align={align} className="min-w-50 p-1">
+      <DropdownMenu.Content
+        align={align}
+        className="hide-scroll max-h-[min(28rem,var(--radix-dropdown-menu-content-available-height))] w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain p-1"
+      >
         <DndContext
           sensors={sensors}
           modifiers={[restrictToVerticalAxis]}

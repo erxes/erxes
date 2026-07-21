@@ -18,9 +18,9 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { posOrdersSummary } = usePosOrdersSummary({ posId });
 
   const allColumns = [
-    ...firstOrderColumns,
-    ...generateOtherPaymentColumns(posOrdersSummary),
-    ...secondOrderColumns,
+    ...firstOrderColumns(t),
+    ...generateOtherPaymentColumns(t, posOrdersSummary),
+    ...secondOrderColumns(t),
   ];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
@@ -33,6 +33,7 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
       data={ordersList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'number']}
+      tableId="pos_orders_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

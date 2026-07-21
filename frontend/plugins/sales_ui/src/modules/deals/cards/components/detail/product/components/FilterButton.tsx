@@ -1,5 +1,12 @@
 import { useMemo } from 'react';
-import { Button, Combobox, Command, Filter, Popover } from 'erxes-ui';
+import {
+  Button,
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+} from 'erxes-ui';
 import {
   IProduct,
   SelectBranches,
@@ -19,6 +26,14 @@ interface Props {
   filters: ProductFilterState;
   onFilterChange: (filters: ProductFilterState) => void;
 }
+
+const normalizeMultiSelectValue = (value?: string | string[]) => {
+  if (!value) return undefined;
+
+  const values = Array.isArray(value) ? value : [value];
+
+  return values.length > 0 ? values : undefined;
+};
 
 const CustomFilterItem = ({
   children,
@@ -53,7 +68,7 @@ export const FilterButton = ({ filters, onFilterChange }: Props) => {
   return (
     <Filter.Popover>
       <Filter.Trigger isFiltered={hasFilters} />
-      <Combobox.Content align="end" sideOffset={8} side="bottom">
+      <Combobox.Content align="start" sideOffset={8} side="bottom">
         <Popover.Close className="hidden" />
         <ProductFilterView filters={filters} onChange={onFilterChange} />
       </Combobox.Content>
@@ -86,7 +101,10 @@ export const filterProducts = (
   if (filters.productVendorIds?.length) {
     result = result.filter((p) => {
       const vendor = (p as any).vendor as { _id: string } | undefined;
-      return vendor !== undefined && filters.productVendorIds?.includes(vendor._id) === true;
+      return (
+        vendor !== undefined &&
+        filters.productVendorIds?.includes(vendor._id) === true
+      );
     });
   }
 
@@ -106,7 +124,8 @@ export const filterProducts = (
     if (hasDepartmentIds) {
       result = result.filter(
         (p) =>
-          !!p.departmentId && filters.departmentIds?.includes(p.departmentId) === true,
+          !!p.departmentId &&
+          filters.departmentIds?.includes(p.departmentId) === true,
       );
     }
   }
@@ -139,11 +158,16 @@ export const ProductFilterBar = ({
   };
 
   const getTagNames = (tagIds: string[]): string => {
-    const tagNames = tagIds.map((id) => tags?.find((tag) => tag._id === id)?.name);
+    const tagNames = tagIds.map(
+      (id) => tags?.find((tag) => tag._id === id)?.name,
+    );
     return tagNames.length > 0 ? tagNames.join(', ') : t('none');
   };
 
-  const updateFilter = (key: keyof ProductFilterState, value: any) => {
+  const updateFilter = <Key extends keyof ProductFilterState>(
+    key: Key,
+    value: ProductFilterState[Key],
+  ) => {
     onChange({ ...filters, [key]: value });
   };
 
@@ -186,10 +210,7 @@ export const ProductFilterBar = ({
           mode="multiple"
           value={productVendorIds}
           onValueChange={(value) =>
-            updateFilter(
-              'productVendorIds',
-              value && (value as string[]).length ? value : undefined,
-            )
+            updateFilter('productVendorIds', normalizeMultiSelectValue(value))
           }
         >
           <CustomFilterItem
@@ -208,10 +229,7 @@ export const ProductFilterBar = ({
           mode="multiple"
           value={branchIds}
           onValueChange={(value) =>
-            updateFilter(
-              'branchIds',
-              value && (value as string[]).length ? value : undefined,
-            )
+            updateFilter('branchIds', normalizeMultiSelectValue(value))
           }
         >
           <CustomFilterItem
@@ -230,10 +248,7 @@ export const ProductFilterBar = ({
           mode="multiple"
           value={departmentIds}
           onValueChange={(value) =>
-            updateFilter(
-              'departmentIds',
-              value && (value as string[]).length ? value : undefined,
-            )
+            updateFilter('departmentIds', normalizeMultiSelectValue(value))
           }
         >
           <CustomFilterItem
@@ -257,8 +272,14 @@ const ProductFilterView = ({
   filters: ProductFilterState;
   onChange: (f: ProductFilterState) => void;
 }) => {
-  const updateFilter = (key: keyof ProductFilterState, value: any) => {
+  const { resetFilterState } = useFilterContext();
+
+  const updateFilter = <Key extends keyof ProductFilterState>(
+    key: Key,
+    value: ProductFilterState[Key],
+  ) => {
     onChange({ ...filters, [key]: value });
+    resetFilterState();
   };
 
   const vendorIds = useMemo(
@@ -285,7 +306,10 @@ const ProductFilterView = ({
               <IconTag />
               {t('by-tag')}
             </Filter.Item>
-            <SelectBranches.FilterItem value="branchIds" label={t('by-branch')} />
+            <SelectBranches.FilterItem
+              value="branchIds"
+              label={t('by-branch')}
+            />
             <SelectDepartments.FilterItem
               value="departmentIds"
               label={t('by-department')}
@@ -295,12 +319,15 @@ const ProductFilterView = ({
       </Filter.View>
 
       <Filter.View filterKey="productCategoryIds">
-        <SelectCategory
-          selected={filters.productCategoryIds?.[0]}
-          onSelect={(value) =>
-            updateFilter('productCategoryIds', value ? [value] : undefined)
+        <SelectCategory.Provider
+          mode="single"
+          value={filters.productCategoryIds?.[0] || ''}
+          onValueChange={(value) =>
+            updateFilter('productCategoryIds', normalizeMultiSelectValue(value))
           }
-        />
+        >
+          <SelectCategory.Content />
+        </SelectCategory.Provider>
       </Filter.View>
 
       <Filter.View filterKey="productVendorIds">
@@ -308,10 +335,7 @@ const ProductFilterView = ({
           mode="multiple"
           value={vendorIds}
           onValueChange={(value) => {
-            updateFilter(
-              'productVendorIds',
-              value && (value as string[]).length ? value : undefined,
-            );
+            updateFilter('productVendorIds', normalizeMultiSelectValue(value));
           }}
         >
           <SelectCompany.Content />
@@ -319,13 +343,16 @@ const ProductFilterView = ({
       </Filter.View>
 
       <Filter.View filterKey="productTagIds">
-        <SelectTags
+        <SelectTags.Provider
+          mode="single"
           tagType="product"
-          value={filters.productTagIds?.[0]}
+          value={filters.productTagIds?.[0] || ''}
           onValueChange={(value) =>
-            updateFilter('productTagIds', value ? [value] : undefined)
+            updateFilter('productTagIds', normalizeMultiSelectValue(value))
           }
-        />
+        >
+          <SelectTags.Content />
+        </SelectTags.Provider>
       </Filter.View>
 
       <Filter.View filterKey="branchIds">
@@ -333,10 +360,7 @@ const ProductFilterView = ({
           mode="multiple"
           value={filters.branchIds || []}
           onValueChange={(value) => {
-            updateFilter(
-              'branchIds',
-              value && (value as string[]).length ? value : undefined,
-            );
+            updateFilter('branchIds', normalizeMultiSelectValue(value));
           }}
         >
           <SelectBranches.Content />
@@ -348,10 +372,7 @@ const ProductFilterView = ({
           mode="multiple"
           value={filters.departmentIds || []}
           onValueChange={(value) => {
-            updateFilter(
-              'departmentIds',
-              value && (value as string[]).length ? value : undefined,
-            );
+            updateFilter('departmentIds', normalizeMultiSelectValue(value));
           }}
         >
           <SelectDepartments.Content />

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { IconSearch } from '@tabler/icons-react';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
-import ProductFooter from './ProductFooter';
+import { ProductFooter } from './ProductFooter';
 import { ProductsRecordTable } from './ProductRecordTable';
 import { onLocalChangeAtom } from '../productTableAtom';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
@@ -14,7 +14,7 @@ import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useProductCalculations } from '../hooks/useProductCalculations';
 import { useTranslation } from 'react-i18next';
 
-const ProductsList = ({
+export const ProductsList = ({
   products,
   productsData,
   dealId,
@@ -44,11 +44,10 @@ const ProductsList = ({
   );
   const setOnLocalChange = useSetAtom(onLocalChangeAtom);
 
-  const [filters, setFilters] = useState<ProductFilterState>(
-    {} as ProductFilterState,
-  );
+  const [filters, setFilters] = useState<ProductFilterState>({});
 
   const [vatPercent, setVatPercent] = useState(0);
+  const [vatPercentDraft, setVatPercentDraft] = useState<string | null>(null);
   const {
     total,
     unUsedTotal,
@@ -114,19 +113,24 @@ const ProductsList = ({
     );
   }, []);
 
-  const updateLocalProduct = (id: string, patch: Partial<IProductData>) => {
-    pendingProductPatchesRef.current[id] = {
-      ...(pendingProductPatchesRef.current[id] || {}),
-      ...patch,
-    };
+  const updateLocalProduct = useCallback(
+    (id: string, patch: Partial<IProductData>) => {
+      pendingProductPatchesRef.current[id] = {
+        ...(pendingProductPatchesRef.current[id] || {}),
+        ...patch,
+      };
 
-    setLocalProductsData((prev) => {
-      const updated = prev.map((p) => (p._id === id ? { ...p, ...patch } : p));
+      setLocalProductsData((prev) => {
+        const updated = prev.map((p) =>
+          p._id === id ? { ...p, ...patch } : p,
+        );
 
-      updateTotal(updated);
-      return updated;
-    });
-  };
+        updateTotal(updated);
+        return updated;
+      });
+    },
+    [updateTotal],
+  );
 
   useEffect(() => {
     setLocalProductsData((prev) => {
@@ -142,8 +146,7 @@ const ProductsList = ({
 
         if (pendingPatch) {
           const hasServerCaughtUp = Object.entries(pendingPatch).every(
-            ([key, value]) =>
-              Object.is(data[key as keyof IProductData], value),
+            ([key, value]) => Object.is(data[key as keyof IProductData], value),
           );
 
           if (hasServerCaughtUp) {
@@ -182,8 +185,7 @@ const ProductsList = ({
   useEffect(() => {
     setOnLocalChange(() => updateLocalProduct);
     return () => setOnLocalChange(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setOnLocalChange]);
+  }, [setOnLocalChange, updateLocalProduct]);
 
   const applyVat = () => {
     const updatedData = (localProductsData || []).map((p) => {
@@ -206,12 +208,12 @@ const ProductsList = ({
     updateTotal(updatedData);
   };
 
-  const onPoductBulkSave = (selectedProducts: IProduct[]) => {
+  const onProductBulkSave = (selectedProducts: IProduct[]) => {
     if (!selectedProducts?.length) return;
     const currency =
       currencies && currencies.length > 0 ? currencies[0] : 'MNT';
 
-    const docs: any[] = [];
+    const docs: IProductData[] = [];
     for (const product of selectedProducts) {
       const productData = {
         tax: 0,
@@ -296,61 +298,113 @@ const ProductsList = ({
     });
   };
 
+  const hasProductFilters = Object.values(filters).some((value) =>
+    Array.isArray(value) ? value.length > 0 : Boolean(value),
+  );
+
   return (
-    <div className="space-y-4">
+    <div className="flex h-full min-h-0 flex-col">
       <Filter id="product-filter">
-        <div className="flex items-center gap-4 flex-wrap">
-          <Input
-            placeholder={t('vat-percent')}
-            className="w-[40%]"
-            value={vatPercent}
-            onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
-          />
-          <Button className="ml-3" onClick={() => applyVat()}>
-            {t('apply-vat')}
-          </Button>
-        </div>
-        <div className="w-full mt-3 flex items-center justify-between">
-          <div className="relative w-[45%]">
-            <IconSearch
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={16}
-            />
-            <Input
-              placeholder={t('search')}
-              className="pl-9 w-full"
-              value={filters.productSearch || ''}
-              onChange={(e) =>
-                setFilters({ ...filters, productSearch: e.target.value })
-              }
-            />
-          </div>
-          <div className="flex items-center gap-6">
-            <div>
-              <Label className="mr-3">{t('advanced-view')}</Label>
-              <Switch
-                checked={showAdvancedView}
-                onCheckedChange={(checked) => {
-                  setShowAdvancedView(checked);
-                }}
+        <div className="shrink-0 border-b pb-4">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+            <div className="relative w-full max-w-2xl flex-1">
+              <IconSearch
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                size={16}
+              />
+              <Input
+                placeholder={t('search')}
+                className="w-full pl-9"
+                value={filters.productSearch || ''}
+                onChange={(event) =>
+                  setFilters({
+                    ...filters,
+                    productSearch: event.target.value,
+                  })
+                }
               />
             </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex h-9 items-center gap-2 rounded-md border bg-muted/20 pl-3 pr-1">
+                <Label
+                  htmlFor="product-vat-percent"
+                  className="whitespace-nowrap text-xs font-medium text-muted-foreground"
+                >
+                  {t('vat-percent')}
+                </Label>
+                <Input
+                  id="product-vat-percent"
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  className="h-7 w-20 border-0 bg-transparent px-2 text-right shadow-none focus-visible:ring-1"
+                  value={vatPercentDraft ?? vatPercent}
+                  onChange={(event) => {
+                    const inputValue = event.target.value;
+
+                    if (inputValue === '') {
+                      setVatPercentDraft('');
+                      setVatPercent(0);
+                      return;
+                    }
+
+                    const parsedValue = Number.parseInt(inputValue, 10);
+
+                    if (Number.isNaN(parsedValue) || parsedValue < 0) {
+                      return;
+                    }
+
+                    setVatPercentDraft(inputValue);
+                    setVatPercent(parsedValue);
+                  }}
+                  onBlur={() => setVatPercentDraft(null)}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="h-7"
+                  onClick={applyVat}
+                >
+                  {t('apply-vat')}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-2 flex min-h-9 items-center gap-2 overflow-x-auto">
             <FilterButton filters={filters} onFilterChange={setFilters} />
+            <ProductFilterBar filters={filters} onChange={setFilters} />{' '}
+            <div className="flex h-9 items-center gap-2 rounded-md border px-3">
+              <Switch
+                id="product-advanced-view"
+                checked={showAdvancedView}
+                onCheckedChange={setShowAdvancedView}
+              />
+              <Label
+                htmlFor="product-advanced-view"
+                className="whitespace-nowrap text-xs font-medium"
+              >
+                {t('advanced-view')}
+              </Label>
+            </div>
           </div>
         </div>
-        <div className="flex-1 flex items-center gap-2 overflow-x-auto py-1">
-          <ProductFilterBar filters={filters} onChange={setFilters} />
-        </div>
       </Filter>
+
+      <div className="min-h-0 flex-1 py-4">
         <ProductsRecordTable
-          products={productRecords || ([] as IProductData[])}
+          products={productRecords}
           refetch={refetch}
           dealId={dealId}
           showAdvancedView={showAdvancedView}
-          onLocalChange={updateLocalProduct}
+          hasProductFilters={hasProductFilters}
         />
+      </div>
+
       <ProductFooter
-        productsCount={localProductsData.length || 0}
+        productsCount={localProductsData.length}
         total={total}
         unUsedTotal={unUsedTotal}
         bothTotal={bothTotal}
@@ -360,11 +414,9 @@ const ProductsList = ({
         productsData={localProductsData}
         onChangeProductsData={setLocalProductsData}
         updateTotal={updateTotal}
-        onAddProducts={onPoductBulkSave}
+        onAddProducts={onProductBulkSave}
         onSave={handleSave}
       />
     </div>
   );
 };
-
-export default ProductsList;
