@@ -82,6 +82,7 @@ export const ScoreMoreColumnCell = ({
 
 export const makeScoreMoreColumn = () => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ({ cell }: { cell: Cell<IScoreLog, unknown> }) => (
     <ScoreMoreColumnCell cell={cell} />
   ),

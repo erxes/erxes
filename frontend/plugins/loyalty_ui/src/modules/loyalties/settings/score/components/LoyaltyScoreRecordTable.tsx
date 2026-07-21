@@ -20,7 +20,7 @@ export const ScoreRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={scoreColumns(editStatus)}
+      columns={scoreColumns(t, editStatus)}
       data={campaigns || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}
