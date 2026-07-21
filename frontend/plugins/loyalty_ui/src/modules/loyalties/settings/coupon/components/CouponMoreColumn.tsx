@@ -100,6 +100,7 @@ export const CouponMoreColumnCell = ({
 
 export const couponMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: CouponMoreColumnCell,
   size: 25,
 };

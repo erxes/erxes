@@ -118,7 +118,7 @@ export const pricingPlanSchema = schemaWrapper(
       // Timestamps
     },
     {
-      timestamps: true, // adds createdAt and updatedAt automatically
+      timestamps: true,
     },
   ),
 );

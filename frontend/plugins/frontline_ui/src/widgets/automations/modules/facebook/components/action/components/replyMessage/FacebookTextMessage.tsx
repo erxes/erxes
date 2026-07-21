@@ -4,14 +4,27 @@ import { FacebookMessageProps } from '~/widgets/automations/modules/facebook/com
 import { FacebookMessageButtonsGenerator } from '../FacebookMessageButtonsGenerator';
 import { InputTextCounter } from '../InputTextCounter';
 import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
+import { TBotMessageButton } from '~/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm';
 
 export const FacebookTextMessage = ({
   index,
   message,
 }: FacebookMessageProps<{ type: 'text' }>) => {
   const { t } = useTranslation('frontline');
-  const { control } = useReplyMessageAction();
+  const { control, setValue } = useReplyMessageAction();
   const limit = (message.buttons || []).length ? 640 : 2000;
+
+  const handleButtonsChange = (
+    buttons: TBotMessageButton[],
+    onChange: (buttons: TBotMessageButton[]) => void,
+  ) => {
+    // Adding a button drops the text limit from 2000 to 640
+    const text = message.text || '';
+    if (buttons.length && text.length > 640) {
+      setValue(`messages.${index}.text`, text.slice(0, 640).trim());
+    }
+    onChange(buttons);
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -28,7 +41,7 @@ export const FacebookTextMessage = ({
               />
             </Form.Label>
             <Form.Control>
-              <Textarea {...field} />
+              <Textarea {...field} maxLength={limit} />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -47,7 +60,9 @@ export const FacebookTextMessage = ({
               <FacebookMessageButtonsGenerator
                 limit={3}
                 buttons={field.value || []}
-                setButtons={field.onChange}
+                setButtons={(buttons) =>
+                  handleButtonsChange(buttons, field.onChange)
+                }
               />
             </Form.Control>
             <Form.Message />

@@ -35,7 +35,7 @@ export function PricingRecordTable() {
   return (
     <RecordTable.Provider
       data={pricing || []}
-      columns={pricingColumns}
+      columns={pricingColumns(t)}
       stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"
     >
