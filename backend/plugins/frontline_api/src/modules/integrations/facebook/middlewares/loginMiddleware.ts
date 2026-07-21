@@ -19,7 +19,7 @@ export const loginMiddleware = async (req, res) => {
   const FACEBOOK_PERMISSIONS = await getConfig(
     models,
     'FACEBOOK_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
+    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content,business_management',
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });

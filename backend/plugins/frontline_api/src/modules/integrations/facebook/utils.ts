@@ -244,6 +244,40 @@ export const invalidateUploadConfigCache = () => {
   lastFetchTime = 0;
 };
 
+const getBusinessOwnedPages = async (accessToken?: string) => {
+  const ownedPages: any[] = [];
+
+  try {
+    const businesses: any = await graphRequest.get(
+      '/me/businesses?limit=100',
+      accessToken,
+    );
+
+    for (const business of businesses.data || []) {
+      try {
+        const owned: any = await graphRequest.get(
+          `/${business.id}/owned_pages?limit=100`,
+          accessToken,
+        );
+
+        ownedPages.push(...(owned.data || []));
+      } catch (e) {
+        debugError(
+          `Error occurred while fetching owned pages for business ${business.id}: ${e.message}`,
+        );
+      }
+    }
+  } catch (e) {
+    // business_management permission may not be granted, ignore and
+    // fall back to the pages already returned by /me/accounts
+    debugError(
+      `Error occurred while fetching businesses: ${e.message}`,
+    );
+  }
+
+  return ownedPages;
+};
+
 export const getPageList = async (
   models: IModels,
   accessToken?: string,
@@ -254,9 +288,17 @@ export const getPageList = async (
     accessToken,
   );
 
+  const businessOwnedPages = await getBusinessOwnedPages(accessToken);
+
+  const pageById = new Map<string, { id: string; name: string }>();
+
+  for (const page of [...response.data, ...businessOwnedPages]) {
+    pageById.set(page.id, { id: page.id, name: page.name });
+  }
+
   const pages: any[] = [];
 
-  for (const page of response.data) {
+  for (const page of pageById.values()) {
     const integration = await models.FacebookIntegrations.findOne({
       facebookPageIds: page.id,
       kind,
