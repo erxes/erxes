@@ -8,6 +8,7 @@ import {
 import { createSlug } from '../../../../utils/createSlug';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRef, useEffect, useCallback } from 'react';
+import { getAutoArchiveDate } from './getAutoArchiveDate';
 
 interface InlineContent {
   text?: string;
@@ -289,7 +290,10 @@ const buildPostInput = (
     featured: data.featured,
     publishedDate: data.publishDate ?? undefined,
     scheduledDate: data.scheduledDate ?? undefined,
-    autoArchiveDate: data.enableAutoArchive ? data.autoArchiveDate : undefined,
+    autoArchiveDate: getAutoArchiveDate(
+      data.enableAutoArchive,
+      data.autoArchiveDate,
+    ),
     excerpt: main.excerpt,
     // Empty strings (not undefined) so clearing a value persists through $set
     seoTitle: data.seoTitle?.trim() ?? '',
