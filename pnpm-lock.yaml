@@ -1318,6 +1318,9 @@ importers:
 
   backend/plugins/payment_api:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
@@ -1330,6 +1333,10 @@ importers:
       stripe:
         specifier: ^17.2.1
         version: 17.7.0
+    devDependencies:
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
 
   backend/plugins/payment_api/src/widget:
     dependencies:
@@ -11989,6 +11996,9 @@ packages:
       {
         integrity: sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA==,
       }
+
+  '@types/crypto-js@4.2.2':
+    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
 
   '@types/d3-array@3.2.1':
     resolution:
@@ -39779,6 +39789,8 @@ snapshots:
   '@types/cors@2.8.17':
     dependencies:
       '@types/node': 18.16.9
+
+  '@types/crypto-js@4.2.2': {}
 
   '@types/d3-array@3.2.1': {}
 
