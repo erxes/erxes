@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
+/** Keeps locally reorderable state synchronized with refreshed source data. */
 export const useSyncedState = <T>(
   source: T,
 ): readonly [T, Dispatch<SetStateAction<T>>] => {

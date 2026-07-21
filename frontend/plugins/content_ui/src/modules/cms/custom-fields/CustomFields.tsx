@@ -41,6 +41,7 @@ import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
 import { useSyncedState } from './hooks/useSyncedState';
 
+/** Provides drag positioning and handle props for a custom-field group. */
 function SortableGroup({
   group,
   children,
