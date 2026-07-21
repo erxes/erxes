@@ -50,6 +50,10 @@ const mutations = `
   automationEmailTemplatesAdd(${emailTemplateFields}): AutomationEmailTemplate
   automationEmailTemplatesEdit(_id: String!, ${emailTemplateFields}): AutomationEmailTemplate
   automationEmailTemplatesRemove(_id: String!): JSON
+
+  automationWorkflowTemplatesAdd(name: String!, description: String, entryActionId: String, actions: JSON, inputs: JSON): AutomationWorkflowTemplate
+  automationWorkflowTemplatesEdit(_id: String!, name: String, description: String, entryActionId: String, actions: JSON, inputs: JSON): AutomationWorkflowTemplate
+  automationWorkflowTemplatesRemove(_id: String!): JSON
 `;
 
 export default mutations;

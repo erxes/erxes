@@ -2,6 +2,7 @@ import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRunt
 import { AiAgentInputFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputFields';
 import { AiAgentMemoryFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentMemoryFields';
 import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectBuilder';
+import { AiAgentToolBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentToolBuilder';
 import { AiAgentTopicBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentTopicBuilder';
 import { AI_AGENT_NODE_GOAL_TYPES } from '@/automations/components/builder/nodes/actions/aiAgent/constants/aiAgentConfigForm';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
@@ -12,6 +13,7 @@ import {
   IconListDetails,
   IconPlus,
   IconSettings,
+  IconTool,
 } from '@tabler/icons-react';
 import { Button, Form, Select, Tabs, Textarea } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
@@ -42,6 +44,11 @@ const AI_AGENT_CONFIG_FORM_TABS = [
     label: 'output-fields',
     icon: IconListDetails,
   },
+  {
+    value: 'tools',
+    label: 'tools',
+    icon: IconTool,
+  },
 ];
 
 export const AIAgentConfigForm = ({
@@ -66,9 +73,9 @@ export const AIAgentConfigForm = ({
         onSave={handleSubmit(handleSave, handleValidationErrors)}
       >
         <Tabs defaultValue="general" className="min-w-72">
-          <Tabs.List className="flex flex-row">
+          <Tabs.List className="flex w-full flex-row justify-start overflow-x-auto">
             {AI_AGENT_CONFIG_FORM_TABS.map(({ value, label, icon: Icon }) => (
-              <Tabs.Trigger key={value} value={value} className="flex-1">
+              <Tabs.Trigger key={value} value={value} className="shrink-0">
                 <Icon className="size-3.5 mr-2" /> {t(label)}
               </Tabs.Trigger>
             ))}
@@ -192,6 +199,15 @@ export const AIAgentConfigForm = ({
                 addLabel={t('add-capture-field')}
               />
             </Form.Item>
+          </Tabs.Content>
+          <Tabs.Content value="tools" className="my-2">
+            {config?.goalType === 'generateText' ? (
+              <AiAgentToolBuilder />
+            ) : (
+              <p className="p-2 text-sm text-muted-foreground">
+                Tools are available for the generate text goal type.
+              </p>
+            )}
           </Tabs.Content>
         </Tabs>
       </AutomationConfigFormWrapper>

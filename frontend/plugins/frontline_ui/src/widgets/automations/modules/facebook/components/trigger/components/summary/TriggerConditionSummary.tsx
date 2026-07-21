@@ -10,7 +10,7 @@ export const TriggerConditionSummary = ({
   return (
     <>
       {conditionSummaries.map((condition, index) => (
-        <div key={condition._id}>
+        <div key={index}>
           <div>
             <p className="text-sm font-semibold">{condition.label}</p>
             <span className="text-accent-foreground">

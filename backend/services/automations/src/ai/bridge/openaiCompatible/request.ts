@@ -4,6 +4,7 @@ import {
   TAiBridgeConnection,
   TAiBridgeMessage,
   TAiBridgeRuntime,
+  TAiBridgeToolDefinition,
 } from '../types';
 
 type TOpenAiCompatibleRequestParams = {
@@ -114,20 +115,49 @@ const usesDefaultOnlyTemperature = (model: string) => {
   return normalizedModel.startsWith('gpt-5');
 };
 
+const toOpenAiCompatibleMessage = (message: TAiBridgeMessage) => {
+  if (message.role === 'assistant' && message.toolCalls?.length) {
+    return {
+      role: 'assistant',
+      content: message.content || null,
+      tool_calls: message.toolCalls.map((call) => ({
+        id: call.id,
+        type: 'function',
+        function: {
+          name: call.name,
+          arguments: JSON.stringify(call.arguments || {}),
+        },
+      })),
+    };
+  }
+
+  if (message.role === 'tool') {
+    return {
+      role: 'tool',
+      tool_call_id: message.toolCallId,
+      content: message.content,
+    };
+  }
+
+  return { role: message.role, content: message.content };
+};
+
 export const buildOpenAiCompatibleChatBody = ({
   connection,
   runtime,
   messages,
   responseFormat,
+  tools,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
   responseFormat?: 'json' | 'text';
+  tools?: TAiBridgeToolDefinition[];
 }) => {
   const body: Record<string, any> = {
     model: connection.model,
-    messages,
+    messages: messages.map(toOpenAiCompatibleMessage),
     max_completion_tokens: runtime.maxTokens,
   };
 
@@ -140,6 +170,17 @@ export const buildOpenAiCompatibleChatBody = ({
 
   if (responseFormat === 'json') {
     body.response_format = { type: 'json_object' };
+  }
+
+  if (tools?.length) {
+    body.tools = tools.map((tool) => ({
+      type: 'function',
+      function: {
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.parameters,
+      },
+    }));
   }
 
   return body;
