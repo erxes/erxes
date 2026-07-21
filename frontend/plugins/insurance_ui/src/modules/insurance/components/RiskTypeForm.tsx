@@ -74,26 +74,26 @@ export const RiskTypeForm = ({
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
           <Dialog.Title>
-            {riskType ? t('edit-risk-type') : t('create-new-risk-type')}
+            {riskType ? t('edit-risk-type', 'Edit Risk Type') : t('create-new-risk-type', 'Create New Risk Type')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{t('name-required')}</Label>
+            <Label htmlFor="name">{t('name-required', 'Name *')}</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder={t('risk-type-name-placeholder')}
+              placeholder={t('risk-type-name-placeholder', 'e.g., Fire, Theft, Accident')}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">{t('description')}</Label>
+            <Label htmlFor="description">{t('description', 'Description')}</Label>
             <textarea
               id="description"
               className="w-full min-h-[100px] p-2 border rounded-md"
@@ -101,7 +101,7 @@ export const RiskTypeForm = ({
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              placeholder={t('describe-risk-type')}
+              placeholder={t('describe-risk-type', 'Describe this risk type...')}
             />
           </div>
 
@@ -112,14 +112,14 @@ export const RiskTypeForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating || updating}
             >
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
             <Button type="submit" disabled={creating || updating}>
               {creating || updating
-                ? t('saving')
+                ? t('saving', 'Saving...')
                 : riskType
-                ? t('update')
-                : t('create')}
+                ? t('update', 'Update')
+                : t('create', 'Create')}
             </Button>
           </Dialog.Footer>
         </form>

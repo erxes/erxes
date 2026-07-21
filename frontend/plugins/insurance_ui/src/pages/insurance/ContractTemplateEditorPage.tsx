@@ -291,7 +291,7 @@ export const ContractTemplateEditorPage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconFileText />
-                  {t('contract-template-editor')}
+                  {t('contract-template-editor', 'Contract Template Editor')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -301,23 +301,23 @@ export const ContractTemplateEditorPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleReset} variant="outline">
-            {t('reset-to-default')}
+            {t('reset-to-default', 'Reset to Default')}
           </Button>
           <Button onClick={handlePreview} variant="outline">
             <IconEye size={16} />
-            {t('preview')}
+            {t('preview', 'Preview')}
           </Button>
           <Button onClick={handlePrint} variant="outline">
             <IconPrinter size={16} />
-            {t('print')}
+            {t('print', 'Print')}
           </Button>
           <Button onClick={handleDownload} variant="outline">
             <IconDownload size={16} />
-            {t('download')}
+            {t('download', 'Download')}
           </Button>
           <Button onClick={handleSave}>
             <IconDeviceFloppy size={16} />
-            {t('save-template')}
+            {t('save-template', 'Save Template')}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -340,7 +340,7 @@ export const ContractTemplateEditorPage = () => {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold">
-                      {t('contract-template-editor')}
+                      {t('contract-template-editor', 'Contract Template Editor')}
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       Бүх гэрээнд ашиглагдах нэг template
@@ -351,7 +351,7 @@ export const ContractTemplateEditorPage = () => {
                   onClick={() => setIsEditing(!isEditing)}
                   variant={isEditing ? 'default' : 'outline'}
                 >
-                  {isEditing ? t('view-mode') : t('edit-mode')}
+                  {isEditing ? t('view-mode', 'View Mode') : t('edit-mode', 'Edit Mode')}
                 </Button>
               </div>
 
@@ -359,7 +359,7 @@ export const ContractTemplateEditorPage = () => {
                 {isEditing ? (
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      {t('html-template')}
+                      {t('html-template', 'HTML Template')}
                     </label>
                     <textarea
                       value={template}
@@ -376,7 +376,7 @@ export const ContractTemplateEditorPage = () => {
                 ) : (
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      {t('template-preview')}
+                      {t('template-preview', 'Template Preview')}
                     </label>
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe

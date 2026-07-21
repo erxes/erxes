@@ -10,7 +10,7 @@ export const RisksMoreColumn = ({ cell }: { cell: any }) => {
   const { deleteRiskType, loading } = useDeleteRiskType();
 
   const handleDelete = async () => {
-    if (window.confirm(t('confirm-delete-risk-type'))) {
+    if (window.confirm(t('confirm-delete-risk-type', 'Are you sure you want to delete this risk type?'))) {
       try {
         await deleteRiskType({ variables: { id: riskId } });
       } catch (error) {
@@ -36,7 +36,7 @@ export const RisksMoreColumn = ({ cell }: { cell: any }) => {
           }}
         >
           <IconEdit size={16} />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={handleDelete}
@@ -44,7 +44,7 @@ export const RisksMoreColumn = ({ cell }: { cell: any }) => {
           className="text-destructive"
         >
           <IconTrash size={16} />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

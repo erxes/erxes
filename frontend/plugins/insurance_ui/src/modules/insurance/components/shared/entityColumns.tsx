@@ -54,7 +54,7 @@ export const createDescriptionColumn = <T,>(
   accessorKey: 'description',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={icon} label={t('description')} />;
+    return <RecordTable.InlineHead icon={icon} label={t('description', 'Description')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -69,7 +69,7 @@ export const createCreatedAtColumn = <T,>(): ColumnDef<T> => ({
   accessorKey: 'createdAt',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
+    return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created At')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -84,7 +84,7 @@ export const createUpdatedAtColumn = <T,>(): ColumnDef<T> => ({
   accessorKey: 'updatedAt',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('updated-at')} />;
+    return <RecordTable.InlineHead icon={IconCalendar} label={t('updated-at', 'Updated At')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>

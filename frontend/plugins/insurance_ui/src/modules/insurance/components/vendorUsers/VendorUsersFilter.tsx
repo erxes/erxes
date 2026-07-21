@@ -32,13 +32,13 @@ export const VendorUsersFilter = ({
             }
           >
             <Select.Trigger className="w-[200px] h-7">
-              <Select.Value placeholder={t('all-vendors')} />
+              <Select.Value placeholder={t('all-vendors', 'All Vendors')} />
             </Select.Trigger>
             <Select.Content>
-              <Select.Item value="all">{t('all-vendors')}</Select.Item>
+              <Select.Item value="all">{t('all-vendors', 'All Vendors')}</Select.Item>
               {vendorsLoading ? (
                 <Select.Item value="loading" disabled>
-                  {t('loading-vendors')}
+                  {t('loading-vendors', 'Loading vendors...')}
                 </Select.Item>
               ) : (
                 vendors.map((vendor) => (

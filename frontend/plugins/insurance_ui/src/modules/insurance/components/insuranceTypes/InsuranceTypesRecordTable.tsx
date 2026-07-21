@@ -49,8 +49,8 @@ export const InsuranceTypesRecordTable = ({
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconShieldCheck size={64} />,
-        title: t('no-insurance-types-yet'),
-        description: t('no-insurance-types-description'),
+        title: t('no-insurance-types-yet', 'No insurance types yet'),
+        description: t('no-insurance-types-description', 'Create insurance types to categorize your insurance products.'),
       }}
     />
   );

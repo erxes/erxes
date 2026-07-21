@@ -81,7 +81,7 @@ export const ContractDetailPage = () => {
   if (!contract) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p>{t('contract-not-found')}</p>
+        <p>{t('contract-not-found', 'Contract not found')}</p>
       </div>
     );
   }
@@ -89,13 +89,13 @@ export const ContractDetailPage = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800">{t('active')}</Badge>;
+        return <Badge className="bg-green-100 text-green-800">{t('active', 'Active')}</Badge>;
       case 'expired':
-        return <Badge className="bg-red-100 text-red-800">{t('expired')}</Badge>;
+        return <Badge className="bg-red-100 text-red-800">{t('expired', 'Expired')}</Badge>;
       case 'cancelled':
-        return <Badge className="bg-gray-100 text-gray-800">{t('cancelled-label')}</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800">{t('cancelled-label', 'Cancelled')}</Badge>;
       default:
-        return <Badge className="bg-yellow-100 text-yellow-800">{t('pending-label')}</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800">{t('pending-label', 'Pending')}</Badge>;
     }
   };
 
@@ -109,14 +109,14 @@ export const ContractDetailPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/products">
                     <IconFileText />
-                    {t('insurance')}
+                    {t('insurance', 'Insurance')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/insurance/contracts">{t('contracts')}</Link>
+                  <Link to="/insurance/contracts">{t('contracts', 'Contracts')}</Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
@@ -132,16 +132,16 @@ export const ContractDetailPage = () => {
           <Button variant="outline" asChild>
             <Link to={`/insurance/contracts/${id}/pdf`}>
               <IconEdit size={16} />
-              {t('edit-pdf')}
+              {t('edit-pdf', 'Edit PDF')}
             </Link>
           </Button>
           <Button onClick={handlePrintPDF} variant="outline">
             <IconPrinter size={16} />
-            {t('print-pdf')}
+            {t('print-pdf', 'Print PDF')}
           </Button>
           <Button onClick={handleDownloadHTML}>
             <IconDownload size={16} />
-            {t('download-html')}
+            {t('download-html', 'Download HTML')}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -171,7 +171,7 @@ export const ContractDetailPage = () => {
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <IconUser className="text-blue-600" size={20} />
                   </div>
-                  <h3 className="font-semibold">{t('customer')}</h3>
+                  <h3 className="font-semibold">{t('customer', 'Customer')}</h3>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">
@@ -191,7 +191,7 @@ export const ContractDetailPage = () => {
                   <div className="p-2 bg-green-100 rounded-lg">
                     <IconBuilding className="text-green-600" size={20} />
                   </div>
-                  <h3 className="font-semibold">{t('insurance-company')}</h3>
+                  <h3 className="font-semibold">{t('insurance-company', 'Insurance Company')}</h3>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">{contract.vendor?.name}</p>
@@ -205,7 +205,7 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <IconPackage className="text-purple-600" size={20} />
                 </div>
-                <h3 className="font-semibold">{t('product')}</h3>
+                <h3 className="font-semibold">{t('product', 'Product')}</h3>
               </div>
               <p className="font-medium">{contract.insuranceProduct?.name}</p>
             </Card>
@@ -216,17 +216,17 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-orange-100 rounded-lg">
                   <IconCalendar className="text-orange-600" size={20} />
                 </div>
-                <h3 className="font-semibold">{t('insurance-period')}</h3>
+                <h3 className="font-semibold">{t('insurance-period', 'Insurance Period')}</h3>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">{t('start-date')}</p>
+                  <p className="text-sm text-muted-foreground">{t('start-date', 'Start Date')}</p>
                   <p className="font-medium">
                     {new Date(contract.startDate).toLocaleDateString('mn-MN')}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t('end-date')}</p>
+                  <p className="text-sm text-muted-foreground">{t('end-date', 'End Date')}</p>
                   <p className="font-medium">
                     {new Date(contract.endDate).toLocaleDateString('mn-MN')}
                   </p>
@@ -240,23 +240,23 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-cyan-100 rounded-lg">
                   <IconCurrencyTugrik className="text-cyan-600" size={20} />
                 </div>
-                <h3 className="font-semibold">{t('payment-information')}</h3>
+                <h3 className="font-semibold">{t('payment-information', 'Payment Information')}</h3>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t('premium')}:</span>
+                  <span className="text-muted-foreground">{t('premium', 'Premium')}:</span>
                   <span className="font-medium">
                     {contract.chargedAmount?.toLocaleString()} ₮
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t('payment-method')}:</span>
+                  <span className="text-muted-foreground">{t('payment-method', 'Payment Method')}:</span>
                   <span className="font-medium">
-                    {contract.paymentKind === 'cash' ? t('cash') : t('qpay')}
+                    {contract.paymentKind === 'cash' ? t('cash', 'Cash') : t('qpay', 'QPay')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t('status')}:</span>
+                  <span className="text-muted-foreground">{t('status', 'Status')}:</span>
                   {getStatusBadge(contract.paymentStatus)}
                 </div>
               </div>
@@ -265,7 +265,7 @@ export const ContractDetailPage = () => {
             {/* Insured Object */}
             {contract.insuredObject && (
               <Card className="p-6">
-                <h3 className="font-semibold mb-4">{t('insured-object')}</h3>
+                <h3 className="font-semibold mb-4">{t('insured-object', 'Insured Object')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {Object.entries(contract.insuredObject).map(
                     ([key, value]) => (
@@ -276,8 +276,8 @@ export const ContractDetailPage = () => {
                         <p className="font-medium">
                           {typeof value === 'boolean'
                             ? value
-                              ? t('yes')
-                              : t('no')
+                              ? t('yes', 'Yes')
+                              : t('no', 'No')
                             : String(value)}
                         </p>
                       </div>

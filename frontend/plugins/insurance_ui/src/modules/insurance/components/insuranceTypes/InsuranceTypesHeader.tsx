@@ -15,13 +15,13 @@ export const InsuranceTypesHeader = ({
     <GenericHeader
       icon={<IconShieldCheck />}
       parentIcon={<IconSandbox />}
-      parentLabel={t('insurance')}
+      parentLabel={t('insurance', 'Insurance')}
       parentLink="/insurance/products"
-      currentLabel={t('insurance-types')}
+      currentLabel={t('insurance-types', 'Insurance Types')}
       actions={
         <Button onClick={onCreateClick}>
           <IconPlus size={16} />
-          {t('new-insurance-type')}
+          {t('new-insurance-type', 'New Insurance Type')}
         </Button>
       }
     />

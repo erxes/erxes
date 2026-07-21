@@ -19,7 +19,7 @@ export const ProductsHeader = ({ onCreateClick }: ProductsHeaderProps) => {
               <Button variant="ghost" asChild>
                 <Link to="/insurance/products">
                   <IconSandbox />
-                  {t('insurance')}
+                  {t('insurance', 'Insurance')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -27,7 +27,7 @@ export const ProductsHeader = ({ onCreateClick }: ProductsHeaderProps) => {
             <Breadcrumb.Item>
               <Button variant="ghost">
                 <IconPackage />
-                {t('products')}
+                {t('products', 'Products')}
               </Button>
             </Breadcrumb.Item>
           </Breadcrumb.List>
@@ -38,7 +38,7 @@ export const ProductsHeader = ({ onCreateClick }: ProductsHeaderProps) => {
       <PageHeader.End>
         <Button onClick={onCreateClick}>
           <IconPlus size={16} />
-          {t('new-product')}
+          {t('new-product', 'New Product')}
         </Button>
       </PageHeader.End>
     </PageHeader>

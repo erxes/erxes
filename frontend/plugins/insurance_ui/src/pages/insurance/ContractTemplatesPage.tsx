@@ -68,7 +68,7 @@ export default function ContractTemplatesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm(t('delete-template-confirm'))) {
+    if (confirm(t('delete-template-confirm', 'Delete this template?'))) {
       try {
         await deleteContractTemplate({ variables: { id } });
       } catch (error) {
@@ -82,9 +82,9 @@ export default function ContractTemplatesPage() {
       <PageHeader>
         <Breadcrumb>
           <Breadcrumb.Item>
-            <Link to="/insurance/products">{t('insurance')}</Link>
+            <Link to="/insurance/products">{t('insurance', 'Insurance')}</Link>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>{t('contract-templates')}</Breadcrumb.Item>
+          <Breadcrumb.Item>{t('contract-templates', 'Contract Templates')}</Breadcrumb.Item>
         </Breadcrumb>
       </PageHeader>
 
@@ -92,9 +92,9 @@ export default function ContractTemplatesPage() {
         <div className="max-w-6xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">{t('contract-templates')}</h1>
+              <h1 className="text-2xl font-bold">{t('contract-templates', 'Contract Templates')}</h1>
               <p className="text-muted-foreground">
-                {t('manage-contract-pdf-templates')}
+                {t('manage-contract-pdf-templates', 'Manage contract PDF templates')}
               </p>
             </div>
             <div className="flex gap-2">
@@ -103,7 +103,7 @@ export default function ContractTemplatesPage() {
               </Button>
               <Button onClick={() => setIsDialogOpen(true)}>
                 <IconPlus size={20} className="mr-2" />
-                {t('new-template')}
+                {t('new-template', 'New Template')}
               </Button>
             </div>
           </div>
@@ -111,10 +111,10 @@ export default function ContractTemplatesPage() {
           <Separator />
 
           {loading ? (
-            <div className="text-center py-8">{t('loading')}</div>
+            <div className="text-center py-8">{t('loading', 'Loading...')}</div>
           ) : contractTemplates.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              {t('no-templates-yet')}
+              {t('no-templates-yet', 'No templates yet. Click "New Template" to get started.')}
             </div>
           ) : (
             <div className="grid gap-4">
@@ -130,10 +130,10 @@ export default function ContractTemplatesPage() {
                           {template.name}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {template.description || t('no-description')}
+                          {template.description || t('no-description', 'No description')}
                         </p>
                         <p className="text-xs text-muted-foreground mt-2">
-                          {t('created')}{' '}
+                          {t('created', 'Created:')}{' '}
                           {new Date(template.createdAt).toLocaleDateString(
                             'mn-MN',
                           )}
@@ -146,7 +146,7 @@ export default function ContractTemplatesPage() {
                       >
                         <Button variant="outline" size="sm">
                           <IconEye size={16} className="mr-1" />
-                          {t('view')}
+                          {t('view', 'View')}
                         </Button>
                       </Link>
                       <Link
@@ -154,7 +154,7 @@ export default function ContractTemplatesPage() {
                       >
                         <Button variant="outline" size="sm">
                           <IconEdit size={16} className="mr-1" />
-                          {t('edit')}
+                          {t('edit', 'Edit')}
                         </Button>
                       </Link>
                       <Button
@@ -163,7 +163,7 @@ export default function ContractTemplatesPage() {
                         onClick={() => handleDelete(template.id)}
                       >
                         <IconTrash size={16} className="mr-1" />
-                        {t('delete')}
+                        {t('delete', 'Delete')}
                       </Button>
                     </div>
                   </div>
@@ -177,27 +177,27 @@ export default function ContractTemplatesPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <Dialog.Content className="max-w-md">
           <Dialog.Header>
-            <Dialog.Title>{t('new-contract-template')}</Dialog.Title>
+            <Dialog.Title>{t('new-contract-template', 'New Contract Template')}</Dialog.Title>
           </Dialog.Header>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">{t('name-required')}</Label>
+              <Label htmlFor="name">{t('name-required', 'Name *')}</Label>
               <Input
                 id="name"
                 value={templateName}
                 onChange={(e: any) => setTemplateName(e.target.value)}
-                placeholder={t('template-name-placeholder')}
+                placeholder={t('template-name-placeholder', 'Example: Car Insurance Contract')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">{t('description')}</Label>
+              <Label htmlFor="description">{t('description', 'Description')}</Label>
               <Input
                 id="description"
                 value={templateDescription}
                 onChange={(e: any) => setTemplateDescription(e.target.value)}
-                placeholder={t('template-description-placeholder')}
+                placeholder={t('template-description-placeholder', 'Brief description about this template')}
               />
             </div>
           </div>
@@ -208,14 +208,14 @@ export default function ContractTemplatesPage() {
               variant="outline"
               onClick={() => setIsDialogOpen(false)}
             >
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
             <Button
               type="button"
               onClick={handleCreate}
               disabled={!templateName}
             >
-              {t('create')}
+              {t('create', 'Create')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

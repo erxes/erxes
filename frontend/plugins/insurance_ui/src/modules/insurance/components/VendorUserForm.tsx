@@ -99,26 +99,26 @@ export const VendorUserForm = ({
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
           <Dialog.Title>
-            {user ? t('edit-vendor-user') : t('create-vendor-user')}
+            {user ? t('edit-vendor-user', 'Edit Vendor User') : t('create-vendor-user', 'Create Vendor User')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{t('name')}</Label>
+            <Label htmlFor="name">{t('name', 'Name')}</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder={t('enter-name-optional')}
+              placeholder={t('enter-name-optional', 'Enter name (optional)')}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">
-              {t('email')} <span className="text-red-500">*</span>
+              {t('email', 'Email')} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="email"
@@ -127,13 +127,13 @@ export const VendorUserForm = ({
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              placeholder={t('enter-email')}
+              placeholder={t('enter-email', 'Enter email')}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">{t('phone')}</Label>
+            <Label htmlFor="phone">{t('phone', 'Phone')}</Label>
             <Input
               id="phone"
               type="tel"
@@ -141,13 +141,13 @@ export const VendorUserForm = ({
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              placeholder={t('enter-phone-optional')}
+              placeholder={t('enter-phone-optional', 'Enter phone (optional)')}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">
-              {t('password')} {!user && <span className="text-red-500">*</span>}
+              {t('password', 'Password')} {!user && <span className="text-red-500">*</span>}
             </Label>
             <Input
               id="password"
@@ -157,14 +157,14 @@ export const VendorUserForm = ({
                 setFormData({ ...formData, password: e.target.value })
               }
               placeholder={
-                user ? t('leave-empty-to-keep-current') : t('enter-password')
+                user ? t('leave-empty-to-keep-current', 'Leave empty to keep current') : t('enter-password', 'Enter password')
               }
               required={!user}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">{t('role')}</Label>
+            <Label htmlFor="role">{t('role', 'Role')}</Label>
             <select
               id="role"
               value={formData.role}
@@ -173,8 +173,8 @@ export const VendorUserForm = ({
               }
               className="w-full px-3 py-2 border rounded-md"
             >
-              <option value="user">{t('user')}</option>
-              <option value="admin">{t('admin')}</option>
+              <option value="user">{t('user', 'User')}</option>
+              <option value="admin">{t('admin', 'Admin')}</option>
             </select>
           </div>
 
@@ -185,10 +185,10 @@ export const VendorUserForm = ({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? t('saving') : user ? t('update') : t('create')}
+              {loading ? t('saving', 'Saving...') : user ? t('update', 'Update') : t('create', 'Create')}
             </Button>
           </Dialog.Footer>
         </form>

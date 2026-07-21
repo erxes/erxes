@@ -17,8 +17,8 @@ export const CarInsuranceRecordTable = () => {
       stickyColumns={['more', 'checkbox', 'contractNumber']}
       emptyState={{
         icon: <IconFileX size={64} />,
-        title: t('no-contracts-yet'),
-        description: t('no-car-insurance-contracts-description'),
+        title: t('no-contracts-yet', 'No contracts yet'),
+        description: t('no-car-insurance-contracts-description', 'Get started by creating your first car insurance contract.'),
       }}
     />
   );

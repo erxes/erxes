@@ -20,7 +20,7 @@ export const InsuranceTypesMoreColumn = ({
 
   const handleDelete = async () => {
     if (
-      window.confirm(t('confirm-delete-insurance-type'))
+      window.confirm(t('confirm-delete-insurance-type', 'Are you sure you want to delete this insurance type?'))
     ) {
       try {
         await deleteInsuranceType({ variables: { id: insuranceType.id } });
@@ -41,7 +41,7 @@ export const InsuranceTypesMoreColumn = ({
       <DropdownMenu.Content align="start">
         <DropdownMenu.Item onClick={() => onEdit?.(insuranceType)}>
           <IconEdit size={16} />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -50,7 +50,7 @@ export const InsuranceTypesMoreColumn = ({
           className="text-destructive"
         >
           <IconTrash size={16} />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

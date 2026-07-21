@@ -67,11 +67,11 @@ export const VendorUsersRecordTable = ({ vendorId }: VendorUsersRecordTableProps
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-users-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-users-yet', 'No users yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
                     {vendorId
-                      ? t('no-vendor-users-description')
-                      : t('select-vendor-description')}
+                      ? t('no-vendor-users-description', 'This vendor has no users yet. Add your first user.')
+                      : t('select-vendor-description', 'Select a vendor to view users or create new ones.')}
                   </p>
                 </div>
               </div>

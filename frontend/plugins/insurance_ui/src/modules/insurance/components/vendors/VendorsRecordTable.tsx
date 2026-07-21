@@ -17,8 +17,8 @@ export const VendorsRecordTable = () => {
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconBuilding size={64} />,
-        title: t('no-vendors-yet'),
-        description: t('no-vendors-description'),
+        title: t('no-vendors-yet', 'No vendors yet'),
+        description: t('no-vendors-description', 'Get started by creating your first insurance vendor.'),
       }}
     />
   );
