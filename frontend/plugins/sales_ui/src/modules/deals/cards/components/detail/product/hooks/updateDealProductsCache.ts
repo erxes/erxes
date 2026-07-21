@@ -18,7 +18,7 @@ export const updateDealProductsCache = (
         return productsData;
       },
       products(
-        existingProducts: readonly (Reference | StoreObject)[] = [],
+        existingProducts: readonly (Reference | StoreObject)[] | undefined,
         { readField },
       ) {
         const cachedProducts: (Reference | StoreObject)[] = Array.isArray(

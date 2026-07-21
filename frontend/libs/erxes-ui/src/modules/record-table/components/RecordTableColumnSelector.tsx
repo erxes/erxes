@@ -160,7 +160,7 @@ export const RecordTableColumnSelector = ({
 
       <DropdownMenu.Content
         align={align}
-        className="hide-scroll max-h-[min(28rem,var(--radix-dropdown-menu-content-available-height))] w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain p-1"
+        className="hide-scroll max-h-(--radix-dropdown-menu-content-available-height) w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain p-1"
       >
         <DndContext
           sensors={sensors}

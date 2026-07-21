@@ -14,6 +14,14 @@ import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useProductCalculations } from '../hooks/useProductCalculations';
 import { useTranslation } from 'react-i18next';
 
+const isPatchAppliedByServer = (
+  data: IProductData,
+  patch: Partial<IProductData>,
+) =>
+  Object.entries(patch).every(([key, value]) =>
+    Object.is(data[key as keyof IProductData], value),
+  );
+
 export const ProductsList = ({
   products,
   productsData,
@@ -144,14 +152,8 @@ export const ProductsList = ({
         const previousRecord = previousById.get(data._id);
         const pendingPatch = pendingProductPatchesRef.current[data._id];
 
-        if (pendingPatch) {
-          const hasServerCaughtUp = Object.entries(pendingPatch).every(
-            ([key, value]) => Object.is(data[key as keyof IProductData], value),
-          );
-
-          if (hasServerCaughtUp) {
-            delete pendingProductPatchesRef.current[data._id];
-          }
+        if (pendingPatch && isPatchAppliedByServer(data, pendingPatch)) {
+          delete pendingProductPatchesRef.current[data._id];
         }
 
         const updatedProductData = {
@@ -336,9 +338,10 @@ export const ProductsList = ({
                 <Input
                   id="product-vat-percent"
                   type="number"
-                  inputMode="decimal"
                   min={0}
-                  className="h-7 w-20 border-0 bg-transparent px-2 text-right shadow-none focus-visible:ring-1"
+                  max={100}
+                  step="any"
+                  className="h-7 w-20 border-0 bg-transparent px-2 text-right shadow-none focus-visible:ring-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   value={vatPercentDraft ?? vatPercent}
                   onChange={(event) => {
                     const inputValue = event.target.value;
@@ -349,9 +352,13 @@ export const ProductsList = ({
                       return;
                     }
 
-                    const parsedValue = Number.parseInt(inputValue, 10);
+                    const parsedValue = Number.parseFloat(inputValue);
 
-                    if (Number.isNaN(parsedValue) || parsedValue < 0) {
+                    if (
+                      Number.isNaN(parsedValue) ||
+                      parsedValue < 0 ||
+                      parsedValue > 100
+                    ) {
                       return;
                     }
 
