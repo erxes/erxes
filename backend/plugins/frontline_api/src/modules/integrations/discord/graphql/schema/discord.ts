@@ -35,7 +35,7 @@ export const types = `
     error: String
   }
 
-  type DiscordGuild {
+  type FrontlineDiscordGuild {
     id: String!
     name: String
     icon: String
@@ -108,7 +108,7 @@ export const queries = `
   discordBot(_id: String!): DiscordBot
   discordBotsTotalCount: Int
   discordValidateToken(token: String!): DiscordTokenValidation
-  discordGuilds(token: String!): [DiscordGuild]
+  discordGuilds(token: String!): [FrontlineDiscordGuild]
   discordGuildChannels(token: String!, guildId: String!): [DiscordChannel]
   discordBotChannels(botId: String!): [DiscordChannel]
   discordConversationChannel(conversationId: String!): DiscordConversationChannel
