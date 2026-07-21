@@ -35,7 +35,7 @@ export const AutomationExecutionInput = z.object({
   actions: z.array(AutomationExecActionInput).optional(),
   // Arrives as a Date in-process but as an ISO string after crossing the
   // queue/producer JSON boundary (same reason createdAt is a string above)
-  startWaitingDate: z.union([z.date(), z.string()]).optional(),
+  startWaitingDate: z.date().optional(),
   waitingActionId: z.string().optional(),
   objToCheck: z.record(z.any()).optional(),
   responseActionId: z.string().optional(),
