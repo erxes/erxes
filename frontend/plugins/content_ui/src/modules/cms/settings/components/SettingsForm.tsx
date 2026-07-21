@@ -104,6 +104,57 @@ const isCmsDeletionAllowed = ({
   deletePhraseConfirmation.trim() === DELETE_CONFIRMATION_PHRASE &&
   !isDeleting;
 
+const getLanguageLabel = (language: string) =>
+  LANGUAGES.find((option) => option.value === language)?.label || language;
+
+const getSelectedPostUrlField = (postUrlField: string) =>
+  POST_URL_FIELD_OPTIONS.find((option) => option.value === postUrlField) ||
+  POST_URL_FIELD_OPTIONS[0];
+
+const getAvailableDefaultLanguages = (languages: string[]) =>
+  LANGUAGES.filter((language) => languages.includes(language.value));
+
+const buildSelectedKeywordOptions = (keywords: string[]) =>
+  keywords.reduce<MultiSelectOption[]>((options, keyword) => {
+    const value = keyword.trim();
+
+    if (value && !options.some((option) => option.value === value)) {
+      options.push({ value, label: value });
+    }
+
+    return options;
+  }, []);
+
+const buildMetaKeywords = (selected: MultiSelectOption[]) =>
+  selected.reduce<string[]>((acc, keyword) => {
+    const value = keyword.value.trim();
+
+    if (value && !acc.includes(value)) {
+      acc.push(value);
+    }
+
+    return acc;
+  }, []);
+
+const normalizeAssignedMemberIds = (value: string | string[]) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return value ? [value] : [];
+};
+
+const getCmsPublicUrl = (
+  cms: CmsSettingsData | undefined,
+  settings: SettingsFormState,
+  fallback: string,
+) =>
+  cms?.domain ||
+  cms?.publicUrl ||
+  settings.domain ||
+  settings.publicUrl ||
+  fallback;
+
 export const SettingsForm = ({
   cms,
   isDeleting,
@@ -117,14 +168,8 @@ export const SettingsForm = ({
   const [deleteNameConfirmation, setDeleteNameConfirmation] = useState('');
   const [deletePhraseConfirmation, setDeletePhraseConfirmation] = useState('');
 
-  const getLanguageLabel = (language: string) =>
-    LANGUAGES.find((option) => option.value === language)?.label || language;
-
   const cmsName = getCmsName(cms, settings.websiteName);
-  const selectedPostUrlField =
-    POST_URL_FIELD_OPTIONS.find(
-      (option) => option.value === settings.postUrlField,
-    ) || POST_URL_FIELD_OPTIONS[0];
+  const selectedPostUrlField = getSelectedPostUrlField(settings.postUrlField);
   const previewUrl = buildPostPublicUrl(
     {
       domain: settings.domain,
@@ -147,38 +192,19 @@ export const SettingsForm = ({
     value: language,
     label: getLanguageLabel(language),
   }));
-  const availableDefaultLanguages = LANGUAGES.filter((language) =>
-    settings.languages.includes(language.value),
+  const availableDefaultLanguages = getAvailableDefaultLanguages(
+    settings.languages,
   );
-  const selectedKeywordOptions = settings.metaKeywords.reduce<
-    MultiSelectOption[]
-  >((options, keyword) => {
-    const value = keyword.trim();
-
-    if (value && !options.some((option) => option.value === value)) {
-      options.push({ value, label: value });
-    }
-
-    return options;
-  }, []);
+  const selectedKeywordOptions = buildSelectedKeywordOptions(
+    settings.metaKeywords,
+  );
 
   const handleLanguagesChange = (
     selected: Array<{ value: string; label: string }>,
   ) => updateLanguages(selected, settings.defaultLanguage, updateSetting);
 
-  const handleKeywordChange = (selected: MultiSelectOption[]) => {
-    const keywords = selected.reduce<string[]>((acc, keyword) => {
-      const value = keyword.value.trim();
-
-      if (value && !acc.includes(value)) {
-        acc.push(value);
-      }
-
-      return acc;
-    }, []);
-
-    updateSetting('metaKeywords', keywords);
-  };
+  const handleKeywordChange = (selected: MultiSelectOption[]) =>
+    updateSetting('metaKeywords', buildMetaKeywords(selected));
 
   const handleDeleteDialogChange = (open: boolean) => {
     setDeleteDialogOpen(open);
@@ -685,7 +711,7 @@ export const SettingsForm = ({
               onValueChange={(value) =>
                 updateSetting(
                   'assignedMemberIds',
-                  Array.isArray(value) ? value : value ? [value] : [],
+                  normalizeAssignedMemberIds(value),
                 )
               }
               placeholder={t('select-team-members')}
@@ -726,11 +752,7 @@ export const SettingsForm = ({
           <div className="rounded-md border bg-muted/30 p-3">
             <div className="text-sm font-medium">{cmsName}</div>
             <div className="text-xs text-muted-foreground">
-              {cms?.domain ||
-                cms?.publicUrl ||
-                settings.domain ||
-                settings.publicUrl ||
-                t('no-public-url-set')}
+              {getCmsPublicUrl(cms, settings, t('no-public-url-set'))}
             </div>
           </div>
         </div>
