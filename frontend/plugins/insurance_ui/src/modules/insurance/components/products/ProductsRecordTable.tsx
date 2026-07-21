@@ -32,8 +32,8 @@ export const ProductsRecordTable = ({
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconPackage size={64} />,
-        title: t('no-insurance-products-yet'),
-        description: t('no-insurance-products-description'),
+        title: t('no-insurance-products-yet', 'No insurance products yet'),
+        description: t('no-insurance-products-description', 'Get started by creating your first insurance product.'),
       }}
     />
   );

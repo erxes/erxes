@@ -17,7 +17,7 @@ export const VendorUsersMoreColumn = ({
   const { deleteVendorUser } = useDeleteVendorUser();
 
   const handleDelete = async () => {
-    if (confirm(t('confirm-delete-user'))) {
+    if (confirm(t('confirm-delete-user', 'Are you sure you want to delete this user?'))) {
       await deleteVendorUser(user.id);
       onRefetch();
     }
@@ -33,12 +33,12 @@ export const VendorUsersMoreColumn = ({
       <DropdownMenu.Content align="start">
         <DropdownMenu.Item onClick={() => onEdit(user)}>
           <IconEdit size={16} />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onClick={handleDelete} className="text-destructive">
           <IconTrash size={16} />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

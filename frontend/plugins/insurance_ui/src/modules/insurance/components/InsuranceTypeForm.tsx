@@ -123,21 +123,21 @@ export const InsuranceTypeForm = ({
         <Dialog.Header>
           <Dialog.Title>
             {insuranceType
-              ? t('edit-insurance-type')
-              : t('create-new-insurance-type')}
+              ? t('edit-insurance-type', 'Edit Insurance Type')
+              : t('create-new-insurance-type', 'Create New Insurance Type')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{t('name-required')}</Label>
+            <Label htmlFor="name">{t('name-required', 'Name *')}</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder={t('insurance-type-name-placeholder')}
+              placeholder={t('insurance-type-name-placeholder', 'e.g., Travel Insurance, Auto Insurance')}
               required
             />
           </div>
@@ -153,16 +153,16 @@ export const InsuranceTypeForm = ({
               className="rounded"
             />
             <Label htmlFor="isCitizen" className="text-sm cursor-pointer">
-              {t('citizen-insurance-label')}
+              {t('citizen-insurance-label', 'Иргэний даатгал (Citizen Insurance)')}
             </Label>
             <span className="text-xs text-muted-foreground ml-auto">
-              {t('citizen-insurance-hint')}
+              {t('citizen-insurance-hint', 'Идэвхжүүлбэл аялалын даатгалын форм ашиглагдана')}
             </span>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>{t('attributes')}</Label>
+              <Label>{t('attributes', 'Attributes')}</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -170,7 +170,7 @@ export const InsuranceTypeForm = ({
                 onClick={handleAddAttribute}
               >
                 <IconPlus size={16} />
-                {t('add-attribute')}
+                {t('add-attribute', 'Add Attribute')}
               </Button>
             </div>
 
@@ -180,7 +180,7 @@ export const InsuranceTypeForm = ({
                 className="p-4 border rounded-lg space-y-3 bg-muted/30"
               >
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-sm">{t('attribute')} {index + 1}</h4>
+                  <h4 className="font-medium text-sm">{t('attribute', 'Attribute')} {index + 1}</h4>
                   <Button
                     type="button"
                     variant="ghost"
@@ -193,19 +193,19 @@ export const InsuranceTypeForm = ({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">{t('name-required')}</Label>
+                    <Label className="text-xs">{t('name-required', 'Name *')}</Label>
                     <Input
                       value={attr.name}
                       onChange={(e) =>
                         handleAttributeChange(index, 'name', e.target.value)
                       }
-                      placeholder={t('attribute-name-placeholder')}
+                      placeholder={t('attribute-name-placeholder', 'e.g., destination')}
                       required
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <Label className="text-xs">{t('data-type-required')}</Label>
+                    <Label className="text-xs">{t('data-type-required', 'Data Type *')}</Label>
                     <select
                       className="w-full h-9 px-3 border rounded-md text-sm"
                       value={attr.dataType}
@@ -214,15 +214,15 @@ export const InsuranceTypeForm = ({
                       }
                       required
                     >
-                      <option value="string">{t('string')}</option>
-                      <option value="number">{t('number')}</option>
-                      <option value="boolean">{t('boolean')}</option>
-                      <option value="date">{t('date')}</option>
+                      <option value="string">{t('string', 'String')}</option>
+                      <option value="number">{t('number', 'Number')}</option>
+                      <option value="boolean">{t('boolean', 'Boolean')}</option>
+                      <option value="date">{t('date', 'Date')}</option>
                     </select>
                   </div>
 
                   <div className="space-y-1 col-span-2">
-                    <Label className="text-xs">{t('description')}</Label>
+                    <Label className="text-xs">{t('description', 'Description')}</Label>
                     <Input
                       value={attr.description || ''}
                       onChange={(e) =>
@@ -232,7 +232,7 @@ export const InsuranceTypeForm = ({
                           e.target.value,
                         )
                       }
-                      placeholder={t('describe-attribute')}
+                      placeholder={t('describe-attribute', 'Describe this attribute')}
                     />
                   </div>
 
@@ -251,14 +251,14 @@ export const InsuranceTypeForm = ({
                       className="rounded"
                     />
                     <Label htmlFor={`required-${index}`} className="text-xs">
-                      {t('required')}
+                      {t('required', 'Required')}
                     </Label>
                   </div>
 
                   {attr.dataType === 'number' && (
                     <>
                       <div className="space-y-1">
-                        <Label className="text-xs">{t('min-value')}</Label>
+                        <Label className="text-xs">{t('min-value', 'Min Value')}</Label>
                         <Input
                           type="number"
                           value={attr.min?.toString() || ''}
@@ -271,11 +271,11 @@ export const InsuranceTypeForm = ({
                                 : undefined,
                             )
                           }
-                          placeholder={t('min')}
+                          placeholder={t('min', 'Min')}
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">{t('max-value')}</Label>
+                        <Label className="text-xs">{t('max-value', 'Max Value')}</Label>
                         <Input
                           type="number"
                           value={attr.max?.toString() || ''}
@@ -288,7 +288,7 @@ export const InsuranceTypeForm = ({
                                 : undefined,
                             )
                           }
-                          placeholder={t('max')}
+                          placeholder={t('max', 'Max')}
                         />
                       </div>
                     </>
@@ -297,7 +297,7 @@ export const InsuranceTypeForm = ({
                   {attr.dataType === 'string' && (
                     <div className="space-y-1 col-span-2">
                       <Label className="text-xs">
-                        {t('options-comma-separated')}
+                        {t('options-comma-separated', 'Options (comma-separated)')}
                       </Label>
                       <Input
                         value={attr.options?.join(', ') || ''}
@@ -311,7 +311,7 @@ export const InsuranceTypeForm = ({
                               .filter(Boolean),
                           )
                         }
-                        placeholder={t('options-placeholder')}
+                        placeholder={t('options-placeholder', 'e.g., USA, Europe, Asia')}
                       />
                     </div>
                   )}
@@ -321,7 +321,7 @@ export const InsuranceTypeForm = ({
 
             {formData.attributes.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">
-                {t('no-attributes-defined')}
+                {t('no-attributes-defined', 'No attributes defined. Click "Add Attribute" to create one.')}
               </p>
             )}
           </div>
@@ -333,14 +333,14 @@ export const InsuranceTypeForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating || updating}
             >
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
             <Button type="submit" disabled={creating || updating}>
               {creating || updating
-                ? t('saving')
+                ? t('saving', 'Saving...')
                 : insuranceType
-                  ? t('update')
-                  : t('create')}
+                  ? t('update', 'Update')
+                  : t('create', 'Create')}
             </Button>
           </Dialog.Footer>
         </form>

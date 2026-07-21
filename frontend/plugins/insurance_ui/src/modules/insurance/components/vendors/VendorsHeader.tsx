@@ -34,7 +34,7 @@ export const VendorsHeader = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/products">
                     <IconSandbox />
-                    {t('insurance')}
+                    {t('insurance', 'Insurance')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -42,7 +42,7 @@ export const VendorsHeader = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconBuilding />
-                  {t('vendors')}
+                  {t('vendors', 'Vendors')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -53,7 +53,7 @@ export const VendorsHeader = () => {
         <PageHeader.End>
           <Button onClick={handleCreate}>
             <IconPlus size={16} />
-            {t('new-vendor')}
+            {t('new-vendor', 'New Vendor')}
           </Button>
         </PageHeader.End>
       </PageHeader>

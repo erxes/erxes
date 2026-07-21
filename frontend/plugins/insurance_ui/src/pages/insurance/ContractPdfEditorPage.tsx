@@ -53,17 +53,17 @@ export const ContractPdfEditorPage = () => {
           pdfContent: htmlContent,
         },
       });
-      alert(t('contract-pdf-saved-successfully'));
+      alert(t('contract-pdf-saved-successfully', 'Contract PDF saved successfully!'));
     } catch (error) {
       console.error('Error saving contract PDF:', error);
-      alert(t('error-saving-pdf'));
+      alert(t('error-saving-pdf', 'Error saving PDF'));
     }
   };
 
   const handlePreview = () => {
     const previewWindow = window.open('', '_blank');
     if (!previewWindow) {
-      alert(t('popup-blocked'));
+      alert(t('popup-blocked', 'Popup blocked. Please allow popups.'));
       return;
     }
     previewWindow.document.write(htmlContent);
@@ -73,7 +73,7 @@ export const ContractPdfEditorPage = () => {
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      alert(t('popup-blocked'));
+      alert(t('popup-blocked', 'Popup blocked. Please allow popups.'));
       return;
     }
     printWindow.document.write(htmlContent);
@@ -130,7 +130,7 @@ export const ContractPdfEditorPage = () => {
   if (!contract) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p>{t('contract-not-found')}</p>
+        <p>{t('contract-not-found', 'Contract not found')}</p>
       </div>
     );
   }
@@ -144,7 +144,7 @@ export const ContractPdfEditorPage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconFileText />
-                  {t('contract-pdf-editor')}
+                  {t('contract-pdf-editor', 'Contract PDF Editor')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -154,23 +154,23 @@ export const ContractPdfEditorPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleReset} variant="outline">
-            {t('reset')}
+            {t('reset', 'Reset')}
           </Button>
           <Button onClick={handlePreview} variant="outline">
             <IconEye size={16} />
-            {t('preview')}
+            {t('preview', 'Preview')}
           </Button>
           <Button onClick={handlePrint} variant="outline">
             <IconPrinter size={16} />
-            {t('print')}
+            {t('print', 'Print')}
           </Button>
           <Button onClick={handleDownload} variant="outline">
             <IconDownload size={16} />
-            {t('download-html')}
+            {t('download-html', 'Download HTML')}
           </Button>
           <Button onClick={handleSaveContractPDF} disabled={saving}>
             <IconDeviceFloppy size={16} />
-            {saving ? t('saving') : t('save-contract-pdf')}
+            {saving ? t('saving', 'Saving...') : t('save-contract-pdf', 'Save Contract PDF')}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -185,9 +185,9 @@ export const ContractPdfEditorPage = () => {
                     <IconCode className="text-blue-600" size={24} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">{t('html-template-editor')}</h2>
+                    <h2 className="text-xl font-bold">{t('html-template-editor', 'HTML Template Editor')}</h2>
                     <p className="text-sm text-muted-foreground">
-                      {t('contract-number')}: {contract.contractNumber}
+                      {t('contract-number', 'Contract Number')}: {contract.contractNumber}
                     </p>
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export const ContractPdfEditorPage = () => {
                   onClick={() => setIsEditing(!isEditing)}
                   variant={isEditing ? 'default' : 'outline'}
                 >
-                  {isEditing ? t('view-mode') : t('edit-mode')}
+                  {isEditing ? t('view-mode', 'View Mode') : t('edit-mode', 'Edit Mode')}
                 </Button>
               </div>
 
@@ -203,7 +203,7 @@ export const ContractPdfEditorPage = () => {
                 {isEditing ? (
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      {t('html-content')}
+                      {t('html-content', 'HTML Content')}
                     </label>
                     <textarea
                       value={htmlContent}
@@ -212,13 +212,13 @@ export const ContractPdfEditorPage = () => {
                       spellCheck={false}
                     />
                     <p className="text-xs text-muted-foreground mt-2">
-                      💡 {t('tip-html-edit')}
+                      💡 {t('tip-html-edit', 'Tip: You can edit HTML and CSS directly. Click Preview to see the result.')}
                     </p>
                   </div>
                 ) : (
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      {t('html-preview')}
+                      {t('html-preview', 'HTML Preview')}
                     </label>
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
@@ -233,23 +233,23 @@ export const ContractPdfEditorPage = () => {
 
               <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <h3 className="font-semibold text-blue-800 mb-2">
-                  📝 {t('instructions')}:
+                  📝 {t('instructions', 'Instructions')}:
                 </h3>
                 <ul className="text-sm text-blue-700 space-y-1">
                   <li>
-                    • <strong>{t('edit-mode')}:</strong> {t('edit-html-template-directly')}
+                    • <strong>{t('edit-mode', 'Edit Mode')}:</strong> {t('edit-html-template-directly', 'Edit HTML template directly')}
                   </li>
                   <li>
-                    • <strong>{t('preview')}:</strong> {t('opens-in-new-window')}
+                    • <strong>{t('preview', 'Preview')}:</strong> {t('opens-in-new-window', 'Opens in new window')}
                   </li>
                   <li>
-                    • <strong>{t('print')}:</strong> {t('opens-print-dialog-for-pdf')}
+                    • <strong>{t('print', 'Print')}:</strong> {t('opens-print-dialog-for-pdf', 'Opens print dialog for PDF')}
                   </li>
                   <li>
-                    • <strong>{t('download-html')}:</strong> {t('downloads-html-file')}
+                    • <strong>{t('download-html', 'Download HTML')}:</strong> {t('downloads-html-file', 'Downloads HTML file')}
                   </li>
                   <li>
-                    • <strong>{t('reset')}:</strong> {t('reverts-to-original-template')}
+                    • <strong>{t('reset', 'Reset')}:</strong> {t('reverts-to-original-template', 'Reverts to original template')}
                   </li>
                 </ul>
               </div>

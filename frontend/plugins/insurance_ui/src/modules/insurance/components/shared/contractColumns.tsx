@@ -39,7 +39,7 @@ export const contractNumberColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'contractNumber',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconFileText} label={t('contract-no')} />;
+    return <RecordTable.InlineHead icon={IconFileText} label={t('contract-no', 'Contract No.')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -53,7 +53,7 @@ export const customerColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'customer',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconUser} label={t('customer')} />;
+    return <RecordTable.InlineHead icon={IconUser} label={t('customer', 'Customer')} />;
   },
   cell: ({ cell }) => {
     const customer = cell.row.original.customer;
@@ -72,7 +72,7 @@ export const vendorColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'vendor',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
+    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor', 'Vendor')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -88,7 +88,7 @@ export const createProductColumn = (
   accessorKey: 'insuranceProduct',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={icon} label={t('product')} />;
+    return <RecordTable.InlineHead icon={icon} label={t('product', 'Product')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -104,7 +104,7 @@ export const chargedAmountColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'chargedAmount',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('amount')} />;
+    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('amount', 'Amount')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -118,7 +118,7 @@ export const startDateColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'startDate',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />;
+    return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date', 'Start Date')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -132,7 +132,7 @@ export const endDateColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'endDate',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('end-date')} />;
+    return <RecordTable.InlineHead icon={IconCalendar} label={t('end-date', 'End Date')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -146,7 +146,7 @@ export const paymentStatusColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'paymentStatus',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('status')} />;
+    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('status', 'Status')} />;
   },
   cell: ({ cell }) => {
     const { t } = useTranslation('insurance');
@@ -154,9 +154,9 @@ export const paymentStatusColumn: ColumnDef<InsuranceContract> = {
     return (
       <RecordTableInlineCell>
         {status === 'paid' ? (
-          <Badge className="bg-green-100 text-green-800">{t('paid')}</Badge>
+          <Badge className="bg-green-100 text-green-800">{t('paid', 'Paid')}</Badge>
         ) : (
-          <Badge className="bg-yellow-100 text-yellow-800">{t('pending')}</Badge>
+          <Badge className="bg-yellow-100 text-yellow-800">{t('pending', 'Pending')}</Badge>
         )}
       </RecordTableInlineCell>
     );

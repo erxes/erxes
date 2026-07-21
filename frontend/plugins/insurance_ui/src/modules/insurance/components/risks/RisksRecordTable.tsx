@@ -17,8 +17,8 @@ export const RisksRecordTable = () => {
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconAlertTriangle size={64} />,
-        title: t('no-risk-types-yet'),
-        description: t('no-risk-types-description'),
+        title: t('no-risk-types-yet', 'No risk types yet'),
+        description: t('no-risk-types-description', 'Define risk types that can be covered by insurance products.'),
       }}
     />
   );

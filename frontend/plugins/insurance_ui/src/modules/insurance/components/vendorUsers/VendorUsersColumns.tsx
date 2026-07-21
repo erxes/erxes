@@ -23,7 +23,7 @@ const vendorColumn: ColumnDef<VendorUser> = {
   accessorKey: 'vendor',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
+    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor', 'Vendor')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -38,7 +38,7 @@ const roleColumn: ColumnDef<VendorUser> = {
   accessorKey: 'role',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconShield} label={t('role')} />;
+    return <RecordTable.InlineHead icon={IconShield} label={t('role', 'Role')} />;
   },
   cell: ({ cell }) => {
     const role = cell.getValue() as string;

@@ -27,7 +27,7 @@ export const ProductsMoreColumn = ({
       <DropdownMenu.Content align="start">
         <DropdownMenu.Item onClick={() => onEdit(product)}>
           <IconEdit size={16} />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -35,7 +35,7 @@ export const ProductsMoreColumn = ({
           className="text-red-600"
         >
           <IconTrash size={16} />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

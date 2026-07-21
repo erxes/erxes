@@ -17,8 +17,8 @@ export const CustomersRecordTable = () => {
       stickyColumns={['more', 'checkbox', 'fullName']}
       emptyState={{
         icon: <IconUsers size={64} />,
-        title: t('no-customers-yet'),
-        description: t('no-customers-description'),
+        title: t('no-customers-yet', 'No customers yet'),
+        description: t('no-customers-description', 'Get started by creating your first customer'),
       }}
     />
   );

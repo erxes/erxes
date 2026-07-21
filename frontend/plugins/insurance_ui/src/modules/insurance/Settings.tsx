@@ -14,12 +14,12 @@ const InsuranceSettings = () => {
 
   return (
     <div className="p-6 max-w-2xl">
-      <h1 className="text-xl font-semibold mb-6">{t('insurance-settings')}</h1>
+      <h1 className="text-xl font-semibold mb-6">{t('insurance-settings', 'Insurance Settings')}</h1>
 
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            {t('api-endpoint')}
+            {t('api-endpoint', 'API Endpoint')}
           </label>
           <input
             type="text"
@@ -29,7 +29,7 @@ const InsuranceSettings = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
           <p className="text-xs text-gray-500 mt-1">
-            {t('api-endpoint-description')}
+            {t('api-endpoint-description', 'Insurance API server address')}
           </p>
         </div>
 
@@ -37,7 +37,7 @@ const InsuranceSettings = () => {
           onClick={handleSave}
           className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
         >
-          {t('save')}
+          {t('save', 'Save')}
         </button>
       </div>
     </div>

@@ -13,13 +13,13 @@ export const RisksHeader = ({ onCreateClick }: RisksHeaderProps) => {
     <GenericHeader
       icon={<IconAlertTriangle />}
       parentIcon={<IconSandbox />}
-      parentLabel={t('insurance')}
+      parentLabel={t('insurance', 'Insurance')}
       parentLink="/insurance/products"
-      currentLabel={t('risk-types')}
+      currentLabel={t('risk-types', 'Risk Types')}
       actions={
         <Button onClick={onCreateClick}>
           <IconPlus size={16} />
-          {t('new-risk-type')}
+          {t('new-risk-type', 'New Risk Type')}
         </Button>
       }
     />

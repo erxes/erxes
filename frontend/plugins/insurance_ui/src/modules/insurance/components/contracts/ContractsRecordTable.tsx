@@ -17,8 +17,8 @@ export const ContractsRecordTable = () => {
       stickyColumns={['more', 'checkbox', 'contractNumber']}
       emptyState={{
         icon: <IconFileX size={64} />,
-        title: t('no-contracts-yet'),
-        description: t('no-contracts-description'),
+        title: t('no-contracts-yet', 'No contracts yet'),
+        description: t('no-contracts-description', 'Get started by creating your first insurance contract.'),
       }}
     />
   );

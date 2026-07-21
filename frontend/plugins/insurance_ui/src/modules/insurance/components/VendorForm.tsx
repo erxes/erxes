@@ -63,18 +63,18 @@ export const VendorForm = ({
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
           <Dialog.Title>
-            {vendor ? t('edit-vendor') : t('create-new-vendor')}
+            {vendor ? t('edit-vendor', 'Edit Vendor') : t('create-new-vendor', 'Create New Vendor')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{t('vendor-name-required')}</Label>
+            <Label htmlFor="name">{t('vendor-name-required', 'Vendor Name *')}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={t('vendor-name-placeholder')}
+              placeholder={t('vendor-name-placeholder', 'e.g., ABC Insurance Company')}
               required
             />
           </div>
@@ -86,14 +86,14 @@ export const VendorForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating || updating}
             >
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
             <Button type="submit" disabled={creating || updating}>
               {creating || updating
-                ? t('saving')
+                ? t('saving', 'Saving...')
                 : vendor
-                ? t('update')
-                : t('create')}
+                ? t('update', 'Update')
+                : t('create', 'Create')}
             </Button>
           </Dialog.Footer>
         </form>

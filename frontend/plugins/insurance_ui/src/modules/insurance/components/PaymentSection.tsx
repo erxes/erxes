@@ -20,21 +20,21 @@ export const PaymentSection = ({
     <div>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
         <IconCurrencyTugrik size={20} />
-        {t('payment-information')}
+        {t('payment-information', 'Payment Information')}
       </h3>
 
       <div className={showPremiumDisplay ? 'grid grid-cols-2 gap-4' : ''}>
         <div>
           <label className="block text-sm font-medium mb-2">
-            {t('payment-method-required')}
+            {t('payment-method-required', 'Payment Method *')}
           </label>
           <Select value={paymentKind} onValueChange={onPaymentKindChange}>
             <Select.Trigger>
-              <Select.Value placeholder={t('select')} />
+              <Select.Value placeholder={t('select', 'Select')} />
             </Select.Trigger>
             <Select.Content>
-              <Select.Item value="cash">{t('cash')}</Select.Item>
-              <Select.Item value="qpay">{t('qpay')}</Select.Item>
+              <Select.Item value="cash">{t('cash', 'Cash')}</Select.Item>
+              <Select.Item value="qpay">{t('qpay', 'QPay')}</Select.Item>
             </Select.Content>
           </Select>
         </div>
@@ -42,7 +42,7 @@ export const PaymentSection = ({
         {showPremiumDisplay && (
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('payment-amount')}
+              {t('payment-amount', 'Payment Amount ($)')}
             </label>
             <div className="p-3 bg-gray-50 border rounded-md">
               <p className="text-lg font-semibold">
@@ -52,7 +52,7 @@ export const PaymentSection = ({
                 ₮
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {t('automatically-calculated')}
+                {t('automatically-calculated', 'Automatically calculated')}
               </p>
             </div>
           </div>

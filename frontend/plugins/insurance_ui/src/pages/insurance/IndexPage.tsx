@@ -45,7 +45,7 @@ export const IndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/products">
                     <IconSandbox />
-                    {t('insurance')}
+                    {t('insurance', 'Insurance')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -58,7 +58,7 @@ export const IndexPage = () => {
           <Link to="/insurance/car-insurance">
             <Button>
               <IconPlus size={16} />
-              {t('new-contract')}
+              {t('new-contract', 'New Contract')}
             </Button>
           </Link>
         </PageHeader.End>
@@ -75,7 +75,7 @@ export const IndexPage = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      {t('insurance-types')}
+                      {t('insurance-types', 'Insurance Types')}
                     </p>
                     <p className="text-2xl font-bold">
                       {typesLoading ? (
@@ -113,12 +113,12 @@ export const IndexPage = () => {
                       <IconBuilding className="text-blue-600" size={20} />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{t('vendors')}</h3>
+                      <h3 className="font-semibold">{t('vendors', 'Vendors')}</h3>
                       <p className="text-sm text-muted-foreground">
                         {vendorsLoading ? (
                           <Skeleton className="h-4 w-16" />
                         ) : (
-                          `${vendors.length} ${t('vendors').toLowerCase()}`
+                          `${vendors.length} ${t('vendors', 'Vendors').toLowerCase()}`
                         )}
                       </p>
                     </div>
@@ -135,7 +135,7 @@ export const IndexPage = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      {t('vendor-users')}
+                      {t('vendor-users', 'Vendor Users')}
                     </p>
                     <p className="text-2xl font-bold">
                       {vendorUsersLoading ? (
@@ -156,9 +156,9 @@ export const IndexPage = () => {
                       <IconUsers className="text-cyan-600" size={20} />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{t('customers')}</h3>
+                      <h3 className="font-semibold">{t('customers', 'Customers')}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {t('manage-customers')}
+                        {t('manage-customers', 'Manage customers')}
                       </p>
                     </div>
                   </div>
@@ -216,12 +216,12 @@ export const IndexPage = () => {
                       <IconPackage className="text-green-600" size={20} />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{t('products')}</h3>
+                      <h3 className="font-semibold">{t('products', 'Products')}</h3>
                       <p className="text-sm text-muted-foreground">
                         {productsLoading ? (
                           <Skeleton className="h-4 w-20" />
                         ) : (
-                          `${insuranceProducts.length} ${t('products').toLowerCase()}`
+                          `${insuranceProducts.length} ${t('products', 'Products').toLowerCase()}`
                         )}
                       </p>
                     </div>
@@ -242,12 +242,12 @@ export const IndexPage = () => {
                       />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{t('risk-types')}</h3>
+                      <h3 className="font-semibold">{t('risk-types', 'Risk Types')}</h3>
                       <p className="text-sm text-muted-foreground">
                         {risksLoading ? (
                           <Skeleton className="h-4 w-16" />
                         ) : (
-                          `${riskTypes.length} ${t('risks')}`
+                          `${riskTypes.length} ${t('risks', 'risks')}`
                         )}
                       </p>
                     </div>
@@ -261,9 +261,9 @@ export const IndexPage = () => {
           {/* Recent Contracts */}
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">{t('recent-contracts')}</h2>
+              <h2 className="text-lg font-semibold">{t('recent-contracts', 'Recent Contracts')}</h2>
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/insurance/contracts">{t('view-all')}</Link>
+                <Link to="/insurance/contracts">{t('view-all', 'View All')}</Link>
               </Button>
             </div>
             {contractsLoading ? (
@@ -287,7 +287,7 @@ export const IndexPage = () => {
             ) : contracts.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <IconFileText size={48} className="mx-auto mb-2 opacity-50" />
-                <p>{t('no-contracts-yet')}</p>
+                <p>{t('no-contracts-yet', 'No contracts yet')}</p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -295,7 +295,7 @@ export const IndexPage = () => {
                   onClick={() => setIsContractFormOpen(true)}
                 >
                   <IconPlus size={16} />
-                  {t('create-first-contract')}
+                  {t('create-first-contract', 'Create First Contract')}
                 </Button>
               </div>
             ) : (
@@ -320,7 +320,7 @@ export const IndexPage = () => {
                       </Badge>
                       <Button variant="ghost" size="sm" asChild>
                         <Link to={`/insurance/contracts/${contract.id}`}>
-                          {t('view')}
+                          {t('view', 'View')}
                         </Link>
                       </Button>
                     </div>

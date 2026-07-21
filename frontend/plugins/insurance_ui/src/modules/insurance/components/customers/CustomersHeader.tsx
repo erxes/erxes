@@ -15,7 +15,7 @@ export const CustomersHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to="/insurance/products">
                   <IconSandbox />
-                  {t('insurance')}
+                  {t('insurance', 'Insurance')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -23,7 +23,7 @@ export const CustomersHeader = () => {
             <Breadcrumb.Item>
               <Button variant="ghost">
                 <IconUsers />
-                {t('customers')}
+                {t('customers', 'Customers')}
               </Button>
             </Breadcrumb.Item>
           </Breadcrumb.List>

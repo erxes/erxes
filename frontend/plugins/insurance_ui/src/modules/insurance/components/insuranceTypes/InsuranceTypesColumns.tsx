@@ -17,7 +17,7 @@ const attributesColumn: ColumnDef<InsuranceType> = {
   accessorKey: 'attributes',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconList} label={t('attributes')} />;
+    return <RecordTable.InlineHead icon={IconList} label={t('attributes', 'Attributes')} />;
   },
   cell: ({ cell }) => {
     const attributes = cell.getValue() as any[];

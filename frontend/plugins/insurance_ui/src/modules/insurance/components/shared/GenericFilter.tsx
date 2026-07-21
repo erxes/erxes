@@ -26,11 +26,11 @@ export const GenericFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  {t('search')}
+                  {t('search', 'Search')}
                 </Filter.Item>
               </Command.List>
             </Command>

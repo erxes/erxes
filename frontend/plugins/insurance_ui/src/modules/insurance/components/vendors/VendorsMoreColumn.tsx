@@ -24,13 +24,13 @@ export const VendorsMoreColumn = ({
         <DropdownMenu.Item asChild>
           <Link to={`/insurance/vendors/${vendor.id}`}>
             <IconEye size={16} />
-            {t('view-details')}
+            {t('view-details', 'View Details')}
           </Link>
         </DropdownMenu.Item>
         {onEdit && (
           <DropdownMenu.Item onClick={() => onEdit(vendor)}>
             <IconEdit size={16} />
-            {t('edit')}
+            {t('edit', 'Edit')}
           </DropdownMenu.Item>
         )}
       </DropdownMenu.Content>

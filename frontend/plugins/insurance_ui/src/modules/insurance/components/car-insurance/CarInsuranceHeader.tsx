@@ -7,9 +7,9 @@ export const CarInsuranceHeader = () => {
   return (
     <GenericHeader
       icon={<IconCar />}
-      parentLabel={t('insurance')}
+      parentLabel={t('insurance', 'Insurance')}
       parentLink="/insurance/products"
-      currentLabel={t('car-insurance')}
+      currentLabel={t('car-insurance', 'Car Insurance')}
     />
   );
 };

@@ -23,7 +23,7 @@ export const VendorUsersHeader = ({
               <Button variant="ghost" asChild>
                 <Link to="/insurance/products">
                   <IconSandbox />
-                  {t('insurance')}
+                  {t('insurance', 'Insurance')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -31,7 +31,7 @@ export const VendorUsersHeader = ({
             <Breadcrumb.Item>
               <Button variant="ghost">
                 <IconUsers />
-                {t('vendor-users')}
+                {t('vendor-users', 'Vendor Users')}
               </Button>
             </Breadcrumb.Item>
           </Breadcrumb.List>
@@ -42,7 +42,7 @@ export const VendorUsersHeader = ({
       <PageHeader.End>
         <Button onClick={onAddUser} disabled={!canAddUser}>
           <IconPlus size={16} />
-          {t('new-user')}
+          {t('new-user', 'New User')}
         </Button>
       </PageHeader.End>
     </PageHeader>

@@ -14,42 +14,42 @@ export const InsuranceNavigation = () => {
   return (
     <div>
       <NavigationMenuLinkItem
-        name={t('insurance-types')}
+        name={t('insurance-types', 'Insurance Types')}
         path="/insurance/types"
         icon={IconShieldCheck}
       />
       <NavigationMenuLinkItem
-        name={t('products')}
+        name={t('products', 'Products')}
         path="/insurance/products"
         icon={IconPackage}
       />
       <NavigationMenuLinkItem
-        name={t('risk-types')}
+        name={t('risk-types', 'Risk Types')}
         path="/insurance/risks"
         icon={IconAlertTriangle}
       />
       <NavigationMenuLinkItem
-        name={t('vendors')}
+        name={t('vendors', 'Vendors')}
         path="/insurance/vendors"
         icon={IconBuilding}
       />
       <NavigationMenuLinkItem
-        name={t('vendor-users')}
+        name={t('vendor-users', 'Vendor Users')}
         path="/insurance/vendor-users"
         icon={IconUsers}
       />
       <NavigationMenuLinkItem
-        name={t('customers')}
+        name={t('customers', 'Customers')}
         path="/insurance/customers"
         icon={IconUsers}
       />
       <NavigationMenuLinkItem
-        name={t('regions')}
+        name={t('regions', 'Regions')}
         path="/insurance/regions"
         icon={IconMapPin}
       />
       <NavigationMenuLinkItem
-        name={t('contracts')}
+        name={t('contracts', 'Contracts')}
         path="/insurance/contracts"
         icon={IconPackage}
       />

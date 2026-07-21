@@ -101,44 +101,44 @@ const ContractsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  {t('search')}
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <Filter.Item value="contractNumber" inDialog>
                   <IconFileDescription />
-                  {t('contract-number')}
+                  {t('contract-number', 'Contract Number')}
                 </Filter.Item>
                 <Filter.Item value="customerRegistration" inDialog>
                   <IconIdBadge2 />
-                  {t('registration-number')}
+                  {t('registration-number', 'Registration Number')}
                 </Filter.Item>
                 <Filter.Item value="plateNumber" inDialog>
                   <IconCar />
-                  {t('plate-number')}
+                  {t('plate-number', 'Plate Number')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="paymentStatus">
                   <IconToggleRightFilled />
-                  {t('payment-status')}
+                  {t('payment-status', 'Payment Status')}
                 </Filter.Item>
                 <Filter.Item value="insuranceTypeId">
                   <IconHash />
-                  {t('insurance-type')}
+                  {t('insurance-type', 'Insurance Type')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="startDate" inDialog>
                   <IconCalendar />
-                  {t('start-date')}
+                  {t('start-date', 'Start Date')}
                 </Filter.Item>
                 <Filter.Item value="endDate" inDialog>
                   <IconCalendar />
-                  {t('end-date')}
+                  {t('end-date', 'End Date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -222,7 +222,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
               <IconSearch />
-              {t('search')}
+              {t('search', 'Search')}
             </Filter.BarName>
             <Filter.BarButton filterKey="searchValue" inDialog>
               {searchValue}
@@ -233,7 +233,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="contractNumber">
             <Filter.BarName>
               <IconFileDescription />
-              {t('contract-number')}
+              {t('contract-number', 'Contract Number')}
             </Filter.BarName>
             <Filter.BarButton filterKey="contractNumber" inDialog>
               {contractNumber}
@@ -244,7 +244,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="customerRegistration">
             <Filter.BarName>
               <IconIdBadge2 />
-              {t('registration')}
+              {t('registration', 'Registration')}
             </Filter.BarName>
             <Filter.BarButton filterKey="customerRegistration" inDialog>
               {customerRegistration}
@@ -255,7 +255,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="plateNumber">
             <Filter.BarName>
               <IconCar />
-              {t('plate-number')}
+              {t('plate-number', 'Plate Number')}
             </Filter.BarName>
             <Filter.BarButton filterKey="plateNumber" inDialog>
               {plateNumber}
@@ -265,7 +265,7 @@ export const ContractsFilter = () => {
         <Filter.BarItem queryKey="paymentStatus">
           <Filter.BarName>
             <IconToggleRightFilled />
-            {t('payment-status')}
+            {t('payment-status', 'Payment Status')}
           </Filter.BarName>
           <Filter.BarButton filterKey="paymentStatus">
             {(() => {
@@ -279,7 +279,7 @@ export const ContractsFilter = () => {
         <Filter.BarItem queryKey="insuranceTypeId">
           <Filter.BarName>
             <IconHash />
-            {t('insurance-type')}
+            {t('insurance-type', 'Insurance Type')}
           </Filter.BarName>
           <Filter.BarButton filterKey="insuranceTypeId">
             {selectedTypeName}
@@ -289,7 +289,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="startDate">
             <Filter.BarName>
               <IconCalendar />
-              {t('start-date')}
+              {t('start-date', 'Start Date')}
             </Filter.BarName>
             <Filter.Date filterKey="startDate" />
           </Filter.BarItem>
@@ -298,7 +298,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="endDate">
             <Filter.BarName>
               <IconCalendar />
-              {t('end-date')}
+              {t('end-date', 'End Date')}
             </Filter.BarName>
             <Filter.Date filterKey="endDate" />
           </Filter.BarItem>

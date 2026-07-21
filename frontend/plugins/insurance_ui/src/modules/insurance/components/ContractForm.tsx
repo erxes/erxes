@@ -74,13 +74,13 @@ export const ContractForm = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-2xl">
         <Dialog.Header>
-          <Dialog.Title>{t('create-new-insurance-contract')}</Dialog.Title>
+          <Dialog.Title>{t('create-new-insurance-contract', 'Create New Insurance Contract')}</Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="vendorId">{t('vendor-required')}</Label>
+              <Label htmlFor="vendorId">{t('vendor-required', 'Vendor *')}</Label>
               <Select
                 value={formData.vendorId}
                 onValueChange={(value) =>
@@ -88,12 +88,12 @@ export const ContractForm = ({
                 }
               >
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-vendor')} />
+                  <Select.Value placeholder={t('select-vendor', 'Select vendor')} />
                 </Select.Trigger>
                 <Select.Content>
                   {vendorsLoading ? (
                     <Select.Item value="loading" disabled>
-                      {t('loading')}
+                      {t('loading', 'Loading...')}
                     </Select.Item>
                   ) : (
                     vendors.map((vendor) => (
@@ -107,7 +107,7 @@ export const ContractForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="customerId">{t('customer-required')}</Label>
+              <Label htmlFor="customerId">{t('customer-required', 'Customer *')}</Label>
               <Select
                 value={formData.customerId}
                 onValueChange={(value) =>
@@ -115,12 +115,12 @@ export const ContractForm = ({
                 }
               >
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-customer')} />
+                  <Select.Value placeholder={t('select-customer', 'Select customer')} />
                 </Select.Trigger>
                 <Select.Content>
                   {customersLoading ? (
                     <Select.Item value="loading" disabled>
-                      {t('loading')}
+                      {t('loading', 'Loading...')}
                     </Select.Item>
                   ) : (
                     customers.map((customer) => (
@@ -135,7 +135,7 @@ export const ContractForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="productId">{t('product-required')}</Label>
+            <Label htmlFor="productId">{t('product-required', 'Product *')}</Label>
             <Select
               value={formData.productId}
               onValueChange={(value) =>
@@ -143,12 +143,12 @@ export const ContractForm = ({
               }
             >
               <Select.Trigger>
-                <Select.Value placeholder={t('select-product')} />
+                <Select.Value placeholder={t('select-product', 'Select product')} />
               </Select.Trigger>
               <Select.Content>
                 {productsLoading ? (
                   <Select.Item value="loading" disabled>
-                    {t('loading')}
+                    {t('loading', 'Loading...')}
                   </Select.Item>
                 ) : (
                   insuranceProducts.map((product) => (
@@ -173,7 +173,7 @@ export const ContractForm = ({
                       <div className="flex items-center gap-2">
                         <IconFileText size={20} className="text-blue-600" />
                         <span className="text-sm font-medium text-blue-800">
-                          {t('pdf-contract-available')}
+                          {t('pdf-contract-available', 'PDF contract available')}
                         </span>
                       </div>
                       <Button
@@ -191,7 +191,7 @@ export const ContractForm = ({
                         }}
                       >
                         <IconEye size={16} />
-                        {t('preview')}
+                        {t('preview', 'Preview')}
                       </Button>
                     </div>
                   </div>
@@ -201,7 +201,7 @@ export const ContractForm = ({
             })()}
 
           <div className="space-y-2">
-            <Label htmlFor="assessedValue">{t('assessed-value-required')}</Label>
+            <Label htmlFor="assessedValue">{t('assessed-value-required', 'Assessed Value *')}</Label>
             <Input
               id="assessedValue"
               type="number"
@@ -221,7 +221,7 @@ export const ContractForm = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">{t('start-date-required')}</Label>
+              <Label htmlFor="startDate">{t('start-date-required', 'Start Date *')}</Label>
               <Input
                 id="startDate"
                 type="date"
@@ -234,7 +234,7 @@ export const ContractForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endDate">{t('end-date-required')}</Label>
+              <Label htmlFor="endDate">{t('end-date-required', 'End Date *')}</Label>
               <Input
                 id="endDate"
                 type="date"
@@ -248,7 +248,7 @@ export const ContractForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="paymentKind">{t('payment-method-required')}</Label>
+            <Label htmlFor="paymentKind">{t('payment-method-required', 'Payment Method *')}</Label>
             <Select
               value={formData.paymentKind}
               onValueChange={(value) =>
@@ -256,11 +256,11 @@ export const ContractForm = ({
               }
             >
               <Select.Trigger>
-                <Select.Value placeholder={t('select-payment-method')} />
+                <Select.Value placeholder={t('select-payment-method', 'Select payment method')} />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="cash">{t('cash')}</Select.Item>
-                <Select.Item value="qpay">{t('qpay')}</Select.Item>
+                <Select.Item value="cash">{t('cash', 'Cash')}</Select.Item>
+                <Select.Item value="qpay">{t('qpay', 'QPay')}</Select.Item>
               </Select.Content>
             </Select>
           </div>
@@ -272,7 +272,7 @@ export const ContractForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating}
             >
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
             <Button
               type="submit"
@@ -283,7 +283,7 @@ export const ContractForm = ({
                 !formData.productId
               }
             >
-              {creating ? t('creating') : t('create-contract')}
+              {creating ? t('creating', 'Creating...') : t('create-contract', 'Create Contract')}
             </Button>
           </Dialog.Footer>
         </form>
