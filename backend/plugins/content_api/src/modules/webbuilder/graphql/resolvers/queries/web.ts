@@ -41,12 +41,12 @@ export const webQueries: Record<string, Resolver> = {
       }
 
       let result = String(message);
-      result = result.replace(/https?:\/\/\S+/g, '').trim();
+      result = result.replaceAll(/https?:\/\/\S+/g, '').trim();
       result = result
-        .replace(/[\r\n\t]+/g, ' ')
-        .replace(/\s{2,}/g, ' ')
+        .replaceAll(/[\r\n\t]+/g, ' ')
+        .replaceAll(/\s{2,}/g, ' ')
         .trim();
-      result = result.replace(
+      result = result.replaceAll(
         /(token|authorization|bearer)\s*[:=]\s*\S+/gi,
         '$1: [redacted]',
       );
@@ -72,6 +72,7 @@ export const webQueries: Record<string, Resolver> = {
             .filter((name: any) => typeof name === 'string' && name.length > 0);
         }
       } catch (e) {
+        console.error('Failed to fetch domains:', e);
         domains = null;
       }
     }
@@ -123,6 +124,7 @@ export const webQueries: Record<string, Resolver> = {
             null;
         }
       } catch (e) {
+        console.error('Failed to fetch deployment events:', e);
         // ignore event lookup failures
       }
     }
