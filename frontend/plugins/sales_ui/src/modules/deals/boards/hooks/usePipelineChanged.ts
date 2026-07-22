@@ -7,7 +7,6 @@ import {
 } from '@/deals/states/dealsBoardState';
 import { IDeal } from '@/deals/types/deals';
 import { useSubscription } from '@apollo/client';
-import { useEffect } from 'react';
 
 interface ISalesPipelinesChangedPayload {
   salesPipelinesChanged: {
@@ -27,90 +26,105 @@ export const usePipelineChanged = (pipelineId?: string) => {
   const [, setBoardState] = useDealsBoard();
   const [, setAllDealsMap] = useAllDealsMap();
 
-  const { data } = useSubscription<ISalesPipelinesChangedPayload>(
-    PIPELINE_CHANGED,
-    {
-      variables: { _id: pipelineId },
-      skip: !pipelineId,
-    },
-  );
+  useSubscription<ISalesPipelinesChangedPayload>(PIPELINE_CHANGED, {
+    variables: { _id: pipelineId },
+    skip: !pipelineId,
+    onData: ({ data: result }) => {
+      const payload = result.data?.salesPipelinesChanged;
+      if (!payload?.data) return;
 
-  useEffect(() => {
-    const payload = data?.salesPipelinesChanged;
-    if (!payload?.data) return;
+      const { processId, action, data: changeData } = payload;
 
-    const { processId, action, data: changeData } = payload;
+      if (processId && processId === localStorage.getItem('processId')) {
+        return;
+      }
 
-    if (processId && processId === localStorage.getItem('processId')) {
-      return;
-    }
+      if (action !== 'orderUpdated') return;
+      console.log('orderUpdated',changeData)
+      const { item, aboveItemId, destinationStageId, oldStageId } = changeData;
 
-    if (action !== 'orderUpdated') return;
+      if (!item?._id || !destinationStageId) return;
 
-    const { item, aboveItemId, destinationStageId, oldStageId } = changeData;
+      const resolvedOldStageId = oldStageId || item.stageId || '';
 
-    if (!item?._id || !destinationStageId) return;
+      setBoardState((prev) => {
+        if (!prev) return prev;
 
-    const resolvedOldStageId = oldStageId || item.stageId || '';
+        const nextColumnItems = { ...prev.columnItems };
+        const oldStageItems = [...(nextColumnItems[resolvedOldStageId] || [])];
+        const srcIndex = oldStageItems.indexOf(item._id);
 
-    setBoardState((prev) => {
-      if (!prev) return prev;
-
-      const nextColumnItems = { ...prev.columnItems };
-      const oldStageItems = [...(nextColumnItems[resolvedOldStageId] || [])];
-      const srcIndex = oldStageItems.indexOf(item._id);
-
-      nextColumnItems[resolvedOldStageId] = oldStageItems.filter(
-        (id) => id !== item._id,
-      );
-
-      const destinationItems = [
-        ...(nextColumnItems[destinationStageId] || []).filter(
+        nextColumnItems[resolvedOldStageId] = oldStageItems.filter(
           (id) => id !== item._id,
-        ),
-      ];
+        );
 
-      let destIndex = aboveItemId
-        ? destinationItems.indexOf(aboveItemId)
-        : 0;
+        const destinationItems = [
+          ...(nextColumnItems[destinationStageId] || []).filter(
+            (id) => id !== item._id,
+          ),
+        ];
 
-      if (destIndex < 0) {
-        destIndex = 0;
-      }
+        let destIndex = aboveItemId
+          ? destinationItems.indexOf(aboveItemId)
+          : 0;
 
-      if (
-        aboveItemId &&
-        ((destinationStageId === resolvedOldStageId && destIndex < srcIndex) ||
-          destinationStageId !== resolvedOldStageId)
-      ) {
-        destIndex = destIndex + 1;
-      }
+        if (destIndex < 0) {
+          destIndex = 0;
+        }
 
-      destinationItems.splice(destIndex, 0, item._id);
-      nextColumnItems[destinationStageId] = [...new Set(destinationItems)];
+        if (
+          aboveItemId &&
+          ((destinationStageId === resolvedOldStageId &&
+            destIndex < srcIndex) ||
+            destinationStageId !== resolvedOldStageId)
+        ) {
+          destIndex = destIndex + 1;
+        }
 
-      return {
-        ...prev,
-        items: {
-          ...prev.items,
-          [item._id]: {
-            ...(prev.items[item._id] || {}),
-            ...item,
-            stageId: destinationStageId,
-            columnId: destinationStageId,
+        destinationItems.splice(destIndex, 0, item._id);
+        nextColumnItems[destinationStageId] = [...new Set(destinationItems)];
+
+        const prevItem = prev.items[item._id] || ({} as IDeal);
+
+        return {
+          ...prev,
+          items: {
+            ...prev.items,
+            [item._id]: {
+              ...prevItem,
+              ...item,
+              products: item.products ?? prevItem.products,
+              productsData: item.productsData ?? prevItem.productsData,
+              labels: item.labels ?? prevItem.labels,
+              tags: item.tags ?? prevItem.tags,
+              companies: item.companies ?? prevItem.companies,
+              customers: item.customers ?? prevItem.customers,
+              stageId: destinationStageId,
+              columnId: destinationStageId,
+            },
           },
-        },
-        columnItems: nextColumnItems,
-      };
-    });
+          columnItems: nextColumnItems,
+        };
+      });
 
-    setAllDealsMap((prev) => ({
-      ...prev,
-      [item._id]: {
-        ...(prev[item._id] || {}),
-        ...item,
-        stageId: destinationStageId,
-      },
-    }));
-  }, [data, setBoardState, setAllDealsMap]);
+      setAllDealsMap((prev) => {
+        const prevItem = prev[item._id] || ({} as IDeal);
+
+        return {
+          ...prev,
+          [item._id]: {
+            ...prevItem,
+            ...item,
+            products: item.products ?? prevItem.products,
+            productsData: item.productsData ?? prevItem.productsData,
+            labels: item.labels ?? prevItem.labels,
+            tags: item.tags ?? prevItem.tags,
+            companies: item.companies ?? prevItem.companies,
+            customers: item.customers ?? prevItem.customers,
+            stageId: destinationStageId,
+          },
+        };
+      });
+    },
+  });
 };
