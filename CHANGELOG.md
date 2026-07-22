@@ -1,3 +1,24 @@
+
+
+## [3.0.56](https://github.com/erxes/erxes/compare/3.0.55...3.0.56) (2026-07-22)
+
+
+### Bug Fixes
+
+* clean create pricing ([4c15c14](https://github.com/erxes/erxes/commit/4c15c1488d5d9a39ddea20859384504c9c9f6b3f))
+* **frontline:** use shared form collection names ([580c105](https://github.com/erxes/erxes/commit/580c10545245d829e423d6e7ae1dec6fe7457622))
+* **frontline:** use shared form collection names  ([1aac984](https://github.com/erxes/erxes/commit/1aac98494b341a9b8c1ae127b4ca3ea91e497bc9))
+* improve table columns and product editing ([#8706](https://github.com/erxes/erxes/issues/8706)) ([6fe6b6d](https://github.com/erxes/erxes/commit/6fe6b6d1c0bee14ad5bce5c987527fb1a5b930a1))
+* khanbank config queries ([#8621](https://github.com/erxes/erxes/issues/8621)) ([da2b816](https://github.com/erxes/erxes/commit/da2b816a83b1f77b0d105c9394d74f3211c1c94e))
+* sales ([#8770](https://github.com/erxes/erxes/issues/8770)) ([f16f6b2](https://github.com/erxes/erxes/commit/f16f6b2bb3b928f10c94f907971faab8391ba8be))
+
+
+### Features
+
+* add order items field to POS order configuration form ([cb3b059](https://github.com/erxes/erxes/commit/cb3b059be62e9ef572147fd467df95693f8256dc))
+* implement MS Dynamic price check and sync ([fec7549](https://github.com/erxes/erxes/commit/fec754987a63721e9887c234f2ea342d4e64d1d8))
+* **saas-migrations:** add products data migration between subdomains ([58b6095](https://github.com/erxes/erxes/commit/58b6095d64f8070f8e60bf466bc95c31c14246af))
+
 # Changelog
 
 ## [3.0.55](https://github.com/erxes/erxes/compare/3.0.54...3.0.55) (2026-07-22)
