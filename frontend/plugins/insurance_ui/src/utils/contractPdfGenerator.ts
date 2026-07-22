@@ -78,71 +78,71 @@ function applyTemplatePlaceholders(
     insuredObject.price;
 
   return template
-    .replace(/\{\{contractNumber\}\}/g, contract.contractNumber || '')
-    .replace(/\{\{vendorName\}\}/g, contract.vendor?.name || 'N/A')
-    .replace(
-      /\{\{customerName\}\}/g,
+    .replaceAll('{{contractNumber}}', contract.contractNumber || '')
+    .replaceAll('{{vendorName}}', contract.vendor?.name || 'N/A')
+    .replaceAll(
+      '{{customerName}}',
       `${contract.customer?.firstName || ''} ${
         contract.customer?.lastName || ''
       }`.trim() || 'N/A',
     )
-    .replace(
-      /\{\{registrationNumber\}\}/g,
+    .replaceAll(
+      '{{registrationNumber}}',
       contract.customer?.registrationNumber || 'N/A',
     )
-    .replace(/\{\{insuranceType\}\}/g, contract.insuranceType?.name || 'N/A')
-    .replace(/\{\{productName\}\}/g, contract.insuranceProduct?.name || 'N/A')
-    .replace(/\{\{startDate\}\}/g, formatDate(contract.startDate))
-    .replace(/\{\{endDate\}\}/g, formatDate(contract.endDate))
-    .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
-    .replace(
-      /\{\{carBrand\}\}/g,
+    .replaceAll('{{insuranceType}}', contract.insuranceType?.name || 'N/A')
+    .replaceAll('{{productName}}', contract.insuranceProduct?.name || 'N/A')
+    .replaceAll('{{startDate}}', formatDate(contract.startDate))
+    .replaceAll('{{endDate}}', formatDate(contract.endDate))
+    .replaceAll('{{chargedAmount}}', formatCurrency(contract.chargedAmount))
+    .replaceAll(
+      '{{carBrand}}',
       insuredObject.carBrand ||
         insuredObject.brand ||
         insuredObject.mark ||
         'N/A',
     )
-    .replace(
-      /\{\{carModel\}\}/g,
+    .replaceAll(
+      '{{carModel}}',
       insuredObject.carModel ||
         insuredObject.model ||
         insuredObject.zagvar ||
         'N/A',
     )
-    .replace(
-      /\{\{carYear\}\}/g,
+    .replaceAll(
+      '{{carYear}}',
       insuredObject.carYear ||
         insuredObject.year ||
         insuredObject.manufacturingYear ||
         'N/A',
     )
-    .replace(
-      /\{\{plateNumber\}\}/g,
+    .replaceAll(
+      '{{plateNumber}}',
       insuredObject.plateNumber ||
         insuredObject.ulsNumber ||
         insuredObject.licensePlate ||
         'N/A',
     )
-    .replace(
-      /\{\{vinNumber\}\}/g,
+    .replaceAll(
+      '{{vinNumber}}',
       insuredObject.vinNumber ||
         insuredObject.vin ||
         insuredObject.chassisNumber ||
         'N/A',
     )
-    .replace(
-      /\{\{engineNumber\}\}/g,
+    .replaceAll(
+      '{{engineNumber}}',
       insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
     )
-    .replace(
-      /\{\{carColor\}\}/g,
+    .replaceAll(
+      '{{carColor}}',
       insuredObject.carColor ||
         insuredObject.color ||
         insuredObject.ongo ||
         'N/A',
     )
-    .replace(
-      /\{\{carValuation\}\}/g,
+    .replaceAll(
+      '{{carValuation}}',
       carValuation ? formatCurrency(carValuation) : 'N/A',
     );
 }
