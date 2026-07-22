@@ -36,16 +36,16 @@ export const InvoiceFilterBar = () => {
             <Combobox.Content>
               <Filter.View>
                 <Command>
-                  <Filter.CommandInput placeholder={t('filter-invoices')} />
+                  <Filter.CommandInput placeholder={t('filter-invoices', 'Filter invoices...')} />
                   <Command.List className="p-1">
                     <Filter.SearchValueTrigger />
                     <Filter.Item value="status" active={!!status}>
                       <IconProgressCheck />
-                      {t('status')}
+                      {t('status', 'Status')}
                     </Filter.Item>
                     <Filter.Item value="kind" active={!!kind}>
                       <IconWallet />
-                      {t('kind')}
+                      {t('kind', 'Kind')}
                     </Filter.Item>
                   </Command.List>
                 </Command>
@@ -61,7 +61,7 @@ export const InvoiceFilterBar = () => {
 
           <Filter.Dialog>
             <Filter.View filterKey="searchValue" inDialog>
-              <Filter.DialogStringView filterKey="searchValue" label={t('search')} />
+              <Filter.DialogStringView filterKey="searchValue" label={t('search', 'Search')} />
             </Filter.View>
           </Filter.Dialog>
 
@@ -70,7 +70,7 @@ export const InvoiceFilterBar = () => {
           <Filter.BarItem queryKey="status">
             <Filter.BarName>
               <IconProgressCheck />
-              {t('status')}
+              {t('status', 'Status')}
             </Filter.BarName>
             <Popover>
               <Popover.Trigger asChild>
@@ -85,7 +85,7 @@ export const InvoiceFilterBar = () => {
           <Filter.BarItem queryKey="kind">
             <Filter.BarName>
               <IconWallet />
-              {t('kind')}
+              {t('kind', 'Kind')}
             </Filter.BarName>
             <Popover>
               <Popover.Trigger asChild>
