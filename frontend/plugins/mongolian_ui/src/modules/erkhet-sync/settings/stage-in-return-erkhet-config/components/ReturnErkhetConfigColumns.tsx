@@ -19,6 +19,7 @@ export const buildReturnErkhetConfigColumns = (
 ): ColumnDef<TReturnErkhetConfigRow>[] => [
   {
     id: 'more',
+    size: 33,
     cell: (cell: CellContext<TReturnErkhetConfigRow, unknown>) => (
       <ErkhetConfigMoreCell
         cell={cell}

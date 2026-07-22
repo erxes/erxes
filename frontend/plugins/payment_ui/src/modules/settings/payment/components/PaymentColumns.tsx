@@ -31,6 +31,7 @@ import PaymentForm from './PaymentForm';
 export const paymentColumns: ColumnDef<IPayment>[] = [
   {
     id: 'more',
+    size: 33,
     cell: ({ cell }: { cell: Cell<IPayment, unknown> }) => {
       const { t } = useTranslation('payment');
       const payment = cell.row.original as IPaymentDocument;

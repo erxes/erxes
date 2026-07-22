@@ -101,5 +101,5 @@ export const LotteryMoreColumnCell = ({
 export const lotteryMoreColumn = {
   id: 'more',
   cell: LotteryMoreColumnCell,
-  size: 25,
+  size: 33,
 };

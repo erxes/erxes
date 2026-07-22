@@ -25,6 +25,7 @@ export const getWorkflowTemplateColumns = ({
 }: TWorkflowTemplateColumnsProps): ColumnDef<TWorkflowTemplate>[] => [
   {
     id: 'more',
+    size: 33,
     cell: ({ cell }) => {
       const navigate = useNavigate();
       const { confirm } = useConfirm();

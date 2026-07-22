@@ -131,5 +131,5 @@ export const integrationMoreColumn = (): ColumnDef<IIntegrationDetail> => ({
   cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
     <IntegrationMoreColumnCell cell={cell} />
   ),
-  size: 15,
+  size: 33,
 });

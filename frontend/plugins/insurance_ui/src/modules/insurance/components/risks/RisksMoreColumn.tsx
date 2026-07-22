@@ -22,7 +22,7 @@ export const RisksMoreColumn = ({ cell }: { cell: any }) => {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-full">
           <IconDotsVertical size={16} />
         </Button>
       </DropdownMenu.Trigger>

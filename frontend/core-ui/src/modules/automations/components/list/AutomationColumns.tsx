@@ -44,6 +44,7 @@ export const getAutomationColumns: (
 ) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
   {
     id: 'more',
+    size: 33,
     cell: ({ cell }) => {
       const navigate = useNavigate();
       const { confirm } = useConfirm();

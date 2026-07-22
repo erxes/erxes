@@ -166,14 +166,14 @@ export const PipelineMoreColumnCell = ({
 export const pipelinesColumns: ColumnDef<
   IPipeline & { hasChildren: boolean; type?: string }
 >[] = [
-    RecordTable.checkboxColumn as ColumnDef<
-      IPipeline & { hasChildren: boolean; type?: string }
-    >,
     {
       id: 'more',
       cell: PipelineMoreColumnCell,
       size: 33,
     },
+    RecordTable.checkboxColumn as ColumnDef<
+      IPipeline & { hasChildren: boolean; type?: string }
+    >,
     {
       id: 'name',
       header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('name'); },
@@ -306,7 +306,7 @@ const PipelineRecordTable = () => {
         columns={pipelinesColumns}
         data={pipelines || []}
         className="m-3"
-        stickyColumns={['checkbox', 'more', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
         <PipelineCommandBar />
         <RecordTableTree id="pipelines-list" ordered>

@@ -102,5 +102,5 @@ export const AutomationAiAgentMoreColumnCell = ({
 export const automationAiAgentMoreColumn = {
   id: 'more',
   cell: AutomationAiAgentMoreColumnCell,
-  size: 25,
+  size: 33,
 };

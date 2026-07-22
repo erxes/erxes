@@ -24,6 +24,7 @@ export const buildMovementConfigColumns = (
 ): ColumnDef<TConfigRow>[] => [
   {
     id: 'more',
+    size: 33,
     cell: (cell: CellContext<TConfigRow, unknown>) => (
       <ErkhetConfigMoreCell
         cell={cell}

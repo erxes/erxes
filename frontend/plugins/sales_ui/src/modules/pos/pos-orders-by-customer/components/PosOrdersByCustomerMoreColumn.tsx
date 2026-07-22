@@ -63,5 +63,5 @@ export const PosOrdersByCustomerMoreColumnCell = ({
 export const PosOrdersByCustomerMoreColumn = {
   id: 'more',
   cell: PosOrdersByCustomerMoreColumnCell,
-  size: 20,
+  size: 33,
 };

@@ -18,6 +18,7 @@ export const buildStageInErkhetConfigColumns = (
 ): ColumnDef<TStageInErkhetConfigRow>[] => [
   {
     id: 'more',
+    size: 33,
     cell: (cell: CellContext<TStageInErkhetConfigRow, unknown>) => (
       <ErkhetConfigMoreCell
         cell={cell}

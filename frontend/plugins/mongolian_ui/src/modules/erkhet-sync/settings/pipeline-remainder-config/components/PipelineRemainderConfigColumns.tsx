@@ -15,6 +15,7 @@ export const buildRemainderConfigColumns = (
 ): ColumnDef<TRemainderConfigRow>[] => [
   {
     id: 'more',
+    size: 33,
     cell: (cell: CellContext<TRemainderConfigRow, unknown>) => (
       <ErkhetConfigMoreCell
         cell={cell}

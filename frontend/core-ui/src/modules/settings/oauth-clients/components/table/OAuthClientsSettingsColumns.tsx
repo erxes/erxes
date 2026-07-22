@@ -52,7 +52,7 @@ const getAccessTokenLifetimeLabel = (
 };
 
 export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
-  { ...RecordTable.checkboxColumn, size: 20 } as ColumnDef<IOAuthClientApp>,
+  { ...RecordTable.checkboxColumn, size: 33 } as ColumnDef<IOAuthClientApp>,
   {
     id: 'name',
     accessorKey: 'name',

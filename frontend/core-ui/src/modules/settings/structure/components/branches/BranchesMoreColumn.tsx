@@ -93,5 +93,5 @@ export const BranchesMoreColumnCell = ({
 export const BranchesMoreColumn = {
   id: 'more',
   cell: BranchesMoreColumnCell,
-  size: 25,
+  size: 33,
 };

@@ -97,5 +97,5 @@ export const OAuthClientsMoreColumnCell = ({
 export const oauthClientsMoreColumn = {
   id: 'more',
   cell: OAuthClientsMoreColumnCell,
-  size: 25,
+  size: 33,
 };

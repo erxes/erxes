@@ -27,13 +27,13 @@ export const itineraryColumns = (
   props?: ItineraryColumnsProps,
   t: (key: string) => string = (k) => k,
 ): ColumnDef<IItinerary>[] => [
-  RecordTable.checkboxColumn as ColumnDef<IItinerary>,
   itineraryMoreColumn(
     props?.onEditClick,
     props?.branchId,
     props?.branchLanguages,
     props?.mainLanguage,
   ),
+  RecordTable.checkboxColumn as ColumnDef<IItinerary>,
   {
     id: 'color',
     accessorKey: 'color',

@@ -40,8 +40,8 @@ export const TourColumns = (
   t: (key: string) => string = (k) => k,
 ): ColumnDef<ITour>[] => {
   return [
-    RecordTable.checkboxColumn as ColumnDef<ITour>,
     tourMoreColumn(onEdit, onDuplicate),
+    RecordTable.checkboxColumn as ColumnDef<ITour>,
     {
       id: 'name',
       accessorKey: 'name',

@@ -64,7 +64,7 @@ export const ChannelsMoreColumnCell = ({
 export const channelsMoreColumn = {
   id: 'more',
   cell: ChannelsMoreColumnCell,
-  size: 45,
+  size: 33,
   minSize: 45,
   maxSize: 45,
 };

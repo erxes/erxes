@@ -20,11 +20,11 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
     accessorKey: 'more',
     header: '',
     cell: ({ cell }) => <VendorsMoreColumn cell={cell} />,
-    size: 32,
+    size: 33,
   },
   {
     ...(RecordTable.checkboxColumn as ColumnDef<InsuranceVendor>),
-    size: 32,
+    size: 33,
   },
   {
     id: 'name',

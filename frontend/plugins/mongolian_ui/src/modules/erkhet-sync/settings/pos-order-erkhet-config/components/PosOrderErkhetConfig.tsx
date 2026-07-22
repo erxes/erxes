@@ -466,6 +466,7 @@ const buildColumns = ({
 }): ColumnDef<TPosOrderErkhetConfig>[] => [
   {
     id: 'more',
+    size: 33,
     cell: (cell: CellContext<TPosOrderErkhetConfig, unknown>) => (
       <ErkhetConfigMoreCell
         cell={cell as any}
