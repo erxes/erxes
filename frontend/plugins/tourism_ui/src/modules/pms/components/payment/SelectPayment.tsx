@@ -128,13 +128,13 @@ const PaymentInline = ({
   }, [paymentIds, fetchedPayments, payments, updatePayments]);
 
   if (loading && paymentIds?.length && !payments?.length) {
-    return <span className="text-sm text-muted-foreground">{t('loading')}</span>;
+    return <span className="text-sm text-muted-foreground">{t('loading', 'Loading...')}</span>;
   }
 
   if (!payments?.length) {
     return (
       <span className="text-sm text-muted-foreground">
-        {placeholder || t('select-payment')}
+        {placeholder || t('select-payment', 'Select payment')}
       </span>
     );
   }
@@ -210,7 +210,7 @@ const SelectPaymentContent = () => {
         variant="secondary"
         wrapperClassName="flex-auto"
         focusOnMount
-        placeholder={t('search-payments')}
+        placeholder={t('search-payments', 'Search payments...')}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
@@ -351,7 +351,7 @@ export const SelectPaymentDetail = ({
             </Button>
           ) : (
             <Combobox.TriggerBase className="font-medium">
-              {t('add-payment')} <IconPlus />
+              {t('add-payment', 'Add Payment')} <IconPlus />
             </Combobox.TriggerBase>
           )}
         </Popover.Trigger>

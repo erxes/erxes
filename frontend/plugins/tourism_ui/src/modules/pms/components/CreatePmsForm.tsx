@@ -194,15 +194,15 @@ const CreatePmsForm = ({
     editBranch(branchId, editVariables)
       .then(() => {
         toast({
-          title: t('success'),
-          description: t('pms-updated-successfully'),
+          title: t('success', 'Success'),
+          description: t('pms-updated-successfully', 'PMS updated successfully'),
         });
         onOpenChange?.(false);
         onSuccess?.();
       })
       .catch((e: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -216,15 +216,15 @@ const CreatePmsForm = ({
       variables: createVariables,
       onError: (e: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
       },
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('pms-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('pms-created-successfully', 'PMS created successfully'),
         });
         form.reset();
         onOpenChange?.(false);
@@ -323,8 +323,8 @@ const CreatePmsForm = ({
     if (mode === 'edit') {
       if (!branchId) {
         toast({
-          title: t('error'),
-          description: t('missing-branch-id-for-edit'),
+          title: t('error', 'Error'),
+          description: t('missing-branch-id-for-edit', 'Missing branch ID for edit mode'),
           variant: 'destructive',
         });
         return;
@@ -360,7 +360,7 @@ const CreatePmsForm = ({
             </div>
           ) : mode === 'edit' && detailError ? (
             <div className="flex flex-col justify-center items-center w-full h-full text-destructive">
-              <p>{t('failed-to-load-branch-details')}</p>
+              <p>{t('failed-to-load-branch-details', 'Failed to load branch details')}</p>
               <p className="text-sm">{detailError.message}</p>
             </div>
           ) : (

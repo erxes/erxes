@@ -25,21 +25,21 @@ export const ElementCommandBar = () => {
 
   const onRemove = () => {
     confirm({
-      message: t('confirm-delete-elements', { count: selectedCount }),
+      message: t('confirm-delete-elements', 'Are you sure you want to delete the {{count}} selected elements?', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       removeElements(elementIds)
         .then(() => {
           table.resetRowSelection();
           toast({
-            title: t('success'),
+            title: t('success', 'Success'),
             variant: 'success',
-            description: t('elements-deleted-successfully'),
+            description: t('elements-deleted-successfully', 'Elements deleted successfully'),
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -50,7 +50,7 @@ export const ElementCommandBar = () => {
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', '{{count}} selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         <Button
           variant="secondary"
@@ -59,7 +59,7 @@ export const ElementCommandBar = () => {
           onClick={onRemove}
         >
           {loading ? <Spinner /> : <IconTrash />}
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

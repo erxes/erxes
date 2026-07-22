@@ -172,9 +172,9 @@ const SelectCategoryContent = () => {
         ) : (
           <Command.Empty>
             <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
-              {t('no-categories-found')}
+              {t('no-categories-found', 'No categories found')}
               {/* <Button variant="secondary" size="sm" asChild>
-                <Link to="/settings/products/categories">{t('add-category')}</Link>
+                <Link to="/settings/products/categories">{t('add-category', 'Add Category')}</Link>
               </Button> */}
             </div>
           </Command.Empty>
@@ -307,7 +307,7 @@ const SelectCategoryValue = ({ placeholder }: { placeholder?: string }) => {
   }, [selectedCategoryIds, productCategories, setCategories]);
 
   if (categories.length === 0) {
-    return <Combobox.Value placeholder={placeholder || t('select-category')} />;
+    return <Combobox.Value placeholder={placeholder || t('select-category', 'Select category')} />;
   }
 
   const displayText =

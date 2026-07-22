@@ -120,7 +120,7 @@ function CustomerInlineCard({
   return (
     <CustomersInline.Provider
       customerIds={[customerId]}
-      placeholder={t('unnamed-customer')}
+      placeholder={t('unnamed-customer', 'Unnamed customer')}
     >
       <Card className="bg-background border-border/60">
         <div className="flex items-center gap-3 p-3">
@@ -173,7 +173,7 @@ export const OrderDetailSheet = ({
   const isBusy = updating || saving;
   const missingOrderMessage = error
     ? error.message
-    : t('booking-not-loaded');
+    : t('booking-not-loaded', 'Booking details could not be loaded for this order.');
 
   useEffect(() => {
     setStatusValue(initialEditStatus);
@@ -224,21 +224,21 @@ export const OrderDetailSheet = ({
 
     const trimmedInternalNote = internalNoteValue.trim();
     if (!statusValue) {
-      setValidationError(t('please-select-terminal-status'));
+      setValidationError(t('please-select-terminal-status', 'Please select a terminal status before saving'));
       return;
     }
 
     const requiresExplanation = TERMINAL_ORDER_STATUSES.has(statusValue);
 
     if (requiresExplanation && !trimmedInternalNote) {
-      setValidationError(t('please-add-explanation'));
+      setValidationError(t('please-add-explanation', 'Please add an explanation for cancelled or refunded bookings'));
       return;
     }
 
     try {
       if (statusValue === 'cancelled' || statusValue === 'refunded') {
         await confirm({
-          message: t('confirm-update-booking', { status: statusValue }),
+          message: t('confirm-update-booking', 'Are you sure you want to mark this booking as {{status}}?', { status: statusValue }),
           options: { confirmationValue: statusValue },
         });
       }
@@ -269,8 +269,8 @@ export const OrderDetailSheet = ({
       await onUpdated?.();
 
       toast({
-        title: t('success'),
-        description: t('booking-updated-successfully'),
+        title: t('success', 'Success'),
+        description: t('booking-updated-successfully', 'Booking details updated successfully'),
       });
 
       setEditOpen(false);
@@ -280,9 +280,9 @@ export const OrderDetailSheet = ({
       }
 
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description:
-          error instanceof Error ? error.message : t('failed-to-update-booking'),
+          error instanceof Error ? error.message : t('failed-to-update-booking', 'Failed to update booking'),
         variant: 'destructive',
       });
     } finally {
@@ -300,7 +300,7 @@ export const OrderDetailSheet = ({
         ) : !hasLoadedOrder ? (
           <>
             <Sheet.Header>
-              <Sheet.Title>{t('order-details')}</Sheet.Title>
+              <Sheet.Title>{t('order-details', 'Order Details')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
 
@@ -310,7 +310,7 @@ export const OrderDetailSheet = ({
                   {missingOrderMessage}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {t('reload-booking-list')}
+                  {t('reload-booking-list', 'Reload the booking list and try opening this order again.')}
                 </p>
               </div>
             </Sheet.Content>
@@ -321,14 +321,14 @@ export const OrderDetailSheet = ({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                {t('close')}
+                {t('close', 'Close')}
               </Button>
             </Sheet.Footer>
           </>
         ) : (
           <>
             <Sheet.Header>
-              <Sheet.Title>{t('order-details')}</Sheet.Title>
+              <Sheet.Title>{t('order-details', 'Order Details')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
 
@@ -339,7 +339,7 @@ export const OrderDetailSheet = ({
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 space-y-1">
                         <div className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
-                          {t('booking-summary')}
+                          {t('booking-summary', 'Booking Summary')}
                         </div>
                         <div className="font-mono text-sm break-all text-foreground">
                           {order?._id ?? '—'}
@@ -353,7 +353,7 @@ export const OrderDetailSheet = ({
                       <div className="p-3 border rounded-xl bg-muted/40 border-border/60">
                         <div className="inline-flex items-center gap-2 text-xs tracking-wide uppercase text-muted-foreground">
                           <IconCoin className="w-4 h-4" />
-                          {t('amount')}
+                          {t('amount', 'Amount')}
                         </div>
                         <div className="mt-2 text-lg font-semibold text-foreground">
                           {formatAmount(order?.amount)}
@@ -363,7 +363,7 @@ export const OrderDetailSheet = ({
                       <div className="p-3 border rounded-xl bg-muted/40 border-border/60">
                         <div className="inline-flex items-center gap-2 text-xs tracking-wide uppercase text-muted-foreground">
                           <IconUsers className="w-4 h-4" />
-                          {t('people')}
+                          {t('people', 'people')}
                         </div>
                         <div className="mt-2 text-lg font-semibold text-foreground">
                           {order?.numberOfPeople ?? '—'}
@@ -376,12 +376,12 @@ export const OrderDetailSheet = ({
                     <div className="space-y-3">
                       <DetailRow
                         icon={IconTag}
-                        label={t('detail-row-type')}
+                        label={t('detail-row-type', 'Type')}
                         value={order?.type || '—'}
                       />
                       <DetailRow
                         icon={IconCalendarEventFilled}
-                        label={t('detail-row-created-at')}
+                        label={t('detail-row-created-at', 'Created At')}
                         value={formatDate(order?.createdAt)}
                       />
                     </div>
@@ -391,11 +391,11 @@ export const OrderDetailSheet = ({
                 {order?.customerId && (
                   <div className="space-y-2">
                     <div className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
-                      {t('main-customer')}
+                      {t('main-customer', 'Main Customer')}
                     </div>
                     <CustomerInlineCard
                       customerId={order.customerId}
-                      label={t('primary')}
+                      label={t('primary', 'Primary')}
                     />
                   </div>
                 )}
@@ -404,17 +404,17 @@ export const OrderDetailSheet = ({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
-                        {t('additional-customers-label')}
+                        {t('additional-customers-label', 'Additional Customers')}
                       </div>
                       <Tooltip.Provider>
                         <Tooltip>
                           <Tooltip.Trigger asChild>
                             <span className="px-2 py-1 text-[11px] font-medium rounded-full bg-primary/10 text-primary">
-                              {t('customers-linked', { count: additionalCustomers.length })}
+                              {t('customers-linked', '{{count}} linked', { count: additionalCustomers.length })}
                             </span>
                           </Tooltip.Trigger>
                           <Tooltip.Content>
-                            {t('customers-linked-tooltip')}
+                            {t('customers-linked-tooltip', 'Customers linked to this booking')}
                           </Tooltip.Content>
                         </Tooltip>
                       </Tooltip.Provider>
@@ -425,7 +425,7 @@ export const OrderDetailSheet = ({
                         <CustomerInlineCard
                           key={customerId}
                           customerId={customerId}
-                          label={t('additional-customer', { index: index + 1 })}
+                          label={t('additional-customer', 'Additional {{index}}', { index: index + 1 })}
                         />
                       ))}
                     </div>
@@ -437,7 +437,7 @@ export const OrderDetailSheet = ({
                     <div className="p-4 space-y-2">
                       <div className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-muted-foreground">
                         <IconFileDescription className="w-4 h-4" />
-                        {t('booking-note')}
+                        {t('booking-note', 'Note')}
                       </div>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                         {order.note}
@@ -451,7 +451,7 @@ export const OrderDetailSheet = ({
                     <div className="p-4 space-y-2">
                       <div className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-muted-foreground">
                         <IconFileDescription className="w-4 h-4" />
-                        {t('internal-note')}
+                        {t('internal-note', 'Internal note')}
                       </div>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                         {order.internalNote}
@@ -469,7 +469,7 @@ export const OrderDetailSheet = ({
                 onClick={() => handleEditOpenChange(true)}
                 disabled={isBusy || !hasLoadedOrder}
               >
-                {t('edit-booking')}
+                {t('edit-booking', 'Edit')}
               </Button>
               <Button
                 type="button"
@@ -477,7 +477,7 @@ export const OrderDetailSheet = ({
                 onClick={() => onOpenChange(false)}
                 disabled={isBusy}
               >
-                {t('close')}
+                {t('close', 'Close')}
               </Button>
             </Sheet.Footer>
           </>
@@ -487,16 +487,16 @@ export const OrderDetailSheet = ({
       <Dialog open={editOpen} onOpenChange={handleEditOpenChange}>
         <Dialog.Content className="sm:max-w-[520px]">
           <Dialog.Header>
-            <Dialog.Title>{t('edit-booking-title')}</Dialog.Title>
+            <Dialog.Title>{t('edit-booking-title', 'Edit Booking')}</Dialog.Title>
             <Dialog.Description>
-              {t('edit-booking-desc')}
+              {t('edit-booking-desc', 'Update booking status and internal note.')}
             </Dialog.Description>
           </Dialog.Header>
 
           <div className="grid gap-4 py-2">
             <div className="space-y-2">
               <div className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
-                {t('status')}
+                {t('status', 'Status')}
               </div>
               <Select
                 value={statusValue || undefined}
@@ -508,7 +508,7 @@ export const OrderDetailSheet = ({
                 }}
               >
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-booking-status')} />
+                  <Select.Value placeholder={t('select-booking-status', 'Select status')} />
                 </Select.Trigger>
                 <Select.Content>
                   {ORDER_STATUS_OPTIONS.map((option) => (
@@ -522,7 +522,7 @@ export const OrderDetailSheet = ({
 
             <div className="space-y-2">
               <div className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
-                {t('internal-note')}
+                {t('internal-note', 'Internal note')}
               </div>
               <Textarea
                 value={internalNoteValue}
@@ -532,11 +532,11 @@ export const OrderDetailSheet = ({
                     setValidationError(null);
                   }
                 }}
-                placeholder={t('add-internal-note')}
+                placeholder={t('add-internal-note', 'Add an explanation or internal note...')}
                 className="min-h-28"
               />
               <p className="text-xs text-muted-foreground">
-                {t('explanation-required-for-cancel')}
+                {t('explanation-required-for-cancel', 'Explanation is required for cancelled and refunded bookings.')}
               </p>
               {validationError && (
                 <p className="text-sm text-destructive">{validationError}</p>
@@ -551,7 +551,7 @@ export const OrderDetailSheet = ({
               onClick={() => handleEditOpenChange(false)}
               disabled={isBusy}
             >
-              {t('close')}
+              {t('close', 'Close')}
             </Button>
             <Button
               type="button"
@@ -560,7 +560,7 @@ export const OrderDetailSheet = ({
                 isBusy || !isDirty || !hasSelectedStatus || !hasLoadedOrder
               }
             >
-              {isBusy ? t('saving') : t('save-changes')}
+              {isBusy ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

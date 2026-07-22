@@ -61,7 +61,7 @@ export const CategorySelector = ({
   if (loading) {
     return (
       <Command.Item disabled className="h-8">
-        {t('loading')}
+        {t('loading', 'Loading...')}
       </Command.Item>
     );
   }

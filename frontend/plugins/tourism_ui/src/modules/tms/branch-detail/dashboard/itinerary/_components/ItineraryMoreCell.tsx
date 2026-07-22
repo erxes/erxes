@@ -45,20 +45,20 @@ export const ItineraryMoreColumn = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-itinerary'),
+      message: t('confirm-delete-itinerary', 'Are you sure you want to delete this itinerary?'),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removeItineraries([itinerary._id])
         .then(() => {
           toast({
-            title: t('success'),
+            title: t('success', 'Success'),
             variant: 'success',
-            description: t('itinerary-deleted-successfully'),
+            description: t('itinerary-deleted-successfully', 'Itinerary deleted successfully'),
           });
         })
         .catch((e: any) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -77,15 +77,15 @@ export const ItineraryMoreColumn = ({
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                {t('edit')}
+                {t('edit', 'Edit')}
               </Command.Item>
               <Command.Item value="duplicate" onSelect={handleDuplicate}>
                 <IconCopy className="w-4 h-4" />
-                {t('duplicate')}
+                {t('duplicate', 'Duplicate')}
               </Command.Item>
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash className="w-4 h-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>

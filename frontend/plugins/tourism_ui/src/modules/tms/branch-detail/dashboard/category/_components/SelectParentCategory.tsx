@@ -159,7 +159,7 @@ export const SelectParentCategoryTrigger = React.forwardRef<
   return (
     <Combobox.Trigger ref={ref} className={className} {...props}>
       <SelectParentCategoryBadge category={selectedCategory} />
-      {!selectedCategory && <Combobox.Value placeholder={t('select-category')} />}
+      {!selectedCategory && <Combobox.Value placeholder={t('select-category', 'Select category')} />}
       {loading && (
         <>
           <Skeleton className="w-4 h-4" />

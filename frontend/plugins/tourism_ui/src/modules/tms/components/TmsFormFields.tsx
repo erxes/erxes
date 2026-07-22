@@ -46,7 +46,7 @@ export const TourName = ({ control }: { control: Control<TmsFormType> }) => {
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('name')} <span className="text-destructive">*</span>
+            {t('name', 'Name')} <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
@@ -97,7 +97,7 @@ export const MainLanguageSelect = ({
       name="mainLanguage"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('main-language')}</Form.Label>
+          <Form.Label>{t('main-language', 'Main language')}</Form.Label>
           <Form.Control>
             <MainLanguageSelectFormItem
               value={field.value}
@@ -129,15 +129,15 @@ const MainLanguageSelectFormItem = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger className="w-full shadow-xs">
         <Combobox.Value
-          placeholder={t('select-main-language')}
+          placeholder={t('select-main-language', 'Select main language')}
           value={selected?.label}
         />
       </Combobox.Trigger>
       <Combobox.Content>
         <Command>
-          <Command.Input placeholder={t('search-languages')} />
+          <Command.Input placeholder={t('search-languages', 'Search languages...')} />
           <Command.List className="max-h-[300px] overflow-y-auto">
-            <Command.Empty>{t('no-language-found')}</Command.Empty>
+            <Command.Empty>{t('no-language-found', 'No language found')}</Command.Empty>
             {LANGUAGES.filter((language) =>
               options.includes(language.value),
             ).map((language) => (
@@ -169,7 +169,7 @@ export const SelectColor = ({ control }: { control: Control<TmsFormType> }) => {
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('main-color')} <span className="text-destructive">*</span>
+            {t('main-color', 'Main color')} <span className="text-destructive">*</span>
           </Form.Label>
 
           <Form.Control>
@@ -256,7 +256,7 @@ const ImageUploadField = ({
                       <div className="relative z-10 flex flex-col items-center justify-center gap-3">
                         <IconUpload size={20} />
                         <span className="text-xs text-muted-foreground">
-                          {t('max-size-file-type')}
+                          {t('max-size-file-type', 'Max size: 15MB, File type: PNG')}
                         </span>
                       </div>
                     )}
@@ -264,7 +264,7 @@ const ImageUploadField = ({
                       <div className="absolute inset-0 flex items-center justify-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
                         <div className="transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                           <div className="px-2 py-1 text-xs font-medium text-black rounded-lg backdrop-blur-sm bg-white/90">
-                            {t('change')}
+                            {t('change', 'Change')}
                           </div>
                         </div>
                       </div>
@@ -313,8 +313,8 @@ export const LogoField = ({ control }: { control: Control<TmsFormType> }) => {
     <ImageUploadField
       control={control}
       name="logo"
-      label={t('logo')}
-      description={t('logo-description')}
+      label={t('logo', 'LOGO')}
+      description={t('logo-description', 'Image can be shown on the top of the post also')}
     />
   );
 };
@@ -329,8 +329,8 @@ export const FavIconField = ({
     <ImageUploadField
       control={control}
       name="favIcon"
-      label={t('fav-icon')}
-      description={t('fav-icon-description')}
+      label={t('fav-icon', 'FAV ICON')}
+      description={t('fav-icon-description', 'Fav icon can be shown on the top of the post also in')}
     />
   );
 };
@@ -348,10 +348,10 @@ export const GeneralManager = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('general-managers')} <span className="text-destructive">*</span>
+            {t('general-managers', 'General Managers')} <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Description>
-            {t('general-manager-description')}
+            {t('general-manager-description', 'General manager can be shown on the top of the post also in the list view')}
           </Form.Description>
           <Form.Control>
             <div className="w-full">
@@ -377,9 +377,9 @@ export const Manager = ({ control }: { control: Control<TmsFormType> }) => {
       name="managers"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('managers')}</Form.Label>
+          <Form.Label>{t('managers', 'Managers')}</Form.Label>
           <Form.Description>
-            {t('manager-description')}
+            {t('manager-description', 'Manager can be shown on the top of the post also in the list view')}
           </Form.Description>
           <Form.Control>
             <div className="w-full">
@@ -422,15 +422,15 @@ const LanguageSelectFormItem = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger className="w-full shadow-xs">
         <Combobox.Value
-          placeholder={t('select-languages')}
+          placeholder={t('select-languages', 'Select languages')}
           value={selectedLabels.length ? selectedLabels.join(', ') : undefined}
         />
       </Combobox.Trigger>
       <Combobox.Content>
         <Command>
-          <Command.Input placeholder={t('search-languages')} />
+          <Command.Input placeholder={t('search-languages', 'Search languages...')} />
           <Command.List className="max-h-[300px] overflow-y-auto">
-            <Command.Empty>{t('no-language-found')}</Command.Empty>
+            <Command.Empty>{t('no-language-found', 'No language found')}</Command.Empty>
             {LANGUAGES.map((language) => (
               <Command.Item
                 key={language.value}
@@ -460,7 +460,7 @@ export const LanguageSelect = ({
       name="language"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('language')}</Form.Label>
+          <Form.Label>{t('language', 'Language')}</Form.Label>
           <Form.Control>
             <LanguageSelectFormItem
               value={
@@ -488,9 +488,9 @@ export const Payments = ({ control }: { control: Control<TmsFormType> }) => {
       name="payment"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('payments')}</Form.Label>
+          <Form.Label>{t('payments', 'PAYMENTS')}</Form.Label>
           <Form.Description>
-            {t('select-payments-description')}
+            {t('select-payments-description', 'Select payments that you want to use')}
           </Form.Description>
           <div className="flex items-end justify-between gap-4">
             <Form.Control className="flex-1">
@@ -500,7 +500,7 @@ export const Payments = ({ control }: { control: Control<TmsFormType> }) => {
                 onValueChange={(value) => {
                   field.onChange(Array.isArray(value) ? value : []);
                 }}
-                placeholder={t('select-payments')}
+                placeholder={t('select-payments', 'Select payments')}
               />
             </Form.Control>
           </div>
@@ -526,8 +526,8 @@ export const Prepaid = ({ form }: { form: UseFormReturn<TmsFormType> }) => {
         render={({ field }) => (
           <Form.Item className="flex items-center justify-between gap-4">
             <div className="space-y-2">
-              <Form.Label className="cursor-pointer">{t('prepaid')}</Form.Label>
-              <Form.Description>{t('enable-prepaid-percentage')}</Form.Description>
+              <Form.Label className="cursor-pointer">{t('prepaid', 'Prepaid')}</Form.Label>
+              <Form.Description>{t('enable-prepaid-percentage', 'Enable prepaid percentage')}</Form.Description>
             </div>
             <Form.Control>
               <Switch
@@ -555,14 +555,14 @@ export const Prepaid = ({ form }: { form: UseFormReturn<TmsFormType> }) => {
           name="prepaidPercent"
           render={({ field }) => (
             <Form.Item className="mt-4">
-              <Form.Label>{t('prepaid-percent')}</Form.Label>
+              <Form.Label>{t('prepaid-percent', 'Prepaid Percent')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
                   min="0"
                   max="100"
                   step="1"
-                  placeholder={t('enter-prepaid-percent')}
+                  placeholder={t('enter-prepaid-percent', 'Enter prepaid percent')}
                   value={field.value ?? ''}
                   onChange={(event) => {
                     const nextValue = event.target.value;
@@ -600,8 +600,8 @@ export const Token = ({ control }: { control: Control<TmsFormType> }) => {
       name="token"
       render={({ field }) => (
         <Form.Item className="py-3 border-y">
-          <Form.Label>{t('erxes-app-token')}</Form.Label>
-          <Form.Description>{t('erxes-app-token-desc')}</Form.Description>
+          <Form.Label>{t('erxes-app-token', 'Erxes app token')}</Form.Label>
+          <Form.Description>{t('erxes-app-token-desc', 'What is erxes app token ?')}</Form.Description>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -631,11 +631,11 @@ export const OtherPayments = ({
     <div className="py-3">
       <div className="flex flex-col items-start self-stretch gap-2">
         <h2 className="self-stretch text-sm font-medium leading-tight text-primary">
-          {t('other-payments')}
+          {t('other-payments', 'Other Payments')}
         </h2>
 
         <p className="text-muted-foreground font-['Inter'] text-xs font-medium leading-[140%]">
-          {t('other-payments-desc')}
+          {t('other-payments-desc', 'Type is must latin, some default types: golomtCard, khaanCard, TDBCard')}
         </p>
       </div>
 
@@ -647,7 +647,7 @@ export const OtherPayments = ({
           type="button"
         >
           <IconPlus size={16} />
-          {t('add-payment-method')}
+          {t('add-payment-method', 'Add payment method')}
         </Button>
       </div>
 
@@ -660,7 +660,7 @@ export const OtherPayments = ({
                 name={`otherPayments.${index}.type`}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('type')}</Form.Label>
+                    <Form.Label>{t('type', 'Type')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -673,7 +673,7 @@ export const OtherPayments = ({
                 name={`otherPayments.${index}.title`}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('title')}</Form.Label>
+                    <Form.Label>{t('title', 'Title')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -686,7 +686,7 @@ export const OtherPayments = ({
                 name={`otherPayments.${index}.config`}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('config')}</Form.Label>
+                    <Form.Label>{t('config', 'Config')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>

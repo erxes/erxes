@@ -129,16 +129,16 @@ export const CategoryEditSheet = ({
       });
 
       toast({
-        title: t('success'),
-        description: t('category-updated-successfully'),
+        title: t('success', 'Success'),
+        description: t('category-updated-successfully', 'Category updated successfully'),
       });
 
       handleOpenChange(false);
     } catch (error) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description:
-          error instanceof Error ? error.message : t('failed-to-update-category'),
+          error instanceof Error ? error.message : t('failed-to-update-category', 'Failed to update category'),
         variant: 'destructive',
       });
     }
@@ -162,7 +162,7 @@ export const CategoryEditSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>{t('edit-category')}</Sheet.Title>
+              <Sheet.Title>{t('edit-category', 'Edit category')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex gap-2 items-center ml-auto">
                   <TourFieldLanguageSwitch
@@ -201,11 +201,11 @@ export const CategoryEditSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
 
               <Button type="submit" disabled={loading}>
-                {loading ? t('updating') : t('update')}
+                {loading ? t('updating', 'Updating...') : t('update', 'Update')}
               </Button>
             </Sheet.Footer>
           </form>

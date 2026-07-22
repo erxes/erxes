@@ -21,7 +21,7 @@ const Admins = ({ control }: Props) => {
   const { t } = useTranslation('tourism');
   return (
     <PmsFormFieldsLayout>
-      <InfoCard title={t('users')}>
+      <InfoCard title={t('users', 'Users')}>
         <InfoCard.Content>
           {roleFields.map(({ name, label }) => (
             <Form.Field
@@ -41,7 +41,7 @@ const Admins = ({ control }: Props) => {
                       mode="multiple"
                       value={field.value || []}
                       onValueChange={(value) => field.onChange(value)}
-                      placeholder={t('choose-team-member')}
+                      placeholder={t('choose-team-member', 'Choose team member')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />

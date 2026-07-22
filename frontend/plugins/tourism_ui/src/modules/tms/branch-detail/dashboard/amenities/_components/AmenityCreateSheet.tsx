@@ -108,8 +108,8 @@ export const AmenityCreateSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: t('error'),
-        description: t('enter-main-lang-before-creating'),
+        title: t('error', 'Error'),
+        description: t('enter-main-lang-before-creating', 'Please enter values for the main language before creating.'),
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
@@ -119,8 +119,8 @@ export const AmenityCreateSheet = ({
   const handleSubmit = async (values: AmenityCreateFormType) => {
     if (!branchId) {
       toast({
-        title: t('error'),
-        description: t('branch-required'),
+        title: t('error', 'Error'),
+        description: t('branch-required', 'Branch required'),
         variant: 'destructive',
       });
       return;
@@ -140,8 +140,8 @@ export const AmenityCreateSheet = ({
       });
 
       toast({
-        title: t('success'),
-        description: t('amenity-created-successfully'),
+        title: t('success', 'Success'),
+        description: t('amenity-created-successfully', 'Amenity created successfully'),
       });
 
       form.reset({
@@ -153,9 +153,9 @@ export const AmenityCreateSheet = ({
       handleOpenChange(false);
     } catch (error) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description:
-          error instanceof Error ? error.message : t('failed-to-create-amenity'),
+          error instanceof Error ? error.message : t('failed-to-create-amenity', 'Failed to create amenity'),
         variant: 'destructive',
       });
     }
@@ -167,7 +167,7 @@ export const AmenityCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            {t('create-amenity')}
+            {t('create-amenity', 'Create amenity')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -179,7 +179,7 @@ export const AmenityCreateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>{t('create-amenity')}</Sheet.Title>
+              <Sheet.Title>{t('create-amenity', 'Create amenity')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -212,10 +212,10 @@ export const AmenityCreateSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? t('creating') : t('create')}
+                {loading ? t('creating', 'Creating...') : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

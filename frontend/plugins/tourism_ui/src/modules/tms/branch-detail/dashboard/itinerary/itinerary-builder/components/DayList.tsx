@@ -88,7 +88,7 @@ export const DayList = ({
           className="flex items-center w-full gap-2"
         >
           <IconPlus size={18} />
-          {t('add-day')}
+          {t('add-day', 'Add Day')}
         </Button>
       </div>
     </div>

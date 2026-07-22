@@ -15,7 +15,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
     <div className="space-y-4">
       <Button onClick={() => append({})}>
         <IconPlus />
-        {t('add-discount')}
+        {t('add-discount', 'Add discount')}
       </Button>
 
       {fields.map((field, index) => (
@@ -26,7 +26,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name={`discount.${index}.type`}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('type')}</Form.Label>
+                  <Form.Label>{t('type', 'Type')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -39,7 +39,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name={`discount.${index}.title`}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('title')}</Form.Label>
+                  <Form.Label>{t('title', 'Title')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -52,7 +52,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name={`discount.${index}.config`}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('config')}</Form.Label>
+                  <Form.Label>{t('config', 'Config')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>

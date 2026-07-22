@@ -41,7 +41,7 @@ export const TourCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            {t('create-tour')}
+            {t('create-tour', 'Create tour')}
           </Button>
         </Sheet.Trigger>
       )}

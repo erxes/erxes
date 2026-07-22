@@ -28,12 +28,12 @@ export const AmenityNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name', 'Name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input
-              placeholder={t('amenity-name-placeholder')}
+              placeholder={t('amenity-name-placeholder', 'e.g., Free WiFi, Swimming Pool, Parking')}
               {...field}
             />
           </Form.Control>
@@ -56,7 +56,7 @@ export const AmenityIconField = ({
       name="icon"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('icon')}</Form.Label>
+          <Form.Label>{t('icon', 'Icon')}</Form.Label>
           <Form.Control>
             <AmenityIconPicker
               value={field.value}

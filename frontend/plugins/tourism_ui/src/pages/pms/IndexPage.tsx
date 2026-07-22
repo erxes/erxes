@@ -20,7 +20,7 @@ export const IndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/pms">
                     <IconSandbox />
-                    {t('pms-index-breadcrumb')}
+                    {t('pms-index-breadcrumb', 'Property management system')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

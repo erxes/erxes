@@ -38,9 +38,9 @@ export function useBranchSubmit({
   const { editBranch, loading: editLoading } = useBranchEdit({
     onError: (error: unknown) => {
       const errorMessage =
-        error instanceof Error ? error.message : t('unknown-error-occurred');
+        error instanceof Error ? error.message : t('unknown-error-occurred', 'Unknown error occurred');
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: errorMessage,
         variant: 'destructive',
       });
@@ -57,7 +57,7 @@ export function useBranchSubmit({
         await refetch();
       } catch (error) {
         toast({
-          title: t('warning'),
+          title: t('warning', 'Warning'),
           description: error instanceof Error ? error.message : String(error),
           variant: 'destructive',
         });
@@ -102,8 +102,8 @@ export function useBranchSubmit({
       },
       onCompleted: async () => {
         toast({
-          title: t('success'),
-          description: t('branch-updated-successfully'),
+          title: t('success', 'Success'),
+          description: t('branch-updated-successfully', 'Branch updated successfully'),
         });
         onOpenChange?.(false);
         onSuccess?.();
@@ -117,17 +117,17 @@ export function useBranchSubmit({
       variables,
       onError: (error: unknown) => {
         const errorMessage =
-          error instanceof Error ? error.message : t('unknown-error-occurred');
+          error instanceof Error ? error.message : t('unknown-error-occurred', 'Unknown error occurred');
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: errorMessage,
           variant: 'destructive',
         });
       },
       onCompleted: async () => {
         toast({
-          title: t('success'),
-          description: t('branch-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('branch-created-successfully', 'Branch created successfully'),
         });
         resetForm();
         form.reset(DEFAULT_TMS_FORM);
