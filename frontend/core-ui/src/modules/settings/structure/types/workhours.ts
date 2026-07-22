@@ -1,6 +1,3 @@
-import { WORKING_HOURS_SCHEMA } from '@/settings/structure/schemas/workHoursSchema';
-import { z } from 'zod';
-
 export enum TimeSlot {
   '07:00' = '07:00',
   '07:30' = '07:30',
@@ -51,4 +48,17 @@ export interface IWorkDay {
   lunchEndTo: string;
 }
 
-export type IWorkhoursForm = z.infer<typeof WORKING_HOURS_SCHEMA>;
+export interface IHoliday {
+  _id: string;
+  name: string;
+  startDate?: string;
+  endDate?: string;
+  inactive: boolean;
+}
+
+export interface IWorkhoursForm {
+  // Weekday keys (Monday..Sunday) hold IWorkDay-shaped values.
+  // Kept loose (`any`) so dynamic `${weekDay}.field` form paths resolve.
+  [day: string]: any;
+  holidays?: IHoliday[];
+}

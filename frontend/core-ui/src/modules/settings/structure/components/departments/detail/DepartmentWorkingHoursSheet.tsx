@@ -43,9 +43,10 @@ export const DepartmentWorkingHoursSheet = () => {
   };
 
   const onSubmit = (values: IWorkhoursForm) => {
+    const { holidays: _holidays, ...days } = values || {};
     const activeDays: Record<string, any> = {};
 
-    Object.entries(values || {}).forEach(([day, data]) => {
+    Object.entries(days).forEach(([day, data]) => {
       if (data && !data.inactive) {
         activeDays[day] = {
           startFrom: data.startFrom,
