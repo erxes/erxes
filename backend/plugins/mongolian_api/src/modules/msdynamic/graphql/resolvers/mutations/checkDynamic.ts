@@ -30,7 +30,115 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
 
   return config;
 };
+const buildProductQuery = (brandId?: string) => {
+  const query: any = {
+    status: { $ne: 'deleted' },
+  };
 
+  if (brandId && brandId !== 'noBrand') {
+    query.scopeBrandIds = { $in: [brandId] };
+  } else {
+    query.$or = [
+      { scopeBrandIds: { $exists: false } },
+      { scopeBrandIds: { $size: 0 } },
+    ];
+  }
+
+  return query;
+};
+const groupItemsByCode = (items: any[] = []) => {
+  const grouped: Record<string, any[]> = {};
+
+  for (const item of items) {
+    grouped[item.Item_No] ??= [];
+    grouped[item.Item_No].push(item);
+  }
+
+  return grouped;
+};
+const mapProductsByCode = (products: any[]) => {
+  const map: Record<string, any> = {};
+
+  for (const product of products) {
+    map[product.code] = product;
+  }
+
+  return map;
+};
+const comparePrices = async ({
+  groupedItems,
+  productsByCode,
+  pricePriority,
+  exchangeRates,
+  result,
+}: {
+  groupedItems: Record<string, any[]>;
+  productsByCode: Record<string, any>;
+  pricePriority: string;
+  exchangeRates: any;
+  result: any;
+}) => {
+  for (const itemNo of Object.keys(groupedItems)) {
+    try {
+      const { resPrice, resProd } = await getPrice(
+        groupedItems[itemNo],
+        pricePriority,
+        exchangeRates,
+      );
+
+      const foundProduct = productsByCode[itemNo];
+
+      if (!foundProduct) {
+        result.create.items.push({
+          Item_No: itemNo,
+          Unit_Price: resPrice,
+          Ending_Date: resProd?.Ending_Date,
+          syncStatus: false,
+        });
+
+        continue;
+      }
+
+      const item = {
+        _id: foundProduct._id,
+        Item_No: itemNo,
+        Unit_Price: resPrice,
+        Ending_Date: resProd?.Ending_Date,
+        code: foundProduct.code,
+        unitPrice: foundProduct.unitPrice,
+        syncStatus: foundProduct.unitPrice === resPrice,
+      };
+
+      if (foundProduct.unitPrice === resPrice) {
+        result.match.items.push(item);
+      } else {
+        result.update.items.push(item);
+      }
+    } catch (e) {
+      console.error(`Failed to process ${itemNo}`, e);
+
+      result.error.items.push({
+        Item_No: itemNo,
+      });
+    }
+  }
+};
+const collectDeletedProducts = (
+  products: any[],
+  dynamicCodes: Set<string>,
+  result: any,
+) => {
+  for (const product of products) {
+    if (!dynamicCodes.has(product.code)) {
+      result.delete.items.push({
+        _id: product._id,
+        code: product.code,
+        unitPrice: product.unitPrice,
+        syncStatus: false,
+      });
+    }
+  }
+};
 /**
  * ============================
  * MS Dynamic Check Mutations
@@ -154,19 +262,7 @@ export const msdynamicCheckMutations = {
     }
 
     const { priceApi, username, password, pricePriority } = config;
-
-    const productQry: any = {
-      status: { $ne: 'deleted' },
-    };
-
-    if (brandId && brandId !== 'noBrand') {
-      productQry.scopeBrandIds = { $in: [brandId] };
-    } else {
-      productQry.$or = [
-        { scopeBrandIds: { $exists: false } },
-        { scopeBrandIds: { $size: 0 } },
-      ];
-    }
+    const productQry = buildProductQuery(brandId);
 
     const products = await sendTRPCMessage({
       subdomain,
@@ -177,23 +273,20 @@ export const msdynamicCheckMutations = {
       defaultValue: [],
     });
 
-    let exchangeRates = {};
+    const exchangeRates = config.exchangeRateApi
+      ? (await getExchangeRates(config)) ?? {}
+      : {};
 
-    if (config.exchangeRateApi) {
-      exchangeRates = (await getExchangeRates(config)) ?? {};
-    }
+    const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
 
-    const salesCodeFilter = pricePriority.replaceAll(', ', ',').split(',');
-
-    let filterSection = '';
-
-    for (const price of salesCodeFilter) {
-      filterSection += `Sales_Code eq '${price}' or `;
-    }
+    const filterSection = salesCodeFilter
+      .map((price) => `Sales_Code eq '${price}'`)
+      .join(' or ');
 
     const response = await fetch(
-      `${priceApi}?$filter=${filterSection} Sales_Code eq ''`,
+      `${priceApi}?$filter=${filterSection} or Sales_Code eq ''`,
       {
+        timeout: 180000,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
@@ -204,23 +297,8 @@ export const msdynamicCheckMutations = {
       },
     ).then((res) => res.json());
 
-    const groupedItems: Record<string, any[]> = {};
-
-    if (Array.isArray(response?.value)) {
-      for (const item of response.value) {
-        if (!groupedItems[item.Item_No]) {
-          groupedItems[item.Item_No] = [];
-        }
-
-        groupedItems[item.Item_No].push(item);
-      }
-    }
-    const productsByCode: Record<string, any> = {};
-
-    for (const product of products) {
-      productsByCode[product.code] = product;
-    }
-
+    const groupedItems = groupItemsByCode(response?.value);
+    const productsByCode = mapProductsByCode(products);
     const dynamicCodes = new Set(Object.keys(groupedItems));
 
     const result = {
@@ -231,60 +309,15 @@ export const msdynamicCheckMutations = {
       error: { items: [] as any[] },
     };
 
-    for (const Item_No of Object.keys(groupedItems)) {
-      try {
-        const { resPrice, resProd } = await getPrice(
-          groupedItems[Item_No],
-          pricePriority,
-          exchangeRates,
-        );
+    await comparePrices({
+      groupedItems,
+      productsByCode,
+      pricePriority,
+      exchangeRates,
+      result,
+    });
 
-        const foundProduct = productsByCode[Item_No];
-
-        if (!foundProduct) {
-          result.create.items.push({
-            Item_No,
-            Unit_Price: resPrice,
-            Ending_Date: resProd?.Ending_Date,
-            syncStatus: false,
-          });
-
-          continue;
-        }
-
-        const item = {
-          _id: foundProduct._id,
-          Item_No,
-          Unit_Price: resPrice,
-          Ending_Date: resProd?.Ending_Date,
-          code: foundProduct.code,
-          unitPrice: foundProduct.unitPrice,
-          syncStatus: foundProduct.unitPrice === resPrice,
-        };
-
-        if (foundProduct.unitPrice === resPrice) {
-          result.match.items.push(item);
-        } else {
-          result.update.items.push(item);
-        }
-      } catch (e) {
-        console.error(`Failed to process price for Item_No: ${Item_No}`, e);
-        result.error.items.push({
-          Item_No,
-        });
-      }
-    }
-
-    for (const product of products) {
-      if (!dynamicCodes.has(product.code)) {
-        result.delete.items.push({
-          _id: product._id,
-          code: product.code,
-          unitPrice: product.unitPrice,
-          syncStatus: false,
-        });
-      }
-    }
+    collectDeletedProducts(products, dynamicCodes, result);
 
     return result;
   },
