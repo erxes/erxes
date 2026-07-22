@@ -54,6 +54,10 @@ export interface IHoliday {
   startDate?: string;
   endDate?: string;
   inactive: boolean;
+  // Optional working hours during the holiday period (e.g. Naadam 10:00–16:00).
+  // When both are empty the whole period is fully non-working.
+  startFrom?: string;
+  endTo?: string;
 }
 
 // Weekday keys (Monday..Sunday) hold IWorkDay-shaped values; iterating over

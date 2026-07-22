@@ -20,6 +20,9 @@ export const HOLIDAY_SCHEMA = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   inactive: z.boolean().default(false),
+  // Optional working hours during the holiday period.
+  startFrom: z.string().optional(),
+  endTo: z.string().optional(),
 });
 
 export const WORKING_HOURS_SCHEMA = z.object({

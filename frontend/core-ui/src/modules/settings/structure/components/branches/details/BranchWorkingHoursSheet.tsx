@@ -21,7 +21,7 @@ import { useWorkhoursForm } from '@/settings/structure/hooks/useWorkhoursForm';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Can } from 'ui-modules';
 import { useBranchById } from 'ui-modules/modules/structure/hooks/useBranchById';
-import { Fragment, useEffect } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useBranchInlineEdit } from '@/settings/structure/hooks/useBranchActions';
 import { parseTime } from '@internationalized/date';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
@@ -168,6 +168,8 @@ const HolidaysSection = () => {
       startDate: '',
       endDate: '',
       inactive: false,
+      startFrom: '',
+      endTo: '',
     });
 
   return (
@@ -216,78 +218,153 @@ const HolidayRow = ({
   const isInactive = form.watch(`holidays.${index}.inactive`) as boolean;
   const startDate = form.watch(`holidays.${index}.startDate`);
   const endDate = form.watch(`holidays.${index}.endDate`);
+  const startFrom = form.watch(`holidays.${index}.startFrom`);
+  const endTo = form.watch(`holidays.${index}.endTo`);
+  const [hasWorkHours, setHasWorkHours] = useState(
+    Boolean(startFrom || endTo),
+  );
+
+  const toggleWorkHours = (checked: boolean) => {
+    setHasWorkHours(checked);
+    if (checked) {
+      // Default to the same hours as a regular working day (09:00–18:00).
+      if (!startFrom) form.setValue(`holidays.${index}.startFrom`, '09:00');
+      if (!endTo) form.setValue(`holidays.${index}.endTo`, '18:00');
+    } else {
+      form.setValue(`holidays.${index}.startFrom`, '');
+      form.setValue(`holidays.${index}.endTo`, '');
+    }
+  };
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-md border p-3 ${
+      className={`flex flex-col gap-3 rounded-md border p-3 ${
         isInactive ? 'opacity-60' : ''
       }`}
     >
-      <Form.Field
-        control={form.control}
-        name={`holidays.${index}.inactive`}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Control>
-              <Switch
-                checked={!field.value}
-                onCheckedChange={(checked) => field.onChange(!checked)}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={form.control}
-        name={`holidays.${index}.name`}
-        render={({ field }) => (
-          <Form.Item className="flex-1">
-            <Form.Control>
-              <Input
-                className="w-full"
-                placeholder="Holiday name"
-                {...field}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
-      />
-      <div className="flex items-center gap-3 shrink-0">
-        <DatePicker
-          className="w-36"
-          mode="single"
-          placeholder="Start date"
-          value={startDate ? new Date(startDate) : undefined}
-          onChange={(date) => {
-            form.setValue(
-              `holidays.${index}.startDate`,
-              date ? (date as Date).toISOString() : '',
-            );
-          }}
+      <div className="flex items-center gap-3">
+        <Form.Field
+          control={form.control}
+          name={`holidays.${index}.inactive`}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Control>
+                <Switch
+                  checked={!field.value}
+                  onCheckedChange={(checked) => field.onChange(!checked)}
+                />
+              </Form.Control>
+            </Form.Item>
+          )}
         />
-        <span className="font-medium text-sm text-accent-foreground">to</span>
-        <DatePicker
-          className="w-36"
-          mode="single"
-          placeholder="End date"
-          value={endDate ? new Date(endDate) : undefined}
-          onChange={(date) => {
-            form.setValue(
-              `holidays.${index}.endDate`,
-              date ? (date as Date).toISOString() : '',
-            );
-          }}
+        <Form.Field
+          control={form.control}
+          name={`holidays.${index}.name`}
+          render={({ field }) => (
+            <Form.Item className="flex-1">
+              <Form.Control>
+                <Input
+                  className="w-full"
+                  placeholder="Holiday name"
+                  {...field}
+                />
+              </Form.Control>
+            </Form.Item>
+          )}
         />
+        <div className="flex items-center gap-3 shrink-0">
+          <DatePicker
+            className="w-36"
+            mode="single"
+            placeholder="Start date"
+            value={startDate ? new Date(startDate) : undefined}
+            onChange={(date) => {
+              form.setValue(
+                `holidays.${index}.startDate`,
+                date ? (date as Date).toISOString() : '',
+              );
+            }}
+          />
+          <span className="font-medium text-sm text-accent-foreground">to</span>
+          <DatePicker
+            className="w-36"
+            mode="single"
+            placeholder="End date"
+            value={endDate ? new Date(endDate) : undefined}
+            onChange={(date) => {
+              form.setValue(
+                `holidays.${index}.endDate`,
+                date ? (date as Date).toISOString() : '',
+              );
+            }}
+          />
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onRemove}
+          aria-label="Remove holiday"
+        >
+          <IconTrash />
+        </Button>
       </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onRemove}
-        aria-label="Remove holiday"
-      >
-        <IconTrash />
-      </Button>
+
+      <div className="flex items-center gap-3 pl-11">
+        <Switch
+          checked={hasWorkHours}
+          onCheckedChange={toggleWorkHours}
+          disabled={isInactive}
+        />
+        <span className="text-sm text-accent-foreground">Working hours</span>
+        {hasWorkHours && (
+          <div className="flex items-center gap-3">
+            <Form.Field
+              control={form.control}
+              name={`holidays.${index}.startFrom`}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <TimeField
+                      value={field.value ? parseTime(field.value) : null}
+                      onChange={(value) => {
+                        field.onChange(value?.toString());
+                      }}
+                    >
+                      <Form.Control>
+                        <DateInput />
+                      </Form.Control>
+                    </TimeField>
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <span className="font-medium text-sm text-accent-foreground">
+              to
+            </span>
+            <Form.Field
+              control={form.control}
+              name={`holidays.${index}.endTo`}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <TimeField
+                      value={field.value ? parseTime(field.value) : null}
+                      onChange={(value) => {
+                        field.onChange(value?.toString());
+                      }}
+                    >
+                      <Form.Control>
+                        <DateInput />
+                      </Form.Control>
+                    </TimeField>
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
