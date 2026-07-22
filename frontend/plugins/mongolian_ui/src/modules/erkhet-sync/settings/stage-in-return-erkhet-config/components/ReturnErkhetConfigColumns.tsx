@@ -19,7 +19,6 @@ export const buildReturnErkhetConfigColumns = (
 ): ColumnDef<TReturnErkhetConfigRow>[] => [
   {
     id: 'more',
-    size: 33,
     cell: (cell: CellContext<TReturnErkhetConfigRow, unknown>) => (
       <ErkhetConfigMoreCell
         cell={cell}
@@ -36,7 +35,7 @@ export const buildReturnErkhetConfigColumns = (
         )}
       />
     ),
-    size: 25,
+    size: 33,
   },
   checkboxColumn as ColumnDef<TReturnErkhetConfigRow>,
   {

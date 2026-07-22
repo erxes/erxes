@@ -44,7 +44,6 @@ export const getAutomationColumns: (
 ) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
   {
     id: 'more',
-    size: 33,
     cell: ({ cell }) => {
       const navigate = useNavigate();
       const { confirm } = useConfirm();
@@ -117,9 +116,9 @@ export const getAutomationColumns: (
         </DropdownMenu>
       );
     },
-    size: 34,
-    maxSize: 34,
-    minSize: 34,
+    size: 33,
+    maxSize: 33,
+    minSize: 33,
   },
   checkBoxColumn,
   {

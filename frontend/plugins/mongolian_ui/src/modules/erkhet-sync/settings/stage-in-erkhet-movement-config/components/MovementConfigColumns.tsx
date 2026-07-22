@@ -24,7 +24,6 @@ export const buildMovementConfigColumns = (
 ): ColumnDef<TConfigRow>[] => [
   {
     id: 'more',
-    size: 33,
     cell: (cell: CellContext<TConfigRow, unknown>) => (
       <ErkhetConfigMoreCell
         cell={cell}
@@ -41,7 +40,7 @@ export const buildMovementConfigColumns = (
         )}
       />
     ),
-    size: 25,
+    size: 33,
   },
   checkboxColumn as ColumnDef<TConfigRow>,
   {

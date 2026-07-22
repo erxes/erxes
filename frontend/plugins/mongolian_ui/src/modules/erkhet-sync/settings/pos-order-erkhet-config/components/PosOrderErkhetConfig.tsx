@@ -466,7 +466,6 @@ const buildColumns = ({
 }): ColumnDef<TPosOrderErkhetConfig>[] => [
   {
     id: 'more',
-    size: 33,
     cell: (cell: CellContext<TPosOrderErkhetConfig, unknown>) => (
       <ErkhetConfigMoreCell
         cell={cell as any}
@@ -484,7 +483,7 @@ const buildColumns = ({
         )}
       />
     ),
-    size: 25,
+    size: 33,
   },
   checkboxColumn as ColumnDef<TPosOrderErkhetConfig>,
   {
