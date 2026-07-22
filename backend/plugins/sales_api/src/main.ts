@@ -144,11 +144,9 @@ startPlugin({
 
         if (
           [
-            'pos:orders',
-            'pos:order',
-            'pos:orders:',
-            'sales:pos:orders',
-            'sales:pos:order',
+            'sales:order',
+            'sales:posOrder',
+            'sales:posOrders',
           ].includes(contentType)
         ) {
           return handlePosOrderPaymentCallback(subdomain, data);

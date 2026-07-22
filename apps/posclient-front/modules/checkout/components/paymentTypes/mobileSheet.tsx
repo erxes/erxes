@@ -39,7 +39,7 @@ const MobileSheet = () => {
       variables: {
         input: {
           amount,
-          contentType: "pos:orders",
+          contentType: "sales:order",
           contentTypeId: activeOrderId,
           customerId: customer?._id ? customer?._id : "empty",
           customerType: customerType || "customer",

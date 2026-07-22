@@ -111,8 +111,6 @@ export const loadInvoiceClass = (models: IModels) => {
         status: 'pending',
       });
 
-      console.log('[resolver] unpaidTransactions', JSON.stringify(unpaidTransactions, null, 2))
-
       if (unpaidTransactions.length > 0) {
         try {
           // Process transactions in parallel for better performance
@@ -149,8 +147,6 @@ export const loadInvoiceClass = (models: IModels) => {
 
       const invoice = await models.Invoices.getInvoice({ _id });
 
-      console.log('[resolver] invoice', invoice)
-
       const totalAmount = await models.Transactions.aggregate([
         {
           $match: {
@@ -165,8 +161,6 @@ export const loadInvoiceClass = (models: IModels) => {
           },
         },
       ]);
-
-      console.log('[resolver] totalAmount', totalAmount)
 
       if (totalAmount.length === 0) {
         return PAYMENT_STATUS.PENDING;
