@@ -10,6 +10,7 @@ import SalesNoteAndComment from './NoteAndComment';
 const Overview = ({ deal }: { deal: IDeal }) => {
   return (
     <AttachmentProvider
+      dealId={deal._id}
       initialAttachments={deal.attachments || ([] as IAttachment[])}
     >
       <div className="w-full xl:max-w-3xl mx-auto p-6 flex flex-col gap-3">

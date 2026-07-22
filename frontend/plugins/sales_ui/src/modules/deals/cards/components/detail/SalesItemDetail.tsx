@@ -51,7 +51,10 @@ const SalesItemDetailView = () => {
             >
               <Tabs.Content value="overview" className="h-full">
                 <ScrollArea className="h-full">
-                  <Overview deal={deal || ({} as IDeal)} />
+                  {/* Keyed by deal: the overview holds unsaved drafts (title,
+                      description, note) that must never carry over to the next
+                      record when the sheet is reused for another deal. */}
+                  <Overview key={deal?._id} deal={deal || ({} as IDeal)} />
                 </ScrollArea>
               </Tabs.Content>
               <Tabs.Content value="properties" className="h-full">
@@ -83,7 +86,7 @@ const SalesItemDetailView = () => {
 
                   {!!deal?._id && (
                     <div className="shrink-0 w-full xl:max-w-3xl mx-auto px-6 pb-6 pt-2">
-                      <DealNoteComposer dealId={deal._id} />
+                      <DealNoteComposer key={deal._id} dealId={deal._id} />
                     </div>
                   )}
                 </div>

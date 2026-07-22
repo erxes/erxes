@@ -16,8 +16,14 @@ const DealName = ({ deal }: { deal: IDeal }) => {
   const lastSavedRef = useRef(deal?.name || '');
 
   useEffect(() => {
-    setName(deal?.name || '');
-    lastSavedRef.current = deal?.name || '';
+    const incoming = deal?.name || '';
+    // Only adopt a server value that isn't the echo of our own save. Without
+    // this, a rename resolving while the user keeps typing snaps the field back
+    // to the already-sent value and drops the newer keystrokes.
+    if (incoming === lastSavedRef.current) return;
+
+    setName(incoming);
+    lastSavedRef.current = incoming;
   }, [deal?.name]);
 
   useEffect(() => {
@@ -57,9 +63,7 @@ const DealName = ({ deal }: { deal: IDeal }) => {
 const MainOverview = ({ deal }: { deal: IDeal }) => {
   return (
     <div className="flex flex-col gap-3">
-      {/* Keyed so switching deals in the sheet remounts the field: the title is
-          debounce-saved, and a pending edit must never land on the next deal. */}
-      <DealName key={deal._id} deal={deal} />
+      <DealName deal={deal} />
       <SalesFormFields deal={deal} />
     </div>
   );

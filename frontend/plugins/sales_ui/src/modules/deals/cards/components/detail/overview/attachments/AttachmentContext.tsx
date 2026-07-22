@@ -19,9 +19,11 @@ export const useAttachmentContext = () => {
 
 export const AttachmentProvider = ({
   children,
+  dealId,
   initialAttachments = [],
 }: {
   children: React.ReactNode;
+  dealId?: string;
   initialAttachments?: IAttachment[];
 }) => {
   const [attachments, setAttachments] =
@@ -50,8 +52,10 @@ export const AttachmentProvider = ({
       .map((att) => removeTypename(att));
 
     try {
+      // useDealsEdit only defaults _id from the board-card atom, which is
+      // empty when the sheet is opened straight from a salesItemId URL.
       await editDeals({
-        variables: { attachments: newAttachments },
+        variables: { _id: dealId, attachments: newAttachments },
       });
 
       setAttachments((prev) =>
@@ -80,6 +84,7 @@ export const AttachmentProvider = ({
   return (
     <AttachmentContext.Provider
       value={{
+        dealId,
         attachments,
         addAttachment,
         handleRemoveImage,

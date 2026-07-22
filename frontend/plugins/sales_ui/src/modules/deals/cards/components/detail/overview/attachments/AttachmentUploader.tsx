@@ -15,7 +15,7 @@ const AttachmentUploader = () => {
     total: 0,
   });
 
-  const { addAttachment, attachments } = useAttachmentContext();
+  const { addAttachment, attachments, dealId } = useAttachmentContext();
   const { editDeals } = useDealsContext();
 
   const handleUploadStart = (fileCount: number) => {
@@ -45,6 +45,7 @@ const AttachmentUploader = () => {
 
       editDeals({
         variables: {
+          _id: dealId,
           attachments: cleanAttachments,
         },
       });

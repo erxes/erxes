@@ -7,6 +7,7 @@ export type IAttachment = {
 };
 
 export type AttachmentContextType = {
+  dealId?: string;
   attachments: IAttachment[];
   addAttachment: (attachment: IAttachment) => void;
   handleRemoveImage: (e: React.MouseEvent, attachment: IAttachment) => void;
