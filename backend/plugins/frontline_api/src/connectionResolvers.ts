@@ -622,17 +622,17 @@ export const loadClasses = (
     loadConfigClass(models),
   );
   models.Fields = db.model<IFieldDocument, IFieldModel>(
-    'frontline_form_fields',
+    'form_fields',
     loadFieldClass(models, subdomain),
   );
   models.Forms = db.model<IFormDocument, IFormModel>(
-    'frontline_forms',
+    'forms',
     loadFormClass(models),
   );
   models.FormSubmissions = db.model<
     IFormSubmissionDocument,
     IFormSubmissionModel
-  >('frontline_form_submissions', loadFormSubmissionClass(models));
+  >('form_submissions', loadFormSubmissionClass(models));
 
   models.Article = db.model<IArticleDocument, IArticleModel>(
     'knowledgebase_articles',
