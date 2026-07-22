@@ -87,33 +87,33 @@ async function registerWebhookIfNeeded(
 
 const mutations = {
   async paymentAdd(_root: any, args: any, { models, subdomain }: IContext) {
-  const { input } = args;
+    const { input } = args;
 
-  if (!input?.kind) {
-    throw new Error('Payment kind is required');
-  }
+    if (!input?.kind) {
+      throw new Error('Payment kind is required');
+    }
 
-  const paymentConfig = validatePaymentKind(input.kind);
+    const paymentConfig = validatePaymentKind(input.kind);
 
-  const domain = resolveDomain(subdomain);
+    const domain = resolveDomain(subdomain);
 
-  input.acceptedCurrencies = input.config?.currency
-    ? [input.config.currency]
-    : paymentConfig.acceptedCurrencies;
+    input.acceptedCurrencies = input.config?.currency
+      ? [input.config.currency]
+      : paymentConfig.acceptedCurrencies;
 
-  try {
-    await handleQPaySetup(input);
-  } catch (e: any) {
-    throw new Error(extractErrorMessage(e));
-  }
+    try {
+      await handleQPaySetup(input);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
+    }
 
-  const payment = await models.PaymentMethods.createPayment(input);
+    const payment = await models.PaymentMethods.createPayment(input);
 
-  await authorizePayment(payment, models, subdomain);
-  await registerWebhookIfNeeded(input, payment, domain, models);
+    await authorizePayment(payment, models, subdomain);
+    await registerWebhookIfNeeded(input, payment, domain, models);
 
-  return payment;
-},
+    return payment;
+  },
 
   async paymentRemove(
     _root: any,
