@@ -121,17 +121,8 @@ const POS_ORDER_OUTPUT: TAutomationRuntimeOutputDefinition<TPosOrderAutomationTa
         source.posId && source._id
           ? `/sales/pos/${source.posId}/orders?pos_order_id=${source._id}`
           : '',
-      onlinePaymentUrl: async ({ subdomain, source }) => {
-        console.log({ source });
-        const orderId =
-          typeof source.targetId === 'string'
-            ? source.targetId
-            : String(source._id || '');
-
-        const result = await resolvePosOrderPaymentUrl({ orderId, subdomain });
-        console.log({ result });
-        return result;
-      },
+      onlinePaymentUrl: ({ subdomain, source }) =>
+        resolvePosOrderPaymentUrl({ source, subdomain }),
     },
   };
 

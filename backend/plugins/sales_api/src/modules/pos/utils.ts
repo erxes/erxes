@@ -779,17 +779,17 @@ export const syncOrderFromClient = async ({
 
   const syncedResponseIds = enabledMN
     ? (
-      (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'mongolian',
-        module: 'putResponses',
-        action: 'find',
-        input: {
-          query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
-        },
-        defaultValue: [],
-      })) || []
-    ).map((r) => r._id)
+        (await sendTRPCMessage({
+          subdomain,
+          pluginName: 'mongolian',
+          module: 'putResponses',
+          action: 'find',
+          input: {
+            query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
+          },
+          defaultValue: [],
+        })) || []
+      ).map((r) => r._id)
     : [];
 
   // return info saved
