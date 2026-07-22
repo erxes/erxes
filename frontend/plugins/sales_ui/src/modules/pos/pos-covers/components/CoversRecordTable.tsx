@@ -3,6 +3,7 @@ import { useCoversList } from '@/pos/pos-covers/hooks/UseCoversList';
 import { coverColumns } from '@/pos/pos-covers/components/CoverColumns';
 import { useIsPosCoverLeadSessionKey } from '@/pos/pos-covers/hooks/UsePosCoverLeadSessionKey';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PosCoverCommandBar } from './pos-cover-command-bar/PosCoverCommandbar';
 
@@ -17,10 +18,11 @@ export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { sessionKey } = useIsPosCoverLeadSessionKey();
+  const columns = useMemo(() => coverColumns(t), [t]);
 
   return (
     <RecordTable.Provider
-      columns={coverColumns}
+      columns={columns}
       data={coversList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'pos']}
