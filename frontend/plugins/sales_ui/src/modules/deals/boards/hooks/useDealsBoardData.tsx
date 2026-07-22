@@ -3,9 +3,10 @@
 import { useMemo } from 'react';
 import { useQueryState } from 'erxes-ui';
 import { useStages } from '@/deals/stage/hooks/useStages';
+import type { BoardDealColumn } from '@/deals/types/boards';
 
 export const useDealsBoardData = (): {
-  columns: any[];
+  columns: BoardDealColumn[];
   columnsLoading: boolean;
 } => {
   const [pipelineId] = useQueryState<string>('pipelineId');
@@ -13,6 +14,8 @@ export const useDealsBoardData = (): {
   const { stages, loading } = useStages({
     variables: { pipelineId },
     skip: !pipelineId,
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
   });
 
   const columns = useMemo(
