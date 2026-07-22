@@ -2,13 +2,14 @@ import { Button, Tabs } from 'erxes-ui';
 
 import GeneralForm from '@/deals/boards/components/detail/GeneralForm';
 import PipelineStages from './PipelineStages';
-import ProductConfig from '@/deals/cards/components/detail/product/components/ProductConfig';
+import { ProductConfig } from '@/deals/cards/components/detail/product/components/ProductConfig';
+import type { TPipelineForm } from '@/deals/types/pipelines';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
+import type { UseFormReturn } from 'react-hook-form';
 
 type Props = {
-  form: any;
+  form: UseFormReturn<TPipelineForm>;
   stagesLoading: boolean;
 };
 

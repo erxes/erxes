@@ -7,14 +7,21 @@ import {
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { dealCustomActivities } from './DealActivityRows';
-import { Empty, FocusSheet, ScrollArea, Tabs, useFocusSheet, useQueryState } from 'erxes-ui';
+import {
+  Empty,
+  FocusSheet,
+  ScrollArea,
+  Tabs,
+  useFocusSheet,
+  useQueryState,
+} from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
 import { DealsProvider } from '@/deals/context/DealContext';
 import { IDeal } from '@/deals/types/deals';
 import Overview from '@/deals/cards/components/detail/overview/Overview';
-import Products from '@/deals/cards/components/detail/product/components/Products';
+import { Products } from '@/deals/cards/components/detail/product/components/Products';
 import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItemDetailHeader';
 import { SalesItemSidebar } from './SalesItemSidebar';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
@@ -149,9 +156,7 @@ const SalesItemDetailEmptyState = () => {
             <IconCloudExclamation />
           </Empty.Media>
           <Empty.Title>{t('deal-not-found')}</Empty.Title>
-          <Empty.Description>
-            {t('no-deal-with-id')}
-          </Empty.Description>
+          <Empty.Description>{t('no-deal-with-id')}</Empty.Description>
         </Empty.Header>
       </Empty>
     </div>

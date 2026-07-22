@@ -11,6 +11,7 @@ import {
 import { IProductData } from 'ui-modules';
 import { IconTrash } from '@tabler/icons-react';
 import { atom } from 'jotai';
+import { useState } from 'react';
 import { useRemoveProducts } from '../hooks/useRemoveProduct';
 import { useTranslation } from 'react-i18next';
 
@@ -22,10 +23,17 @@ export const ProductMoreColumnCell = ({
   cell: Cell<IProductData, unknown>;
 }) => {
   const { _id } = cell.row.original;
+  const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
   const { removeProducts, loading: removeLoading } = useRemoveProducts();
   const { toast } = useToast();
   const { t } = useTranslation('sales');
+  const [open, setOpen] = useState(false);
+
+  const runAction = (action: () => void) => {
+    setOpen(false);
+    action();
+  };
 
   const onRemove = () => {
     confirm({
@@ -49,7 +57,7 @@ export const ProductMoreColumnCell = ({
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
@@ -60,7 +68,7 @@ export const ProductMoreColumnCell = ({
               disabled={removeLoading}
               value="remove"
               className="text-destructive"
-              onSelect={onRemove}
+              onSelect={() => runAction(onRemove)}
             >
               <IconTrash /> {t('delete')}
             </Command.Item>
@@ -75,5 +83,5 @@ export const productMoreColumn: ColumnDef<IProductData> = {
   id: 'more',
   size: 33,
   cell: ProductMoreColumnCell,
-  header: RecordTable.ColumnSelector,
+  header: () => <RecordTable.ColumnSelector />,
 };
