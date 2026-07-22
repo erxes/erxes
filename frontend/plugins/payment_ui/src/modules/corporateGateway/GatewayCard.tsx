@@ -32,15 +32,11 @@ const GatewayCard = ({
 
   if (loading) {
     statusContent = (
-      <p className="text-sm text-muted-foreground">
-        Loading configuration...
-      </p>
+      <p className="text-sm text-muted-foreground">Loading configuration...</p>
     );
   } else if (error) {
     statusContent = (
-      <p className="text-sm text-destructive">
-        Failed to load configuration.
-      </p>
+      <p className="text-sm text-destructive">Failed to load configuration.</p>
     );
   } else if (hasConfig) {
     statusContent = (
@@ -80,11 +76,7 @@ const GatewayCard = ({
             </div>
           </div>
 
-          <Button
-            variant="link"
-            size="sm"
-            onClick={() => onOpenChange(true)}
-          >
+          <Button variant="link" size="sm" onClick={() => onOpenChange(true)}>
             {hasConfig ? 'Manage' : '+ Add'}
           </Button>
         </div>
