@@ -40,7 +40,7 @@ export const usePipelineChanged = (pipelineId?: string) => {
       }
 
       if (action !== 'orderUpdated') return;
-      console.log('orderUpdated',changeData)
+      
       const { item, aboveItemId, destinationStageId, oldStageId } = changeData;
 
       if (!item?._id || !destinationStageId) return;
