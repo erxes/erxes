@@ -772,6 +772,8 @@
   "loading-inline": "Уншиж байна...",
   "mobile-paid": "Мобайлаар төлсөн",
   "no-deals-found": "Хэлцэл олдсонгүй",
+  "order-items": "Захиалгын бараанууд",
+  "order-items-description": "productId, count, unitPrice талбартай жагсаалт. Өмнөх алхмаас бараануудыг авахын тулд { товчийг дараад input.items мэтийн placeholder оруулна уу.",
   "order-type": "Захиалгын төрөл",
   "payment-methods-missing": "Төлбөрийн аргууд дутуу байна",
   "payment-response": "Төлбөрийн хариу энд харагдана.",
