@@ -60,8 +60,8 @@ function DateSegment({ className, ...props }: DateSegmentProps) {
 }
 
 interface DateInputProps extends DateInputPropsRac {
-  className?: string;
-  unstyled?: boolean;
+  readonly className?: string;
+  readonly unstyled?: boolean;
 }
 
 function DateInput({
