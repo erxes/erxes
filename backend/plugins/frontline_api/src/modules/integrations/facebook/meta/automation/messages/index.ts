@@ -253,29 +253,41 @@ export const actionCreateMessage = async ({
     }
 
     const isCommentTrigger = collectionType === 'comments';
-    const messagesToSend = isCommentTrigger ? messages.slice(0, 1) : messages;
+    const commentId = isCommentTrigger ? target?.comment_id : undefined;
+
+    // Facebook allows exactly one private reply per comment, so only the step
+    // that actually answers the comment may use the private reply api.
+    const alreadyPrivateReplied = commentId
+      ? !!(await models.FacebookConversationMessages.exists({
+          'source.type': 'facebook_comment_private_reply',
+          'source.commentId': commentId,
+        }))
+      : false;
+
+    const isPrivateReplyStep = !!commentId && !alreadyPrivateReplied;
     let didEnsureAutomatedReplyControl = false;
-    const messageSource = isCommentTrigger
-      ? {
-          type: 'facebook_comment_private_reply',
-          conversationId: target?.conversationId || target?.erxesApiId,
-          messageId: target?._id,
-          commentId: target?.comment_id,
-          content: target?.content,
-        }
-      : undefined;
+    const messageSource = {
+      type: 'facebook_comment_private_reply',
+      conversationId: target?.conversationId || target?.erxesApiId,
+      messageId: target?._id,
+      commentId,
+      content: target?.content,
+    };
 
     for (const [
       index,
       { botData, inputData, ...message },
-    ] of messagesToSend.entries()) {
+    ] of messages.entries()) {
+      // Only the first message answers the comment itself, the rest are sent
+      // to the messenger thread the private reply opened.
+      const isPrivateReply = isPrivateReplyStep && index === 0;
+
       const sendReplyResult = await sendMessage(models, bot, {
         senderId,
         recipientId,
         integration,
         message,
-        commentId:
-          isCommentTrigger && index === 0 ? target?.comment_id : undefined,
+        commentId: isPrivateReply ? commentId : undefined,
       });
 
       if (!sendReplyResult) {
@@ -305,7 +317,7 @@ export const actionCreateMessage = async ({
           botData,
           mid: sendReplyResult.message_id || sendReplyResult.mid,
           conversationErxesApiId: conversation.erxesApiId,
-          source: messageSource,
+          source: isPrivateReply ? messageSource : undefined,
         });
 
       result.push(conversationMessage);
