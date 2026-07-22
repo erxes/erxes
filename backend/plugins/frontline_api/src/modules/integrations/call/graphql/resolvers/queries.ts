@@ -56,6 +56,24 @@ const callQueries = {
     return res;
   },
 
+  // Integrations list for the call reports page. Reports are read-only
+  // analytics over CDRs, so this is NOT restricted to operators — any
+  // logged-in user can view them. Only report-relevant fields are exposed;
+  // credentials and infrastructure details (token, operators, trunks,
+  // wsServer) never leave the API.
+  async callReportIntegrations(_root, _args, { models, user }: IContext) {
+    if (!user?._id) {
+      throw new Error('Login required');
+    }
+
+    return models.CallIntegrations.find(
+      {},
+      { inboxId: 1, phone: 1, queues: 1, queueNames: 1 },
+    )
+      .sort({ phone: 1 })
+      .lean<any[]>();
+  },
+
   async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
     const customer = await sendTRPCMessage({
       subdomain,
@@ -544,21 +562,14 @@ const callQueries = {
   async callGetQueueStats(
     _args,
     { startDate, endDate, queueId, direction },
-    { models, user }: IContext,
+    { models }: IContext,
   ) {
-    // const isAdmin =
-    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
-    const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
-      user._id,
-    );
-
-    const isContainsQueue = true;
     const matchStage: any = {
       start: { $gte: new Date(startDate) },
       end: { $lte: new Date(endDate) },
     };
 
-    if (direction) {
+    if (direction && direction !== 'all') {
       matchStage.userfield = direction;
     }
 
@@ -601,7 +612,7 @@ const callQueries = {
 
       {
         $match: {
-          queue: isContainsQueue ? queueId : { $in: queues },
+          queue: queueId && queueId !== 'all' ? queueId : { $ne: null },
         },
       },
 
@@ -736,19 +747,9 @@ const callQueries = {
   async callGetAgentStats(
     _args,
     { startDate, endDate, queueId, agentId = null, direction },
-    { models, user }: IContext,
+    { models }: IContext,
   ) {
     if (!queueId) {
-      return [];
-    }
-    // const isAdmin =
-    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
-    const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
-      user._id,
-    );
-
-    const isContainsQueue = queueId && queues.includes(queueId);
-    if (!isContainsQueue && queueId) {
       return [];
     }
 
@@ -758,7 +759,7 @@ const callQueries = {
       lastapp: 'Queue',
     };
 
-    if (direction) {
+    if (direction && direction !== 'all') {
       matchStage.userfield = direction;
     }
 
@@ -802,7 +803,7 @@ const callQueries = {
 
       {
         $match: {
-          queue: queueId ? queueId : { $ne: null },
+          queue: queueId && queueId !== 'all' ? queueId : { $ne: null },
           agent: agentId ? agentId : { $nin: [null, ''] },
           $expr: {
             $and: [
@@ -1001,7 +1002,7 @@ const callQueries = {
 
       {
         $match: {
-          queue: queueId ? queueId : { $ne: null },
+          queue: queueId && queueId !== 'all' ? queueId : { $ne: null },
         },
       },
 
