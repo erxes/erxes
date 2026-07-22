@@ -12,7 +12,11 @@ import {
 } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { workingHours } from '@/settings/structure/constants/work-days';
-import { IHoliday, IWorkhoursForm } from '@/settings/structure/types/workhours';
+import {
+  IHoliday,
+  IWorkhoursForm,
+  WorkDay,
+} from '@/settings/structure/types/workhours';
 import { useWorkhoursForm } from '@/settings/structure/hooks/useWorkhoursForm';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Can } from 'ui-modules';
@@ -21,6 +25,7 @@ import { Fragment, useEffect } from 'react';
 import { useBranchInlineEdit } from '@/settings/structure/hooks/useBranchActions';
 import { parseTime } from '@internationalized/date';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { nanoid } from 'nanoid';
 
 export const BranchWorkingHoursSheet = () => {
   const [workingHoursId] = useQueryState('workingHoursId');
@@ -116,12 +121,12 @@ export const BranchWorkingHoursSheet = () => {
               <Sheet.Title>Setup branch working hours</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5">
+            <Sheet.Content className="flex-1 min-h-0 overflow-y-auto flex flex-col px-5">
               {Object.entries(workingHours).map(([day], index) => {
                 return (
                   <Fragment key={day}>
                     {index !== 0 && <Separator />}
-                    <WeekDay weekDay={day} />
+                    <WeekDay weekDay={day as WorkDay} />
                   </Fragment>
                 );
               })}
@@ -158,10 +163,7 @@ const HolidaysSection = () => {
 
   const addHoliday = () =>
     append({
-      _id:
-        typeof crypto !== 'undefined' && crypto.randomUUID
-          ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random()}`,
+      _id: nanoid(),
       name: '',
       startDate: '',
       endDate: '',
@@ -290,7 +292,7 @@ const HolidayRow = ({
   );
 };
 
-const WeekDay = ({ weekDay }: { weekDay: string }) => {
+const WeekDay = ({ weekDay }: { weekDay: WorkDay }) => {
   const form = useFormContext<IWorkhoursForm>();
   const isInactive = form.watch(`${weekDay}.inactive`) as boolean;
 

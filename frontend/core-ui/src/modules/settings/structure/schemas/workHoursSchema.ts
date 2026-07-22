@@ -23,9 +23,12 @@ export const HOLIDAY_SCHEMA = z.object({
 });
 
 export const WORKING_HOURS_SCHEMA = z.object({
-  ...Object.values(WorkDay).reduce((acc, day) => {
-    (acc as Record<string, any>)[day] = WORK_HOURS_SCHEMA;
-    return acc;
-  }, {} as Record<string, any>),
+  ...Object.values(WorkDay).reduce(
+    (acc, day) => {
+      acc[day] = WORK_HOURS_SCHEMA;
+      return acc;
+    },
+    {} as Record<WorkDay, typeof WORK_HOURS_SCHEMA>,
+  ),
   holidays: z.array(HOLIDAY_SCHEMA).default([]),
 });

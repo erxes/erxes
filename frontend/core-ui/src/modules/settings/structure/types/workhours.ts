@@ -56,9 +56,8 @@ export interface IHoliday {
   inactive: boolean;
 }
 
-export interface IWorkhoursForm {
-  // Weekday keys (Monday..Sunday) hold IWorkDay-shaped values.
-  // Kept loose (`any`) so dynamic `${weekDay}.field` form paths resolve.
-  [day: string]: any;
+// Weekday keys (Monday..Sunday) hold IWorkDay-shaped values; iterating over
+// `WorkDay` keys keeps the dynamic `${weekDay}.field` form paths type-checked.
+export type IWorkhoursForm = Partial<Record<WorkDay, IWorkDay>> & {
   holidays?: IHoliday[];
-}
+};

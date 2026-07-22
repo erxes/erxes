@@ -10,7 +10,7 @@ import {
 } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { workingHours } from '@/settings/structure/constants/work-days';
-import { IWorkhoursForm } from '@/settings/structure/types/workhours';
+import { IWorkhoursForm, WorkDay } from '@/settings/structure/types/workhours';
 import { useWorkhoursForm } from '@/settings/structure/hooks/useWorkhoursForm';
 import { useFormContext } from 'react-hook-form';
 import { Fragment, useEffect } from 'react';
@@ -105,12 +105,12 @@ export const DepartmentWorkingHoursSheet = () => {
               <Sheet.Title>Setup department working hours</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5">
+            <Sheet.Content className="flex-1 min-h-0 overflow-y-auto flex flex-col px-5">
               {Object.entries(workingHours).map(([day], index) => {
                 return (
                   <Fragment key={day}>
                     {index !== 0 && <Separator />}
-                    <WeekDay weekDay={day} />
+                    <WeekDay weekDay={day as WorkDay} />
                   </Fragment>
                 );
               })}
@@ -136,7 +136,7 @@ export const DepartmentWorkingHoursSheet = () => {
   );
 };
 
-const WeekDay = ({ weekDay }: { weekDay: string }) => {
+const WeekDay = ({ weekDay }: { weekDay: WorkDay }) => {
   const form = useFormContext<IWorkhoursForm>();
   const isInactive = form.watch(`${weekDay}.inactive`) as boolean;
 
