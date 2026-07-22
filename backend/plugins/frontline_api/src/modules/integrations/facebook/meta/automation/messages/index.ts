@@ -255,8 +255,6 @@ export const actionCreateMessage = async ({
     const isCommentTrigger = collectionType === 'comments';
     const commentId = isCommentTrigger ? target?.comment_id : undefined;
 
-    // Facebook allows exactly one private reply per comment, so only the step
-    // that actually answers the comment may use the private reply api.
     const alreadyPrivateReplied = commentId
       ? !!(await models.FacebookConversationMessages.exists({
           'source.type': 'facebook_comment_private_reply',
@@ -278,8 +276,6 @@ export const actionCreateMessage = async ({
       index,
       { botData, inputData, ...message },
     ] of messages.entries()) {
-      // Only the first message answers the comment itself, the rest are sent
-      // to the messenger thread the private reply opened.
       const isPrivateReply = isPrivateReplyStep && index === 0;
 
       const sendReplyResult = await sendMessage(models, bot, {
@@ -325,11 +321,9 @@ export const actionCreateMessage = async ({
 
     const { optionalConnects = [] } = config || {};
 
-    // If there are no optional connections, this action can finish immediately.
     if (!optionalConnects?.length) {
       return result;
     }
-    // Otherwise, wait for the follow-up condition before continuing.
     return {
       result,
       waitCondition: generateConditionWaitToAction({
