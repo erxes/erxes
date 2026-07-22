@@ -144,11 +144,9 @@ startPlugin({
 
         if (
           [
-            'pos:orders',
-            'pos:order',
-            'pos:orders:',
-            'sales:pos:orders',
-            'sales:pos:order',
+            'sales:order',
+            'sales:posOrder',
+            'sales:posOrders',
           ].includes(contentType)
         ) {
           return handlePosOrderPaymentCallback(subdomain, data);
@@ -157,11 +155,9 @@ startPlugin({
     },
     afterProcess,
     beforeResolvers,
+    permissions,
     importExport: {
       export: {
-        configured: true,
-        hasGetExportHeaders: true,
-        hasGetExportData: true,
         types: [
           {
             label: 'POS Items',
@@ -169,33 +165,22 @@ startPlugin({
             permissions: ['posItemsExportManage'],
           },
         ],
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { pos: posExportHandlers },
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { pos: posExportHandlers },
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
       },
-    },
-    permissions,
-  } as any,
-  importExport: {
-    export: {
-      types: [
-        {
-          label: 'POS Items',
-          contentType: 'sales:pos.posItems',
-          permissions: ['posItemsExportManage'],
-        },
-      ],
-      getExportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { pos: posExportHandlers },
-        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
-        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-      getExportData: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { pos: posExportHandlers },
-        methodName: TImportExportProducers.GET_EXPORT_DATA,
-        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
-        generateModels,
-      }),
     },
   },
 });

@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
-import { getConfig } from '../graphql/queries'; // you need to create this query
+import { configDetail } from '../graphql/queries';
 import { addConfig, editConfig } from '../graphql/mutations';
 import Form from '../components/Form';
 import { ITdbConfig } from '../types';
@@ -16,12 +15,12 @@ const ConfigFormContainer = ({ configId, closeModal, refetchList }: Props) => {
   const [edit] = useMutation(editConfig);
 
   // If editing, fetch existing config
-  const { data, loading } = useQuery(getConfig, {
+  const { data, loading } = useQuery(configDetail, {
     variables: { _id: configId },
     skip: !configId,
   });
 
-  const config = data?.tdbConfigDetail as ITdbConfig | undefined;
+  const config = data?.tdbConfigsDetail as ITdbConfig | undefined;
 
   const onSubmit = async (doc: any) => {
     try {

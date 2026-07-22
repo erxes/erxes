@@ -776,7 +776,8 @@
   "pipelines-with-count": "Pipelines ({{count}})",
 
   "order-type": "Order type",
-  "customer-type": "Customer type",
+  "order-items": "Order items",
+  "order-items-description": "A list of productId, count and unitPrice objects. Type { to insert a placeholder such as input.items and take the items from an earlier step.",
   "pos-id": "POS ID",
   "any-payment": "Any payment",
   "any-pos": "Any POS",

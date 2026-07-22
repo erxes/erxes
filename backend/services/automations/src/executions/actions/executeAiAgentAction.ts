@@ -1,4 +1,5 @@
 import {
+  isAiClassificationResultEmpty,
   loadAiActionMemory,
   loadAiConversationState,
   parseAiAgentActionConfig,
@@ -10,6 +11,7 @@ import {
   TAiAgentActionConfig,
 } from '../../ai';
 import { generateModels } from '../../connectionResolver';
+import { buildAiAgentTools } from './aiAgentTools';
 import {
   getContentType,
   getModuleName,
@@ -24,6 +26,7 @@ import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 type TAiAgentActionWorkerResponse = {
   result: TAiActionExecutionResult;
   nextActionId?: string;
+  attributesEmpty?: boolean;
 };
 
 export const executeAiAgentAction = async (
@@ -64,6 +67,13 @@ export const executeAiAgentAction = async (
     if (!agent) {
       throw new Error('AI Agent not found.');
     }
+    const tools = await buildAiAgentTools({
+      subdomain,
+      models,
+      execution,
+      actionConfig: parsedActionConfig,
+    });
+
     const timerLabel = `runAiAction:${execution._id}:${action.id}`;
     console.time(timerLabel);
     const response = await runAiAction({
@@ -76,19 +86,26 @@ export const executeAiAgentAction = async (
       aiContext,
       memory,
       conversationState,
+      tools: tools.length ? tools : undefined,
     });
     console.timeEnd(timerLabel);
     if (!response) {
       throw new Error('AI agent returned an empty response.');
     }
 
-    await persistAiActionMemory({
-      models,
-      execution,
-      actionConfig: parsedActionConfig,
-      result: response.result,
-      aiContext,
-    });
+    const attributesEmpty = isAiClassificationResultEmpty(response.result);
+
+    // Writing all-empty attributes would pollute merged memory for the
+    // following messages of the same conversation.
+    if (!attributesEmpty) {
+      await persistAiActionMemory({
+        models,
+        execution,
+        actionConfig: parsedActionConfig,
+        result: response.result,
+        aiContext,
+      });
+    }
     await persistAiConversationState({
       models,
       execution,
@@ -100,6 +117,7 @@ export const executeAiAgentAction = async (
     return {
       result: response.result,
       nextActionId: response.nextActionId,
+      attributesEmpty,
     };
   } catch (error) {
     throw new Error(`AI Agent Action failed: ${error.message}`);

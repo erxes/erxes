@@ -12,7 +12,8 @@ interface SimilarityListProps {
 
 export const SimilarityList = ({ onNew }: SimilarityListProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
-  const { similarities, loading } = useProductSimilarities();
+  const { similarities, loading, hasMore, handleFetchMore } =
+    useProductSimilarities();
   const similarityColumns = useMemo(() => createSimilarityColumns(t), [t]);
 
   if (!loading && !similarities.length) {
@@ -34,7 +35,9 @@ export const SimilarityList = ({ onNew }: SimilarityListProps) => {
         </Empty.Header>
         {onNew && (
           <Empty.Content>
-            <Button onClick={onNew}>{t('new-similarity', 'New similarity')}</Button>
+            <Button onClick={onNew}>
+              {t('new-similarity', 'New similarity')}
+            </Button>
           </Empty.Content>
         )}
       </Empty>
@@ -54,6 +57,12 @@ export const SimilarityList = ({ onNew }: SimilarityListProps) => {
           <RecordTable.Body>
             {loading && <RecordTable.RowSkeleton rows={10} />}
             {!loading && similarities.length > 0 && <RecordTable.RowList />}
+            {!loading && hasMore && (
+              <RecordTable.RowSkeleton
+                rows={1}
+                handleInView={handleFetchMore}
+              />
+            )}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>

@@ -15,7 +15,7 @@ export const SpinRecordTable = ({ posId }: { posId?: string }) => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [...firstSpinColumns, ...secondSpinColumns];
+  const allColumns = [...firstSpinColumns(t), ...secondSpinColumns(t)];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;

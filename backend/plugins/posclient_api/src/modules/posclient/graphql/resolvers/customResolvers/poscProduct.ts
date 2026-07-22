@@ -130,13 +130,26 @@ export default {
   },
 
   hasSimilarity(product: IProductDocument & { hasSimilarity?: boolean }) {
-    // legacy groupedSimilarity lists precompute this from the group size;
-    // a field resolver overrides parent values, so pass theirs through
-    if (typeof product.hasSimilarity === 'boolean') {
-      return product.hasSimilarity;
+    return !!product.similarityId;
+  },
+
+  async similarity(
+    product: IProductDocument,
+    _args,
+    { subdomain }: IContext,
+  ) {
+    if (!product.similarityId) {
+      return null;
     }
 
-    return !!product.similarityId;
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.findOne',
+      input: { _id: product.similarityId },
+      defaultValue: null,
+    });
   },
 
   async category(product: IProductDocument, _, { models }: IContext) {

@@ -236,10 +236,12 @@ export const mutations = `
   clientPortalUserConfirmChangePhone(code: String!): CPUser
   clientPortalUserDelete: CPUserRemoveResponse
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): CPUser
+  clientPortalUserLoginWithToki(token: String!): JSON
 `;
 
 export const queries = `
   clientPortalCurrentUser: CPUser
   getClientPortalUsers(filter: IClientPortalUserFilter): CPUserListResponse
   getClientPortalUser(_id: String!): CPUser
+  checkTokiUserLegalAge(token: String!): Boolean
 `;

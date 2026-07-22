@@ -1,7 +1,9 @@
 import { useRef, useCallback } from 'react';
-import { Label, Editor } from 'erxes-ui';
+import { Label, Editor, Select } from 'erxes-ui';
 import {
   SelectBranches,
+  SelectCompany,
+  SelectCustomer,
   SelectDepartments,
   SelectMember,
   SelectTags,
@@ -13,7 +15,12 @@ import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
 
-const ARRAY_KEYS = new Set(['assignedUserIds', 'tagIds', 'branchIds', 'departmentIds']);
+const ARRAY_KEYS = new Set([
+  'assignedUserIds',
+  'tagIds',
+  'branchIds',
+  'departmentIds',
+]);
 
 const FormField = ({
   label,
@@ -35,13 +42,25 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const { t } = useTranslation('sales');
 
   const handleChange = useCallback(
-
     (key: string, value: string | string[] | undefined | null) => {
       if (value == null) return;
       editDeals({
         variables: {
           _id: deal._id,
           [key]: ARRAY_KEYS.has(key) && !Array.isArray(value) ? [value] : value,
+        },
+      });
+    },
+    [deal._id, editDeals],
+  );
+
+  const handleBrokerTypeChange = useCallback(
+    (type: string) => {
+      editDeals({
+        variables: {
+          _id: deal._id,
+          brokerType: type || null,
+          brokerId: null,
         },
       });
     },
@@ -58,12 +77,14 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
     tagIds,
     branchIds,
     departmentIds,
+    brokerType,
+    brokerId,
   } = deal;
 
   return (
     <>
       <div className="grid grid-cols-2 gap-4 py-4">
-        <FormField label={t('due-date')}>  
+        <FormField label={t('due-date')}>
           <div className="flex items-center">
             <DateSelectDeal
               value={startDate}
@@ -80,7 +101,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             />
           </div>
         </FormField>
-        <FormField label={t('assigned-to')}>  
+        <FormField label={t('assigned-to')}>
           <SelectMember
             value={assignedUserIds}
             onValueChange={(value) => handleChange('assignedUserIds', value)}
@@ -88,7 +109,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             mode="multiple"
           />
         </FormField>
-        <FormField label={t('label')}>  
+        <FormField label={t('label')}>
           <div className="flex flex-wrap items-center gap-1">
             <SelectLabels.FilterBar
               filterKey=""
@@ -109,12 +130,16 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             ))}
           </div>
         </FormField>
-        <FormField label={t('priority')}>  
+        <FormField label={t('priority')}>
           <div>
-            <SelectDealPriority dealId={_id} value={priority || ''} variant="card" />
+            <SelectDealPriority
+              dealId={_id}
+              value={priority || ''}
+              variant="card"
+            />
           </div>
         </FormField>
-        <FormField label={t('tags')}>  
+        <FormField label={t('tags')}>
           <SelectTags
             tagType="sales:deal"
             mode="multiple"
@@ -122,20 +147,69 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             onValueChange={(value) => handleChange('tagIds', value)}
           />
         </FormField>
-        <FormField label={t('branches')}>  
+        <FormField label={t('branches')}>
           <SelectBranches.ComboboxItem
             value={branchIds}
             onValueChange={(value) => handleChange('branchIds', value)}
             mode="multiple"
           />
         </FormField>
-        <FormField label={t('departments')}>  
+        <FormField label={t('departments')}>
           <SelectDepartments.ComboboxItem
             mode="multiple"
             value={departmentIds}
             onValueChange={(value) => handleChange('departmentIds', value)}
           />
         </FormField>
+        <FormField label={t('broker-type')}>
+          <Select
+            value={brokerType || '_none'}
+            onValueChange={(v) =>
+              handleBrokerTypeChange(v === '_none' ? '' : v)
+            }
+          >
+            <Select.Trigger>
+              <Select.Value placeholder={t('none')} />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="_none">{t('none')}</Select.Item>
+              <Select.Item value="customer">{t('customer')}</Select.Item>
+              <Select.Item value="company">{t('company')}</Select.Item>
+              <Select.Item value="user">{t('user')}</Select.Item>
+            </Select.Content>
+          </Select>
+        </FormField>
+        {brokerType && (
+          <FormField label={t('broker')}>
+            {brokerType === 'customer' && (
+              <SelectCustomer
+                mode="single"
+                value={brokerId || ''}
+                onValueChange={(value) => {
+                  if (value) handleChange('brokerId', value as string);
+                }}
+              />
+            )}
+            {brokerType === 'company' && (
+              <SelectCompany
+                mode="single"
+                value={brokerId || ''}
+                onValueChange={(value) => {
+                  if (value) handleChange('brokerId', value as string);
+                }}
+              />
+            )}
+            {brokerType === 'user' && (
+              <SelectMember
+                mode="single"
+                value={brokerId || ''}
+                onValueChange={(value) => {
+                  if (value) handleChange('brokerId', value as string);
+                }}
+              />
+            )}
+          </FormField>
+        )}
       </div>
       <div
         className="space-y-2"

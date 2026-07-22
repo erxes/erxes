@@ -1,31 +1,24 @@
 import { AutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebar';
-import { AutomationBuilderSecondarySidebarToggle } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebarToggle';
-import { AutomationActionContentSidebar } from '@/automations/components/builder/sidebar/components/content/action/AutomationActionContentSidebar';
-import { AutomationTriggerContentSidebar } from '@/automations/components/builder/sidebar/components/content/trigger/components/AutomationTriggerContentSidebar';
-import { AutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibrarySidebar';
+import { AutomationBuilderPrimarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderPrimarySidebar';
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import {
   AutomationNodeType,
   AutomationsHotKeyScope,
-  NodeData,
 } from '@/automations/types';
-import { IconArrowLeft, IconX } from '@tabler/icons-react';
 import {
-  Button,
-  Card,
-  cn,
-  IconComponent,
-  Separator,
+  Sheet,
+  useIsMobile,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
 } from 'erxes-ui';
 import { AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
-import { AutomationActionTargetSelector } from './content/action/AutomationActionTargetSelector';
+import { AutomationVariableInsertionProvider } from 'ui-modules';
 
 export const AutomationBuilderSidebar = () => {
+  const isMobile = useIsMobile();
   const { awaitingToConnectNodeId } = useAutomation();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const setHotkeyScope = useSetHotkeyScope();
@@ -36,6 +29,7 @@ export const AutomationBuilderSidebar = () => {
     activeNode,
     handleBack,
     handleClose,
+    toggleSecondarySidebarOpen,
     toggleSideBarOpen,
   } = useAutomationBuilderSidebarHooks();
 
@@ -64,122 +58,86 @@ export const AutomationBuilderSidebar = () => {
     activeNode?.nodeType === AutomationNodeType.Trigger &&
     !activeNode?.isCustom;
   const isEditingNode =
-    !!activeNode && activeNode.nodeType === AutomationNodeType.Action;
+    !!activeNode &&
+    (activeNode.nodeType === AutomationNodeType.Action ||
+      activeNode.nodeType === AutomationNodeType.Workflow);
   const canShowSecondarySidebar = isEditingNode;
   const sidebarWidthClasses = hasSegmentFormContent
     ? 'w-screen max-w-full sm:w-fit sm:min-w-md sm:max-w-[min(56rem,calc(100vw-1rem))]'
     : 'w-screen max-w-full sm:w-fit sm:min-w-[28rem] sm:max-w-[min(42rem,calc(100vw-1rem))]';
 
+  if (!isOpenSideBar) {
+    return null;
+  }
+
+  if (isMobile) {
+    return (
+      <AutomationVariableInsertionProvider>
+        <Sheet
+          open={isOpenSideBar}
+          onOpenChange={(open) => {
+            if (!open) {
+              handleClose();
+            }
+          }}
+        >
+          <Sheet.View
+            side="right"
+            className="max-w-none bg-sidebar p-0 sm:max-w-2xl"
+          >
+            <Sheet.Title className="sr-only">
+              Automation configuration
+            </Sheet.Title>
+            <Sheet.Description className="sr-only">
+              Configure the selected automation node
+            </Sheet.Description>
+
+            <div className="relative min-h-0 flex-1 overflow-hidden">
+              <div className="absolute inset-0">
+                <AutomationBuilderPrimarySidebar
+                  activeNode={activeNode}
+                  canShowSecondarySidebar={canShowSecondarySidebar}
+                  className="w-full border-l-0"
+                  handleBack={handleBack}
+                  handleClose={handleClose}
+                />
+              </div>
+
+              {isSecondarySidebarOpen && canShowSecondarySidebar ? (
+                <div className="absolute inset-x-0 bottom-0 z-20 h-1/3 min-h-72 animate-in overflow-hidden rounded-t-xl border-t bg-sidebar shadow-xl slide-in-from-bottom-4 mx-2">
+                  <AutomationBuilderSecondarySidebar
+                    className="h-full w-full border-l-0"
+                    handleClose={toggleSecondarySidebarOpen}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </Sheet.View>
+        </Sheet>
+      </AutomationVariableInsertionProvider>
+    );
+  }
+
   return (
-    <AnimatePresence>
-      {isOpenSideBar && (
+    <AutomationVariableInsertionProvider>
+      <AnimatePresence>
         <div
           key="sidebar"
-          className="absolute inset-y-0 right-0 z-50 flex max-w-full overflow-hidden sm:overflow-visible"
+          className="flex h-full min-h-0 max-w-full shrink-0 flex-row overflow-hidden"
         >
           {isSecondarySidebarOpen && canShowSecondarySidebar ? (
             <AutomationBuilderSecondarySidebar />
           ) : null}
 
-          <div
-            className={cn(
-              'flex h-full min-w-0 shrink-0 flex-col rounded-none border-l bg-sidebar',
-              sidebarWidthClasses,
-            )}
-          >
-            <AutomationBuilderSidebarHeader
-              activeNode={activeNode}
-              canShowSecondarySidebar={canShowSecondarySidebar}
-              handleBack={handleBack}
-              handleClose={handleClose}
-            />
-
-            <Card.Content className="min-w-0 flex-1 overflow-auto p-0">
-              <AutomationBuilderSidebarContent activeNode={activeNode} />
-            </Card.Content>
-          </div>
+          <AutomationBuilderPrimarySidebar
+            activeNode={activeNode}
+            canShowSecondarySidebar={canShowSecondarySidebar}
+            className={sidebarWidthClasses}
+            handleBack={handleBack}
+            handleClose={handleClose}
+          />
         </div>
-      )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </AutomationVariableInsertionProvider>
   );
-};
-
-const AutomationBuilderSidebarHeader = ({
-  activeNode,
-  canShowSecondarySidebar,
-  handleClose,
-  handleBack,
-}: {
-  activeNode?: NodeData;
-  canShowSecondarySidebar: boolean;
-  handleClose: () => void;
-  handleBack: () => void;
-}) => {
-  if (!activeNode) {
-    return null;
-  }
-  return (
-    <>
-      <Card.Header className="flex min-w-0 flex-row items-start justify-between gap-3 px-4 py-4 font-mono">
-        <div className="flex min-w-0 flex-1 flex-row items-start gap-3">
-          <div
-            className={cn(
-              'shrink-0 rounded-lg bg-primary/10 p-2 text-primary',
-              {
-                'bg-primary/10 text-primary':
-                  activeNode.nodeType === AutomationNodeType.Trigger,
-                'bg-success/10 text-success':
-                  activeNode.nodeType === AutomationNodeType.Action,
-                'bg-warning/10 text-warning':
-                  activeNode.nodeType === AutomationNodeType.Workflow,
-              },
-            )}
-          >
-            <IconComponent className="size-6" name={activeNode.icon} />
-          </div>
-
-          <div className="flex min-w-0 flex-1 flex-col gap-1 font-sans">
-            <h2 className="w-full truncate text-xl font-semibold leading-none tracking-tight">
-              {activeNode?.label || ''}
-            </h2>
-            <span className="w-full truncate text-sm font-normal text-muted-foreground">
-              {activeNode?.description || ''}
-            </span>
-          </div>
-        </div>
-        <div className="mt-0 flex shrink-0 flex-row gap-2 self-start">
-          {canShowSecondarySidebar ? (
-            <AutomationBuilderSecondarySidebarToggle />
-          ) : null}
-          <Button size="icon" variant="secondary" onClick={handleBack}>
-            <IconArrowLeft />
-          </Button>
-          <Button size="icon" variant="secondary" onClick={handleClose}>
-            <IconX />
-          </Button>
-        </div>
-      </Card.Header>
-      <AutomationActionTargetSelector activeNode={activeNode} />
-      <Separator />
-    </>
-  );
-};
-
-const AutomationBuilderSidebarContent = ({
-  activeNode,
-}: {
-  activeNode?: NodeData;
-}) => {
-  if (activeNode) {
-    const { nodeType } = activeNode || {};
-    if (nodeType === AutomationNodeType.Trigger) {
-      return <AutomationTriggerContentSidebar activeNode={activeNode} />;
-    }
-
-    if (nodeType === AutomationNodeType.Action) {
-      return <AutomationActionContentSidebar />;
-    }
-  }
-
-  return <AutomationNodeLibrarySidebar />;
 };

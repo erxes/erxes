@@ -90,7 +90,7 @@ const ActionNodeHeader = ({
           <NodeDropdownActions id={id} data={data} />
         </div>
       </div>
-      <div className="p-3 border-b border-muted ">
+      <div className="p-3 border-b border-muted">
         <span className="text-xs text-accent-foreground font-medium">
           {data.description}
         </span>
@@ -116,7 +116,10 @@ const ActionNode = ({ data, selected, id, ...props }: any) => {
   const isVertical = data.flowDirection === 'vertical';
 
   return (
-    <div className="flex flex-col" key={id}>
+    <div
+      className="flex flex-col animate-in fade-in zoom-in-95 duration-200"
+      key={id}
+    >
       <div className="w-1/4 ml-1 bg-success/10 text-success text-center px-2 py-1 rounded-t-md">
         <p className="font-medium font-bold">Action</p>
       </div>

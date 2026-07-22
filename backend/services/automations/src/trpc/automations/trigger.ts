@@ -27,6 +27,7 @@ export const automationsTriggerTrpcRouter = t.router({
       )
       .mutation(async ({ ctx, input }) => {
         try {
+          console.log({ input });
           return await handleTrigger(ctx.subdomain, input);
         } catch (error: unknown) {
           debugError(
