@@ -1,23 +1,13 @@
-import {
-  Button,
-  DateInput,
-  Form,
-  Separator,
-  Sheet,
-  Switch,
-  TimeField,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, Form, Separator, Sheet, useQueryState } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { workingHours } from '@/settings/structure/constants/work-days';
 import { IWorkhoursForm, WorkDay } from '@/settings/structure/types/workhours';
 import { useWorkhoursForm } from '@/settings/structure/hooks/useWorkhoursForm';
-import { useFormContext } from 'react-hook-form';
 import { Fragment, useEffect } from 'react';
 import { useDepartmentDetailsById } from '@/settings/structure/hooks/useDepartmentDetailsById';
 import { useDepartmentInlineEdit } from '@/settings/structure/hooks/useDepartmentActions';
-import { parseTime } from '@internationalized/date';
 import { Can } from 'ui-modules';
+import { WeekDayRow } from '@/settings/structure/components/workhours/WeekDayRow';
 
 export const DepartmentWorkingHoursSheet = () => {
   const [workingHoursId] = useQueryState('workingHoursId');
@@ -110,7 +100,7 @@ export const DepartmentWorkingHoursSheet = () => {
                 return (
                   <Fragment key={day}>
                     {index !== 0 && <Separator />}
-                    <WeekDay weekDay={day as WorkDay} />
+                    <WeekDayRow weekDay={day as WorkDay} />
                   </Fragment>
                 );
               })}
@@ -133,131 +123,5 @@ export const DepartmentWorkingHoursSheet = () => {
         </Sheet.View>
       </Sheet>
     </Form>
-  );
-};
-
-const WeekDay = ({ weekDay }: { weekDay: WorkDay }) => {
-  const form = useFormContext<IWorkhoursForm>();
-  const isInactive = form.watch(`${weekDay}.inactive`) as boolean;
-
-  return (
-    <div className="flex items-center gap-3 py-3" id={weekDay}>
-      <Form.Field
-        control={form.control}
-        name={`${weekDay}.inactive`}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Control>
-              <Switch
-                checked={!field.value}
-                onCheckedChange={(checked) => field.onChange(!checked)}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
-      />
-      <span className="font-semibold">{weekDay}</span>
-      {(isInactive && (
-        <span className="font-normal text-sm h-8 text-accent-foreground flex items-center">
-          Not working on this day
-        </span>
-      )) || (
-        <div className="flex items-center gap-8 ml-auto">
-          <div className="flex items-center gap-3">
-            <Form.Field
-              control={form.control}
-              name={`${weekDay}.startFrom`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <span className="font-medium text-sm text-accent-foreground">
-              to
-            </span>
-            <Form.Field
-              control={form.control}
-              name={`${weekDay}.endTo`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <legend className="font-medium text-sm text-accent-foreground">
-              Lunch
-            </legend>
-            <Form.Field
-              control={form.control}
-              name={`${weekDay}.lunchStartFrom`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <span className="font-medium text-sm text-accent-foreground">
-              to
-            </span>
-            <Form.Field
-              control={form.control}
-              name={`${weekDay}.lunchEndTo`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-        </div>
-      )}
-    </div>
   );
 };

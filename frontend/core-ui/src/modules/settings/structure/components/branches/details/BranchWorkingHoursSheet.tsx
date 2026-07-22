@@ -1,13 +1,11 @@
 import {
   Button,
-  DateInput,
   DatePicker,
   Form,
   Input,
   Separator,
   Sheet,
   Switch,
-  TimeField,
   useQueryState,
 } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
@@ -23,9 +21,10 @@ import { Can } from 'ui-modules';
 import { useBranchById } from 'ui-modules/modules/structure/hooks/useBranchById';
 import { Fragment, useEffect, useState } from 'react';
 import { useBranchInlineEdit } from '@/settings/structure/hooks/useBranchActions';
-import { parseTime } from '@internationalized/date';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
+import { WeekDayRow } from '@/settings/structure/components/workhours/WeekDayRow';
+import { WorkTimeField } from '@/settings/structure/components/workhours/WorkTimeField';
 
 export const BranchWorkingHoursSheet = () => {
   const [workingHoursId] = useQueryState('workingHoursId');
@@ -126,7 +125,7 @@ export const BranchWorkingHoursSheet = () => {
                 return (
                   <Fragment key={day}>
                     {index !== 0 && <Separator />}
-                    <WeekDay weekDay={day as WorkDay} />
+                    <WeekDayRow weekDay={day as WorkDay} />
                   </Fragment>
                 );
               })}
@@ -319,178 +318,14 @@ const HolidayRow = ({
         <span className="text-sm text-accent-foreground">Working hours</span>
         {hasWorkHours && (
           <div className="flex items-center gap-3">
-            <Form.Field
-              control={form.control}
-              name={`holidays.${index}.startFrom`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            <WorkTimeField name={`holidays.${index}.startFrom`} />
             <span className="font-medium text-sm text-accent-foreground">
               to
             </span>
-            <Form.Field
-              control={form.control}
-              name={`holidays.${index}.endTo`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            <WorkTimeField name={`holidays.${index}.endTo`} />
           </div>
         )}
       </div>
-    </div>
-  );
-};
-
-const WeekDay = ({ weekDay }: { weekDay: WorkDay }) => {
-  const form = useFormContext<IWorkhoursForm>();
-  const isInactive = form.watch(`${weekDay}.inactive`) as boolean;
-
-  return (
-    <div className="flex items-center gap-3 py-3" id={weekDay}>
-      <Form.Field
-        control={form.control}
-        name={`${weekDay}.inactive`}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Control>
-              <Switch
-                checked={!field.value}
-                onCheckedChange={(checked) => field.onChange(!checked)}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
-      />
-      <span className="font-semibold">{weekDay}</span>
-      {(isInactive && (
-        <span className="font-normal text-sm h-8 text-accent-foreground flex items-center">
-          Not working on this day
-        </span>
-      )) || (
-        <div className="flex items-center gap-8 ml-auto">
-          <div className="flex items-center gap-3">
-            <Form.Field
-              control={form.control}
-              name={`${weekDay}.startFrom`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <span className="font-medium text-sm text-accent-foreground">
-              to
-            </span>
-            <Form.Field
-              control={form.control}
-              name={`${weekDay}.endTo`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <legend className="font-medium text-sm text-accent-foreground">
-              Lunch
-            </legend>
-            <Form.Field
-              control={form.control}
-              name={`${weekDay}.lunchStartFrom`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <span className="font-medium text-sm text-accent-foreground">
-              to
-            </span>
-            <Form.Field
-              control={form.control}
-              name={`${weekDay}.lunchEndTo`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <TimeField
-                      value={field.value ? parseTime(field.value) : null}
-                      onChange={(value) => {
-                        field.onChange(value?.toString());
-                      }}
-                    >
-                      <Form.Control>
-                        <DateInput />
-                      </Form.Control>
-                    </TimeField>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
