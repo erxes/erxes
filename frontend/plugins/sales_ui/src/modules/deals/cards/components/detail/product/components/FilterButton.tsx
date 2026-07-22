@@ -8,7 +8,6 @@ import {
   useFilterContext,
 } from 'erxes-ui';
 import {
-  IProduct,
   SelectBranches,
   SelectCategory,
   SelectCompany,
@@ -74,63 +73,6 @@ export const FilterButton = ({ filters, onFilterChange }: Props) => {
       </Combobox.Content>
     </Filter.Popover>
   );
-};
-
-export const filterProducts = (
-  products: IProduct[],
-  filters: ProductFilterState,
-) => {
-  let result = products;
-
-  if (filters.productSearch) {
-    const search = filters.productSearch.toLowerCase();
-    result = result.filter((p) => p.name?.toLowerCase().includes(search));
-  }
-  if (filters.productCategoryIds) {
-    result = result.filter((p) =>
-      filters.productCategoryIds?.includes(p.categoryId || ''),
-    );
-  }
-
-  if (filters.productTagIds) {
-    result = result.filter((p) =>
-      p.tagIds?.some((tag) => filters.productTagIds?.includes(tag)),
-    );
-  }
-
-  if (filters.productVendorIds?.length) {
-    result = result.filter((p) => {
-      const vendor = (p as any).vendor as { _id: string } | undefined;
-      return (
-        vendor !== undefined &&
-        filters.productVendorIds?.includes(vendor._id) === true
-      );
-    });
-  }
-
-  if (filters.branchIds?.length) {
-    const hasBranchIds = result.some((p) => typeof p.branchId === 'string');
-    if (hasBranchIds) {
-      result = result.filter(
-        (p) => !!p.branchId && filters.branchIds?.includes(p.branchId) === true,
-      );
-    }
-  }
-
-  if (filters.departmentIds?.length) {
-    const hasDepartmentIds = result.some(
-      (p) => typeof p.departmentId === 'string',
-    );
-    if (hasDepartmentIds) {
-      result = result.filter(
-        (p) =>
-          !!p.departmentId &&
-          filters.departmentIds?.includes(p.departmentId) === true,
-      );
-    }
-  }
-
-  return result;
 };
 
 export const ProductFilterBar = ({

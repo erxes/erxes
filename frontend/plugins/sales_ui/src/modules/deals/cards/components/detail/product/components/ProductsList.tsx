@@ -1,5 +1,5 @@
 import { Button, Filter, Input, Label, Switch, useToast } from 'erxes-ui';
-import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
+import { FilterButton, ProductFilterBar } from './FilterButton';
 import { IProduct, IProductData, currentUserState } from 'ui-modules';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -12,6 +12,7 @@ import { onLocalChangeAtom } from '../productTableAtom';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useProductCalculations } from '../hooks/useProductCalculations';
+import { filterProducts } from '../utils/filterProducts';
 import { useTranslation } from 'react-i18next';
 
 const isPatchAppliedByServer = (
