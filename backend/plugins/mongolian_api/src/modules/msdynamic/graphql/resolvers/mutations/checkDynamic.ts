@@ -66,6 +66,7 @@ export const msdynamicCheckMutations = {
     const response = await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
       {
+        timeout: 180000,
         headers: {
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
@@ -182,7 +183,7 @@ export const msdynamicCheckMutations = {
       exchangeRates = (await getExchangeRates(config)) ?? {};
     }
 
-    const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
+    const salesCodeFilter = pricePriority.replaceAll(', ', ',').split(',');
 
     let filterSection = '';
 
@@ -267,6 +268,7 @@ export const msdynamicCheckMutations = {
           result.update.items.push(item);
         }
       } catch (e) {
+        console.error(`Failed to process price for Item_No: ${Item_No}`, e);
         result.error.items.push({
           Item_No,
         });
@@ -293,37 +295,38 @@ export const msdynamicCheckMutations = {
   ) {
     await checkPermission('msdSync');
 
-    try {
-      for (const price of prices) {
-        if (!price._id) {
-          continue;
-        }
+    let hasFailed = false;
 
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'products',
-          action: 'updateProduct',
-          input: {
-            _id: price._id,
-            doc: {
-              unitPrice: Number(price.Unit_Price) || 0,
-              currency: 'MNT',
-            },
-          },
-          defaultValue: null,
-        });
+    for (const price of prices) {
+      if (!price._id) {
+        continue;
       }
 
-      return {
-        status: 'success',
-      };
-    } catch (e) {
-      console.error('Failed to sync MS Dynamic prices:', e);
+      const result = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'updateProduct',
+        input: {
+          _id: price._id,
+          doc: {
+            unitPrice: Number(price.Unit_Price) || 0,
+            currency: 'MNT',
+          },
+        },
+        defaultValue: null,
+      });
 
-      return {
-        status: 'failed',
-      };
+      if (!result) {
+        hasFailed = true;
+        console.error(
+          `Failed to sync MS Dynamic price for product ${price._id}`,
+        );
+      }
     }
+
+    return {
+      status: hasFailed ? 'failed' : 'success',
+    };
   },
 };
