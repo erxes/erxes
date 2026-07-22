@@ -8,12 +8,17 @@ import { arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useMemo } from 'react';
 
 import { IconPlus } from '@tabler/icons-react';
-import PipelineStageItem from './PipelineStageItem';
+import { PipelineStageItem } from './PipelineStageItem';
 import { Spinner } from 'erxes-ui';
 import { useFieldArray } from 'react-hook-form';
-import { T } from 'react-router/dist/development/fog-of-war-oa9CGk10';
 import { useTranslation } from 'react-i18next';
+import type { TPipelineForm } from '@/deals/types/pipelines';
+import type { UseFormReturn } from 'react-hook-form';
+import type { SortableItemProps } from '@/deals/components/common/Item';
 
+type PipelineStageRenderItemProps = Parameters<
+  NonNullable<SortableItemProps['renderItem']>
+>[0];
 
 const props: Partial<SortableProps> = {
   strategy: verticalListSortingStrategy,
@@ -21,11 +26,11 @@ const props: Partial<SortableProps> = {
 };
 
 type Props = {
-  form: any;
+  form: UseFormReturn<TPipelineForm>;
   stagesLoading: boolean;
 };
 
-const PipelineStages = ({ form, stagesLoading }: Props) => {
+export const PipelineStages = ({ form, stagesLoading }: Props) => {
   const { t } = useTranslation('sales');
   const { control } = form;
 
@@ -60,11 +65,19 @@ const PipelineStages = ({ form, stagesLoading }: Props) => {
 
           return arrayMove(items, oldIndex, newIndex);
         }}
-        renderItem={({ value, index, ...sortableProps }: any) => {
+        renderItem={({
+          value,
+          index,
+          ...sortableProps
+        }: PipelineStageRenderItemProps) => {
+          if (index === undefined) {
+            return null;
+          }
+
           return (
             <PipelineStageItem
               {...sortableProps}
-              key={value}
+              key={String(value)}
               value={value}
               index={index}
               control={control}
@@ -83,5 +96,3 @@ const PipelineStages = ({ form, stagesLoading }: Props) => {
     </div>
   );
 };
-
-export default PipelineStages;
