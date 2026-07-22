@@ -67,10 +67,29 @@ const GatewayCard = ({
   return (
     <>
       <Card className="space-y-4 p-4">
-        {/* ... */}
-        <div className="space-y-3">
-          {statusContent}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src={logo}
+              alt={title}
+              className="h-10 w-10 rounded-md object-contain"
+            />
+            <div>
+              <p className="font-semibold">{title}</p>
+              <p className="text-xs text-muted-foreground">(Accepts MNT)</p>
+            </div>
+          </div>
+
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() => onOpenChange(true)}
+          >
+            {hasConfig ? 'Manage' : '+ Add'}
+          </Button>
         </div>
+
+        <div className="space-y-3">{statusContent}</div>
       </Card>
 
       <Dialog open={open} onOpenChange={onOpenChange}>
