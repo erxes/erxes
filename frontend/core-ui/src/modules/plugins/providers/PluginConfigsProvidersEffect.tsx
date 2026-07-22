@@ -16,8 +16,17 @@ export const loadPluginI18nNamespace = async ({
 }: Pick<IUIConfig, 'i18n' | 'i18nNamespace' | 'name'>) => {
   const namespace = i18nNamespace ?? (i18n ? name : undefined);
 
-  if (namespace) {
+  if (!namespace) {
+    return;
+  }
+
+  try {
     await i18nInstance.loadNamespaces(namespace);
+  } catch (error) {
+    console.error(
+      `Failed to load translation namespace "${namespace}" for ${name}:`,
+      error,
+    );
   }
 };
 

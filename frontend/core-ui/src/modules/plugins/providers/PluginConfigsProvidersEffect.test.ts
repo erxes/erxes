@@ -29,6 +29,10 @@ describe('loadPluginI18nNamespace', () => {
     loadNamespaces.mockResolvedValue(undefined);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('loads an explicit namespace for plugins whose locale name differs', async () => {
     await loadPluginI18nNamespace({
       name: 'erxes_agent',
@@ -45,6 +49,25 @@ describe('loadPluginI18nNamespace', () => {
     });
 
     expect(loadNamespaces).toHaveBeenCalledWith('mushop');
+  });
+
+  it('keeps plugin initialization available when translation loading fails', async () => {
+    const error = new Error('Locale unavailable');
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    loadNamespaces.mockRejectedValue(error);
+
+    await expect(
+      loadPluginI18nNamespace({
+        name: 'erxes_agent',
+        i18nNamespace: 'mastra',
+      }),
+    ).resolves.toBeUndefined();
+    expect(consoleError).toHaveBeenCalledWith(
+      'Failed to load translation namespace "mastra" for erxes_agent:',
+      error,
+    );
   });
 
   it('does not load a namespace for plugins without translations', async () => {
