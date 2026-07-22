@@ -146,7 +146,7 @@ export const checkIsBot = async (
   if (message?.payload) {
     const payload = parseAutomationPayload(message.payload);
     if (payload.botId) {
-      selector = { _id: payload.botId };
+      selector = { _id: { $eq: payload.botId } };
     }
   }
   const bot = await models.FacebookBots.findOne(selector);
