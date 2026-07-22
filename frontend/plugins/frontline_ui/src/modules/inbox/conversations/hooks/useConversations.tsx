@@ -229,6 +229,8 @@ export const useConversations = (
         userId,
       },
       updateQuery: (prev, { subscriptionData }) => {
+        // Subscription payloads can be null (#8774) and the conversations query
+        // cache may not be populated yet when the first event arrives (#8771).
         const newMessage =
           subscriptionData.data?.conversationClientMessageInserted;
 
@@ -248,17 +250,22 @@ export const useConversations = (
         }
 
         const conversationId = newMessage.conversationId;
-        const index =
-          prev?.conversations.list.findIndex(
-            (conversation) => conversation._id === conversationId,
-          ) ?? -1;
+        const conversations = prev?.conversations?.list;
         // Not in the list yet, or nothing to order it by — let the server say.
-        if (!prev || index === -1 || !newMessage.createdAt) {
+        if (!prev || !conversations || !newMessage.createdAt) {
           scheduleRefetch();
           return prev;
         }
 
-        const list = [...prev.conversations.list];
+        const index = conversations.findIndex(
+          (conversation) => conversation._id === conversationId,
+        );
+        if (index === -1) {
+          scheduleRefetch();
+          return prev;
+        }
+
+        const list = [...conversations];
         const [conversation] = list.splice(index, 1);
         list.unshift({
           ...conversation,
