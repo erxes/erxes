@@ -1,5 +1,5 @@
 import { getInstance, loadRemote } from '@module-federation/enhanced/runtime';
-import type { IUIConfig } from 'erxes-ui';
+import { IUIConfig } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { loadingPluginsConfigState, pluginsConfigState } from 'ui-modules';
@@ -7,27 +7,6 @@ import { i18nInstance } from '~/i18n';
 
 type RemoteConfig = {
   CONFIG: IUIConfig;
-};
-
-export const loadPluginI18nNamespace = async ({
-  i18n,
-  i18nNamespace,
-  name,
-}: Pick<IUIConfig, 'i18n' | 'i18nNamespace' | 'name'>) => {
-  const namespace = i18nNamespace ?? (i18n ? name : undefined);
-
-  if (!namespace) {
-    return;
-  }
-
-  try {
-    await i18nInstance.loadNamespaces(namespace);
-  } catch (error) {
-    console.error(
-      `Failed to load translation namespace "${namespace}" for ${name}:`,
-      error,
-    );
-  }
 };
 
 export const PluginConfigsProvidersEffect = () => {
@@ -46,7 +25,9 @@ export const PluginConfigsProvidersEffect = () => {
             )) as RemoteConfig;
             const pluginConfig = remoteConfig.CONFIG;
 
-            await loadPluginI18nNamespace(pluginConfig);
+            if (pluginConfig.i18n) {
+              i18nInstance.loadNamespaces(pluginConfig.name);
+            }
 
             setPluginsConfig((prev) => ({
               ...prev,
