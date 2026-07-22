@@ -2,17 +2,20 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
 type TPosOrderPaymentSource = {
-  _id: string;
+  _id?: string;
+  targetId?: string;
   customerId?: string;
   customerType?: string;
   finalAmount?: number;
-  number: string;
+  number?: string;
   posId?: string;
+  posToken?: string;
   totalAmount?: number;
 };
 
 type TPosPaymentSource = {
   paymentIds?: string[];
+  token?: string;
 };
 
 type TPosOrderPaymentUrlDependencies = {
@@ -21,6 +24,7 @@ type TPosOrderPaymentUrlDependencies = {
     currency: string;
     customerId?: string;
     customerType?: string;
+    data: { posToken: string };
     description: string;
     contentType: string;
     contentTypeId: string;
@@ -29,6 +33,9 @@ type TPosOrderPaymentUrlDependencies = {
   getOrder: (orderId: string) => Promise<TPosOrderPaymentSource | null>;
   getPos: (posId: string) => Promise<TPosPaymentSource | null>;
 };
+
+const getOrderAmount = (order: TPosOrderPaymentSource) =>
+  order.finalAmount || order.totalAmount || 0;
 
 const getPaymentUrl = (result: unknown) => {
   if (!result || typeof result !== 'object' || !('url' in result)) {
@@ -40,16 +47,20 @@ const getPaymentUrl = (result: unknown) => {
 
 export const resolvePosOrderPaymentUrlWithDependencies = async ({
   dependencies,
-  orderId,
+  source,
 }: {
   dependencies: TPosOrderPaymentUrlDependencies;
-  orderId: string;
+  source: TPosOrderPaymentSource;
 }) => {
+  const orderId = source.targetId || source._id;
+
   if (!orderId) {
     return '';
   }
 
-  const order = await dependencies.getOrder(orderId);
+  const order = getOrderAmount(source)
+    ? source
+    : await dependencies.getOrder(orderId);
 
   if (!order?.posId) {
     return '';
@@ -57,20 +68,22 @@ export const resolvePosOrderPaymentUrlWithDependencies = async ({
 
   const pos = await dependencies.getPos(order.posId);
   const paymentIds = pos?.paymentIds || [];
-  const amount = order.finalAmount || order.totalAmount || 0;
+  const posToken = order.posToken || pos?.token;
+  const amount = getOrderAmount(order);
 
-  if (!paymentIds.length || amount <= 0) {
+  if (!paymentIds.length || !posToken || amount <= 0) {
     return '';
   }
 
   const result = await dependencies.generateInvoiceUrl({
     amount,
     currency: 'MNT',
-    description: `POS order ${order.number}`,
+    description: `POS order ${order.number || orderId}`,
     customerId: order.customerId,
     customerType: order.customerType,
     contentType: 'sales:pos.orders',
-    contentTypeId: order._id,
+    contentTypeId: orderId,
+    data: { posToken },
     paymentIds,
   });
 
@@ -78,16 +91,16 @@ export const resolvePosOrderPaymentUrlWithDependencies = async ({
 };
 
 export const resolvePosOrderPaymentUrl = async ({
-  orderId,
+  source,
   subdomain,
 }: {
-  orderId: string;
+  source: TPosOrderPaymentSource;
   subdomain: string;
 }) => {
   const models = await generateModels(subdomain);
 
   return await resolvePosOrderPaymentUrlWithDependencies({
-    orderId,
+    source,
     dependencies: {
       getOrder: (id) => models.PosOrders.findOne({ _id: id }).lean(),
       getPos: (id) => models.Pos.findOne({ _id: id }).lean(),
