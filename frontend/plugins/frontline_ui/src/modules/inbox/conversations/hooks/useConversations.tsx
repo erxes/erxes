@@ -108,6 +108,8 @@ export const useConversations = (
         }
 
         if (!prev.conversations?.list) {
+          // Cache not ready yet — refetch once it can populate (#8771)
+          setTimeout(() => refetchRef.current(), 0);
           return prev;
         }
 
