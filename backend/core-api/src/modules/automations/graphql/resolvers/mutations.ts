@@ -1,6 +1,7 @@
 import {
   AUTOMATION_STATUSES,
   IAutomation,
+  validateWorkflowBindings,
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
@@ -70,6 +71,21 @@ export const automationMutations = {
       ownerId: automation.createdBy,
       action: 'edit',
     });
+
+    // An active automation must not carry workflow bindings that cannot
+    // resolve — fail here instead of at runtime.
+    const nextStatus = doc.status ?? automation.status;
+
+    if (nextStatus === AUTOMATION_STATUSES.ACTIVE) {
+      const bindingErrors = validateWorkflowBindings(
+        doc.workflows ?? automation.workflows,
+        doc.actions ?? automation.actions,
+      );
+
+      if (bindingErrors.length) {
+        throw new Error(`Cannot activate automation: ${bindingErrors.join('; ')}`);
+      }
+    }
 
     await models.Automations.updateOne(
       { _id },
@@ -323,6 +339,66 @@ export const automationMutations = {
     await checkPermission('automationsDelete');
 
     await models.AutomationEmailTemplates.removeEmailTemplate(_id);
+    return { success: true };
+  },
+
+  /**
+   * Creates a workflow template
+   */
+  async automationWorkflowTemplatesAdd(
+    _root,
+    doc: {
+      name: string;
+      description?: string;
+      entryActionId?: string;
+      actions: Record<string, any>[];
+      inputs?: Record<string, string>;
+    },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsCreate');
+
+    return models.AutomationWorkflowTemplates.createWorkflowTemplate({
+      ...doc,
+      createdBy: user._id,
+    });
+  },
+
+  /**
+   * Updates a workflow template (e.g. pushing edits made to an inserted
+   * instance back to its source template)
+   */
+  async automationWorkflowTemplatesEdit(
+    _root,
+    {
+      _id,
+      ...doc
+    }: {
+      _id: string;
+      name?: string;
+      description?: string;
+      entryActionId?: string;
+      actions?: Record<string, any>[];
+      inputs?: Record<string, string>;
+    },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsUpdate');
+
+    return models.AutomationWorkflowTemplates.updateWorkflowTemplate(_id, doc);
+  },
+
+  /**
+   * Removes a workflow template
+   */
+  async automationWorkflowTemplatesRemove(
+    _root,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsDelete');
+
+    await models.AutomationWorkflowTemplates.removeWorkflowTemplate(_id);
     return { success: true };
   },
 };

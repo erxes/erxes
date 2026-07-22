@@ -29,6 +29,7 @@ export const useNodeDropDownActions = (
   const onRemoveNode = () => {
     const actions = getValues('actions') || [];
     const triggers = getValues('triggers') || [];
+    const workflows = getValues('workflows') || [];
     const { actionMap, triggerMap, updatedActions, updatedTriggers } =
       removeNodeReferences({
         removedNodeId: id,
@@ -36,6 +37,16 @@ export const useNodeDropDownActions = (
         triggers,
         actionFolks,
       });
+
+    // Drop the removed workflow entry and clear workflow refs to the removed
+    // node; leaving it in the form revives the node on the next regeneration.
+    const updatedWorkflows = workflows
+      .filter((workflow) => workflow.id !== id)
+      .map((workflow) => ({
+        ...workflow,
+        nextActionId:
+          workflow.nextActionId === id ? undefined : workflow.nextActionId,
+      }));
 
     setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
 
@@ -61,6 +72,7 @@ export const useNodeDropDownActions = (
 
     setAutomationBuilderFormValue('actions', updatedActions);
     setAutomationBuilderFormValue('triggers', updatedTriggers);
+    setAutomationBuilderFormValue('workflows', updatedWorkflows);
 
     if (queryParams?.activeNodeId === id) {
       setQueryParams({ activeNodeId: null });

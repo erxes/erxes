@@ -1,4 +1,4 @@
-import { Button } from 'erxes-ui';
+import { Button, Command } from 'erxes-ui';
 import { TAutomationOutputVariable } from '../AutomationVariableBrowserTypes';
 import { useAutomationVariableCardProps } from '../hooks/useAutomationVariableCardProps';
 import { useAutomationVariableExpansion } from '../hooks/useAutomationVariableExpansion';
@@ -24,7 +24,11 @@ export const AutomationOutputVariableItem = ({
   } = useAutomationVariableExpansion(variable);
 
   return (
-    <div className="space-y-2">
+    <Command.Item
+      value={variable.key}
+      keywords={[variable.label]}
+      className="block h-auto space-y-2 p-0 data-[selected=true]:bg-transparent"
+    >
       <AutomationOutputVariableCard
         {...cardProps}
         badge={
@@ -51,6 +55,6 @@ export const AutomationOutputVariableItem = ({
           />
         </div>
       ) : null}
-    </div>
+    </Command.Item>
   );
 };

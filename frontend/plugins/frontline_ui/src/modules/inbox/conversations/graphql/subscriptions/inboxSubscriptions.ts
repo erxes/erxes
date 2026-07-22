@@ -31,8 +31,10 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       _id
       content
       formWidgetData
+      extraData
       ${ATTACHMENT_GQL}
       internal
+      fromBot
       createdAt
       isCustomerRead
       userId

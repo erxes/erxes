@@ -69,21 +69,15 @@ export const tdbCallbackHandler = async (
 ): Promise<ITransactionDocument> => {
   const { transactionId } = data;
 
-  console.log('data', data)
-
   const transaction = await models.Transactions.getTransaction({
     _id: transactionId,
   });
-
-  console.log('1 transaction', transaction)
 
   if (!transaction) {
     throw new Error(`Transaction not found for TDB order ${transactionId}`);
   }
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
-
-  console.log('payment', payment)
 
   if (payment.kind !== 'tdb') {
     throw new Error('Payment config type is mismatched');
@@ -97,8 +91,6 @@ export const tdbCallbackHandler = async (
     const api = new TDBAPI(payment.config);
 
     const status = await api.checkInvoice(transaction);
-
-    console.log('status', status)
 
     if (status !== PAYMENT_STATUS.PAID) {
       return transaction;
@@ -148,8 +140,6 @@ export class TDBAPI extends BaseAPI {
       hppRedirectUrl: redirectUrl,
     };
 
-    console.log('payload', JSON.stringify(payload))
-
     const response = await this.request({
       method: 'POST',
       path: 'order',
@@ -160,15 +150,11 @@ export class TDBAPI extends BaseAPI {
       data: { order: payload },
     }).then((r) => r.json());
 
-    console.log('[createInvoice] response', response)
-
     return response;
   }
 
   async checkInvoice(transaction: ITransactionDocument): Promise<string> {
     const { id: orderId, password } = transaction?.response?.order || {};
-
-    console.log('transaction', transaction)
 
     const response: ITDBGetOrderDetailResponse = await this.request({
       method: 'GET',
@@ -180,8 +166,6 @@ export class TDBAPI extends BaseAPI {
         Authorization: buildBasicAuth(this.username, this.password),
       },
     }).then((r) => r.json());
-
-    console.log('[checkInvoice] response', response)
 
     const status = (response?.order?.status || '').toUpperCase();
 

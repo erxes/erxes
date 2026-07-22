@@ -1,6 +1,6 @@
 import { Button, Collapsible, cn } from 'erxes-ui';
 import { IconGripVertical } from '@tabler/icons-react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DndContext,
@@ -21,6 +21,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { FieldDefinition } from '../../posts/CustomFieldInput';
 import { useCustomFieldOrdering } from '../hooks/useCustomFieldOrdering';
+import { useSyncedState } from '../hooks/useSyncedState';
+
+const EMPTY_FIELDS: FieldDefinition[] = [];
 
 export interface ReorderableFieldGroup {
   _id: string;
@@ -75,15 +78,11 @@ function FieldList({
   renderField: ReorderableCustomFieldsProps['renderField'];
   onReorderFields: (groupId: string, fields: FieldDefinition[]) => void;
 }>) {
-  const groupFields = group.fields || [];
+  const groupFields = group.fields || EMPTY_FIELDS;
 
   // Local order so a drop reflects immediately (no snap-back while the
   // persisted order round-trips); re-synced whenever the stored order changes.
-  const [fields, setFields] = useState(groupFields);
-  const fieldsKey = groupFields.map((f) => f._id).join('|');
-  useEffect(() => {
-    setFields(group.fields || []);
-  }, [fieldsKey]);
+  const [fields, setFields] = useSyncedState(groupFields);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -158,11 +157,7 @@ export const ReorderableCustomFields = ({
 
   // Local order so a drop reflects immediately (no snap-back while the
   // persisted order round-trips); re-synced whenever the stored order changes.
-  const [groups, setGroups] = useState(fieldGroups);
-  const groupsKey = fieldGroups.map((g) => g._id).join('|');
-  useEffect(() => {
-    setGroups(fieldGroups);
-  }, [groupsKey]);
+  const [groups, setGroups] = useSyncedState(fieldGroups);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -186,7 +181,9 @@ export const ReorderableCustomFields = ({
 
   return (
     <div className="space-y-3 mt-6 pt-6 border-t">
-      <div className="text-sm font-semibold text-foreground">{t('custom-fields')}</div>
+      <div className="text-sm font-semibold text-foreground">
+        {t('custom-fields')}
+      </div>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
