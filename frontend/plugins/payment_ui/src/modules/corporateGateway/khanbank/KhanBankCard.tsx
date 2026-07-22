@@ -56,7 +56,12 @@ const KhanBankCard = () => {
           <span>{config?.consumerKey}</span>
         </div>
       }
-      form={<ConfigFormContainer closeModal={() => setOpen(false)} />}
+      form={
+        <ConfigFormContainer
+          config={config}
+          closeModal={() => setOpen(false)}
+        />
+      }
     />
   );
 };
