@@ -50,7 +50,6 @@ export const resolvePosOrderPaymentUrlWithDependencies = async ({
   }
 
   const order = await dependencies.getOrder(orderId);
-
   if (!order?.posId) {
     return '';
   }
@@ -58,7 +57,6 @@ export const resolvePosOrderPaymentUrlWithDependencies = async ({
   const pos = await dependencies.getPos(order.posId);
   const paymentIds = pos?.paymentIds || [];
   const amount = order.finalAmount || order.totalAmount || 0;
-
   if (!paymentIds.length || amount <= 0) {
     return '';
   }
@@ -73,6 +71,7 @@ export const resolvePosOrderPaymentUrlWithDependencies = async ({
     contentTypeId: order._id,
     paymentIds,
   });
+  console.log({ generatedResult: result });
 
   return getPaymentUrl(result);
 };
