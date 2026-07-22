@@ -2,11 +2,11 @@
 
 import {
   ActivityLogs,
-  AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { dealCustomActivities } from './DealActivityRows';
+import { DealNoteComposer } from '@/deals/cards/components/detail/overview/DealNoteComposer';
 import { Empty, FocusSheet, ScrollArea, Tabs, useFocusSheet, useQueryState } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
@@ -56,7 +56,7 @@ const SalesItemDetailView = () => {
               </Tabs.Content>
               <Tabs.Content value="properties" className="h-full">
                 <ScrollArea className="h-full">
-                  <div className="p-6">
+                  <div className="w-full xl:max-w-3xl mx-auto p-6">
                     <FieldsInDetail
                       key={`${deal?._id || ''}-${JSON.stringify(
                         deal?.propertiesData || {},
@@ -72,7 +72,7 @@ const SalesItemDetailView = () => {
               <Tabs.Content value="activity" className="h-full">
                 <div className="h-full flex flex-col">
                   <ScrollArea className="flex-1 min-h-0">
-                    <div className="pt-3">
+                    <div className="w-full xl:max-w-3xl mx-auto px-6 pt-3">
                       <ActivityLogs
                         targetId={deal?._id || ''}
                         customActivities={dealCustomActivities}
@@ -82,11 +82,8 @@ const SalesItemDetailView = () => {
                   </ScrollArea>
 
                   {!!deal?._id && (
-                    <div className="shrink-0 pb-6 pt-2">
-                      <AddInternalNote
-                        contentTypeId={deal._id}
-                        contentType="sales:deal"
-                      />
+                    <div className="shrink-0 w-full xl:max-w-3xl mx-auto px-6 pb-6 pt-2">
+                      <DealNoteComposer dealId={deal._id} />
                     </div>
                   )}
                 </div>

@@ -160,6 +160,8 @@
   "tags": "Tags",
   "branches": "Branches",
   "departments": "Departments",
+  "broker-type": "Broker type",
+  "broker": "Broker",
   "description": "Description",
   "category": "Category",
   "categories": "Categories",
@@ -791,5 +793,8 @@
   "checklist-name": "Checklist name",
   "checklist-items": "Checklist items",
   "add-item": "Add item",
-  "dept": "Dept."
+  "dept": "Dept.",
+  "leave-a-note": "Leave a note...",
+  "send": "Send",
+  "note-added": "Note added successfully"
 }

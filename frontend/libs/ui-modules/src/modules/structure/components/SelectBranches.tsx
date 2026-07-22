@@ -201,6 +201,7 @@ export const SelectBranchesItem = ({
 export const BranchesList = ({
   placeholder,
   renderAsPlainText,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof BranchBadge>, 'onClose'> & {
   placeholder?: string;
@@ -225,11 +226,14 @@ export const BranchesList = ({
           renderAsPlainText={renderAsPlainText}
           showMissingId
           variant={'secondary'}
+          className={cn('min-w-0', className)}
           onCompleted={(branch) => {
             if (!branch) return;
-            if (selectedBranchIds.includes(branch._id)) {
-              setSelectedBranches([...selectedBranches, branch]);
-            }
+            if (!selectedBranchIds.includes(branch._id)) return;
+
+            setSelectedBranches((prev) =>
+              prev.some((b) => b._id === branch._id) ? prev : [...prev, branch],
+            );
           }}
           onClose={() =>
             onSelect?.(
@@ -318,9 +322,10 @@ const SelectBranchesBadgesView = () => {
           showMissingId
           onCompleted={(branch) => {
             if (!branch) return;
-            if (branchIds.includes(branch._id)) {
-              setSelectedBranches([...selectedBranches, branch]);
-            }
+            if (!branchIds.includes(branch._id)) return;
+            setSelectedBranches((prev) =>
+              prev.some((b) => b._id === branch._id) ? prev : [...prev, branch],
+            );
           }}
           onClose={() =>
             onSelect?.(

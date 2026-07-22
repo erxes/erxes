@@ -374,12 +374,11 @@ export const TagList = ({
           variant="secondary"
           onCompleted={(tag) => {
             if (!tag) return;
-            if (selectedTagIds.includes(tag._id)) {
-              setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
-            }
-            if (!selectedTags.includes(tag)) {
-              setSelectedTags([...selectedTags, tag]);
-            }
+            if (!selectedTagIds.includes(tag._id)) return;
+
+            setSelectedTags((prev) =>
+              prev.some((t) => t._id === tag._id) ? prev : [...prev, tag],
+            );
           }}
           onClose={() =>
             onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
@@ -392,13 +391,14 @@ export const TagList = ({
 };
 
 export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
-  const { selectedTags, mode } = useSelectTagsContext();
+  const { value, selectedTags, mode } = useSelectTagsContext();
 
-  if ((selectedTags || []).length !== 0) {
+  const tagIds = !value ? [] : Array.isArray(value) ? value : [value];
+
+  if (tagIds.length !== 0) {
     return (
       <span className="flex gap-1 items-center -ml-1 text-muted-foreground">
-        <IconTag className="w-4 h-4 text-gray-400" /> Tag +
-        {(selectedTags || []).length}
+        <IconTag className="w-4 h-4 text-gray-400" /> Tag +{tagIds.length}
       </span>
     );
   }
@@ -548,12 +548,10 @@ export const ConversationTagList = ({
           className="max-w-24 shrink truncate"
           onCompleted={(tag) => {
             if (!tag) return;
-            if (selectedTagIds.includes(tag._id)) {
-              setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
-            }
-            if (!selectedTags.includes(tag)) {
-              setSelectedTags([...selectedTags, tag]);
-            }
+            if (!selectedTagIds.includes(tag._id)) return;
+            setSelectedTags((prev) =>
+              prev.some((t) => t._id === tag._id) ? prev : [...prev, tag],
+            );
           }}
           onClose={() =>
             onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)

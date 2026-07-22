@@ -15,6 +15,7 @@ import {
 } from '@/deals/components/deal-selects/PriorityInline';
 import React, { useState } from 'react';
 
+import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/deals/constants/cards';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
@@ -144,13 +145,19 @@ const SelectPriorityRoot = ({
       variant={variant}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant}>
-          {variant === SelectTriggerVariant.TABLE ? (
-            <SelectPriorityBadgeValue />
-          ) : (
+        {variant === SelectTriggerVariant.DETAIL ? (
+          <DealChipTrigger>
             <SelectPriorityValue />
-          )}
-        </SelectTriggerOperation>
+          </DealChipTrigger>
+        ) : (
+          <SelectTriggerOperation variant={variant}>
+            {variant === SelectTriggerVariant.TABLE ? (
+              <SelectPriorityBadgeValue />
+            ) : (
+              <SelectPriorityValue />
+            )}
+          </SelectTriggerOperation>
+        )}
         <SelectOperationContent variant={variant}>
           <SelectPriorityContent />
         </SelectOperationContent>

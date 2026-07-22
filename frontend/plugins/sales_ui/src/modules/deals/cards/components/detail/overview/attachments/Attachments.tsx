@@ -37,7 +37,7 @@ const Attachments = () => {
   // );
 
   return (
-    <div className="border-b">
+    <div>
       <div className="flex flex-col">
         {fileAttachments.length > 0 && (
           <FileAttachments attachments={fileAttachments} />

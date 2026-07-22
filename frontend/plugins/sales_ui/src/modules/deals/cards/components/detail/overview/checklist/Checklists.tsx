@@ -13,7 +13,7 @@ export const Checklists = ({
   if (!checklists || checklists.length === 0) return null;
 
   return (
-    <div className="p-5">
+    <div className="py-2">
       {checklists?.map((checklist) => (
         <ChecklistItem
           key={checklist._id}

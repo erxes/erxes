@@ -209,6 +209,7 @@ export const SelectDepartmentsItem = ({
 export const DepartmentsList = ({
   placeholder,
   renderAsPlainText,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof DepartmentBadge>, 'onClose'> & {
   placeholder?: string;
@@ -232,11 +233,15 @@ export const DepartmentsList = ({
           department={selectedDepartments.find((d) => d._id === departmentId)}
           renderAsPlainText={renderAsPlainText}
           variant={'secondary'}
+          className={cn('min-w-0', className)}
           onCompleted={(department) => {
             if (!department) return;
-            if (selectedDepartmentIds.includes(department._id)) {
-              setSelectedDepartments([...selectedDepartments, department]);
-            }
+            if (!selectedDepartmentIds.includes(department._id)) return;
+            setSelectedDepartments((prev) =>
+              prev.some((d) => d._id === department._id)
+                ? prev
+                : [...prev, department],
+            );
           }}
           onClose={() =>
             onSelect?.(
@@ -253,12 +258,12 @@ export const DepartmentsList = ({
 };
 
 export const SelectDepartmentsValue = () => {
-  const { selectedDepartments, mode } = useSelectDepartmentsContext();
+  const { departmentIds, mode } = useSelectDepartmentsContext();
 
-  if (selectedDepartments?.length > 1 && mode === 'multiple')
+  if ((departmentIds?.length ?? 0) > 1 && mode === 'multiple')
     return (
       <span className="text-muted-foreground">
-        {selectedDepartments.length} departments selected
+        {departmentIds?.length} departments selected
       </span>
     );
 
@@ -328,9 +333,12 @@ const SelectDepartmentsBadgesView = () => {
           departmentId={departmentId}
           onCompleted={(position) => {
             if (!position) return;
-            if (departmentIds.includes(position._id)) {
-              setSelectedDepartments([...selectedDepartments, position]);
-            }
+            if (!departmentIds.includes(position._id)) return;
+            setSelectedDepartments((prev) =>
+              prev.some((d) => d._id === position._id)
+                ? prev
+                : [...prev, position],
+            );
           }}
           onClose={() =>
             onSelect?.(
