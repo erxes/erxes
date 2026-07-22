@@ -93,18 +93,25 @@ export const useConversations = (
         userId,
       },
       updateQuery: (prev, { subscriptionData }) => {
-        if (subscriptionData.data) {
-          setNewMessagesCount((prev) => prev + 1);
-          const incomingConversationId =
-            subscriptionData.data.conversationClientMessageInserted.conversationId;
-          if (incomingConversationId !== activeConversationRef.current?._id) {
-            playNotificationSound();
-          }
-        }
-        if (!subscriptionData.data || !prev) return prev;
+        // Subscription payloads can be null (Sentry ERXES-UI-C4 / #8774) and the
+        // conversations query cache may not be populated yet when the first event
+        // arrives (Sentry ERXES-UI-C2 / #8771). Guard both before reading fields.
         const newMessage =
-          subscriptionData.data.conversationClientMessageInserted;
-        const conversationId = newMessage?.conversationId;
+          subscriptionData.data?.conversationClientMessageInserted;
+        if (!newMessage || !prev) {
+          return prev;
+        }
+
+        setNewMessagesCount((count) => count + 1);
+        if (newMessage.conversationId !== activeConversationRef.current?._id) {
+          playNotificationSound();
+        }
+
+        if (!prev.conversations?.list) {
+          return prev;
+        }
+
+        const conversationId = newMessage.conversationId;
         const index = prev.conversations.list.findIndex(
           (conversation) => conversation._id === conversationId,
         );
@@ -113,14 +120,15 @@ export const useConversations = (
           // New conversation not yet in list — refetch to load the full entry
           setTimeout(() => refetchRef.current(), 0);
           return prev;
-        } else {
-          list.splice(index, 1, {
-            ...list[index],
-            readUserIds: list[index].readUserIds?.filter((id) => id !== userId),
-            status: ConversationStatus.OPEN,
-            content: newMessage.content,
-          });
         }
+
+        list.splice(index, 1, {
+          ...list[index],
+          readUserIds: list[index].readUserIds?.filter((id) => id !== userId),
+          status: ConversationStatus.OPEN,
+          content: newMessage.content,
+        });
+
         return { ...prev, conversations: { ...prev.conversations, list } };
       },
     });
