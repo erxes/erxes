@@ -1,5 +1,3 @@
-import { getEnv } from 'erxes-api-shared/utils';
-
 import { IModels } from '~/connectionResolvers';
 
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
@@ -7,49 +5,24 @@ import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import { handleCPContacts } from '@/clientportal/services/user/contactService';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { getTokiConnection } from '~/modules/clientportal/utils';
 
 async function fetchUserFromToki(
   token: string,
   clientPortal: IClientPortalDocument,
 ) {
-  const tokiConfig = clientPortal.auth?.tokiConfig;
-
-  if (!tokiConfig) {
-    throw new Error('Toki configs are not set');
-  }
-
-  const testApiUrl = getEnv({ name: 'TOKI_TEST_API_URL' });
-  const prodApiUrl = getEnv({ name: 'TOKI_PRODUCTION_API_URL' });
-
-  const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
-  console.log(
-    'req:',
-    JSON.stringify({
-      dasdsA: `https://${apiUrl}/third-party-service/v1/shoppy/user`,
-      // {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'api-key': tokiConfig.apiKey,
-        'Content-Type': 'application/json',
-      },
-      // },
-    }),
-  );
-  const response = await fetch(
-    `https://${apiUrl}/third-party-service/v1/shoppy/user`,
-    {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'api-key': tokiConfig.apiKey,
-        'Content-Type': 'application/json',
-      },
+  const { apiKey, apiUrl } = getTokiConnection(clientPortal);
+  const response = await fetch(`${apiUrl}/third-party-service/v1/shoppy/user`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
     },
-  );
-  console.log(response);
+  });
+
   if (!response.ok) {
-    throw new Error(await response.text());
+    throw new AuthenticationError('Unable to authenticate with Toki');
   }
 
   return response.json();
@@ -61,8 +34,11 @@ export async function loginWithToki(
   models: IModels,
 ): Promise<ICPUserDocument> {
   const response = await fetchUserFromToki(token, clientPortal);
-  console.log('fetchUserFromToki:', response);
-  const { _id, phoneNo, profilePicURL, name } = response.data;
+  const { _id, phoneNo, profilePicURL, name } = response.data || {};
+
+  if (!_id || !phoneNo) {
+    throw new AuthenticationError('Invalid Toki user response');
+  }
 
   const [firstName = '', ...rest] = (name || '').trim().split(' ');
   const lastName = rest.join(' ');

@@ -3,6 +3,7 @@ import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { getTokiConnection } from '~/modules/clientportal/utils';
 
 interface IClientPortalUserFilterParams {
   clientPortalId?: string;
@@ -89,20 +90,10 @@ export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
   ) {
     return models.CPUser.findOne({ _id }).lean();
   },
-  async checkTokiUserLegalAge(_root, { token }, _context: IContext) {
-    const apiKey = process.env.TOKI_API_KEY;
-    const apiUrl = process.env.TOKI_API_URL;
-
-    if (!apiKey) {
-      throw new Error('Toki api key is not set');
-    }
-
-    if (!apiUrl) {
-      throw new Error('Toki API URL is not set');
-    }
-
+  async checkTokiUserLegalAge(_root, { token }, { clientPortal }: IContext) {
+    const { apiUrl, apiKey } = getTokiConnection(clientPortal);
     const response = await fetch(
-      `https://${apiUrl}/third-party-service/v1/shoppy/user`,
+      `${apiUrl}/third-party-service/v1/shoppy/user`,
       {
         method: 'GET',
         headers: {
@@ -114,15 +105,16 @@ export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
     );
 
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Toki API error: ${text}`);
+      throw new Error('Unable to check Toki user age');
     }
 
-    const { data = {} } = ((await response.json()) || {}) as any;
+    const { data = {} } = await response.json();
 
-    const isAdult = data?.isAdult21 || data?.isAdult;
+    if (typeof data?.isAdult21 === 'boolean') {
+      return data.isAdult21;
+    }
 
-    return Boolean(isAdult);
+    return data?.isAdult === true;
   },
 };
 
