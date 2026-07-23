@@ -60,6 +60,18 @@ import {
   types as webPageTypes,
 } from '@/webbuilder/graphql/schemas/webPage';
 
+import {
+  inputs as commentInputs,
+  mutations as commentMutations,
+  queries as commentQueries,
+  types as commentTypes,
+} from '@/cms/graphql/schemas/comments';
+import {
+  mutations as ratingMutations,
+  queries as ratingQueries,
+  types as ratingTypes,
+} from '@/cms/graphql/schemas/ratings';
+
 export const types = `
 
   enum CacheControlScope {
@@ -100,6 +112,9 @@ export const types = `
     ${menuInputs}
     ${pageTypes}
     ${pageInputs}
+    ${commentTypes}
+    ${commentInputs}
+    ${ratingTypes}
 `;
 
 export const queries = `
@@ -112,6 +127,8 @@ export const queries = `
     ${tagQueries}
     ${menuQueries}
     ${pageQueries}
+    ${commentQueries}
+    ${ratingQueries}
   `;
 
 export const mutations = `
@@ -124,6 +141,8 @@ export const mutations = `
     ${tagMutations}
     ${menuMutations}
     ${pageMutations}
+    ${commentMutations}
+    ${ratingMutations}
 `;
 
 export default { types, queries, mutations };

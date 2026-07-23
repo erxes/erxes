@@ -25,6 +25,9 @@ export type SettingsFormState = {
   postsPerPage: string;
   defaultPostStatus: string;
   allowComments: boolean;
+  autoApproveComments: boolean;
+  allowRatings: boolean;
+  autoApproveRatings: boolean;
   languages: string[];
   defaultLanguage: string;
   siteLogo: CmsAttachment | null;
@@ -59,6 +62,9 @@ export type CmsSettingsData = {
   customScripts?: string[];
   defaultPostStatus?: string;
   allowComments?: boolean;
+  autoApproveComments?: boolean;
+  allowRatings?: boolean;
+  autoApproveRatings?: boolean;
   language?: string;
   languages?: string[];
   postUrlField?: string;

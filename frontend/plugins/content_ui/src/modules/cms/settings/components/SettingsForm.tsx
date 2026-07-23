@@ -18,6 +18,7 @@ import {
   type MultiSelectOption,
   MultipleSelector,
   Select,
+  Switch,
   Textarea,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -63,6 +64,97 @@ interface ISettingsFormProps {
   onDelete: () => Promise<void> | void;
 }
 
+const updateLanguages = (
+  selected: Array<{ value: string; label: string }>,
+  defaultLanguage: string,
+  updateSetting: UpdateSetting,
+) => {
+  const languages = selected.map((language) => language.value);
+
+  updateSetting('languages', languages);
+
+  if (!languages.length) {
+    updateSetting('defaultLanguage', '');
+    return;
+  }
+
+  if (!languages.includes(defaultLanguage)) {
+    updateSetting('defaultLanguage', languages[0]);
+  }
+};
+
+const getCmsName = (cms: CmsSettingsData | undefined, websiteName: string) =>
+  cms?.name?.trim() || websiteName.trim() || 'this CMS';
+
+const isCmsDeletionAllowed = ({
+  cmsId,
+  cmsName,
+  deleteNameConfirmation,
+  deletePhraseConfirmation,
+  isDeleting,
+}: {
+  cmsId?: string;
+  cmsName: string;
+  deleteNameConfirmation: string;
+  deletePhraseConfirmation: string;
+  isDeleting: boolean;
+}) =>
+  Boolean(cmsId) &&
+  deleteNameConfirmation.trim() === cmsName &&
+  deletePhraseConfirmation.trim() === DELETE_CONFIRMATION_PHRASE &&
+  !isDeleting;
+
+const getLanguageLabel = (language: string) =>
+  LANGUAGES.find((option) => option.value === language)?.label || language;
+
+const getSelectedPostUrlField = (postUrlField: string) =>
+  POST_URL_FIELD_OPTIONS.find((option) => option.value === postUrlField) ||
+  POST_URL_FIELD_OPTIONS[0];
+
+const getAvailableDefaultLanguages = (languages: string[]) =>
+  LANGUAGES.filter((language) => languages.includes(language.value));
+
+const buildSelectedKeywordOptions = (keywords: string[]) =>
+  keywords.reduce<MultiSelectOption[]>((options, keyword) => {
+    const value = keyword.trim();
+
+    if (value && !options.some((option) => option.value === value)) {
+      options.push({ value, label: value });
+    }
+
+    return options;
+  }, []);
+
+const buildMetaKeywords = (selected: MultiSelectOption[]) =>
+  selected.reduce<string[]>((acc, keyword) => {
+    const value = keyword.value.trim();
+
+    if (value && !acc.includes(value)) {
+      acc.push(value);
+    }
+
+    return acc;
+  }, []);
+
+const normalizeAssignedMemberIds = (value: string | string[]) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return value ? [value] : [];
+};
+
+const getCmsPublicUrl = (
+  cms: CmsSettingsData | undefined,
+  settings: SettingsFormState,
+  fallback: string,
+) =>
+  cms?.domain ||
+  cms?.publicUrl ||
+  settings.domain ||
+  settings.publicUrl ||
+  fallback;
+
 export const SettingsForm = ({
   cms,
   isDeleting,
@@ -76,15 +168,8 @@ export const SettingsForm = ({
   const [deleteNameConfirmation, setDeleteNameConfirmation] = useState('');
   const [deletePhraseConfirmation, setDeletePhraseConfirmation] = useState('');
 
-  const getLanguageLabel = (language: string) =>
-    LANGUAGES.find((option) => option.value === language)?.label || language;
-
-  const cmsName =
-    cms?.name?.trim() || settings.websiteName.trim() || 'this CMS';
-  const selectedPostUrlField =
-    POST_URL_FIELD_OPTIONS.find(
-      (option) => option.value === settings.postUrlField,
-    ) || POST_URL_FIELD_OPTIONS[0];
+  const cmsName = getCmsName(cms, settings.websiteName);
+  const selectedPostUrlField = getSelectedPostUrlField(settings.postUrlField);
   const previewUrl = buildPostPublicUrl(
     {
       domain: settings.domain,
@@ -95,61 +180,31 @@ export const SettingsForm = ({
     PREVIEW_POST,
     { allowRelative: true },
   );
-  const canDeleteCMS =
-    Boolean(cms?._id) &&
-    deleteNameConfirmation.trim() === cmsName &&
-    deletePhraseConfirmation.trim() === DELETE_CONFIRMATION_PHRASE &&
-    !isDeleting;
+  const canDeleteCMS = isCmsDeletionAllowed({
+    cmsId: cms?._id,
+    cmsName,
+    deleteNameConfirmation,
+    deletePhraseConfirmation,
+    isDeleting,
+  });
 
   const selectedLanguageOptions = settings.languages.map((language) => ({
     value: language,
     label: getLanguageLabel(language),
   }));
-  const availableDefaultLanguages = LANGUAGES.filter((language) =>
-    settings.languages.includes(language.value),
+  const availableDefaultLanguages = getAvailableDefaultLanguages(
+    settings.languages,
   );
-  const selectedKeywordOptions = settings.metaKeywords.reduce<
-    MultiSelectOption[]
-  >((options, keyword) => {
-    const value = keyword.trim();
-
-    if (value && !options.some((option) => option.value === value)) {
-      options.push({ value, label: value });
-    }
-
-    return options;
-  }, []);
+  const selectedKeywordOptions = buildSelectedKeywordOptions(
+    settings.metaKeywords,
+  );
 
   const handleLanguagesChange = (
     selected: Array<{ value: string; label: string }>,
-  ) => {
-    const languages = selected.map((language) => language.value);
+  ) => updateLanguages(selected, settings.defaultLanguage, updateSetting);
 
-    updateSetting('languages', languages);
-
-    if (!languages.length) {
-      updateSetting('defaultLanguage', '');
-      return;
-    }
-
-    if (!languages.includes(settings.defaultLanguage)) {
-      updateSetting('defaultLanguage', languages[0]);
-    }
-  };
-
-  const handleKeywordChange = (selected: MultiSelectOption[]) => {
-    const keywords = selected.reduce<string[]>((acc, keyword) => {
-      const value = keyword.value.trim();
-
-      if (value && !acc.includes(value)) {
-        acc.push(value);
-      }
-
-      return acc;
-    }, []);
-
-    updateSetting('metaKeywords', keywords);
-  };
+  const handleKeywordChange = (selected: MultiSelectOption[]) =>
+    updateSetting('metaKeywords', buildMetaKeywords(selected));
 
   const handleDeleteDialogChange = (open: boolean) => {
     setDeleteDialogOpen(open);
@@ -465,6 +520,90 @@ export const SettingsForm = ({
             <span className="min-w-0 truncate">{t('preview-url', { url: previewUrl })}</span>
           </div>
         </Field>
+
+        <Field
+          id="allowComments"
+          label="Allow comments"
+          hint="Let visitors leave comments on published posts"
+        >
+          <div className="flex items-center gap-3 pt-1">
+            <Switch
+              id="allowComments"
+              checked={Boolean(settings.allowComments)}
+              onCheckedChange={(checked) =>
+                updateSetting('allowComments', checked)
+              }
+            />
+            <label htmlFor="allowComments" className="text-sm cursor-pointer">
+              {settings.allowComments ? 'Enabled' : 'Disabled'}
+            </label>
+          </div>
+        </Field>
+
+        <Field
+          id="autoApproveComments"
+          label="Auto-approve comments"
+          hint="Publish visitor comments immediately instead of holding them for moderation"
+        >
+          <div className="flex items-center gap-3 pt-1">
+            <Switch
+              id="autoApproveComments"
+              checked={Boolean(settings.autoApproveComments)}
+              disabled={!settings.allowComments}
+              onCheckedChange={(checked) =>
+                updateSetting('autoApproveComments', checked)
+              }
+            />
+            <label
+              htmlFor="autoApproveComments"
+              className="text-sm cursor-pointer"
+            >
+              {settings.autoApproveComments ? 'Enabled' : 'Disabled'}
+            </label>
+          </div>
+        </Field>
+
+        <Field
+          id="allowRatings"
+          label={t('allow-ratings')}
+          hint={t('allow-ratings-hint')}
+        >
+          <div className="flex items-center gap-3 pt-1">
+            <Switch
+              id="allowRatings"
+              checked={settings.allowRatings}
+              onCheckedChange={(checked) =>
+                updateSetting('allowRatings', checked)
+              }
+            />
+            <label htmlFor="allowRatings" className="cursor-pointer text-sm">
+              {t(settings.allowRatings ? 'enabled' : 'disabled')}
+            </label>
+          </div>
+        </Field>
+
+        <Field
+          id="autoApproveRatings"
+          label={t('auto-approve-ratings')}
+          hint={t('auto-approve-ratings-hint')}
+        >
+          <div className="flex items-center gap-3 pt-1">
+            <Switch
+              id="autoApproveRatings"
+              checked={settings.autoApproveRatings}
+              disabled={!settings.allowRatings}
+              onCheckedChange={(checked) =>
+                updateSetting('autoApproveRatings', checked)
+              }
+            />
+            <label
+              htmlFor="autoApproveRatings"
+              className="cursor-pointer text-sm"
+            >
+              {t(settings.autoApproveRatings ? 'enabled' : 'disabled')}
+            </label>
+          </div>
+        </Field>
       </SettingsSection>
 
       <SettingsSection id="languages" title={t('languages')}>
@@ -572,7 +711,7 @@ export const SettingsForm = ({
               onValueChange={(value) =>
                 updateSetting(
                   'assignedMemberIds',
-                  Array.isArray(value) ? value : value ? [value] : [],
+                  normalizeAssignedMemberIds(value),
                 )
               }
               placeholder={t('select-team-members')}
@@ -613,11 +752,7 @@ export const SettingsForm = ({
           <div className="rounded-md border bg-muted/30 p-3">
             <div className="text-sm font-medium">{cmsName}</div>
             <div className="text-xs text-muted-foreground">
-              {cms?.domain ||
-                cms?.publicUrl ||
-                settings.domain ||
-                settings.publicUrl ||
-                t('no-public-url-set')}
+              {getCmsPublicUrl(cms, settings, t('no-public-url-set'))}
             </div>
           </div>
         </div>

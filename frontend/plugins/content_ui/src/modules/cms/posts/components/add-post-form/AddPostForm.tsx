@@ -9,6 +9,8 @@ import { usePostSubmission } from './hooks/usePostSubmission';
 import { usePostAutosave } from './hooks/usePostAutosave';
 import { PostEditorColumn } from './PostEditorColumn';
 import { PostSidebarPanel } from './PostSidebarPanel';
+import { PostComments } from '../PostComments';
+import { PostRatings } from '../PostRatings';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CmsUnsavedChangesAlert } from '~/modules/cms/shared/components/CmsUnsavedChangesAlert';
 
@@ -393,6 +395,20 @@ export const AddPostForm = ({
           </div>
         </div>
       </Form>
+      {currentEditingPost?._id && (
+        <>
+          <PostRatings
+            postId={currentEditingPost._id}
+            clientPortalId={websiteId}
+            allowRatings={cmsConfig?.allowRatings}
+          />
+          <PostComments
+            postId={currentEditingPost._id}
+            clientPortalId={websiteId}
+            allowComments={cmsConfig?.allowComments}
+          />
+        </>
+      )}
     </ScrollArea>
   );
 };
