@@ -5,16 +5,18 @@ import {
   IconSettings,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
+import { useCustomTypes } from '../../custom-types/hooks/useCustomTypes';
 
 export const PostsNavigation = () => {
   const { t } = useTranslation('content');
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-and-network',
@@ -34,6 +36,12 @@ export const PostsNavigation = () => {
     const basePath = websiteId ? `/content/cms/${websiteId}` : '/content/cms';
     return { basePath, websiteId };
   }, [pathname]);
+  const { customTypes } = useCustomTypes({ clientPortalId: websiteId });
+  const selectedType = searchParams.get('type');
+  const selectedCustomType = useMemo(
+    () => customTypes.find((type) => type.code === selectedType),
+    [customTypes, selectedType],
+  );
 
   const currentPage = useMemo(() => {
     if (pathname.includes('/pages')) {
@@ -80,8 +88,15 @@ export const PostsNavigation = () => {
     }
     if (pathname.includes('/posts')) {
       return {
-        path: `${basePath}/posts`,
-        label: t('posts'),
+        path: selectedCustomType
+          ? `${basePath}/posts?type=${encodeURIComponent(
+              selectedCustomType.code,
+            )}`
+          : `${basePath}/posts`,
+        label:
+          selectedCustomType?.pluralLabel ||
+          selectedCustomType?.label ||
+          t('posts'),
         icon: IconCategory,
       };
     }
@@ -91,7 +106,7 @@ export const PostsNavigation = () => {
       label: t('posts'),
       icon: IconCube,
     };
-  }, [pathname, basePath]);
+  }, [pathname, basePath, selectedCustomType, t]);
 
   const Icon = currentPage.icon;
   const websiteName =

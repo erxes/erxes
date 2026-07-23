@@ -1,15 +1,6 @@
-import {
-  Breadcrumb,
-  Button,
-  PageContainer,
-  PageSubHeader,
-  Separator,
-} from 'erxes-ui';
-import { Link } from 'react-router-dom';
-import { Can, PageHeader, Import, createFavoriteBreadcrumb } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
+import { Breadcrumb, PageContainer, PageSubHeader } from 'erxes-ui';
+import { Can, PageHeader, Import } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
-import { IconTicket } from '@tabler/icons-react';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import {
   TicketsViewControl,
@@ -19,14 +10,10 @@ import { TicketsSortControl } from '@/ticket/components/TicketsSortControl';
 import { TicketsFilter } from '@/ticket/components/TicketsFilter';
 import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
+import { TicketBreadcrumb } from '@/ticket/components/TicketBreadcrumb';
 
-const TicketsIndexPage = () => {
-  const { t } = useTranslation('frontline');
+export const TicketsIndexPage = () => {
   const variables = useTicketsVariables();
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    'Frontline',
-    t('tickets'),
-  );
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;
@@ -39,21 +26,9 @@ const TicketsIndexPage = () => {
         <PageHeader.Start>
           <Breadcrumb>
             <Breadcrumb.List className="gap-1 ">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/frontline/tickets">
-                    <IconTicket />
-                    {t('tickets')}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
+              <TicketBreadcrumb />
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={favoriteBreadcrumb}
-            icon="IconTicket"
-          />
         </PageHeader.Start>
         <PageHeader.End>
           <AddTicketSheet />
@@ -86,5 +61,3 @@ const TicketsIndexPage = () => {
     </PageContainer>
   );
 };
-
-export default TicketsIndexPage;
