@@ -40,7 +40,7 @@ export const appRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
-        return getOrCreateInvoiceUrl({ input, models, subdomain });
+        return await getOrCreateInvoiceUrl({ input, models, subdomain });
       }),
     addTransaction: t.procedure
       .input(z.any())
@@ -59,10 +59,12 @@ export const appRouter = t.router({
           details: { ...input.details, ...invoice.data },
         });
       }),
-    checkInvoice: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
-      return await models.Invoices.checkInvoice(input._id, subdomain);
-    }),
+    checkInvoice: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        return await models.Invoices.checkInvoice(input._id, subdomain);
+      }),
     getInvoiceWithTransactions: t.procedure
       .input(
         z.object({

@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react';
 import { DealsProvider } from '@/deals/context/DealContext';
 import { IDeal } from '@/deals/types/deals';
 import { Overview } from '@/deals/cards/components/detail/overview/Overview';
-import Products from '@/deals/cards/components/detail/product/components/Products';
+import { Products } from '@/deals/cards/components/detail/product/components/Products';
 import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItemDetailHeader';
 import { SalesItemSidebar } from './SalesItemSidebar';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';

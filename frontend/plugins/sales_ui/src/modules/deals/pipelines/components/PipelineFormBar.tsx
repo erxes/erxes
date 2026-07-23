@@ -129,7 +129,7 @@ export function PipelineFormBar() {
         });
       });
     },
-    [addPipeline, confirm, pipelineEdit, pipelineId, toast, onClose],
+    [pipelineId, pipelineEdit, addPipeline, t, confirm, toast, onClose],
   );
 
   useEffect(() => {
@@ -173,7 +173,7 @@ export function PipelineFormBar() {
         excludeProductIds: pipelineDetail?.excludeProductIds || [],
         excludeCheckUserIds: pipelineDetail?.excludeCheckUserIds || [],
         paymentIds: pipelineDetail?.paymentIds || [],
-        paymentTypes: (pipelineDetail?.paymentTypes || []).map((pt: any) => ({
+        paymentTypes: (pipelineDetail?.paymentTypes || []).map((pt) => ({
           ...pt,
           config:
             pt.config && typeof pt.config === 'object'
