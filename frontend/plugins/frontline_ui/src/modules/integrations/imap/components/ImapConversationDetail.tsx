@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useQuery, useSubscription } from '@apollo/client';
+import DOMPurify from 'dompurify';
 import {
   ScrollArea,
   Spinner,
@@ -83,6 +84,16 @@ const fmtSize = (b?: number) => {
 };
 
 const stripPrefix = (s: string) => s.replace(/^((re|fwd?):\s*)+/gi, '').trim();
+
+/**
+ * Strip every HTML tag from `html` to produce a plain-text preview snippet.
+ * Uses DOMPurify with an empty allow-list so no tag-like substring can survive
+ * (a hand-rolled `/<[^>]+>/g` replace is incomplete — a single pass over
+ * `<scrip<script>x</script>t>` reconstructs `<script>x</script>`, see CodeQL
+ * rule js/incomplete-multi-character-sanitization).
+ */
+const stripHtmlForPreview = (html: string) =>
+  DOMPurify.sanitize(html, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
 
 /** 8 Gmail-style avatar background colors, picked by name hash. */
 const AVATAR_BG = [
@@ -242,7 +253,7 @@ const EmailRow: React.FC<{
                   </span>
                   <span className="text-[12px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
                     {mailData.body
-                      ? mailData.body.replace(/<[^>]+>/g, '').slice(0, 80)
+                      ? stripHtmlForPreview(mailData.body).slice(0, 80)
                       : mailData.subject}
                   </span>
                 </div>
