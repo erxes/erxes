@@ -81,16 +81,18 @@ export const getPlannedPostJob = ({
     return;
   }
 
-  const isPublish = post.status === 'scheduled';
-  const isArchive = post.status === 'published';
-  const action = isPublish ? 'publish' : isArchive ? 'archive' : undefined;
-  const dueAt = toValidDate(
-    isPublish
-      ? post.scheduledDate
-      : isArchive
-      ? post.autoArchiveDate
-      : undefined,
-  );
+  let action: TPostScheduleAction | undefined;
+  let dueDate: Date | undefined;
+
+  if (post.status === 'scheduled') {
+    action = 'publish';
+    dueDate = post.scheduledDate;
+  } else if (post.status === 'published') {
+    action = 'archive';
+    dueDate = post.autoArchiveDate;
+  }
+
+  const dueAt = toValidDate(dueDate);
 
   if (!action || !dueAt) {
     return;

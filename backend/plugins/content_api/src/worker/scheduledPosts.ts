@@ -111,7 +111,7 @@ const processDelayedPost = async (
   const expectedDate = new Date(dueAt);
 
   if (Number.isNaN(expectedDate.getTime())) {
-    throw new Error('Scheduled post job has an invalid due date');
+    throw new TypeError('Scheduled post job has an invalid due date');
   }
 
   if (action === 'publish') {
