@@ -99,3 +99,33 @@ export const listenIntegrationById = async (
 
   await listenIntegration(subdomain, integration, models);
 };
+
+export const htmlToPlainText = (html: string): string => {
+  const MAX_INPUT = 200_000;
+  const safe = html.length > MAX_INPUT ? html.slice(0, MAX_INPUT) : html;
+
+  return safe
+    // Block elements → paragraph break
+    // Non-capturing group + bounded \s{0,64} eliminates O(n²) backtracking.
+    .replace(/<\/(?:p|div|h[1-6]|blockquote|pre|ul|ol|dl)\s{0,64}>/gi, '\n\n')
+    // List items / table rows → single newline
+    .replace(/<\/(?:li|tr|dt|dd)\s{0,64}>/gi, '\n')
+    // Line breaks → newline
+    .replace(/<br\s{0,64}\/?>/gi, '\n')
+    // Strip remaining tags — bounded {0,10000} makes worst-case O(n) not O(n²).
+    .replace(/<[^>]{0,10000}>/g, '')
+    // Common HTML entities
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&nbsp;/gi, ' ')
+    // Collapse runs of 3+ newlines to two
+    .replace(/\n{3,}/g, '\n\n')
+    // Trim leading/trailing whitespace on each line
+    .split('\n')
+    .map((line) => line.trim())
+    .join('\n')
+    .trim();
+};
