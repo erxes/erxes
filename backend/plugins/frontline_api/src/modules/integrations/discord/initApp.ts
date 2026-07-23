@@ -569,13 +569,14 @@ export const initDiscord = () => {
 
   debugDiscord('Initializing Discord gateway distributor');
 
-  if (VERSION === 'saas') {
-    startSaasDistributing().catch((err) =>
-      debugError(`Failed to start Discord SaaS distributor: ${err.message}`),
-    );
-  } else {
+  // if (VERSION === 'saas') {
+  //   startSaasDistributing().catch((err) =>
+  //     debugError(`Failed to start Discord SaaS distributor: ${err.message}`),
+  //   );
+  // }
+  // else {
     startDistributing('os').catch((err) =>
       debugError(`Failed to start Discord distributor: ${err.message}`),
     );
-  }
+  // }
 };
