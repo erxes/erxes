@@ -16,14 +16,14 @@ export const useCreateTriage = () => {
       refetchQueries: [GET_TRIAGES],
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('triage-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('triage-created-successfully', 'Triage created successfully'),
           variant: 'default',
         });
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

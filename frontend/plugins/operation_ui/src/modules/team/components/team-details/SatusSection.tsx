@@ -14,7 +14,7 @@ export const StatusSection = ({ team }: { team: ITeam }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>{t('task-statuses')}</p>
+          <p>{t('task-statuses', 'Task statuses')}</p>
 
           <div className="flex items-center gap-2">
             <IconChevronRight className="w-4 h-4" />

@@ -36,7 +36,7 @@ export const AddTaskSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-task')}
+          {t('add-task', 'Add task')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>

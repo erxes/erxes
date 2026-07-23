@@ -14,7 +14,7 @@ export const TemplateSection = ({ team }: { team: ITeam }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>{t('templates')}</p>
+          <p>{t('templates', 'Templates')}</p>
 
           <div className="flex items-center gap-2">
             <IconChevronRight className="w-4 h-4" />

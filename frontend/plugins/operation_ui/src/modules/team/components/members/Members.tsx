@@ -58,14 +58,14 @@ export function Members() {
   return (
     <div className="px-8">
       <div className="ml-auto flex justify-between py-6">
-        <h1 className="text-xl font-semibold">{t('members')}</h1>
+        <h1 className="text-xl font-semibold">{t('members', 'Members')}</h1>
         <AddMembers />
       </div>
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.Head className="pl-2 w-auto">{t('member-header')}</Table.Head>
+              <Table.Head className="pl-2 w-auto">{t('member-header', 'Member')}</Table.Head>
               {/* <Table.Head className="w-52">Role</Table.Head>   */}
               <Table.Head className="w-8" />
             </Table.Row>

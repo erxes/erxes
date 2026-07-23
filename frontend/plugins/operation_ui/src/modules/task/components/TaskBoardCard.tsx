@@ -56,7 +56,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
       <div className="p-3 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h5 className="font-semibold">{name}</h5>
-          <div className="text-accent-foreground uppercase">{t('task-number', { number })}</div>
+          <div className="text-accent-foreground uppercase">{t('task-number', 'Task #{{number}}', { number })}</div>
         </div>
         <div className="flex flex-wrap gap-1">
           <SelectStatusTask
@@ -91,7 +91,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
           className="text-muted-foreground px-1 hover:bg-background"
         >
           <IconCalendarEventFilled />
-          {t('created-on')} {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
+          {t('created-on', 'Created on:')} {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
         </Button>
         <SelectAssigneeTask
           variant="card"

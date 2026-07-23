@@ -35,7 +35,7 @@ import { projectsMoreColumn } from './ProjectsMoreColumn';
 
 export const projectsColumns = (
   _teams: ITeam[] | undefined,
-  t: (key: string) => string,
+  t: (key: string, defaultValue: string) => string,
 ): ColumnDef<IProject>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IProject>;
   return [
@@ -45,7 +45,7 @@ export const projectsColumns = (
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />
       ),
       cell: ({ cell }) => {
         const name = cell.getValue() as string;
@@ -105,7 +105,7 @@ export const projectsColumns = (
       accessorKey: 'priority',
       header: () => (
         <RecordTable.InlineHead
-          label={t('priority')}
+          label={t('priority', 'Priority')}
           icon={IconAlertSquareRounded}
         />
       ),
@@ -124,7 +124,7 @@ export const projectsColumns = (
       id: 'status',
       accessorKey: 'status',
       header: () => (
-        <RecordTable.InlineHead label={t('status')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('status', 'Status')} icon={IconProgressCheck} />
       ),
       cell: ({ cell }) => {
         return (
@@ -141,7 +141,7 @@ export const projectsColumns = (
       id: 'tagIds',
       accessorKey: 'tagIds',
       header: () => (
-        <RecordTable.InlineHead label={t('tags')} icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconLabelFilled} />
       ),
       cell: ({ cell }) => {
         const tagIds = cell.getValue() as string[];
@@ -172,7 +172,7 @@ export const projectsColumns = (
     {
       id: 'teamIds',
       header: () => (
-        <RecordTable.InlineHead label={t('team')} icon={IconUsersGroup} />
+        <RecordTable.InlineHead label={t('team', 'Team')} icon={IconUsersGroup} />
       ),
       cell: ({ cell }) => {
         return (
@@ -187,7 +187,7 @@ export const projectsColumns = (
     },
     {
       id: 'leadId',
-      header: () => <RecordTable.InlineHead label={t('lead')} icon={IconUser} />,
+      header: () => <RecordTable.InlineHead label={t('lead', 'Lead')} icon={IconUser} />,
       cell: ({ cell }) => {
         return (
           <SelectLead.InlineCell
@@ -203,7 +203,7 @@ export const projectsColumns = (
       id: 'memberIds',
       accessorKey: 'memberIds',
       header: () => (
-        <RecordTable.InlineHead label={t('members')} icon={IconUsersGroup} />
+        <RecordTable.InlineHead label={t('members', 'Members')} icon={IconUsersGroup} />
       ),
       cell: ({ cell }) => {
         const { t } = useTranslation('operation');
@@ -260,7 +260,7 @@ export const projectsColumns = (
               cell.row.original._id,
               'Members',
             )}
-            placeholder={t('members-not-specified')}
+            placeholder={t('members-not-specified', 'Members not specified')}
           />
         );
       },
@@ -270,7 +270,7 @@ export const projectsColumns = (
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('start-date', 'Start Date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const startDate = cell.getValue() as string;
@@ -290,7 +290,7 @@ export const projectsColumns = (
       id: 'targetDate',
       accessorKey: 'targetDate',
       header: () => (
-        <RecordTable.InlineHead label={t('target-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('target-date', 'Target Date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const targetDate = cell.getValue() as string;

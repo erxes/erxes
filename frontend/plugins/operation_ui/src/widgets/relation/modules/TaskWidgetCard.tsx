@@ -60,7 +60,7 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
           <div className="flex flex-col gap-1">
             <h5 className="font-semibold">{name}</h5>
             <div className="text-sm text-accent-foreground uppercase">
-              {t('task-number', { number })}
+              {t('task-number', 'Task #{{number}}', { number })}
             </div>
           </div>
           <div className="flex flex-wrap gap-1 pt-2 pb-1">
@@ -89,7 +89,7 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
             className="text-muted-foreground px-1 hover:bg-background pointer-events-none"
           >
             <IconCalendarEventFilled />
-            {t('created-on')}{' '}
+            {t('created-on', 'Created on:')}{' '}
             {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
           </Button>
           <SelectAssigneeTask

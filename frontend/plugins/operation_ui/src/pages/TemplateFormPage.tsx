@@ -41,7 +41,7 @@ export const TemplateFormPage = () => {
                         size={16}
                         className="stroke-foreground mr-2"
                       />
-                      {t('template-list')}
+                      {t('template-list', 'Template List')}
                     </Link>
                   </Button>
                 </Breadcrumb.Link>

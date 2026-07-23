@@ -77,7 +77,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-date')}
+        {placeholder || t('select-date', 'Select date...')}
       </span>
     );
   }
@@ -108,7 +108,7 @@ const DateSelectFormItemValue = ({
         ) : (
           <IconCalendarQuestion className="size-4" />
         )}
-        {placeholder || t('select-date-short')}
+        {placeholder || t('select-date-short', 'Select date')}
       </span>
     );
   }
@@ -141,7 +141,7 @@ export const DateSelectFilterItem = () => {
   return (
     <Filter.Item value="Date">
       <IconCalendarTime />
-      {t('date-label')}
+      {t('date-label', 'Date')}
     </Filter.Item>
   );
 };
@@ -283,7 +283,7 @@ export const DateSelectInlineCell = ({
         closeOnEnter
       >
         <RecordTableInlineCell.Trigger>
-          <DateSelectValue placeholder={t('not-specified')} />
+          <DateSelectValue placeholder={t('not-specified', 'not specified')} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content className="w-fit">
           <DateSelectContent startDate={startDate} />

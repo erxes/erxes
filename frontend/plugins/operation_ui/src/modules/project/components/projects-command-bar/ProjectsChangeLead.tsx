@@ -15,7 +15,7 @@ export const ProjectsChangeLeadTrigger = ({
         setCurrentContent('lead');
       }}
     >
-      <div className="flex gap-2 items-center">{t('change-lead')}</div>
+      <div className="flex gap-2 items-center">{t('change-lead', 'Change Lead')}</div>
     </Command.Item>
   );
 };

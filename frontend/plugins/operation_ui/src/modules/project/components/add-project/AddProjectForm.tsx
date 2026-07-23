@@ -108,7 +108,7 @@ export const AddProjectForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item className="space-y-0">
-                <Form.Label className="sr-only">{t('team')}</Form.Label>
+                <Form.Label className="sr-only">{t('team', 'Team')}</Form.Label>
                 <SelectTeam.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
@@ -117,7 +117,7 @@ export const AddProjectForm = ({
             )}
           />
           <IconChevronRight className="size-4" />
-          <Sheet.Title className="">{t('new-project')}</Sheet.Title>
+          <Sheet.Title className="">{t('new-project', 'New project')}</Sheet.Title>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
@@ -125,7 +125,7 @@ export const AddProjectForm = ({
             name="icon"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">{t('icon')}</Form.Label>
+                <Form.Label className="sr-only">{t('icon', 'Icon')}</Form.Label>
                 <Form.Control>
                   <IconPicker
                     onValueChange={field.onChange}
@@ -143,12 +143,12 @@ export const AddProjectForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">{t('name')}</Form.Label>
+                <Form.Label className="sr-only">{t('name', 'Name')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                    placeholder={t('project-name')}
+                    placeholder={t('project-name', 'Project Name')}
                   />
                 </Form.Control>
               </Form.Item>
@@ -160,7 +160,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">{t('status')}</Form.Label>
+                  <Form.Label className="sr-only">{t('status', 'Status')}</Form.Label>
                   <SelectStatus.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -173,7 +173,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">{t('priority')}</Form.Label>
+                  <Form.Label className="sr-only">{t('priority', 'Priority')}</Form.Label>
                   <SelectPriority.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -186,7 +186,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">{t('lead')}</Form.Label>
+                  <Form.Label className="sr-only">{t('lead', 'Lead')}</Form.Label>
                   <SelectLead.FormItem
                     {...field}
                     value={field.value}
@@ -203,7 +203,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">{t('members')}</Form.Label>
+                  <Form.Label className="sr-only">{t('members', 'Members')}</Form.Label>
                   <SelectMember.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -217,11 +217,11 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">{t('start-date')}</Form.Label>
+                  <Form.Label className="sr-only">{t('start-date', 'Start Date')}</Form.Label>
                   <DateSelect.FormItem
                     {...field}
                     type="start"
-                    placeholder={t('start-date')}
+                    placeholder={t('start-date', 'Start Date')}
                   />
                 </Form.Item>
               )}
@@ -231,11 +231,11 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
+                  <Form.Label className="sr-only">{t('target-date', 'Target Date')}</Form.Label>
                   <DateSelect.FormItem
                     {...field}
                     type="target"
-                    placeholder={t('target-date')}
+                    placeholder={t('target-date', 'Target Date')}
                   />
                 </Form.Item>
               )}
@@ -245,7 +245,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">{t('tags')}</Form.Label>
+                  <Form.Label className="sr-only">{t('tags', 'Tags')}</Form.Label>
                   <SelectTags.FormItem
                     tagType="operation:project"
                     mode="multiple"
@@ -277,13 +277,13 @@ export const AddProjectForm = ({
               setDescriptionContent(undefined);
             }}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {t('save')}
+            {t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </form>

@@ -32,7 +32,7 @@ const TriageList = () => {
         <div className="border border-dashed p-6 bg-sidebar rounded-xl">
           <IconCaretLeftRight />
         </div>
-        <span className="text-sm">{t('no-triages-to-display')}</span>
+        <span className="text-sm">{t('no-triages-to-display', 'No triages to display at the moment.')}</span>
       </div>
     );
   }
@@ -56,7 +56,7 @@ const TriageList = () => {
               >
                 <div>
                   <Spinner containerClassName="inline-flex flex-none" />
-                  {t('loading-more')}
+                  {t('loading-more', 'loading more...')}
                 </div>
               </Button>
             )}

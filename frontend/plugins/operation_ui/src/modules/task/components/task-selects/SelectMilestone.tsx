@@ -92,7 +92,7 @@ const SelectMilestoneValue = ({ placeholder }: { placeholder?: string }) => {
   });
 
   const milestoneName =
-    selectedMilestone?.name || milestone?.name || t('no-milestone');
+    selectedMilestone?.name || milestone?.name || t('no-milestone', 'No milestone');
 
   if (!value)
     return (
@@ -100,8 +100,8 @@ const SelectMilestoneValue = ({ placeholder }: { placeholder?: string }) => {
         <IconSquareRotated className="size-4" />
         <span className="truncate font-medium">
           {milestones?.length
-            ? placeholder || t('select-milestone')
-            : t('no-milestones')}
+            ? placeholder || t('select-milestone', 'Select milestone')
+            : t('no-milestones', 'No milestones')}
         </span>
       </div>
     );
@@ -155,14 +155,14 @@ const SelectMilestoneContent = () => {
   return (
     <Command shouldFilter={false} id="milestone-command-menu">
       <Command.Input
-        placeholder={t('search-milestone')}
+        placeholder={t('search-milestone', 'Search milestone')}
         value={search}
         onValueChange={setSearch}
       />
-      <Command.Empty>{t('no-milestone-found')}</Command.Empty>
+      <Command.Empty>{t('no-milestone-found', 'No milestone found')}</Command.Empty>
       <Command.List>
         <SelectMilestoneCommandItem
-          milestone={{ _id: '', name: t('no-milestone') } as IMilestone}
+          milestone={{ _id: '', name: t('no-milestone', 'No milestone') } as IMilestone}
         />
         {milestones.map((milestone) => (
           <SelectMilestoneCommandItem

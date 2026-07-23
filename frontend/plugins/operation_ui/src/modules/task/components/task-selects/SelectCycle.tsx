@@ -119,7 +119,7 @@ const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
       <div className="flex items-center gap-2 text-accent-foreground">
         <IconRestore className="size-4" />
         <span className="truncate font-medium">
-          {placeholder || t('select-cycle')}
+          {placeholder || t('select-cycle', 'Select cycle')}
         </span>
       </div>
     );
@@ -169,11 +169,11 @@ const SelectCycleContent = () => {
 
   return (
     <Command id="cycle-command-menu">
-      <Command.Input placeholder={t('search-cycle')} />
-      <Command.Empty>{t('no-cycle-found')}</Command.Empty>
+      <Command.Input placeholder={t('search-cycle', 'Search cycle')} />
+      <Command.Empty>{t('no-cycle-found', 'No cycle found')}</Command.Empty>
       <Command.List>
         <SelectCycleCommandItem
-          cycle={{ _id: '', name: t('no-cycle') } as ICycle}
+          cycle={{ _id: '', name: t('no-cycle', 'No cycle') } as ICycle}
         />
         {activeCycles.map((cycle) => (
           <SelectCycleCommandItem key={cycle._id} cycle={cycle} />
@@ -337,7 +337,7 @@ const SelectCycleFilterValue = () => {
     <div className="flex items-center gap-2">
       <IconRestore className="size-4" />
       <span className="truncate font-medium">
-        {selectedOption?.label || t('filter-by-cycle')}
+        {selectedOption?.label || t('filter-by-cycle', 'Filter by cycle')}
       </span>
     </div>
   );

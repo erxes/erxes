@@ -16,7 +16,7 @@ export const TriageHeader = () => {
           <Button variant="ghost" asChild>
             <Link to={`/operation/team/${teamId}/triage`}>
               <IconCaretLeftRight />
-              {t('triage')}
+              {t('triage', 'Triage')}
             </Link>
           </Button>
           <div className="ml-auto">

@@ -22,7 +22,7 @@ export const ActivityTeam = ({
     const selectedTeams = teams?.filter((team) => teamIds.includes(team._id));
     const teamNames = selectedTeams.map((team) => team.name).join(', ');
     if (selectedTeams.length === 0)
-      return <span className="text-accent-foreground text-sm">{t('team')}</span>;
+      return <span className="text-accent-foreground text-sm">{t('team', 'Team')}</span>;
 
     return (
       <div className="flex items-center gap-2 max-w-[200px]">
@@ -41,12 +41,12 @@ export const ActivityTeam = ({
 
   return (
     <div className="inline-flex items-center gap-1">
-      {t('changed-team-to')}
+      {t('changed-team-to', 'changed team to')}
       <Badge variant="secondary" className="flex-none">
         <IconComponent name={newTeam?.icon} className="size-4" />
         {renderTeamValue([newValue])}
       </Badge>
-      {t('from')}
+      {t('from', 'from')}
       <Badge variant="secondary" className="flex-none">
         <IconComponent name={previousTeam?.icon} className="size-4" />
         {previousValue && renderTeamValue([previousValue])}

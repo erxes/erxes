@@ -81,20 +81,20 @@ export const TemplateForm = ({
     if (template) {
       editMutation({ variables: { _id: template._id, ...variables } })
         .then(() => {
-          toast({ title: t('template-updated') });
+          toast({ title: t('template-updated', 'Template updated') });
           afterSave?.();
         })
         .catch((e) => {
-          toast({ title: t('error'), description: e.message, variant: 'destructive' });
+          toast({ title: t('error', 'Error'), description: e.message, variant: 'destructive' });
         });
     } else {
       addMutation({ variables })
         .then(() => {
-          toast({ title: t('template-created') });
+          toast({ title: t('template-created', 'Template created') });
           afterSave?.();
         })
         .catch((e) => {
-          toast({ title: t('error'), description: e.message, variant: 'destructive' });
+          toast({ title: t('error', 'Error'), description: e.message, variant: 'destructive' });
         });
     }
   };
@@ -109,7 +109,7 @@ export const TemplateForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('template-name')}</Form.Label>
+                  <Form.Label>{t('template-name', 'Template Name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} placeholder="e.g., Bug Report, Feature Request" />
                   </Form.Control>
@@ -121,22 +121,22 @@ export const TemplateForm = ({
           <Separator />
 
           <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-              <h3 className="font-semibold text-sm text-foreground/80">{t('task-content')}</h3>
+              <h3 className="font-semibold text-sm text-foreground/80">{t('task-content', 'Task Content')}</h3>
               <Form.Field
                 control={form.control}
                 name="taskName"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('task-title')}</Form.Label>
+                    <Form.Label>{t('task-title', 'Task Title')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('default-task-title')} />
+                      <Input {...field} placeholder={t('default-task-title', 'Default task title')} />
                     </Form.Control>
                   </Form.Item>
                 )}
               />
 
               <div className="space-y-2">
-                 <Label>{t('task-description')}</Label>
+                 <Label>{t('task-description', 'Task Description')}</Label>
                  <div className="border rounded-md min-h-[150px] p-2">
                     <BlockEditor
                       editor={editor}
@@ -149,9 +149,9 @@ export const TemplateForm = ({
 
           <div className="flex justify-end gap-2 shrink-0 pt-2 mt-auto">
             <Button variant="outline" onClick={onCancel} type="button">
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
-            <Button type="submit">{t('save-template')}</Button>
+            <Button type="submit">{t('save-template', 'Save Template')}</Button>
           </div>
         </form>
       </Form>

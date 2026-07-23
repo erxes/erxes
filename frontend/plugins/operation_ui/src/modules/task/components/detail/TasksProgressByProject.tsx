@@ -25,7 +25,7 @@ export const TasksProgressByProject = ({
   if (stats.length === 0) {
     return (
       <div className="flex items-center justify-center h-24 text-sm text-muted-foreground">
-        {t('no-project-data-available')}
+        {t('no-project-data-available', 'No project data available')}
       </div>
     );
   }
@@ -59,21 +59,21 @@ export const TasksProgressByProject = ({
             <div className="flex flex-col gap-1 text-muted-foreground">
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="total" />
-                {t('total')}
+                {t('total', 'total:')}
                 <span className="text-foreground ml-auto">
                   {item.totalTasks}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="completed" />
-                {t('completed-label')}
+                {t('completed-label', 'completed:')}
                 <span className="text-foreground ml-auto">
                   {item.completedTasks}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="started" />
-                {t('started-label')}
+                {t('started-label', 'started:')}
                 <span className="text-foreground ml-auto">
                   {item.startedTasks}
                 </span>

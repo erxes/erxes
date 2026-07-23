@@ -148,12 +148,12 @@ const StatusOptionMenu = ({ statusId }: { statusId: string }) => {
       variables: { id: statusId },
       onCompleted: () => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -181,7 +181,7 @@ const StatusOptionMenu = ({ statusId }: { statusId: string }) => {
           }}
         >
           <IconEdit />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -189,7 +189,7 @@ const StatusOptionMenu = ({ statusId }: { statusId: string }) => {
           onClick={handleDeleteStatus}
         >
           <IconTrash />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -249,7 +249,7 @@ export const StatusForm = ({
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -316,7 +316,7 @@ export const StatusForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Control>
-                      <Input placeholder={t('name')} {...field} className="w-full" />
+                      <Input placeholder={t('name', 'Name')} {...field} className="w-full" />
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -328,7 +328,7 @@ export const StatusForm = ({
                   <Form.Item className="w-full">
                     <Form.Control>
                       <Input
-                        placeholder={t('description')}
+                        placeholder={t('description', 'Description')}
                         {...field}
                         className="w-full"
                       />
@@ -338,9 +338,9 @@ export const StatusForm = ({
               />
             </span>
             <Button variant="ghost" onClick={handleCancel}>
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
-            <Button type="submit">{isEditing ? t('update') : t('save')}</Button>
+            <Button type="submit">{isEditing ? t('update', 'Update') : t('save', 'Save')}</Button>
           </span>
         </form>
       </Form>
@@ -381,7 +381,7 @@ export const StatusGroup = ({ statusType }: { statusType: number }) => {
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });

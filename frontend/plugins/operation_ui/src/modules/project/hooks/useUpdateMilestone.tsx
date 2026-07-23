@@ -19,15 +19,15 @@ export const useUpdateMilestone = () => {
     {
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('milestone-updated-successfully'),
+          title: t('success', 'Success'),
+          description: t('milestone-updated-successfully', 'Milestone updated successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -55,7 +55,7 @@ export const useUpdateMilestone = () => {
   const [removeMilestoneMutation] = useMutation(REMOVE_MILESTONE_MUTATION, {
     onError: (e) => {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: e.message,
         variant: 'destructive',
       });

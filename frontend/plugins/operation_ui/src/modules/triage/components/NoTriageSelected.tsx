@@ -14,10 +14,10 @@ export const NoTriageSelected = () => {
         />
       </div>
       <div className="text-lg font-medium mt-5 text-muted-foreground">
-        {t('no-triage-selected')}
+        {t('no-triage-selected', 'No triage selected')}
       </div>
       <div className="text-accent-foreground mt-2 text-sm">
-        {t('please-select-triage')}
+        {t('please-select-triage', 'Please select a triage to view its details.')}
       </div>
       <div className="mt-4 w-full flex justify-center">
         <AddTriageSheet />

@@ -24,7 +24,7 @@ export const useConvertTriage = () => {
       refetchQueries: [GET_TRIAGES, GET_TRIAGE],
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -32,8 +32,8 @@ export const useConvertTriage = () => {
 
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('triage-converted-successfully'),
+          title: t('success', 'Success'),
+          description: t('triage-converted-successfully', 'Triage converted to task successfully'),
         });
 
         setActiveTask(data.operationConvertTriageToTask._id);

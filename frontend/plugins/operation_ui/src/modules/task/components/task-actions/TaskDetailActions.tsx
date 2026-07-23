@@ -74,15 +74,15 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                           navigate(`/operation/tasks`);
                         }
                         toast({
-                          title: t('success'),
-                          description: t('deleted-task', { name: task?.name }),
+                          title: t('success', 'Success'),
+                          description: t('deleted-task', 'Deleted {{name}}', { name: task?.name }),
                           variant: 'success',
                         });
                       },
                       onError: () => {
                         toast({
-                          title: t('error'),
-                          description: t('failed-to-delete-task', { name: task?.name }),
+                          title: t('error', 'Error'),
+                          description: t('failed-to-delete-task', 'Failed to delete {{name}}', { name: task?.name }),
                           variant: 'destructive',
                         });
                       },
@@ -91,7 +91,7 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                 >
                   <div className="flex gap-2 items-center">
                     <IconTrash className="size-4" />
-                    {t('delete')}
+                    {t('delete', 'Delete')}
                   </div>
                 </Command.Item>
               </Command.Group>

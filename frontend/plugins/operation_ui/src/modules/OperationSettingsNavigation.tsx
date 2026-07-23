@@ -6,13 +6,13 @@ export const OperationSettingsNavigation = () => {
   const { t } = useTranslation('operation');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">{t('operation')}</Sidebar.GroupLabel>
+      <Sidebar.GroupLabel className="h-4">{t('operation', 'Operation')}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
             pathPrefix={OperationPaths.Operation}
             path={OperationPaths.TeamList}
-            name={t('teams')}
+            name={t('teams', 'Teams')}
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

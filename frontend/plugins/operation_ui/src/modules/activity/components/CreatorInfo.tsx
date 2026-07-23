@@ -31,13 +31,13 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
       createdAt={contentDetail.createdAt?.toLocaleString()}
       id={contentDetail._id}
     >
-      {t('created-by')}{' '}
+      {t('created-by', 'Created by')}{' '}
       {hasCreator ? (
         <MembersInline.Provider memberIds={memberIds}>
           <MembersInline.Title />
         </MembersInline.Provider>
       ) : (
-        <span className="text-muted-foreground">{t('unknown')}</span>
+        <span className="text-muted-foreground">{t('unknown', 'Unknown')}</span>
       )}
     </ActivityTimelineItem>
   );

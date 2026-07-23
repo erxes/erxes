@@ -57,7 +57,7 @@ const TemplateRowActions = ({
                   onEdit(template);
                 }}
               >
-                <IconEdit className="mr-2 h-4 w-4" /> {t('edit')}
+                <IconEdit className="mr-2 h-4 w-4" /> {t('edit', 'Edit')}
               </Command.Item>
               <Command.Item
                 value="delete"
@@ -67,7 +67,7 @@ const TemplateRowActions = ({
                   setShowDeleteDialog(true);
                 }}
               >
-                <IconTrash className="mr-2 size-4" /> {t('delete')}
+                <IconTrash className="mr-2 size-4" /> {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>
@@ -77,15 +77,15 @@ const TemplateRowActions = ({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>{t('delete-template')}</AlertDialog.Title>
+            <AlertDialog.Title>{t('delete-template', 'Delete Template?')}</AlertDialog.Title>
             <AlertDialog.Description>
-              {t('action-cannot-be-undone')}
+              {t('action-cannot-be-undone', 'This action cannot be undone.')}
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+            <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
             <AlertDialog.Action onClick={() => onRemove(template._id)}>
-              {t('delete')}
+              {t('delete', 'Delete')}
             </AlertDialog.Action>
           </AlertDialog.Footer>
         </AlertDialog.Content>
@@ -117,8 +117,8 @@ export const TemplateList = () => {
 
   const handleRemove = (id: string) => {
     removeMutation({ variables: { _id: id } })
-      .then(() => toast({ title: t('template-removed') }))
-      .catch((e) => toast({ title: t('error'), description: e.message }));
+      .then(() => toast({ title: t('template-removed', 'Template removed') }))
+      .catch((e) => toast({ title: t('error', 'Error'), description: e.message }));
   };
 
   const handleAdd = () => {
@@ -199,10 +199,10 @@ export const TemplateList = () => {
   return (
     <div className="p-6 h-full space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold">{t('templates')}</h2>
+        <h2 className="font-semibold">{t('templates', 'Templates')}</h2>
         <Button onClick={handleAdd}>
           <IconPlus className="mr-2 size-4" />
-          {t('new-template')}
+          {t('new-template', 'New Template')}
         </Button>
       </div>
 
@@ -225,7 +225,7 @@ export const TemplateList = () => {
             {loading && <RecordTable.RowSkeleton rows={5} />}
             {templates.length === 0 && !loading && (
               <div className="p-8 text-center text-muted-foreground text-sm italic">
-                {t('no-templates-found')}
+                {t('no-templates-found', 'No templates found')}
               </div>
             )}
           </RecordTable.Body>

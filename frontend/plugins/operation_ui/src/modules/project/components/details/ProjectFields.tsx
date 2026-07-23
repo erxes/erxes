@@ -47,7 +47,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
   >(parseDescriptionBlocks(description));
   const editor = useBlockEditor({
     initialContent: descriptionContent?.length ? descriptionContent : undefined,
-    placeholder: t('description-placeholder'),
+    placeholder: t('description-placeholder', 'Description...'),
   });
   const { updateProject } = useUpdateProject();
 
@@ -140,7 +140,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
       />
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-        placeholder={t('project-name')}
+        placeholder={t('project-name', 'Project Name')}
         value={name}
         onChange={(e) => setName(e.target.value)}
       />

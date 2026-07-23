@@ -94,7 +94,7 @@ const SelectStatusValue = ({
   if (!selectedStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-status')}
+        {placeholder || t('select-status', 'Select status...')}
       </span>
     );
   }
@@ -137,8 +137,8 @@ const SelectStatusContent = () => {
   const { statuses } = useSelectStatusContext();
   return (
     <Command>
-      <Command.Input placeholder={t('search-status')} />
-      <Command.Empty>{t('no-status-found')}</Command.Empty>
+      <Command.Input placeholder={t('search-status', 'Search status')} />
+      <Command.Empty>{t('no-status-found', 'No status found')}</Command.Empty>
       <Command.List>
         {statuses?.map((status) => (
           <SelectStatusCommandItem key={status.value} status={status} />
@@ -239,7 +239,7 @@ export const SelectStatusTaskFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <Filter.BarButton filterKey={teamId ? 'status' : 'statusType'}>
-          <SelectStatusValue placeholder={t('status')} />
+          <SelectStatusValue placeholder={t('status', 'Status')} />
         </Filter.BarButton>
         <Combobox.Content>
           <SelectStatusContent />

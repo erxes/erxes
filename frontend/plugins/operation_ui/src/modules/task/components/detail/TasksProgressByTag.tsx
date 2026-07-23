@@ -29,7 +29,7 @@ export const TasksProgressByTag = ({ stats }: TasksProgressByTagProps) => {
   if (stats.length === 0) {
     return (
       <div className="flex items-center justify-center h-24 text-sm text-muted-foreground">
-        {t('no-tag-data-available')}
+        {t('no-tag-data-available', 'No tag data available')}
       </div>
     );
   }
@@ -63,21 +63,21 @@ export const TasksProgressByTag = ({ stats }: TasksProgressByTagProps) => {
             <div className="flex flex-col gap-1 text-muted-foreground">
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="total" />
-                {t('total')}
+                {t('total', 'total:')}
                 <span className="text-foreground ml-auto">
                   {item.totalTasks}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="completed" />
-                {t('completed-label')}
+                {t('completed-label', 'completed:')}
                 <span className="text-foreground ml-auto">
                   {item.completedTasks}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="started" />
-                {t('started-label')}
+                {t('started-label', 'started:')}
                 <span className="text-foreground ml-auto">
                   {item.startedTasks}
                 </span>

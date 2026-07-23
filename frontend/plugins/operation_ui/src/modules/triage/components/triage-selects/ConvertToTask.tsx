@@ -12,7 +12,7 @@ export const ConvertToTask = ({ triageId }: { triageId: string }) => {
 
   return (
     <Button variant="outline" onClick={handleConvert} disabled={loading}>
-      {t('accept-as-task')}
+      {t('accept-as-task', 'Accept as Task')}
     </Button>
   );
 };

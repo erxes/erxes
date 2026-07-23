@@ -149,7 +149,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           toast({
             variant: 'destructive',
-            title: t('error'),
+            title: t('error', 'Error'),
             description: Object.entries(errors)[0][1].message,
           });
         })}
@@ -161,7 +161,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item className="space-y-0">
-                <Form.Label className="sr-only">{t('team')}</Form.Label>
+                <Form.Label className="sr-only">{t('team', 'Team')}</Form.Label>
                 <SelectTeam.FormItem
                   value={field.value || ''}
                   onValueChange={(value) => {
@@ -176,7 +176,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
             )}
           />
           <IconChevronRight className="size-4" />
-          <Sheet.Title className="">{t('new-task')}</Sheet.Title>
+          <Sheet.Title className="">{t('new-task', 'New task')}</Sheet.Title>
           <div className="ml-auto">
             <SelectTemplate
               teamId={_teamId}
@@ -190,12 +190,12 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">{t('name')}</Form.Label>
+                <Form.Label className="sr-only">{t('name', 'Name')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                    placeholder={t('task-name')}
+                    placeholder={t('task-name', 'Task Name')}
                   />
                 </Form.Control>
               </Form.Item>
@@ -207,7 +207,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('status')}</Form.Label>
+                  <Form.Label className="sr-only">{t('status', 'Status')}</Form.Label>
                   <SelectStatusTask.FormItem
                     value={field.value || ''}
                     onValueChange={(value) => field.onChange(value)}
@@ -221,7 +221,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('priority')}</Form.Label>
+                  <Form.Label className="sr-only">{t('priority', 'Priority')}</Form.Label>
                   <SelectPriority.FormItem
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
@@ -234,7 +234,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('assignee')}</Form.Label>
+                  <Form.Label className="sr-only">{t('assignee', 'Assignee')}</Form.Label>
                   <SelectAssigneeTask.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
@@ -250,7 +250,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('project')}</Form.Label>
+                  <Form.Label className="sr-only">{t('project', 'Project')}</Form.Label>
                   <SelectProject.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
@@ -266,7 +266,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('milestone')}</Form.Label>
+                  <Form.Label className="sr-only">{t('milestone', 'Milestone')}</Form.Label>
                   <SelectMilestone.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
@@ -282,7 +282,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('estimate-point')}</Form.Label>
+                  <Form.Label className="sr-only">{t('estimate-point', 'Estimate Point')}</Form.Label>
                   <SelectEstimatedPoint.FormItem
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
@@ -301,7 +301,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('cycle')}</Form.Label>
+                  <Form.Label className="sr-only">{t('cycle', 'Cycle')}</Form.Label>
                   <SelectCycle.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
@@ -317,10 +317,10 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('start-date')}</Form.Label>
+                  <Form.Label className="sr-only">{t('start-date', 'Start Date')}</Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
-                    placeholder={t('start-date')}
+                    placeholder={t('start-date', 'Start Date')}
                     onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
@@ -331,11 +331,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
+                  <Form.Label className="sr-only">{t('target-date', 'Target Date')}</Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}
-                    placeholder={t('target-date')}
+                    placeholder={t('target-date', 'Target Date')}
                   />
                 </Form.Item>
               )}
@@ -345,7 +345,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('tags')}</Form.Label>
+                  <Form.Label className="sr-only">{t('tags', 'Tags')}</Form.Label>
                   <SelectTags.FormItem
                     tagType="operation:task"
                     mode="multiple"
@@ -378,14 +378,14 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               setDescriptionContent(undefined);
             }}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={createTaskLoading}
           >
-            {t('save')}
+            {t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </form>
