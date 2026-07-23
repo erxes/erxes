@@ -8,11 +8,23 @@ import { Outlet, useLocation } from 'react-router';
 import { mainSidebarCollapseState } from '../states/mainSidebarState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 
+type SidebarTransitionState = 'expanded' | 'compact' | 'collapsed';
+
 export const DefaultLayout = () => {
   const location = useLocation();
   const isSettings = location.pathname.includes('/settings');
   const [collapseState, setCollapseState] = useAtom(mainSidebarCollapseState);
   const [inPreview] = useQueryState<boolean>('inPreview');
+  const sidebarCollapseState =
+    collapseState === 'expanded' ? 'expanded' : 'collapsed';
+
+  const handleSidebarCollapseStateChange = (
+    nextCollapseState: SidebarTransitionState,
+  ) => {
+    setCollapseState(
+      nextCollapseState === 'expanded' ? 'expanded' : 'collapsed',
+    );
+  };
 
   if (inPreview) {
     return <Outlet />;
@@ -21,8 +33,8 @@ export const DefaultLayout = () => {
   return (
     <Sidebar.Provider
       className="w-screen"
-      collapseState={collapseState}
-      onCollapseStateChange={setCollapseState}
+      collapseState={sidebarCollapseState}
+      onCollapseStateChange={handleSidebarCollapseStateChange}
     >
       <Sidebar collapsible="icon" variant="sidebar" className="p-0">
         <SidebarAnimationContainer isSettings={isSettings}>

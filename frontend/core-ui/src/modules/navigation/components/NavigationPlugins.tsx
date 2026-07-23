@@ -1,6 +1,14 @@
 import { IconChevronLeft } from '@tabler/icons-react';
-import { activePluginState, NavigationMenuGroup, Sidebar } from 'erxes-ui';
-import { usePluginsNavigationGroups } from '../hooks/usePluginsNavigationGroups';
+import {
+  activePluginState,
+  HoverCard,
+  NavigationMenuGroup,
+  Sidebar,
+} from 'erxes-ui';
+import {
+  NavigationGroupResult,
+  usePluginsNavigationGroups,
+} from '../hooks/usePluginsNavigationGroups';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +35,10 @@ export const NavigationPluginExitButton = () => {
 
   const { t } = useTranslation('common', { keyPrefix: 'plugin' });
 
-  const pluginName = usePluginDisplayName(activePlugin ?? '', activePlugin ? navigationGroups[activePlugin]?.i18n : false);
+  const pluginName = usePluginDisplayName(
+    activePlugin ?? '',
+    activePlugin ? navigationGroups[activePlugin]?.i18n : false,
+  );
 
   if (!activePlugin) {
     return null;
@@ -50,28 +61,13 @@ export const NavigationPluginExitButton = () => {
   );
 };
 
-const NavigationPluginMenu = ({
-  name,
-  group,
-  setActivePlugin,
+const NavigationPluginModules = ({
+  activePlugin,
+  separate = true,
 }: {
-  name: string;
-  group: any;
-  setActivePlugin: (name: string) => void;
+  activePlugin: string;
+  separate?: boolean;
 }) => {
-  const pluginName = usePluginDisplayName(name, group.i18n);
-
-  return (
-    <Sidebar.MenuItem key={name}>
-      <Sidebar.MenuButton onClick={() => setActivePlugin(name)}>
-        {group.icon && <group.icon className="text-accent-foreground" />}
-        <span>{pluginName}</span>
-      </Sidebar.MenuButton>
-    </Sidebar.MenuItem>
-  );
-};
-
-const NavigationPluginModules = ({ activePlugin }: { activePlugin: string }) => {
   const navigationGroups = usePluginsNavigationGroups();
 
   const { t } = useTranslation('common', { keyPrefix: 'plugin' });
@@ -82,7 +78,10 @@ const NavigationPluginModules = ({ activePlugin }: { activePlugin: string }) => 
 
   return (
     <>
-      <NavigationMenuGroup name={t('modules', { name: pluginName })} separate>
+      <NavigationMenuGroup
+        name={t('modules', { name: pluginName })}
+        separate={separate}
+      >
         {contents.map((Content, index) => (
           <Content key={index} />
         ))}
@@ -91,6 +90,45 @@ const NavigationPluginModules = ({ activePlugin }: { activePlugin: string }) => 
         <SubGroup key={index} />
       ))}
     </>
+  );
+};
+
+const NavigationPluginMenu = ({
+  name,
+  group,
+  setActivePlugin,
+}: {
+  name: string;
+  group: NavigationGroupResult;
+  setActivePlugin: (name: string) => void;
+}) => {
+  const pluginName = usePluginDisplayName(name, group.i18n);
+  const { collapseState } = Sidebar.useSidebar();
+  const Icon = group.icon;
+  const isCollapsed = collapseState === 'collapsed';
+  const menuButton = (
+    <Sidebar.MenuButton
+      onClick={() => setActivePlugin(name)}
+      tooltip={pluginName}
+    >
+      {Icon && <Icon className="text-accent-foreground" />}
+      <span>{pluginName}</span>
+    </Sidebar.MenuButton>
+  );
+
+  if (!isCollapsed) {
+    return <Sidebar.MenuItem>{menuButton}</Sidebar.MenuItem>;
+  }
+
+  return (
+    <Sidebar.MenuItem>
+      <HoverCard openDelay={150} closeDelay={100}>
+        <HoverCard.Trigger asChild>{menuButton}</HoverCard.Trigger>
+        <HoverCard.Content align="start" className="w-72 p-0" side="right">
+          <NavigationPluginModules activePlugin={name} separate={false} />
+        </HoverCard.Content>
+      </HoverCard>
+    </Sidebar.MenuItem>
   );
 };
 
@@ -111,7 +149,12 @@ export const NavigationPlugins = () => {
   return (
     <NavigationMenuGroup name={t('plugins')}>
       {Object.entries(navigationGroups).map(([name, group]) => (
-        <NavigationPluginMenu key={name} name={name} group={group} setActivePlugin={setActivePlugin} />
+        <NavigationPluginMenu
+          key={name}
+          name={name}
+          group={group}
+          setActivePlugin={setActivePlugin}
+        />
       ))}
     </NavigationMenuGroup>
   );

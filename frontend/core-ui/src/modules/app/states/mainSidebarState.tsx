@@ -1,8 +1,9 @@
 import { atomWithStorage } from 'jotai/utils';
 
-export type SidebarCollapseState = 'expanded' | 'compact' | 'collapsed';
+export type SidebarCollapseState = 'expanded' | 'collapsed';
+export type SidebarStorageState = SidebarCollapseState | 'compact';
 
-export const mainSidebarCollapseState = atomWithStorage<SidebarCollapseState>(
+export const mainSidebarCollapseState = atomWithStorage<SidebarStorageState>(
   'mainSidebarCollapseState',
   'expanded',
   undefined,

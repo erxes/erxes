@@ -37,10 +37,12 @@ export const usePluginsModules = () => {
   return modules;
 };
 
-interface NavigationGroupResult {
+export type NavigationGroupContent = React.ComponentType;
+
+export interface NavigationGroupResult {
   icon?: React.ElementType;
-  contents: any[];
-  subGroups: any[];
+  contents: NavigationGroupContent[];
+  subGroups: NavigationGroupContent[];
   name: string;
   i18n?: boolean;
 }
