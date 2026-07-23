@@ -44,8 +44,7 @@ export const useSplitCondtionsConfigForm = (
   );
   const contentType = selectedActionType || trigger?.type || '';
   const isOutputVariableCondition = Boolean(
-    selectedTargetAction?.type === 'transform' ||
-    (trigger?.isCustom && !selectedActionType),
+    selectedTargetAction?.type === 'transform' || trigger?.isCustom,
   );
   const triggerOutputVariables =
     trigger?.type && triggerConstMap.get(trigger.type)?.output?.variables;

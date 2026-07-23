@@ -7,6 +7,7 @@ import { NavigationMenuGroup } from 'erxes-ui';
 import { TicketNavigations } from '@/ticket/components/ticket-navigations/TicketNavigations';
 import { ReportNavigations } from '@/report/components/report-navigations/ReportNavigations';
 import { KnowledgeBaseSubGroup } from '@/knowledgebase/components/KnowledgeBaseTopicsNav';
+import { DiscordServersNav } from '@/integrations/discord/components/DiscordChannelsNav';
 
 export const FrontlineSubGroups = () => {
   const pathname = window.location.pathname;
@@ -40,6 +41,7 @@ export const FrontlineSubGroups = () => {
       >
         <ChooseChannel />
       </NavigationMenuGroup>
+      <DiscordServersNav />
       <NavigationMenuGroup name="Integration types">
         <ChooseIntegrationTypeContent />
       </NavigationMenuGroup>

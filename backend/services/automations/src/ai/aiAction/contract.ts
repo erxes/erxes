@@ -20,11 +20,26 @@ const aiAgentObjectFieldSchema = z.object({
   validation: z.string().default(''),
 });
 
+// Tool of a generateText agent. Both kinds get their target from the canvas
+// wiring (optionalConnects, optionalConnectId = tool id): helper runs the
+// wired workflow inline and feeds the result back into the conversation;
+// handoff ends the turn and routes execution to the wired node.
+const aiAgentToolSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional().default(''),
+  kind: z.enum(['helper', 'handoff']),
+});
+
 const generateTextSchema = z.object({
   goalType: z.literal('generateText'),
   prompt: z.string().optional().default(''),
   fallbackText: z.string().optional().default(''),
+  captureFields: z.array(aiAgentObjectFieldSchema).optional().default([]),
+  tools: z.array(aiAgentToolSchema).optional().default([]),
 });
+
+export type TAiAgentToolConfig = z.infer<typeof aiAgentToolSchema>;
 
 const splitTopicSchema = z.object({
   goalType: z.literal('splitTopic'),
@@ -105,10 +120,31 @@ export const aiAgentActionConfigSchema = z.intersection(
 
 export type TAiAgentActionConfig = z.infer<typeof aiAgentActionConfigSchema>;
 
+export type TAiToolCallTrace = {
+  name: string;
+  kind: 'helper' | 'handoff';
+  arguments: Record<string, unknown>;
+  result?: unknown;
+  error?: string;
+};
+
 export type TAiActionExecutionResult =
   | {
       type: 'generateText';
       text: string;
+      attributes?: Record<string, unknown>;
+      // Tool calls made during generation (history/debugging)
+      toolCalls?: TAiToolCallTrace[];
+      // Tool definitions offered to the provider on this run (debugging)
+      toolsOffered?: string[];
+      // Set when the agent handed the conversation off to a tool route
+      handoff?: {
+        toolId: string;
+        name: string;
+        args: Record<string, unknown>;
+      };
+      // Handoff arguments, exposed for {{ actions.<id>.args.* }} placeholders
+      args?: Record<string, unknown>;
       usage?: {
         inputTokens?: number;
         outputTokens?: number;

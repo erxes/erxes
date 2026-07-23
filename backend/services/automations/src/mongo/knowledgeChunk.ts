@@ -131,6 +131,7 @@ knowledgeChunkSchema.index(
   {
     name: 'knowledge_chunk_text_search',
     default_language: 'none',
+    language_override: 'textSearchLanguage',
     weights: {
       title: 8,
       keywords: 6,

@@ -9,10 +9,30 @@ type EmailInlineContent = {
   props?: Record<string, string>;
 };
 
+type EmailTableCell =
+  | EmailInlineContent[]
+  | {
+      type?: string;
+      content?: EmailInlineContent[];
+      props?: {
+        colspan?: number;
+        rowspan?: number;
+        backgroundColor?: string;
+        textColor?: string;
+        textAlignment?: string;
+      };
+    };
+
+type EmailTableContent = {
+  type?: string;
+  headerRows?: number;
+  rows?: Array<{ cells?: EmailTableCell[] }>;
+};
+
 type EmailBlock = {
   type?: string;
   props?: Record<string, any>;
-  content?: EmailInlineContent[] | { rows?: any[] };
+  content?: EmailInlineContent[] | EmailTableContent;
   children?: EmailBlock[];
 };
 
@@ -154,6 +174,80 @@ const renderImageBlock = (props: Record<string, any> = {}) => {
   )}" alt="${alt}" width="${width}" style="max-width: 100%; height: auto; display: block;" />${caption}</div>`;
 };
 
+const getInlineText = (content?: EmailInlineContent[] | EmailTableContent) => {
+  if (!Array.isArray(content)) {
+    return '';
+  }
+
+  return content.map((item) => item.text || '').join('');
+};
+
+const renderTableCell = (cell: EmailTableCell, isHeader: boolean) => {
+  const isObjectCell = !Array.isArray(cell);
+  const content = isObjectCell ? cell?.content : cell;
+  const props = (isObjectCell ? cell?.props : undefined) || {};
+
+  const styles = [
+    'border: 1px solid #ddd',
+    'padding: 8px 12px',
+    `text-align: ${props.textAlignment || 'left'}`,
+  ];
+
+  if (props.backgroundColor && props.backgroundColor !== 'default') {
+    styles.push(`background-color: ${props.backgroundColor}`);
+  }
+
+  if (props.textColor && props.textColor !== 'default') {
+    styles.push(`color: ${props.textColor}`);
+  }
+
+  const tag = isHeader ? 'th' : 'td';
+  const colspan =
+    props.colspan && props.colspan > 1 ? ` colspan="${props.colspan}"` : '';
+  const rowspan =
+    props.rowspan && props.rowspan > 1 ? ` rowspan="${props.rowspan}"` : '';
+
+  return `<${tag}${colspan}${rowspan} style="${styles.join(
+    '; ',
+  )}">${renderInlineContent(content as EmailInlineContent[])}</${tag}>`;
+};
+
+const hasTableCellContent = (cell: EmailTableCell) => {
+  const content = Array.isArray(cell) ? cell : cell?.content;
+
+  return renderInlineContent(content as EmailInlineContent[]).trim() !== '';
+};
+
+const renderTableBlock = (
+  content?: EmailInlineContent[] | EmailTableContent,
+) => {
+  if (!content || Array.isArray(content)) {
+    return '';
+  }
+
+  const rows = content.rows || [];
+  const headerRows = content.headerRows || 0;
+  const rowsHtml = rows
+    .map((row, rowIndex) => ({ cells: row.cells || [], rowIndex }))
+    // Editors usually leave a trailing empty row behind; skip rows where
+    // every cell is empty so they don't show up in the email.
+    .filter(({ cells }) => cells.some(hasTableCellContent))
+    .map(({ cells, rowIndex }) => {
+      const cellsHtml = cells
+        .map((cell) => renderTableCell(cell, rowIndex < headerRows))
+        .join('');
+
+      return `<tr>${cellsHtml}</tr>`;
+    })
+    .join('');
+
+  if (!rowsHtml) {
+    return '';
+  }
+
+  return `<table style="border-collapse: collapse; width: 100%; margin: 0 0 16px 0; font-size: 14px;">${rowsHtml}</table>`;
+};
+
 const renderBlock = (block: EmailBlock): string => {
   const props = block.props || {};
 
@@ -171,13 +265,6 @@ const renderBlock = (block: EmailBlock): string => {
       return `<h${level} style="margin: 16px 0 8px 0;">${html}</h${level}>`;
     }
 
-    case 'bulletListItem':
-    case 'numberedListItem': {
-      return `<li>${renderInlineContent(
-        block.content as EmailInlineContent[],
-      )}</li>`;
-    }
-
     case 'checkListItem': {
       const checkbox = props.checked ? '&#9745;' : '&#9744;';
 
@@ -185,6 +272,22 @@ const renderBlock = (block: EmailBlock): string => {
         block.content as EmailInlineContent[],
       )}</p>`;
     }
+
+    case 'table':
+      return renderTableBlock(block.content);
+
+    case 'codeBlock': {
+      const code = escapeHtml(getInlineText(block.content));
+
+      return code
+        ? `<pre style="margin: 0 0 16px 0; padding: 12px; background-color: #f4f4f4; border-radius: 6px; font-family: monospace; font-size: 13px; white-space: pre-wrap;">${code}</pre>`
+        : '';
+    }
+
+    case 'quote':
+      return `<blockquote style="margin: 0 0 16px 0; padding: 4px 16px; border-left: 3px solid #ddd; color: #555;">${renderInlineContent(
+        block.content as EmailInlineContent[],
+      )}</blockquote>`;
 
     case 'image':
       return renderImageBlock(props);
@@ -195,6 +298,59 @@ const renderBlock = (block: EmailBlock): string => {
     default:
       return renderInlineContent(block.content as EmailInlineContent[]);
   }
+};
+
+/**
+ * Consecutive bullet/numbered list items are grouped into real <ul>/<ol>
+ * wrappers, since bare <li> elements render inconsistently in email clients.
+ */
+const renderBlocks = (blocks: EmailBlock[]) => {
+  const html: string[] = [];
+  let listItems: string[] = [];
+  let listTag: 'ul' | 'ol' | null = null;
+
+  const flushList = () => {
+    if (listTag && listItems.length) {
+      html.push(
+        `<${listTag} style="margin: 0 0 16px 0; padding-left: 24px;">${listItems.join(
+          '',
+        )}</${listTag}>`,
+      );
+    }
+
+    listItems = [];
+    listTag = null;
+  };
+
+  for (const block of blocks) {
+    const tag =
+      block.type === 'bulletListItem'
+        ? 'ul'
+        : block.type === 'numberedListItem'
+          ? 'ol'
+          : null;
+
+    if (tag) {
+      if (listTag !== tag) {
+        flushList();
+        listTag = tag;
+      }
+
+      listItems.push(
+        `<li style="margin: 0 0 4px 0;">${renderInlineContent(
+          block.content as EmailInlineContent[],
+        )}</li>`,
+      );
+      continue;
+    }
+
+    flushList();
+    html.push(renderBlock(block));
+  }
+
+  flushList();
+
+  return html.join('');
 };
 
 export const renderEmailContent = (content?: string, fallbackHtml = '') => {
@@ -209,7 +365,7 @@ export const renderEmailContent = (content?: string, fallbackHtml = '') => {
       return fallbackHtml || content;
     }
 
-    return blocks.map(renderBlock).join('');
+    return renderBlocks(blocks);
   } catch {
     return fallbackHtml || content;
   }

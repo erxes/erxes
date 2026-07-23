@@ -22,12 +22,6 @@ import {
   SelectProduct,
   SelectCategory,
 } from 'ui-modules';
-import {
-  CustomerBrokerConditions,
-  CUSTOMER_BROKER_DEFAULTS,
-  customerBrokerToDoc,
-  type CustomerBrokerFormValues,
-} from '@/pricing/edit-pricing/components/options/CustomerBrokerConditions';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import {
@@ -40,7 +34,7 @@ interface PricingCreateSheetProps {
   trigger?: React.ReactNode;
 }
 
-interface PricingFormValues extends CustomerBrokerFormValues {
+interface PricingFormValues {
   name: string;
   status: 'draft';
   priority: PricingPriorityFormValue;
@@ -135,7 +129,6 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       productTagIds: [],
       excludeTagIds: [],
       bundleProductIds: [],
-      ...CUSTOMER_BROKER_DEFAULTS,
     },
   });
 
@@ -245,10 +238,6 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
 
       if (values.appliesTo === 'bundle' && values.bundleProductIds.length) {
         doc.productsBundle = [values.bundleProductIds];
-      }
-
-      if (values.priority !== 'posBase') {
-        Object.assign(doc, customerBrokerToDoc(values));
       }
 
       await createPricing(doc);
@@ -677,9 +666,6 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     </Form.Item>
                   )}
                 />
-              )}
-              {priority !== 'posBase' && (
-                <CustomerBrokerConditions control={form.control} />
               )}
             </div>
 

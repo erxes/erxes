@@ -65,9 +65,23 @@ const getGoalPromptStats = (config?: DeepPartial<TAiAgentConfigForm>) => {
   }
 
   if (config.goalType === 'generateText') {
+    const captureFields = config.captureFields || [];
+
     return {
-      chars: config.prompt?.trim().length || 0,
-      itemCount: config.prompt?.trim() ? 1 : 0,
+      chars:
+        (config.prompt?.trim().length || 0) +
+        captureFields.reduce<number>(
+          (total, field) =>
+            total +
+            sumStringLength(
+              field?.fieldName,
+              field?.prompt,
+              field?.validation,
+              field?.dataType,
+            ),
+          0,
+        ),
+      itemCount: (config.prompt?.trim() ? 1 : 0) + captureFields.length,
     };
   }
 

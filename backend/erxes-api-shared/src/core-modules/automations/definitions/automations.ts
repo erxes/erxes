@@ -39,6 +39,27 @@ export interface IAutomationTrigger<TConfig = any> {
   workflowId?: string;
 }
 
+export interface IAutomationWorkflow {
+  id: string;
+  // Empty for converted (containment) workflows that own their actions;
+  // set when the node references another automation.
+  automationId?: string;
+  // Source template when inserted from one
+  templateId?: string;
+  name: string;
+  description?: string;
+  nextActionId?: string;
+  config?: {
+    entryActionId?: string;
+    // name -> default binding expression, e.g. { customerId: "{{ trigger.customerId }}" }
+    inputs?: Record<string, string>;
+    [key: string]: any;
+  };
+  actions?: IAutomationAction[];
+  icon?: string;
+  position?: any;
+}
+
 export interface IAutomation {
   name: string;
   status: TAutomationStatus;
@@ -46,6 +67,7 @@ export interface IAutomation {
   flowDirection?: string;
   triggers: IAutomationTrigger[];
   actions: IAutomationAction[];
+  workflows?: IAutomationWorkflow[];
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -98,10 +120,17 @@ const actionSchema = new Schema(
 const workflowSchema = new Schema(
   {
     id: { type: String, required: true },
-    automationId: { type: String, required: true },
+    // Empty for converted (containment) workflows that own their actions;
+    // set when the node references another automation.
+    automationId: { type: String },
+    // Source template when inserted from one; lets edits offer to update it
+    templateId: { type: String },
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
+    nextActionId: { type: String },
     config: { type: Object },
+    actions: { type: [actionSchema], optional: true },
+    icon: { type: String, optional: true },
     position: { type: Object },
   },
   { _id: false },

@@ -160,7 +160,7 @@ export function DealsBoardColumn({
       const hasLocalMoves = Object.keys(localMoves).length > 0;
 
       if (!hasLocalMoves) {
-        newColumnItems[column._id] = newIds;
+        newColumnItems[column._id] = [...new Set(newIds)];
       } else {
         const existingIds = prev.columnItems[column._id] ?? [];
 
@@ -171,7 +171,7 @@ export function DealsBoardColumn({
 
         const existingSet = new Set(filteredExisting);
         const addedItems = newIds.filter((id) => !existingSet.has(id));
-        const mergedIds = [...filteredExisting, ...addedItems];
+        const mergedIds = [...new Set([...filteredExisting, ...addedItems])];
 
         newColumnItems[column._id] = mergedIds;
       }

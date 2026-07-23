@@ -2,14 +2,27 @@ import { AutomationAiAgentKinds } from '@/automations/components/settings/compon
 import { AutomationAiAgentRecordTable } from '@/automations/components/settings/components/agents/components/AutomationAiAgentRecordTable';
 import { AI_AGENT_KINDS } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
 import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
+import {
+  getLastSelectedAiAgentKind,
+  setLastSelectedAiAgentKind,
+} from '@/automations/utils/aiAgentKindReturn';
 import { useQueryState } from 'erxes-ui';
 
 export const AutomationAiAgentsList = () => {
   const [kind, setKind] = useQueryState<string>('kind');
-  const activeKind = kind || AI_AGENT_KINDS[0]?.type || null;
+  const storedKind = getLastSelectedAiAgentKind();
+  const activeKind =
+    kind ||
+    (AI_AGENT_KINDS.some(({ type }) => type === storedKind)
+      ? storedKind
+      : null) ||
+    AI_AGENT_KINDS[0]?.type ||
+    null;
 
   const handleKind = (value: string | null) => {
-    setKind(value && kind === value ? null : value);
+    const nextKind = value && kind === value ? null : value;
+    setLastSelectedAiAgentKind(nextKind);
+    setKind(nextKind);
   };
 
   return (

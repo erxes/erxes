@@ -1,9 +1,11 @@
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
-import { AutomationNodesType, NodeData } from '@/automations/types';
+import { AutomationNodeType, NodeData } from '@/automations/types';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Button, Dialog, IconPicker, Input } from 'erxes-ui';
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
+import { FieldPath, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 type NodeMetadataFormData = NodeData &
@@ -11,25 +13,17 @@ type NodeMetadataFormData = NodeData &
 
 type Props = {
   id: string;
-  fieldName:
-    | AutomationNodesType.Triggers
-    | AutomationNodesType.Actions
-    | AutomationNodesType.Workflows;
   data: NodeMetadataFormData;
   callback: () => void;
 };
 
-export const NodeEditMetaDataForm = ({
-  id,
-  fieldName,
-  data,
-  callback,
-}: Props) => {
+export const NodeEditMetaDataForm = ({ id, data, callback }: Props) => {
   const { setAutomationBuilderFormValue } = useAutomationFormController();
+  const { getValues } = useFormContext<TAutomationBuilderForm>();
   const { updateNodeData, getNode } = useReactFlow<Node<NodeData>>();
   const { t } = useTranslation('automations');
 
-  const { nodeIndex, label, description, icon } = data || {};
+  const { label, description, icon } = data || {};
 
   const [doc, setDoc] = useState({
     label: label || '',
@@ -46,22 +40,32 @@ export const NodeEditMetaDataForm = ({
   };
 
   const handleSave = () => {
+    if (!data.formPath) {
+      return;
+    }
+
     const currentNode = getNode(id);
-    const updatedNodeData = {
-      ...data,
-      ...doc,
-      id,
-    };
-    const updatedNode = {
-      ...updatedNodeData,
-      position: currentNode?.position ?? data.position,
+    const currentEntry =
+      getValues(data.formPath as FieldPath<TAutomationBuilderForm>) || {};
+
+    // The form entry shape differs per node kind: workflows store the title
+    // as `name`, triggers/actions as `label`.
+    const metaValues =
+      data.nodeType === AutomationNodeType.Workflow
+        ? { name: doc.label, description: doc.description, icon: doc.icon }
+        : { label: doc.label, description: doc.description, icon: doc.icon };
+
+    const updatedEntry = {
+      ...currentEntry,
+      ...metaValues,
+      position: currentNode?.position ?? currentEntry?.position,
     };
 
-    setAutomationBuilderFormValue(`${fieldName}.${nodeIndex}`, updatedNode, {
+    setAutomationBuilderFormValue(data.formPath, updatedEntry, {
       shouldValidate: true,
       shouldDirty: true,
     });
-    updateNodeData(id, updatedNodeData);
+    updateNodeData(id, { ...data, ...doc });
     callback();
   };
 

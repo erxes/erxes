@@ -129,6 +129,7 @@
   "usage": "Usage",
   "limit": "Limit",
   "date": "Date",
+  "copy-code": "Copy code",
   "copied": "Copied!",
   "selected-count": "{{count}} selected",
   "records-found": "records found",

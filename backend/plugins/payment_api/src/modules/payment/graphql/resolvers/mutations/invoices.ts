@@ -9,6 +9,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IInvoice } from '~/modules/payment/@types/invoices';
+import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
 import * as QRCode from 'qrcode';
 async function sendInvoiceBarcodeEmail(
   subdomain: string,
@@ -157,19 +158,13 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { input }: { input: IInvoice },
     { models, subdomain }: IContext,
   ) {
-    const DOMAIN = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
-
-    const domain = DOMAIN.replace('<subdomain>', subdomain);
-
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input });
+    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
 
-    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+    return buildInvoiceUrl(subdomain, invoice._id);
   },
 
   async invoiceCreate(
@@ -191,19 +186,13 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { input }: { input: IInvoice },
     { models, subdomain }: IContext,
   ) {
-    const DOMAIN = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
-
-    const domain = DOMAIN.replace('<subdomain>', subdomain);
-
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input });
+    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
 
-    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+    return buildInvoiceUrl(subdomain, invoice._id);
   },
 
   async cpInvoiceCreate(

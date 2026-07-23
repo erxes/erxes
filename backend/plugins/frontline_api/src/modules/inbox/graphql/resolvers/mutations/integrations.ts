@@ -32,6 +32,11 @@ import {
   instagramUpdateIntegrations,
 } from '@/integrations/instagram/messageBroker';
 import {
+  discordCreateIntegrations,
+  discordRemoveIntegrations,
+  discordRepairIntegrations,
+} from '@/integrations/discord/messageBroker';
+import {
   getUniqueValue,
   sendTRPCMessage,
   markResolvers,
@@ -78,6 +83,9 @@ export const sendCreateIntegration = async (
 
       case 'instagram':
         return await instagramCreateIntegrations({ subdomain, data });
+
+      case 'discord':
+        return await discordCreateIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         // TODO: Implement MobinetSms integration
@@ -138,6 +146,9 @@ export const sendRemoveIntegration = async (
       case 'imap':
         return await imapRemoveIntegrations({ subdomain, data });
 
+      case 'discord':
+        return await discordRemoveIntegrations({ subdomain, data });
+
       case 'mobinetSms':
         break;
 
@@ -189,6 +200,9 @@ export const sendRepairIntegration = async (
 
       case 'instagram':
         return await instagramRepairIntegrations({ subdomain, data });
+
+      case 'discord':
+        return await discordRepairIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;

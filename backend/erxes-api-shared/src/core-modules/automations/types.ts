@@ -23,6 +23,8 @@ export type TAutomationOutputVariable = {
   label: string;
   exposure?: 'placeholder' | 'reference';
   field?: string;
+  /** Plain sub-fields of an array/object value, resolved from the source itself (no reference lookup). */
+  fields?: TAutomationOutputVariable[];
   referenceFields?: TAutomationOutputVariable[];
   referenceType?: string;
   sourceType?: string;
@@ -45,7 +47,7 @@ export type TAutomationSetPropertyTarget = {
   label: string;
   description?: string;
   type: string;
-  source: 'target' | 'relation' | 'resolver';
+  source: 'target' | 'relation' | 'resolver' | 'targetField';
   cardinality: 'one' | 'many';
   sourceType?: string;
   relation?: {
@@ -53,6 +55,7 @@ export type TAutomationSetPropertyTarget = {
     relatedContentType: string;
   };
   resolverKey?: string;
+  targetPath?: string;
 };
 
 export type TAutomationRuntimeOutputResolver<TTarget = Record<string, any>> =
@@ -312,6 +315,7 @@ export type TAutomationSetPropertyRule = {
   fieldLabel?: string;
   operator: string;
   value?: unknown;
+  fallbackValue?: unknown;
   forwardTo?: unknown;
   isExpression?: boolean;
 };

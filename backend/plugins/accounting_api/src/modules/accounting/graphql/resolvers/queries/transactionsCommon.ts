@@ -2,6 +2,7 @@ import {
   ICursorPaginateParams,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
+import { SortOrder } from 'mongoose';
 import {
   cursorPaginate,
   cursorPaginateAggregation,
@@ -347,12 +348,13 @@ export const generateFilter = async (
       $or: [
         { status: { $in: TR_STATUSES.ACTIVE } },
         {
-          status: TR_STATUSES.CONVERSATION, $or: [
+          status: { $in: TR_STATUSES.CONVERSATION },
+          $or: [
             { createdBy: user._id },
             { mentionOwnerId: user._id },
             { mentionUserIds: { $in: [user._id] } },
-          ]
-        }
+          ],
+        },
       ],
     });
   }
@@ -587,15 +589,20 @@ const transactionCommon = {
     const filter = await generateFilter(subdomain, models, params, user);
     const { ids, excludeIds } = params;
 
-    if (ids?.length && !excludeIds && ids.length > (params.limit ?? 20)) {
-      params.cursor = '';
-      params.limit = ids.length;
-    }
-
-    params.orderBy ??= { ptrNumber: -1 };
-    params.orderBy = {
-      ...params.orderBy,
-      ptrNumber: -1,
+    const paginationParams: ICursorPaginateParams = {
+      ...params,
+      cursor:
+        ids?.length && !excludeIds && ids.length > (params.limit ?? 20)
+          ? ''
+          : params.cursor,
+      limit:
+        ids?.length && !excludeIds && ids.length > (params.limit ?? 20)
+          ? ids.length
+          : params.limit,
+      orderBy: {
+        ...(params.orderBy ?? { ptrNumber: -1 }),
+        ptrNumber: -1 as SortOrder,
+      },
     };
 
     return await cursorPaginateAggregation({
@@ -608,14 +615,27 @@ const transactionCommon = {
             newRoot: {
               $mergeObjects: [
                 '$$ROOT',
-                { _id: { $concat: ['$_id', '-', '$details._id'] } },
+                {
+                  _id: {
+                    $concat: [
+                      { $toString: '$_id' },
+                      '-',
+                      {
+                        $ifNull: [
+                          { $toString: '$details._id' },
+                          { $toString: '$detailInd' },
+                        ],
+                      },
+                    ],
+                  },
+                },
                 { trId: '$_id' },
               ],
             },
           },
         },
       ],
-      params,
+      params: paginationParams,
       formatter: { date: 'date', createAt: 'date' },
     });
   },
@@ -653,7 +673,20 @@ const transactionCommon = {
           newRoot: {
             $mergeObjects: [
               '$$ROOT',
-              { _id: { $concat: ['$_id', '-', '$details._id'] } },
+              {
+                _id: {
+                  $concat: [
+                    { $toString: '$_id' },
+                    '-',
+                    {
+                      $ifNull: [
+                        { $toString: '$details._id' },
+                        { $toString: '$detailInd' },
+                      ],
+                    },
+                  ],
+                },
+              },
               { trId: '$_id' },
             ],
           },
@@ -678,7 +711,7 @@ const transactionCommon = {
       { $group: { _id: null, count: { $sum: 1 } } },
       { $project: { _id: 0 } },
     ]);
-    return count[0].count;
+    return count[0]?.count ?? 0;
   },
 };
 

@@ -22,7 +22,7 @@ export const FacebookQuickRepliesMessage = ({
             <Form.Item>
               <InputTextCounter count={field.value?.length || 0} limit={640} />
 
-              <Textarea {...field} />
+              <Textarea {...field} maxLength={640} />
             </Form.Item>
           );
         }}

@@ -12,7 +12,7 @@ export const DonateRecordTable = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('loyalty');
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [...firstDonateColumns, ...secondDonateColumns];
+  const allColumns = [...firstDonateColumns(t), ...secondDonateColumns(t)];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;

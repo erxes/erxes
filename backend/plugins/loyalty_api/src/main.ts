@@ -48,30 +48,31 @@ startPlugin({
     afterProcess,
     permissions,
     references: loyaltyReferences,
-  },
-  importExport: {
-    export: {
-      types: [
-        {
-          label: 'Coupon',
-          contentType: 'loyalty:coupon.coupon',
-          permissions: ['couponExportManage'],
-        },
-      ],
-      getExportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { coupon: couponExportHandlers },
-        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
-        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-      getExportData: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { coupon: couponExportHandlers },
-        methodName: TImportExportProducers.GET_EXPORT_DATA,
-        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
-        generateModels,
-      }),
+    importExport: {
+      export: {
+        types: [
+          {
+            label: 'Coupon',
+            contentType: 'loyalty:coupon.coupon',
+            permissions: ['couponExportManage'],
+          },
+        ],
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { coupon: couponExportHandlers },
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { coupon: couponExportHandlers },
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
+      },
     },
   },
 });

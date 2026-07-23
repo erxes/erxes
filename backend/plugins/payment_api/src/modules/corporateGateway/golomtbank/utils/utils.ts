@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { redis } from 'erxes-api-shared/src/utils/redis';
+import { redis } from 'erxes-api-shared/utils';
 import { encryptPassword } from './encryptPassword';
 
 export const getAuthHeaders = async (args: {

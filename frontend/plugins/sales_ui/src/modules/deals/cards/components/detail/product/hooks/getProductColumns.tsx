@@ -15,7 +15,7 @@ import {
   SelectUOM,
 } from 'ui-modules';
 import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
@@ -223,13 +223,10 @@ export const ProductDepartmentField = ({
   );
 };
 
-export const taxPercent: ColumnDef<IProductData> = {
+export const taxPercent = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'taxPercent',
   accessorKey: 'taxPercent',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('tax-percent')} />;
-  },
+  header: () => <RecordTable.InlineHead label={t('tax-percent')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -243,15 +240,12 @@ export const taxPercent: ColumnDef<IProductData> = {
     );
   },
   size: 100,
-};
+});
 
-export const tax: ColumnDef<IProductData> = {
+export const tax = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'tax',
   accessorKey: 'tax',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('tax')} />;
-  },
+  header: () => <RecordTable.InlineHead label={t('tax')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -265,15 +259,12 @@ export const tax: ColumnDef<IProductData> = {
     );
   },
   size: 100,
-};
+});
 
-export const currency: ColumnDef<IProductData> = {
+export const currency = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'currency',
   accessorKey: 'currency',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('currency')} />;
-  },
+  header: () => <RecordTable.InlineHead label={t('currency')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -285,15 +276,12 @@ export const currency: ColumnDef<IProductData> = {
       </RecordTableInlineCell>
     );
   },
-};
+});
 
-export const uom: ColumnDef<IProductData> = {
+export const uom = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'uom',
   accessorKey: 'uom',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('uom')} />;
-  },
+  header: () => <RecordTable.InlineHead label={t('uom')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -305,15 +293,14 @@ export const uom: ColumnDef<IProductData> = {
       </RecordTableInlineCell>
     );
   },
-};
+});
 
-export const branch: ColumnDef<IProductData> = {
+export const branch = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'branchId',
   accessorKey: 'branchId',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead icon={IconGitBranch} label={t('branch')} />;
-  },
+  header: () => (
+    <RecordTable.InlineHead icon={IconGitBranch} label={t('branch')} />
+  ),
   cell: ({ cell }) => {
     return (
       <ProductBranchField
@@ -323,15 +310,17 @@ export const branch: ColumnDef<IProductData> = {
       />
     );
   },
-};
+});
 
-export const department: ColumnDef<IProductData> = {
+export const department = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'departmentId',
   accessorKey: 'departmentId',
-  header: () => {
-    const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead icon={IconBuildingSkyscraper} label={t('department')} />;
-  },
+  header: () => (
+    <RecordTable.InlineHead
+      icon={IconBuildingSkyscraper}
+      label={t('department')}
+    />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -343,4 +332,4 @@ export const department: ColumnDef<IProductData> = {
       </RecordTableInlineCell>
     );
   },
-};
+});

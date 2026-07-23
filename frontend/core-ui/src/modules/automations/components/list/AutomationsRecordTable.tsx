@@ -3,6 +3,7 @@ import { AutomationRecordTableFilters } from '@/automations/components/list/filt
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
 import { AutomationsRecordTableContent } from '@/automations/components/list/AutomationsRecordTableContent';
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
+import { AutomationsViewToggle } from '@/automations/components/list/AutomationsViewToggle';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import {
   Breadcrumb,
@@ -16,8 +17,14 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { Link, useNavigate } from 'react-router-dom';
-import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
+import {
+  Can,
+  PageHeader,
+  createFavoriteBreadcrumb,
+  usePermissionCheck,
+} from 'ui-modules';
 
 export const AutomationsRecordTable = () => {
   const {
@@ -31,6 +38,7 @@ export const AutomationsRecordTable = () => {
 
   const { t } = useTranslation('automations');
   const columns = useMemo(() => getAutomationColumns(t), [t]);
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('automations'));
   const navigate = useNavigate();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canCreateAutomation =
@@ -64,11 +72,16 @@ export const AutomationsRecordTable = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
+          <AutomationsViewToggle />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconAffiliate"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
             <Link
-              to="/settings/automations"
+              to={AutomationSettingsPath.Index}
               onClick={() => setAutomationSettingsReturnPath('/automations')}
             >
               <IconSettings />

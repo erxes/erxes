@@ -17,8 +17,10 @@ export const GET_CONVERSATION_MESSAGES = gql`
       _id
       content
       formWidgetData
+      extraData
       ${ATTACHMENT_GQL}
       internal
+      fromBot
       createdAt
       isCustomerRead
       userId

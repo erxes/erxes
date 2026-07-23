@@ -22,6 +22,8 @@ export const checkPricing = async (
         branchId: config.branchId,
         customerType: doc.customerType,
         customerId: doc.customerId,
+        brokerType: doc.brokerType || '',
+        brokerId: doc.brokerId || '',
         products: [
           ...doc.items.map((i) => ({
             itemId: i._id,

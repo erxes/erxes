@@ -22,7 +22,7 @@ export const useDirectMessageConditionCard = ({
 
     onChange('keywords', [
       ...condition.keywords,
-      { _id: generateAutomationElementId(), text: value },
+      { _id: generateAutomationElementId(), text: value.trim() },
     ]);
 
     e.currentTarget.value = '';

@@ -1,4 +1,4 @@
-import { useAutomationExecutionDetail } from '@/automations/components/builder/history/hooks/useAutomationExecutionDetail';
+import { useAutomationExecutionDetail } from '@/automations/components/builder/history/context/AutomationExecutionDetailContext';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { format, isValid } from 'date-fns';
 import { IAutomationHistory } from 'ui-modules';

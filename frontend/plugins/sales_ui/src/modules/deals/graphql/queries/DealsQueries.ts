@@ -266,6 +266,8 @@ export const GET_DEAL_DETAIL = gql`
       mobileAmount
       mobileAmounts
       paymentsData
+      brokerType
+      brokerId
       relations
       pipeline {
         _id

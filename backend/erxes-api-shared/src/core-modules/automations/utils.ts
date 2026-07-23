@@ -202,27 +202,72 @@ const resolveRuleValue = async ({
   return updatedValue;
 };
 
-const getPerValue = async ({
+const isEmptyRuleValue = (value: unknown): boolean =>
+  value === null ||
+  value === undefined ||
+  (typeof value === 'string' && !value.trim()) ||
+  (Array.isArray(value) && !value.length);
+
+const resolveRuleValueWithFallback = async ({
   subdomain,
-  relatedItem,
-  rule,
   execution,
+  rule,
+  fieldPath,
 }: {
   subdomain: string;
-  relatedItem: Record<string, unknown>;
-  rule: TAutomationSetPropertyRule;
   execution: IPropertyProps<unknown>['execution'];
+  rule: TAutomationSetPropertyRule;
+  fieldPath: string;
 }) => {
-  const fieldPath = rule.field || '';
-  const operator = rule.operator || AUTOMATION_PROPERTY_OPERATORS.SET;
-  const op1 = getCurrentValue(relatedItem, fieldPath);
-
-  let updatedValue = await resolveRuleValue({
+  const resolvedValue = await resolveRuleValue({
     subdomain,
     execution,
     rule,
     fieldPath,
   });
+
+  if (!isEmptyRuleValue(resolvedValue)) {
+    return resolvedValue;
+  }
+
+  if (isEmptyRuleValue(rule.fallbackValue)) {
+    return resolvedValue;
+  }
+
+  return await resolveRuleValue({
+    subdomain,
+    execution,
+    rule: { ...rule, value: rule.fallbackValue },
+    fieldPath,
+  });
+};
+
+const getPerValue = async ({
+  subdomain,
+  relatedItem,
+  rule,
+  execution,
+  resolvedValue,
+}: {
+  subdomain: string;
+  relatedItem: Record<string, unknown>;
+  rule: TAutomationSetPropertyRule;
+  execution: IPropertyProps<unknown>['execution'];
+  resolvedValue?: unknown;
+}) => {
+  const fieldPath = rule.field || '';
+  const operator = rule.operator || AUTOMATION_PROPERTY_OPERATORS.SET;
+  const op1 = getCurrentValue(relatedItem, fieldPath);
+
+  let updatedValue =
+    resolvedValue !== undefined
+      ? resolvedValue
+      : await resolveRuleValue({
+          subdomain,
+          execution,
+          rule,
+          fieldPath,
+        });
 
   if (NUMERIC_OPERATORS.has(operator)) {
     const currentValue = toNumber(op1);
@@ -340,11 +385,31 @@ const buildRuleUpdate = async ({
     };
   }
 
+  const resolvedValue = await resolveRuleValueWithFallback({
+    subdomain,
+    execution,
+    rule,
+    fieldPath,
+  });
+
+  // An empty resolved value would wipe the field (or push '' into arrays);
+  // intentional clearing goes through the CLEAR operator instead.
+  if (isEmptyRuleValue(resolvedValue)) {
+    return {
+      modifier: {},
+      change: buildSetPropertyChange({
+        rule,
+        status: 'skipped',
+      }),
+    };
+  }
+
   const value = await getPerValue({
     subdomain,
     relatedItem,
     rule,
     execution,
+    resolvedValue,
   });
 
   let modifier: TAutomationSetPropertyModifier = {};
@@ -762,6 +827,7 @@ export const getSetPropertySelector = async ({
   execution,
   targetType,
   relation,
+  targetPath,
 }: {
   subdomain: string;
   module: string;
@@ -771,9 +837,20 @@ export const getSetPropertySelector = async ({
     contentType: string;
     relatedContentType: string;
   };
+  targetPath?: string;
 }) => {
   const target = execution.target || {};
   const targetId = String(execution.targetId || target._id || '');
+
+  if (targetPath) {
+    const { found, value } = getValueByPath(target, targetPath);
+    const rawValue = found ? value : undefined;
+    const ids = (Array.isArray(rawValue) ? rawValue : [rawValue])
+      .map((id) => (id == null ? '' : String(id)))
+      .filter(Boolean);
+
+    return { _id: { $in: Array.from(new Set(ids)) } };
+  }
 
   if (!targetId) {
     return { _id: { $in: [] } };

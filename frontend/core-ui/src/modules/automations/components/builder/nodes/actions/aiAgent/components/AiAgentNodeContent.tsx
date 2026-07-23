@@ -118,15 +118,53 @@ const AiAgentClassification = ({
 
 const AiAgentGenerateText = ({
   config,
+  nodeData,
 }: NodeContentComponentProps<TAiAgentConfigForm>) => {
-  const { prompt = '' } = (config || {}) as Extract<
-    TAiAgentConfigForm,
-    { goalType: 'generateText' }
-  >;
+  const OptionConnectHandle = useAutomationOptionalConnect({
+    id: nodeData.id,
+    flowDirection: nodeData.flowDirection,
+  });
+  const {
+    prompt = '',
+    captureFields = [],
+    tools = [],
+  } = (config || {}) as Extract<TAiAgentConfigForm, { goalType: 'generateText' }>;
 
   return (
-    <div className="line-clamp-3 p-2 text-xs text-muted-foreground">
-      {prompt || 'Generate text'}
-    </div>
+    <>
+      <div className="p-2">
+        <div className="line-clamp-3 text-xs text-muted-foreground">
+          {prompt || 'Generate text'}
+        </div>
+        {captureFields.length ? (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {captureFields.slice(0, 3).map(({ fieldName }) => (
+              <div
+                key={fieldName}
+                className="rounded-xs bg-background p-2 text-xs font-semibold shadow"
+              >
+                {fieldName}
+              </div>
+            ))}
+            {captureFields.length > 3 ? (
+              <div className="rounded-xs bg-background p-2 text-xs font-semibold shadow">
+                +{captureFields.length - 3} more
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+      {/* Every tool wires like a topic: the row carries a connect handle.
+          Helpers run the wired workflow inline, handoffs route execution. */}
+      {tools.map(({ id, name, kind }) => (
+        <div
+          key={`${id}-right`}
+          className="relative bg-background shadow text-xs font-semibold rounded-xs m-2 p-2 text-mono"
+        >
+          {kind === 'helper' ? '🔧' : '→'} {name}
+          <OptionConnectHandle optionalId={id} />
+        </div>
+      ))}
+    </>
   );
 };

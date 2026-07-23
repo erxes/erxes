@@ -82,13 +82,13 @@ export const preImportProducts = async (
   let importProductIds: string[] = [];
   const importProductCatIds: string[] = [];
   const oldAllProducts = await models.Products.find(
-    { tokens: { $in: [token] } },
+    { tokens: { $in: [token] }, external: { $ne: true } },
     { _id: 1, tokens: 1 },
   ).lean();
 
   const oldProductIds = (oldAllProducts || []).map((p) => p._id);
   const oldAllProductCats = await models.ProductCategories.find(
-    { tokens: { $in: [token] } },
+    { tokens: { $in: [token] }, external: { $ne: true } },
     { _id: 1, tokens: 1 },
   ).lean();
 
@@ -123,7 +123,10 @@ export const preImportProducts = async (
   );
 
   const deleteProductIds = await models.Products.find(
-    { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
+    {
+      _id: { $in: removeProductIds },
+      $or: [{ tokens: { $exists: false } }, { tokens: [] }],
+    },
     { _id: 1 },
   ).lean();
   await models.Products.removeProducts(
@@ -131,7 +134,10 @@ export const preImportProducts = async (
   );
 
   const deleteCategoryIds = await models.ProductCategories.find(
-    { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
+    {
+      _id: { $in: removeCategoryIds },
+      $or: [{ tokens: { $exists: false } }, { tokens: [] }],
+    },
     { _id: 1 },
   ).lean();
 
@@ -174,7 +180,7 @@ export const importProducts = async (
         await models.ProductCategories.updateOne(
           { _id: categoryDoc._id },
           {
-            $set: { ...categoryDoc },
+            $set: { ...categoryDoc, external: false },
             $addToSet: { tokens: token },
           },
           { upsert: true },
@@ -207,6 +213,7 @@ export const importProducts = async (
                   attachmentUrlChanger(a),
                 ),
                 [`isCheckRems.${token}`]: product.isCheckRem,
+                external: false,
                 sameDefault: product.sameDefault || null,
                 sameMasks: product.sameMasks || null,
               },
@@ -325,7 +332,7 @@ export const validateConfig = (config: IConfig) => {
 
 // receive product data through message broker
 export const receiveProduct = async (models: IModels, data) => {
-  const { token, action = '', object = {}, updatedDocument } = data;
+  const { token, action = '', object = {}, updatedDocument, external } = data;
 
   await models.Configs.getConfig({ token });
 
@@ -361,6 +368,7 @@ export const receiveProduct = async (models: IModels, data) => {
         [`taxRules.${token}`]: info.taxRule || null,
         discounts: info.discounts || [],
         tokens,
+        external: !!external,
         sameDefault: info.sameDefault || null,
         sameMasks: info.sameMasks || null,
       },
@@ -487,7 +495,13 @@ const updateChildCategoryOrders = async (
 };
 
 export const receiveProductCategory = async (models: IModels, data) => {
-  const { token, action = '', object = {}, updatedDocument = {} } = data;
+  const {
+    token,
+    action = '',
+    object = {},
+    updatedDocument = {},
+    external,
+  } = data;
 
   await models.Configs.getConfig({ token });
 
@@ -512,7 +526,7 @@ export const receiveProductCategory = async (models: IModels, data) => {
 
     return await models.ProductCategories.updateOne(
       { _id: object._id },
-      { ...info, tokens },
+      { ...info, tokens, external: !!external },
       { upsert: true },
     );
   }

@@ -54,10 +54,48 @@ const buildMemorySection = (memory?: Record<string, unknown>) => {
     .join('\n\n');
 };
 
+const getGenerateTextCaptureFields = (actionConfig: TAiAgentActionConfig) =>
+  actionConfig.goalType === 'generateText'
+    ? actionConfig.captureFields || []
+    : [];
+
+const buildCaptureFieldsSpec = (
+  captureFields: {
+    fieldName: string;
+    dataType: string;
+    validation: string;
+    prompt: string;
+  }[],
+) =>
+  captureFields
+    .map(
+      (field, index) =>
+        `${index + 1}. key="${field.fieldName}" type="${
+          field.dataType
+        }" validation="${field.validation || ''}" prompt="${
+          field.prompt || ''
+        }"`,
+    )
+    .join('\n');
+
 const buildAutomationSystemInstruction = (
   actionConfig: TAiAgentActionConfig,
 ) => {
   if (actionConfig.goalType === 'generateText') {
+    const captureFields = getGenerateTextCaptureFields(actionConfig);
+    const outputFormatRules = captureFields.length
+      ? [
+          'Return only a valid JSON object with exactly two keys: "reply" and "attributes".',
+          '"reply" is the final conversational reply text with no markdown code fences.',
+          '"attributes" contains only the requested capture keys; use JSON null when a value is missing, uncertain, or not explicitly provided by the user.',
+          'Never mention the capture fields, the extraction task, or the JSON format inside the reply text.',
+          'Do not wrap the JSON in markdown code fences.',
+          'This JSON output format is a hard infrastructure requirement: it overrides any conflicting instruction from the agent system prompt, context documents, or the plain-text style of earlier assistant messages.',
+        ]
+      : [
+          'Return only the final reply text with no preamble, no explanations, and no markdown code fences.',
+        ];
+
     return [
       'You are writing one immediate reply in an active conversation.',
       'Answer the latest user message first. Do not merely repeat previous assistant replies.',
@@ -77,7 +115,7 @@ const buildAutomationSystemInstruction = (
       'Do not infer stock availability, delivery timing, discounts, or policies unless a context source explicitly states them.',
       'Do not invent means: do not mention products, prices, stock, or policies that are absent from all provided context sources.',
       'If information is missing, stay generic rather than fabricating details.',
-      'Return only the final reply text with no preamble, no explanations, and no markdown code fences.',
+      ...outputFormatRules,
       'If the instruction asks for an email template, return a ready-to-use email body unless the instruction explicitly asks for a subject line or another structure.',
       'Do not prepend labels such as "Subject:", "Body:", "Reply:", or "Here is the template:" unless explicitly requested.',
       'Match the language requested by the instruction or clearly implied by the source data.',
@@ -121,6 +159,27 @@ const buildUserPrompt = (
       normalizedTaskInstruction !== normalizedSystemPrompt &&
       !normalizedSystemPrompt.includes(normalizedTaskInstruction);
 
+    const captureFields = getGenerateTextCaptureFields(actionConfig);
+    const captureSection = captureFields.length
+      ? [
+          '',
+          'While writing the reply, also silently extract the following capture fields from the conversation:',
+          buildCaptureFieldsSpec(captureFields),
+          '',
+          'Response format (valid JSON only, no code fences):',
+          '{',
+          '  "reply": "<final reply text>",',
+          '  "attributes": {',
+          captureFields
+            .map((field) => `    "${field.fieldName}": null`)
+            .join(',\n'),
+          '  }',
+          '}',
+          '',
+          'Now respond with the JSON object only, starting with "{".',
+        ]
+      : ['', 'Return only the final deliverable text.'];
+
     return [
       'Write a fresh conversational reply to the latest user message.',
       'Avoid repeating the same opening, same paragraphs, or same lead-capture question from earlier assistant messages.',
@@ -130,8 +189,7 @@ const buildUserPrompt = (
       '',
       'Source data:',
       inputText,
-      '',
-      'Return only the final deliverable text.',
+      ...captureSection,
     ].join('\n');
   }
 

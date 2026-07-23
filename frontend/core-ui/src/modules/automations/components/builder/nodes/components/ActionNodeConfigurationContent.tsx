@@ -2,7 +2,7 @@ import { useActionNodeConfiguration } from '@/automations/components/builder/nod
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { IconAdjustmentsAlt } from '@tabler/icons-react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { FieldPath, useFormContext, useWatch } from 'react-hook-form';
 import { useNodeContent } from '@/automations/components/builder/nodes/hooks/useTriggerNodeContent';
 import { memo } from 'react';
 
@@ -51,7 +51,10 @@ const ActionNodeConfigurationContentComponent = ({
 }: ActionNodeConfigurationContentProps) => {
   const { control } = useFormContext<TAutomationBuilderForm>();
 
-  const actionData = useWatch({ control, name: `actions.${data.nodeIndex}` });
+  const actionData = useWatch({
+    control,
+    name: data.formPath as FieldPath<TAutomationBuilderForm>,
+  });
 
   const { Component } = useActionNodeConfiguration(data, actionData);
 
@@ -86,6 +89,7 @@ export const ActionNodeConfigurationContent = memo(
     return (
       previousData.id === nextData.id &&
       previousData.nodeIndex === nextData.nodeIndex &&
+      previousData.formPath === nextData.formPath &&
       previousData.type === nextData.type &&
       previousData.error === nextData.error &&
       previousData.isCustom === nextData.isCustom &&

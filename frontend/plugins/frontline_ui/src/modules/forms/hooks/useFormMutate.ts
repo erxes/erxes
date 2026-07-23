@@ -90,6 +90,13 @@ export const useFormMutate = () => {
               formFields,
               formDetail?.fields || [],
             ),
+            onCompleted: () => {
+              toast({
+                title: t('success'),
+                variant: 'success',
+                description: t('form-updated-successfully'),
+              });
+            },
           });
         },
         onError: (error) => {
@@ -121,6 +128,13 @@ export const useFormMutate = () => {
               contentType: 'form',
               contentTypeId: formsAdd._id,
               newFields: formFields,
+            },
+            onCompleted: () => {
+              toast({
+                title: t('success'),
+                variant: 'success',
+                description: t('form-created-successfully'),
+              });
             },
           });
           addFormClient?.cache.evict({ fieldName: 'Forms' });

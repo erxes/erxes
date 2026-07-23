@@ -16,7 +16,7 @@ export const SpinRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={spinColumns}
+      columns={spinColumns(t)}
       data={spins || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}

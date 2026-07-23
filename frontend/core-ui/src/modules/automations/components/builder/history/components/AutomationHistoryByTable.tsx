@@ -1,3 +1,4 @@
+import { WorkflowExecutionResultCell } from '@/automations/components/builder/history/components/WorkflowExecutionResultCell';
 import {
   AutomationHistoryPopoverValue,
   stringifyAutomationHistoryValue,
@@ -366,20 +367,27 @@ const automationHistoryActionColumns: ColumnDef<AutomationHistoryActionTableRow>
     {
       id: 'result',
       header: () => <RecordTable.InlineHead label="Results" />,
-      cell: ({ row }) => (
-        <RecordTableInlineCell className="p-0">
-          <AutomationHistoryPopoverValue
-            className="h-10"
-            preview={getExecutionActionResultPreview(row.original)}
-            content={
-              <ExecutionActionResult
-                action={row.original}
-                status={row.original.executionStatus}
-              />
-            }
-          />
-        </RecordTableInlineCell>
-      ),
+      cell: ({ row }) =>
+        // Workflow rows render inline (not in the value popover) so the
+        // nested child-execution sheet survives popover close
+        row.original.actionType === 'workflow' ? (
+          <RecordTableInlineCell className="p-0">
+            <WorkflowExecutionResultCell action={row.original} />
+          </RecordTableInlineCell>
+        ) : (
+          <RecordTableInlineCell className="p-0">
+            <AutomationHistoryPopoverValue
+              className="h-10"
+              preview={getExecutionActionResultPreview(row.original)}
+              content={
+                <ExecutionActionResult
+                  action={row.original}
+                  status={row.original.executionStatus}
+                />
+              }
+            />
+          </RecordTableInlineCell>
+        ),
       size: 560,
     },
   ];

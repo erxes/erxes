@@ -207,6 +207,29 @@ export const EMConfig = () => {
                     </Form.Item>
                   )}
                 />
+                <Form.Field
+                  name="botSetup.botShowInitialMessage"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <div className="flex items-center gap-3">
+                        <Form.Control>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </Form.Control>
+                        <Form.Label variant="peer" className="leading-6">
+                          Show Initial Message
+                        </Form.Label>
+                      </div>
+                      <Form.Description>
+                        When enabled, the bot will display the greeting message
+                        as an initial message in the conversation.
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
                 {form.watch('botSetup.botCheck') && (
                   <Form.Field
                     name="botSetup.automationId"
@@ -344,7 +367,9 @@ export const EMConfig = () => {
                   name="knowledgeBaseTopicId"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('select-knowledge-base-topic')}</Form.Label>
+                      <Form.Label>
+                        {t('select-knowledge-base-topic')}
+                      </Form.Label>
                       <Form.Control>
                         <SelectKnowledgeBaseTopic field={field} />
                       </Form.Control>
@@ -429,7 +454,9 @@ const PersistentMenu = ({
                           </Select.Trigger>
                         </Form.Control>
                         <Select.Content>
-                          <Select.Item value="button">{t('button')}</Select.Item>
+                          <Select.Item value="button">
+                            {t('button')}
+                          </Select.Item>
                           <Select.Item value="link">{t('link')}</Select.Item>
                         </Select.Content>
                       </Select>
@@ -474,7 +501,9 @@ const PersistentMenu = ({
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Form.Control>
                         <Select.Trigger>
-                          <Select.Value placeholder={t('select-content-type')} />
+                          <Select.Value
+                            placeholder={t('select-content-type')}
+                          />
                         </Select.Trigger>
                       </Form.Control>
                       <Select.Content>
@@ -603,17 +632,15 @@ const SelectMessengerAutomation = ({
           {loading
             ? t('loading')
             : selected
-            ? selected.name
-            : t('select-an-automation')}
+              ? selected.name
+              : t('select-an-automation')}
         </span>
       </Combobox.Trigger>
       <Combobox.Content>
         <Command>
           <Command.List>
             <Command.Input placeholder={t('search-automation')} />
-            <Command.Empty>
-              {t('no-automations-found')}
-            </Command.Empty>
+            <Command.Empty>{t('no-automations-found')}</Command.Empty>
             {automations.map((automation) => (
               <Command.Item
                 key={automation._id}
@@ -649,7 +676,9 @@ const SelectKnowledgeBaseTopic = ({
   const [_open, _setOpen] = useState<boolean>(false);
   const { topics } = useTopics();
   const selectedTopic = (field.value?.length &&
-    topics?.find((topic) => topic._id === field.value)) || { title: t('select-a-topic') };
+    topics?.find((topic) => topic._id === field.value)) || {
+    title: t('select-a-topic'),
+  };
 
   console.log('topic', field.value);
 

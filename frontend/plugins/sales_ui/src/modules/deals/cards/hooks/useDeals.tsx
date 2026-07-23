@@ -541,12 +541,16 @@ export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
       }));
     }
 
+    const processId = Math.random().toString();
+    localStorage.setItem('processId', processId);
+
     return changeDeals({
       variables: {
         itemId: deal._id,
         destinationStageId,
         sourceStageId: deal.stageId,
         aboveItemId: nextAboveItemId,
+        processId,
       },
     })
       .then((result) => {

@@ -434,4 +434,5 @@ export const mutations = `
   pricingFixedValueAdd(pricingPlanId: String!, doc: PricingFixedValueInput!): PricingFixedValue
   pricingFixedValueEdit(id: String!, doc: PricingFixedValueInput!): PricingFixedValue
   pricingFixedValueRemove(id: String!): PricingFixedValue
+  pricingFixedValuesBulkEdit(pricingPlanId: String!, productsData: JSON): JSON
 `;

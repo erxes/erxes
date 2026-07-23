@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { redis } from 'erxes-api-shared/src/utils/redis';
+import { redis } from 'erxes-api-shared/utils';
 
 export const getAuthHeaders = async (args: {
   consumerKey: string;

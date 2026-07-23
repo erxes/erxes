@@ -33,6 +33,7 @@ const historiesParams = `
   targetIds: [String]
   triggerTypes: [String]
   ids:[String]
+  parentExecutionId: String
 `;
 
 const emailTemplateParams = `
@@ -71,6 +72,7 @@ const queries = `
   getAutomationExecutionDetail(executionId: String!): AutomationHistory
   automationEmailTemplates(${emailTemplateParams}): AutomationEmailTemplatesListResponse
   automationEmailTemplateDetail(_id: String!): AutomationEmailTemplate
+  automationWorkflowTemplates(searchValue: String): [AutomationWorkflowTemplate]
 `;
 
 export default queries;

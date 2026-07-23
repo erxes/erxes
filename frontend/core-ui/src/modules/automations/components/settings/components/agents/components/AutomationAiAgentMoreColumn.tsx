@@ -4,6 +4,7 @@ import {
   AUTOMATIONS_AI_AGENTS,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { ApolloError, useMutation } from '@apollo/client';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
@@ -76,7 +77,7 @@ export const AutomationAiAgentMoreColumnCell = ({
           <Command.List>
             <Can action="automationsAiAgentEdit">
               <Command.Item value="edit" asChild>
-                <Link to={`/settings/automations/agents/${_id}`}>
+                <Link to={`${AutomationSettingsPath.Agents}/${_id}`}>
                   <IconEdit /> {t('edit')}
                 </Link>
               </Command.Item>

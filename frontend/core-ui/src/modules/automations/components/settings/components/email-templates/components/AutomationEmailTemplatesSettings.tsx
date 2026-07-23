@@ -6,6 +6,7 @@ import { useRemoveAutomationEmailTemplate } from '@/automations/components/setti
 import { useAutomationEmailTemplates } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplates';
 import { EmailTemplatesList } from '@/automations/components/settings/components/email-templates/components/EmailTemplatesList';
 import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 
 export function AutomationEmailTemplatesSettings() {
   const [searchValue, setSearchValue] = useState('');
@@ -38,7 +39,7 @@ export function AutomationEmailTemplatesSettings() {
       description="Create and manage email templates for your automation workflows"
       actions={
         <Button asChild>
-          <Link to="/settings/automations/email-templates/create">
+          <Link to={AutomationSettingsPath.EmailTemplateCreate}>
             <IconPlus />
             Create Template
           </Link>

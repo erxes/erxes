@@ -1,6 +1,7 @@
 import { MutationHookOptions, OperationVariables } from '@apollo/client';
 
 import { IUser } from 'ui-modules';
+import type { PaymentConfigItem } from '@/payments';
 import { PIPELINE_CREATE_SCHEMA } from '../schemas/pipelineFormSchema';
 import { z } from 'zod';
 
@@ -40,7 +41,7 @@ export interface IPipeline {
   excludeProductIds: string[];
 
   paymentIds?: string[];
-  paymentTypes?: any[];
+  paymentTypes?: PaymentConfigItem[];
 }
 
 export interface ISelectLabelContext {

@@ -77,7 +77,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
 
   const form = useForm<TAddTask>({
     resolver: zodResolver(addTaskSchema),
-    defaultValues,
+    defaultValues: { ...defaultValues, ...defaultValuesState },
   });
 
   useEffect(() => {

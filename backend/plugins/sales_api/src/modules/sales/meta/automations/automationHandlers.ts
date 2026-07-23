@@ -89,6 +89,7 @@ export const salesAutomationHandlers = {
       execution,
       targetType,
       relation: setPropertyTarget?.relation,
+      targetPath: setPropertyTarget?.targetPath,
     });
 
     const setPropertyArgs = {

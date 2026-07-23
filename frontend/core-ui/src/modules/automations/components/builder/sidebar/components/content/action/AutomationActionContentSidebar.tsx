@@ -49,6 +49,7 @@ export const AutomationActionContentSidebar = () => {
             )}
           >
             <RenderPluginsComponentWrapper
+              key={currentAction.id}
               pluginName={pluginName}
               moduleName={moduleName}
               props={{
@@ -69,6 +70,7 @@ export const AutomationActionContentSidebar = () => {
 
   return (
     <AutomationCoreActionSidebarContent
+      key={currentAction.id}
       currentIndex={currentIndex}
       currentAction={currentAction}
       onSaveActionConfig={onSaveActionConfig}

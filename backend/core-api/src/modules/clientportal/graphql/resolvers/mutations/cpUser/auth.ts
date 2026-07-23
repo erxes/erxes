@@ -10,6 +10,7 @@ import {
   sendOTPForLogin,
   loginWithOTP,
   loginWithSocial,
+  loginWithToki,
 } from '~/modules/clientportal/services/auth/login';
 import { getSocialUserProfile } from '@/clientportal/services/helpers/socialAuth';
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
@@ -228,5 +229,29 @@ export const authMutations: Record<string, Resolver<any, any, IContext>> = {
       clientPortal,
       res,
     );
+  },
+  async clientPortalUserLoginWithToki(
+    _root: unknown,
+    { token },
+    { models, subdomain, clientPortal, res }: IContext,
+  ) {
+    console.log(JSON.stringify({ token, clientPortal }));
+    const user = await loginWithToki(token, clientPortal, models);
+    console.log('toki user:', JSON.stringify(user || {}));
+
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
+
+    const payload = generateCPUserLoginActivityLog(user, 'toki');
+
+    await createCPUserActivityLog(models, subdomain, payload, user);
+
+    if (tokens?.token && tokens?.refreshToken) {
+      return {
+        success: true,
+        ...tokens,
+      };
+    }
+
+    return 'Success';
   },
 };

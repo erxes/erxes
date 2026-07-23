@@ -1,3 +1,15 @@
+import type { TAutomationSetPropertyTarget } from 'erxes-api-shared/core-modules';
+
+const FACEBOOK_MESSAGE_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
+  {
+    label: 'Conversation customer',
+    type: 'core:contacts.customers',
+    source: 'targetField',
+    targetPath: 'customerId',
+    cardinality: 'one',
+  },
+];
+
 const facebookMessageTriggerOutput = {
   variables: [
     { key: '_id', label: 'Message ID' },
@@ -120,6 +132,7 @@ export const facebookConstants = {
         'Start with a blank workflow that enrolls and is triggered off facebook messages',
       isCustom: true,
       output: facebookMessageTriggerOutput,
+      setPropertyTargets: FACEBOOK_MESSAGE_SET_PROPERTY_TARGETS,
     },
     {
       moduleName: 'facebook',

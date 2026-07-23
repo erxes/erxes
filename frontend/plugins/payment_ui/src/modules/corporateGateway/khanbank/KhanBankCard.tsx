@@ -1,54 +1,68 @@
 import { useState } from 'react';
-import { Button } from 'erxes-ui/components/button';
-import { Card } from 'erxes-ui/components/card';
-import { Dialog } from 'erxes-ui/components/dialog';
+import { gql, useQuery } from '@apollo/client';
+import { REACT_APP_API_URL } from 'erxes-ui';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
-import { REACT_APP_API_URL } from 'erxes-ui';
+
+import GatewayCard from '../GatewayCard';
 import ConfigFormContainer from './configs/containers/Form';
+import { queries } from './configs/graphql';
 
 const KHANBANK_PAYMENT = PAYMENT_KINDS[PaymentKind.KHANBANK];
 
+type KhanbankConfig = {
+  _id: string;
+  name: string;
+  consumerKey: string;
+};
+
+type ConfigsListQueryResponse = {
+  khanbankConfigsList: {
+    list: KhanbankConfig[];
+    totalCount: number;
+  };
+};
+
 const KhanBankCard = () => {
   const [open, setOpen] = useState(false);
-  const logoUrl = `${REACT_APP_API_URL}/pl:payment/static/images/payments/khanbank.png`;
+
+  const { data, loading, error } = useQuery<ConfigsListQueryResponse>(
+    gql(queries.listQuery),
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  const configs = data?.khanbankConfigsList?.list ?? [];
+  const config = configs[0];
+  const hasConfig = configs.length > 0;
+
   return (
-    <>
-      <Card className="p-4 space-y-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src={logoUrl}
-              alt="Khan Bank"
-              className="h-10 w-10 rounded-md object-contain"
-            />
+    <GatewayCard
+      logo={`${REACT_APP_API_URL}/pl:payment/static/images/payments/khanbank.png`}
+      title={KHANBANK_PAYMENT.name}
+      description={KHANBANK_PAYMENT.description}
+      loading={loading}
+      error={!!error}
+      hasConfig={hasConfig}
+      open={open}
+      onOpenChange={setOpen}
+      connectedContent={
+        <div className="grid grid-cols-[120px_1fr] gap-y-1 text-sm">
+          <span className="text-muted-foreground">Name</span>
+          <span>{config?.name}</span>
 
-            <div>
-              <p className="font-semibold">{KHANBANK_PAYMENT.name}</p>
-              <p className="text-xs text-muted-foreground">(Accepts MNT)</p>
-            </div>
-          </div>
-
-          <Button variant="link" size="sm" onClick={() => setOpen(true)}>
-            + Add
-          </Button>
+          <span className="text-muted-foreground">Consumer Key</span>
+          <span>{config?.consumerKey}</span>
         </div>
-
-        <p className="text-sm text-muted-foreground">
-          {KHANBANK_PAYMENT.description}
-        </p>
-      </Card>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Content className="sm:max-w-lg">
-          <Dialog.Header>
-            <Dialog.Title>Add {KHANBANK_PAYMENT.name}</Dialog.Title>
-          </Dialog.Header>
-
-          <ConfigFormContainer closeModal={() => setOpen(false)} />
-        </Dialog.Content>
-      </Dialog>
-    </>
+      }
+      form={
+        <ConfigFormContainer
+          config={config}
+          closeModal={() => setOpen(false)}
+        />
+      }
+    />
   );
 };
 

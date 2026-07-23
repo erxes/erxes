@@ -5,7 +5,7 @@ import {
   IconPhone,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import {
   RecordTable,
   TextOverflowTooltip,
@@ -17,16 +17,13 @@ import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { coverMoreColumn } from '@/pos/pos-covers/components/CoversMoreColumns';
 import { ClickablePosName } from '@/pos/pos-covers/components/ClickablePosName';
 
-export const coverColumns: ColumnDef<ICovers>[] = [
+export const coverColumns: (t: TFunction) => ColumnDef<ICovers>[] = (t) => [
   coverMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICovers>,
   {
     id: 'posName',
     accessorKey: 'posName',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconPhone} label={t('pos')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconPhone} label={t('pos')} />,
     cell: ({ row }) => {
       return <ClickablePosName value={row.original.posName || ''} row={row} />;
     },
@@ -35,10 +32,9 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   {
     id: 'beginDate',
     accessorKey: 'beginDate',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('begin-date')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('begin-date')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -60,10 +56,9 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconMobiledata} label={t('end-date')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconMobiledata} label={t('end-date')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -84,10 +79,9 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   {
     id: 'user.email',
     accessorKey: 'user.email',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('user')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuilding} label={t('user')} />
+    ),
     cell: ({ row }) => {
       return (
         <RecordTableInlineCell>

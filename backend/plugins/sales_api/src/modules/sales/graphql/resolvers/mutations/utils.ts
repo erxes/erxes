@@ -19,6 +19,8 @@ import {
   checkAssignedUserFromPData,
   copyPipelineLabels,
   itemMover,
+  publishPipelineOrderUpdated,
+  resolveDealSubscriptionItem,
   subscriptionWrapper,
 } from '../utils';
 import {
@@ -273,10 +275,14 @@ export const changeDeal = async (
     itemId,
     aboveItemId,
     destinationStageId,
+    sourceStageId,
+    processId,
   }: {
     itemId: string;
     aboveItemId?: string;
     destinationStageId: string;
+    sourceStageId?: string;
+    processId?: string;
   },
 ) => {
   const item = await models.Deals.findOne({ _id: itemId });
@@ -286,6 +292,7 @@ export const changeDeal = async (
   }
 
   const stage = await models.Stages.getStage(item.stageId);
+  const destinationStage = await models.Stages.getStage(destinationStageId);
 
   const extendedDoc: IDeal = {
     modifiedBy: userId,
@@ -299,8 +306,6 @@ export const changeDeal = async (
 
   if (item.stageId !== destinationStageId) {
     checkMovePermission(stage, userId);
-
-    const destinationStage = await models.Stages.getStage(destinationStageId);
 
     checkMovePermission(destinationStage, userId);
 
@@ -316,11 +321,32 @@ export const changeDeal = async (
 
   await itemMover(models, userId, item, destinationStageId);
 
+  const resolvedItem = await resolveDealSubscriptionItem(
+    models,
+    subdomain,
+    updatedItem,
+  );
+
+  const pipelineIds = [stage.pipelineId, destinationStage.pipelineId];
+
+  await publishPipelineOrderUpdated({
+    pipelineIds,
+    processId,
+    item: resolvedItem,
+    aboveItemId,
+    destinationStageId,
+    oldStageId: sourceStageId || item.stageId,
+  });
+
   await subscriptionWrapper(models, {
     action: 'update',
     deal: updatedItem,
     oldDeal: item,
     pipelineId: stage.pipelineId,
+    oldPipelineId:
+      stage.pipelineId !== destinationStage.pipelineId
+        ? destinationStage.pipelineId
+        : undefined,
   });
 
   return updatedItem;

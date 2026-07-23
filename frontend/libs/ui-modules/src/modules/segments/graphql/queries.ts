@@ -62,6 +62,12 @@ export const AUTOMATION_PROPERTIES_WITH_FIELDS = gql(`
     }
 `);
 
+export const AUTOMATION_SET_PROPERTY_TARGETS = gql(`
+    query AutomationSetPropertyTargets($sourceType: String!) {
+      automationSetPropertyTargets(sourceType: $sourceType)
+    }
+`);
+
 export const SEGMENT_DETAIL = gql`
   query segmentDetail($_id: String) {
     segmentDetail(_id: $_id) {

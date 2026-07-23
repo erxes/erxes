@@ -3,6 +3,7 @@ import { AutomationBuilderNameInput } from '@/automations/components/builder/hea
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import {
   IconAffiliate,
   IconAlertTriangle,
@@ -57,7 +58,10 @@ export const AutomationBuilderHeader = () => {
             />
           )}
           <Button variant="outline" asChild>
-            <Link to="/settings/automations" onClick={gotoAutomationSettings}>
+            <Link
+              to={AutomationSettingsPath.Index}
+              onClick={gotoAutomationSettings}
+            >
               <IconSettings />
               {t('go-to-settings')}
             </Link>

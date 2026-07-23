@@ -55,11 +55,14 @@ export const AutomationHistoryPopoverValue = ({
         align="start"
         sideOffset={8}
         className={cn(
-          'w-fit min-w-80 max-w-[min(44rem,calc(100vw-theme(spacing.8)))] p-0 shadow-lg',
+          'w-fit min-w-80 max-w-[min(44rem,calc(100vw-2rem))] overflow-hidden p-0 shadow-lg',
           contentClassName,
         )}
       >
-        <ScrollArea className="max-h-[28rem]">
+        <ScrollArea
+          className="max-h-[28rem]"
+          viewportClassName="[&>div]:!block"
+        >
           <div className="p-4">
             {isPrimitiveContent ? (
               <div className="select-text whitespace-pre-wrap break-all text-sm leading-6 text-foreground">

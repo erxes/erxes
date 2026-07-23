@@ -70,7 +70,7 @@ export type FieldQueryResponse = {
 export type TPropertyTypeOption = {
   label?: string;
   type?: string;
-  source?: 'target' | 'relation' | 'resolver';
+  source?: 'target' | 'relation' | 'resolver' | 'targetField';
   cardinality?: 'one' | 'many';
   sourceType?: string;
   relation?: {
@@ -78,6 +78,7 @@ export type TPropertyTypeOption = {
     relatedContentType: string;
   };
   resolverKey?: string;
+  targetPath?: string;
   pluginName?: string;
   value: string;
   description: string;
