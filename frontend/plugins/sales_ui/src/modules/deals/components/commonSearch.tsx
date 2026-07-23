@@ -27,7 +27,6 @@ export const CommonDealSearch = () => {
   const {
     deals,
     loading,
-    totalCount,
     pageIndex,
     pageInfo,
     goToNextPage,
@@ -119,6 +118,7 @@ export const CommonDealSearch = () => {
 
             <div className="flex items-center gap-1">
               <button
+                type="button"
                 aria-label="Previous search results"
                 disabled={
                   !pageInfo?.hasPreviousPage ||
@@ -135,6 +135,7 @@ export const CommonDealSearch = () => {
               </button>
 
               <button
+                type="button"
                 aria-label="Next search results"
                 disabled={!pageInfo?.hasNextPage || loading}
                 className="rounded p-1.5 hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
