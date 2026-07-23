@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 const NOTE_COMPOSER_HOTKEY_SCOPE = 'deal-note-composer';
 
 const INTERNAL_NOTE_ADD = gql`
-  mutation internalNotesAdd(
+  mutation salesDealInternalNoteAdd(
     $contentType: String!
     $contentTypeId: String
     $content: String

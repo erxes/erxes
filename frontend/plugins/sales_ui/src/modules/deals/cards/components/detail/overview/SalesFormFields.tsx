@@ -16,7 +16,7 @@ import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage
 import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
-import AttachmentUploader from './attachments/AttachmentUploader';
+import { AttachmentUploader } from './attachments/AttachmentUploader';
 import { Attachments } from './attachments/Attachments';
 
 const ARRAY_KEYS = new Set([

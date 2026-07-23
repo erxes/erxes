@@ -26,6 +26,22 @@ import {
   SelectBranchCreateContainer,
 } from './CreateBranchForm';
 
+const cacheSelectedBranch = (
+  branch: IBranch | undefined,
+  selectedBranchIds: string[],
+  setSelectedBranches: React.Dispatch<React.SetStateAction<IBranch[]>>,
+) => {
+  if (!branch || !selectedBranchIds.includes(branch._id)) return;
+
+  setSelectedBranches((previousBranches) => {
+    if (previousBranches.some(({ _id }) => _id === branch._id)) {
+      return previousBranches;
+    }
+
+    return [...previousBranches, branch];
+  });
+};
+
 export const SelectBranchesProvider = ({
   children,
   value,
@@ -46,14 +62,14 @@ export const SelectBranchesProvider = ({
     const newSelectedBranchIds = isSingleMode
       ? [branch._id]
       : isSelected
-        ? multipleValue.filter((p) => p !== branch._id)
-        : [...multipleValue, branch._id];
+      ? multipleValue.filter((p) => p !== branch._id)
+      : [...multipleValue, branch._id];
 
     const newSelectedBranches = isSingleMode
       ? [branch]
       : isSelected
-        ? selectedBranches.filter((p) => p._id !== branch._id)
-        : [...selectedBranches, branch];
+      ? selectedBranches.filter((p) => p._id !== branch._id)
+      : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
     onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
@@ -227,14 +243,9 @@ export const BranchesList = ({
           showMissingId
           variant={'secondary'}
           className={cn('min-w-0', className)}
-          onCompleted={(branch) => {
-            if (!branch) return;
-            if (!selectedBranchIds.includes(branch._id)) return;
-
-            setSelectedBranches((prev) =>
-              prev.some((b) => b._id === branch._id) ? prev : [...prev, branch],
-            );
-          }}
+          onCompleted={(branch) =>
+            cacheSelectedBranch(branch, selectedBranchIds, setSelectedBranches)
+          }
           onClose={() =>
             onSelect?.(
               (selectedBranches.find((p) => p._id === branchId) ?? {
@@ -320,13 +331,9 @@ const SelectBranchesBadgesView = () => {
           key={bId}
           branchId={bId}
           showMissingId
-          onCompleted={(branch) => {
-            if (!branch) return;
-            if (!branchIds.includes(branch._id)) return;
-            setSelectedBranches((prev) =>
-              prev.some((b) => b._id === branch._id) ? prev : [...prev, branch],
-            );
-          }}
+          onCompleted={(branch) =>
+            cacheSelectedBranch(branch, branchIds || [], setSelectedBranches)
+          }
           onClose={() =>
             onSelect?.(
               (selectedBranches.find((p) => p._id === bId) ?? {

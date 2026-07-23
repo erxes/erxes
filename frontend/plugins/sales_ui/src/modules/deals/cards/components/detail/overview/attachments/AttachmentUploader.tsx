@@ -6,8 +6,24 @@ import { removeTypename } from '@/deals/utils/common';
 import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
+import { IAttachment } from '@/deals/types/attachments';
 
-const AttachmentUploader = () => {
+const isAttachment = (fileInfo: unknown): fileInfo is IAttachment => {
+  if (!fileInfo || typeof fileInfo !== 'object') return false;
+
+  return (
+    'url' in fileInfo &&
+    typeof fileInfo.url === 'string' &&
+    'name' in fileInfo &&
+    typeof fileInfo.name === 'string' &&
+    'size' in fileInfo &&
+    typeof fileInfo.size === 'number' &&
+    'type' in fileInfo &&
+    typeof fileInfo.type === 'string'
+  );
+};
+
+export const AttachmentUploader = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({
     uploaded: 0,
@@ -37,6 +53,7 @@ const AttachmentUploader = () => {
 
   useEffect(() => {
     if (
+      dealId &&
       uploadProgress.total > 0 &&
       uploadProgress.uploaded === uploadProgress.total
     ) {
@@ -59,8 +76,8 @@ const AttachmentUploader = () => {
       multiple={true}
       className="items-center"
       onChange={(fileInfo) => {
-        if ('url' in fileInfo) {
-          addAttachment(fileInfo as any);
+        if (isAttachment(fileInfo)) {
+          addAttachment(fileInfo);
         }
       }}
     >
@@ -96,5 +113,3 @@ const AttachmentUploader = () => {
     </Upload.Root>
   );
 };
-
-export default AttachmentUploader;

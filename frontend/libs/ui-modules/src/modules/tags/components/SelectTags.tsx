@@ -31,6 +31,28 @@ import { useTags } from '../hooks/useTags';
 import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
 import { TagBadge } from './TagBadge';
 
+const getTagIds = (value?: string[] | string) => {
+  if (!value) return [];
+
+  return Array.isArray(value) ? value : [value];
+};
+
+const cacheSelectedTag = (
+  tag: ITag | undefined,
+  selectedTagIds: string[],
+  setSelectedTags: React.Dispatch<React.SetStateAction<ITag[]>>,
+) => {
+  if (!tag || !selectedTagIds.includes(tag._id)) return;
+
+  setSelectedTags((previousTags) => {
+    if (previousTags.some(({ _id }) => _id === tag._id)) {
+      return previousTags;
+    }
+
+    return [...previousTags, tag];
+  });
+};
+
 export const SelectTagsProvider = ({
   children,
   tagType,
@@ -54,14 +76,14 @@ export const SelectTagsProvider = ({
     const newSelectedTagIds = isSingleMode
       ? [tag._id]
       : isSelected
-        ? multipleValue.filter((t) => t !== tag._id)
-        : [...multipleValue, tag._id];
+      ? multipleValue.filter((t) => t !== tag._id)
+      : [...multipleValue, tag._id];
 
     const newSelectedTags = isSingleMode
       ? [tag]
       : isSelected
-        ? selectedTags.filter((t) => t._id !== tag._id)
-        : [...selectedTags, tag];
+      ? selectedTags.filter((t) => t._id !== tag._id)
+      : [...selectedTags, tag];
 
     setSelectedTags(newSelectedTags);
     onValueChange?.(isSingleMode ? tag._id : newSelectedTagIds);
@@ -372,14 +394,9 @@ export const TagList = ({
           tag={selectedTags.find((t) => t._id === tagId)}
           renderAsPlainText={renderAsPlainText}
           variant="secondary"
-          onCompleted={(tag) => {
-            if (!tag) return;
-            if (!selectedTagIds.includes(tag._id)) return;
-
-            setSelectedTags((prev) =>
-              prev.some((t) => t._id === tag._id) ? prev : [...prev, tag],
-            );
-          }}
+          onCompleted={(tag) =>
+            cacheSelectedTag(tag, selectedTagIds, setSelectedTags)
+          }
           onClose={() =>
             onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
           }
@@ -391,9 +408,9 @@ export const TagList = ({
 };
 
 export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
-  const { value, selectedTags, mode } = useSelectTagsContext();
+  const { value, mode } = useSelectTagsContext();
 
-  const tagIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const tagIds = getTagIds(value);
 
   if (tagIds.length !== 0) {
     return (
@@ -546,13 +563,9 @@ export const ConversationTagList = ({
           renderAsPlainText={renderAsPlainText}
           variant="secondary"
           className="max-w-24 shrink truncate"
-          onCompleted={(tag) => {
-            if (!tag) return;
-            if (!selectedTagIds.includes(tag._id)) return;
-            setSelectedTags((prev) =>
-              prev.some((t) => t._id === tag._id) ? prev : [...prev, tag],
-            );
-          }}
+          onCompleted={(tag) =>
+            cacheSelectedTag(tag, selectedTagIds, setSelectedTags)
+          }
           onClose={() =>
             onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
           }
