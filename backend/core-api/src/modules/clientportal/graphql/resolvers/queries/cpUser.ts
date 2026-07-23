@@ -118,11 +118,11 @@ export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
       throw new Error(`Toki API error: ${text}`);
     }
 
-    const data = await response.json();
+    const { data = {} } = ((await response.json()) || {}) as any;
 
-    const age = data?.data?.age ?? data?.age;
+    const isAdult = data?.isAdult21 || data?.isAdult;
 
-    return age >= 21;
+    return Boolean(isAdult);
   },
 };
 
