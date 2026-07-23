@@ -75,7 +75,7 @@ export const CommonDealSearch = () => {
         className="w-96 overflow-hidden p-0"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-120 overflow-y-auto">
           {loading && !hasDeals && (
             <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
               <IconLoader2 className="size-4 animate-spin" />
