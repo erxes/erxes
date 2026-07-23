@@ -1,13 +1,14 @@
 'use client';
 
 import {
+  DealsBoardItem,
   DealsBoardState,
   useAllDealsMap,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ColumnPaginationState } from '@/deals/types/boards';
+import { BoardDealColumn, ColumnPaginationState } from '@/deals/types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
@@ -89,6 +90,11 @@ export const DealsBoard = () => {
     () => columns.map((column: { _id: string }) => column._id).join(','),
     [columns],
   );
+  const boardStateMatchesColumns =
+    boardState?.columns.length === columns.length &&
+    columns.every((column: { _id: string }) =>
+      boardState.columns.some((boardColumn) => boardColumn._id === column._id),
+    );
 
   useEffect(() => {
     resetColumnsRef.current = columns;
@@ -261,10 +267,13 @@ export const DealsBoard = () => {
     return <NoStagesWarning />;
   }
 
-  if (!boardState) return null;
+  if (!boardState || !boardStateMatchesColumns) {
+    return <StagesLoading />;
+  }
 
   return (
-    <GenericBoard<any, any>
+    <GenericBoard<DealsBoardItem, BoardDealColumn>
+      key={pipelineId}
       initialState={boardState}
       onStateChange={handleStateChange}
       renderCard={(deal) => <DealsBoardCard deal={deal} />}
