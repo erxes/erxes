@@ -14,19 +14,46 @@ import {
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
+// Coerce a value expected to be a string into a literal string. Non-string
+// inputs (objects, numbers, null) become safe primitives, neutralising NoSQL
+// injection payloads like {"$ne": null} that arrive verbatim from req.body.
+// Objects, arrays, and nullish values are rejected outright (empty string) so
+// that crafted operator payloads never reach Mongo as `[object Object]` or
+// similar lossy coercions.
+const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (value === null || value === undefined || typeof value === 'object') {
+    return '';
+  }
+  return String(value);
+};
+
 export const receiveMessage = async (
   models: IModels,
   subdomain: string,
   integration: IInstagramIntegrationDocument,
   activity: IMessageData,
 ) => {
-  const userId = activity.sender.id;
-  const { recipient, timestamp } = activity;
+  const userId = sanitizeString(activity?.sender?.id);
+  const { recipient, timestamp } = activity ?? {};
+  const pageId = sanitizeString(recipient?.id);
+
+  // Fail fast on malformed webhook payloads. After sanitisation, an empty
+  // id means the inbound event lacked a real sender or recipient — letting
+  // it through would collapse unrelated events onto the same conversation
+  // key (senderId='', recipientId='') and corrupt message linkage.
+  if (!userId.trim() || !pageId.trim()) {
+    debugError(
+      'Invalid Instagram webhook payload: missing sender or recipient id',
+    );
+    return;
+  }
 
   let message = activity.message as any;
   const postback = activity.postback as any;
 
-  const pageId = recipient.id;
   const kind = INTEGRATION_KINDS.MESSENGER;
   const mid = message?.mid || postback?.mid;
   const attachments = message?.attachments;
@@ -60,11 +87,11 @@ export const receiveMessage = async (
   }
 
   let conversation = await models.InstagramConversations.findOne({
-    senderId: userId,
-    recipientId: pageId,
+    senderId: { $eq: userId },
+    recipientId: { $eq: pageId },
   });
 
-  const bot = await checkIsBot(models, message, recipient.id);
+  const bot = await checkIsBot(models, message, pageId);
   const botId = bot?._id;
   let isNewConversation = false;
 
