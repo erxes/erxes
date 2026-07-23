@@ -9,17 +9,17 @@ import {
 import { backfillChannelHistory } from '@/integrations/discord/backfill';
 import { debugError } from '@/integrations/discord/debuggers';
 
-/**
- * Entry point for inbox→Discord requests, dispatched from
- * `dispatchConversationToService` (serviceName 'discord'). Mirrors Facebook's
- * `handleFacebookIntegration`.
- */
 export async function handleDiscordIntegration({
   subdomain,
   data,
 }: {
   subdomain: string;
-  data: { type: string; action: string; payload: string; integrationId: string };
+  data: {
+    type: string;
+    action: string;
+    payload: string;
+    integrationId: string;
+  };
 }) {
   const models = await generateModels(subdomain);
   const { type } = data;
@@ -41,13 +41,6 @@ export async function handleDiscordIntegration({
   return response;
 }
 
-/**
- * Canonical integration-creation handler, dispatched from the inbox's
- * `sendCreateIntegration` after core has created the inbox Integration. Mirrors
- * `facebookCreateIntegrations`: creates the DiscordBot mirror linked by
- * `erxesApiId = integrationId` and validates the token. If creation fails the
- * inbox mutation rolls back the integration it created.
- */
 export async function discordCreateIntegrations({
   subdomain,
   data,
@@ -57,7 +50,6 @@ export async function discordCreateIntegrations({
 }) {
   const models = await generateModels(subdomain);
 
-  // The connect wizard's integration `data` payload (JSON over the broker).
   type TDiscordIntegrationDetails = {
     name?: string;
     token?: string;
@@ -65,6 +57,7 @@ export async function discordCreateIntegrations({
     guildId?: string;
     guildName?: string;
     channelId?: string;
+    sourceBotId?: string;
   };
 
   let details: TDiscordIntegrationDetails = {};
@@ -74,7 +67,22 @@ export async function discordCreateIntegrations({
     details = {};
   }
 
-  const { name, token, applicationId, guildId, guildName, channelId } = details;
+  let { token, applicationId, guildId, guildName } = details;
+  const { name, channelId, sourceBotId } = details;
+
+  if (!token && sourceBotId) {
+    const sourceBot = await models.DiscordBots.findById(sourceBotId);
+    if (!sourceBot) {
+      return {
+        status: 'error',
+        errorMessage: `Source Discord bot ${sourceBotId} not found`,
+      };
+    }
+    token = sourceBot.token;
+    applicationId = applicationId || sourceBot.applicationId;
+    guildId = guildId || sourceBot.guildId;
+    guildName = guildName || sourceBot.guildName;
+  }
 
   try {
     const bot = await models.DiscordBots.create({
@@ -89,16 +97,10 @@ export async function discordCreateIntegrations({
     });
 
     try {
-      // Surface token validity via health (does not block creation).
       const validated = await models.DiscordBots.validateConnection(bot._id);
 
-      // Connect-on-create: open the Gateway immediately so the bot starts
-      // receiving messages without waiting for the distributor cycle or a restart.
       await connectDiscordBot(subdomain, validated);
 
-      // Auto-backfill recent history (last 100 messages + active threads) so chats
-      // written before the bot connected show up in the inbox. Runs in the
-      // background so it never blocks integration setup; idempotent on message id.
       if (validated?.health?.isTokenValid) {
         backfillChannelHistory({ models, subdomain, bot: validated }).catch(
           (e) =>
@@ -108,12 +110,13 @@ export async function discordCreateIntegrations({
         );
       }
     } catch (e) {
-      // The inbox mutation rolls back the Integration it created on any error
-      // from this handler — don't leave this bot behind pointing at it.
-      await models.DiscordBots.deleteOne({ _id: bot._id }).catch((deleteError) =>
-        debugError(
-          `Failed to roll back Discord bot ${bot._id}: ${getErrorMessage(deleteError)}`,
-        ),
+      await models.DiscordBots.deleteOne({ _id: bot._id }).catch(
+        (deleteError) =>
+          debugError(
+            `Failed to roll back Discord bot ${bot._id}: ${getErrorMessage(
+              deleteError,
+            )}`,
+          ),
       );
       throw e;
     }
@@ -124,13 +127,6 @@ export async function discordCreateIntegrations({
   }
 }
 
-/**
- * Removal handler, dispatched from the inbox's `sendRemoveIntegration`. Mirrors
- * `facebookRemoveIntegrations`: closes the bot's live Gateway connection and
- * deletes the bot + its local mirror (conversations/customers/messages). The
- * inbox Integration itself is removed by the caller (`integrationsRemove`), so
- * we deliberately don't touch it here.
- */
 export async function discordRemoveIntegrations({
   subdomain,
   data,
@@ -158,16 +154,10 @@ export async function discordRemoveIntegrations({
   await models.DiscordConversationMessages.deleteMany({
     conversationId: { $in: conversationIds },
   });
-  // The inbox Integration is deleted by the caller, but its membership in
-  // inbox channels (pushed on create) and its inbox conversations aren't —
-  // clean both so no channel points at the removed integration and no leftover
-  // conversation can later fire an automation with no resolvable bot.
   await models.DiscordBots.detachIntegrationsFromChannels([integrationId]);
   await models.DiscordBots.removeInboxConversations([integrationId]);
   await models.DiscordBots.deleteOne({ _id: bot._id });
 
-  // Close the shared Gateway socket only when no other channel-integration
-  // still uses this token; otherwise the remaining channels keep flowing.
   try {
     const remaining = await models.DiscordBots.countDocuments({ token });
     if (remaining === 0) {
@@ -180,11 +170,6 @@ export async function discordRemoveIntegrations({
   return { status: 'success' };
 }
 
-/**
- * Repair handler, dispatched from the inbox's `sendRepairIntegration`. Re-checks
- * the bot token (refreshing `health`) and re-opens the Gateway connection — the
- * Discord analogue of Facebook's page re-subscription.
- */
 export async function discordRepairIntegrations({
   subdomain,
   data,
@@ -202,7 +187,6 @@ export async function discordRepairIntegrations({
     return { status: 'error', errorMessage: 'Discord bot not found' };
   }
 
-  // Re-validate the token (refreshes health), then reconnect its Gateway socket.
   await models.DiscordBots.validateConnection(bot._id);
 
   try {
