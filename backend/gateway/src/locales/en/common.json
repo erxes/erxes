@@ -3,7 +3,14 @@
   "navigation": {
     "visited-pages": "Visited pages",
     "details": "Details",
-    "close-tab": "Close {{page}} tab"
+    "close-tab": "Close {{page}} tab",
+    "toggle-panel": "Toggle navigation panel",
+    "open-plugin": "Open a plugin",
+    "search": "Search",
+    "no-plugins-match": "No plugins match your search",
+    "active": "Active",
+    "open": "Open",
+    "pin-panel": "Click a module to open and pin the panel"
   },
   "core-modules": {
     "_": "Core modules",

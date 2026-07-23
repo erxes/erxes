@@ -2,6 +2,7 @@ import {
   addVisitedPageTab,
   getVisitedPageTabCloseDestination,
   getVisitedPageTabLabel,
+  moveVisitedPageTab,
   normalizeVisitedPagePathname,
   removeVisitedPageTab,
 } from '@/navigation/utils/visitedPageTabs';
@@ -54,6 +55,20 @@ describe('visited page tabs', () => {
     expect(removeVisitedPageTab(tabs, '/contacts')).toEqual([
       { pathname: '/my-inbox' },
       { pathname: '/contacts/customers' },
+    ]);
+  });
+
+  it('reorders tabs by their visited route', () => {
+    const tabs = [
+      { pathname: '/my-inbox' },
+      { pathname: '/contacts' },
+      { pathname: '/segments' },
+    ];
+
+    expect(moveVisitedPageTab(tabs, '/segments', '/my-inbox')).toEqual([
+      { pathname: '/segments' },
+      { pathname: '/my-inbox' },
+      { pathname: '/contacts' },
     ]);
   });
 });

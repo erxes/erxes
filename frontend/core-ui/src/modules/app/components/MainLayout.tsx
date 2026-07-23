@@ -1,30 +1,14 @@
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
 import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
-import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
-import { Sidebar, useQueryState } from 'erxes-ui';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useAtom } from 'jotai';
-import { Outlet, useLocation } from 'react-router';
-import { mainSidebarCollapseState } from '../states/mainSidebarState';
+import { navigationPanelOpenState } from '@/navigation/states/navigationPanelState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
-
-type SidebarTransitionState = 'expanded' | 'compact' | 'collapsed';
+import { Sidebar, useQueryState } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { Outlet } from 'react-router';
 
 export const DefaultLayout = () => {
-  const location = useLocation();
-  const isSettings = location.pathname.includes('/settings');
-  const [collapseState, setCollapseState] = useAtom(mainSidebarCollapseState);
+  const [panelOpen, setPanelOpen] = useAtom(navigationPanelOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');
-  const sidebarCollapseState =
-    collapseState === 'expanded' ? 'expanded' : 'collapsed';
-
-  const handleSidebarCollapseStateChange = (
-    nextCollapseState: SidebarTransitionState,
-  ) => {
-    setCollapseState(
-      nextCollapseState === 'expanded' ? 'expanded' : 'collapsed',
-    );
-  };
 
   if (inPreview) {
     return <Outlet />;
@@ -33,42 +17,19 @@ export const DefaultLayout = () => {
   return (
     <Sidebar.Provider
       className="w-screen"
-      collapseState={sidebarCollapseState}
-      onCollapseStateChange={handleSidebarCollapseStateChange}
+      open={panelOpen}
+      onOpenChange={setPanelOpen}
+      sidebarKeyboardShortcut={false}
+      sidebarWidth="19rem"
     >
-      <Sidebar collapsible="icon" variant="sidebar" className="p-0">
-        <SidebarAnimationContainer isSettings={isSettings}>
-          {isSettings ? <SettingsSidebar /> : <MainNavigationBar />}
-        </SidebarAnimationContainer>
-        <Sidebar.Rail />
+      <VisitedPageTabs />
+      <Sidebar collapsible="icon" variant="sidebar" className="p-0 pt-10">
+        <MainNavigationBar />
       </Sidebar>
-      <Sidebar.Inset className="h-[calc(100svh-(--spacing(4)))] grow-0 shrink basis-full overflow-hidden shadow-sidebar-inset">
-        <VisitedPageTabs />
+      <Sidebar.Inset className="h-svh grow-0 shrink basis-full overflow-hidden pt-10 shadow-sidebar-inset">
         <FloatingWidgets />
         <Outlet />
       </Sidebar.Inset>
     </Sidebar.Provider>
-  );
-};
-
-export const SidebarAnimationContainer = ({
-  children,
-  isSettings,
-}: {
-  children: React.ReactNode;
-  isSettings: boolean;
-}) => {
-  return (
-    <AnimatePresence mode="popLayout" initial={false}>
-      <motion.div
-        key={isSettings ? 'settings' : 'main'}
-        initial={{ x: isSettings ? 20 : -20 }}
-        animate={{ x: 0 }}
-        transition={{ damping: 0 }}
-        className="flex h-full w-full flex-col"
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
   );
 };

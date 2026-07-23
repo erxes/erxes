@@ -3,6 +3,7 @@ import { AppPath } from '@/types/paths/AppPath';
 import {
   addVisitedPageTab,
   getVisitedPageTabCloseDestination,
+  moveVisitedPageTab,
   normalizeVisitedPagePathname,
   removeVisitedPageTab,
   shouldTrackVisitedPage,
@@ -50,10 +51,20 @@ export const useVisitedPageTabs = () => {
     [activePathname, navigate, setTabs, tabs],
   );
 
+  const reorderVisitedPageTab = useCallback(
+    (tabPathname: string, destinationPathname: string) => {
+      setTabs((currentTabs) =>
+        moveVisitedPageTab(currentTabs, tabPathname, destinationPathname),
+      );
+    },
+    [setTabs],
+  );
+
   return {
     activePathname,
     closeVisitedPageTab,
     openVisitedPageTab,
+    reorderVisitedPageTab,
     tabs,
   };
 };

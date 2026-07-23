@@ -67,6 +67,8 @@ const SidebarProvider = React.forwardRef<
     collapseState?: CollapseState;
     defaultCollapseState?: CollapseState;
     onCollapseStateChange?: (state: CollapseState) => void;
+    sidebarKeyboardShortcut?: string | false;
+    sidebarWidth?: string;
   }
 >(
   (
@@ -77,6 +79,8 @@ const SidebarProvider = React.forwardRef<
       collapseState: collapseStateProp,
       defaultCollapseState,
       onCollapseStateChange,
+      sidebarKeyboardShortcut = SIDEBAR_KEYBOARD_SHORTCUT,
+      sidebarWidth = SIDEBAR_WIDTH,
       className,
       style,
       children,
@@ -153,7 +157,9 @@ const SidebarProvider = React.forwardRef<
     // Adds a keyboard shortcut to toggle the sidebar.
 
     useScopedHotkeys(
-      `${Key.Meta}+${SIDEBAR_KEYBOARD_SHORTCUT}`,
+      sidebarKeyboardShortcut
+        ? `${Key.Meta}+${sidebarKeyboardShortcut}`
+        : '__sidebar-shortcut-disabled__',
       toggleSidebar,
       AppHotkeyScope.Sidebar,
     );
@@ -189,7 +195,7 @@ const SidebarProvider = React.forwardRef<
           <div
             style={
               {
-                '--sidebar-width': SIDEBAR_WIDTH,
+                '--sidebar-width': sidebarWidth,
                 '--sidebar-width-compact': SIDEBAR_WIDTH_COMPACT,
                 '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
                 ...style,
@@ -491,7 +497,7 @@ const SidebarGroup = React.forwardRef<
       ref={ref}
       data-sidebar="group"
       className={cn(
-        'relative flex w-full min-w-0 flex-col py-3 px-4',
+        'relative flex w-full min-w-0 flex-col px-4 py-3 group-data-[collapsible=icon]:px-2',
         className,
       )}
       {...props}

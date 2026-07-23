@@ -137,6 +137,31 @@ export const removeVisitedPageTab = (
   pathname: string,
 ) => tabs.filter((tab) => tab.pathname !== pathname);
 
+export const moveVisitedPageTab = (
+  tabs: IVisitedPageTab[],
+  pathname: string,
+  destinationPathname: string,
+) => {
+  const sourceIndex = tabs.findIndex((tab) => tab.pathname === pathname);
+  const destinationIndex = tabs.findIndex(
+    (tab) => tab.pathname === destinationPathname,
+  );
+
+  if (
+    sourceIndex < 0 ||
+    destinationIndex < 0 ||
+    sourceIndex === destinationIndex
+  ) {
+    return tabs;
+  }
+
+  const reorderedTabs = [...tabs];
+  const [movedTab] = reorderedTabs.splice(sourceIndex, 1);
+  reorderedTabs.splice(destinationIndex, 0, movedTab);
+
+  return reorderedTabs;
+};
+
 export const getVisitedPageTabCloseDestination = (
   tabs: IVisitedPageTab[],
   pathname: string,
