@@ -772,6 +772,9 @@ importers:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../erxes-api-shared
+      express-rate-limit:
+        specifier: ^8.5.1
+        version: 8.5.1(express@4.21.2)
       firebase-admin:
         specifier: ^13.6.0
         version: 13.6.0(encoding@0.1.13)
@@ -799,6 +802,9 @@ importers:
       nodemailer:
         specifier: ^6.9.10
         version: 6.9.10
+      rate-limit-redis:
+        specifier: ^4.2.0
+        version: 4.3.1(express-rate-limit@8.5.1(express@4.21.2))
       sha256:
         specifier: ^0.2.0
         version: 0.2.0
@@ -11315,6 +11321,12 @@ packages:
     peerDependencies:
       express: '>= 4.11'
 
+  express-rate-limit@8.5.1:
+    resolution: {integrity: sha512-5O6KYmyJEpuPJV5hNTXKbAHWRqrzyu+OI3vUnSd2kXFubIVpG7ezpgxQy76Zo5GQZtrQBg86hF+CM/NX+cioiQ==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      express: '>= 4.11'
+
   express@4.21.2:
     resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
     engines: {node: '>= 0.10.0'}
@@ -15712,6 +15724,12 @@ packages:
   ranges-sort@6.0.13:
     resolution: {integrity: sha512-M3P0/dUnU3ihLPX2jq0MT2NJA1ls/q6cUAUVPD28xdFFqm3VFarPjTKKhnsBSvYCpZD8HdiElAGAyoPu6uOQjA==}
     engines: {node: '>=14.18.0'}
+
+  rate-limit-redis@4.3.1:
+    resolution: {integrity: sha512-+a1zU8+D7L8siDK9jb14refQXz60vq427VuiplgnaLk9B2LnvGe/APLTfhwb4uNIL7eWVknh8GnRp/unCj+lMA==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      express-rate-limit: '>= 6'
 
   raw-body@2.5.2:
     resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
@@ -32336,6 +32354,11 @@ snapshots:
       express: 4.21.2
       ip-address: 10.0.1
 
+  express-rate-limit@8.5.1(express@4.21.2):
+    dependencies:
+      express: 4.21.2
+      ip-address: 10.2.0
+
   express@4.21.2:
     dependencies:
       accepts: 1.3.8
@@ -37925,6 +37948,10 @@ snapshots:
       string-trim-spaces-only: 5.0.12
 
   ranges-sort@6.0.13: {}
+
+  rate-limit-redis@4.3.1(express-rate-limit@8.5.1(express@4.21.2)):
+    dependencies:
+      express-rate-limit: 8.5.1(express@4.21.2)
 
   raw-body@2.5.2:
     dependencies:
