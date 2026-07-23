@@ -15,7 +15,10 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { SelectBrand } from 'ui-modules/modules/brands';
 import { SelectDocument } from 'ui-modules/modules/documents';
-import { PAPER_SIZES } from 'ui-modules/modules/documents/constants';
+import {
+  PAPER_SIZES,
+  PAPER_TYPES,
+} from 'ui-modules/modules/documents/constants';
 import { PROCESS_DOCUMENT } from 'ui-modules/modules/documents/graphql/queries';
 import * as utils from 'ui-modules/modules/documents/utils';
 import {
@@ -46,8 +49,14 @@ const Preview = () => {
     scale: 100,
   });
 
-  const width = Number(formWidth) || utils.paper(size, orientation).width;
-  const height = Number(formHeight) || utils.paper(size, orientation).height;
+  const { width, height, type, isContinuous } = utils.resolveSize({
+    size,
+    orientation,
+    width: formWidth,
+    height: formHeight,
+  });
+
+  const [paperHeight, setPaperHeight] = useState(height);
 
   const {
     data: { documentsProcess: document } = {},
@@ -61,6 +70,7 @@ const Preview = () => {
         copies: Number(copies),
         width,
         height,
+        type,
       },
     },
     skip: !_id,
@@ -91,6 +101,14 @@ const Preview = () => {
 
     iframe.dataset.printReady = 'false';
 
+    const layoutConfig = {
+      size,
+      orientation,
+      width,
+      height,
+      ...debouncedConfig,
+    };
+
     const onLoad = () => {
       iframe.dataset.printReady = 'true';
 
@@ -104,6 +122,8 @@ const Preview = () => {
           const rect = (container as HTMLElement).getBoundingClientRect();
 
           iframe.style.height = `${Math.ceil(rect.height)}px`;
+
+          setPaperHeight(utils.syncPageHeight(iframe, layoutConfig));
         });
       });
 
@@ -112,11 +132,7 @@ const Preview = () => {
 
     iframe.addEventListener('load', onLoad, { once: true });
 
-    utils.layout(
-      document,
-      { size, orientation, width, height, ...debouncedConfig },
-      iframe,
-    );
+    utils.layout(document, layoutConfig, iframe);
 
     return () => {
       iframe.removeEventListener('load', onLoad);
@@ -132,20 +148,32 @@ const Preview = () => {
     return <div>Can't process this document at the moment</div>;
   }
 
+  const isRoll = type === PAPER_TYPES.ROLL;
+
   return (
     <div
       id="print-preview"
-      className="relative flex-1 flex items-center justify-center bg-gray-100"
+      className={`relative flex-1 flex flex-col items-center gap-2 bg-gray-100 p-6 ${
+        isRoll ? 'justify-start' : 'justify-center'
+      }`}
     >
+      <div className="text-xs text-gray-500 tabular-nums">
+        {width} × {isContinuous ? paperHeight : height} mm
+        {isContinuous && ' (continuous)'}
+      </div>
       <div
         className="relative bg-white shadow-xl transition-all duration-500 ease-in-out"
-        style={{ width: `${width}mm`, minHeight: `${height}mm` }}
+        style={
+          isContinuous
+            ? { width: `${width}mm`, height: `${paperHeight}mm` }
+            : { width: `${width}mm`, minHeight: `${height}mm` }
+        }
       >
         <iframe
           ref={iframeRef}
           title="Print Preview"
           className="w-full h-full border-0"
-          style={{ minHeight: `${height}mm` }}
+          style={isContinuous ? undefined : { minHeight: `${height}mm` }}
           scrolling="no"
         />
       </div>
@@ -157,6 +185,11 @@ const Controller = ({ contentType }: { contentType: string }) => {
   const form = useFormContext();
 
   const size = form.watch('size');
+
+  const paperType = PAPER_SIZES[size]?.type || PAPER_TYPES.SHEET;
+
+  const isRoll = paperType === PAPER_TYPES.ROLL;
+  const isSheet = paperType === PAPER_TYPES.SHEET;
 
   const [items, setItems] = useState<string[]>(['three']);
   const [selectedValues, setSelectedValues] = useState<Record<string, any>>({});
@@ -177,10 +210,13 @@ const Controller = ({ contentType }: { contentType: string }) => {
 
       const value = values[name as keyof typeof values];
 
+      const isSized =
+        value === 'CUSTOM' || PAPER_SIZES[value]?.type === PAPER_TYPES.ROLL;
+
       const selectedValue =
         name === 'size'
-          ? value === 'CUSTOM'
-            ? `${values.width} × ${values.height} mm`
+          ? isSized
+            ? `${values.width} × ${values.height || 'auto'} mm`
             : PAPER_SIZES[value as keyof typeof PAPER_SIZES]?.label || value
           : selectedValues[value as keyof typeof selectedValues] || value;
 
@@ -292,6 +328,55 @@ const Controller = ({ contentType }: { contentType: string }) => {
                   </Form.Item>
                 )}
               />
+              {isRoll && (
+                <>
+                  <div className="flex gap-3">
+                    <Form.Field
+                      name="width"
+                      render={({ field }) => (
+                        <Form.Item className="flex-1">
+                          <Form.Label>Width (mm)</Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              value={field.value as number}
+                              type="number"
+                              min={10}
+                              max={1000}
+                              placeholder="Width (mm)"
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      name="height"
+                      render={({ field }) => (
+                        <Form.Item className="flex-1">
+                          <Form.Label>Height (mm)</Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              value={(field.value as number) || ''}
+                              type="number"
+                              min={0}
+                              max={1000}
+                              placeholder="Auto"
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+                  <Form.Description className="leading-5">
+                    Set width to your paper width. Leave height empty for
+                    continuous paper — it grows to fit the content. Set a height
+                    for die-cut labels, and each item prints on its own label.
+                  </Form.Description>
+                </>
+              )}
               {size === 'CUSTOM' && (
                 <div className="flex gap-3">
                   <Form.Field
@@ -365,41 +450,47 @@ const Controller = ({ contentType }: { contentType: string }) => {
                   </Form.Item>
                 )}
               />
-              <Form.Field
-                name="scale"
-                rules={{
-                  min: {
-                    value: 50,
-                    message: 'Scale amount must be number between 50 and 150',
-                  },
-                  max: {
-                    value: 150,
-                    message: 'Scale amount must be number between 50 and 150',
-                  },
-                }}
-                render={({ field, fieldState }) => (
-                  <Form.Item>
-                    <Form.Label>{field.name}</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        value={field.value as number}
-                        min={50}
-                        max={150}
-                        type="number"
-                        placeholder="Scale"
-                      />
-                    </Form.Control>
-                    {fieldState.error && (
-                      <Form.Message>{fieldState.error.message}</Form.Message>
-                    )}
-                  </Form.Item>
-                )}
-              />
+              {isSheet && (
+                <Form.Field
+                  name="scale"
+                  rules={{
+                    min: {
+                      value: 50,
+                      message: 'Scale amount must be number between 50 and 150',
+                    },
+                    max: {
+                      value: 150,
+                      message: 'Scale amount must be number between 50 and 150',
+                    },
+                  }}
+                  render={({ field, fieldState }) => (
+                    <Form.Item>
+                      <Form.Label>{field.name}</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          value={field.value as number}
+                          min={50}
+                          max={150}
+                          type="number"
+                          placeholder="Scale"
+                        />
+                      </Form.Control>
+                      {fieldState.error && (
+                        <Form.Message>{fieldState.error.message}</Form.Message>
+                      )}
+                    </Form.Item>
+                  )}
+                />
+              )}
               <Form.Field
                 name="orientation"
                 render={({ field }) => (
-                  <div className="flex items-center gap-2 justify-end">
+                  <div
+                    className={`flex items-center gap-2 justify-end ${
+                      isRoll ? 'hidden' : ''
+                    }`}
+                  >
                     <Form.Item className="flex items-center gap-2 space-y-0">
                       <Form.Control>
                         <Checkbox
@@ -603,11 +694,15 @@ export const PrintDocument = (props: Props) => {
   };
 
   const handleProceed = () => {
-    const iframe = document.querySelector<HTMLIFrameElement>('iframe');
+    const iframe = document.querySelector<HTMLIFrameElement>(
+      '#print-preview iframe',
+    );
 
     if (!iframe) return;
 
     const printIframe = () => {
+      utils.syncPageHeight(iframe, form.getValues());
+
       iframe.contentWindow?.focus();
       iframe.contentWindow?.print();
     };

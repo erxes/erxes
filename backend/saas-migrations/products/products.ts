@@ -7,7 +7,12 @@ import { AnyBulkWriteOperation, Collection, Db, MongoClient } from 'mongodb';
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
   CORE_MONGO_URL,
+
+  SOURCE_SUBDOMAIN,
+  TARGET_SUBDOMAIN,
+
   DRY_RUN,
+
   BATCH_SIZE = '1000',
 } = process.env;
 
@@ -15,56 +20,41 @@ if (!MONGO_URL) {
   throw new Error('Environment variable MONGO_URL not set.');
 }
 
+if (!SOURCE_SUBDOMAIN || !TARGET_SUBDOMAIN) {
+  throw new Error(
+    'Environment variables SOURCE_SUBDOMAIN and TARGET_SUBDOMAIN must be set.',
+  );
+}
+
 const isDryRun = DRY_RUN === '1' || DRY_RUN === 'true';
 const batchSize = Math.max(1, parseInt(BATCH_SIZE, 10) || 1000);
-
-// source (app.erxes.io) → target (next.erxes.io) subdomain pairs.
-const ORG_PAIRS: { source: string; target: string }[] = [
-  // { source: 'belty', target: 'bbelty' },
-  // { source: 'cmlbrotherss', target: 'cmlbrothers' },
-  // { source: 'hipay', target: 'hewhipay' },
-  // { source: 'greatdate', target: 'newgreatdate' },
-  // { source: 'tsembiibuteel', target: 'tsembiibuteelnew' },
-  // { source: 'tsembiiauto', target: 'tsembiiautonew' },
-  // { source: 'dermaestheticllc', target: 'dermaestheticnew' },
-  // { source: 'dboil', target: 'dboilnew' },
-  // { source: 'msh', target: 'mshnew' },
-  // { source: 'restaurantmsh', target: 'restaurantmshnew' },
-  // { source: 'ssr', target: 'ssrnew' },
-  // { source: 'sukgarden', target: 'sukgardennew' },
-  // { source: 'tansagamttan', target: 'tansagamttannew' },
-  // { source: 'burensukh', target: 'burensukhnew' },
-  { source: 'burensukhburen', target: 'bburensukhburen' },
-  { source: 'mrpunti', target: 'newmrpunti' },
-  { source: 'http://monalisa', target: 'newmonalisamy-inbox' },
-  { source: 'celimax', target: 'newcelimax' },
-  { source: 'aanaamandakh', target: 'newaanaamandakh' },
-  { source: 'napgroupcontacts/customer', target: 'mandukhaimy-inbox' },
-  { source: 'ikhnaydfitnessclub', target: 'newikhnaydfitnessclub' },
-  { source: 'http://uggmongolia', target: 'newuggmongolia' },
-  { source: 'flowerhotel', target: 'flowerhotelmn' },
-
-];
 
 function extractDbName(url: string): string {
   const withoutQuery = url.split('?')[0];
   return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
 }
 
+
 const COLLECTIONS = [
+  // units of measurement
   'uoms',
+
+  // configs
   'products_configs',
+
+  // products
   'product_categories',
   'products',
   'product_packages',
   'product_similarities',
 ];
 
+
 const UNIQUE_FIELDS: Record<string, string[]> = {
-  products: ['code'],
   uoms: ['code'],
   products_configs: ['code'],
   product_categories: ['code'],
+  products: ['code'],
 };
 
 type CollectionStats = {
@@ -87,6 +77,7 @@ const normalizeValue = (field: string, value: unknown): string => {
   const str = String(value ?? '');
   return field === 'email' ? str.toLowerCase().trim() : str;
 };
+
 
 async function migrateByReplace(
   srcCol: Collection,
@@ -122,6 +113,11 @@ async function migrateByReplace(
   return stats;
 }
 
+/**
+ * Dedup-aware insert for collections with unique indexes. Skips any source doc
+ * whose `_id` or any unique field already exists in the target (or earlier in
+ * this run), inserts the rest verbatim.
+ */
 async function migrateWithDedup(
   srcCol: Collection,
   dstCol: Collection,
@@ -218,161 +214,129 @@ async function migrateWithDedup(
   return stats;
 }
 
-async function migratePair(
-  client: MongoClient,
-  coreDb: Db,
-  coreDbName: string,
-  source: string,
-  target: string,
-): Promise<{ totals: CollectionStats; failed: string[] }> {
-  const sourceOrg = await coreDb
-    .collection('organizations')
-    .findOne({ subdomain: source }, { projection: { _id: 1 } });
-
-  if (!sourceOrg) {
-    throw new Error(
-      `Organization with subdomain "${source}" not found in ${coreDbName}.organizations`,
-    );
-  }
-
-  const targetOrg = await coreDb
-    .collection('organizations')
-    .findOne({ subdomain: target }, { projection: { _id: 1 } });
-
-  if (!targetOrg) {
-    throw new Error(
-      `Organization with subdomain "${target}" not found in ${coreDbName}.organizations`,
-    );
-  }
-
-  const sourceDbName = `erxes_${sourceOrg._id}`;
-  const targetDbName = `erxes_${targetOrg._id}`;
-
-  console.log(`  Source: ${source} → ${sourceDbName}`);
-  console.log(`  Target: ${target} → ${targetDbName}`);
-
-  const srcDb: Db = client.db(sourceDbName);
-  const dstDb: Db = client.db(targetDbName);
-
-  const totals = emptyStats();
-  const failed: string[] = [];
-
-  for (const colName of COLLECTIONS) {
-    try {
-      const srcCol = srcDb.collection(colName);
-      const sourceCount = await srcCol.countDocuments();
-
-      if (sourceCount === 0) {
-        console.log(`  [${colName}] source count: 0 — skipping`);
-        continue;
-      }
-
-      const uniqueFields = UNIQUE_FIELDS[colName];
-      const mode = uniqueFields ? `dedup(${uniqueFields.join(',')})` : 'upsert';
-      console.log(
-        `  [${colName}] migrating ${sourceCount} documents [${mode}]...`,
-      );
-
-      let stats: CollectionStats;
-      if (uniqueFields) {
-        stats = await migrateWithDedup(
-          srcCol,
-          dstDb.collection(colName),
-          uniqueFields,
-          sourceCount,
-        );
-      } else if (isDryRun) {
-        stats = emptyStats(sourceCount);
-        stats.inserted = sourceCount;
-      } else {
-        stats = await migrateByReplace(
-          srcCol,
-          dstDb.collection(colName),
-          sourceCount,
-        );
-      }
-
-      console.log(
-        `  [${colName}] done — source: ${stats.sourceCount}, inserted: ${stats.inserted}, updated: ${stats.updated}, skipped: ${stats.skipped}, errors: ${stats.errors}`,
-      );
-
-      totals.sourceCount += stats.sourceCount;
-      totals.inserted += stats.inserted;
-      totals.updated += stats.updated;
-      totals.skipped += stats.skipped;
-      totals.errors += stats.errors;
-    } catch (err: any) {
-      const message = err?.message || String(err);
-      console.error(`  [${colName}] FAILED — ${message}`);
-      failed.push(`${colName}: ${message}`);
-    }
-  }
-
-  return { totals, failed };
-}
-
 async function main() {
-  const pairs = ORG_PAIRS;
-
   const coreUrl = CORE_MONGO_URL || MONGO_URL;
   const coreDbName = extractDbName(coreUrl);
 
   const client = new MongoClient(coreUrl);
 
-  const failedPairs: { pair: string; error: string }[] = [];
+  const summary: Record<string, CollectionStats> = {};
+  const failed: { collection: string; error: string }[] = [];
 
   try {
     await client.connect();
     console.log('Connected to MongoDB');
     console.log(`Core DB: ${coreDbName}`);
-    console.log(`Batch size: ${batchSize}`);
-    console.log(`Organization pairs: ${pairs.length}`);
     if (isDryRun) console.log('** DRY RUN — no data will be written **');
 
     const coreDb = client.db(coreDbName);
 
-    for (const { source, target } of pairs) {
-      console.log('\n' + '─'.repeat(60));
-      console.log(`▶ ${source} → ${target}`);
-      console.log('─'.repeat(60));
+    const sourceOrg = await coreDb
+      .collection('organizations')
+      .findOne({ subdomain: SOURCE_SUBDOMAIN }, { projection: { _id: 1 } });
 
+    if (!sourceOrg) {
+      throw new Error(
+        `Organization with subdomain "${SOURCE_SUBDOMAIN}" not found in ${coreDbName}.organizations`,
+      );
+    }
+
+    const targetOrg = await coreDb
+      .collection('organizations')
+      .findOne({ subdomain: TARGET_SUBDOMAIN }, { projection: { _id: 1 } });
+
+    if (!targetOrg) {
+      throw new Error(
+        `Organization with subdomain "${TARGET_SUBDOMAIN}" not found in ${coreDbName}.organizations`,
+      );
+    }
+
+    const sourceDbName = `erxes_${sourceOrg._id}`;
+    const targetDbName = `erxes_${targetOrg._id}`;
+
+    console.log(`\nSource: ${SOURCE_SUBDOMAIN} → ${sourceDbName}`);
+    console.log(`Target: ${TARGET_SUBDOMAIN} → ${targetDbName}`);
+    console.log(`Batch size: ${batchSize}\n`);
+
+    const srcDb: Db = client.db(sourceDbName);
+    const dstDb: Db = client.db(targetDbName);
+
+    for (const colName of COLLECTIONS) {
       try {
-        const { totals, failed } = await migratePair(
-          client,
-          coreDb,
-          coreDbName,
-          source,
-          target,
-        );
+        const srcCol = srcDb.collection(colName);
+        const sourceCount = await srcCol.countDocuments();
 
-        console.log(
-          `  TOTAL: source: ${totals.sourceCount}, inserted: ${totals.inserted}, updated: ${totals.updated}, skipped: ${totals.skipped}, errors: ${totals.errors}`,
-        );
-
-        if (failed.length > 0 || totals.errors > 0) {
-          failedPairs.push({
-            pair: `${source} → ${target}`,
-            error:
-              failed.join('; ') || `${totals.errors} write error(s)`,
-          });
+        if (sourceCount === 0) {
+          console.log(`[${colName}] source count: 0 — skipping`);
+          summary[colName] = emptyStats();
+          continue;
         }
+
+        const uniqueFields = UNIQUE_FIELDS[colName];
+        const mode = uniqueFields ? `dedup(${uniqueFields.join(',')})` : 'upsert';
+        console.log(`[${colName}] migrating ${sourceCount} documents [${mode}]...`);
+
+        let stats: CollectionStats;
+        if (uniqueFields) {
+          stats = await migrateWithDedup(
+            srcCol,
+            dstDb.collection(colName),
+            uniqueFields,
+            sourceCount,
+          );
+        } else if (isDryRun) {
+          stats = emptyStats(sourceCount);
+          stats.inserted = sourceCount;
+        } else {
+          stats = await migrateByReplace(
+            srcCol,
+            dstDb.collection(colName),
+            sourceCount,
+          );
+        }
+
+        summary[colName] = stats;
+        console.log(
+          `[${colName}] done — source: ${stats.sourceCount}, inserted: ${stats.inserted}, updated: ${stats.updated}, skipped: ${stats.skipped}, errors: ${stats.errors}`,
+        );
       } catch (err: any) {
         const message = err?.message || String(err);
-        console.error(`  FAILED — ${message}`);
-        failedPairs.push({ pair: `${source} → ${target}`, error: message });
+        console.error(`[${colName}] FAILED — ${message}`);
+        failed.push({ collection: colName, error: message });
       }
     }
 
     console.log('\n=== Migration Summary ===');
+    const totals = emptyStats();
+    for (const [col, stats] of Object.entries(summary)) {
+      console.log(
+        `  ${col.padEnd(32)} source: ${String(stats.sourceCount).padStart(
+          7,
+        )}  inserted: ${String(stats.inserted).padStart(7)}  updated: ${String(
+          stats.updated,
+        ).padStart(7)}  skipped: ${String(stats.skipped).padStart(
+          7,
+        )}  errors: ${String(stats.errors).padStart(5)}`,
+      );
+      totals.sourceCount += stats.sourceCount;
+      totals.inserted += stats.inserted;
+      totals.updated += stats.updated;
+      totals.skipped += stats.skipped;
+      totals.errors += stats.errors;
+    }
+
     console.log(
-      `  ${pairs.length - failedPairs.length}/${pairs.length} pair(s) succeeded`,
+      `\n  TOTAL: source: ${totals.sourceCount}, inserted: ${totals.inserted}, updated: ${totals.updated}, skipped: ${totals.skipped}, errors: ${totals.errors}`,
     );
 
-    if (failedPairs.length > 0) {
-      console.error('\n=== Failed pairs ===');
-      for (const { pair, error } of failedPairs) {
-        console.error(`  [${pair}] ${error}`);
+    if (failed.length > 0) {
+      console.error('\n=== Failed collections ===');
+      for (const { collection, error } of failed) {
+        console.error(`  [${collection}] ${error}`);
       }
+    }
+
+    if (failed.length > 0 || totals.errors > 0) {
       process.exit(1);
     }
 

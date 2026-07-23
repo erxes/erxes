@@ -78,7 +78,28 @@ export const resolveDealSubscriptionItem = async (
     _id: { $in: deal.labelIds || [] },
   }).lean();
 
-  const products = await generateProducts(subdomain, deal.productsData);
+  // Match Deal.products GraphQL shape used by board cards: { _id, name }
+  // (not generateProducts line-item shape with nested `product`)
+  const generatedProducts = await generateProducts(
+    subdomain,
+    deal.productsData,
+  );
+  const products = generatedProducts
+    .map((row: { productId?: string; product?: { _id?: string; name?: string } }) => {
+      const productId = row.product?._id || row.productId;
+      if (!productId) {
+        return null;
+      }
+
+      return {
+        _id: productId,
+        name: row.product?.name,
+      };
+    })
+    .filter(
+      (product): product is { _id: string; name?: string } => product !== null,
+    );
+
   const amount = generateAmounts(deal.productsData || []);
   const unUsedAmount = generateAmounts(deal.productsData || [], false);
 
