@@ -4,6 +4,7 @@ import {
   PageContainer,
   PageSubHeader,
   Separator,
+  Skeleton,
   useQueryState,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -31,11 +32,11 @@ const TicketsIndexPage = () => {
   const { channels } = useGetChannels();
   const { pipeline } = useGetPipeline(pipelineId || undefined);
   const channel = channels?.find(({ _id }) => _id === channelId);
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    channel?.name,
-    pipeline?.name,
-    t('tickets'),
-  );
+  const isFavoriteBreadcrumbReady =
+    (!channelId || Boolean(channel)) && (!pipelineId || Boolean(pipeline));
+  const favoriteBreadcrumb = isFavoriteBreadcrumbReady
+    ? createFavoriteBreadcrumb(channel?.name, pipeline?.name, t('tickets'))
+    : [];
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;
@@ -59,10 +60,14 @@ const TicketsIndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={favoriteBreadcrumb}
-            icon="IconTicket"
-          />
+          {isFavoriteBreadcrumbReady ? (
+            <PageHeader.FavoriteToggleButton
+              breadcrumb={favoriteBreadcrumb}
+              icon="IconTicket"
+            />
+          ) : (
+            <Skeleton className="h-8 w-8" />
+          )}
         </PageHeader.Start>
         <PageHeader.End>
           <AddTicketSheet />
