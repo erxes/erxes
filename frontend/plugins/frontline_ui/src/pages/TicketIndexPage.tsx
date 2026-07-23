@@ -1,6 +1,16 @@
-import { Breadcrumb, PageContainer, PageSubHeader } from 'erxes-ui';
-import { Can, PageHeader, Import } from 'ui-modules';
+import {
+  Breadcrumb,
+  Button,
+  PageContainer,
+  PageSubHeader,
+  Separator,
+  useQueryState,
+} from 'erxes-ui';
+import { Link } from 'react-router-dom';
+import { Can, PageHeader, Import, createFavoriteBreadcrumb } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
+import { IconTicket } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import {
   TicketsViewControl,
@@ -10,10 +20,22 @@ import { TicketsSortControl } from '@/ticket/components/TicketsSortControl';
 import { TicketsFilter } from '@/ticket/components/TicketsFilter';
 import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
-import { TicketBreadcrumb } from '@/ticket/components/TicketBreadcrumb';
+import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 
 const TicketsIndexPage = () => {
+  const { t } = useTranslation('frontline');
   const variables = useTicketsVariables();
+  const [channelId] = useQueryState<string | null>('channelId');
+  const [pipelineId] = useQueryState<string | null>('pipelineId');
+  const { channels } = useGetChannels();
+  const { pipeline } = useGetPipeline(pipelineId || undefined);
+  const channel = channels?.find(({ _id }) => _id === channelId);
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    channel?.name,
+    pipeline?.name,
+    t('tickets'),
+  );
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;
@@ -26,9 +48,21 @@ const TicketsIndexPage = () => {
         <PageHeader.Start>
           <Breadcrumb>
             <Breadcrumb.List className="gap-1 ">
-              <TicketBreadcrumb />
+              <Breadcrumb.Item>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/tickets">
+                    <IconTicket />
+                    {t('tickets')}
+                  </Link>
+                </Button>
+              </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconTicket"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <AddTicketSheet />
