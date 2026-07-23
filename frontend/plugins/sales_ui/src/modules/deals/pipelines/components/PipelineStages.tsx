@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  Sortable,
-  Props as SortableProps,
-} from '@/deals/components/common/Sortable';
+import { Sortable } from '@/deals/components/common/Sortable';
 import { arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useMemo } from 'react';
 
@@ -19,11 +16,6 @@ import type { SortableItemProps } from '@/deals/components/common/Item';
 type PipelineStageRenderItemProps = Parameters<
   NonNullable<SortableItemProps['renderItem']>
 >[0];
-
-const props: Partial<SortableProps> = {
-  strategy: verticalListSortingStrategy,
-  itemCount: 10,
-};
 
 type Props = {
   form: UseFormReturn<TPipelineForm>;
@@ -77,7 +69,8 @@ export const PipelineStages = ({ form, stagesLoading }: Props) => {
       ) : (
         <>
           <Sortable
-            {...props}
+            strategy={verticalListSortingStrategy}
+            itemCount={10}
             items={itemIds}
             reorderItems={(items, oldIndex, newIndex) => {
               move(oldIndex, newIndex);

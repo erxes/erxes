@@ -8,7 +8,10 @@ import {
 } from '@/deals/states/dealsBoardState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { BoardDealColumn, ColumnPaginationState } from '@/deals/types/boards';
+import type {
+  BoardDealColumn,
+  ColumnPaginationState,
+} from '@/deals/types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
