@@ -1,19 +1,21 @@
 'use client';
 
+import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
+import { DealActivityTab } from './DealActivityTab';
 import {
-  ActivityLogs,
-  FieldsInDetail,
-  RelationWidgetSideTabs,
-} from 'ui-modules';
-import { dealCustomActivities } from './DealActivityRows';
-import { DealNoteComposer } from '@/deals/cards/components/detail/overview/DealNoteComposer';
-import { Empty, FocusSheet, ScrollArea, Tabs, useFocusSheet, useQueryState } from 'erxes-ui';
+  Empty,
+  FocusSheet,
+  ScrollArea,
+  Tabs,
+  useFocusSheet,
+  useQueryState,
+} from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
 import { DealsProvider } from '@/deals/context/DealContext';
 import { IDeal } from '@/deals/types/deals';
-import Overview from '@/deals/cards/components/detail/overview/Overview';
+import { Overview } from '@/deals/cards/components/detail/overview/Overview';
 import Products from '@/deals/cards/components/detail/product/components/Products';
 import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItemDetailHeader';
 import { SalesItemSidebar } from './SalesItemSidebar';
@@ -51,15 +53,12 @@ const SalesItemDetailView = () => {
             >
               <Tabs.Content value="overview" className="h-full">
                 <ScrollArea className="h-full">
-                  {/* Keyed by deal: the overview holds unsaved drafts (title,
-                      description, note) that must never carry over to the next
-                      record when the sheet is reused for another deal. */}
                   <Overview key={deal?._id} deal={deal || ({} as IDeal)} />
                 </ScrollArea>
               </Tabs.Content>
               <Tabs.Content value="properties" className="h-full">
                 <ScrollArea className="h-full">
-                  <div className="w-full xl:max-w-3xl mx-auto p-6">
+                  <div className="w-full xl:max-w-5xl mx-auto p-6">
                     <FieldsInDetail
                       key={`${deal?._id || ''}-${JSON.stringify(
                         deal?.propertiesData || {},
@@ -73,23 +72,7 @@ const SalesItemDetailView = () => {
                 </ScrollArea>
               </Tabs.Content>
               <Tabs.Content value="activity" className="h-full">
-                <div className="h-full flex flex-col">
-                  <ScrollArea className="flex-1 min-h-0">
-                    <div className="w-full xl:max-w-3xl mx-auto px-6 pt-3">
-                      <ActivityLogs
-                        targetId={deal?._id || ''}
-                        customActivities={dealCustomActivities}
-                        variant="backward"
-                      />
-                    </div>
-                  </ScrollArea>
-
-                  {!!deal?._id && (
-                    <div className="shrink-0 w-full xl:max-w-3xl mx-auto px-6 pb-6 pt-2">
-                      <DealNoteComposer key={deal._id} dealId={deal._id} />
-                    </div>
-                  )}
-                </div>
+                <DealActivityTab dealId={deal?._id || ''} />
               </Tabs.Content>
               <Tabs.Content value="products" className="h-full p-6">
                 <Products deal={deal || ({} as IDeal)} refetch={refetch} />
@@ -149,9 +132,7 @@ const SalesItemDetailEmptyState = () => {
             <IconCloudExclamation />
           </Empty.Media>
           <Empty.Title>{t('deal-not-found')}</Empty.Title>
-          <Empty.Description>
-            {t('no-deal-with-id')}
-          </Empty.Description>
+          <Empty.Description>{t('no-deal-with-id')}</Empty.Description>
         </Empty.Header>
       </Empty>
     </div>

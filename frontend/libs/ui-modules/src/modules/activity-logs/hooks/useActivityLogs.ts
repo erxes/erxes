@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ACTIVITY_LOGS } from '../graphql/queries';
 import { TActivityLog } from '../types';
 import { ACTIVITY_LOG_INSERTED } from '../graphql/subscriptions';
@@ -17,6 +17,10 @@ interface UseActivityLogsParams {
   targetType?: string;
   contextType?: string;
   contextId?: string;
+  activityType?: string;
+  excludeActivityType?: string;
+  dateFrom?: Date | string;
+  dateTo?: Date | string;
 }
 
 export type ActivityLogsQueryData = {
@@ -49,6 +53,42 @@ const dedupeActivityLogs = (activityLogs: TActivityLog[] = []) => {
   });
 };
 
+const matchesActivityLogFilters = ({
+  activityLog,
+  activityType,
+  excludeActivityType,
+  dateFrom,
+  dateTo,
+}: {
+  activityLog: TActivityLog;
+  activityType?: string;
+  excludeActivityType?: string;
+  dateFrom?: Date | string;
+  dateTo?: Date | string;
+}) => {
+  if (activityType && activityLog.activityType !== activityType) {
+    return false;
+  }
+
+  if (excludeActivityType && activityLog.activityType === excludeActivityType) {
+    return false;
+  }
+
+  const createdAt = new Date(activityLog.createdAt).getTime();
+  const from = dateFrom ? new Date(dateFrom).getTime() : undefined;
+  const to = dateTo ? new Date(dateTo).getTime() : undefined;
+
+  if (from !== undefined && createdAt < from) {
+    return false;
+  }
+
+  if (to !== undefined && createdAt > to) {
+    return false;
+  }
+
+  return true;
+};
+
 export const useActivityLogs = (
   {
     targetId,
@@ -56,6 +96,10 @@ export const useActivityLogs = (
     limit,
     targetType,
     variant = 'forward',
+    activityType,
+    excludeActivityType,
+    dateFrom,
+    dateTo,
   }: UseActivityLogsParams,
   options?: QueryHookOptions<ActivityLogsQueryData>,
 ) => {
@@ -70,6 +114,10 @@ export const useActivityLogs = (
         action,
         limit,
         variant,
+        activityType,
+        excludeActivityType,
+        dateFrom,
+        dateTo,
         ...options?.variables,
       },
       skip: !targetId,
@@ -77,6 +125,7 @@ export const useActivityLogs = (
 
   const inFlightCursorRef = useRef<string | null>(null);
   const fetchedCursorsRef = useRef<Set<string>>(new Set());
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     if (!targetId) {
@@ -96,6 +145,18 @@ export const useActivityLogs = (
         }
 
         const newActivityLog = subscriptionData.data.activityLogInserted;
+
+        if (
+          !matchesActivityLogFilters({
+            activityLog: newActivityLog,
+            activityType,
+            excludeActivityType,
+            dateFrom,
+            dateTo,
+          })
+        ) {
+          return prev;
+        }
 
         // Check if the activity log already exists in the list
         const exists = prev?.activityLogs?.list?.some(
@@ -124,12 +185,30 @@ export const useActivityLogs = (
     return () => {
       unsubscribe();
     };
-  }, [targetId, subscribeToMore, variant]);
+  }, [
+    targetId,
+    subscribeToMore,
+    variant,
+    activityType,
+    excludeActivityType,
+    dateFrom,
+    dateTo,
+  ]);
 
   useEffect(() => {
     inFlightCursorRef.current = null;
     fetchedCursorsRef.current.clear();
-  }, [targetId, action, limit, targetType, variant]);
+  }, [
+    targetId,
+    action,
+    limit,
+    targetType,
+    variant,
+    activityType,
+    excludeActivityType,
+    dateFrom,
+    dateTo,
+  ]);
 
   const pageInfo = data?.activityLogs.pageInfo || {
     hasNextPage: false,
@@ -164,11 +243,16 @@ export const useActivityLogs = (
     }
 
     inFlightCursorRef.current = cursor;
+    setLoadingMore(true);
 
     void fetchMore({
       variables: {
         ...options?.variables,
         variant,
+        activityType,
+        excludeActivityType,
+        dateFrom,
+        dateTo,
         cursor,
         limit: limit || 10,
         direction,
@@ -198,6 +282,7 @@ export const useActivityLogs = (
         if (inFlightCursorRef.current === cursor) {
           inFlightCursorRef.current = null;
         }
+        setLoadingMore(false);
       });
   };
 
@@ -206,6 +291,7 @@ export const useActivityLogs = (
     totalCount: data?.activityLogs.totalCount || 0,
     pageInfo,
     loading,
+    loadingMore,
     error,
     refetch,
     handleFetchMore,

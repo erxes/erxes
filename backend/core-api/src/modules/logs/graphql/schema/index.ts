@@ -133,6 +133,10 @@ const activityLogQueryParams = `
     targetId: String!
     action: String
     variant: String
+    activityType: String
+    excludeActivityType: String
+    dateFrom: Date
+    dateTo: Date
 `;
 
 export const queries = `
@@ -152,5 +156,3 @@ export const mutations = `
       resolutions: [LogRevertDocResolutionInput!]
     ): LogRevertResult
 `;
-
-export default { types, queries, mutations };

@@ -46,6 +46,9 @@
   "watch-mixed": "Watch (Mixed)",
   "show-archived-items": "Show archived items",
   "show-active-items": "Show active items",
+  "previous": "Previous",
+  "next": "Next",
+  "close": "Close",
   "select-color": "Select a Color",
   "back": "Back",
   "change": "Change",
@@ -796,5 +799,6 @@
   "dept": "Dept.",
   "leave-a-note": "Leave a note...",
   "send": "Send",
-  "note-added": "Note added successfully"
+  "note-added": "Note added successfully",
+  "view-more-activities": "View more activities"
 }

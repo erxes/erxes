@@ -7,7 +7,6 @@ import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
 
-
 const AttachmentUploader = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({
@@ -50,16 +49,15 @@ const AttachmentUploader = () => {
         },
       });
       setIsLoading(false);
+      setUploadProgress({ uploaded: 0, total: 0 });
     }
-  }, [attachments, uploadProgress, editDeals]);
+  }, [attachments, uploadProgress, editDeals, dealId]);
 
   return (
     <Upload.Root
       value={''}
       multiple={true}
-      className={cn('items-center', {
-        'opacity-50': isLoading,
-      })}
+      className="items-center"
       onChange={(fileInfo) => {
         if ('url' in fileInfo) {
           addAttachment(fileInfo as any);
@@ -74,21 +72,24 @@ const AttachmentUploader = () => {
       />
       <Upload.Button
         size="sm"
-        variant="ghost"
+        variant="secondary"
         type="button"
-        className={cn('flex items-center gap-1 cursor-pointer text-sm', {
-          'opacity-50': isLoading,
-        })}
+        disabled={isLoading}
+        className={cn(
+          'h-7 gap-1.5 rounded-md px-2.5 text-sm font-medium text-muted-foreground',
+          'hover:text-foreground',
+          isLoading && 'opacity-70',
+        )}
       >
         {isLoading ? (
           <>
-            <Spinner />
+            <Spinner size="sm" />
             <span>
               {uploadProgress.uploaded}/{uploadProgress.total}
             </span>
           </>
         ) : (
-          <IconPaperclip size={16} />
+          <IconPaperclip size={14} />
         )}
         {t('add-attachments')}
       </Upload.Button>

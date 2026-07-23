@@ -16,6 +16,8 @@ import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage
 import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
+import AttachmentUploader from './attachments/AttachmentUploader';
+import { Attachments } from './attachments/Attachments';
 
 const ARRAY_KEYS = new Set([
   'assignedUserIds',
@@ -162,8 +164,13 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           />
         )}
       </div>
-      <Separator className="mb-1 mt-3" />
+      <div className="flex">
+        <AttachmentUploader />
+      </div>
+      <Attachments />
+      <Separator className="mt-4" />
       <div
+        className="min-h-56 overflow-y-auto"
         onBlur={(e) => {
           if (e.currentTarget.contains(e.relatedTarget as Node)) return;
           const next = descriptionRef.current;
@@ -181,7 +188,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           onChange={(content) => {
             descriptionRef.current = content;
           }}
-          className="min-h-24 h-auto shadow-none -mx-3"
+          className="min-h-full h-auto shadow-none"
         />
       </div>
     </>

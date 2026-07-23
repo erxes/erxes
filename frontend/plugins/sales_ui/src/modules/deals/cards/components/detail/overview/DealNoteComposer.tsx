@@ -115,7 +115,7 @@ export const DealNoteComposer = ({ dealId }: { dealId: string }) => {
           editor={editor}
           onChange={handleChange}
           disabled={loading}
-          className="w-full max-h-64 overflow-y-auto"
+          className="sales-note-editor w-full max-h-64 overflow-y-auto"
           onFocus={() =>
             setHotkeyScopeAndMemorizePreviousScope(NOTE_COMPOSER_HOTKEY_SCOPE)
           }

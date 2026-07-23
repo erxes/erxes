@@ -17,9 +17,6 @@ const DealName = ({ deal }: { deal: IDeal }) => {
 
   useEffect(() => {
     const incoming = deal?.name || '';
-    // Only adopt a server value that isn't the echo of our own save. Without
-    // this, a rename resolving while the user keeps typing snaps the field back
-    // to the already-sent value and drops the newer keystrokes.
     if (incoming === lastSavedRef.current) return;
 
     setName(incoming);
@@ -28,9 +25,6 @@ const DealName = ({ deal }: { deal: IDeal }) => {
 
   useEffect(() => {
     const next = debouncedName?.trim();
-    // Skip the initial value, a no-op edit, and a value we already sent — the
-    // deal prop only catches up once the mutation resolves, so without this the
-    // same rename fires twice and logs two activity rows.
     if (!next || next === deal?.name || next === lastSavedRef.current) return;
 
     lastSavedRef.current = next;
@@ -51,8 +45,9 @@ const DealName = ({ deal }: { deal: IDeal }) => {
   return (
     <Textarea
       ref={textareaRef}
-      className="shadow-none focus-visible:shadow-none p-0 resize-none"
+      className="min-h-7 resize-none p-0 shadow-none focus-visible:shadow-none"
       style={{ fontSize: '1.25rem', lineHeight: '1.75rem' }}
+      rows={1}
       placeholder={t('deal-name')}
       value={name}
       onChange={(e) => setName(e.target.value)}
@@ -60,7 +55,7 @@ const DealName = ({ deal }: { deal: IDeal }) => {
   );
 };
 
-const MainOverview = ({ deal }: { deal: IDeal }) => {
+export const MainOverview = ({ deal }: { deal: IDeal }) => {
   return (
     <div className="flex flex-col gap-3">
       <DealName deal={deal} />
@@ -68,5 +63,3 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
     </div>
   );
 };
-
-export default MainOverview;
