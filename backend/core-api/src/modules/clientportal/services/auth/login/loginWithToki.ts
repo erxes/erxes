@@ -22,7 +22,20 @@ async function fetchUserFromToki(
   const prodApiUrl = getEnv({ name: 'TOKI_PRODUCTION_API_URL' });
 
   const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
-
+  console.log(
+    'req:',
+    JSON.stringify({
+      dasdsA: `https://${apiUrl}/third-party-service/v1/shoppy/user`,
+      // {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'api-key': tokiConfig.apiKey,
+        'Content-Type': 'application/json',
+      },
+      // },
+    }),
+  );
   const response = await fetch(
     `https://${apiUrl}/third-party-service/v1/shoppy/user`,
     {
@@ -34,7 +47,7 @@ async function fetchUserFromToki(
       },
     },
   );
-
+  console.log(response);
   if (!response.ok) {
     throw new Error(await response.text());
   }
@@ -48,7 +61,7 @@ export async function loginWithToki(
   models: IModels,
 ): Promise<ICPUserDocument> {
   const response = await fetchUserFromToki(token, clientPortal);
-
+  console.log('fetchUserFromToki:', response);
   const { _id, phoneNo, profilePicURL, name } = response.data;
 
   const [firstName = '', ...rest] = (name || '').trim().split(' ');

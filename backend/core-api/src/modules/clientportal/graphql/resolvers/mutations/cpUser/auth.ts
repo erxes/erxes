@@ -235,7 +235,9 @@ export const authMutations: Record<string, Resolver<any, any, IContext>> = {
     { token },
     { models, subdomain, clientPortal, res }: IContext,
   ) {
+    console.log(JSON.stringify({ token, clientPortal }));
     const user = await loginWithToki(token, clientPortal, models);
+    console.log('toki user:', JSON.stringify(user || {}));
 
     const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
 
