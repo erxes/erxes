@@ -1,6 +1,6 @@
 import { IUIConfig } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { useMemo } from 'react';
+import { useMemo, type ElementType, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
@@ -37,15 +37,17 @@ export const usePluginsModules = () => {
   return modules;
 };
 
-interface NavigationGroupResult {
-  icon?: React.ElementType;
-  contents: any[];
-  subGroups: any[];
+type NavigationGroupContent = () => ReactNode;
+
+export interface NavigationGroupResult {
+  icon?: ElementType;
+  contents: NavigationGroupContent[];
+  subGroups: NavigationGroupContent[];
   name: string;
   i18n?: boolean;
 }
 
-type NavigationGroups = Record<string, NavigationGroupResult>;
+export type NavigationGroups = Record<string, NavigationGroupResult>;
 
 export const usePluginsNavigationGroups = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);

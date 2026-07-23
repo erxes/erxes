@@ -1,5 +1,4 @@
 import { Sidebar } from 'erxes-ui';
-import { Organization } from './Organization';
 import { SidebarNavigationFavorites } from './SidebarNavigationFavorites';
 import { NavigationCoreModules } from '@/navigation/components/NavigationCoreModules';
 import {
@@ -7,6 +6,7 @@ import {
   NavigationPlugins,
 } from '@/navigation/components/NavigationPlugins';
 import { lazy } from 'react';
+import { NavigationPanelHeader } from '@/navigation/components/NavigationPanelHeader';
 
 const SHOW_COMPONENTS = false;
 
@@ -16,17 +16,14 @@ export const DevelopmentNavigation = lazy(() =>
   })),
 );
 
-export const MainNavigationBar = () => {
+interface MainNavigationBarProps {
+  onCollapse: () => void;
+}
+
+export const MainNavigationBar = ({ onCollapse }: MainNavigationBarProps) => {
   return (
     <>
-      <Sidebar.Header className="px-2 h-13 justify-center">
-        <Sidebar.Menu>
-          <Sidebar.MenuItem className="flex gap-2 items-center">
-            <Organization />
-          </Sidebar.MenuItem>
-        </Sidebar.Menu>
-      </Sidebar.Header>
-      <Sidebar.Separator className="mx-0" />
+      <NavigationPanelHeader onCollapse={onCollapse} />
       <Sidebar.Content className="gap-0">
         <NavigationPluginExitButton />
         {process.env.NODE_ENV === 'development' && SHOW_COMPONENTS && (
@@ -39,5 +36,3 @@ export const MainNavigationBar = () => {
     </>
   );
 };
-
-export default MainNavigationBar;

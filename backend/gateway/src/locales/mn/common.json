@@ -70,5 +70,19 @@
     "plugins": "Плагинууд",
     "exit": "{{name}}-ээс гарах",
     "modules": "{{name}} модулиуд"
+  },
+  "navigation-shell": {
+    "close-tab": "{{name}} табыг хаах",
+    "collapse-panel": "Самбарыг хураах",
+    "home": "Нүүр",
+    "no-plugins-found": "Плагин олдсонгүй",
+    "open-panel": "Самбарыг нээх",
+    "open-plugin": "Плагин нээх",
+    "plugins": "Плагинууд",
+    "search": "Хайх",
+    "search-plugins": "Плагин хайх",
+    "settings": "Тохиргоо",
+    "toggle-panel": "Самбарыг нуух эсвэл харуулах",
+    "workspace": "Ажлын орчин"
   }
 }

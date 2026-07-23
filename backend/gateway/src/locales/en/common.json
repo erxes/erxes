@@ -69,5 +69,19 @@
     "plugins": "Plugins",
     "exit": "Exit {{name}}",
     "modules": "{{name}} modules"
+  },
+  "navigation-shell": {
+    "close-tab": "Close {{name}} tab",
+    "collapse-panel": "Collapse panel",
+    "home": "Home",
+    "no-plugins-found": "No plugins found",
+    "open-panel": "Open panel",
+    "open-plugin": "Open plugin",
+    "plugins": "Plugins",
+    "search": "Search",
+    "search-plugins": "Search plugins",
+    "settings": "Settings",
+    "toggle-panel": "Toggle panel",
+    "workspace": "Workspace"
   }
 }
