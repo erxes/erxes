@@ -1,4 +1,5 @@
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
+import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { Sidebar, useQueryState } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -23,13 +24,14 @@ export const DefaultLayout = () => {
       collapseState={collapseState}
       onCollapseStateChange={setCollapseState}
     >
-      <Sidebar collapsible="offcanvas" variant="sidebar" className="p-0">
+      <Sidebar collapsible="icon" variant="sidebar" className="p-0">
         <SidebarAnimationContainer isSettings={isSettings}>
           {isSettings ? <SettingsSidebar /> : <MainNavigationBar />}
         </SidebarAnimationContainer>
         <Sidebar.Rail />
       </Sidebar>
       <Sidebar.Inset className="h-[calc(100svh-(--spacing(4)))] grow-0 shrink basis-full overflow-hidden shadow-sidebar-inset">
+        <VisitedPageTabs />
         <FloatingWidgets />
         <Outlet />
       </Sidebar.Inset>

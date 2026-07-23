@@ -1,5 +1,10 @@
 {
   "my-inbox": "Миний инбокс",
+  "navigation": {
+    "visited-pages": "Зочилсон хуудсууд",
+    "details": "Дэлгэрэнгүй",
+    "close-tab": "{{page}} табыг хаах"
+  },
   "core-modules": {
     "_": "Үндсэн модулиуд",
     "contacts": "Харилцагчид",

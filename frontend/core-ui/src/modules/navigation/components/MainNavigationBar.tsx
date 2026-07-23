@@ -19,10 +19,11 @@ export const DevelopmentNavigation = lazy(() =>
 export const MainNavigationBar = () => {
   return (
     <>
-      <Sidebar.Header className="px-2 h-13 justify-center">
+      <Sidebar.Header className="h-13 justify-center px-2">
         <Sidebar.Menu>
-          <Sidebar.MenuItem className="flex gap-2 items-center">
+          <Sidebar.MenuItem className="flex items-center gap-1">
             <Organization />
+            <Sidebar.Trigger className="shrink-0 group-data-[collapsible=icon]:hidden" />
           </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.Header>
@@ -39,5 +40,3 @@ export const MainNavigationBar = () => {
     </>
   );
 };
-
-export default MainNavigationBar;

@@ -1,5 +1,10 @@
 {
   "my-inbox": "My Inbox",
+  "navigation": {
+    "visited-pages": "Visited pages",
+    "details": "Details",
+    "close-tab": "Close {{page}} tab"
+  },
   "core-modules": {
     "_": "Core modules",
     "contacts": "Contacts",
