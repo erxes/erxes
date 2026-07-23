@@ -1,12 +1,13 @@
 import {
   ICursorPaginateParams,
   IListParams,
+  Resolver,
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { generateFilters } from './utils';
 import { STRUCTURE_STATUSES } from 'erxes-api-shared/core-modules';
-export const deparmentQueries = {
+export const deparmentQueries: Record<string, Resolver> = {
   async departments(
     _parent: undefined,
     params: any,
