@@ -1,5 +1,10 @@
 import styles from './formstyle.css';
-import { getLocalStorageItem } from './lib/utils';
+import {
+  getLocalStorageItem,
+  listenForCommonRequests as sharedListenForCommonRequests,
+} from './lib/utils';
+
+declare const window: any;
 
 const styleElement = document.createElement('style');
 styleElement.textContent = styles;
@@ -31,85 +36,34 @@ export const setErxesProperty = (name: string, value: any) => {
   window.Erxes = erxes;
 };
 
-export const getBrowserInfo = async () => {
-  if (window.location.hostname === 'localhost') {
-    return {
-      url: window.location.pathname,
-      hostname: window.location.href,
-      language: navigator.language,
-      userAgent: navigator.userAgent,
-      countryCode: 'MN',
-    };
-  }
-
-  let location;
-
-  try {
-    const response = await fetch('https://geo.erxes.io');
-
-    location = await response.json();
-  } catch (e) {
-    location = {
-      city: '',
-      remoteAddress: '',
-      region: '',
-      country: '',
-      countryCode: '',
-    };
-  }
-
-  return {
-    remoteAddress: location.network,
-    region: location.region,
-    countryCode: location.countryCode,
-    city: location.city,
-    country: location.countryName,
-    url: window.location.pathname,
-    hostname: window.location.origin,
-    language: navigator.language,
-    userAgent: navigator.userAgent,
-  };
-};
-
-export const listenForCommonRequests = async (event: any, iframe: any) => {
-  const { message, fromErxes, source, key, value } = event.data;
-  if (fromErxes && iframe?.contentWindow) {
-    if (message === 'requestingBrowserInfo') {
-      iframe.contentWindow.postMessage(
-        {
-          fromPublisher: true,
-          source,
-          message: 'sendingBrowserInfo',
-          browserInfo: await getBrowserInfo(),
-        },
-        '*',
-      );
-    }
-
-    if (message === 'setLocalStorageItem') {
-      const erxesStorage = JSON.parse(localStorage.getItem('erxes') || '{}');
-
-      erxesStorage[key] = value;
-
-      localStorage.setItem('erxes', JSON.stringify(erxesStorage));
-    }
-  }
-};
-
-declare const window: any;
-
-const meta = document.createElement('meta');
-meta.name = 'viewport';
-meta.content = 'initial-scale=1, width=device-width';
-document.getElementsByTagName('head')[0].appendChild(meta);
-
 type Settings = {
   form_id: string;
   channel_id: string;
   user_id?: string;
   css?: string;
-  onAction?: () => void;
+  onAction?: (data?: any) => void;
 };
+
+// SPA support: a host page may re-inject this <script> tag on every
+// client-side route change (e.g. to pick up a different/updated
+// window.erxesSettings.forms per dynamic page) instead of loading it once.
+// Persisting this state on `window` (rather than module-scope consts, which
+// reset on every re-execution) lets a re-injection reuse already-created
+// iframes/listeners instead of duplicating them, while still discovering
+// any newly-configured forms.
+const erxesFormsGlobal: {
+  iframesMapping: Record<string, { container: HTMLElement; iframe: any }>;
+  popupHandlersAttached: Record<string, boolean>;
+  initialized: boolean;
+} = (window.__erxesFormsGlobal = window.__erxesFormsGlobal || {
+  iframesMapping: {},
+  popupHandlersAttached: {},
+  initialized: false,
+});
+
+const { iframesMapping, popupHandlersAttached } = erxesFormsGlobal;
+
+const getFormSettings = (): Settings[] => window.erxesSettings.forms || [];
 
 const createIframe = (settings: Settings) => {
   const formId = settings.form_id;
@@ -217,24 +171,6 @@ const postMessageToOne = (formId: string, data: any) => {
   );
 };
 
-setErxesProperty('showPopup', (id: string) => {
-  postMessageToOne(id, { action: 'showPopup' });
-});
-
-setErxesProperty('callFormSubmit', (id: string) => {
-  postMessageToOne(id, { action: 'callSubmit' });
-});
-
-setErxesProperty('sendExtraFormContent', (id: string, html: string) => {
-  postMessageToOne(id, { action: 'extraFormContent', html });
-});
-
-const formSettings = window.erxesSettings.forms || [];
-
-const iframesMapping: any = {};
-
-const popupHandlersAttached: Record<string, boolean> = {};
-
 const getMappingKey = (settings: Settings) =>
   JSON.stringify({
     form_id: settings.form_id,
@@ -242,7 +178,7 @@ const getMappingKey = (settings: Settings) =>
   });
 
 const getSettings = (settings: Settings) =>
-  formSettings.find(
+  getFormSettings().find(
     (s: Settings) =>
       s.channel_id === settings.channel_id && s.form_id === settings.form_id,
   );
@@ -259,7 +195,7 @@ const initForm = (settings: Settings) => {
 };
 
 const initForms = () => {
-  formSettings.forEach((settings: Settings) => {
+  getFormSettings().forEach((settings: Settings) => {
     const embedContainer = document.querySelector(
       `[data-erxes-embed="${settings.form_id}"]`,
     );
@@ -272,7 +208,7 @@ const initForms = () => {
 
 const observeEmbedContainers = () => {
   const observer = new MutationObserver(() => {
-    formSettings.forEach((settings: Settings) => {
+    getFormSettings().forEach((settings: Settings) => {
       if (iframesMapping[getMappingKey(settings)]) {
         return;
       }
@@ -290,81 +226,114 @@ const observeEmbedContainers = () => {
   observer.observe(document.body, { childList: true, subtree: true });
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    initForms();
+const runInitialSetup = () => {
+  // One-time global setup: the showPopup/callFormSubmit/sendExtraFormContent
+  // API, the viewport meta tag, the MutationObserver, and the single window
+  // message listener. Re-running these on every script re-injection would
+  // pile up duplicate listeners/observers without adding any capability —
+  // initForms() below already re-scans getFormSettings() on every
+  // execution, which is what actually needs to happen to pick up a
+  // newly-injected/updated forms config.
+  if (!erxesFormsGlobal.initialized) {
+    erxesFormsGlobal.initialized = true;
+
+    const meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'initial-scale=1, width=device-width';
+    document.getElementsByTagName('head')[0].appendChild(meta);
+
+    setErxesProperty('showPopup', (id: string) => {
+      postMessageToOne(id, { action: 'showPopup' });
+    });
+
+    setErxesProperty('callFormSubmit', (id: string) => {
+      postMessageToOne(id, { action: 'callSubmit' });
+    });
+
+    setErxesProperty('sendExtraFormContent', (id: string, html: string) => {
+      postMessageToOne(id, { action: 'extraFormContent', html });
+    });
+
     observeEmbedContainers();
-  });
-} else {
-  initForms();
-  observeEmbedContainers();
-}
 
-// listen for messages from widget
-window.addEventListener('message', async (event: MessageEvent) => {
-  const data = event.data || {};
-  const { fromErxes, source, message, settings } = data;
+    // listen for messages from widget
+    window.addEventListener('message', async (event: MessageEvent) => {
+      const data = event.data || {};
+      const { fromErxes, source, message, settings } = data;
 
-  if (!settings || source !== 'fromForms') {
-    return null;
-  }
+      if (!settings || source !== 'fromForms') {
+        return null;
+      }
 
-  const { container, iframe } = iframesMapping[getMappingKey(settings)] || {};
+      const { container, iframe } =
+        iframesMapping[getMappingKey(settings)] || {};
 
-  listenForCommonRequests(event, iframe);
+      sharedListenForCommonRequests(event, iframe);
 
-  const completeSettings = getSettings(settings);
+      const completeSettings = getSettings(settings);
 
-  if (!completeSettings) {
-    return null;
-  }
+      if (!completeSettings) {
+        return null;
+      }
 
-  if (!(fromErxes && source === 'fromForms')) {
-    return null;
-  }
+      if (!(fromErxes && source === 'fromForms')) {
+        return null;
+      }
 
-  if (message === 'submitResponse' && completeSettings.onAction) {
-    completeSettings.onAction(data);
-  }
+      if (message === 'submitResponse' && completeSettings.onAction) {
+        completeSettings.onAction(data);
+      }
 
-  if (message === 'connected') {
-    const loadType =
-      data.connectionInfo.widgetsLeadConnect.form.leadData.loadType;
+      if (message === 'connected') {
+        const loadType =
+          data.connectionInfo.widgetsLeadConnect.form.leadData.loadType;
 
-    if (loadType === 'popup' && !popupHandlersAttached[settings.form_id]) {
-      popupHandlersAttached[settings.form_id] = true;
+        if (loadType === 'popup' && !popupHandlersAttached[settings.form_id]) {
+          popupHandlersAttached[settings.form_id] = true;
 
-      document.addEventListener('click', (e) => {
-        const trigger = (e.target as Element)?.closest?.(
-          `[data-erxes-modal="${settings.form_id}"]`,
-        );
+          document.addEventListener('click', (e) => {
+            const trigger = (e.target as Element)?.closest?.(
+              `[data-erxes-modal="${settings.form_id}"]`,
+            );
 
-        if (!trigger) {
-          return;
+            if (!trigger) {
+              return;
+            }
+
+            iframe?.contentWindow?.postMessage(
+              {
+                fromPublisher: true,
+                action: 'showPopup',
+                formId: settings.form_id,
+              },
+              '*',
+            );
+          });
         }
+      }
 
-        iframe?.contentWindow?.postMessage(
-          {
-            fromPublisher: true,
-            action: 'showPopup',
-            formId: settings.form_id,
-          },
-          '*',
+      if (message === 'changeContainerClass' && container) {
+        container.className = data.className;
+      }
+
+      if (message === 'changeContainerStyle' && iframe) {
+        const heightMatch = (data.style as string).match(
+          /height:\s*([\d.]+px)/,
         );
-      });
-    }
+        if (heightMatch) {
+          iframe.style.height = heightMatch[1];
+        }
+      }
+
+      return null;
+    });
   }
 
-  if (message === 'changeContainerClass' && container) {
-    container.className = data.className;
-  }
+  initForms();
+};
 
-  if (message === 'changeContainerStyle' && iframe) {
-    const heightMatch = (data.style as string).match(/height:\s*([\d.]+px)/);
-    if (heightMatch) {
-      iframe.style.height = heightMatch[1];
-    }
-  }
-
-  return null;
-});
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runInitialSetup);
+} else {
+  runInitialSetup();
+}
