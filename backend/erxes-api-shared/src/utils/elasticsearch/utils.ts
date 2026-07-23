@@ -290,15 +290,6 @@ export const fetchByQuery = async ({
     .filter((r: any) => r);
 };
 
-export async function getEsIndexTotalCount(contentType: string) {
-  const { mongoConnectionString } = await getPluginSegmentConfig(contentType);
-  const esIndex = await getEsIndexByContentType(contentType);
-  const index = `${getIndexPrefix(mongoConnectionString)}${esIndex}`;
-  const response = await client.count({ index });
-  const totalDocs = response.body.count;
-  return totalDocs;
-}
-
 export const getPluginSegmentConfig = async (contentType: string) => {
   const pluginNames = await getPlugins();
   const pluginConfigs: any = [];
@@ -342,3 +333,17 @@ export const getEsIndexByContentType = async (contentType: string) => {
 
   return '';
 };
+
+export async function getEsIndexTotalCount(contentType: string) {
+  try {
+    const { mongoConnectionString } = await getPluginSegmentConfig(contentType);
+    const esIndex = await getEsIndexByContentType(contentType);
+    const index = `${getIndexPrefix(mongoConnectionString)}${esIndex}`;
+    const response = await client.count({ index });
+    const totalDocs = response.body.count;
+    return totalDocs;
+  } catch (err) {
+    console.warn('Error getting Elasticsearch index count:', err.message);
+    return 0;
+  }
+}
