@@ -74,6 +74,8 @@ postSchema.index(
 );
 
 postSchema.index({ webId: 1 });
+postSchema.index({ status: 1, scheduledDate: 1 });
+postSchema.index({ status: 1, autoArchiveDate: 1 });
 
 export const postCategorySchema = new Schema<IPostCategoryDocument>(
   {
