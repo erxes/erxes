@@ -189,7 +189,7 @@ const SelectChannelFilterBar = ({ scope }: { scope?: string }) => {
   return (
     <SelectChannelProvider
       value={channel || ''}
-      onValueChange={(value) => setChannel(value as string)}
+      onValueChange={(value) => setChannel(value)}
       setOpen={setOpen}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
@@ -212,7 +212,7 @@ const SelectChannelFilterView = () => {
       <SelectChannelProvider
         value={channel || ''}
         onValueChange={(value) => {
-          setChannel(value as string);
+          setChannel(value);
           resetFilterState();
         }}
       >
@@ -233,7 +233,7 @@ const SelectChannelFormItem = ({
   return (
     <SelectChannelProvider
       value={value}
-      onValueChange={(value) => onValueChange(value as string)}
+      onValueChange={(value) => onValueChange(value)}
       setOpen={setOpen}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
