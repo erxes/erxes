@@ -301,8 +301,8 @@ export const generateFilter = async (
     const escaped = escapeRegExp(search);
     Object.assign(filter, {
       $or: [
-        { name: { $regex: escaped, options: 'i' } },
-        { number: { $regex: escaped, options: 'i' } },
+        { name: { $regex: escaped, $options: 'i' } },
+        { number: { $regex: escaped, $options: 'i' } },
       ],
     });
   }
@@ -704,7 +704,11 @@ const fetchDeals = async (
     list: deals,
     pageInfo,
     totalCount,
-  } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
+  } = await getItemList(models, subdomain, filter, args, user, getExtraFields, {
+    formatter: {
+      modifiedAt: 'date',
+    },
+  });
 
   await enrichDealsWithProducts(subdomain, deals);
 

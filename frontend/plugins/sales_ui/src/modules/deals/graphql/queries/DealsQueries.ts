@@ -134,13 +134,17 @@ export const commonListFields = `
 
 export const GET_DEALS_SEARCH_DROPDOWN = gql`
   query Deals(
-    $limit: Int, 
+    $limit: Int,
+    $cursor: String,
+    $direction: CURSOR_DIRECTION,
     $orderBy: JSON,
     ${commonParams}
   ) {
     deals(
       limit: $limit, 
-      orderBy: $orderBy, 
+      orderBy: $orderBy,
+      cursor: $cursor,
+      direction: $direction,
       ${commonParamDefs}
     ) {
         list {
@@ -154,6 +158,15 @@ export const GET_DEALS_SEARCH_DROPDOWN = gql`
           }
           boardId
         }
+
+        pageInfo {
+          startCursor
+          endCursor
+          hasNextPage
+          hasPreviousPage
+        }
+
+        totalCount
       }
   }
 `;
