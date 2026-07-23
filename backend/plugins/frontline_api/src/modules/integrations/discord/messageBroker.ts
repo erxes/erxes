@@ -58,6 +58,9 @@ export async function discordCreateIntegrations({
   const models = await generateModels(subdomain);
 
   // The connect wizard's integration `data` payload (JSON over the broker).
+  // `sourceBotId` is set when adding channels to an already-connected server: the
+  // wizard never handles that bot's token, so we resolve token/applicationId from
+  // the referenced bot server-side instead of receiving them from the client.
   type TDiscordIntegrationDetails = {
     name?: string;
     token?: string;
@@ -65,6 +68,7 @@ export async function discordCreateIntegrations({
     guildId?: string;
     guildName?: string;
     channelId?: string;
+    sourceBotId?: string;
   };
 
   let details: TDiscordIntegrationDetails = {};
@@ -74,7 +78,24 @@ export async function discordCreateIntegrations({
     details = {};
   }
 
-  const { name, token, applicationId, guildId, guildName, channelId } = details;
+  let { token, applicationId, guildId, guildName } = details;
+  const { name, channelId, sourceBotId } = details;
+
+  // Adding channels to an existing server: reuse the source bot's secret + guild
+  // so the new channel-integration shares the same live token/connection.
+  if (!token && sourceBotId) {
+    const sourceBot = await models.DiscordBots.findById(sourceBotId);
+    if (!sourceBot) {
+      return {
+        status: 'error',
+        errorMessage: `Source Discord bot ${sourceBotId} not found`,
+      };
+    }
+    token = sourceBot.token;
+    applicationId = applicationId || sourceBot.applicationId;
+    guildId = guildId || sourceBot.guildId;
+    guildName = guildName || sourceBot.guildName;
+  }
 
   try {
     const bot = await models.DiscordBots.create({

@@ -481,6 +481,20 @@ export const integrationMutations = {
     { data, ...doc }: IExternalIntegrationParams & { data: object },
     { user, models, subdomain }: IContext,
   ) {
+    // Guard against orphaned integrations: `channelId` is taken verbatim from the
+    // caller (the inbox channel in the URL), so a stale or wrong id — e.g. one
+    // left over from a different database — would otherwise create an integration
+    // bound to a channel that doesn't exist and never surfaces in any channel's
+    // list. An empty channelId (integration with no channel) stays allowed.
+    if (doc.channelId) {
+      const channel = await models.Channels.findOne({ _id: doc.channelId });
+      if (!channel) {
+        throw new Error(
+          `Channel "${doc.channelId}" not found — cannot create an integration on a channel that doesn't exist.`,
+        );
+      }
+    }
+
     const modifiedDoc: any = { ...doc };
 
     if (modifiedDoc.kind === 'webhook') {

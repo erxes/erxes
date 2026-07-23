@@ -25,7 +25,10 @@ import {
 } from '@/integrations/hooks/useIntegrations';
 import { useDiscordServers } from '@/integrations/discord/hooks/useDiscordSetup';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
-import { channelLabelFromIntegration } from '@/inbox/conversations/utils/channelGroups';
+import {
+  channelGroupFromIntegration,
+  channelLabelFromIntegration,
+} from '@/inbox/conversations/utils/channelGroups';
 import { CONVERSATION_COUNTS } from '@/inbox/conversations/graphql/queries/getConversationCounts';
 
 type ChannelCounts = Record<string, number>;
@@ -192,6 +195,29 @@ const DiscordServerItem = ({
     0,
   );
 
+  // Split channels by the group they were created under (the "<group> - #channel"
+  // name prefix). Batches nest under a collapsible group header; single-channel
+  // integrations (no prefix) list directly under the server, like Discord's own
+  // uncategorized channels.
+  const { categories, ungrouped } = useMemo(() => {
+    const byGroup = new Map<string, IIntegration[]>();
+    const loose: IIntegration[] = [];
+    for (const integration of group.integrations) {
+      if (/-\s*#/.test(integration.name || '')) {
+        const key = channelGroupFromIntegration(integration);
+        byGroup.set(key, [...(byGroup.get(key) ?? []), integration]);
+      } else {
+        loose.push(integration);
+      }
+    }
+    return {
+      categories: [...byGroup.entries()]
+        .map(([name, integrations]) => ({ name, integrations }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      ungrouped: loose,
+    };
+  }, [group.integrations]);
+
   return (
     // skipcq: JS-0415
     <Collapsible className="group/collapsible" defaultOpen={defaultOpen}>
@@ -221,12 +247,21 @@ const DiscordServerItem = ({
         <Collapsible.Content className="pt-1">
           <Sidebar.GroupContent>
             <Sidebar.Menu>
-              {group.integrations.map((integration) => (
+              {ungrouped.map((integration) => (
                 // skipcq: JS-0357
                 <DiscordChannelItem
                   key={integration._id}
                   integration={integration}
                   count={counts[integration._id] || 0}
+                />
+              ))}
+              {categories.map((category) => (
+                // skipcq: JS-0357
+                <DiscordCategoryItem
+                  key={category.name}
+                  name={category.name}
+                  integrations={category.integrations}
+                  counts={counts}
                 />
               ))}
             </Sidebar.Menu>
@@ -237,13 +272,74 @@ const DiscordServerItem = ({
   );
 };
 
+// A named group of channels within a server (from the integration-name prefix),
+// collapsible so a server with many batches stays scannable. Matches the
+// server row's caret/badge styling, one indent level deeper.
+const DiscordCategoryItem = ({
+  name,
+  integrations,
+  counts,
+}: {
+  name: string;
+  integrations: IIntegration[];
+  counts: ChannelCounts;
+}) => {
+  const [integrationId] = useQueryState<string>('integrationId');
+  const totalCount = integrations.reduce(
+    (sum, integration) => sum + (counts[integration._id] || 0),
+    0,
+  );
+
+  return (
+    // Open by default so channels are visible; users can collapse a group.
+    <Collapsible className="group/category" defaultOpen>
+      <Collapsible.Trigger asChild>
+        <Button
+          variant="ghost"
+          className="w-full flex min-w-0 justify-start pl-6 pr-2 font-medium"
+        >
+          <span className="shrink-0">
+            <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/category:rotate-90 text-accent-foreground" />
+          </span>
+          <TextOverflowTooltip
+            className="font-semibold normal-case flex-1 min-w-0 text-left"
+            value={name}
+          />
+          {totalCount > 0 && (
+            <Badge className="text-xs min-w-5 px-1 justify-center shrink-0">
+              {totalCount}
+            </Badge>
+          )}
+        </Button>
+      </Collapsible.Trigger>
+      <Collapsible.Content>
+        <Sidebar.Menu>
+          {integrations.map((integration) => (
+            // skipcq: JS-0357
+            <DiscordChannelItem
+              key={integration._id}
+              integration={integration}
+              count={counts[integration._id] || 0}
+              nested
+            />
+          ))}
+        </Sidebar.Menu>
+      </Collapsible.Content>
+    </Collapsible>
+  );
+};
+
 /** Sidebar row for one Discord channel integration, badged with its open count. */
 const DiscordChannelItem = ({
   integration,
   count,
+  nested = false,
 }: {
   integration: IIntegration;
   count: number;
+  // Deeper indent when the channel sits inside a named group (vs. directly
+  // under the server).
+  nested?: boolean;
 }) => {
   const [integrationId, setIntegrationId] =
     useQueryState<string>('integrationId');
@@ -259,7 +355,9 @@ const DiscordChannelItem = ({
   return (
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
-      className="justify-start relative overflow-hidden text-left w-full pl-6 pr-2 font-medium"
+      className={`justify-start relative overflow-hidden text-left w-full pr-2 font-medium ${
+        nested ? 'pl-10' : 'pl-6'
+      }`}
       onClick={handleClick}
     >
       {isActive ? (

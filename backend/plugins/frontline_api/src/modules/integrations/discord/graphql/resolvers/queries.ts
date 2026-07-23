@@ -78,6 +78,8 @@ export const discordQueries = {
       id: c.id,
       name: c.name,
       type: c.type,
+      parentId: c.parentId,
+      parentName: c.parentName,
     }));
   },
 
@@ -103,6 +105,8 @@ export const discordQueries = {
         id: c.id,
         name: c.name,
         type: c.type,
+        parentId: c.parentId,
+        parentName: c.parentName,
       }));
     } catch (e) {
       debugError(
@@ -284,6 +288,55 @@ export const discordQueries = {
         };
       }),
     );
+  },
+
+  /**
+   * The Discord servers already connected to a given inbox channel, each with a
+   * representative bot id. Backs the connect wizard's "add channels to a
+   * connected server" path: scoped to one inbox channel (not the whole system),
+   * so it never loads every bot just to derive this channel's servers.
+   */
+  discordConnectedServers: async (
+    _root: undefined,
+    { channelId }: { channelId: string },
+    { models }: IContext,
+  ) => {
+    const bots = await models.DiscordBots.getBotsByInboxChannel(channelId);
+
+    // guildId → the (newest, since bots are newest-first) bot that represents it.
+    const byGuild = new Map<
+      string,
+      { guildId: string; guildName?: string; botId: string }
+    >();
+    for (const bot of bots) {
+      if (!bot.guildId || byGuild.has(bot.guildId)) continue;
+      byGuild.set(bot.guildId, {
+        guildId: bot.guildId,
+        guildName: bot.guildName,
+        botId: bot._id,
+      });
+    }
+
+    return [...byGuild.values()];
+  },
+
+  /**
+   * The Discord channel ids already added to a given inbox channel. Lets the
+   * connect wizard hide channels that are already routed here, without loading
+   * every integration on the channel client-side. Scoped to the inbox channel
+   * (not the guild), so a channel routed to a *different* inbox channel stays
+   * addable here.
+   */
+  discordTakenChannels: async (
+    _root: undefined,
+    { channelId }: { channelId: string },
+    { models }: IContext,
+  ) => {
+    const bots = await models.DiscordBots.getBotsByInboxChannel(channelId);
+
+    return [
+      ...new Set(bots.map((bot) => bot.channelId).filter(Boolean)),
+    ];
   },
 
   /**

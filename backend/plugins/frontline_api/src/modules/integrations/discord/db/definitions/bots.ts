@@ -13,6 +13,9 @@ const healthSchema = new Schema(
     botUsername: { type: String },
     lastVerifiedAt: { type: Date },
     lastError: { type: String },
+    // A create-time backfill was blocked (bot lacked channel access); the first
+    // live message retries it. See backfillChannelHistory / retryPendingBackfill.
+    backfillPending: { type: Boolean },
   },
   { _id: false },
 );

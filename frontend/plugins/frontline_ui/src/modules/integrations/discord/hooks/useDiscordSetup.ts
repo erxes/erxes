@@ -3,12 +3,14 @@ import { useMemo } from 'react';
 import {
   DISCORD_BOT_CHANNELS,
   DISCORD_BOTS,
+  DISCORD_CONNECTED_SERVERS,
   DISCORD_CONVERSATION_CHANNEL,
   DISCORD_CONVERSATION_CHANNELS,
   DISCORD_CONVERSATION_PARTICIPANTS,
   DISCORD_GUILD_CHANNELS,
   DISCORD_GUILDS,
   DISCORD_SERVERS,
+  DISCORD_TAKEN_CHANNELS,
   DISCORD_VALIDATE_TOKEN,
 } from '../graphql/queries';
 
@@ -22,7 +24,12 @@ export type DiscordTokenValidation = {
 };
 
 export type DiscordGuild = { id: string; name?: string; icon?: string };
-export type DiscordChannel = { id: string; name?: string; type?: number };
+export type DiscordChannel = {
+  id: string;
+  name?: string;
+  type?: number;
+  parentName?: string;
+};
 
 // Lazy so validation only fires once the user has finished pasting a token
 // (the wizard triggers it explicitly), never on every keystroke.
@@ -76,6 +83,39 @@ export const useDiscordBots = () => {
   );
 
   return { bots: data?.discordBots ?? [], loading };
+};
+
+export type DiscordConnectedServer = {
+  guildId: string;
+  guildName?: string;
+  botId: string;
+};
+
+// Discord servers already connected to a given inbox channel — feeds the
+// wizard's "add channels to a connected server" picker. Scoped server-side to
+// the inbox channel, so it never loads every bot in the system. Skipped until
+// the channel id is known.
+export const useDiscordConnectedServers = (channelId?: string) => {
+  const { data, loading } = useQuery<{
+    discordConnectedServers: DiscordConnectedServer[];
+  }>(DISCORD_CONNECTED_SERVERS, {
+    variables: { channelId: channelId as string },
+    skip: !channelId,
+  });
+
+  return { connectedServers: data?.discordConnectedServers ?? [], loading };
+};
+
+// The Discord channel ids already routed to a given inbox channel — feeds the
+// wizard's picker filter so a channel can't be added here twice. Scoped
+// server-side, so it replaces paging every integration on the channel.
+export const useDiscordTakenChannels = (channelId?: string) => {
+  const { data, loading } = useQuery<{ discordTakenChannels: string[] }>(
+    DISCORD_TAKEN_CHANNELS,
+    { variables: { channelId: channelId as string }, skip: !channelId },
+  );
+
+  return { takenChannelIds: data?.discordTakenChannels ?? [], loading };
 };
 
 // Channels of a chosen bot for the action's channel picker. Skipped until a bot

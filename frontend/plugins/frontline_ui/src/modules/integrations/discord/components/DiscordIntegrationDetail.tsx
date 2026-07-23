@@ -16,7 +16,7 @@ import {
   Spinner,
   type MultiSelectOption,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { SelectBrands } from 'ui-modules';
@@ -29,8 +29,11 @@ import {
   DISCORD_INTEGRATION_SCHEMA,
 } from '../constants/discordSchema';
 import {
+  useDiscordBotChannels,
+  useDiscordConnectedServers,
   useDiscordGuildChannels,
   useDiscordGuilds,
+  useDiscordTakenChannels,
   useDiscordValidateToken,
 } from '../hooks/useDiscordSetup';
 
@@ -68,6 +71,12 @@ export const DiscordIntegrationDetail = () => {
   // groups channels under it.
   const [guildName, setGuildName] = useState('');
   const [channels, setChannels] = useState<MultiSelectOption[]>([]);
+  // Set when adding channels to an already-connected server: holds a
+  // representative bot id of that server. Its presence means "existing-server
+  // mode" — the token/server steps are skipped and channels are resolved
+  // server-side (this bot's token is never handled by the client).
+  const [existingBotId, setExistingBotId] = useState('');
+  const isExistingMode = Boolean(existingBotId);
 
   // useLazyQuery's `data` only updates once a new call resolves, so it still
   // holds the previous token's result right after the user edits the token —
@@ -83,8 +92,64 @@ export const DiscordIntegrationDetail = () => {
     token,
     step !== 2 || !currentValidation?.valid,
   );
-  const { channels: discordChannels, loading: channelsLoading } =
-    useDiscordGuildChannels(token, guildId, step !== 3 || !guildId);
+  // Channel sources: a pasted token resolves them via the guild; an existing
+  // server resolves them server-side by bot id (no token on the client).
+  const { channels: guildChannels, loading: guildChannelsLoading } =
+    useDiscordGuildChannels(
+      token,
+      guildId,
+      step !== 3 || !guildId || isExistingMode,
+    );
+  const { channels: botChannels, loading: botChannelsLoading } =
+    useDiscordBotChannels(existingBotId, step !== 3 || !isExistingMode);
+
+  // Both the connected-server picker and the taken-channel filter are resolved
+  // server-side, scoped to THIS inbox channel — so the wizard never loads every
+  // bot in the system nor pages every integration on the channel just to derive
+  // these small per-channel sets.
+  const { connectedServers } = useDiscordConnectedServers(inboxChannelId);
+  const { takenChannelIds: takenChannelIdList } =
+    useDiscordTakenChannels(inboxChannelId);
+
+  // Discord channels already added to this inbox channel — excluded from the
+  // picker so the same channel can't be added here twice. Scoped to the inbox
+  // channel (not the guild), so a channel routed to a *different* inbox channel
+  // stays addable here.
+  const takenChannelIds = useMemo(
+    () => new Set(takenChannelIdList),
+    [takenChannelIdList],
+  );
+
+  const discordChannels = useMemo(
+    () =>
+      (isExistingMode ? botChannels : guildChannels).filter(
+        (channel) => !takenChannelIds.has(channel.id),
+      ),
+    [isExistingMode, botChannels, guildChannels, takenChannelIds],
+  );
+  const channelsLoading = isExistingMode
+    ? botChannelsLoading
+    : guildChannelsLoading;
+
+  // Picker options, grouped under their Discord category (server order is
+  // preserved from the backend, so categories/channels stay in Discord's order).
+  const channelOptions = useMemo(
+    () =>
+      discordChannels.map((channel) => ({
+        value: channel.id,
+        label: `#${channel.name}`,
+        category: channel.parentName || 'Uncategorized',
+      })),
+    [discordChannels],
+  );
+
+  // Options carry the channel id as their value, so the picker's default filter
+  // (which matches the typed text against that id) never matches a name. Map
+  // id → label so search can match the channel name instead.
+  const channelLabelById = useMemo(
+    () => new Map(channelOptions.map((option) => [option.value, option.label])),
+    [channelOptions],
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(DISCORD_INTEGRATION_SCHEMA),
@@ -99,40 +164,52 @@ export const DiscordIntegrationDetail = () => {
     setGuildId('');
     setGuildName('');
     setChannels([]);
+    setExistingBotId('');
     form.reset();
   };
 
   // Validating a token can invalidate a later choice; keep state consistent
-  // when the user edits the token after advancing.
+  // when the user edits the token after advancing. Typing a token also means
+  // "new bot", so drop any connected-server selection.
   useEffect(() => {
     setGuildId('');
     setGuildName('');
     setChannels([]);
+    setExistingBotId('');
   }, [token]);
 
   /** Create the Discord integration from the wizard values. */
   const onSubmit = async (values: FormValues) => {
-    if (!currentValidation?.valid || !channels.length) {
+    // New bot needs a valid token; existing-server mode reuses the source bot's.
+    if ((!isExistingMode && !currentValidation?.valid) || !channels.length) {
       return;
     }
-
-    const multi = channels.length > 1;
 
     try {
       // One inbox integration per Discord channel (all sharing the same bot
       // token) so each channel can route to this Team Inbox channel.
       for (const channel of channels) {
         const channelName = channel.label.replace(/^#/, '');
+        // Always suffix the channel — single or batch — so every integration is
+        // identifiable by its channel and the sidebar can parse "#channel" (and
+        // the shared name prefix) from it consistently.
+        const displayName = `${values.name} - #${channelName}`;
         await addIntegration({
           variables: {
             kind: IntegrationType.DISCORD_MESSENGER,
-            name: multi ? `${values.name} - #${channelName}` : values.name,
+            name: displayName,
             channelId: inboxChannelId as string,
             brandId: values.brandId,
             data: {
-              name: multi ? `${values.name} - #${channelName}` : values.name,
-              token,
-              applicationId: currentValidation.applicationId,
+              name: displayName,
+              // Existing server: reference the source bot so the backend reuses
+              // its token/application id. New bot: pass the validated token.
+              ...(isExistingMode
+                ? { sourceBotId: existingBotId }
+                : {
+                    token,
+                    applicationId: currentValidation?.applicationId,
+                  }),
               guildId: guildId || undefined,
               guildName: guildName || undefined,
               channelId: channel.value,
@@ -314,6 +391,58 @@ export const DiscordIntegrationDetail = () => {
                           Add this bot to a server
                         </a>
                       )}
+
+                      {connectedServers.length > 0 && (
+                        <div className="flex flex-col gap-2 pt-2">
+                          <div className="flex items-center gap-2">
+                            <div className="h-px flex-1 bg-border" />
+                            <span className="text-xs text-muted-foreground">
+                              or
+                            </span>
+                            <div className="h-px flex-1 bg-border" />
+                          </div>
+                          <label
+                            htmlFor="discord-connected-server"
+                            className="text-sm font-medium"
+                          >
+                            Add channels to a connected server
+                          </label>
+                          <Select
+                            value=""
+                            onValueChange={(botId) => {
+                              const server = connectedServers.find(
+                                (s) => s.botId === botId,
+                              );
+                              if (!server) return;
+                              // Jump straight to channel picking with this
+                              // server's token resolved server-side.
+                              setChannels([]);
+                              setGuildId(server.guildId);
+                              setGuildName(server.guildName || '');
+                              setExistingBotId(botId);
+                              setStep(3);
+                            }}
+                          >
+                            <Select.Trigger id="discord-connected-server">
+                              <Select.Value placeholder="Select a connected server" />
+                            </Select.Trigger>
+                            <Select.Content>
+                              {connectedServers.map((server) => (
+                                <Select.Item
+                                  key={server.botId}
+                                  value={server.botId}
+                                >
+                                  {server.guildName || server.guildId}
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
+                          <p className="text-xs text-muted-foreground">
+                            Skip the token step and pick more channels for a bot
+                            you&apos;ve already connected.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -341,25 +470,21 @@ export const DiscordIntegrationDetail = () => {
                           >
                             Discord channels
                           </label>
-                          {discordChannels.length > 0 && (
+                          {channelOptions.length > 0 && (
                             <Button
                               type="button"
                               variant="ghost"
                               size="sm"
                               className="h-auto px-1 text-xs text-primary"
                               onClick={() => {
-                                const allOptions = discordChannels.map((c) => ({
-                                  value: c.id,
-                                  label: `#${c.name}`,
-                                }));
                                 setChannels(
-                                  channels.length === allOptions.length
+                                  channels.length === channelOptions.length
                                     ? []
-                                    : allOptions,
+                                    : channelOptions,
                                 );
                               }}
                             >
-                              {channels.length === discordChannels.length
+                              {channels.length === channelOptions.length
                                 ? 'Clear all'
                                 : 'Select all'}
                             </Button>
@@ -369,10 +494,20 @@ export const DiscordIntegrationDetail = () => {
                           inputProps={{ id: 'discord-channels' }}
                           value={channels}
                           onChange={setChannels}
-                          options={discordChannels.map((c) => ({
-                            value: c.id,
-                            label: `#${c.name}`,
-                          }))}
+                          options={channelOptions}
+                          groupBy="category"
+                          commandProps={{
+                            // Match the search against the channel name, not the
+                            // id the option value holds.
+                            filter: (value, search) => {
+                              const label = channelLabelById.get(value) ?? '';
+                              return label
+                                .toLowerCase()
+                                .includes(search.trim().toLowerCase())
+                                ? 1
+                                : 0;
+                            },
+                          }}
                           placeholder={
                             channelsLoading
                               ? 'Loading channels…'
@@ -399,8 +534,8 @@ export const DiscordIntegrationDetail = () => {
                               <Input {...field} />
                             </Form.Control>
                             <Form.Description>
-                              Used as-is for a single channel, or as a prefix
-                              when several are selected.
+                              Used as a prefix; each integration is named
+                              “{'{name}'} - #channel”.
                             </Form.Description>
                             <Form.Message />
                           </Form.Item>
@@ -443,7 +578,19 @@ export const DiscordIntegrationDetail = () => {
                   className="bg-border"
                   type="button"
                   disabled={step === 1}
-                  onClick={() => setStep((s) => s - 1)}
+                  onClick={() => {
+                    // In existing-server mode step 2 was skipped, so go back to
+                    // the start and drop the connected-server selection.
+                    if (isExistingMode) {
+                      setExistingBotId('');
+                      setGuildId('');
+                      setGuildName('');
+                      setChannels([]);
+                      setStep(1);
+                      return;
+                    }
+                    setStep((s) => s - 1);
+                  }}
                 >
                   Previous step
                 </Button>

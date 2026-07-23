@@ -45,6 +45,8 @@ export const types = `
     id: String!
     name: String
     type: Int
+    parentId: String
+    parentName: String
   }
 
   # The Discord channel a given inbox conversation originated from, so the
@@ -77,6 +79,16 @@ export const types = `
     guildId: String!
     name: String
     integrationIds: [String!]!
+  }
+
+  # A Discord server already connected to a given inbox channel, with a
+  # representative bot whose token resolves that server's channels server-side —
+  # backs the connect wizard's "add channels to a connected server" picker,
+  # scoped to one inbox channel.
+  type DiscordConnectedServer {
+    guildId: String!
+    guildName: String
+    botId: String!
   }
 `;
 
@@ -115,6 +127,8 @@ export const queries = `
   discordConversationChannels(conversationIds: [String!]!): [DiscordConversationChannel]
   discordConversationParticipants(conversationId: String!): [DiscordParticipant]
   discordServers: [DiscordServer]
+  discordConnectedServers(channelId: String!): [DiscordConnectedServer]
+  discordTakenChannels(channelId: String!): [String]
 `;
 
 export const mutations = `

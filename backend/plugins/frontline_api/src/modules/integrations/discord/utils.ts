@@ -750,9 +750,23 @@ export const getMessage = (
   });
 };
 
+// Minimal guild-channel shape we read off the (unionized) APIChannel: the
+// Discord `GET /guilds/{id}/channels` response only ever returns guild channels,
+// which all carry `position`/`parent_id`, but the union doesn't know that.
+type GuildChannelLike = {
+  id: string;
+  name?: string;
+  type: ChannelType;
+  position?: number;
+  parent_id?: string | null;
+};
+
 /**
  * Lists a guild's channels, filtered to the text channels a bot can read/post
- * in, to populate the channel picker.
+ * in, to populate the channel picker. Each is enriched with its category
+ * (`parent_id` → name) and returned in Discord's own display order — categories
+ * by position, channels by position within, uncategorized floated to the top —
+ * so the picker can group channels under their category headers.
  * https://discord.com/developers/docs/resources/guild#get-guild-channels
  */
 export const listGuildChannels = async (token: string, guildId: string) => {
@@ -762,9 +776,35 @@ export const listGuildChannels = async (token: string, guildId: string) => {
     path: `/guilds/${guildId}/channels`,
   });
 
-  return (Array.isArray(channels) ? channels : []).filter((c) =>
-    ROUTABLE_CHANNEL_TYPES.has(c?.type),
-  );
+  const all = (Array.isArray(channels) ? channels : []) as GuildChannelLike[];
+
+  // Category (type 4) → name/position, for grouping and ordering the picker.
+  const categories = new Map<string, { name: string; position: number }>();
+  for (const c of all) {
+    if (c.type === ChannelType.GuildCategory) {
+      categories.set(c.id, { name: c.name ?? '', position: c.position ?? 0 });
+    }
+  }
+
+  return all
+    .filter((c) => ROUTABLE_CHANNEL_TYPES.has(c.type))
+    .map((c) => {
+      const parentId = c.parent_id ?? undefined;
+      const category = parentId ? categories.get(parentId) : undefined;
+      return {
+        id: c.id,
+        name: c.name,
+        type: c.type,
+        position: c.position ?? 0,
+        parentId,
+        parentName: category?.name,
+        // Uncategorized channels sort above every category, like Discord.
+        parentPosition: category ? category.position : -1,
+      };
+    })
+    .sort(
+      (a, b) => a.parentPosition - b.parentPosition || a.position - b.position,
+    );
 };
 
 /**

@@ -15,7 +15,12 @@ import {
   receiveDiscordPollVote,
 } from '@/integrations/discord/controller/receiveEvents';
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
-import { getChannel, isThreadChannel } from '@/integrations/discord/utils';
+import {
+  getChannel,
+  getErrorMessage,
+  isThreadChannel,
+} from '@/integrations/discord/utils';
+import { backfillChannelHistory } from '@/integrations/discord/backfill';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
 const { NODE_ENV } = process.env;
@@ -102,6 +107,41 @@ const resolveParentId = async (
   // never changes, so this is safe to keep for the process lifetime.
   channelParentCache.set(channelId, parentId);
   return parentId;
+};
+
+/**
+ * Retries a history backfill that was deferred at create time because the bot
+ * couldn't read the channel (a private channel whose access was granted later).
+ * Called after every live message: the flag is claimed atomically — only the
+ * update that flips `backfillPending` from true proceeds — so a burst of
+ * messages after access is granted triggers a single backfill, not one per
+ * message. The backfill itself runs in the background so it never delays live
+ * ingest; if it's still blocked it re-arms the flag for the next message.
+ */
+const retryPendingBackfill = async (
+  models: IModels,
+  subdomain: string,
+  bot: IDiscordBotDocument,
+) => {
+  if (!bot.health?.backfillPending) {
+    return;
+  }
+
+  const claimed = await models.DiscordBots.findOneAndUpdate(
+    { _id: bot._id, 'health.backfillPending': true },
+    { $set: { 'health.backfillPending': false } },
+    { new: true },
+  );
+
+  if (!claimed) {
+    return; // another message already claimed the retry
+  }
+
+  backfillChannelHistory({ models, subdomain, bot: claimed }).catch((e) =>
+    debugError(
+      `Discord pending backfill retry failed for ${bot._id}: ${getErrorMessage(e)}`,
+    ),
+  );
 };
 
 /**
@@ -193,6 +233,11 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
           const bot = await resolveBot(activity.channelId);
           if (!bot) return; // no integration for this Discord channel
           await receiveDiscordMessage({ models, subdomain, bot, activity });
+          // A live message only reaches us once the bot can read the channel, so
+          // this is the moment a previously-blocked (private-channel) backfill
+          // becomes possible — retry it once to pull the history sent before
+          // access was granted.
+          await retryPendingBackfill(models, subdomain, bot);
         } catch (e) {
           debugError(
             `Discord message routing failed: ${(e as Error).message}`,

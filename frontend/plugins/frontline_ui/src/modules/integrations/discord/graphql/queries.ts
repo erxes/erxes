@@ -27,13 +27,15 @@ export const DISCORD_GUILDS = gql`
   }
 `;
 
-// Text channels of a guild — feeds the channel multi-select.
+// Text channels of a guild — feeds the channel multi-select. `parentName` is
+// the Discord category the channel sits under, used to group the picker.
 export const DISCORD_GUILD_CHANNELS = gql`
   query DiscordGuildChannels($token: String!, $guildId: String!) {
     discordGuildChannels(token: $token, guildId: $guildId) {
       id
       name
       type
+      parentName
     }
   }
 `;
@@ -51,6 +53,29 @@ export const DISCORD_BOTS = gql`
   }
 `;
 
+// Discord servers already connected to a given inbox channel, each with a
+// representative bot id — feeds the wizard's "add channels to a connected
+// server" picker. Scoped to the inbox channel, resolved server-side, so the
+// client never loads every bot in the system.
+export const DISCORD_CONNECTED_SERVERS = gql`
+  query DiscordConnectedServers($channelId: String!) {
+    discordConnectedServers(channelId: $channelId) {
+      guildId
+      guildName
+      botId
+    }
+  }
+`;
+
+// The Discord channel ids already added to a given inbox channel — lets the
+// wizard hide already-routed channels from the picker without paging every
+// integration on the channel client-side.
+export const DISCORD_TAKEN_CHANNELS = gql`
+  query DiscordTakenChannels($channelId: String!) {
+    discordTakenChannels(channelId: $channelId)
+  }
+`;
+
 // Routable channels for a given bot (token resolved server-side) — feeds the
 // channel dropdown when sending to a specific channel.
 export const DISCORD_BOT_CHANNELS = gql`
@@ -59,6 +84,7 @@ export const DISCORD_BOT_CHANNELS = gql`
       id
       name
       type
+      parentName
     }
   }
 `;

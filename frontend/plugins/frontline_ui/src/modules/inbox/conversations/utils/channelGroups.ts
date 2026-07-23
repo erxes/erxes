@@ -26,3 +26,18 @@ export const channelLabelFromIntegration = (
 
   return integration.name || integration.channel?.name || 'Other';
 };
+
+/**
+ * The group an integration was created under, parsed from the leading part of
+ * its name: several channels added together are named "<group> - #channel", so
+ * the text before " - #" is the shared group (typically the Discord category
+ * the user named the batch after). Falls back to the whole name for a
+ * single-channel integration (no shared prefix) so it still has a home.
+ */
+export const channelGroupFromIntegration = (
+  integration?: IIntegration,
+): string => {
+  const name = integration?.name?.trim() || '';
+  const prefixMatch = name.match(/^(.*?)\s*-\s*#/);
+  return (prefixMatch ? prefixMatch[1].trim() : name) || 'Other';
+};

@@ -15,6 +15,7 @@ export interface IDiscordBotModel extends Model<IDiscordBotDocument> {
   getBots(
     filter: FilterQuery<IDiscordBotDocument>,
   ): Promise<IDiscordBotDocument[]>;
+  getBotsByInboxChannel(channelId: string): Promise<IDiscordBotDocument[]>;
   createBot(
     doc: IDiscordBot & { createdBy: string; channelIds?: string[] },
   ): Promise<IDiscordBotDocument>;
@@ -53,6 +54,37 @@ export const loadDiscordBotClass = (models: IModels) => {
       filter: FilterQuery<IDiscordBotDocument>,
     ): Promise<IDiscordBotDocument[]> {
       return models.DiscordBots.find(filter).sort({ createdAt: -1 }).exec();
+    }
+
+    /**
+     * The Discord bots whose inbox integration lives on the given inbox channel,
+     * newest first. The inbox channel isn't stored on the bot — only its
+     * integration id (`erxesApiId`) is — so we resolve it through the Discord
+     * integrations on that channel. Lets the connect wizard scope its
+     * connected-server picker and taken-channel filter to one channel instead of
+     * loading every bot in the system and paging every integration client-side.
+     */
+    public static async getBotsByInboxChannel(
+      channelId: string,
+    ): Promise<IDiscordBotDocument[]> {
+      if (!channelId) {
+        return [];
+      }
+
+      const integrationIds = await models.Integrations.find({
+        kind: DISCORD_INBOX_KIND,
+        channelId,
+      }).distinct('_id');
+
+      if (!integrationIds.length) {
+        return [];
+      }
+
+      return models.DiscordBots.find({
+        erxesApiId: { $in: integrationIds },
+      })
+        .sort({ createdAt: -1 })
+        .exec();
     }
 
     /** Create a bot, validate its token, then spin up its inbox integration. */
@@ -130,7 +162,15 @@ export const loadDiscordBotClass = (models: IModels) => {
       const setHealth = async (health: IDiscordBotDocument['health']) =>
         (await models.DiscordBots.findOneAndUpdate(
           { _id },
-          { $set: { health } },
+          {
+            $set: {
+              // Carry over the deferred-backfill flag: this overwrites the whole
+              // `health` object, so without preserving it a token re-validation
+              // (e.g. repair) would drop a pending private-channel backfill and
+              // the first-message retry would never fire.
+              health: { ...health, backfillPending: bot.health?.backfillPending },
+            },
+          },
           { new: true },
         )) as IDiscordBotDocument;
 

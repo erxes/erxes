@@ -14,6 +14,12 @@ export interface IDiscordBotHealth {
   botUsername?: string;
   lastVerifiedAt?: Date;
   lastError?: string;
+  // Set when the create-time history backfill was blocked because the bot could
+  // not read the channel yet (e.g. a private channel access hasn't been granted
+  // for). The first live message — which Discord only delivers once access IS
+  // granted — retries the backfill and clears this. See backfillChannelHistory
+  // and retryPendingBackfill.
+  backfillPending?: boolean;
 }
 
 export interface IDiscordBot {

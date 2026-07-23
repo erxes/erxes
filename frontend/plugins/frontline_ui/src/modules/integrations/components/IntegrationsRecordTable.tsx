@@ -1,12 +1,19 @@
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
+  Button,
+  CommandBar,
   Input,
   RecordTable,
   RecordTableInlineCell,
   PopoverScoped,
   Empty,
+  Separator,
+  Spinner,
+  toast,
+  useConfirm,
 } from 'erxes-ui';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { IIntegrationDetail } from '../types/Integration';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
@@ -16,13 +23,18 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
-import { IconMessagesOff } from '@tabler/icons-react';
+import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
+import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
 
 export const IntegrationsRecordTable = () => {
   const params = useParams();
-  const columns = useIntegrationTypeColumns();
+  // Bulk selection/removal is a Discord-only affordance for now — other
+  // integration types keep the plain, single-row table.
+  const isDiscord =
+    params?.integrationType === IntegrationType.DISCORD_MESSENGER;
+  const columns = useIntegrationTypeColumns(isDiscord);
 
   const { integrations, loading, handleFetchMore } = useIntegrations({
     variables: {
@@ -59,7 +71,9 @@ export const IntegrationsRecordTable = () => {
     <RecordTable.Provider
       columns={columns}
       data={(integrations || []).filter((integration) => integration)}
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={
+        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
+      }
     >
       <RecordTable.Scroll>
         <RecordTable className="w-full">
@@ -76,7 +90,77 @@ export const IntegrationsRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isDiscord && <IntegrationsCommandBar />}
     </RecordTable.Provider>
+  );
+};
+
+/**
+ * Floating action bar shown while rows are selected: bulk-removes the selected
+ * integrations. Header checkbox selects the whole page, so "select all → delete"
+ * covers deleting every integration at once. Each removal goes through the
+ * normal `integrationsRemove` path (per-service teardown — Discord closes its
+ * gateway and deletes its bot), so nothing is left orphaned; the list refetches
+ * once after the batch.
+ */
+const IntegrationsCommandBar = () => {
+  const { t } = useTranslation('frontline');
+  const { table } = RecordTable.useRecordTable();
+  const { confirm } = useConfirm();
+  const client = useApolloClient();
+  const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION);
+
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const ids = selectedRows.map((row) => row.original._id as string);
+
+  const handleDelete = () => {
+    confirm({
+      message: `Delete ${ids.length} selected integration(s)? This can't be undone.`,
+    }).then(async () => {
+      try {
+        for (const id of ids) {
+          await removeIntegration({ variables: { id } });
+        }
+        // Clear the selection before refetching the list. After the refetch the
+        // deleted rows are gone from the table, so toggling the now-stale
+        // selected row objects makes TanStack's getRow throw ("could not find
+        // row with ID"). resetRowSelection clears the selection state directly,
+        // without any per-row lookup.
+        table.resetRowSelection();
+        await client.refetchQueries({ include: ['Integrations'] });
+        toast({
+          title: t('success'),
+          variant: 'success',
+          description: `${ids.length} integration(s) removed`,
+        });
+      } catch (e) {
+        toast({
+          title: t('error'),
+          description: (e as Error)?.message,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  return (
+    <CommandBar open={selectedRows.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>
+          {t('n-selected', { count: selectedRows.length })}
+        </CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          disabled={loading}
+          onClick={handleDelete}
+        >
+          {loading ? <Spinner /> : <IconTrash />}
+          {t('delete')}
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
   );
 };
 
@@ -131,10 +215,16 @@ export const BrandField = ({
   return null;
 };
 
-export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => {
+export const useIntegrationTypeColumns = (
+  withSelection = false,
+): ColumnDef<IIntegrationDetail>[] => {
   const { t } = useTranslation('frontline');
   return [
     integrationMoreColumn(),
+    // Row-selection checkbox only when bulk actions are enabled (Discord).
+    ...(withSelection
+      ? [RecordTable.checkboxColumn as ColumnDef<IIntegrationDetail>]
+      : []),
     {
       id: 'name',
       accessorKey: 'name',
