@@ -28,7 +28,6 @@ export const NavigationPanel = ({
         <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">
           {title}
         </span>
-        <Sidebar.Trigger className="size-6 text-accent-foreground" />
       </header>
       {isSettings ? (
         <SettingsSidebar hideExit />

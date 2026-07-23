@@ -3,7 +3,7 @@ import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { AppPath } from '@/types/paths/AppPath';
-import { activePluginState, Sidebar } from 'erxes-ui';
+import { activePluginState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -11,14 +11,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
-  const { open, setOpen } = Sidebar.useSidebar();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const isSettings = pathname.includes(`/${AppPath.Settings}`);
   const routeActivity = findNavigationActivityByPath(activities, pathname);
   const activeActivity =
-    activities.find((activity) => activity.id === activeActivityId) ||
     routeActivity ||
+    activities.find((activity) => activity.id === activeActivityId) ||
     activities[0];
 
   useEffect(() => {
@@ -46,17 +45,6 @@ export const MainNavigationBar = () => {
   ]);
 
   const handleSelectActivity = (activity: (typeof activities)[number]) => {
-    if (!isSettings && activity.id === activeActivityId) {
-      setOpen(!open);
-      return;
-    }
-
-    setActiveActivityId(activity.id);
-
-    if (isSettings) {
-      setOpen(true);
-    }
-
     navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
   };
 

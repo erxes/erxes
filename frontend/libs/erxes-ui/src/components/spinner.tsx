@@ -1,5 +1,6 @@
 import { cn } from 'erxes-ui/lib';
 import { VariantProps, cva } from 'class-variance-authority';
+import { useLoadingIndicator } from './loading-context';
 
 const spinnerVariants = cva(
   'flex-col items-center justify-center flex-auto h-full',
@@ -43,6 +44,10 @@ export function Spinner({
   className,
   containerClassName,
 }: SpinnerContentProps) {
+  const isVisible = show !== false;
+
+  useLoadingIndicator(isVisible);
+
   return (
     <div className={cn(spinnerVariants({ show }), containerClassName)}>
       <div className={cn(loaderVariants({ size }), className)}>

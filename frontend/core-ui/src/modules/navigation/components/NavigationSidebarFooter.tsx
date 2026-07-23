@@ -4,7 +4,7 @@ import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { User } from '@/navigation/components/User';
 import { AppPath } from '@/types/paths/AppPath';
 import { IconSettings } from '@tabler/icons-react';
-import { Avatar, Button, cn, DropdownMenu, readImage, Sidebar } from 'erxes-ui';
+import { Avatar, Button, cn, DropdownMenu, readImage } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -16,7 +16,6 @@ export const NavigationSidebarFooter = ({
   isSettings: boolean;
 }) => {
   const currentUser = useAtomValue(currentUserState);
-  const { setOpen } = Sidebar.useSidebar();
   const { handleLogout } = useAuth();
   const { t: organizationT } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
@@ -27,7 +26,10 @@ export const NavigationSidebarFooter = ({
     <div className="flex flex-col items-center gap-1 px-1 pb-2">
       <Button
         asChild
-        className={cn('h-9 w-10 rounded-md', isSettings && 'bg-primary/10')}
+        className={cn(
+          'size-10 rounded-md [&>svg]:size-5!',
+          isSettings && 'bg-primary/10',
+        )}
         size="icon"
         title={organizationT('settings')}
         variant="ghost"
@@ -35,11 +37,10 @@ export const NavigationSidebarFooter = ({
         <Link
           aria-label={organizationT('settings')}
           to={`/${AppPath.Settings}`}
-          onClick={() => setOpen(true)}
         >
           <IconSettings
             className={cn(
-              'size-[18px] text-accent-foreground',
+              'size-5 text-accent-foreground',
               isSettings && 'text-primary',
             )}
           />
@@ -49,12 +50,12 @@ export const NavigationSidebarFooter = ({
         <DropdownMenu.Trigger asChild>
           <Button
             aria-label={sidebarT('profile')}
-            className="size-9 rounded-md"
+            className="size-10 rounded-md"
             size="icon"
             title={userName}
             variant="ghost"
           >
-            <Avatar className="size-7">
+            <Avatar className="size-6">
               <Avatar.Image
                 src={readImage(userDetails?.avatar || '')}
                 alt={userName}

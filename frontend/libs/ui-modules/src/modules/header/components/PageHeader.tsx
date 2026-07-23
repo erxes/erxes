@@ -37,8 +37,6 @@ export const PageHeaderStart = React.forwardRef<
       className={cn('flex items-center gap-2 flex-none pr-8', className)}
       {...props}
     >
-      <Sidebar.Trigger />
-      <Separator.Inline />
       {children}
     </div>
   );

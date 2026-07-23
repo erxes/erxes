@@ -15,6 +15,12 @@
   "core-modules": {
     "_": "Core modules",
     "contacts": "Contacts",
+    "customers": "Customers",
+    "leads": "Leads",
+    "companies": "Companies",
+    "client-portal-users": "Client Portal Users",
+    "vendors": "Vendors",
+    "clients": "Clients",
     "segments": "Segments",
     "automations": "Automations",
     "documents": "Documents",

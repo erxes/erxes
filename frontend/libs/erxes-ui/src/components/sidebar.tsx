@@ -69,6 +69,7 @@ const SidebarProvider = React.forwardRef<
     onCollapseStateChange?: (state: CollapseState) => void;
     sidebarKeyboardShortcut?: string | false;
     sidebarWidth?: string;
+    sidebarWidthIcon?: string;
   }
 >(
   (
@@ -81,6 +82,7 @@ const SidebarProvider = React.forwardRef<
       onCollapseStateChange,
       sidebarKeyboardShortcut = SIDEBAR_KEYBOARD_SHORTCUT,
       sidebarWidth = SIDEBAR_WIDTH,
+      sidebarWidthIcon = SIDEBAR_WIDTH_ICON,
       className,
       style,
       children,
@@ -197,7 +199,7 @@ const SidebarProvider = React.forwardRef<
               {
                 '--sidebar-width': sidebarWidth,
                 '--sidebar-width-compact': SIDEBAR_WIDTH_COMPACT,
-                '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
+                '--sidebar-width-icon': sidebarWidthIcon,
                 ...style,
               } as React.CSSProperties
             }

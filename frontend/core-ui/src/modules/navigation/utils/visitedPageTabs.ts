@@ -21,6 +21,42 @@ export const normalizeVisitedPagePathname = (pathname: string) => {
 export const shouldTrackVisitedPage = (pathname: string) =>
   normalizeVisitedPagePathname(pathname) !== ROOT_PATHNAME;
 
+const isVisitedPageTab = (value: unknown): value is IVisitedPageTab =>
+  typeof value === 'object' &&
+  value !== null &&
+  'pathname' in value &&
+  typeof value.pathname === 'string';
+
+export const normalizeVisitedPageTabs = (
+  value: unknown,
+): IVisitedPageTab[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const seenPathnames = new Set<string>();
+
+  return value.reduce<IVisitedPageTab[]>((tabs, tab) => {
+    if (!isVisitedPageTab(tab)) {
+      return tabs;
+    }
+
+    const pathname = normalizeVisitedPagePathname(tab.pathname);
+
+    if (
+      !shouldTrackVisitedPage(pathname) ||
+      seenPathnames.has(pathname)
+    ) {
+      return tabs;
+    }
+
+    seenPathnames.add(pathname);
+    tabs.push({ pathname });
+
+    return tabs;
+  }, []);
+};
+
 const getNavigationModules = (
   modules: IVisitedPageNavigationModule[],
 ): IVisitedPageNavigationModule[] =>
@@ -100,51 +136,108 @@ export const getVisitedPageTabLabel = (
     .replace(/^\//, '');
 
   if (!remainingPath) {
-    return matchingModule.name;
+    return toTitleCase(matchingModule.name);
   }
 
-  const remainingLabel = remainingPath
-    .split('/')
-    .map((segment) => toRouteSegmentLabel(segment, labels.details))
-    .join(' / ');
+  const remainingSegments = remainingPath.split('/');
+  const currentPageSegment =
+    remainingSegments[remainingSegments.length - 1];
 
-  return `${matchingModule.name} · ${remainingLabel}`;
+  return toRouteSegmentLabel(currentPageSegment, labels.details);
 };
 
-export const getVisitedPageTabIcon = (
-  pathname: string,
-  modules: IVisitedPageNavigationModule[],
-) => getMatchingNavigationModule(pathname, modules)?.icon;
+export const getVisitedPageTabTitle = (
+  pageLabel: string,
+  pluginLabel?: string,
+) => (pluginLabel ? `${pluginLabel} | ${pageLabel}` : pageLabel);
 
 export const addVisitedPageTab = (
-  tabs: IVisitedPageTab[],
+  tabs: unknown,
   pathname: string,
 ) => {
+  const normalizedTabs = normalizeVisitedPageTabs(tabs);
   const normalizedPathname = normalizeVisitedPagePathname(pathname);
 
   if (
     !shouldTrackVisitedPage(normalizedPathname) ||
-    tabs.some((tab) => tab.pathname === normalizedPathname)
+    normalizedTabs.some((tab) => tab.pathname === normalizedPathname)
   ) {
-    return tabs;
+    return normalizedTabs;
   }
 
-  return [...tabs, { pathname: normalizedPathname }];
+  return [...normalizedTabs, { pathname: normalizedPathname }];
 };
 
 export const removeVisitedPageTab = (
-  tabs: IVisitedPageTab[],
+  tabs: unknown,
   pathname: string,
-) => tabs.filter((tab) => tab.pathname !== pathname);
+) => {
+  const normalizedPathname = normalizeVisitedPagePathname(pathname);
+
+  return normalizeVisitedPageTabs(tabs).filter(
+    (tab) => tab.pathname !== normalizedPathname,
+  );
+};
+
+export const visitVisitedPageTab = (
+  tabs: unknown,
+  pathname: string,
+  replacedPathname?: string,
+) => {
+  const normalizedTabs = normalizeVisitedPageTabs(tabs);
+  const normalizedPathname = normalizeVisitedPagePathname(pathname);
+
+  if (!shouldTrackVisitedPage(normalizedPathname)) {
+    return normalizedTabs;
+  }
+
+  const normalizedReplacedPathname = replacedPathname
+    ? normalizeVisitedPagePathname(replacedPathname)
+    : undefined;
+
+  if (
+    normalizedReplacedPathname &&
+    normalizedReplacedPathname !== normalizedPathname
+  ) {
+    const replacedTabIndex = normalizedTabs.findIndex(
+      (tab) => tab.pathname === normalizedReplacedPathname,
+    );
+
+    if (replacedTabIndex >= 0) {
+      const destinationAlreadyOpen = normalizedTabs.some(
+        (tab) => tab.pathname === normalizedPathname,
+      );
+
+      if (destinationAlreadyOpen) {
+        return normalizedTabs.filter(
+          (_, index) => index !== replacedTabIndex,
+        );
+      }
+
+      return normalizedTabs.map((tab, index) =>
+        index === replacedTabIndex ? { pathname: normalizedPathname } : tab,
+      );
+    }
+  }
+
+  return addVisitedPageTab(normalizedTabs, normalizedPathname);
+};
 
 export const moveVisitedPageTab = (
-  tabs: IVisitedPageTab[],
+  tabs: unknown,
   pathname: string,
   destinationPathname: string,
 ) => {
-  const sourceIndex = tabs.findIndex((tab) => tab.pathname === pathname);
-  const destinationIndex = tabs.findIndex(
-    (tab) => tab.pathname === destinationPathname,
+  const normalizedTabs = normalizeVisitedPageTabs(tabs);
+  const normalizedPathname = normalizeVisitedPagePathname(pathname);
+  const normalizedDestinationPathname = normalizeVisitedPagePathname(
+    destinationPathname,
+  );
+  const sourceIndex = normalizedTabs.findIndex(
+    (tab) => tab.pathname === normalizedPathname,
+  );
+  const destinationIndex = normalizedTabs.findIndex(
+    (tab) => tab.pathname === normalizedDestinationPathname,
   );
 
   if (
@@ -152,10 +245,10 @@ export const moveVisitedPageTab = (
     destinationIndex < 0 ||
     sourceIndex === destinationIndex
   ) {
-    return tabs;
+    return normalizedTabs;
   }
 
-  const reorderedTabs = [...tabs];
+  const reorderedTabs = [...normalizedTabs];
   const [movedTab] = reorderedTabs.splice(sourceIndex, 1);
   reorderedTabs.splice(destinationIndex, 0, movedTab);
 
@@ -163,14 +256,22 @@ export const moveVisitedPageTab = (
 };
 
 export const getVisitedPageTabCloseDestination = (
-  tabs: IVisitedPageTab[],
+  tabs: unknown,
   pathname: string,
 ) => {
-  const tabIndex = tabs.findIndex((tab) => tab.pathname === pathname);
+  const normalizedTabs = normalizeVisitedPageTabs(tabs);
+  const normalizedPathname = normalizeVisitedPagePathname(pathname);
+  const tabIndex = normalizedTabs.findIndex(
+    (tab) => tab.pathname === normalizedPathname,
+  );
 
   if (tabIndex < 0) {
     return null;
   }
 
-  return tabs[tabIndex - 1]?.pathname ?? tabs[tabIndex + 1]?.pathname ?? null;
+  return (
+    normalizedTabs[tabIndex - 1]?.pathname ??
+    normalizedTabs[tabIndex + 1]?.pathname ??
+    null
+  );
 };

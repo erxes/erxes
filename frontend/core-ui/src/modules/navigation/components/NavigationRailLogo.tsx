@@ -15,13 +15,13 @@ export const NavigationRailLogo = () => {
   return (
     <Button
       asChild
-      className="mb-2 size-9 rounded-md"
+      className="mb-1 size-10 rounded-md [&>svg]:size-5!"
       size="icon"
       title={organizationName}
       variant="ghost"
     >
       <Link aria-label={t('home')} to={AppPath.Index}>
-        <OrgLogoIcon className="size-7 text-primary" />
+        <OrgLogoIcon className="size-5 text-primary" />
       </Link>
     </Button>
   );
