@@ -39,8 +39,6 @@ export const replaceDocuments = async (
       defaultValue: '',
     });
 
-    console.log({ documentHtml });
-
     const bodyHtml = getDocumentBodyHtml(String(documentHtml));
 
     if (bodyHtml) {

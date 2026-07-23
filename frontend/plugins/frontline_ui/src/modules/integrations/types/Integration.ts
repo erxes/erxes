@@ -7,6 +7,8 @@ export interface IIntegration {
   kind: string;
   channelId: string;
   channel: any;
+  // Returned by the integrations list query (GET_INTEGRATIONS_BY_KIND).
+  isActive?: boolean;
 }
 
 export interface IIntegrationDetail extends IIntegration {

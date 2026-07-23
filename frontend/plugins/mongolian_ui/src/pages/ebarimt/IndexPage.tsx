@@ -4,12 +4,14 @@ import {
   IconSettings,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const IndexPage = () => {
   const { t } = useTranslation('mongolian');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('ebarimt'));
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -27,7 +29,10 @@ export const IndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>

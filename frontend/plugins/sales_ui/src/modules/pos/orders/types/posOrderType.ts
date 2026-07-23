@@ -11,6 +11,13 @@ export type TPosOrderFormData = {
   [key: string]: number | string | undefined;
 };
 
+export interface TPosOrderItem {
+  productName?: string;
+  count?: number | string;
+  unitPrice?: number | string;
+  amount?: number;
+}
+
 export interface TPosOrder {
   _id: string;
   accountingResponse?: string;
@@ -21,6 +28,9 @@ export interface TPosOrder {
   number: string;
   customerId?: string;
   customerType?: string;
+  brokerId?: string;
+  brokerType?: string;
+  brokerName?: string;
   customer?: {
     _id: string;
     code?: string;
@@ -47,7 +57,7 @@ export interface TPosOrder {
   oldBillId?: string;
   type?: string;
   userId?: string;
-  items?: any[];
+  items?: TPosOrderItem[];
   posToken?: string;
   posName?: string;
   branchId?: string;

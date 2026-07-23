@@ -8,7 +8,7 @@ import {
   cn,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import {
@@ -39,7 +39,9 @@ import { FieldGroupDrawer } from './components/field-group-drawer/FieldGroupDraw
 import { FieldDrawer } from './components/field-drawer/FieldDrawer';
 import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
+import { useSyncedState } from './hooks/useSyncedState';
 
+/** Provides drag positioning and handle props for a custom-field group. */
 function SortableGroup({
   group,
   children,
@@ -94,11 +96,7 @@ export function CustomFields() {
 
   // Local order so a drop reflects immediately (no snap-back while the
   // persisted order round-trips); re-synced whenever the stored order changes.
-  const [orderedGroups, setOrderedGroups] = useState(groups);
-  const groupsKey = groups.map((g) => g._id).join('|');
-  useEffect(() => {
-    setOrderedGroups(groups);
-  }, [groupsKey]);
+  const [orderedGroups, setOrderedGroups] = useSyncedState(groups);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),

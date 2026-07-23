@@ -5,13 +5,23 @@ import {
   AutomationExecutionDetailProvider,
   useAutomationExecutionDetail,
 } from '@/automations/components/builder/history/context/AutomationExecutionDetailContext';
-import { AutomationHistoryDetailProvider } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
 import {
+  AutomationHistoryDetailProvider,
+  useAutomationHistoryDetail,
+} from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
+import {
+  IconArrowLeft,
   IconAutomaticGearbox,
   IconEye,
   IconTournament,
 } from '@tabler/icons-react';
-import { RecordTable, RecordTableInlineCell, Sheet, Tabs } from 'erxes-ui';
+import {
+  Button,
+  RecordTable,
+  RecordTableInlineCell,
+  Sheet,
+  Tabs,
+} from 'erxes-ui';
 import { useState } from 'react';
 
 export const AutomationHistoryDetail = ({
@@ -40,15 +50,31 @@ export const AutomationHistoryDetail = ({
 };
 
 const AutomationHistorySheetHeader = () => {
+  const { canGoBack, backToParentExecution } = useAutomationHistoryDetail();
+
   return (
     <Sheet.Header>
-      <div>
-        <div className="flex items-center gap-2">
-          <Sheet.Title>Execution history</Sheet.Title>
+      <div className="flex min-w-0 items-center gap-2">
+        {canGoBack && (
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Back to parent execution"
+            onClick={backToParentExecution}
+          >
+            <IconArrowLeft className="size-4" />
+          </Button>
+        )}
+        <div>
+          <div className="flex items-center gap-2">
+            <Sheet.Title>
+              {canGoBack ? 'Workflow run' : 'Execution history'}
+            </Sheet.Title>
+          </div>
+          <Sheet.Description>
+            View the execution log of your automation in table or flow format.
+          </Sheet.Description>
         </div>
-        <Sheet.Description>
-          View the execution log of your automation in table or flow format.
-        </Sheet.Description>
       </div>
       <Sheet.Close />
     </Sheet.Header>
@@ -67,7 +93,11 @@ const AutomationHistorySheetResultName = () => {
     </div>
   );
 };
-const AutomationHistorySheetContent = ({ isOpen }: { isOpen: boolean }) => {
+export const AutomationHistorySheetContent = ({
+  isOpen,
+}: {
+  isOpen: boolean;
+}) => {
   if (!isOpen) {
     return null;
   }

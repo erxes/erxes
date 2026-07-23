@@ -1,10 +1,49 @@
-import { TAiBridgeInvokeInput, TAiBridgeInvokeResult } from '../types';
+import {
+  TAiBridgeInvokeInput,
+  TAiBridgeInvokeResult,
+  TAiBridgeToolCall,
+} from '../types';
 import {
   buildOpenAiCompatibleChatBody,
   formatOpenAiCompatibleError,
   requestOpenAiCompatible,
 } from './request';
 import { TOpenAiCompatibleChatCompletionResponse } from './types';
+
+const safeParseJsonObject = (value: unknown): Record<string, unknown> => {
+  if (value && typeof value === 'object') {
+    return value as Record<string, unknown>;
+  }
+
+  if (typeof value !== 'string' || !value.trim()) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (_error) {
+    return {};
+  }
+};
+
+const extractToolCalls = (
+  response: TOpenAiCompatibleChatCompletionResponse | null,
+): TAiBridgeToolCall[] => {
+  const calls = (response?.choices?.[0]?.message as any)?.tool_calls;
+
+  if (!Array.isArray(calls)) {
+    return [];
+  }
+
+  return calls
+    .filter((call: any) => call?.function?.name)
+    .map((call: any, index: number) => ({
+      id: call.id || `call_${index}`,
+      name: call.function.name,
+      arguments: safeParseJsonObject(call.function.arguments),
+    }));
+};
 
 const extractTextValue = (value: unknown): string => {
   if (typeof value === 'string') {
@@ -118,6 +157,7 @@ export const invokeOpenAiCompatible = async (
         runtime: input.runtime,
         messages: input.messages,
         responseFormat,
+        tools: input.tools,
       }),
     });
 
@@ -133,13 +173,16 @@ export const invokeOpenAiCompatible = async (
   }
 
   const text = extractResponseText(response.json);
+  const toolCalls = extractToolCalls(response.json);
 
-  if (!text) {
+  // Tool-call turns legitimately carry no visible text
+  if (!text && !toolCalls.length) {
     throw new Error(formatEmptyResponseError(response.json));
   }
 
   return {
     text,
+    ...(toolCalls.length ? { toolCalls } : {}),
     raw: response.json,
     usage: {
       inputTokens: response.json?.usage?.prompt_tokens,

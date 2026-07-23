@@ -414,6 +414,7 @@ const FacebookSelectedCardTitleField = () => {
 
       <Input
         value={selectedCard.title ?? ''}
+        maxLength={80}
         onChange={(e) =>
           updateSelectedCard({
             title: e.currentTarget.value,
@@ -439,6 +440,7 @@ const FacebookSelectedCardSubtitleField = () => {
 
       <Textarea
         value={selectedCard.subtitle ?? ''}
+        maxLength={80}
         onChange={(e) =>
           updateSelectedCard({
             subtitle: e.currentTarget.value,

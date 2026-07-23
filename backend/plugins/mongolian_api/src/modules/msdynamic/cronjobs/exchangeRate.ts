@@ -68,7 +68,7 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
       },
     ).then((res) => res.json());
 
-    // ✅ Hardened handling of price API response
+    // Hardened handling of price API response
     const groupedItems: Record<string, any[]> = {};
 
     if (Array.isArray(response?.value) && response.value.length > 0) {

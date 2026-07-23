@@ -62,7 +62,10 @@ export const ScoreDetailSheet = ({
 
     return (
       <div className="rounded-md overflow-hidden">
-        <RecordTable.Provider columns={scoreDetailColumns} data={logs}>
+        <RecordTable.Provider
+          columns={scoreDetailColumns(t)}
+          data={logs}
+        >
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>

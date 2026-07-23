@@ -162,6 +162,14 @@ export const generateAutomationHistoriesFilter = (params: any) => {
     filter.targetId = { $in: targetIds };
   }
 
+  // Workflow child executions are opened from within their parent execution;
+  // the main history list shows only root executions.
+  if (params.parentExecutionId) {
+    filter.parentExecutionId = params.parentExecutionId;
+  } else {
+    filter.parentExecutionId = { $exists: false };
+  }
+
   return filter;
 };
 

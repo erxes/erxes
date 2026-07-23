@@ -106,7 +106,6 @@ export const generateFilter = async (
   }
 
   if (assignedUserIds) {
-    // Filter by assigned to no one
     const notAssigned = isListEmpty(assignedUserIds);
 
     filter.assignedUserIds = notAssigned ? [] : { $in: assignedUserIds };
@@ -371,8 +370,7 @@ export const generateFilter = async (
     filter.tagIds = { $in: tagIds };
   }
 
-  // Pipeline user/department permission check — internal users only.
-  // CP users are not erxes users so this block must be skipped for client portal.
+
   if (pipelineId && !forClientPortal) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
 

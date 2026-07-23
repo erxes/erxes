@@ -1,6 +1,6 @@
 import { IconCashRegister, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { usePosList } from '@/pos/hooks/usePosList';
 
 export const PosIndexPage = () => {
   const { t } = useTranslation('sales');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('pos'));
   const navigate = useNavigate();
   const { posList, loading } = usePosList();
 
@@ -35,7 +36,10 @@ export const PosIndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconCashRegister"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
