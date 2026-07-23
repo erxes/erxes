@@ -90,32 +90,6 @@ export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
   ) {
     return models.CPUser.findOne({ _id }).lean();
   },
-  async checkTokiUserLegalAge(_root, { token }, { clientPortal }: IContext) {
-    const { apiUrl, apiKey } = getTokiConnection(clientPortal);
-    const response = await fetch(
-      `${apiUrl}/third-party-service/v1/shoppy/user`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          'api-key': apiKey,
-        },
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error('Unable to check Toki user age');
-    }
-
-    const { data = {} } = await response.json();
-
-    if (typeof data?.isAdult21 === 'boolean') {
-      return data.isAdult21;
-    }
-
-    return data?.isAdult === true;
-  },
 };
 
 cpUserQueries.clientPortalCurrentUser.wrapperConfig = {

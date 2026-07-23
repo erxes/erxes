@@ -92,7 +92,9 @@ export const clientPortalMutations = {
     }
 
     const invoiceResponse = await fetch(
-      `${apiUrl}/third-party-service/v1/payment-request/status?requestId=${encodeURIComponent(transactionId)}`,
+      `${apiUrl}/third-party-service/v1/payment-request/status?requestId=${encodeURIComponent(
+        transactionId,
+      )}`,
       {
         method: 'GET',
         headers: {
