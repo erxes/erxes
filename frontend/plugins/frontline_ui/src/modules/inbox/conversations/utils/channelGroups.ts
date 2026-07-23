@@ -38,6 +38,11 @@ export const channelGroupFromIntegration = (
   integration?: IIntegration,
 ): string => {
   const name = integration?.name?.trim() || '';
-  const prefixMatch = name.match(/^(.*?)\s*-\s*#/);
-  return (prefixMatch ? prefixMatch[1].trim() : name) || 'Other';
+  // Names are always "<group> - #<channel>" (the wizard joins with " - #"), so
+  // the group is the text before the first " - #". indexOf on a fixed separator
+  // is linear — no regex backtracking — and falls back to the whole name when
+  // there's no separator (single-channel / renamed integrations).
+  const separatorIndex = name.indexOf(' - #');
+  const prefix = separatorIndex === -1 ? name : name.slice(0, separatorIndex);
+  return prefix.trim() || 'Other';
 };

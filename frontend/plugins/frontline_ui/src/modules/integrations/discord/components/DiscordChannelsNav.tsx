@@ -203,7 +203,9 @@ const DiscordServerItem = ({
     const byGroup = new Map<string, IIntegration[]>();
     const loose: IIntegration[] = [];
     for (const integration of group.integrations) {
-      if (/-\s*#/.test(integration.name || '')) {
+      // Same fixed " - #" separator channelGroupFromIntegration keys on, so the
+      // grouped/loose split and the derived key never disagree.
+      if ((integration.name || '').includes(' - #')) {
         const key = channelGroupFromIntegration(integration);
         byGroup.set(key, [...(byGroup.get(key) ?? []), integration]);
       } else {
@@ -284,7 +286,6 @@ const DiscordCategoryItem = ({
   integrations: IIntegration[];
   counts: ChannelCounts;
 }) => {
-  const [integrationId] = useQueryState<string>('integrationId');
   const totalCount = integrations.reduce(
     (sum, integration) => sum + (counts[integration._id] || 0),
     0,
