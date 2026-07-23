@@ -117,29 +117,42 @@ const IntegrationsCommandBar = () => {
     confirm({
       message: `Delete ${ids.length} selected integration(s)? This can't be undone.`,
     }).then(async () => {
-      try {
-        for (const id of ids) {
+      // Delete sequentially so N gateway/bot teardowns don't fire at once, but
+      // isolate each failure so one bad id doesn't abort the rest of the batch.
+      let failed = 0;
+      for (const id of ids) {
+        try {
           await removeIntegration({ variables: { id } });
+        } catch {
+          failed += 1;
         }
-        // Clear the selection before refetching the list. After the refetch the
-        // deleted rows are gone from the table, so toggling the now-stale
-        // selected row objects makes TanStack's getRow throw ("could not find
-        // row with ID"). resetRowSelection clears the selection state directly,
-        // without any per-row lookup.
-        table.resetRowSelection();
-        await client.refetchQueries({ include: ['Integrations'] });
-        toast({
-          title: t('success'),
-          variant: 'success',
-          description: `${ids.length} integration(s) removed`,
-        });
-      } catch (e) {
-        toast({
-          title: t('error'),
-          description: (e as Error)?.message,
-          variant: 'destructive',
-        });
       }
+
+      // Always resync, even on partial failure: any ids that DID delete are gone
+      // server-side, so the stale selected-row references would otherwise throw
+      // on the next TanStack lookup once the refetched data drops those rows.
+      // Clear the selection before refetching so no per-row lookup runs against
+      // rows that no longer exist. Guard the refetch so its own failure can't
+      // swallow the result toast.
+      table.resetRowSelection();
+      await client
+        .refetchQueries({ include: ['Integrations'] })
+        .catch(() => undefined);
+
+      const succeeded = ids.length - failed;
+      toast(
+        failed
+          ? {
+              title: t('error'),
+              description: `${succeeded} removed, ${failed} failed`,
+              variant: 'destructive',
+            }
+          : {
+              title: t('success'),
+              variant: 'success',
+              description: `${succeeded} integration(s) removed`,
+            },
+      );
     });
   };
 
