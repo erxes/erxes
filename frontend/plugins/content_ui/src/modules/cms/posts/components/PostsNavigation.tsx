@@ -88,10 +88,8 @@ export const PostsNavigation = () => {
     }
     if (pathname.includes('/posts')) {
       return {
-        path: selectedCustomType
-          ? `${basePath}/posts?type=${encodeURIComponent(
-              selectedCustomType.code,
-            )}`
+        path: selectedType
+          ? `${basePath}/posts?type=${encodeURIComponent(selectedType)}`
           : `${basePath}/posts`,
         label:
           selectedCustomType?.pluralLabel ||
@@ -106,7 +104,7 @@ export const PostsNavigation = () => {
       label: t('posts'),
       icon: IconCube,
     };
-  }, [pathname, basePath, selectedCustomType, t]);
+  }, [pathname, basePath, selectedType, selectedCustomType, t]);
 
   const Icon = currentPage.icon;
   const websiteName =

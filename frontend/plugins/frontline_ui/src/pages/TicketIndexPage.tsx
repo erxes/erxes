@@ -12,7 +12,7 @@ import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
 import { TicketBreadcrumb } from '@/ticket/components/TicketBreadcrumb';
 
-export const TicketsIndexPage = () => {
+const TicketsIndexPage = () => {
   const variables = useTicketsVariables();
 
   const getFilters = () => {
@@ -61,3 +61,5 @@ export const TicketsIndexPage = () => {
     </PageContainer>
   );
 };
+
+export default TicketsIndexPage;

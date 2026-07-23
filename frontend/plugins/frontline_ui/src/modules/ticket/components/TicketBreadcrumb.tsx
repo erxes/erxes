@@ -36,9 +36,7 @@ export const TicketBreadcrumb = () => {
       {channel && (
         <>
           <Breadcrumb.Item>
-            <Button variant="ghost" asChild>
-              <span className="flex items-center gap-1">{channel.name}</span>
-            </Button>
+            <span className="flex items-center gap-1">{channel.name}</span>
           </Breadcrumb.Item>
           <Separator.Inline />
         </>
@@ -46,12 +44,10 @@ export const TicketBreadcrumb = () => {
       {pipeline && (
         <>
           <Breadcrumb.Item>
-            <Button variant="ghost" asChild>
-              <span className="flex items-center gap-1">
-                <IconLayoutCards />
-                {pipeline.name}
-              </span>
-            </Button>
+            <span className="flex items-center gap-1">
+              <IconLayoutCards />
+              {pipeline.name}
+            </span>
           </Breadcrumb.Item>
           <Separator.Inline />
         </>
