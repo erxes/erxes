@@ -61,7 +61,6 @@ export const AUTOMATION_CORE_ACTIONS = {
 
 export const AUTOMATION_CORE_TRIGGER_TYPES = {
   INCOMING_WEBHOOK: 'core:webhooks.incoming',
-  SCHEDULE: 'core:schedules.recurring',
   USER: 'core:organization.users',
   CUSTOMER: 'core:contacts.customers',
   LEAD: 'core:contacts.leads',
