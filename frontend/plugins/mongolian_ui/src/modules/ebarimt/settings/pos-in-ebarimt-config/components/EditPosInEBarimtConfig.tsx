@@ -94,7 +94,6 @@ export const EditPosInEBarimtConfig = () => {
       await savePosInEbarimtConfig(data, 'update', detail._id);
       setOpen(null);
       setDetail(null);
-      reset();
     } catch {
       toast({
         title: t('error'),

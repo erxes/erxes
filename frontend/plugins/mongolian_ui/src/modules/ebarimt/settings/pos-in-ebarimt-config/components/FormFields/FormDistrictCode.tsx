@@ -22,13 +22,9 @@ export const FormDistrictCode = ({
   setValue,
 }: FormDistrictCodeProps) => {
   useEffect(() => {
-    if (setValue) {
-      if (branchCode && subBranchCode) {
-        const districtCode = `${branchCode}${subBranchCode}`;
-        setValue(name, districtCode);
-      } else {
-        setValue(name, '');
-      }
+    if (setValue && branchCode && subBranchCode) {
+      const districtCode = `${branchCode}${subBranchCode}`;
+      setValue(name, districtCode);
     }
   }, [branchCode, subBranchCode, name, setValue]);
 
@@ -40,7 +36,7 @@ export const FormDistrictCode = ({
         <Form.Item>
           <Form.Label>{label}</Form.Label>
           <Form.Control>
-            <Input {...field} placeholder={placeholder || label} readOnly />
+            <Input {...field} placeholder={placeholder || label} />
           </Form.Control>
           <Form.Message />
         </Form.Item>
