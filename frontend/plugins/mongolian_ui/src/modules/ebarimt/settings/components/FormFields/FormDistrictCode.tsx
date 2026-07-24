@@ -10,6 +10,14 @@ interface FormDistrictCodeProps {
   branchCode: string;
   subBranchCode: string;
   setValue?: (name: string, value: any) => void;
+  /**
+   * When true (default), the district code is reactively derived from
+   * branchCode + subBranchCode via an effect. Consumers that re-render often
+   * (e.g. the stage config with its board/pipeline/stage selects) should pass
+   * false and derive the code imperatively in their sub-province handler, so
+   * the effect does not keep overwriting the field on every re-render.
+   */
+  autoDerive?: boolean;
 }
 
 export const FormDistrictCode = ({
@@ -20,13 +28,14 @@ export const FormDistrictCode = ({
   branchCode,
   subBranchCode,
   setValue,
+  autoDerive = true,
 }: FormDistrictCodeProps) => {
   useEffect(() => {
-    if (setValue && branchCode && subBranchCode) {
+    if (autoDerive && setValue && branchCode && subBranchCode) {
       const districtCode = `${branchCode}${subBranchCode}`;
       setValue(name, districtCode);
     }
-  }, [branchCode, subBranchCode, name, setValue]);
+  }, [autoDerive, branchCode, subBranchCode, name, setValue]);
 
   return (
     <Form.Field

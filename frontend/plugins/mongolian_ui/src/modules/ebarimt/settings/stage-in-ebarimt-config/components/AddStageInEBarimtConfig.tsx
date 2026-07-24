@@ -96,6 +96,8 @@ export const AddStageInEBarimtConfig = () => {
   const handleSubBranchChange = useCallback(
     (value: string) => {
       form.setValue('subProvince', value);
+      const branchCode = form.getValues('branchOfProvince');
+      form.setValue('districtCode', branchCode ? `${branchCode}${value}` : '');
     },
     [form],
   );

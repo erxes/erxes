@@ -15,9 +15,11 @@ const refetchOptions = [
 export const useSaveStageInEbarimtConfig = () => {
   const [createConfig] = useMutation(CREATE_MN_CONFIG, {
     refetchQueries: refetchOptions,
+    awaitRefetchQueries: true,
   });
   const [updateConfig] = useMutation(UPDATE_MN_CONFIG, {
     refetchQueries: refetchOptions,
+    awaitRefetchQueries: true,
   });
   const toast = useToast();
   const { t } = useTranslation('mongolian');

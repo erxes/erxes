@@ -173,6 +173,7 @@ export const StageInEBarimtConfigFormFields = ({
             branchCode={selectedBranchCode || ''}
             subBranchCode={selectedSubBranchCode || ''}
             setValue={onSetValue}
+            autoDerive={false}
           />
         </div>
 

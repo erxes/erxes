@@ -1,14 +1,14 @@
 import { Sheet, Button, toast, useQueryState } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { posInEbarimtDetailAtom } from '@/ebarimt/settings/pos-in-ebarimt-config/states/posInEbarimtConfigStates';
+import { useQuery } from '@apollo/client';
 import {
   addEBarimtPosInConfigSchema,
   normalizeRuleIds,
   TPosInEbarimtConfig,
 } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
+import { GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { useSavePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useSavePosInEbarimtConfig';
 import { PosInEBarimtConfigFormFields } from './PosInEBarimtConfigFormFields';
 import { useTranslation } from 'react-i18next';
@@ -18,8 +18,12 @@ const FORM_ID = 'edit-pos-in-ebarimt-form';
 export const EditPosInEBarimtConfig = () => {
   const { t } = useTranslation('mongolian');
   const [open, setOpen] = useQueryState<string>('pos_in_ebarimt_id');
-  const [detail, setDetail] = useAtom(posInEbarimtDetailAtom);
   const { savePosInEbarimtConfig } = useSavePosInEbarimtConfig();
+
+  const { data } = useQuery(GET_MN_CONFIGS, {
+    variables: { code: 'posInEbarimt' },
+    skip: !open,
+  });
 
   const form = useForm<TPosInEbarimtConfig>({
     resolver: zodResolver(addEBarimtPosInConfigSchema),
@@ -51,49 +55,65 @@ export const EditPosInEBarimtConfig = () => {
 
   const { reset } = form;
 
+  // Populate the form once per config id. Depending on the resolved config
+  // object would re-run reset on every Apollo `data` reference change and wipe
+  // the user's in-progress edits, so we track the loaded id via a ref instead.
+  const loadedIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (detail) {
-      reset({
-        title: detail.title || '',
-        posId: detail.posId || '',
-        posNo: detail.posNo || '10003424',
-        companyName: detail.companyName || '',
-        companyRD: detail.companyRD || '',
-        merchantTin: detail.merchantTin || '',
-        branchOfProvince: detail.branchOfProvince || '',
-        subProvince: detail.subProvince || '',
-        districtCode: detail.districtCode || '',
-        defaultUnitedCode: detail.defaultUnitedCode || '',
-        branchNo: detail.branchNo || '',
-        hasVat: detail.hasVat || false,
-        vatPercent: detail.vatPercent || '',
-        reverseVatRules: normalizeRuleIds(detail.reverseVatRules),
-        hasCitytax: detail.hasCitytax || false,
-        citytaxPercent: detail.citytaxPercent || '',
-        reverseCtaxRules: normalizeRuleIds(detail.reverseCtaxRules),
-        headerText: detail.headerText || '',
-        footerText: detail.footerText || '',
-        withDescription: detail.withDescription || false,
-        skipEbarimt: detail.skipEbarimt || false,
-        ebarimtUrl: detail.ebarimtUrl || '',
-      });
+    if (!open) {
+      loadedIdRef.current = null;
+      return;
     }
-  }, [detail, reset]);
+    if (loadedIdRef.current === open) return;
+
+    const config = (data?.mnConfigs || []).find((c: any) => c._id === open);
+    if (!config) return;
+
+    const detail =
+      typeof config.value === 'string'
+        ? JSON.parse(config.value)
+        : config.value || {};
+    loadedIdRef.current = open;
+
+    reset({
+      title: detail.title || '',
+      posId: detail.posId || '',
+      posNo: detail.posNo || '10003424',
+      companyName: detail.companyName || '',
+      companyRD: detail.companyRD || '',
+      merchantTin: detail.merchantTin || '',
+      branchOfProvince: detail.branchOfProvince || '',
+      subProvince: detail.subProvince || '',
+      districtCode: detail.districtCode || '',
+      defaultUnitedCode: detail.defaultUnitedCode || '',
+      branchNo: detail.branchNo || '',
+      hasVat: detail.hasVat || false,
+      vatPercent: detail.vatPercent || '',
+      reverseVatRules: normalizeRuleIds(detail.reverseVatRules),
+      hasCitytax: detail.hasCitytax || false,
+      citytaxPercent: detail.citytaxPercent || '',
+      reverseCtaxRules: normalizeRuleIds(detail.reverseCtaxRules),
+      headerText: detail.headerText || '',
+      footerText: detail.footerText || '',
+      withDescription: detail.withDescription || false,
+      skipEbarimt: detail.skipEbarimt || false,
+      ebarimtUrl: detail.ebarimtUrl || '',
+    });
+  }, [open, data, reset]);
 
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
       setOpen(null);
-      setDetail(null);
       reset();
     }
   };
 
   const handleSubmit = async (data: TPosInEbarimtConfig) => {
-    if (!detail) return;
+    if (!open) return;
     try {
-      await savePosInEbarimtConfig(data, 'update', detail._id);
+      await savePosInEbarimtConfig(data, 'update', open);
       setOpen(null);
-      setDetail(null);
     } catch {
       toast({
         title: t('error'),

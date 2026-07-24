@@ -1,17 +1,16 @@
 import { Sheet, Button, Spinner, toast, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@apollo/client';
 import {
   addEBarimtStageInConfigSchema,
   normalizeRuleIds,
   TStageInEbarimtConfig,
 } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
-import { stageInEbarimtDetailAtom } from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
+import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
 import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
-import { useEbarimtConfigState } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useEbarimtConfigState';
 import { StageInEBarimtConfigFormFields } from './StageInEBarimtConfigFormFields';
 
 const FORM_ID = 'edit-stage-in-ebarimt-form';
@@ -19,10 +18,13 @@ const FORM_ID = 'edit-stage-in-ebarimt-form';
 export const EditStageInEBarimtConfig = () => {
   const { t } = useTranslation('mongolian');
   const [open, setOpen] = useQueryState<string>('stage_in_ebarimt_id');
-  const [detail, setDetail] = useAtom(stageInEbarimtDetailAtom);
   const { saveStageInEbarimtConfig } = useSaveStageInEbarimtConfig();
-  const { getConfigByStageId } = useEbarimtConfigState();
   const [loading, setLoading] = useState(false);
+
+  const { data } = useQuery(GET_MN_CONFIGS, {
+    variables: { code: 'stageInEbarimt' },
+    skip: !open,
+  });
 
   const form = useForm<TStageInEbarimtConfig>({
     resolver: zodResolver(addEBarimtStageInConfigSchema),
@@ -55,56 +57,67 @@ export const EditStageInEBarimtConfig = () => {
 
   const { reset } = form;
 
+  // Populate the form once per config id. Depending on the resolved config
+  // object would re-run reset on every Apollo `data` reference change and wipe
+  // the user's in-progress edits, so we track the loaded id via a ref instead.
+  const loadedIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (detail) {
-      reset({
-        title: detail.title || '',
-        boardId: detail.boardId || '',
-        pipelineId: detail.pipelineId || '',
-        stageId: detail.stageId || '',
-        posNo: detail.posNo || '',
-        companyRD: detail.companyRD || '',
-        merchantTin: detail.merchantTin || '',
-        branchOfProvince: detail.branchOfProvince || '',
-        subProvince: detail.subProvince || '',
-        districtCode: detail.districtCode || '',
-        companyName: detail.companyName || '',
-        defaultUnitedCode: detail.defaultUnitedCode || '',
-        branchNo: detail.branchNo || '',
-        hasVat: detail.hasVat || false,
-        citytaxPercent: detail.citytaxPercent || '',
-        vatPercent: detail.vatPercent || '',
-        reverseVatRules: normalizeRuleIds(detail.reverseVatRules),
-        hasCitytax: detail.hasCitytax || false,
-        footerText: detail.footerText || '',
-        reverseCtaxRules: normalizeRuleIds(detail.reverseCtaxRules),
-        withDescription: detail.withDescription || false,
-        skipEbarimt: detail.skipEbarimt || false,
-        headerText: detail.headerText || '',
-      });
+    if (!open) {
+      loadedIdRef.current = null;
+      return;
     }
-  }, [detail, reset]);
+    if (loadedIdRef.current === open) return;
+
+    const config = (data?.mnConfigs || []).find((c: any) => c._id === open);
+    if (!config) return;
+
+    const detail =
+      typeof config.value === 'string'
+        ? JSON.parse(config.value)
+        : config.value || {};
+    loadedIdRef.current = open;
+
+    reset({
+      title: detail.title || '',
+      boardId: detail.boardId || '',
+      pipelineId: detail.pipelineId || '',
+      stageId: detail.stageId || '',
+      posNo: detail.posNo || '',
+      companyRD: detail.companyRD || '',
+      merchantTin: detail.merchantTin || '',
+      branchOfProvince: detail.branchOfProvince || '',
+      subProvince: detail.subProvince || '',
+      districtCode: detail.districtCode || '',
+      companyName: detail.companyName || '',
+      defaultUnitedCode: detail.defaultUnitedCode || '',
+      branchNo: detail.branchNo || '',
+      hasVat: detail.hasVat || false,
+      citytaxPercent: detail.citytaxPercent || '',
+      vatPercent: detail.vatPercent || '',
+      reverseVatRules: normalizeRuleIds(detail.reverseVatRules),
+      hasCitytax: detail.hasCitytax || false,
+      footerText: detail.footerText || '',
+      reverseCtaxRules: normalizeRuleIds(detail.reverseCtaxRules),
+      withDescription: detail.withDescription || false,
+      skipEbarimt: detail.skipEbarimt || false,
+      headerText: detail.headerText || '',
+    });
+  }, [open, data, reset]);
 
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
       setOpen(null);
-      setDetail(null);
       reset();
     }
   };
 
   const handleSubmit = async (data: TStageInEbarimtConfig) => {
-    if (!detail) return;
+    if (!open) return;
     try {
       setLoading(true);
-      const existingConfig = getConfigByStageId(data.stageId);
-      await saveStageInEbarimtConfig(
-        data,
-        'update',
-        existingConfig?._id || detail._id,
-      );
+      await saveStageInEbarimtConfig(data, 'update', open);
       setOpen(null);
-      setDetail(null);
     } catch {
       toast({
         title: t('error'),
@@ -145,6 +158,8 @@ export const EditStageInEBarimtConfig = () => {
   const handleSubBranchChange = useCallback(
     (value: string) => {
       form.setValue('subProvince', value);
+      const branchCode = form.getValues('branchOfProvince');
+      form.setValue('districtCode', branchCode ? `${branchCode}${value}` : '');
     },
     [form],
   );
