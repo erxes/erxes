@@ -143,6 +143,8 @@
   "product-groups": "Product Groups",
   "product-categories": "Product Categories",
   "product-config": "Product Config",
+  "edit-product": "Edit product",
+  "edit-product-description": "Choose a replacement product for this deal line.",
   "product-category-mapping": "Product & category mapping",
   "kiosk-exclude-products": "Kiosk exclude products",
   "initial-product-categories": "Initial Product Categories",

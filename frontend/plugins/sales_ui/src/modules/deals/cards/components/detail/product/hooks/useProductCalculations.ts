@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { IProductData } from 'ui-modules';
 
-type TotalByCurrency = Record<string, number>;
-type AdjustmentByCurrency = Record<string, { value: number; percent: number }>;
+export type TotalByCurrency = Record<string, number>;
+export type AdjustmentByCurrency = Record<
+  string,
+  { value: number; percent: number }
+>;
 
 export const calculateProductValues = (
   type: string,

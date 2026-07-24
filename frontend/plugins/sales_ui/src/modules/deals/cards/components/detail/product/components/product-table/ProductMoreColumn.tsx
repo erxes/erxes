@@ -1,34 +1,24 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import {
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  useConfirm,
-  useToast,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable, useConfirm } from 'erxes-ui';
 
 import { IProductData } from 'ui-modules';
-import { IconTrash } from '@tabler/icons-react';
-import { atom } from 'jotai';
+import { IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
+import { productRowActionsAtom } from '../../productTableAtom';
+import { useAtomValue } from 'jotai';
 import { useState } from 'react';
-import { useRemoveProducts } from '../hooks/useRemoveProduct';
 import { useTranslation } from 'react-i18next';
-
-export const renderingProductDetailAtom = atom(false);
 
 export const ProductMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IProductData, unknown>;
 }) => {
-  const { _id } = cell.row.original;
+  const productData = cell.row.original;
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
-  const { removeProducts, loading: removeLoading } = useRemoveProducts();
-  const { toast } = useToast();
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
+  const actions = useAtomValue(productRowActionsAtom);
 
   const runAction = (action: () => void) => {
     setOpen(false);
@@ -39,21 +29,7 @@ export const ProductMoreColumnCell = ({
     confirm({
       message: t('confirm-remove-selected'),
       options: confirmOptions,
-    }).then(async () => {
-      try {
-        removeProducts({
-          variables: {
-            productIds: [_id],
-          },
-        });
-      } catch (e) {
-        toast({
-          title: t('error'),
-          description: e.message,
-          variant: 'destructive',
-        });
-      }
-    });
+    }).then(() => actions?.onDelete(productData));
   };
 
   return (
@@ -65,7 +41,20 @@ export const ProductMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item
-              disabled={removeLoading}
+              value="edit"
+              onSelect={() => runAction(() => actions?.onEdit(productData))}
+            >
+              <IconEdit /> {t('edit')}
+            </Command.Item>
+            <Command.Item
+              value="duplicate"
+              onSelect={() =>
+                runAction(() => actions?.onDuplicate(productData))
+              }
+            >
+              <IconCopy /> {t('duplicate')}
+            </Command.Item>
+            <Command.Item
               value="remove"
               className="text-destructive"
               onSelect={() => runAction(onRemove)}
@@ -79,9 +68,9 @@ export const ProductMoreColumnCell = ({
   );
 };
 
-export const productMoreColumn: ColumnDef<IProductData> = {
+export const productMoreColumn = (): ColumnDef<IProductData> => ({
   id: 'more',
   size: 33,
-  cell: ProductMoreColumnCell,
+  cell: (cellProps) => <ProductMoreColumnCell {...cellProps} />,
   header: () => <RecordTable.ColumnSelector />,
-};
+});
