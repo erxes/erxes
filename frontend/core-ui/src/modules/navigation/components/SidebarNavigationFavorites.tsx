@@ -1,4 +1,4 @@
-import { NavigationMenuGroup, NavigationMenuLinkItem } from 'erxes-ui';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
 import { MyInboxNavigationItem } from '@/notification/components/MyInboxNavigationItem';
 import { useTranslation } from 'react-i18next';
@@ -8,12 +8,17 @@ export function SidebarNavigationFavorites() {
   const favorites = useFavorites();
 
   return (
-    <NavigationMenuGroup name={t('favorites')} separate={false}>
-      <MyInboxNavigationItem />
-      {favorites.map((item) => {
-        return <SidebarNavigationFavoritesItem key={item.path} {...item} />;
-      })}
-    </NavigationMenuGroup>
+    <section className="px-2 pb-2">
+      <h2 className="px-2 pb-1 pt-1 font-mono text-[10px] font-semibold uppercase tracking-wide text-accent-foreground">
+        {t('favorites')}
+      </h2>
+      <Sidebar.Menu>
+        <MyInboxNavigationItem />
+        {favorites.map((item) => {
+          return <SidebarNavigationFavoritesItem key={item.path} {...item} />;
+        })}
+      </Sidebar.Menu>
+    </section>
   );
 }
 
@@ -30,6 +35,11 @@ export function SidebarNavigationFavoritesItem({
   const pathWithoutUi = path.replace('_ui', '');
 
   return (
-    <NavigationMenuLinkItem name={name} icon={Icon} path={pathWithoutUi} />
+    <NavigationMenuLinkItem
+      name={name}
+      icon={Icon}
+      path={pathWithoutUi}
+      className="h-7 px-2 text-[13px]"
+    />
   );
 }

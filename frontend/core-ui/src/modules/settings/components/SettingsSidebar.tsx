@@ -25,7 +25,7 @@ const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
 };
 
-export function SettingsSidebar() {
+export function SettingsSidebar({ hideExit = false }: { hideExit?: boolean }) {
   const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
   const { isLoaded, isWildcard, hasModulePermission, hasPluginPermission } =
     usePermissionCheck();
@@ -68,7 +68,7 @@ export function SettingsSidebar() {
   return (
     <>
       <Sidebar.Content className="styled-scroll gap-2">
-        <SettingsExitButton />
+        {!hideExit && <SettingsExitButton />}
         <SettingsNavigationGroup name={t('account')}>
           {sidebar.account.map((item) => (
             <NavigationMenuLinkItem

@@ -37,10 +37,13 @@ export const usePluginsModules = () => {
   return modules;
 };
 
-interface NavigationGroupResult {
+export type NavigationGroupContent = React.ComponentType;
+
+export interface NavigationGroupResult {
   icon?: React.ElementType;
-  contents: any[];
-  subGroups: any[];
+  contents: NavigationGroupContent[];
+  subGroups: NavigationGroupContent[];
+  modules: NonNullable<IUIConfig['modules']>;
   name: string;
   i18n?: boolean;
 }
@@ -69,6 +72,7 @@ export const usePluginsNavigationGroups = () => {
         const existingGroup = acc[groupName] || {
           contents: [],
           subGroups: [],
+          modules: [],
         };
 
         const newContent = plugin.navigationGroup?.content;
@@ -86,6 +90,7 @@ export const usePluginsNavigationGroups = () => {
           icon: plugin.navigationGroup?.icon || existingGroup.icon,
           contents: updatedContents,
           subGroups: updatedSubGroups,
+          modules: [...existingGroup.modules, ...(plugin.modules || [])],
           i18n: plugin.i18n || existingGroup.i18n,
         };
 

@@ -16,12 +16,15 @@ import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
+import { useEnsureSalesBoardSelection } from '@/deals/boards/hooks/useEnsureSalesBoardSelection';
 
 export const SalesIndexPage = () => {
   const { t } = useTranslation('sales');
   const [searchParams] = useSearchParams();
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
+
+  useEnsureSalesBoardSelection();
 
   return (
     <div className="flex h-full overflow-hidden w-full">

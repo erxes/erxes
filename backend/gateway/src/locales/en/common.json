@@ -1,8 +1,26 @@
 {
   "my-inbox": "My Inbox",
+  "navigation": {
+    "visited-pages": "Visited pages",
+    "details": "Details",
+    "close-tab": "Close {{page}} tab",
+    "toggle-panel": "Toggle navigation panel",
+    "open-plugin": "Open a plugin",
+    "search": "Search",
+    "no-plugins-match": "No plugins match your search",
+    "active": "Active",
+    "open": "Open",
+    "pin-panel": "Click a module to open and pin the panel"
+  },
   "core-modules": {
     "_": "Core modules",
     "contacts": "Contacts",
+    "customers": "Customers",
+    "leads": "Leads",
+    "companies": "Companies",
+    "client-portal-users": "Client Portal Users",
+    "vendors": "Vendors",
+    "clients": "Clients",
     "segments": "Segments",
     "automations": "Automations",
     "documents": "Documents",

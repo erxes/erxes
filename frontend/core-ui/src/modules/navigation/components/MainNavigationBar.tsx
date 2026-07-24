@@ -1,43 +1,62 @@
-import { Sidebar } from 'erxes-ui';
-import { Organization } from './Organization';
-import { SidebarNavigationFavorites } from './SidebarNavigationFavorites';
-import { NavigationCoreModules } from '@/navigation/components/NavigationCoreModules';
-import {
-  NavigationPluginExitButton,
-  NavigationPlugins,
-} from '@/navigation/components/NavigationPlugins';
-import { lazy } from 'react';
-
-const SHOW_COMPONENTS = false;
-
-export const DevelopmentNavigation = lazy(() =>
-  import('./DevelopmentMenus').then((m) => ({
-    default: m.DevelopmentNavigation,
-  })),
-);
+import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
+import { NavigationPanel } from '@/navigation/components/NavigationPanel';
+import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
+import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import { AppPath } from '@/types/paths/AppPath';
+import { activePluginState } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigationBar = () => {
+  const activities = useNavigationActivities();
+  const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const isSettings = pathname.includes(`/${AppPath.Settings}`);
+  const routeActivity = findNavigationActivityByPath(activities, pathname);
+  const activeActivity =
+    routeActivity ||
+    activities.find((activity) => activity.id === activeActivityId) ||
+    activities[0];
+
+  useEffect(() => {
+    if (isSettings) {
+      return;
+    }
+
+    if (routeActivity && routeActivity.id !== activeActivityId) {
+      setActiveActivityId(routeActivity.id);
+      return;
+    }
+
+    if (
+      activities.length > 0 &&
+      !activities.some((activity) => activity.id === activeActivityId)
+    ) {
+      setActiveActivityId(activities[0].id);
+    }
+  }, [
+    activeActivityId,
+    activities,
+    isSettings,
+    routeActivity,
+    setActiveActivityId,
+  ]);
+
+  const handleSelectActivity = (activity: (typeof activities)[number]) => {
+    navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
+  };
+
   return (
-    <>
-      <Sidebar.Header className="px-2 h-13 justify-center">
-        <Sidebar.Menu>
-          <Sidebar.MenuItem className="flex gap-2 items-center">
-            <Organization />
-          </Sidebar.MenuItem>
-        </Sidebar.Menu>
-      </Sidebar.Header>
-      <Sidebar.Separator className="mx-0" />
-      <Sidebar.Content className="gap-0">
-        <NavigationPluginExitButton />
-        {process.env.NODE_ENV === 'development' && SHOW_COMPONENTS && (
-          <DevelopmentNavigation />
-        )}
-        <SidebarNavigationFavorites />
-        <NavigationPlugins />
-        <NavigationCoreModules />
-      </Sidebar.Content>
-    </>
+    <div className="flex h-full min-w-0">
+      <NavigationActivityRail
+        activities={activities}
+        activeActivityId={activeActivity?.id || null}
+        isSettings={isSettings}
+        onSelectActivity={handleSelectActivity}
+      />
+      <NavigationPanel activity={activeActivity} isSettings={isSettings} />
+    </div>
   );
 };
-
-export default MainNavigationBar;

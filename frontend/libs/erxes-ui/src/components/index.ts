@@ -24,6 +24,7 @@ export * from './info-card';
 export * from './input';
 export * from './kbd';
 export * from './label';
+export * from './loading-context';
 export * from './multiselect';
 export * from './popover';
 export * from './radio-group';
