@@ -13,7 +13,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 
@@ -139,7 +139,13 @@ export const useTasks = (
   options?: QueryHookOptions<ICursorListResponse<ITask>>,
 ) => {
   const { t } = useTranslation('operation');
-  const variables = useTasksVariables(options?.variables);
+  const rawVariables = useTasksVariables(options?.variables);
+
+  const variables = useMemo(
+    () => rawVariables,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(rawVariables)],
+  );
   const { toast } = useToast();
   const { data, loading, fetchMore, subscribeToMore } = useQuery<
     ICursorListResponse<ITask>

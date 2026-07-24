@@ -16,6 +16,7 @@ import {
   useAutomationNodeLibraryActionGroupFilter,
 } from '../../context/AutomationNodeLibraryActionGroupFilterContext';
 import { AutomationNodeLibraryProvider } from '../../context/AutomationNodeLibraryProvider';
+import { WorkflowNodeLibraryContent } from './WorkflowNodeLibraryContent';
 
 const SidebarPanelHeader = ({
   title,
@@ -106,21 +107,27 @@ const AutomationNodeLibrarySidebarContent = ({
           wrapperClassName="m-0 flex-1 rounded-md bg-background shadow-xs"
           autoFocus
         />
-        <AutomationNodeLibrarySidebarFilters
-          activeNodeTab={activeNodeTab}
-          list={config.list as IAutomationsActionConfigConstants[]}
-        />
+        {activeNodeTab !== AutomationNodeType.Workflow && (
+          <AutomationNodeLibrarySidebarFilters
+            activeNodeTab={activeNodeTab}
+            list={config.list as IAutomationsActionConfigConstants[]}
+          />
+        )}
       </div>
       <div className="min-h-0 flex-1 overflow-hidden px-5 pb-4">
         <div className="h-full w-full overflow-auto p-0 pr-1">
-          <AutomationNodeLibraryTabContent
-            type={
-              activeNodeTab === AutomationNodeType.Action
-                ? AutomationNodeType.Action
-                : AutomationNodeType.Trigger
-            }
-            list={config.list}
-          />
+          {activeNodeTab === AutomationNodeType.Workflow ? (
+            <WorkflowNodeLibraryContent />
+          ) : (
+            <AutomationNodeLibraryTabContent
+              type={
+                activeNodeTab === AutomationNodeType.Action
+                  ? AutomationNodeType.Action
+                  : AutomationNodeType.Trigger
+              }
+              list={config.list}
+            />
+          )}
         </div>
       </div>
     </Command>

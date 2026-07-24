@@ -1,7 +1,7 @@
 import { generateModels } from '../../../../connectionResolver';
 import { validateAgainstSchema } from './bodyValidator';
 import { executeActions } from '../../../executeActions';
-import { getActionsMap } from '../../../../utils/utils';
+import { getExecutionActionsMap } from '../../../../utils/utils';
 import {
   AUTOMATION_EXECUTION_STATUS,
   AUTOMATION_STATUSES,
@@ -144,7 +144,7 @@ export const waitingWebhookExecutionHandler = async (
       });
     }
   }
-  const actionsMap = await getActionsMap(automation.actions || []);
+  const actionsMap = await getExecutionActionsMap(automation, execution);
 
   const responseAction = actionsMap[waitingAction.responseActionId];
 

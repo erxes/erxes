@@ -1,6 +1,6 @@
 import { IconBox } from '@tabler/icons-react';
 import { Breadcrumb, Button, Select, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -68,6 +68,10 @@ export const BranchDetailIndexPage = () => {
     mainLanguage: selectedBranch?.language,
     availableLanguages: availableLangCodes,
   });
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('tms-index-breadcrumb'),
+    selectedBranch?.name,
+  );
 
   const onSelectLanguage = (lang: string) => {
     setActiveLang(lang);
@@ -188,7 +192,10 @@ export const BranchDetailIndexPage = () => {
 
           <Separator.Inline />
 
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconBox"
+          />
         </PageHeader.Start>
 
         <PageHeader.End>{renderCreateSheet()}</PageHeader.End>

@@ -20,7 +20,7 @@ import {
   Select,
   DatePicker,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   useVendors,
@@ -40,7 +40,6 @@ import type {
   Traveler,
   InsuranceProduct,
   InsuranceRegion,
-  TravelPriceResult,
 } from '~/modules/insurance/types';
 
 const EMPTY_TRAVELER: Traveler = {
@@ -59,8 +58,15 @@ const STEPS = [
   { id: 4, label: 'Төлбөр', icon: IconCreditCard },
 ];
 
+const INSURANCE_LABEL = 'Даатгал';
+const TRAVEL_INSURANCE_LABEL = 'Аялалын даатгал';
+
 export const CitizenInsurancePage = () => {
   const navigate = useNavigate();
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    INSURANCE_LABEL,
+    TRAVEL_INSURANCE_LABEL,
+  );
   const { insuranceTypes } = useInsuranceTypes();
   const { vendors } = useVendors();
   const { customers } = useCustomers();
@@ -240,7 +246,7 @@ export const CitizenInsurancePage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/products">
                     <IconPlane />
-                    Даатгал
+                    {INSURANCE_LABEL}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -248,13 +254,16 @@ export const CitizenInsurancePage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconPlane />
-                  Аялалын даатгал
+                  {TRAVEL_INSURANCE_LABEL}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
       </PageHeader>
 
@@ -500,6 +509,7 @@ export const CitizenInsurancePage = () => {
                         <h4 className="font-semibold">Аялагч #{index + 1}</h4>
                         {travelers.length > 1 && (
                           <button
+                            type="button"
                             onClick={() => removeTraveler(index)}
                             className="p-1.5 text-red-600 hover:bg-red-50 rounded"
                           >
@@ -600,6 +610,7 @@ export const CitizenInsurancePage = () => {
                   ))}
 
                   <button
+                    type="button"
                     onClick={addTraveler}
                     className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg w-full justify-center text-gray-600 hover:border-primary hover:text-primary transition-colors"
                   >

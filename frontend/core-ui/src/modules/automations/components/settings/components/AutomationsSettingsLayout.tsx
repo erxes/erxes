@@ -1,4 +1,7 @@
-import { AutomationSettingsSidebar } from '@/automations/components/settings/components/AutomationSettingsSidebar';
+import {
+  AutomationSettingsMobileNav,
+  AutomationSettingsSidebar,
+} from '@/automations/components/settings/components/AutomationSettingsSidebar';
 import { AutomationSettingsBreadcrumb } from '@/automations/components/settings/components/AutomationSettingsBreadcrumb';
 import { PageContainer } from 'erxes-ui';
 import { SettingsHeader } from 'ui-modules';
@@ -13,6 +16,7 @@ export const AutomationSettingsLayout = ({
       <SettingsHeader
         breadcrumbs={<AutomationSettingsBreadcrumb />}
       ></SettingsHeader>
+      <AutomationSettingsMobileNav />
       <div className="flex flex-auto overflow-hidden">
         <AutomationSettingsSidebar />
         <div className="min-w-0 flex-1 overflow-hidden">{children}</div>

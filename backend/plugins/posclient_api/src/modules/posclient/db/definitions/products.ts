@@ -75,6 +75,11 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'remainderByToken by token',
     }),
+    discounts: field({
+      type: [Object],
+      optional: true,
+      label: 'discounts by pricing conditions',
+    }),
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
@@ -98,6 +103,11 @@ export const productSchema = schemaWrapper(
     mergedIds: field({ type: [String], optional: true }),
     attachmentMore: field({ type: [attachmentSchema] }),
     tokens: field({ type: [String] }),
+    external: field({
+      type: Boolean,
+      optional: true,
+      label: 'Pushed in by another plugin, not built from the pos product groups',
+    }),
     isCheckRems: field({
       type: Object,
       optional: true,
@@ -140,6 +150,11 @@ export const productCategorySchema = schemaHooksWrapper(
     }),
     createdAt: getDateFieldDefinition('Created at'),
     tokens: field({ type: [String] }),
+    external: field({
+      type: Boolean,
+      optional: true,
+      label: 'Pushed in by another plugin, not built from the pos product groups',
+    }),
     mask: field({ type: Object, label: 'Mask' }),
     isSimilarity: field({ type: Boolean, label: 'is Similiraties' }),
     similarities: field({

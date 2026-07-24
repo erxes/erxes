@@ -57,6 +57,7 @@ export const productSchema = schemaWrapper(
       },
       attachment: { type: attachmentSchema },
       attachmentMore: { type: [attachmentSchema] },
+      videos: { type: [attachmentSchema], label: 'Videos' },
       status: {
         type: String,
         enum: PRODUCT_STATUSES.ALL,
@@ -100,7 +101,7 @@ export const productSchema = schemaWrapper(
       },
 
       inventories: { type: Object, optional: true },
-      discounts: { type: Object, optional: true },
+      discounts: { type: [Object], optional: true },
       duration: {
         type: Number,
         optional: true,

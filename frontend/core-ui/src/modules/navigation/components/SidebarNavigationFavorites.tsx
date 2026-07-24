@@ -11,7 +11,7 @@ export function SidebarNavigationFavorites() {
     <NavigationMenuGroup name={t('favorites')} separate={false}>
       <MyInboxNavigationItem />
       {favorites.map((item) => {
-        return <SidebarNavigationFavoritesItem key={item.name} {...item} />;
+        return <SidebarNavigationFavoritesItem key={item.path} {...item} />;
       })}
     </NavigationMenuGroup>
   );

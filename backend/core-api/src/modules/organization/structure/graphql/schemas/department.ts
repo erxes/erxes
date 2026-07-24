@@ -48,4 +48,5 @@ export const queries = `
     departments(${commonParams},withoutUserFilter:Boolean): [Department]
     departmentsMain(${commonParams},withoutUserFilter:Boolean): DepartmentsListResponse
     departmentDetail(_id: String!): Department
+    cpDepartments(${commonParams},withoutUserFilter:Boolean): [Department]
 `;

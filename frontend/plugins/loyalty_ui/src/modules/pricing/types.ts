@@ -1,11 +1,13 @@
 import { IAttachment } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 
+export type PricingPriority = '' | 'public' | 'posBase';
+
 export interface IPricing {
   _id: string;
   name: string;
   status: 'active' | 'archived' | 'draft' | 'completed';
-  isPriority: boolean;
+  priority: PricingPriority;
   applyType: 'category' | 'product' | 'order';
   createdBy: string;
   createdAt: string;
@@ -66,7 +68,7 @@ export interface IPricingPlanDetail {
   priceAdjustType: string;
   priceAdjustFactor: number;
   bonusProduct?: string;
-  isPriority: boolean;
+  priority: PricingPriority;
   applyType: string;
 
   products?: string[];
@@ -150,6 +152,19 @@ export interface IProductCategory {
   parentId?: string;
 }
 
+export interface IPricingFixedValue {
+  _id: string;
+  pricingPlanId: string;
+  productId: string;
+  sortField?: string;
+  uom: string;
+  unitPrice: number;
+  newPrice: number;
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 export interface ProductCategoriesResponse {
   productCategories: IProductCategory[];
 }

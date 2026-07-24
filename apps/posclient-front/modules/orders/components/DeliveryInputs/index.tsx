@@ -4,7 +4,7 @@ import {
   activeOrderIdAtom,
   orderNumberAtom,
   setInitialAtom,
-  openCancelDialogAtom
+  openCancelDialogAtom,
 } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator"
 import OrderCancel from "@/modules/orders/components/orderCancel"
 
 const Delivery: any = dynamic(() => import("./Delivery"))
+const BrokerSelect: any = dynamic(() => import("./BrokerSelect"))
 const Description: any = dynamic(() => import("./Description"))
 const DirectDiscount: any = dynamic(() => import("./directDiscount"))
 const PreOrder: any = dynamic(() => import("./preOrder"))
@@ -33,6 +34,7 @@ const DeliveryInputs = () => {
           <>
             <Delivery />
             <PreOrder />
+            <BrokerSelect />
             <Description />
           </>
         )}

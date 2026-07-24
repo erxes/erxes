@@ -29,6 +29,7 @@ export const PosItemMoreColumnCell = ({
 
 export const PosItemMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: PosItemMoreColumnCell,
   size: 33,
 };

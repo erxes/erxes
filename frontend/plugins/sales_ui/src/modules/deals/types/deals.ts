@@ -86,6 +86,8 @@ export interface IDeal extends IItem {
   paymentsData?: IPaymentsData;
   departments?: IDepartment[];
   branches?: IBranch[];
+  brokerType?: 'customer' | 'company' | 'user';
+  brokerId?: string;
 }
 
 export type dealsProductDataMutationParams = {

@@ -1,6 +1,8 @@
-
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IProductData } from 'ui-modules';
+
+type TotalByCurrency = Record<string, number>;
+type AdjustmentByCurrency = Record<string, { value: number; percent: number }>;
 
 export const calculateProductValues = (
   type: string,
@@ -33,8 +35,8 @@ export const calculateProductValues = (
         result.taxPercent = taxPercent;
       }
     } else {
-        tax = ((amount - discount) * taxPercent) / 100;
-        result.tax = tax;
+      tax = ((amount - discount) * taxPercent) / 100;
+      result.tax = tax;
     }
 
     const finalAmount = amount - discount + tax;
@@ -48,28 +50,19 @@ export const calculateProductValues = (
   return result;
 };
 
-
 export const useProductCalculations = (productsData: IProductData[]) => {
-  const [total, setTotal] = useState<{ [currency: string]: number }>({});
-  const [unUsedTotal, setUnUsedTotal] = useState<{
-    [currency: string]: number;
-  }>({});
-  const [bothTotal, setBothTotal] = useState<{ [currency: string]: number }>(
-    {},
-  );
-  const [tax, setTax] = useState<{
-    [currency: string]: { value?: number; percent?: number };
-  }>({});
-  const [discount, setDiscount] = useState<{
-    [currency: string]: { value?: number; percent?: number };
-  }>({});
+  const [total, setTotal] = useState<TotalByCurrency>({});
+  const [unUsedTotal, setUnUsedTotal] = useState<TotalByCurrency>({});
+  const [bothTotal, setBothTotal] = useState<TotalByCurrency>({});
+  const [tax, setTax] = useState<AdjustmentByCurrency>({});
+  const [discount, setDiscount] = useState<AdjustmentByCurrency>({});
 
-  const updateTotal = (productsData: IProductData[]) => {
-    const total: any = {};
-    const unUsedTotal: any = {};
-    const bothTotal: any = {};
-    const tax: any = {};
-    const discount: any = {};
+  const updateTotal = useCallback((productsData: IProductData[]) => {
+    const total: TotalByCurrency = {};
+    const unUsedTotal: TotalByCurrency = {};
+    const bothTotal: TotalByCurrency = {};
+    const tax: AdjustmentByCurrency = {};
+    const discount: AdjustmentByCurrency = {};
 
     productsData.forEach((p) => {
       if (!p.currency) return;
@@ -112,7 +105,7 @@ export const useProductCalculations = (productsData: IProductData[]) => {
     setDiscount(discount);
     setBothTotal(bothTotal);
     setUnUsedTotal(unUsedTotal);
-  };
+  }, []);
 
   const calculatePerProductAmount = (
     type: string,
@@ -131,7 +124,7 @@ export const useProductCalculations = (productsData: IProductData[]) => {
     if (productsData) {
       updateTotal(productsData);
     }
-  }, [productsData]);
+  }, [productsData, updateTotal]);
 
   return {
     total,
@@ -140,6 +133,6 @@ export const useProductCalculations = (productsData: IProductData[]) => {
     tax,
     discount,
     updateTotal,
-    calculatePerProductAmount
+    calculatePerProductAmount,
   };
 };

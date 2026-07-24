@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input } from 'erxes-ui';
+import { Button, CurrencyField, Label, NumberInput } from 'erxes-ui';
 import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
 import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -34,9 +34,12 @@ const formatTotal = (total: TotalByCurrency) => {
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-x-3 gap-y-1">
       {Object.entries(total).map(([currency, value]) => (
-        <span key={currency} className="text-primary font-semibold">
+        <span
+          key={currency}
+          className="font-semibold tabular-nums text-foreground"
+        >
           {value.toLocaleString()} {currency}
         </span>
       ))}
@@ -44,7 +47,13 @@ const formatTotal = (total: TotalByCurrency) => {
   );
 };
 
-const ProductFooter = ({
+const isUsedProductForCurrency = (product: IProductData, currency: string) =>
+  product.tickUsed === true && product.currency === currency;
+
+const formatEditablePercent = (value?: number): number =>
+  Math.round(value || 0);
+
+export const ProductFooter = ({
   productsCount,
   total,
   unUsedTotal,
@@ -64,7 +73,7 @@ const ProductFooter = ({
     type: 'discount' | 'tax',
   ) => {
     const updated = productsData.map((p) => {
-      if (p.currency !== currency) return p;
+      if (!isUsedProductForCurrency(p, currency)) return p;
 
       const newProduct = { ...p };
       const amount = newProduct.unitPrice * newProduct.quantity;
@@ -89,8 +98,8 @@ const ProductFooter = ({
   };
 
   const handleDiscountAmountChange = (currency: string, value: number) => {
-    const currencyProducts = productsData.filter(
-      (p) => p.currency === currency,
+    const currencyProducts = productsData.filter((p) =>
+      isUsedProductForCurrency(p, currency),
     );
     const sumAmount = currencyProducts.reduce(
       (s, p) => s + p.unitPrice * p.quantity,
@@ -99,7 +108,7 @@ const ProductFooter = ({
     const percent = sumAmount > 0 ? (value * 100) / sumAmount : 0;
 
     const updated = productsData.map((p) => {
-      if (p.currency !== currency) return p;
+      if (!isUsedProductForCurrency(p, currency)) return p;
 
       const newProduct = { ...p };
       const amount = newProduct.unitPrice * newProduct.quantity;
@@ -115,120 +124,140 @@ const ProductFooter = ({
     updateTotal(updated);
   };
 
-  const parseFormattedNumber = (value: string): number => {
-    const parsed = Number.parseInt(value.replace(/,/g, ''), 10);
-    return isNaN(parsed) ? 0 : parsed;
-  };
-
   const currencies = Object.keys({ ...total, ...discount, ...tax });
 
   const { t } = useTranslation('sales');
 
   return (
-    <div className="sticky bottom-0 right-0 left-0 p-3 z-10 bg-background border-t space-y-2">
+    <div className="z-10 shrink-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
       {showAdvancedView && currencies.length > 0 && (
-        <div className="flex flex-wrap gap-4 pb-2 border-b">
+        <div className="max-h-44 divide-y overflow-y-auto overscroll-contain border-b bg-muted/15 px-4">
           {currencies.map((currency) => (
-            <div key={currency} className="flex items-center gap-6">
-              {/* Discount */}
-              <div className="flex items-center gap-2">
-                <span className="text-primary font-semibold">
-                  {t('total-discount')}:
+            <div
+              key={currency}
+              className="flex flex-wrap items-center gap-x-5 gap-y-2 py-2"
+            >
+              <span className="min-w-12 text-xs font-semibold uppercase tracking-wide text-foreground">
+                {currency}
+              </span>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Label
+                  htmlFor={`discount-percent-${currency}`}
+                  className="text-xs font-medium text-muted-foreground"
+                >
+                  {t('total-discount')}
+                </Label>
+                <NumberInput
+                  id={`discount-percent-${currency}`}
+                  className="h-8 w-20 tabular-nums"
+                  value={formatEditablePercent(discount[currency]?.percent)}
+                  onChange={(value) =>
+                    handlePercentChange(
+                      currency,
+                      Math.min(100, Math.max(0, Math.round(value))),
+                      'discount',
+                    )
+                  }
+                />
+                <span className="text-xs text-muted-foreground">%</span>
+                <Label
+                  htmlFor={`discount-amount-${currency}`}
+                  className="text-xs text-muted-foreground"
+                >
+                  {t('amount')}
+                </Label>
+                <CurrencyField.ValueInput
+                  id={`discount-amount-${currency}`}
+                  className="h-8 w-32 tabular-nums"
+                  value={Math.round(discount[currency]?.value || 0)}
+                  onChange={(value) =>
+                    handleDiscountAmountChange(currency, Math.max(0, value))
+                  }
+                />
+                <span className="text-xs text-muted-foreground">
+                  {currency}
                 </span>
-                <Input
-                  type="number"
-                  className="w-32"
-                  value={Math.round(discount[currency]?.percent || 0)}
-                  onChange={(e) => {
-                    const val = Number.parseInt(e.target.value, 10);
-                    if (!isNaN(val) && val >= 0 && val <= 100) {
-                      handlePercentChange(currency, val, 'discount');
-                    }
-                  }}
-                  step="1"
-                  min="0"
-                  max="100"
-                />
-                <span className="text-sm">%</span>
-                <Input
-                  type="text"
-                  className="w-32"
-                  value={Math.round(
-                    discount[currency]?.value || 0,
-                  ).toLocaleString()}
-                  onChange={(e) => {
-                    const val = parseFormattedNumber(e.target.value);
-                    handleDiscountAmountChange(currency, val);
-                  }}
-                />
-                <span className="text-sm">{currency}</span>
               </div>
 
-              {/* Tax */}
-              <div className="flex items-center gap-2">
-                <span className="text-primary font-semibold">{t('total-tax')}:</span>
-                <Input
-                  type="number"
-                  className="w-32"
-                  value={Math.round(tax[currency]?.percent || 0)}
-                  onChange={(e) => {
-                    const val = Number.parseInt(e.target.value, 10);
-                    if (!isNaN(val) && val >= 0 && val <= 100) {
-                      handlePercentChange(currency, val, 'tax');
-                    }
-                  }}
-                  step="1"
-                  min="0"
-                  max="100"
+              <div className="flex flex-wrap items-center gap-2">
+                <Label
+                  htmlFor={`tax-percent-${currency}`}
+                  className="text-xs font-medium text-muted-foreground"
+                >
+                  {t('total-tax')}
+                </Label>
+                <NumberInput
+                  id={`tax-percent-${currency}`}
+                  className="h-8 w-20 tabular-nums"
+                  value={formatEditablePercent(tax[currency]?.percent)}
+                  onChange={(value) =>
+                    handlePercentChange(
+                      currency,
+                      Math.min(100, Math.max(0, Math.round(value))),
+                      'tax',
+                    )
+                  }
                 />
-                <span className="text-sm">%</span>
-                <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">%</span>
+                <span className="text-xs text-muted-foreground">
+                  {t('amount')}
+                </span>
+                <span className="font-medium tabular-nums text-muted-foreground text-xs">
                   {Math.round(tax[currency]?.value || 0).toLocaleString()}{' '}
                   {currency}
-                </div>
+                </span>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{t('products')}:</span>
-            <span className="text-primary font-semibold">{productsCount}</span>
+      <div className="flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t('products')}
+            </span>
+            <span className="font-semibold tabular-nums">{productsCount}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{t('amount')}:</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t('amount')}
+            </span>
             {formatTotal(total)}
           </div>
           {Object.keys(unUsedTotal).length > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{t('unused')}:</span>
-              <span className="font-medium">{formatTotal(unUsedTotal)}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t('unused')}
+              </span>
+              {formatTotal(unUsedTotal)}
             </div>
           )}
           {Object.keys(unUsedTotal).length > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{t('total')}:</span>
-              <span className="font-medium">{formatTotal(bothTotal)}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t('total')}
+              </span>
+              {formatTotal(bothTotal)}
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           <SelectProductsBulk
             productIds={[]}
             onSelect={(_, selectedProducts) =>
               onAddProducts(selectedProducts || [])
             }
           >
-            <Button variant="secondary">
-              <IconPlus className="w-4 h-4 mr-1" />
+            <Button variant="secondary" className="flex-1 sm:flex-none">
+              <IconPlus className="size-4" />
               {t('add-products')}
             </Button>
           </SelectProductsBulk>
-          <Button onClick={onSave}>
+          <Button onClick={onSave} className="flex-1 sm:flex-none">
             <IconDeviceFloppy size={16} />
             {t('save')}
           </Button>
@@ -237,5 +266,3 @@ const ProductFooter = ({
     </div>
   );
 };
-
-export default ProductFooter;

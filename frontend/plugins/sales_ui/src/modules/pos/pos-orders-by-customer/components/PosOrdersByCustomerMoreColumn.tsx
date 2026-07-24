@@ -62,6 +62,7 @@ export const PosOrdersByCustomerMoreColumnCell = ({
 
 export const PosOrdersByCustomerMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: PosOrdersByCustomerMoreColumnCell,
-  size: 20,
+  size: 24,
 };

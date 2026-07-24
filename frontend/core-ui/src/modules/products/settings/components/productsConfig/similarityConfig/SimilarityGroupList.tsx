@@ -35,7 +35,10 @@ export const SimilarityGroupList = ({
 
   if (configsLoading) {
     return (
-      <InfoCard title={t('similarity-groups', 'Similarity Groups')} className="h-full">
+      <InfoCard
+        title={t('similarity-groups', 'Similarity Groups')}
+        className="h-full"
+      >
         <InfoCard.Content className="space-y-0">
           <Skeleton className="w-full h-12" />
           <Skeleton className="w-full h-12" />
@@ -47,32 +50,33 @@ export const SimilarityGroupList = ({
 
   const entries = Object.entries(groupsMap);
 
+  if (entries.length === 0) {
+    return <EmptyStateRow />;
+  }
+
   return (
-    <>
-      {entries.length === 0 ? (
-        <EmptyStateRow />
-      ) : (
-        <InfoCard title={t('similarity-groups', 'Similarity Groups')} className="h-full">
-          <InfoCard.Content className="overflow-y-auto flex-1">
-            {entries.map(([codeGroupKey, config]) => (
-              <SimilarityGroupItem
-                key={codeGroupKey}
-                codeGroupKey={codeGroupKey}
-                config={config}
-                isOpen={openKey === codeGroupKey}
-                onToggle={() =>
-                  setOpenKey((prev) =>
-                    prev === codeGroupKey ? null : codeGroupKey,
-                  )
-                }
-                onSave={onSave}
-                onDelete={onDelete}
-              />
-            ))}
-          </InfoCard.Content>
-        </InfoCard>
-      )}
-    </>
+    <InfoCard
+      title={t('similarity-groups', 'Similarity Groups')}
+      className="h-full min-h-0"
+    >
+      <InfoCard.Content className="overflow-y-auto flex-1 min-h-0">
+        {entries.map(([codeGroupKey, config]) => (
+          <SimilarityGroupItem
+            key={codeGroupKey}
+            codeGroupKey={codeGroupKey}
+            config={config}
+            isOpen={openKey === codeGroupKey}
+            onToggle={() =>
+              setOpenKey((prev) =>
+                prev === codeGroupKey ? null : codeGroupKey,
+              )
+            }
+            onSave={onSave}
+            onDelete={onDelete}
+          />
+        ))}
+      </InfoCard.Content>
+    </InfoCard>
   );
 };
 
