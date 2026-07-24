@@ -98,9 +98,6 @@ export const loadCustomerClass = (
   subdomain: string,
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
-  /**
-   * Move references from merged customer records to the surviving customer.
-   */
   const updateCustomerMergeReferences = async (
     oldCustomerIds: string[],
     newCustomerId: string,
@@ -153,13 +150,7 @@ export const loadCustomerClass = (
     });
   };
 
-  /**
-   * Customer model statics loaded into the Mongoose schema.
-   */
   class Customer {
-    /**
-     * Returns the best available display name for a customer.
-     */
     public static getCustomerName(customer: ICustomer) {
       if (customer.firstName || customer.lastName) {
         return `${customer.firstName || ''} ${customer.lastName || ''}`;
@@ -603,9 +594,6 @@ export const loadCustomerClass = (
       return models.Customers.findOne({ _id });
     }
 
-    /**
-     * Returns all customer schema field names, including nested fields.
-     */
     public static customerFieldNames() {
       const names: string[] = [];
 
@@ -690,9 +678,6 @@ export const loadCustomerClass = (
       return updatedCustomer;
     }
 
-    /**
-     * Updates email or phone verification status for customers.
-     */
     public static async updateVerificationStatus(
       customerIds: string[],
       type: string,
@@ -858,9 +843,6 @@ export const loadCustomerClass = (
       return undefined;
     }
 
-    /**
-     * Normalize customer list fields before save.
-     */
     public static fixListFields(
       doc: any,
       customData = {},

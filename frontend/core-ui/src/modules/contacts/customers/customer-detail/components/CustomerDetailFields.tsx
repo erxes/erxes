@@ -51,7 +51,6 @@ export const CustomerDetailFields = () => {
   const { tagIds, _id } = customerDetail;
   const { isDirty, isSubmitting } = form.formState;
 
-  /*save customer details*/
   const onSubmit = async (data: CustomerFormType) => {
     const { avatar, state, sex, ...rest } = data;
 
