@@ -3,12 +3,14 @@ import { useMemo } from 'react';
 import {
   DISCORD_BOT_CHANNELS,
   DISCORD_BOTS,
+  DISCORD_CONNECTED_SERVERS,
   DISCORD_CONVERSATION_CHANNEL,
   DISCORD_CONVERSATION_CHANNELS,
   DISCORD_CONVERSATION_PARTICIPANTS,
   DISCORD_GUILD_CHANNELS,
   DISCORD_GUILDS,
   DISCORD_SERVERS,
+  DISCORD_TAKEN_CHANNELS,
   DISCORD_VALIDATE_TOKEN,
 } from '../graphql/queries';
 
@@ -22,10 +24,13 @@ export type DiscordTokenValidation = {
 };
 
 export type DiscordGuild = { id: string; name?: string; icon?: string };
-export type DiscordChannel = { id: string; name?: string; type?: number };
+export type DiscordChannel = {
+  id: string;
+  name?: string;
+  type?: number;
+  parentName?: string;
+};
 
-// Lazy so validation only fires once the user has finished pasting a token
-// (the wizard triggers it explicitly), never on every keystroke.
 export const useDiscordValidateToken = () => {
   const [validate, { data, loading }] = useLazyQuery<{
     discordValidateToken: DiscordTokenValidation;
@@ -38,7 +43,6 @@ export const useDiscordValidateToken = () => {
   };
 };
 
-/** Fetch the guilds (servers) a bot token can access. */
 export const useDiscordGuilds = (token: string, skip: boolean) => {
   const { data, loading } = useQuery<{ discordGuilds: DiscordGuild[] }>(
     DISCORD_GUILDS,
@@ -48,16 +52,18 @@ export const useDiscordGuilds = (token: string, skip: boolean) => {
   return { guilds: data?.discordGuilds ?? [], loading };
 };
 
-/** Fetch the text channels of a guild for the given bot token. */
 export const useDiscordGuildChannels = (
   token: string,
   guildId: string,
   skip: boolean,
 ) => {
-  const { data, loading } = useQuery<{ discordGuildChannels: DiscordChannel[] }>(
-    DISCORD_GUILD_CHANNELS,
-    { variables: { token, guildId }, skip, fetchPolicy: 'network-only' },
-  );
+  const { data, loading } = useQuery<{
+    discordGuildChannels: DiscordChannel[];
+  }>(DISCORD_GUILD_CHANNELS, {
+    variables: { token, guildId },
+    skip,
+    fetchPolicy: 'network-only',
+  });
 
   return { channels: data?.discordGuildChannels ?? [], loading };
 };
@@ -69,7 +75,6 @@ export type DiscordBotOption = {
   channelId?: string;
 };
 
-// Connected bots for the automation action's bot picker.
 export const useDiscordBots = () => {
   const { data, loading } = useQuery<{ discordBots: DiscordBotOption[] }>(
     DISCORD_BOTS,
@@ -78,8 +83,32 @@ export const useDiscordBots = () => {
   return { bots: data?.discordBots ?? [], loading };
 };
 
-// Channels of a chosen bot for the action's channel picker. Skipped until a bot
-// is selected so it costs nothing otherwise.
+export type DiscordConnectedServer = {
+  guildId: string;
+  guildName?: string;
+  botId: string;
+};
+
+export const useDiscordConnectedServers = (channelId?: string) => {
+  const { data, loading } = useQuery<{
+    discordConnectedServers: DiscordConnectedServer[];
+  }>(DISCORD_CONNECTED_SERVERS, {
+    variables: { channelId: channelId as string },
+    skip: !channelId,
+  });
+
+  return { connectedServers: data?.discordConnectedServers ?? [], loading };
+};
+
+export const useDiscordTakenChannels = (channelId?: string) => {
+  const { data, loading } = useQuery<{ discordTakenChannels: string[] }>(
+    DISCORD_TAKEN_CHANNELS,
+    { variables: { channelId: channelId as string }, skip: !channelId },
+  );
+
+  return { takenChannelIds: data?.discordTakenChannels ?? [], loading };
+};
+
 export const useDiscordBotChannels = (botId: string, skip: boolean) => {
   const { data, loading } = useQuery<{ discordBotChannels: DiscordChannel[] }>(
     DISCORD_BOT_CHANNELS,
@@ -95,10 +124,6 @@ export type DiscordServer = {
   integrationIds: string[];
 };
 
-// Connected Discord servers with their integration ids, for the sidebar's
-// server-grouped channel list. cache-and-network for the same reason as the
-// integrations list there: the sidebar unmounts on the Settings route, so
-// adds/removes must reflect when returning to the inbox.
 export const useDiscordServers = () => {
   const { data, loading } = useQuery<{ discordServers: DiscordServer[] }>(
     DISCORD_SERVERS,
@@ -117,8 +142,6 @@ export type DiscordConversationChannel = {
   parentChannelName?: string;
 };
 
-// Resolves which Discord channel an inbox conversation came from. Skipped for
-// non-Discord conversations so it costs nothing elsewhere in the inbox.
 export const useDiscordConversationChannel = (
   conversationId: string,
   skip: boolean,
@@ -133,9 +156,6 @@ export const useDiscordConversationChannel = (
   return data?.discordConversationChannel ?? undefined;
 };
 
-// Batch-resolves thread/channel metadata for a set of conversations, returned as
-// a Map keyed by conversation id, so the inbox list can nest threads under their
-// parent channel. Skipped when there are no Discord conversation ids to resolve.
 export const useDiscordConversationChannels = (conversationIds: string[]) => {
   const { data } = useQuery<{
     discordConversationChannels: DiscordConversationChannel[];
@@ -162,8 +182,6 @@ export type DiscordParticipant = {
   avatar?: string;
 };
 
-// The Discord users who have chatted in a conversation, for @-mentioning them
-// in an agent reply. Skipped for non-Discord conversations.
 export const useDiscordConversationParticipants = (
   conversationId: string,
   skip: boolean,

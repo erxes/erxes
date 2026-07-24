@@ -88,7 +88,6 @@ export const sendCreateIntegration = async (
         return await discordCreateIntegrations({ subdomain, data });
 
       case 'mobinetSms':
-        // TODO: Implement MobinetSms integration
         break;
 
       default:
@@ -218,9 +217,6 @@ export const sendRepairIntegration = async (
 };
 
 export const integrationMutations = {
-  /**
-   * Creates a new messenger onboarding
-   */
   async integrationsCreateMessengerOnboarding(
     _root,
     doc: IOnboardingParamsEdit,
@@ -316,7 +312,6 @@ export const integrationMutations = {
 
     const integrationDocs = {
       name: 'Default brand',
-      // brandId: brand._id,
       channelId: channel?._id,
     } as IIntegration;
 
@@ -333,10 +328,6 @@ export const integrationMutations = {
     );
   },
 
-  /**
-   * Creates a new messenger integration
-   */
-
   async integrationsCreateMessengerIntegration(
     _root,
     doc: IIntegration,
@@ -345,9 +336,6 @@ export const integrationMutations = {
     return await models.Integrations.createMessengerIntegration(doc, user._id);
   },
 
-  /**
-   * Updates a messenger integration
-   */
   async integrationsEditMessengerIntegration(
     _root,
     { _id, ...fields }: any,
@@ -362,9 +350,6 @@ export const integrationMutations = {
     return await models.Integrations.updateMessengerIntegration(_id, fields);
   },
 
-  /**
-   * Update/save messenger appearance data
-   */
   async integrationsSaveMessengerAppearanceData(
     _root,
     {
@@ -380,9 +365,6 @@ export const integrationMutations = {
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
-  /**
-   * Update/save messenger data
-   */
   async integrationsSaveMessengerConfigs(
     _root,
     {
@@ -445,9 +427,6 @@ export const integrationMutations = {
       },
     ];
   },
-  /**
-   * Create a new messenger integration
-   */
   async integrationsCreateLeadIntegration(
     _root,
     doc: IIntegration,
@@ -456,9 +435,6 @@ export const integrationMutations = {
     return await models.Integrations.createLeadIntegration(doc, user._id);
   },
 
-  /**
-   * Edit a lead integration
-   */
   async integrationsEditLeadIntegration(
     _root,
     { _id, ...doc }: any,
@@ -473,14 +449,20 @@ export const integrationMutations = {
     return await models.Integrations.updateLeadIntegration(_id, doc);
   },
 
-  /**
-   * Create external integrations like twitter, gmail etc ...
-   */
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
     { user, models, subdomain }: IContext,
   ) {
+    if (doc.channelId) {
+      const channel = await models.Channels.findOne({ _id: doc.channelId });
+      if (!channel) {
+        throw new Error(
+          `Channel "${doc.channelId}" not found — cannot create an integration on a channel that doesn't exist.`,
+        );
+      }
+    }
+
     const modifiedDoc: any = { ...doc };
 
     if (modifiedDoc.kind === 'webhook') {
@@ -574,9 +556,6 @@ export const integrationMutations = {
     return updated;
   },
 
-  /**
-   * Deletes an integration
-   */
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
@@ -598,9 +577,6 @@ export const integrationMutations = {
     return models.Integrations.removeIntegration(_id);
   },
 
-  /**
-   * Delete an account
-   */
   async integrationsRemoveAccount(
     _root,
     { _id, kind }: { _id: string; kind?: string },
