@@ -131,6 +131,13 @@ export class TokiAPI extends BaseAPI {
     }
 
     try {
+      console.log('[TOKI] Requesting access token', {
+        apiUrl: this.apiUrl,
+        path: '/third-party-service/v1/auth/token',
+        merchantId: this.tokiMerchantId,
+        username: this.tokiUsername,
+      });
+
       const response = await this.request({
         method: 'GET',
         path: '/third-party-service/v1/auth/token',
@@ -140,13 +147,21 @@ export class TokiAPI extends BaseAPI {
         },
       });
 
+      console.log('[TOKI] Response status:', response.status);
+
       const res = await response.json().catch(() => ({}));
+
+      console.log('[TOKI] Response body:', res);
 
       if (response.status !== 200 || res.error || !res.data?.accessToken) {
         throw new Error(
-          `Token request failed: ${response.status} - ${res.error?.message || JSON.stringify(res)}`,
+          `Token request failed: ${response.status} - ${
+            res.error?.message || JSON.stringify(res)
+          }`,
         );
       }
+
+      console.log('[TOKI] Access token received successfully');
 
       await redis.set(cacheKey, res.data.accessToken, 'EX', 3600);
 
@@ -155,6 +170,13 @@ export class TokiAPI extends BaseAPI {
         'Content-Type': 'application/json',
       };
     } catch (e: any) {
+      console.error('[TOKI] Failed to get access token', {
+        apiUrl: this.apiUrl,
+        merchantId: this.tokiMerchantId,
+        username: this.tokiUsername,
+        error: e.message,
+      });
+
       throw new Error(`Failed to get Toki access token: ${e.message}`);
     }
   }
