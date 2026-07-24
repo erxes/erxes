@@ -1,6 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
 import { Form } from 'erxes-ui';
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
@@ -14,6 +13,9 @@ import { FormArea } from './FormFields/FormInput';
 import { SelectBranchDistrict } from './selects/SelectBranchDistrict';
 import { SelectSubBranchDistrict } from './selects/SelectSubBranchDistrict';
 import { useEBarimtDistrictHandlers } from '@/ebarimt/settings/hooks/useEBarimtDistrictHandlers';
+
+const getSelectedId = (value: string | string[]) =>
+  Array.isArray(value) ? value[0] : value;
 
 export const StageInEBarimtConfigFormFields = ({
   form,
@@ -32,22 +34,16 @@ export const StageInEBarimtConfigFormFields = ({
   const selectedBranchCode = form.watch('branchOfProvince');
   const selectedSubBranchCode = form.watch('subProvince');
 
-  const handleBoardChange = useCallback(
-    (value: string | string[]) => {
-      form.setValue('boardId', Array.isArray(value) ? value[0] : value);
-      form.setValue('pipelineId', '');
-      form.setValue('stageId', '');
-    },
-    [form],
-  );
+  const handleBoardChange = (value: string | string[]) => {
+    form.setValue('boardId', getSelectedId(value));
+    form.setValue('pipelineId', '');
+    form.setValue('stageId', '');
+  };
 
-  const handlePipelineChange = useCallback(
-    (value: string | string[]) => {
-      form.setValue('pipelineId', Array.isArray(value) ? value[0] : value);
-      form.setValue('stageId', '');
-    },
-    [form],
-  );
+  const handlePipelineChange = (value: string | string[]) => {
+    form.setValue('pipelineId', getSelectedId(value));
+    form.setValue('stageId', '');
+  };
 
   const {
     handleBranchChange,
