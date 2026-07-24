@@ -1,9 +1,8 @@
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
-import { invoicesTotalCountAtom } from '../states/invoiceCounts';
+import { invoicesTotalCountAtom } from '~/modules/payment/states/invoiceCounts';
 
-/** Shows the total number of invoices matching the active filters. */
 export const InvoiceTotalCount = () => {
   const { t } = useTranslation('payment');
   const totalCount = useAtomValue(invoicesTotalCountAtom);

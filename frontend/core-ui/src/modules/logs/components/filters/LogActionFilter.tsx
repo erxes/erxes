@@ -7,7 +7,6 @@ import {
   useMultiQueryState,
 } from 'erxes-ui';
 
-/** Command list for picking a log action scoped to the selected source. */
 export const LogActionsFilter = ({
   onValueChange,
 }: {

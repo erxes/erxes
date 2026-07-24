@@ -42,10 +42,6 @@ interface InvoicesQueryVariables extends OperationVariables {
   status?: string;
 }
 
-/**
- * Fetches the cursor-paginated invoice list using filters from query params
- * and keeps the invoice total count atom in sync.
- */
 export const useInvoices = (
   options?: QueryHookOptions<InvoicesQueryResult, InvoicesQueryVariables>,
 ) => {

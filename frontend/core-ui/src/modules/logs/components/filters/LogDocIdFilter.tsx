@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Input, useFilterContext, useMultiQueryState } from 'erxes-ui';
 
-/** Input for filtering logs by document id; applies the value on Enter. */
 export const LogDocIdFilter = () => {
   const [queries, setQueries] = useMultiQueryState<{
     docId: string;

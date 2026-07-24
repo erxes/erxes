@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { INVOICES_CURSOR_SESSION_KEY } from '~/modules/payment/hooks/use-invoices';
 
-/** Searchable command list of payment kinds with the current selection checked. */
 const SelectInvoiceKindContent = ({
   value,
   onValueChange,
@@ -44,7 +43,6 @@ const SelectInvoiceKindContent = ({
   );
 };
 
-/** Menu item that opens the kind filter view from the filter popover root. */
 const SelectInvoiceKindFilterItem = () => {
   const { t } = useTranslation('payment');
 
@@ -56,7 +54,6 @@ const SelectInvoiceKindFilterItem = () => {
   );
 };
 
-/** Filter popover view that binds the kind selection to the `kind` query param. */
 const SelectInvoiceKindFilterView = () => {
   const [kind, setKind] = useFilterQueryState<string>(
     'kind',
@@ -77,7 +74,6 @@ const SelectInvoiceKindFilterView = () => {
   );
 };
 
-/** Filter bar chip showing the selected kind with a popover to change it. */
 const SelectInvoiceKindFilterBar = () => {
   const [kind, setKind] = useFilterQueryState<string>(
     'kind',
@@ -116,7 +112,6 @@ const SelectInvoiceKindFilterBar = () => {
   );
 };
 
-/** Compound component for filtering invoices by payment kind. */
 export const SelectInvoiceKind = {
   Content: SelectInvoiceKindContent,
   FilterItem: SelectInvoiceKindFilterItem,

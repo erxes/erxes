@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { PaymentAddSheet } from '@/settings/payment/components/PaymentAddSheet';
 
-/** Breadcrumb for payment settings pages with page-specific actions. */
 export const PaymentSettingsBreadcrumb = () => {
   const { t } = useTranslation('payment');
   const isMatchingLocation = useIsMatchingLocation('/settings/payment');

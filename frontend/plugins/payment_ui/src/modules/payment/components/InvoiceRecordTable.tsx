@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { invoicesColumns } from './InvoiceColumns';
 import { useInvoices } from '../hooks/use-invoices';
 
-/** Empty state shown when no invoices match the current filters. */
 const InvoiceEmptyState = () => {
   const { t } = useTranslation('payment');
 

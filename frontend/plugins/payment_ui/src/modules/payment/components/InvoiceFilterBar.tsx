@@ -5,7 +5,6 @@ import { SelectInvoiceKind } from './InvoiceKindFilter';
 import { SelectInvoiceStatus } from './InvoiceStatusFilter';
 import { InvoiceTotalCount } from './InvoiceTotalCount';
 
-/** Root view of the invoice filter popover listing the available filters. */
 const InvoiceFilterRootView = () => {
   const { t } = useTranslation('payment');
 
@@ -27,7 +26,6 @@ const InvoiceFilterRootView = () => {
   );
 };
 
-/** Popover and dialog for picking invoice filters (search, status, kind). */
 const InvoiceFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     searchValue: string;
@@ -58,7 +56,6 @@ const InvoiceFilterPopover = () => {
   );
 };
 
-/** Filter bar for the invoices list with active filter chips and total count. */
 export const InvoiceFilterBar = () => {
   return (
     <Filter id="invoices" sessionKey={INVOICES_CURSOR_SESSION_KEY}>
