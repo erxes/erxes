@@ -3,6 +3,7 @@ import { getCoreDomain } from 'erxes-api-shared/utils';
 import * as dotenv from 'dotenv';
 import { IContext } from '~/connectionResolvers';
 import fetch from 'node-fetch';
+import { getFileUploadConfigs } from '../../utils/configs';
 
 dotenv.config();
 
@@ -62,5 +63,20 @@ export const organizationConfigQueries = {
     { models }: IContext,
   ) {
     return models.Configs.findOne({ code });
+  },
+  
+  async configsFileUploadInfo(
+    _parent: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    const { UPLOAD_SERVICE_TYPE, CLOUDFLARE_USE_CDN } =
+      await getFileUploadConfigs(models);
+
+    const videoUploadEnabled =
+      UPLOAD_SERVICE_TYPE === 'CLOUDFLARE' &&
+      (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true);
+
+    return { videoUploadEnabled };
   },
 };
