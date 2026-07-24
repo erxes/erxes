@@ -463,10 +463,7 @@ export const sendReply = async (
         e.message
       } data: ${JSON.stringify(data)}`,
     );
-
-
     const messageLevelErrorCodes = [10, 10900];
-
     if (e.message.includes('access token')) {
       await models.FacebookIntegrations.updateOne(
         { _id: integration._id },

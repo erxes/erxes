@@ -1,6 +1,7 @@
 import {
   AUTOMATION_STATUSES,
   IAutomation,
+  validateWorkflowBindings,
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
@@ -14,6 +15,17 @@ import {
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
+const requestScheduleReconcile = async (subdomain: string) => {
+  try {
+    await sendWorkerQueue('automations', 'schedule').add(
+      'reconcile-recurring-automations',
+      { kind: 'reconcile', subdomain },
+      { removeOnComplete: 10, removeOnFail: 10 },
+    );
+  } catch {
+    // The recurring scheduler retries reconciliation every 60 seconds.
+  }
+};
 
 export const automationMutations = {
   /**
@@ -22,7 +34,7 @@ export const automationMutations = {
   async automationsAdd(
     _root,
     doc: IAutomation,
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsCreate');
 
@@ -32,6 +44,7 @@ export const automationMutations = {
       createdBy: user._id,
       updatedBy: user._id,
     });
+    await requestScheduleReconcile(subdomain);
 
     return models.Automations.getAutomation(automation._id);
   },
@@ -42,7 +55,7 @@ export const automationMutations = {
   async automationsEdit(
     _root,
     { _id, ...doc }: IAutomationsEdit,
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
 
@@ -59,10 +72,26 @@ export const automationMutations = {
       action: 'edit',
     });
 
+    // An active automation must not carry workflow bindings that cannot
+    // resolve — fail here instead of at runtime.
+    const nextStatus = doc.status ?? automation.status;
+
+    if (nextStatus === AUTOMATION_STATUSES.ACTIVE) {
+      const bindingErrors = validateWorkflowBindings(
+        doc.workflows ?? automation.workflows,
+        doc.actions ?? automation.actions,
+      );
+
+      if (bindingErrors.length) {
+        throw new Error(`Cannot activate automation: ${bindingErrors.join('; ')}`);
+      }
+    }
+
     await models.Automations.updateOne(
       { _id },
       { $set: { ...doc, updatedAt: new Date(), updatedBy: user._id } },
     );
+    await requestScheduleReconcile(subdomain);
 
     return models.Automations.getAutomation(_id);
   },
@@ -74,7 +103,7 @@ export const automationMutations = {
   async archiveAutomations(
     _root,
     { automationIds, isRestore },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
 
@@ -102,6 +131,7 @@ export const automationMutations = {
         },
       },
     );
+    await requestScheduleReconcile(subdomain);
     return automationIds;
   },
   /**
@@ -110,7 +140,7 @@ export const automationMutations = {
   async automationsRemove(
     _root,
     { automationIds }: { automationIds: string[] },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsDelete');
 
@@ -148,6 +178,7 @@ export const automationMutations = {
     await models.AutomationExecutions.removeExecutions(automationIds);
 
     await models.Segments.deleteMany({ _id: { $in: segmentIds } });
+    await requestScheduleReconcile(subdomain);
 
     return automationIds;
   },
@@ -308,6 +339,66 @@ export const automationMutations = {
     await checkPermission('automationsDelete');
 
     await models.AutomationEmailTemplates.removeEmailTemplate(_id);
+    return { success: true };
+  },
+
+  /**
+   * Creates a workflow template
+   */
+  async automationWorkflowTemplatesAdd(
+    _root,
+    doc: {
+      name: string;
+      description?: string;
+      entryActionId?: string;
+      actions: Record<string, any>[];
+      inputs?: Record<string, string>;
+    },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsCreate');
+
+    return models.AutomationWorkflowTemplates.createWorkflowTemplate({
+      ...doc,
+      createdBy: user._id,
+    });
+  },
+
+  /**
+   * Updates a workflow template (e.g. pushing edits made to an inserted
+   * instance back to its source template)
+   */
+  async automationWorkflowTemplatesEdit(
+    _root,
+    {
+      _id,
+      ...doc
+    }: {
+      _id: string;
+      name?: string;
+      description?: string;
+      entryActionId?: string;
+      actions?: Record<string, any>[];
+      inputs?: Record<string, string>;
+    },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsUpdate');
+
+    return models.AutomationWorkflowTemplates.updateWorkflowTemplate(_id, doc);
+  },
+
+  /**
+   * Removes a workflow template
+   */
+  async automationWorkflowTemplatesRemove(
+    _root,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsDelete');
+
+    await models.AutomationWorkflowTemplates.removeWorkflowTemplate(_id);
     return { success: true };
   },
 };

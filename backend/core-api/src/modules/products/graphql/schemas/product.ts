@@ -29,6 +29,7 @@ export const types = `
     tagIds: [String]
     attachment: Attachment
     attachmentMore: [Attachment]
+    videos: [Attachment]
     vendorId: String
     scopeBrandIds: [String]
     uom: String
@@ -50,7 +51,12 @@ export const types = `
     discounts: JSON
 
     remainder: JSON
-    discount: JSON
+    discount(
+      branchId: String
+      departmentId: String
+      pipelineId: String
+      discountConditions: JSON
+    ): JSON
   }
 
   type ProductSimilarityGroup {
@@ -103,6 +109,7 @@ const queryParams = `
   maxDiscountValue: Float,
   minDiscountPercent: Float,
   maxDiscountPercent: Float,
+  discountConditions: JSON,
 `;
 
 export const queries = `
@@ -148,6 +155,7 @@ export const mutationParams = `
   propertiesData: JSON
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
+  videos: [AttachmentInput],
   vendorId: String,
   scopeBrandIds: [String],
   uom: String,

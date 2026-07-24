@@ -1,8 +1,45 @@
 import {
+  AUTOMATION_CORE_ACTIONS,
   IAutomationAction,
   IAutomationActionsMap,
+  IAutomationExecution,
+  IAutomationWorkflow,
 } from 'erxes-api-shared/core-modules';
 import { getEnv, sendTRPCMessage } from 'erxes-api-shared/utils';
+
+// Builds the actions map an execution runs against. Workflow child
+// executions run their workflow's member snapshot; root executions run the
+// root actions plus one synthetic `workflow` action per workflow node so the
+// executor can enter it like any other core action.
+export const getExecutionActionsMap = async (
+  automation: {
+    actions?: IAutomationAction[];
+    workflows?: IAutomationWorkflow[];
+  },
+  execution: Pick<IAutomationExecution, 'workflowId'>,
+) => {
+  if (execution.workflowId) {
+    const workflow = (automation.workflows || []).find(
+      ({ id }) => id === execution.workflowId,
+    );
+
+    return getActionsMap(workflow?.actions || []);
+  }
+
+  const actionsMap = await getActionsMap(automation.actions || []);
+
+  for (const workflow of automation.workflows || []) {
+    actionsMap[workflow.id] = {
+      id: workflow.id,
+      type: AUTOMATION_CORE_ACTIONS.WORKFLOW,
+      label: workflow.name,
+      config: workflow.config || {},
+      nextActionId: workflow.nextActionId,
+    };
+  }
+
+  return actionsMap;
+};
 
 export const getActionsMap = async (actions: IAutomationAction[]) => {
   const actionsMap: IAutomationActionsMap = {};

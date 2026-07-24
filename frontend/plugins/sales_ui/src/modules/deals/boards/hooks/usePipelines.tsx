@@ -119,6 +119,10 @@ export const usePipelineAdd = () => {
       variables,
       refetchQueries: ['SalesPipelines'],
       awaitRefetchQueries: true,
+      update: (cache) => {
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'salesStages' });
+        cache.gc();
+      },
       onError: (error) => {
         toast({
           title: error.message,
@@ -146,18 +150,21 @@ export const usePipelineEdit = () => {
       refetchQueries: ['SalesPipelines', 'SalesStages'],
       awaitRefetchQueries: true,
       update: (cache, { data: { salesPipelinesEdit } }) => {
-        if (!salesPipelinesEdit) return;
-        cache.modify({
-          id: cache.identify(salesPipelinesEdit),
-          fields: Object.keys(variables || {}).reduce(
-            (fields: Record<string, () => any>, field) => {
-              fields[field] = () => variables?.[field];
-              return fields;
-            },
-            {},
-          ),
-          optimistic: true,
-        });
+        if (salesPipelinesEdit) {
+          cache.modify({
+            id: cache.identify(salesPipelinesEdit),
+            fields: Object.keys(variables || {}).reduce(
+              (fields: Record<string, () => unknown>, field) => {
+                fields[field] = () => variables?.[field];
+                return fields;
+              },
+              {},
+            ),
+            optimistic: true,
+          });
+        }
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'salesStages' });
+        cache.gc();
       },
       onError: (error) => {
         toast({
@@ -303,13 +310,13 @@ export const usePipelinesBulkRemove = () => {
         variant: 'success',
         description: t('pipelines-deleted'),
       });
-    } catch (e: any) {
+    } catch (error) {
       toast({
         title: t('error'),
-        description: e.message,
+        description: error instanceof Error ? error.message : t('error'),
         variant: 'destructive',
       });
-      throw e;
+      throw error;
     }
   };
 

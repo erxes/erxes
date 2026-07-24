@@ -37,6 +37,12 @@ const InboxRemoteEntry = lazy(() =>
   })),
 );
 
+const DiscordRemoteEntry = lazy(() =>
+  import('../modules/discord/components/DiscordRemoteEntry').then((module) => ({
+    default: module.DiscordRemoteEntry,
+  })),
+);
+
 const KnowledgebaseRemoteEntry = lazy(() =>
   import('../modules/knowledgebase/components/KnowledgebaseRemoteEntry').then(
     (module) => ({
@@ -53,6 +59,7 @@ const Remotes: Record<
   instagram: InstagramRemoteEntry,
   tickets: TicketRemoteEntry,
   inbox: InboxRemoteEntry,
+  discord: DiscordRemoteEntry,
   knowledgebase: KnowledgebaseRemoteEntry,
 };
 

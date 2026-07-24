@@ -32,7 +32,7 @@ export const DealCardDetails = ({
     >
       {visibleItems.map((item: any, index: number) => (
         <div
-          key={item._id || index}
+          key={`${item._id ?? 'item'}-${index}`}
           className={cn(
             'flex min-w-0 items-start gap-1 text-xs text-muted-foreground',
             separated &&

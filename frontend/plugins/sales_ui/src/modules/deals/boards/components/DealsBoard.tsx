@@ -1,13 +1,17 @@
 'use client';
 
 import {
+  DealsBoardItem,
   DealsBoardState,
   useAllDealsMap,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ColumnPaginationState } from '@/deals/types/boards';
+import type {
+  BoardDealColumn,
+  ColumnPaginationState,
+} from '@/deals/types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
@@ -15,6 +19,7 @@ import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
+import { usePipelineChanged } from '@/deals/boards/hooks/usePipelineChanged';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
 import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 import { useQueryState } from 'erxes-ui';
@@ -34,6 +39,7 @@ export const DealsBoard = () => {
   const { columns, columnsLoading } = useDealsBoardData();
   const [pipelineId] = useQueryState<string>('pipelineId');
   const { changeDeals } = useDealsChange();
+  usePipelineChanged(pipelineId || undefined);
   const { updateStagesOrder } = useStagesOrder();
   const [searchParams] = useSearchParams();
   const [fetchMoreTriggers, setFetchMoreTriggers] = useState<
@@ -87,6 +93,11 @@ export const DealsBoard = () => {
     () => columns.map((column: { _id: string }) => column._id).join(','),
     [columns],
   );
+  const boardStateMatchesColumns =
+    boardState?.columns.length === columns.length &&
+    columns.every((column: { _id: string }) =>
+      boardState.columns.some((boardColumn) => boardColumn._id === column._id),
+    );
 
   useEffect(() => {
     resetColumnsRef.current = columns;
@@ -216,13 +227,19 @@ export const DealsBoard = () => {
         const aboveItemId =
           newIndex > 0 ? newColumnItems[newIndex - 1] : undefined;
 
+        const processId = Math.random().toString();
+        localStorage.setItem('processId', processId);
+
         changeDeals({
           variables: {
             itemId: draggedItemId,
             destinationStageId: newItem.columnId,
             sourceStageId: oldItem.columnId,
             aboveItemId,
+            processId,
           },
+        }).finally(() => {
+          delete locallyMovedIdsRef.current[draggedItemId];
         });
       }
     },
@@ -253,10 +270,13 @@ export const DealsBoard = () => {
     return <NoStagesWarning />;
   }
 
-  if (!boardState) return null;
+  if (!boardState || !boardStateMatchesColumns) {
+    return <StagesLoading />;
+  }
 
   return (
-    <GenericBoard<any, any>
+    <GenericBoard<DealsBoardItem, BoardDealColumn>
+      key={pipelineId}
       initialState={boardState}
       onStateChange={handleStateChange}
       renderCard={(deal) => <DealsBoardCard deal={deal} />}

@@ -1,6 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { Form as ErxesForm } from 'erxes-ui';
 import { TPosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
+import { useEBarimtDistrictHandlers } from '@/ebarimt/settings/hooks/useEBarimtDistrictHandlers';
 import { useTranslation } from 'react-i18next';
 import { SelectPos } from './selects/SelectPos';
 import { SelectBranchDistrict } from './selects/SelectBranchDistrict';
@@ -17,22 +18,27 @@ export const PosInEBarimtConfigFormFields = ({
   form,
   onSubmit,
   formId,
-  onBranchChange,
-  onSubBranchChange,
-  onSetValue,
 }: {
   form: UseFormReturn<TPosInEbarimtConfig>;
   onSubmit: (data: TPosInEbarimtConfig) => void;
   formId: string;
-  onBranchChange: (value: string) => void;
-  onSubBranchChange: (value: string) => void;
-  onSetValue: (name: string, value: any) => void;
 }) => {
   const { t } = useTranslation('mongolian');
   const hasVat = form.watch('hasVat');
   const hasCitytax = form.watch('hasCitytax');
   const selectedBranchCode = form.watch('branchOfProvince');
   const selectedSubBranchCode = form.watch('subProvince');
+
+  const {
+    handleBranchChange,
+    handleDistrictCodeChange,
+    handleSubBranchChange,
+  } = useEBarimtDistrictHandlers({
+    getBranchCode: () => form.getValues('branchOfProvince'),
+    setBranchCode: (value) => form.setValue('branchOfProvince', value),
+    setDistrictCode: (value) => form.setValue('districtCode', value),
+    setSubBranchCode: (value) => form.setValue('subProvince', value),
+  });
 
   return (
     <ErxesForm {...form}>
@@ -105,10 +111,12 @@ export const PosInEBarimtConfigFormFields = ({
             name="branchOfProvince"
             render={({ field }) => (
               <ErxesForm.Item>
-                <ErxesForm.Label>{t('branch-of-province-district')}</ErxesForm.Label>
+                <ErxesForm.Label>
+                  {t('branch-of-province-district')}
+                </ErxesForm.Label>
                 <SelectBranchDistrict
                   value={field.value || ''}
-                  onValueChange={onBranchChange}
+                  onValueChange={handleBranchChange}
                 />
                 <ErxesForm.Message />
               </ErxesForm.Item>
@@ -123,7 +131,7 @@ export const PosInEBarimtConfigFormFields = ({
                 <SelectSubBranchDistrict
                   value={field.value || ''}
                   branchCode={selectedBranchCode || ''}
-                  onValueChange={onSubBranchChange}
+                  onValueChange={handleSubBranchChange}
                 />
                 <ErxesForm.Message />
               </ErxesForm.Item>
@@ -136,7 +144,8 @@ export const PosInEBarimtConfigFormFields = ({
             control={form.control}
             branchCode={selectedBranchCode || ''}
             subBranchCode={selectedSubBranchCode || ''}
-            setValue={onSetValue}
+            setValue={(_name, value) => form.setValue('districtCode', value)}
+            onValueChange={handleDistrictCodeChange}
           />
         </div>
 

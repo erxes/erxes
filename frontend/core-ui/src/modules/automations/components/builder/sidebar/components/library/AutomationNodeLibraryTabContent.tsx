@@ -15,6 +15,9 @@ interface AutomationNodeLibraryTabContentProps {
     | IAutomationsActionConfigConstants[];
 }
 
+export const NODE_LIBRARY_GROUP_CLASS =
+  'mx-auto max-w-[420px] p-0 pb-4 [&_[cmdk-group-heading]]:px-0 [&_[cmdk-group-heading]]:pb-2 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-items]]:flex [&_[cmdk-group-items]]:flex-col [&_[cmdk-group-items]]:gap-2';
+
 export const AutomationNodeLibraryTabContent = ({
   type,
   list,
@@ -29,7 +32,7 @@ export const AutomationNodeLibraryTabContent = ({
         <Command.Group
           key={group.name}
           heading={group.name}
-          className="mx-auto max-w-[420px] p-0 pb-4 [&_[cmdk-group-heading]]:px-0 [&_[cmdk-group-heading]]:pb-2 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-items]]:flex [&_[cmdk-group-items]]:flex-col [&_[cmdk-group-items]]:gap-2"
+          className={NODE_LIBRARY_GROUP_CLASS}
         >
           {group.list.map((item) => (
             <NodeLibraryRow

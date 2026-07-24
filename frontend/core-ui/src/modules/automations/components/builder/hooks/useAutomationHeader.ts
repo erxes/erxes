@@ -124,6 +124,7 @@ export const useAutomationHeader = () => {
       // Use the new error handler
       handleNodeErrors(nodeErrorMap);
     } else {
+      console.log({ errors });
       const errorKeys = Object.keys(errors || {});
       if (errorKeys?.length > 0) {
         const { message, ref } =

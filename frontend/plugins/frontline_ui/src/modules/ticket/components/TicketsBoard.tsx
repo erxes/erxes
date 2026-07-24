@@ -67,6 +67,9 @@ export const TicketsBoard = () => {
       return;
     }
     const activeItem = allTicketsMap[active.id as string];
+    if (!activeItem) {
+      return;
+    }
     const overItem = allTicketsMap[over.id as string];
     const overColumn =
       overItem?.statusId ||
@@ -152,7 +155,9 @@ export const TicketsBoardCards = ({
     if (tickets) {
       setTicketCards((prev) => {
         const previoustickets = prev.filter(
-          (ticket) => !tickets.some((t) => t._id === ticket.id),
+          (ticket) =>
+            ticket.column !== column.id &&
+            !tickets.some((t) => t._id === ticket.id),
         );
         return [
           ...previoustickets,

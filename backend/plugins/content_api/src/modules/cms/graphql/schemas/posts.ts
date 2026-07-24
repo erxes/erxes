@@ -73,6 +73,8 @@ export const types = `
           attachments: [Attachment]
           pdfAttachment: PdfAttachment
           videoUrl: String
+          seoTitle: String
+          seoDescription: String
           createdAt: Date
           updatedAt: Date
           categories: [PostCategory]
@@ -131,6 +133,8 @@ export const inputs = `
           attachments: [AttachmentInput]
           pdfAttachment: PdfAttachmentInput
           videoUrl: String
+          seoTitle: String
+          seoDescription: String
           customFieldsData: JSON
           type: String
           translations: [TranslationInput]
@@ -155,6 +159,7 @@ const commonPostQuerySelector = `
       searchValue: String
       status: PostStatus
       tagIds: [String]
+      authorId: String
       sortField: String
       sortDirection: String
       language: String
@@ -171,6 +176,7 @@ const commonPostQuerySelectorPagination = `
       searchValue: String
       status: PostStatus
       tagIds: [String]
+      authorId: String
       language: String
   `;
 
@@ -194,6 +200,7 @@ export const mutations = `
       cmsPostsRemove(_id: String!): JSON
       cmsPostsRemoveMany(_ids: [String]!): JSON
       cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
+      cmsPostsDuplicate(_id: String!): Post
       cmsPostsToggleFeatured(_id: String!): Post
       cmsPostsSendNotification(_id: String!): JSON
   

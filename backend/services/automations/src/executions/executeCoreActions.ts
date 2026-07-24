@@ -9,6 +9,7 @@ import { executeTransformAction } from './actions/executeTransformAction';
 import { executeWaitEvent } from './actions/executeWaitEvent';
 import { executeOutgoingWebhook } from './actions/webhook/outgoing/outgoingWebhook';
 import { executeFindObjectAction } from './executeFindObjectAction';
+import { startWorkflowExecution } from './startWorkflowExecution';
 import {
   AUTOMATION_CORE_ACTIONS,
   IAutomationAction,
@@ -37,6 +38,20 @@ export const executeCoreActions = async (
   const shouldBreak = false;
 
   let actionResponse: any = null;
+
+  // Entering a workflow pauses this execution; the child execution resumes
+  // it from the workflow node's nextActionId when it completes.
+  if (actionType === AUTOMATION_CORE_ACTIONS.WORKFLOW) {
+    actionResponse = await startWorkflowExecution(
+      subdomain,
+      execution,
+      action,
+    );
+    execAction.childExecutionId = actionResponse?.childExecutionId;
+
+    return { actionResponse, shouldBreak: true };
+  }
+
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {
     await executeDelayAction(subdomain, execution, action);
     return { actionResponse, shouldBreak: true };
@@ -138,6 +153,12 @@ export const executeCoreActions = async (
 
     if (aiResponse?.nextActionId) {
       execAction.nextActionId = aiResponse.nextActionId;
+    }
+
+    // Classification found nothing — downstream actions would only receive
+    // empty values, so stop this execution here.
+    if (aiResponse?.attributesEmpty) {
+      execAction.nextActionId = undefined;
     }
 
     actionResponse = aiResponse?.result ?? aiResponse;

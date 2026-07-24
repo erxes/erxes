@@ -8,6 +8,7 @@ import { useAtomValue } from 'jotai';
 import { SubmitErrorHandler } from 'react-hook-form';
 import { AutomationBuilderStatusSwitch } from './AutomationBuilderStatusSwitch';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationNodeType } from '@/automations/types';
 
 type AutomationBuilderHeaderActionsProps = {
@@ -22,6 +23,7 @@ export const AutomationBuilderHeaderActions = ({
   onError,
 }: AutomationBuilderHeaderActionsProps) => {
   const { isEmpty } = useAutomationNodes();
+  const { editingWorkflowId } = useAutomation();
   const activeTab = useAtomValue(automationBuilderActiveTabState);
   const { activeNodeTab, queryParams } = useAutomationNodeLibrarySidebar();
 
@@ -54,7 +56,10 @@ export const AutomationBuilderHeaderActions = ({
               Boolean(queryParams?.activeNodeTab) && value === activeNodeTab
             }
             asChild
-            disabled={value === AutomationNodeType.Action && isEmptyFlow}
+            disabled={
+              !!editingWorkflowId ||
+              (value === AutomationNodeType.Action && isEmptyFlow)
+            }
             onPressedChange={() => handleNodeLibraryToggle(value)}
           >
             <Button variant="outline" className="whitespace-nowrap">

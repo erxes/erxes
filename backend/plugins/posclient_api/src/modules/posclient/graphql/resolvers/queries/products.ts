@@ -16,7 +16,11 @@ import {
 import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
+  getDiscountSortedProducts,
   getRemBranchId,
+  isDiscountSortField,
+  pushDiscountRangeFilters,
+  type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
 
 const getPropertyFieldId = (field: string) =>
@@ -64,7 +68,7 @@ export interface IProductParams extends ICommonParams {
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
-  similarity?: boolean;
+  isSimilarity?: boolean;
   categoryMeta?: string;
   image?: string;
 
@@ -72,6 +76,11 @@ export interface IProductParams extends ICommonParams {
   maxRemainder?: number;
   minPrice?: number;
   maxPrice?: number;
+  minDiscountValue?: number;
+  maxDiscountValue?: number;
+  minDiscountPercent?: number;
+  maxDiscountPercent?: number;
+  discountConditions?: Record<string, unknown>;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -107,11 +116,16 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
-    similarity,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
     maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -123,8 +137,7 @@ const generateFilter = async (
     tokens: { $in: [token] },
   };
 
-  // one card per bulk-similarity group: standalone products + each group's star
-  if (similarity) {
+  if (isSimilarity) {
     const similarityGroups = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -303,6 +316,14 @@ const generateFilter = async (
     });
   }
 
+  pushDiscountRangeFilters($and, config, branchId, {
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+  });
+
   const lastFilter = { ...filter, $and };
 
   if (isKiosk) {
@@ -418,6 +439,23 @@ const productQueries = {
         groupedSimilarity,
         ...paginationArgs,
       });
+    }
+
+    if (isDiscountSortField(sortField)) {
+      const products = await getDiscountSortedProducts({
+        models,
+        filter,
+        config,
+        params,
+      });
+
+      return checkRemainders(
+        subdomain,
+        models,
+        config,
+        products,
+        branchId || '',
+      );
     }
 
     const paginatedProducts = await paginate(
@@ -680,7 +718,9 @@ const productQueries = {
         ],
       };
 
-      let products = await models.Products.find(filters).sort({ code: 1 });
+      let products: ProductWithRemainder[] = await models.Products.find(
+        filters,
+      ).sort({ code: 1 });
       if (!products.length) {
         products = await checkRemainders(
           subdomain,

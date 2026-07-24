@@ -162,6 +162,14 @@ export const generateAutomationHistoriesFilter = (params: any) => {
     filter.targetId = { $in: targetIds };
   }
 
+  // Workflow child executions are opened from within their parent execution;
+  // the main history list shows only root executions.
+  if (params.parentExecutionId) {
+    filter.parentExecutionId = params.parentExecutionId;
+  } else {
+    filter.parentExecutionId = { $exists: false };
+  }
+
   return filter;
 };
 
@@ -299,6 +307,7 @@ const toSetPropertyTargetOption = (
   sourceType: target.sourceType,
   relation: target.relation,
   resolverKey: target.resolverKey,
+  targetPath: target.targetPath,
   pluginName: target.pluginName,
   value: target.type,
   description: target.label,
@@ -316,6 +325,7 @@ const getSetPropertyTargetOptionKey = (
     target.relation?.contentType || '',
     target.relation?.relatedContentType || '',
     target.resolverKey || '',
+    target.targetPath || '',
   ].join(':');
 
 export const getAutomationSetPropertyTargets = async (sourceType: string) => {

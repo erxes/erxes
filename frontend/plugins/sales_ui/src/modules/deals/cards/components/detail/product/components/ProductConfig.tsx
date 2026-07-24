@@ -2,25 +2,15 @@ import { SelectCategory, SelectProduct } from 'ui-modules';
 
 import { Form } from 'erxes-ui';
 import { OtherPaymentsField, PaymentIdsField } from '@/payments';
-import { UseFormReturn } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-
-interface ProductConfigFormValues {
-  numberSize?: string;
-  isCheckDate?: boolean;
-  isCheckUser?: boolean;
-  isCheckDepartment?: boolean;
-  initialCategoryIds?: string[];
-  excludeCategoryIds?: string[];
-  excludeProductIds?: string[];
-  paymentIds?: string[];
-}
+import type { TPipelineForm } from '@/deals/types/pipelines';
 
 interface ProductConfigProps {
-  form: UseFormReturn<ProductConfigFormValues>;
+  form: UseFormReturn<TPipelineForm>;
 }
 
-const ProductConfig = ({ form }: ProductConfigProps) => {
+export const ProductConfig = ({ form }: ProductConfigProps) => {
   const { t } = useTranslation('sales');
   const { control } = form;
 
@@ -38,14 +28,10 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
           render={({ field }) => {
             return (
               <SelectCategory
-                selected={field.value?.[0] || ''}
-                onSelect={(id) => {
-                  const current = field.value || [];
-                  const updated = current.includes(id as string)
-                    ? current.filter((i: string) => i !== id)
-                    : [...current, id];
-                  field.onChange(updated);
-                }}
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={field.onChange}
+                placeholder={t('select-initial-product-categories')}
               />
             );
           }}
@@ -67,14 +53,10 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
                   {t('exclude-categories')}
                 </Form.Label>
                 <SelectCategory
-                  selected={field.value?.[0] || ''}
-                  onSelect={(id) => {
-                    const current = field.value || [];
-                    const updated = current.includes(id as string)
-                      ? current.filter((i: string) => i !== id)
-                      : [...current, id];
-                    field.onChange(updated);
-                  }}
+                  mode="multiple"
+                  value={field.value || []}
+                  onValueChange={field.onChange}
+                  placeholder={t('select-categories-to-exclude')}
                 />
               </Form.Item>
             )}
@@ -89,7 +71,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
                 </Form.Label>
                 <SelectProduct
                   mode="multiple"
-                  value={field.value || ([] as string[])}
+                  value={field.value || []}
                   onValueChange={field.onChange}
                   placeholder={t('select-products-to-exclude')}
                 />
@@ -112,5 +94,3 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
     </div>
   );
 };
-
-export default ProductConfig;

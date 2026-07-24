@@ -2,39 +2,82 @@ import { AnyProcedure, initTRPC } from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { Express } from 'express';
 import { nanoid } from 'nanoid';
+import { z } from 'zod';
 import { initializePluginConfig } from '../../utils';
 import { createTRPCContext } from '../../utils/trpc';
-import { IAutomationExecution } from './definitions';
+import {
+  buildRuntimeOutputsIndex,
+  normalizeAutomationConstantsForTransport,
+  resolveOutputPathsByNodeType,
+} from './outputResolvers';
 import {
   AutomationConfigs,
   IAutomationContext,
   TAutomationProducers,
 } from './types';
 import {
-  AutomationBaseInput,
   CheckCustomTriggerInput,
-  FindObjectInput,
   CheckTargetMatchInput,
+  FindObjectInput,
   GenerateAiContextInput,
   LoadAiKnowledgeDocumentBatchInput,
   LookupAiToolInput,
   ReceiveActionsInput,
-  TAutomationProducersInput,
   ResolveOutputPathsInput,
   SetPropertiesInput,
 } from './zodTypes';
-import {
-  buildRuntimeOutputsIndex,
-  normalizeAutomationConstantsForTransport,
-  replaceOutputPlaceholders,
-} from './outputResolvers';
+
+const generateRuntimeResolveOutputPaths = (
+  pluginName: string,
+  config: AutomationConfigs,
+) => {
+  const { resolveOutputPaths, constants } = config || {};
+
+  if (resolveOutputPaths) {
+    return resolveOutputPaths;
+  }
+
+  const runtimeOutputs = buildRuntimeOutputsIndex(pluginName, constants);
+  const runtimeOutputKeys = Object.keys(runtimeOutputs);
+
+  if (!runtimeOutputKeys?.length) {
+    return null;
+  }
+  return async (
+    { subdomain, data }: z.infer<typeof ResolveOutputPathsInput>,
+    _context: IAutomationContext,
+  ) => {
+    if (!runtimeOutputs[data.nodeType]) {
+      return {};
+    }
+
+    const resolvedValues = await resolveOutputPathsByNodeType({
+      subdomain,
+      nodeType: data.nodeType,
+      source: data.source || {},
+      paths: data.paths || [],
+      defaultValue: data.defaultValue,
+      runtimeOutputs,
+    });
+
+    return Object.fromEntries(
+      (data.paths || []).map((path) => {
+        const resolvedValue = resolvedValues?.[path];
+
+        return [
+          path,
+          resolvedValue === undefined ? data.defaultValue : resolvedValue,
+        ];
+      }),
+    );
+  };
+};
 
 export const startAutomations = async (
   app: Express,
   pluginName: string,
   config: AutomationConfigs,
 ) => {
-  const runtimeOutputs = buildRuntimeOutputsIndex(pluginName, config.constants);
   const transportConfig = {
     ...config,
     constants: normalizeAutomationConstantsForTransport(
@@ -52,7 +95,6 @@ export const startAutomations = async (
     checkCustomTrigger,
     checkTargetMatch,
     findObject,
-    resolveOutputPaths,
     generateAiContext,
     loadAiKnowledgeDocumentBatch,
     lookupAiTool,
@@ -101,47 +143,10 @@ export const startAutomations = async (
       .mutation(async ({ ctx, input }) => lookupAiTool(input, ctx));
   }
 
-  const runtimeResolveOutputPaths =
-    resolveOutputPaths ||
-    (Object.keys(runtimeOutputs).length
-      ? async ({
-          subdomain,
-          data,
-        }: {
-          subdomain: string;
-          data: TAutomationProducersInput[TAutomationProducers.RESOLVE_OUTPUT_PATHS];
-        }) => {
-          const definition = runtimeOutputs[data.nodeType];
-
-          if (!definition) {
-            return {};
-          }
-
-          const values = Object.fromEntries(
-            (data.paths || []).map((path) => [path, `{{ trigger.${path} }}`]),
-          );
-          const execution: IAutomationExecution = {
-            automationId: '',
-            triggerId: '',
-            triggerType: data.nodeType,
-            triggerConfig: {},
-            targetId: '',
-            target: data.source || {},
-            status: '',
-            description: '',
-            actions: [],
-          };
-
-          return replaceOutputPlaceholders({
-            subdomain,
-            execution,
-            values,
-            defaultValue: data.defaultValue,
-            runtimeOutputs,
-            keepUnresolvedPlaceholders: false,
-          });
-        }
-      : undefined);
+  const runtimeResolveOutputPaths = generateRuntimeResolveOutputPaths(
+    pluginName,
+    config,
+  );
 
   if (runtimeResolveOutputPaths) {
     automationProcedures[TAutomationProducers.RESOLVE_OUTPUT_PATHS] =

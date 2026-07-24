@@ -4,20 +4,29 @@ import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
-import { TasksExportButton, TasksImportButton } from '@/task/components/TasksLayout';
-import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
+import {
+  TasksExportButton,
+  TasksImportButton,
+} from '@/task/components/TasksLayout';
+import { Breadcrumb, PageSubHeader, Separator, Skeleton } from 'erxes-ui';
 import { useLocation, useParams } from 'react-router-dom';
-import { Can, PageHeader } from 'ui-modules';
+import { Can, FavoriteToggleIconButton, PageHeader } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
+import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
   const { pathname } = useLocation();
+  const { t } = useTranslation('operation');
 
   const basePath = teamId
     ? `/operation/team/${teamId}/tasks`
     : `/operation/tasks`;
 
   const isCreatedView = pathname === '/operation/tasks/created';
+  const taskView = !teamId && (isCreatedView ? t('created') : t('assigned'));
+  const { breadcrumb: favoriteBreadcrumb, loading: favoriteLoading } =
+    useTeamFavoriteBreadcrumb(teamId, t('tasks'), taskView);
 
   return (
     <>
@@ -32,6 +41,16 @@ export const TasksPage = () => {
                 </>
               )}
               <TaskBreadCrump link={basePath} />
+              <Breadcrumb.Item className="ml-1">
+                {favoriteLoading ? (
+                  <Skeleton className="w-8 h-8" />
+                ) : (
+                  <FavoriteToggleIconButton
+                    breadcrumb={favoriteBreadcrumb}
+                    icon="IconChecklist"
+                  />
+                )}
+              </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
@@ -54,4 +73,3 @@ export const TasksPage = () => {
     </>
   );
 };
-

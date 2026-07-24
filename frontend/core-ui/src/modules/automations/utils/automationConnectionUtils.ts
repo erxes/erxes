@@ -114,7 +114,13 @@ export const checkIsValidConnect = ({
   const connectionInfo = generateConnectInfo(connection, source, target);
 
   if (connectionInfo.connectType === 'optional') {
-    if (!checkValidOptionalConnect(source, target)) {
+    if (
+      !checkValidOptionalConnect(
+        source,
+        target,
+        connectionInfo.optionalConnectId,
+      )
+    ) {
       return false;
     }
   }
@@ -152,7 +158,13 @@ export const checkIsValidConnect = ({
     }
   }
 
-  if (source.data.nodeType !== AutomationNodeType.Workflow) {
+  // "Source already connected" only applies to the standard handle: optional
+  // connects have their own slot per optionalConnectId, so an occupied
+  // nextActionId must not block them.
+  if (
+    source.data.nodeType !== AutomationNodeType.Workflow &&
+    connectionInfo.connectType !== 'optional'
+  ) {
     const fieldName = CONNECTION_PROPERTY_NAME_MAP[source.data.nodeType];
     if (source.data[fieldName]) {
       return false;
