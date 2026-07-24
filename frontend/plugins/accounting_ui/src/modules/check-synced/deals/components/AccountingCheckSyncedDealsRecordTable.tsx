@@ -7,7 +7,7 @@ import { AccountingCheckSyncedDealsCommandBar } from './AccountingCheckSyncedDea
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { getAccountingCheckSyncedDealsColumns } from './AccountingCheckSyncedDealsColumns';
-import { isSyncable } from '../../constants/shared';
+import { isSyncable } from '~/modules/check-synced/constants/shared';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 

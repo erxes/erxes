@@ -23,7 +23,7 @@ import {
   useAccountingCheckSyncedAction,
   useSyncSelectedIds,
   useSyncToggle,
-} from '../../constants/shared';
+} from '~/modules/check-synced/constants/shared';
 import {
   parseDateRangeFromString,
   useMultiQueryState,

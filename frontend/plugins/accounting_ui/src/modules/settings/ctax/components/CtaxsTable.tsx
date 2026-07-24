@@ -4,7 +4,7 @@ import {
   SettingsRowsTable,
   getSharedRowColumns,
   moreColumn,
-} from '../../components/SettingsRowsTable';
+} from '~/modules/settings/components/SettingsRowsTable';
 import { useConfirm, useQueryState } from 'erxes-ui';
 
 import { CtaxRowsCommandbar } from './CtaxRowsCommandbar';

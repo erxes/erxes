@@ -14,8 +14,8 @@ import {
 
 import { AccountingCheckSyncedOrder } from '../types';
 import { ColumnDef } from '@tanstack/table-core';
-import { HeaderCell } from '../../constants/HeaderCell';
-import { isSyncable } from '../../constants/shared';
+import { HeaderCell } from '~/modules/check-synced/constants/HeaderCell';
+import { isSyncable } from '~/modules/check-synced/constants/shared';
 
 type AccountingCheckSyncedOrdersColumnsOptions = {
   toSyncOrderIds: Record<string, boolean>;

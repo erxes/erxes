@@ -33,7 +33,7 @@ import {
   useAccountingCheckSyncedAction,
   useSyncSelectedIds,
   useSyncToggle,
-} from '../../constants/shared';
+} from '~/modules/check-synced/constants/shared';
 import { useEffect, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';

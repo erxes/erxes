@@ -1,5 +1,5 @@
 import { AccountingCheckSyncedDealRulePicker } from './AccountingCheckSyncedDealRuleSelect';
-import { CheckSyncedCommandBar } from '../../components/CheckSyncedCommandBar';
+import { CheckSyncedCommandBar } from '~/modules/check-synced/components/CheckSyncedCommandBar';
 
 export const AccountingCheckSyncedDealsCommandBar = (
   props: Omit<

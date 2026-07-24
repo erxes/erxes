@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { CheckSyncedTotalCount } from '../../components/CheckSyncedTotalCount';
+import { CheckSyncedTotalCount } from '~/modules/check-synced/components/CheckSyncedTotalCount';
 import {
   accountingCheckSyncedOrdersStatusCountsAtom,
   accountingCheckSyncedOrdersTotalCountAtom,

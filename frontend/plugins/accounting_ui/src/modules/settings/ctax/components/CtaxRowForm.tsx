@@ -7,7 +7,7 @@ import {
   CTAX_STATUS_LABELS,
 } from '../types/CtaxRow';
 import { Button, Form, Sheet, Spinner } from 'erxes-ui';
-import { TaxRowCommonFields } from '../../components/TaxRowCommonFields';
+import { TaxRowCommonFields } from '~/modules/settings/components/TaxRowCommonFields';
 
 export const CtaxRowForm = ({
   form,
