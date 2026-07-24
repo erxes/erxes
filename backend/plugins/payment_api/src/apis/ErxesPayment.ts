@@ -96,31 +96,41 @@ class ErxesPayment {
   }
 
   async createInvoice(transaction: ITransactionDocument) {
-    if (!this.api?.createInvoice) {
-      return {
-        error: `Payment kind "${this.payment.kind}" does not support createInvoice`,
-      };
-    }
-
-    const details = transaction.details || {};
-
-    const invoiceAmount = details.monpayCoupon
-      ? Math.max(transaction.amount - details.monpayCoupon, 0)
-      : transaction.amount;
-
-    // clone transaction safely instead of mutating
-    const invoicePayload = {
-      ...transaction,
-      _id: transaction._id,
-      amount: invoiceAmount,
+  if (!this.api?.createInvoice) {
+    return {
+      error: `Payment kind "${this.payment.kind}" does not support createInvoice`,
     };
-
-    try {
-      return await this.api.createInvoice(invoicePayload, this.payment);
-    } catch (e: any) {
-      return { error: extractErrorMessage(e) };
-    }
   }
+
+  const details = transaction.details || {};
+
+  const invoiceAmount = details.monpayCoupon
+    ? Math.max(transaction.amount - details.monpayCoupon, 0)
+    : transaction.amount;
+
+  const invoicePayload = {
+    ...transaction,
+    _id: transaction._id,
+    amount: invoiceAmount,
+  };
+
+  // 🔽 ADD THIS
+  console.log('[PAYMENT] About to call createInvoice', {
+    transactionId: transaction._id,
+    paymentKind: this.payment.kind,
+  });
+
+  try {
+    const response = await this.api.createInvoice(invoicePayload, this.payment);
+
+    // 🔽 ADD THIS
+    console.log('[PAYMENT] createInvoice returned', response);
+
+    return response;
+  } catch (e: any) {
+    return { error: extractErrorMessage(e) };
+  }
+}
 
   async checkInvoice(invoice: ITransactionDocument) {
     if (!this.api?.checkInvoice) {

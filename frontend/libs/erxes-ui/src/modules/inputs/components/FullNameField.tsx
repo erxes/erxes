@@ -109,6 +109,7 @@ export const FullNameField = ({
         open={open}
         onOpenChange={handleOpenChange}
         closeOnEnter
+        dependencies={[firstNameState, lastNameState]}
       >
         {children}
         <RecordTableInlineCell.Content className="w-72">

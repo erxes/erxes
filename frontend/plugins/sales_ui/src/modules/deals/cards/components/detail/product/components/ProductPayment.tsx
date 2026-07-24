@@ -29,8 +29,8 @@ import {
 import { ICustomer } from 'ui-modules';
 import { IDeal, IPaymentsData } from '@/deals/types/deals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { useRefundScoreCampaign } from '../hooks/useRefundScoreCampaign';
-import { useCheckOwnerScore } from '../hooks/useCheckOwnerScore';
+import { useRefundScoreCampaign } from '../hooks/payment/useRefundScoreCampaign';
+import { useCheckOwnerScore } from '../hooks/payment/useCheckOwnerScore';
 import { useTranslation } from 'react-i18next';
 import type { PaymentConfigItem } from '@/payments';
 
