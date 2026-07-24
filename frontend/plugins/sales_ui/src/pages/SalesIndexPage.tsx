@@ -22,6 +22,10 @@ export const SalesIndexPage = () => {
   const [searchParams] = useSearchParams();
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
+  const settingsSearchParams = new URLSearchParams();
+
+  if (boardId) settingsSearchParams.set('activeBoardId', boardId);
+  if (pipelineId) settingsSearchParams.set('pipelineId', pipelineId);
 
   return (
     <div className="flex h-full overflow-hidden w-full">
@@ -48,7 +52,9 @@ export const SalesIndexPage = () => {
           <PageHeader.End>
             <CommonDealSearch />
             <Button variant="ghost" asChild>
-              <Link to={`/settings/sales/deals?activeBoardId=${boardId}`}>
+              <Link
+                to={`/settings/sales/deals?${settingsSearchParams.toString()}`}
+              >
                 <IconSettings />
                 {t('go-to-settings')}
               </Link>

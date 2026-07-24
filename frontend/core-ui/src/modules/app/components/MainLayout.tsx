@@ -1,8 +1,9 @@
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { Sidebar, useQueryState } from 'erxes-ui';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { mainSidebarCollapseState } from '../states/mainSidebarState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
@@ -44,17 +45,24 @@ export const SidebarAnimationContainer = ({
   children: React.ReactNode;
   isSettings: boolean;
 }) => {
+  // No AnimatePresence: it keeps the exiting sidebar absolutely positioned on
+  // top of the entering one until a later commit, which stretches to seconds
+  // when navigation suspends on cold remote chunks. A keyed motion.div swaps
+  // both in a single commit, so the two sidebars can never coexist.
+  const isFirstMount = useRef(true);
+  useEffect(() => {
+    isFirstMount.current = false;
+  }, []);
+
   return (
-    <AnimatePresence mode="popLayout" initial={false}>
-      <motion.div
-        key={isSettings ? 'settings' : 'main'}
-        initial={{ x: isSettings ? 20 : -20 }}
-        animate={{ x: 0 }}
-        transition={{ damping: 0 }}
-        className="flex h-full w-full flex-col"
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={isSettings ? 'settings' : 'main'}
+      initial={isFirstMount.current || !isSettings ? false : { x: 20 }}
+      animate={{ x: 0 }}
+      transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
+      className="flex h-full w-full flex-col"
+    >
+      {children}
+    </motion.div>
   );
 };
