@@ -3,7 +3,7 @@
 import { IProduct, IProductData } from 'ui-modules';
 
 import { IDeal } from '@/deals/types/deals';
-import { ProductsList } from './ProductsList';
+import { ProductsList } from './product-list/ProductsList';
 import { ProductsPayment } from './ProductPayment';
 import { Tabs } from 'erxes-ui';
 import { useState } from 'react';

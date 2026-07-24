@@ -5,12 +5,12 @@ import {
   tax,
   taxPercent,
   uom,
-} from '../hooks/getProductColumns';
+} from './getProductColumns';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { IProductData } from 'ui-modules';
 import { IconShoppingCart } from '@tabler/icons-react';
-import { ProductCommandBar } from '../product-command-bar/ProductCommandBar';
+import { ProductCommandBar } from '../../product-command-bar/ProductCommandBar';
 import { Empty, RecordTable } from 'erxes-ui';
 import { productColumns } from './ProductColumns';
 import { useMemo } from 'react';
@@ -19,13 +19,11 @@ import { useTranslation } from 'react-i18next';
 export const ProductsRecordTable = ({
   products,
   refetch,
-  dealId,
   showAdvancedView,
   hasProductFilters,
 }: {
   products: IProductData[];
   refetch: () => void;
-  dealId: string;
   showAdvancedView: boolean;
   hasProductFilters: boolean;
 }) => {
@@ -98,7 +96,7 @@ export const ProductsRecordTable = ({
           </RecordTable.Scroll>
         </div>
       )}
-      <ProductCommandBar refetch={refetch} dealId={dealId} />
+      <ProductCommandBar refetch={refetch} />
     </RecordTable.Provider>
   );
 };

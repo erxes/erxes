@@ -1,5 +1,5 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
-import { REFUND_SCORE_CAMPAIGN_MUTATION } from '../graphql/mutations/RefundScoreCampaignMutation';
+import { REFUND_SCORE_CAMPAIGN_MUTATION } from '../../graphql/mutations/RefundScoreCampaignMutation';
 
 export const useRefundScoreCampaign = (options?: MutationHookOptions) => {
   const [_refundScoreCampaign, { loading }] = useMutation(
