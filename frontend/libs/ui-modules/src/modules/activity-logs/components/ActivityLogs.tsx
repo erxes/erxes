@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { QueryHookOptions } from '@apollo/client';
 import {
   useActivityLogs,
@@ -21,6 +21,14 @@ type ActivityLogFormRootProps = {
   customActivities?: ActivityLogCustomActivity[];
   options?: QueryHookOptions<ActivityLogsQueryData>;
   showExactDate?: boolean;
+  activityType?: string;
+  excludeActivityType?: string;
+  dateFrom?: Date | string;
+  dateTo?: Date | string;
+  onTotalCountChange?: (totalCount: number) => void;
+  pageSize?: number;
+  paginationMode?: 'infinite' | 'button';
+  loadMoreLabel?: React.ReactNode;
   children: React.ReactNode;
 };
 
@@ -32,11 +40,20 @@ const ActivityLogsRoot = ({
   customActivities,
   options,
   showExactDate,
+  activityType,
+  excludeActivityType,
+  dateFrom,
+  dateTo,
+  onTotalCountChange,
+  pageSize,
+  paginationMode,
+  loadMoreLabel,
   children,
 }: ActivityLogFormRootProps) => {
   const {
     activityLogs,
     loading,
+    loadingMore,
     error,
     handleFetchMore,
     hasNextPage,
@@ -46,11 +63,21 @@ const ActivityLogsRoot = ({
     {
       targetId,
       action,
-      limit,
+      limit: pageSize ?? limit,
       variant,
+      activityType,
+      excludeActivityType,
+      dateFrom,
+      dateTo,
     },
     options,
   );
+
+  useEffect(() => {
+    if (!loading) {
+      onTotalCountChange?.(totalCount);
+    }
+  }, [loading, totalCount, onTotalCountChange]);
 
   if (loading && activityLogs.length === 0) {
     return <ActivityLogLoading />;
@@ -61,6 +88,7 @@ const ActivityLogsRoot = ({
       targetId={targetId}
       activityLogs={activityLogs}
       loading={loading}
+      loadingMore={loadingMore}
       variant={variant}
       error={error}
       customActivities={customActivities}
@@ -70,6 +98,8 @@ const ActivityLogsRoot = ({
       totalCount={totalCount}
       limit={limit}
       showExactDate={showExactDate}
+      paginationMode={paginationMode}
+      loadMoreLabel={loadMoreLabel}
     >
       {children}
     </ActivityLogProvider>
@@ -99,6 +129,14 @@ type LegacyProps = {
   emptyMessage?: string;
   options?: QueryHookOptions<ActivityLogsQueryData>;
   showExactDate?: boolean;
+  activityType?: string;
+  excludeActivityType?: string;
+  dateFrom?: Date | string;
+  dateTo?: Date | string;
+  onTotalCountChange?: (totalCount: number) => void;
+  pageSize?: number;
+  paginationMode?: 'infinite' | 'button';
+  loadMoreLabel?: React.ReactNode;
 };
 
 // Legacy component wrapper
@@ -112,6 +150,14 @@ const ActivityLogsLegacy = ({
   emptyMessage,
   options,
   showExactDate,
+  activityType,
+  excludeActivityType,
+  dateFrom,
+  dateTo,
+  onTotalCountChange,
+  pageSize,
+  paginationMode,
+  loadMoreLabel,
 }: LegacyProps) => {
   const mergedActivities = [
     ...(showInternalNotes ? [internalNoteCustomActivity] : []),
@@ -128,6 +174,14 @@ const ActivityLogsLegacy = ({
       customActivities={mergedActivities}
       options={options}
       showExactDate={showExactDate}
+      activityType={activityType}
+      excludeActivityType={excludeActivityType}
+      dateFrom={dateFrom}
+      dateTo={dateTo}
+      onTotalCountChange={onTotalCountChange}
+      pageSize={pageSize}
+      paginationMode={paginationMode}
+      loadMoreLabel={loadMoreLabel}
     >
       <ActivityLogsWrapper>
         <ActivityLogsContent emptyMessage={emptyMessage} />

@@ -1,18 +1,9 @@
-import {
-  ActivityLogs,
-  AddInternalNote,
-  internalNoteCustomActivity,
-} from 'ui-modules';
+import { DealNoteComposer } from '@/deals/cards/components/detail/overview/DealNoteComposer';
 
 const SalesNoteAndComment = ({ dealId }: { dealId: string }) => {
   return (
-    <div className="flex flex-col mb-12 mt-4">
-      <ActivityLogs
-        targetId={dealId}
-        customActivities={[internalNoteCustomActivity]}
-        showExactDate
-      />
-      <AddInternalNote contentTypeId={dealId} contentType="sales:deal" />
+    <div className="flex flex-col gap-2 mt-2">
+      <DealNoteComposer dealId={dealId} />
     </div>
   );
 };

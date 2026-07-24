@@ -6,8 +6,9 @@ interface ActivityLogContextType {
   targetId: string;
   activityLogs: TActivityLog[];
   loading: boolean;
+  loadingMore?: boolean;
   variant?: 'forward' | 'backward';
-  error?: any;
+  error?: Error;
   customActivities?: ActivityLogCustomActivity[];
   handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
   hasNextPage?: boolean;
@@ -15,6 +16,8 @@ interface ActivityLogContextType {
   totalCount?: number;
   limit?: number;
   showExactDate?: boolean;
+  paginationMode?: 'infinite' | 'button';
+  loadMoreLabel?: React.ReactNode;
 }
 
 interface ActivityLogProviderProps {
@@ -22,8 +25,9 @@ interface ActivityLogProviderProps {
   targetId: string;
   activityLogs: TActivityLog[];
   loading: boolean;
+  loadingMore?: boolean;
   variant?: 'forward' | 'backward';
-  error?: any;
+  error?: Error;
   customActivities?: ActivityLogCustomActivity[];
   handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
   hasNextPage?: boolean;
@@ -31,6 +35,8 @@ interface ActivityLogProviderProps {
   totalCount?: number;
   limit?: number;
   showExactDate?: boolean;
+  paginationMode?: 'infinite' | 'button';
+  loadMoreLabel?: React.ReactNode;
 }
 
 const ActivityLogContext = createContext<ActivityLogContextType | null>(null);
@@ -40,6 +46,7 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   targetId,
   activityLogs,
   loading,
+  loadingMore,
   variant = 'forward',
   error,
   customActivities,
@@ -49,6 +56,8 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   totalCount,
   limit,
   showExactDate,
+  paginationMode,
+  loadMoreLabel,
 }) => {
   return (
     <ActivityLogContext.Provider
@@ -56,6 +65,7 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
         targetId,
         activityLogs,
         loading,
+        loadingMore,
         variant,
         error,
         customActivities,
@@ -65,6 +75,8 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
         totalCount,
         limit,
         showExactDate,
+        paginationMode,
+        loadMoreLabel,
       }}
     >
       {children}

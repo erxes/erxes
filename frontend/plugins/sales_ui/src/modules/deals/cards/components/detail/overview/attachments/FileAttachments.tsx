@@ -1,6 +1,5 @@
-import { IconChevronLeft, IconChevronRight, IconX } from '@tabler/icons-react';
+import { IconFile, IconX } from '@tabler/icons-react';
 
-import { Button } from 'erxes-ui';
 import { IAttachment } from '@/deals/types/attachments';
 import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
@@ -12,56 +11,32 @@ const FileAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
   const { t } = useTranslation('sales');
 
   return (
-    <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-gray-500 pb-4">{t('file-attachments')}</h4>
-      <div className="relative">
-        <div className="overflow-x-auto flex gap-4">
-          {attachments.map((attachment) => (
-            <div
-              className="p-2 bg-indigo-100 text-indigo-600 rounded-md flex items-center gap-2 relative"
-              key={attachment.url}
-            >
-              <a href={attachment.url}>{attachment.name}</a>
-              <Button
-                variant="ghost"
-                disabled={loading && removingUrl === attachment.url}
-                onClick={(e) => handleRemoveImage(e, attachment)}
-                className="absolute top-0 right-[-10px] bg-red-400 hover:bg-red-600 text-white rounded-full p-1 w-6 h-6 shadow-md z-10"
-                aria-label={t('remove-image', { name: attachment.name })}
-              >
-                <IconX size={12} />
-              </Button>
-            </div>
-          ))}
-        </div>
-        <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 hidden lg:block">
-          <button
-            className="bg-white p-1 rounded-full shadow"
-            onClick={() => {
-              document.querySelector('.scrollable-media')?.scrollBy({
-                left: -150,
-                behavior: 'smooth',
-              });
-            }}
+    <div className="flex flex-wrap gap-2">
+      {attachments.map((attachment) => (
+        <div
+          key={attachment.url}
+          className="group flex h-8 items-center gap-2 rounded-md border bg-muted/40 pl-2.5 pr-1.5 text-sm"
+        >
+          <IconFile size={16} className="shrink-0 text-muted-foreground" />
+          <a
+            href={attachment.url}
+            target="_blank"
+            rel="noreferrer"
+            className="max-w-44 truncate font-medium hover:underline"
           >
-            <IconChevronLeft size={20} />
+            {attachment.name}
+          </a>
+          <button
+            type="button"
+            disabled={loading && removingUrl === attachment.url}
+            onClick={(e) => handleRemoveImage(e, attachment)}
+            className="flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-destructive hover:text-white"
+            aria-label={t('remove-image', { name: attachment.name })}
+          >
+            <IconX size={12} />
           </button>
         </div>
-
-        <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 hidden lg:block">
-          <button
-            className="bg-white p-1 rounded-full shadow"
-            onClick={() => {
-              document.querySelector('.scrollable-media')?.scrollBy({
-                left: 150,
-                behavior: 'smooth',
-              });
-            }}
-          >
-            <IconChevronRight size={20} />
-          </button>
-        </div>
-      </div>
+      ))}
     </div>
   );
 };

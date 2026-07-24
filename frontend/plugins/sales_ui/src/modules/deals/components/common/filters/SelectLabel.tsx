@@ -14,6 +14,7 @@ import {
   IconPlus,
   IconTagMinus,
 } from '@tabler/icons-react';
+import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import {
@@ -76,14 +77,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-        ? multipleValue.filter((p) => p !== label._id)
-        : [...multipleValue, label._id];
+      ? multipleValue.filter((p) => p !== label._id)
+      : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-        ? selectedLabels.filter((p) => p._id !== label._id)
-        : [...selectedLabels, label];
+      ? selectedLabels.filter((p) => p._id !== label._id)
+      : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -196,7 +197,6 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   const [editLabelId, setEditLabelId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-
   if (showForm) {
     return (
       <>
@@ -265,7 +265,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
                 className={cn(
                   'flex items-center justify-between p-2 cursor-pointer my-1  ',
                   labelIds?.includes(label._id || '')
-                    ? 'bg-blue-50 border-blue-300 rounded-md w-[100%]'
+                    ? 'bg-blue-50 border-blue-300 rounded-md w-full'
                     : '',
                 )}
                 onSelect={() => toggleLabel(label)}
@@ -559,7 +559,7 @@ export const SelectLabelsFilterBar = ({
   initialValue?: string[];
   showLabels?: boolean;
 }) => {
-  const isCardVariant = variant === 'card';
+  const isCardVariant = variant === 'card' || variant === 'detail';
 
   const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
   const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
@@ -580,7 +580,7 @@ export const SelectLabelsFilterBar = ({
 
   const query = isCardVariant ? localQuery : urlQuery;
 
-  if (!query && variant !== 'card') {
+  if (!query && !isCardVariant) {
     return null;
   }
 
@@ -606,9 +606,15 @@ export const SelectLabelsFilterBar = ({
       }}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectLabelsValue showLabels={showLabels} />
-        </SelectTriggerOperation>
+        {variant === 'detail' ? (
+          <DealChipTrigger>
+            <SelectLabelsValue showLabels={showLabels} />
+          </DealChipTrigger>
+        ) : (
+          <SelectTriggerOperation variant={variant || 'filter'}>
+            <SelectLabelsValue showLabels={showLabels} />
+          </SelectTriggerOperation>
+        )}{' '}
         <SelectOperationContent variant={variant || 'filter'}>
           <SelectLabelsContent targetId={targetId} />
         </SelectOperationContent>

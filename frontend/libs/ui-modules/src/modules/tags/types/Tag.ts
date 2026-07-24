@@ -49,7 +49,7 @@ export interface ISelectTagsContext {
   targetIds: string[];
   selectedTags: ITag[];
   value?: string[] | string;
-  setSelectedTags: (tags: ITag[]) => void;
+  setSelectedTags: React.Dispatch<React.SetStateAction<ITag[]>>;
   onSelect: (tags: ITag) => void;
   newTagName: string;
   setNewTagName: (tagName: string) => void;
