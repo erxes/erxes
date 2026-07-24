@@ -33,6 +33,13 @@ export const PRODUCT_DETAIL_QUERY = gql`
         size
         type
       }
+      videos {
+        url
+        name
+        size
+        type
+        duration
+      }
       pdfAttachment {
         pdf {
           name

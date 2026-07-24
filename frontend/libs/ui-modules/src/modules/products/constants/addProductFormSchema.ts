@@ -33,6 +33,7 @@ export const PRODUCT_FORM_SCHEMA = z
     customFieldsData: z.any().optional(),
     attachment: z.any().optional(),
     attachmentMore: z.any().optional(),
+    videos: z.any().optional(),
     // pdfAttachment: z
     //   .object({
     //     name: z.string().optional(),
@@ -81,6 +82,7 @@ export const EMPTY_PRODUCT_FORM_VALUES: ProductFormSchemaType = {
   shortName: '',
   attachment: undefined,
   attachmentMore: undefined,
+  videos: undefined,
   description: '',
   subUoms: [],
   barcodes: [],

@@ -57,6 +57,7 @@ export const productSchema = schemaWrapper(
       },
       attachment: { type: attachmentSchema },
       attachmentMore: { type: [attachmentSchema] },
+      videos: { type: [attachmentSchema], label: 'Videos' },
       status: {
         type: String,
         enum: PRODUCT_STATUSES.ALL,
