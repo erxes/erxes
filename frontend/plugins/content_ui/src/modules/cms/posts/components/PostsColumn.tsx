@@ -24,6 +24,7 @@ import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInline
 import { PostPublicUrlButton } from './PostPublicUrlButton';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 import { CmsTranslatableBadge } from '../../shared/components/CmsTranslatableBadge';
+import { useCustomTypes } from '../../custom-types/hooks/useCustomTypes';
 import type { Posts } from '../types/postsType';
 import type { IWebsite } from '../../types';
 import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
@@ -74,6 +75,9 @@ export const usePostsColumns = (
   const navigate = useNavigate();
   const location = useLocation();
   const { isMissing } = useIsTranslationMissing();
+  const { customTypes } = useCustomTypes({
+    clientPortalId: cmsConfig?.clientPortalId,
+  });
 
   return [
     {
@@ -207,8 +211,10 @@ export const usePostsColumns = (
       header: () => <RecordTable.InlineHead icon={IconTag} label={t('type')} />,
       cell: ({ row }) => {
         const post = row.original;
+        const customType = customTypes.find((type) => type.code === post.type);
         const typeLabel =
           post.customPostType?.label ||
+          customType?.label ||
           (post.type === 'post' ? 'Post' : post.type);
         return (
           <RecordTableInlineCell>
