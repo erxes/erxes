@@ -86,12 +86,13 @@ const buildMainDetails = (
       return detail;
     }
 
+    if (summary.count !== detail.count) {
+      return detail;
+    }
+
     return {
       ...detail,
-      count: summary.count,
-      unitPrice: summary.count
-        ? fixNum(summary.originalCost / summary.count)
-        : 0,
+      unitPrice: detail.count ? fixNum(summary.originalCost / detail.count) : 0,
       amount: summary.originalCost,
     };
   });

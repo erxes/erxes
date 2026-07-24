@@ -306,6 +306,7 @@ export const loadFxaInstanceClass = () => {
             updatedAt: new Date(),
           },
           $unset: {
+            transactionId: '',
             disposalDate: '',
             disposalTransactionId: '',
             disposalTrDetailId: '',
@@ -319,9 +320,17 @@ export const loadFxaInstanceClass = () => {
       instanceId: string,
       fields: TFxaOptionalLocationUpdate,
     ) {
+      const update = buildOptionalFieldUpdate(fields);
+
       await this.updateOne(
         { _id: instanceId },
-        buildOptionalFieldUpdate(fields),
+        {
+          ...update,
+          $unset: {
+            ...(update.$unset || {}),
+            transactionId: '',
+          },
+        },
       );
     }
 

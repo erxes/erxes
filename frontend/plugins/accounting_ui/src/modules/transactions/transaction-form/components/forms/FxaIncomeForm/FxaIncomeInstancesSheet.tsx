@@ -99,7 +99,7 @@ const buildIncomeInstance = ({
       existing?.departmentId || detail.departmentId || trDoc.departmentId,
     responsibleUserId: existing?.responsibleUserId || '',
     locationId: existing?.locationId || '',
-    originalCost: existing?.originalCost ?? detail.unitPrice ?? 0,
+    originalCost: detail.unitPrice || existing?.originalCost || 0,
   };
 };
 

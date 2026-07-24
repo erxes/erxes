@@ -47,6 +47,8 @@ export const queries = `
     status: String
     branchId: String
     departmentId: String
+    transactionId: String
+    disposalTransactionId: String
   ): [FxaInstance]
 `;
 

@@ -87,6 +87,16 @@ export const FxaInstanceSelectionSheet = ({
     variables: { ids: selectedIds },
     skip: !selectedIds.length,
   });
+  const { data: transactionInstancesData } = useQuery<{
+    fxaInstances: IFxaInstance[];
+  }>(FXA_INSTANCES_QUERY, {
+    variables: {
+      fixedAssetIds,
+      transactionId: trDoc?._id,
+      disposalTransactionId: trDoc?._id,
+    },
+    skip: !fixedAssetIds.length || !trDoc?._id,
+  });
   const instances = useMemo(() => {
     const instancesById = new Map<string, IFxaInstance>();
 
@@ -98,8 +108,12 @@ export const FxaInstanceSelectionSheet = ({
       instancesById.set(instance._id, instance);
     }
 
+    for (const instance of transactionInstancesData?.fxaInstances || []) {
+      instancesById.set(instance._id, instance);
+    }
+
     return Array.from(instancesById.values());
-  }, [activeInstancesData, selectedInstancesData]);
+  }, [activeInstancesData, selectedInstancesData, transactionInstancesData]);
   const { fixedAssets } = useFixedAssets({
     variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
     skip: !fixedAssetIds.length,

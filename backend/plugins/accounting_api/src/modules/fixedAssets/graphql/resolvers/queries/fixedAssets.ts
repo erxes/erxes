@@ -10,12 +10,16 @@ const fixedAssets = {
       status,
       branchId,
       departmentId,
+      transactionId,
+      disposalTransactionId,
     }: {
       ids?: string[];
       fixedAssetIds?: string[];
       status?: string;
       branchId?: string;
       departmentId?: string;
+      transactionId?: string;
+      disposalTransactionId?: string;
     },
     { models }: IContext,
   ) => {
@@ -39,6 +43,15 @@ const fixedAssets = {
 
     if (departmentId) {
       filter.departmentId = departmentId;
+    }
+
+    const transactionFilters = [
+      transactionId ? { transactionId } : undefined,
+      disposalTransactionId ? { disposalTransactionId } : undefined,
+    ].filter(Boolean);
+
+    if (transactionFilters.length) {
+      filter.$or = transactionFilters;
     }
 
     return models.FxaInstances.listByFilter(filter);

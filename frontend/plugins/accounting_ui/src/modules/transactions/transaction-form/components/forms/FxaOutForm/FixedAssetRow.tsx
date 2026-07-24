@@ -31,10 +31,6 @@ export const FixedAssetRow = ({
   const fieldName = (name: string) =>
     `trDocs.${journalIndex}.details.${detailIndex}.${name}` as Path<TAddTransactionGroup>;
 
-  const setAmount = (count?: number, unitPrice?: number) => {
-    form.setValue(fieldName('amount'), (count || 0) * (unitPrice || 0));
-  };
-
   return (
     <Table.Row className="overflow-hidden h-cell hover:bg-background!">
       <RecordTableHotKeyControl
@@ -104,10 +100,7 @@ export const FixedAssetRow = ({
             render={({ field }) => (
               <InputNumber
                 value={field.value ?? 0}
-                onChange={(value) => {
-                  field.onChange(value || 0);
-                  setAmount(value || 0, detail.unitPrice);
-                }}
+                onChange={(value) => field.onChange(value || 0)}
               />
             )}
           />
@@ -123,13 +116,7 @@ export const FixedAssetRow = ({
             control={form.control}
             name={fieldName('unitPrice')}
             render={({ field }) => (
-              <InputNumber
-                value={field.value ?? 0}
-                onChange={(value) => {
-                  field.onChange(value || 0);
-                  setAmount(detail.count, value || 0);
-                }}
-              />
+              <InputNumber value={field.value ?? 0} disabled />
             )}
           />
         </Table.Cell>
@@ -144,10 +131,7 @@ export const FixedAssetRow = ({
             control={form.control}
             name={fieldName('amount')}
             render={({ field }) => (
-              <InputNumber
-                value={field.value ?? 0}
-                onChange={(value) => field.onChange(value || 0)}
-              />
+              <InputNumber value={field.value ?? 0} disabled />
             )}
           />
         </Table.Cell>

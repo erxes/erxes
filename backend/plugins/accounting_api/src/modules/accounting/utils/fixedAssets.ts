@@ -246,7 +246,7 @@ const buildIncomeInstanceDoc = ({
         : nanoid(6)),
     sequence: input.sequence,
     status: FXA_INSTANCE_STATUSES.ACTIVE,
-    originalCost: input.originalCost ?? detail?.unitPrice ?? detail?.amount ?? 0,
+    originalCost: detail?.unitPrice || input.originalCost || detail?.amount || 0,
     depreciationMethod: fixedAsset?.depreciationMethod,
     usefulLife: fixedAsset?.usefulLife,
     salvageValue: fixedAsset?.salvageValue,
@@ -367,15 +367,28 @@ export const removeFxaDisposalInstances = async (
     FXA_LOG_EVENT_TYPES.DISPOSAL,
     FXA_LOG_EVENT_TYPES.SALE,
   ]);
-
-  if (!logs.length) {
-    return;
-  }
+  const restoredInstanceIds = new Set<string>();
 
   for (const log of logs) {
     await models.FxaInstances.restoreDisposalInstance({
       instanceId: log.fxaInstanceId,
       status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
+    });
+    restoredInstanceIds.add(log.fxaInstanceId);
+  }
+
+  const linkedInstances = await models.FxaInstances.listByFilter({
+    disposalTransactionId: transaction._id,
+  });
+
+  for (const instance of linkedInstances) {
+    if (restoredInstanceIds.has(instance._id)) {
+      continue;
+    }
+
+    await models.FxaInstances.restoreDisposalInstance({
+      instanceId: instance._id,
+      status: FXA_INSTANCE_STATUSES.ACTIVE,
     });
   }
 
@@ -950,6 +963,8 @@ export const syncFxaDisposalInstances = async (
   eventType: string,
   status: string,
 ) => {
+  await removeFxaDisposalInstances(models, transaction);
+
   const instanceIds = await getSelectedInstanceIds(models, transaction);
 
   if (!instanceIds.length) {
@@ -957,8 +972,6 @@ export const syncFxaDisposalInstances = async (
   }
 
   const date = transaction.date || new Date();
-  await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
-
   const instances = await models.FxaInstances.findByIds(instanceIds);
 
   for (const instance of instances) {
@@ -995,6 +1008,8 @@ export const syncFxaMoveInstances = async (
   userId: string,
   transaction: ITransactionDocument,
 ) => {
+  await removeFxaMoveInstances(models, transaction);
+
   const instanceIds = await getSelectedInstanceIds(models, transaction);
 
   if (!instanceIds.length) {
@@ -1009,8 +1024,6 @@ export const syncFxaMoveInstances = async (
   if (!destinationBranchId) {
     throw new Error('Move destination branch is required');
   }
-
-  await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
 
   const instances = await models.FxaInstances.findByIds(instanceIds);
 
