@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  EBARIMT_COMMON_DEFAULT_VALUES,
+  getEBarimtCommonFormValues,
+} from '@/ebarimt/settings/types/EBarimtConfig';
 
 export const normalizeRuleIds = (value?: string | string[] | null) => {
   if (Array.isArray(value)) {
@@ -62,3 +66,19 @@ export interface PosInEbarimtConfig {
 }
 
 export type TPosInEbarimtConfig = z.infer<typeof addEBarimtPosInConfigSchema>;
+
+export const POS_IN_EBARIMT_DEFAULT_VALUES: TPosInEbarimtConfig = {
+  ...EBARIMT_COMMON_DEFAULT_VALUES,
+  posId: '',
+  posNo: '10003424',
+  ebarimtUrl: '',
+};
+
+export const getPosInEBarimtFormValues = (
+  detail: Partial<TPosInEbarimtConfig>,
+): TPosInEbarimtConfig => ({
+  ...getEBarimtCommonFormValues(detail),
+  posId: detail.posId || '',
+  posNo: detail.posNo || '10003424',
+  ebarimtUrl: detail.ebarimtUrl || '',
+});

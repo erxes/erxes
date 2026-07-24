@@ -1,5 +1,3 @@
-import { atom } from 'jotai';
-
 export interface IPosInEbarimtConfigRow {
   _id: string;
   subId: string;
@@ -26,5 +24,3 @@ export interface IPosInEbarimtConfigRow {
   skipEbarimt?: boolean;
   ebarimtUrl?: string;
 }
-
-export const posInEbarimtDetailAtom = atom<IPosInEbarimtConfigRow | null>(null);

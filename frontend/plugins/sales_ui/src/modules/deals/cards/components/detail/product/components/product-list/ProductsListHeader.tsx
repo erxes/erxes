@@ -53,7 +53,7 @@ export const ProductsListHeader = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex h-9 items-center gap-2 rounded-md border bg-muted/20 pl-3 pr-1">
+            <div className="flex items-center gap-2">
               <Label
                 htmlFor="product-vat-percent"
                 className="whitespace-nowrap text-xs font-medium text-muted-foreground"
@@ -66,16 +66,16 @@ export const ProductsListHeader = ({
                 min={0}
                 max={100}
                 step="any"
-                className="h-7 w-20 border-0 bg-transparent px-2 shadow-none focus-visible:ring-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="h-9 w-20 px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 value={vatPercentDraft ?? vatPercent}
                 onChange={(event) => onVatPercentChange(event.target.value)}
                 onBlur={onVatPercentBlur}
               />
               <Button
                 type="button"
-                variant="secondary"
+                variant="outline"
                 size="sm"
-                className="h-7"
+                className="h-9"
                 onClick={onApplyVat}
               >
                 {t('apply-vat')}
@@ -87,7 +87,7 @@ export const ProductsListHeader = ({
         <div className="mt-2 flex min-h-9 items-center gap-2 overflow-x-auto">
           <FilterButton filters={filters} onFilterChange={onFiltersChange} />
           <ProductFilterBar filters={filters} onChange={onFiltersChange} />{' '}
-          <div className="flex h-9 items-center gap-2 rounded-md border px-3">
+          <div className="flex h-9 items-center gap-2">
             <Switch
               id="product-advanced-view"
               checked={showAdvancedView}

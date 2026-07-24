@@ -1,10 +1,12 @@
+import ClearSessionButton from "@/modules/auth/components/clearSessionButton"
 import Logo from "@/modules/auth/components/logo"
 import LoginContainer from "@/modules/auth/login"
 
 const Login = () => {
   return (
     <div className="flex h-screen items-center justify-center bg-neutral-100 md:p-10">
-      <div className="flex h-full w-full items-center justify-center md:rounded-3xl bg-white shadow-xl">
+      <div className="relative flex h-full w-full items-center justify-center md:rounded-3xl bg-white shadow-xl">
+        <ClearSessionButton />
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-5 flex w-full justify-center rounded-lg border py-3">
             <Logo />
