@@ -20,9 +20,11 @@ export const useEBarimtDistrictHandlers = ({
     (value: string) => {
       setBranchCode(value);
       setSubBranchCode('');
-      setDistrictCode(value);
+      if (deriveDistrictCode) {
+        setDistrictCode(value);
+      }
     },
-    [setBranchCode, setDistrictCode, setSubBranchCode],
+    [deriveDistrictCode, setBranchCode, setDistrictCode, setSubBranchCode],
   );
 
   const handleSubBranchChange = useCallback(
