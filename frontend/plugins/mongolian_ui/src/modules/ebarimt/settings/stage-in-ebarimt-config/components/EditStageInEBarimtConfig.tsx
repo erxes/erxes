@@ -105,7 +105,6 @@ export const EditStageInEBarimtConfig = () => {
       );
       setOpen(null);
       setDetail(null);
-      reset();
     } catch {
       toast({
         title: t('error'),
