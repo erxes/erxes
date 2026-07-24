@@ -682,9 +682,6 @@ importers:
       jest-environment-node:
         specifier: ^29.7.0
         version: 29.7.0
-      js:tsc@latest:
-        specifier: link:@nrwl/js:tsc@latest
-        version: link:@nrwl/js:tsc@latest
       nodemon:
         specifier: ^3.1.10
         version: 3.1.10

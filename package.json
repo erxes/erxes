@@ -240,7 +240,6 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-environment-node": "^29.7.0",
-    "js:tsc@latest": "link:@nrwl/js:tsc@latest",
     "nodemon": "^3.1.10",
     "nx": "20.0.8",
     "postcss": "8.4.38",
