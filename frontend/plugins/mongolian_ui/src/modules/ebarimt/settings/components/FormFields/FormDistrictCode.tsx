@@ -1,15 +1,20 @@
 import { Form, Input } from 'erxes-ui';
-import { Control } from 'react-hook-form';
+import {
+  Control,
+  FieldPath,
+  FieldValues,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { useEffect } from 'react';
 
-interface FormDistrictCodeProps {
-  name: string;
+interface FormDistrictCodeProps<T extends FieldValues> {
+  name: FieldPath<T>;
   label: string;
   placeholder?: string;
-  control: Control<any>;
+  control: Control<T>;
   branchCode: string;
   subBranchCode: string;
-  setValue?: (name: string, value: any) => void;
+  setValue?: UseFormSetValue<T>;
   /**
    * When true (default), the district code is reactively derived from
    * branchCode + subBranchCode via an effect. Consumers that re-render often
@@ -20,7 +25,7 @@ interface FormDistrictCodeProps {
   autoDerive?: boolean;
 }
 
-export const FormDistrictCode = ({
+export const FormDistrictCode = <T extends FieldValues>({
   name,
   label,
   placeholder,
@@ -29,7 +34,7 @@ export const FormDistrictCode = ({
   subBranchCode,
   setValue,
   autoDerive = true,
-}: FormDistrictCodeProps) => {
+}: FormDistrictCodeProps<T>) => {
   useEffect(() => {
     if (autoDerive && setValue && branchCode && subBranchCode) {
       const districtCode = `${branchCode}${subBranchCode}`;
