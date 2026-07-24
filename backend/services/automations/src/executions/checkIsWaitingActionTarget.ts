@@ -93,13 +93,11 @@ export const checkIsWaitingAction = async (
     })
       .sort({ createdAt: -1 })
       .limit(20);
-    console.log({ waitingActions });
 
     for (const waitingAction of waitingActions) {
       const { conditionType } = waitingAction;
 
       if (conditionType === EXECUTE_WAIT_TYPES.CHECK_OBJECT) {
-        console.log({ waitingAction, target });
         const matched = await handleCheckObjectCondition(
           models,
           waitingAction,

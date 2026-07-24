@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Button,
   Collapsible,
@@ -7,6 +6,7 @@ import {
   Sidebar,
   Skeleton,
   TextOverflowTooltip,
+  useMultiQueryState,
   useQueryState,
   useToast,
 } from 'erxes-ui';
@@ -15,7 +15,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
 import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { usePipelines } from '@/deals/boards/hooks/usePipelines';
 import { useTranslation } from 'react-i18next';
 
@@ -30,22 +30,34 @@ function LoadingSkeleton() {
 }
 
 function BoardItem({ board }: { board: IBoard }) {
-  const [boardId, setBoardId] = useQueryState<string | null>('boardId');
+  const [{ boardId }, setBoardSelection] = useMultiQueryState<{
+    boardId: string;
+    pipelineId: string;
+    stageId: string;
+  }>(['boardId', 'pipelineId', 'stageId']);
 
   useEffect(() => {
     const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
 
     if (storedBoardId && !boardId) {
-      setBoardId(storedBoardId);
+      setBoardSelection({ boardId: storedBoardId });
     }
-  }, [boardId]);
+  }, [boardId, setBoardSelection]);
 
   const isActive = boardId === board._id;
 
-  const handleClick = (boardId: string) => {
-    localStorage.setItem('erxesCurrentBoardId', boardId);
-    setBoardId(boardId);
+  const handleClick = (nextBoardId: string) => {
+    if (nextBoardId === boardId) return;
+
+    const nextPipelineId = board.pipelines?.[0]?._id || null;
+
+    localStorage.setItem('erxesCurrentBoardId', nextBoardId);
     localStorage.removeItem('erxesCurrentPipelineId');
+    setBoardSelection({
+      boardId: nextBoardId,
+      pipelineId: nextPipelineId,
+      stageId: null,
+    });
   };
 
   return (
@@ -75,7 +87,7 @@ const Pipelines = () => {
     'pipelineId',
   );
   const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
-  const selectedBoardId = storedBoardId ? storedBoardId : boardId;
+  const selectedBoardId = boardId || storedBoardId;
 
   const { t } = useTranslation('sales');
 
@@ -86,27 +98,50 @@ const Pipelines = () => {
     skip: !selectedBoardId,
   });
 
+  const currentBoardPipelines = useMemo(
+    () =>
+      pipelines?.filter((pipeline) => pipeline.boardId === selectedBoardId) ||
+      [],
+    [pipelines, selectedBoardId],
+  );
+  const hasStalePipelines =
+    pipelines?.some((pipeline) => pipeline.boardId !== selectedBoardId) ||
+    false;
+  const isLoadingPipelines = loading || hasStalePipelines;
+
   useEffect(() => {
-    if (!boardId || !pipelines) return;
+    if (!boardId || isLoadingPipelines) return;
 
     const storedPipelineId = localStorage.getItem('erxesCurrentPipelineId');
+    const selectedPipeline = currentBoardPipelines.find(
+      (pipeline) => pipeline._id === pipelineId,
+    );
+    const storedPipeline = currentBoardPipelines.find(
+      (pipeline) => pipeline._id === storedPipelineId,
+    );
 
-
-    if (storedPipelineId) {
-      setPipelineId(storedPipelineId);
-    } else {
-      setPipelineId(pipelines[0]?._id || null);
-    }
-  }, [boardId, pipelines]);
+    setPipelineId(
+      selectedPipeline?._id ||
+        storedPipeline?._id ||
+        currentBoardPipelines[0]?._id ||
+        null,
+    );
+  }, [
+    boardId,
+    currentBoardPipelines,
+    isLoadingPipelines,
+    pipelineId,
+    setPipelineId,
+  ]);
 
   return (
     <Collapsible.Content className="pt-1">
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          {loading ? (
+          {isLoadingPipelines ? (
             <LoadingSkeleton />
           ) : (
-            pipelines?.map((pipeline) => (
+            currentBoardPipelines.map((pipeline) => (
               <Sidebar.MenuItem key={pipeline._id}>
                 <Sidebar.MenuButton
                   isActive={pipelineId === pipeline._id}
@@ -123,10 +158,12 @@ const Pipelines = () => {
               </Sidebar.MenuItem>
             ))
           )}
-          {!loading && !pipelines?.length && (
+          {!isLoadingPipelines && !currentBoardPipelines.length && (
             <Sidebar.MenuItem>
               <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">{t('no-pipelines')}</span>
+                <span className="capitalize text-foreground">
+                  {t('no-pipelines')}
+                </span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}

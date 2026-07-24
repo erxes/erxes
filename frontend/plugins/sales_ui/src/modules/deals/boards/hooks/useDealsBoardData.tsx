@@ -18,9 +18,17 @@ export const useDealsBoardData = (): {
     nextFetchPolicy: 'cache-first',
   });
 
+  const currentPipelineStages = useMemo(
+    () => stages.filter((stage) => stage.pipelineId === pipelineId),
+    [pipelineId, stages],
+  );
+  const hasStaleStages = stages.some(
+    (stage) => stage.pipelineId !== pipelineId,
+  );
+
   const columns = useMemo(
     () =>
-      stages?.map((stage) => ({
+      currentPipelineStages.map((stage) => ({
         _id: stage._id,
         name: stage.name,
         type: stage.type,
@@ -28,9 +36,9 @@ export const useDealsBoardData = (): {
         itemsTotalCount: stage.itemsTotalCount,
         amount: stage.amount || 0,
         unUsedAmount: stage.unUsedAmount || 0,
-      })) ?? [],
-    [stages],
+      })),
+    [currentPipelineStages],
   );
 
-  return { columns, columnsLoading: loading };
+  return { columns, columnsLoading: loading || hasStaleStages };
 };
