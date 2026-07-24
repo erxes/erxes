@@ -13,6 +13,8 @@ export const NavigationMenuLinkItem = forwardRef<
     path: string;
     pathPrefix?: string;
     isActive?: boolean;
+    label?: React.ReactNode;
+    action?: React.ReactNode;
   }
 >(
   (
@@ -24,6 +26,8 @@ export const NavigationMenuLinkItem = forwardRef<
       children,
       className,
       isActive: isActiveProp,
+      label,
+      action,
       ...props
     },
     ref,
@@ -56,10 +60,15 @@ export const NavigationMenuLinkItem = forwardRef<
                 )}
               />
             )}
-            <span className="capitalize">{name}</span>
+            {label || (
+              <span className="min-w-0 flex-1 truncate capitalize">
+                {name}
+              </span>
+            )}
             {children}
           </Link>
         </Sidebar.MenuButton>
+        {action}
       </Sidebar.MenuItem>
     );
   },
