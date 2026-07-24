@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { getDistrictSelectionFromCode } from '@/ebarimt/settings/constants/distrcitData';
 
 interface UseEBarimtDistrictHandlersOptions {
   deriveDistrictCode?: boolean;
@@ -19,7 +20,7 @@ export const useEBarimtDistrictHandlers = ({
     (value: string) => {
       setBranchCode(value);
       setSubBranchCode('');
-      setDistrictCode('');
+      setDistrictCode(value);
     },
     [setBranchCode, setDistrictCode, setSubBranchCode],
   );
@@ -36,5 +37,20 @@ export const useEBarimtDistrictHandlers = ({
     [deriveDistrictCode, getBranchCode, setDistrictCode, setSubBranchCode],
   );
 
-  return { handleBranchChange, handleSubBranchChange };
+  const handleDistrictCodeChange = useCallback(
+    (districtCode: string) => {
+      const { branchCode, subBranchCode } =
+        getDistrictSelectionFromCode(districtCode);
+
+      setBranchCode(branchCode);
+      setSubBranchCode(subBranchCode);
+    },
+    [setBranchCode, setSubBranchCode],
+  );
+
+  return {
+    handleBranchChange,
+    handleDistrictCodeChange,
+    handleSubBranchChange,
+  };
 };

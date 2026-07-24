@@ -49,14 +49,17 @@ export const StageInEBarimtConfigFormFields = ({
     [form],
   );
 
-  const { handleBranchChange, handleSubBranchChange } =
-    useEBarimtDistrictHandlers({
-      deriveDistrictCode: true,
-      getBranchCode: () => form.getValues('branchOfProvince'),
-      setBranchCode: (value) => form.setValue('branchOfProvince', value),
-      setDistrictCode: (value) => form.setValue('districtCode', value),
-      setSubBranchCode: (value) => form.setValue('subProvince', value),
-    });
+  const {
+    handleBranchChange,
+    handleDistrictCodeChange,
+    handleSubBranchChange,
+  } = useEBarimtDistrictHandlers({
+    deriveDistrictCode: true,
+    getBranchCode: () => form.getValues('branchOfProvince'),
+    setBranchCode: (value) => form.setValue('branchOfProvince', value),
+    setDistrictCode: (value) => form.setValue('districtCode', value),
+    setSubBranchCode: (value) => form.setValue('subProvince', value),
+  });
 
   return (
     <Form {...form}>
@@ -190,8 +193,9 @@ export const StageInEBarimtConfigFormFields = ({
             control={form.control}
             branchCode={selectedBranchCode || ''}
             subBranchCode={selectedSubBranchCode || ''}
-            setValue={form.setValue}
+            setValue={(_name, value) => form.setValue('districtCode', value)}
             autoDerive={false}
+            onValueChange={handleDistrictCodeChange}
           />
         </div>
 

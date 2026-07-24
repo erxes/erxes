@@ -29,13 +29,16 @@ export const PosInEBarimtConfigFormFields = ({
   const selectedBranchCode = form.watch('branchOfProvince');
   const selectedSubBranchCode = form.watch('subProvince');
 
-  const { handleBranchChange, handleSubBranchChange } =
-    useEBarimtDistrictHandlers({
-      getBranchCode: () => form.getValues('branchOfProvince'),
-      setBranchCode: (value) => form.setValue('branchOfProvince', value),
-      setDistrictCode: (value) => form.setValue('districtCode', value),
-      setSubBranchCode: (value) => form.setValue('subProvince', value),
-    });
+  const {
+    handleBranchChange,
+    handleDistrictCodeChange,
+    handleSubBranchChange,
+  } = useEBarimtDistrictHandlers({
+    getBranchCode: () => form.getValues('branchOfProvince'),
+    setBranchCode: (value) => form.setValue('branchOfProvince', value),
+    setDistrictCode: (value) => form.setValue('districtCode', value),
+    setSubBranchCode: (value) => form.setValue('subProvince', value),
+  });
 
   return (
     <ErxesForm {...form}>
@@ -141,7 +144,8 @@ export const PosInEBarimtConfigFormFields = ({
             control={form.control}
             branchCode={selectedBranchCode || ''}
             subBranchCode={selectedSubBranchCode || ''}
-            setValue={form.setValue}
+            setValue={(_name, value) => form.setValue('districtCode', value)}
+            onValueChange={handleDistrictCodeChange}
           />
         </div>
 
