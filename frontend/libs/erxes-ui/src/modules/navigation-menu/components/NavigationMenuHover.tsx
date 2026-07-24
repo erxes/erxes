@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 import { IconCaretRightFilled } from '@tabler/icons-react';
 import { cn } from 'erxes-ui/lib';
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
 
 export const NavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
@@ -33,16 +33,18 @@ export const NavigationMenuLinkItem = forwardRef<
       ? `${pathPrefix.replace(/\/$/, '')}/`
       : '';
     const normalizedPath = path.replace(/^\//, '');
-    const fullPath = (
-      `/${normalizedPathPrefix}${normalizedPath}`
-    ).replace(/\/$/, '') || '/';
-    const isActive = pathname.startsWith(fullPath);
+    const fullPath =
+      `/${normalizedPathPrefix}${normalizedPath}`.replace(/\/$/, '') || '/';
+    const isActive =
+      fullPath === '/'
+        ? pathname === '/'
+        : pathname === fullPath || pathname.startsWith(`${fullPath}/`);
 
     return (
       <Sidebar.MenuItem>
         <Sidebar.MenuButton
           asChild
-          isActive={isActiveProp ? isActiveProp : isActive}
+          isActive={isActiveProp ?? isActive}
           ref={ref}
           className={className}
           {...props}
@@ -67,11 +69,11 @@ export const NavigationMenuLinkItem = forwardRef<
 
 NavigationMenuLinkItem.displayName = 'NavigationMenuLinkItem';
 
-export const SettingsNavigationMenuLinkItem = forwardRef<
+export const SettingsNavigationMenuLinkItemHover = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
   React.ComponentProps<typeof NavigationMenuLinkItem>
 >(({ pathPrefix, ...props }, ref) => {
-  const settingsPathPrefix = `settings/${pathPrefix}`;
+  const settingsPathPrefix = pathPrefix ? `settings/${pathPrefix}` : 'settings';
   return (
     <NavigationMenuLinkItem
       {...props}
@@ -81,9 +83,10 @@ export const SettingsNavigationMenuLinkItem = forwardRef<
   );
 });
 
-SettingsNavigationMenuLinkItem.displayName = 'SettingsNavigationMenuLinkItem';
+SettingsNavigationMenuLinkItemHover.displayName =
+  'SettingsNavigationMenuLinkItemHover';
 
-export const NavigationMenuItem = forwardRef<
+export const NavigationMenuItemHover = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
   React.ComponentProps<typeof Sidebar.MenuButton> & {
     name: string;
@@ -102,9 +105,9 @@ export const NavigationMenuItem = forwardRef<
   );
 });
 
-NavigationMenuItem.displayName = 'NavigationMenuItem';
+NavigationMenuItemHover.displayName = 'NavigationMenuItemHover';
 
-export const NavigationMenuGroup = forwardRef<
+export const NavigationMenuGroupHover = forwardRef<
   React.ElementRef<typeof Sidebar.Group>,
   React.ComponentProps<typeof Sidebar.Group> & {
     name: string;
@@ -112,23 +115,46 @@ export const NavigationMenuGroup = forwardRef<
     separate?: boolean;
     defaultOpen?: boolean;
     actions?: React.ReactNode;
+    onNameClick?: () => void;
   }
 >(
   (
-    { name, children, separate = true, defaultOpen = true, actions, ...props },
+    {
+      name,
+      children,
+      separate = true,
+      defaultOpen = false,
+      actions,
+      onNameClick,
+      ...props
+    },
     ref,
   ) => {
+    const [open, setOpen] = useState(defaultOpen);
+
     return (
       <>
         {separate && <Sidebar.Separator />}
         <Collapsible
-          defaultOpen={defaultOpen}
+          open={open}
+          onOpenChange={setOpen}
           className="group/collapsible-menu"
         >
-          <Sidebar.Group {...props} ref={ref}>
+          <Sidebar.Group
+            {...props}
+            ref={ref}
+            onMouseEnter={() => setOpen(true)}
+            onMouseLeave={() => setOpen(false)}
+          >
             <Sidebar.GroupLabel asChild>
-              <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
-                <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
+              <Collapsible.Trigger
+                className="group/collapsible-trigger flex items-center gap-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNameClick?.();
+                }}
+              >
+                <IconCaretRightFilled className="size-3.5 transition-transform duration-300 group-data-[state=open]/collapsible-menu:rotate-90" />
                 <span className="font-sans text-xs font-semibold normal-case">
                   {name}
                 </span>
@@ -151,9 +177,9 @@ export const NavigationMenuGroup = forwardRef<
   },
 );
 
-NavigationMenuGroup.displayName = 'NavigationMenuGroup';
+NavigationMenuGroupHover.displayName = 'NavigationMenuGroupHover';
 
-export const NavigationMenuGroupStatic = forwardRef<
+export const NavigationMenuGroupStaticHover = forwardRef<
   React.ElementRef<typeof Sidebar.Group>,
   React.ComponentProps<typeof Sidebar.Group> & {
     children: React.ReactNode;
@@ -172,4 +198,4 @@ export const NavigationMenuGroupStatic = forwardRef<
   );
 });
 
-NavigationMenuGroupStatic.displayName = 'NavigationMenuGroupStatic';
+NavigationMenuGroupStaticHover.displayName = 'NavigationMenuGroupStaticHover';
