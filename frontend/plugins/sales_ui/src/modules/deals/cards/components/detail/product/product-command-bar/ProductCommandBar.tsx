@@ -3,13 +3,7 @@ import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { ProductsDelete } from './ProductDelete';
 import { useTranslation } from 'react-i18next';
 
-export const ProductCommandBar = ({
-  refetch,
-  dealId,
-}: {
-  refetch: () => void;
-  dealId: string;
-}) => {
+export const ProductCommandBar = ({ refetch }: { refetch: () => void }) => {
   const { table } = RecordTable.useRecordTable();
   const { t } = useTranslation('sales');
 
@@ -25,7 +19,6 @@ export const ProductCommandBar = ({
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original._id)}
           refetch={refetch}
-          dealId={dealId}
         />
       </CommandBar.Bar>
     </CommandBar>
