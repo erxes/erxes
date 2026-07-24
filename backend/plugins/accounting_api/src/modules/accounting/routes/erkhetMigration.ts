@@ -17,6 +17,65 @@ type ErkhetTransactionsRequest = {
   batches?: ErkhetTransactionBatch[];
 };
 
+type TCodeMap = Record<string, string>;
+
+type TReferenceMaps = {
+  accountsByCode: TCodeMap;
+  branchesByCode: TCodeMap;
+  departmentsByCode: TCodeMap;
+  customersByCode: TCodeMap;
+  productsByCode: TCodeMap;
+  fixedAssetsByCode: TCodeMap;
+  fxaInstanceIdsByCode: Record<string, string[]>;
+  fxaInstanceIdsByAssetAndCode: Record<string, Record<string, string[]>>;
+  fxaInstanceIdsById: TCodeMap;
+};
+
+type TFxaInstanceMigrationInput = {
+  _id?: string;
+  tempId?: string;
+  transactionDetailId?: string;
+  fixedAssetId?: string;
+  code?: string;
+  sequence?: number;
+  branchId?: string;
+  departmentId?: string;
+  responsibleUserId?: string;
+  locationId?: string;
+  originalCost?: number;
+  depreciationStartDate?: Date;
+  openingAccumulatedDepreciation?: number;
+};
+
+type TErkhetContact = {
+  type?: string;
+  code?: string;
+  name?: string;
+  phone?: string;
+  email?: string;
+};
+
+type TContactResolution = {
+  type?: string;
+  _id?: string;
+};
+
+type TMigrationSuccessRow = {
+  externalPtrId: string;
+  action: string;
+  parentId?: string;
+  ptrId?: string;
+  count: number;
+};
+
+type TMigrationErrorRow = {
+  externalPtrId?: string;
+  error: string;
+};
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
+
 const getMigrationToken = (req: Request) =>
   req.headers['x-erkhet-migration-token'] || req.headers['x-migration-token'];
 
@@ -66,6 +125,9 @@ const getCodeMap = (docs: ITransaction[]) => {
   const departmentCodes: string[] = [];
   const customerCodes: string[] = [];
   const productCodes: string[] = [];
+  const fixedAssetCodes: string[] = [];
+  const fixedAssetIds: string[] = [];
+  const fxaInstanceRefs: string[] = [];
 
   for (const doc of docs) {
     if (doc.branchId) {
@@ -78,9 +140,50 @@ const getCodeMap = (docs: ITransaction[]) => {
       customerCodes.push(doc.customerId);
     }
 
+    const moveInBranchId = doc.followInfos?.moveInBranchId;
+    const moveInDepartmentId = doc.followInfos?.moveInDepartmentId;
+    const accumulatedDepreciationAccountId =
+      doc.followInfos?.accumulatedDepreciationAccountId;
+    const lossAccountId = doc.followInfos?.lossAccountId;
+
+    if (moveInBranchId) {
+      branchCodes.push(moveInBranchId);
+    }
+    if (moveInDepartmentId) {
+      departmentCodes.push(moveInDepartmentId);
+    }
+    if (accumulatedDepreciationAccountId) {
+      accountCodes.push(accumulatedDepreciationAccountId);
+    }
+    if (lossAccountId) {
+      accountCodes.push(lossAccountId);
+    }
+
+    const fxaInstances =
+      (doc.extraData?.fxaInstances as TFxaInstanceMigrationInput[]) || [];
+    for (const instance of fxaInstances) {
+      if (instance.fixedAssetId) {
+        fixedAssetCodes.push(instance.fixedAssetId);
+      }
+      if (instance.branchId) {
+        branchCodes.push(instance.branchId);
+      }
+      if (instance.departmentId) {
+        departmentCodes.push(instance.departmentId);
+      }
+    }
+
+    for (const instanceRef of doc.extraData?.fxaInstanceIds || []) {
+      fxaInstanceRefs.push(instanceRef);
+    }
+
     for (const detail of doc.details || []) {
       if (detail.accountId) {
         accountCodes.push(detail.accountId);
+      }
+      if (detail.fixedAssetId) {
+        fixedAssetCodes.push(detail.fixedAssetId);
+        fixedAssetIds.push(detail.fixedAssetId);
       }
       if (detail.branchId) {
         branchCodes.push(detail.branchId);
@@ -100,11 +203,16 @@ const getCodeMap = (docs: ITransaction[]) => {
     departmentCodes: uniq(departmentCodes),
     customerCodes: uniq(customerCodes),
     productCodes: uniq(productCodes),
+    fixedAssetCodes: uniq(fixedAssetCodes),
+    fixedAssetIds: uniq(fixedAssetIds),
+    fxaInstanceRefs: uniq(fxaInstanceRefs),
   };
 };
 
-const indexByCode = (items: any[] = []) =>
-  items.reduce((byCode, item) => {
+const indexByCode = <T extends { _id: string; code?: string }>(
+  items: T[] = [],
+) =>
+  items.reduce<TCodeMap>((byCode, item) => {
     if (item?.code) {
       byCode[item.code] = item._id;
     }
@@ -122,6 +230,9 @@ const fetchReferenceMaps = async (
     departmentCodes,
     customerCodes,
     productCodes,
+    fixedAssetCodes,
+    fixedAssetIds,
+    fxaInstanceRefs,
   } = getCodeMap(docs);
 
   const accounts = accountCodes.length
@@ -189,17 +300,90 @@ const fetchReferenceMaps = async (
       })
     : [];
 
+  const fixedAssets = fixedAssetCodes.length
+    ? await models.FixedAssets.find(
+        { code: { $in: fixedAssetCodes } },
+        { _id: 1, code: 1 },
+      ).lean()
+    : [];
+  const fixedAssetsByCode = indexByCode(fixedAssets);
+  const fxaInstanceFixedAssetIds = [
+    ...fixedAssetIds,
+    ...fixedAssetCodes
+      .map((code) => fixedAssetsByCode[code])
+      .filter((fixedAssetId): fixedAssetId is string => !!fixedAssetId),
+  ];
+
+  const fxaInstances = fxaInstanceRefs.length
+    ? await models.FxaInstances.find(
+        {
+          $and: [
+            {
+              $or: [
+                { _id: { $in: fxaInstanceRefs } },
+                { code: { $in: fxaInstanceRefs } },
+              ],
+            },
+            fxaInstanceFixedAssetIds.length
+              ? { fixedAssetId: { $in: uniq(fxaInstanceFixedAssetIds) } }
+              : {},
+          ],
+        },
+        { _id: 1, code: 1, fixedAssetId: 1 },
+      )
+        .sort({ acquisitionDate: 1, createdAt: 1, _id: 1 })
+        .lean()
+    : [];
+
+  const fxaInstanceIdsByCode = fxaInstances.reduce<Record<string, string[]>>(
+    (byCode, instance) => {
+      if (!instance.code) {
+        return byCode;
+      }
+
+      byCode[instance.code] = [...(byCode[instance.code] || []), instance._id];
+      return byCode;
+    },
+    {},
+  );
+  const fxaInstanceIdsByAssetAndCode = fxaInstances.reduce<
+    Record<string, Record<string, string[]>>
+  >((byAssetAndCode, instance) => {
+    if (!instance.fixedAssetId || !instance.code) {
+      return byAssetAndCode;
+    }
+
+    byAssetAndCode[instance.fixedAssetId] = byAssetAndCode[
+      instance.fixedAssetId
+    ] || {};
+    byAssetAndCode[instance.fixedAssetId][instance.code] = [
+      ...(byAssetAndCode[instance.fixedAssetId][instance.code] || []),
+      instance._id,
+    ];
+
+    return byAssetAndCode;
+  }, {});
+
+  const fxaInstanceIdsById = fxaInstances.reduce<TCodeMap>((byId, instance) => {
+    byId[instance._id] = instance._id;
+    return byId;
+  }, {});
+
   return {
     accountsByCode: indexByCode(accounts),
     branchesByCode: indexByCode(branches),
     departmentsByCode: indexByCode(departments),
     customersByCode: indexByCode(customers),
     productsByCode: indexByCode(products),
+    fixedAssetsByCode,
+    fxaInstanceIdsByCode,
+    fxaInstanceIdsByAssetAndCode,
+    fxaInstanceIdsById,
   };
 };
 
-const buildContactQuery = (contact: any, type: string) => {
-  const $or: any[] = [];
+const buildContactQuery = (contact: TErkhetContact) => {
+  const $or: Record<string, unknown>[] = [];
 
   if (contact?.code) {
     $or.push({ code: contact.code });
@@ -221,7 +405,7 @@ const buildContactQuery = (contact: any, type: string) => {
     return {};
   }
 
-  return type === 'company' ? { $or } : { $or };
+  return { $or };
 };
 
 const findOrCreateContact = async ({
@@ -231,7 +415,7 @@ const findOrCreateContact = async ({
 }: {
   subdomain: string;
   userId: string;
-  contact: any;
+  contact: TErkhetContact;
 }) => {
   if (!contact?.code && !contact?.phone && !contact?.email && !contact?.name) {
     return {};
@@ -242,7 +426,7 @@ const findOrCreateContact = async ({
   const findAction =
     type === 'company' ? 'findActiveCompanies' : 'findActiveCustomers';
   const createAction = type === 'company' ? 'createCompany' : 'createCustomer';
-  const query = buildContactQuery(contact, type);
+  const query = buildContactQuery(contact);
 
   const found = Object.keys(query).length
     ? await sendTRPCMessage({
@@ -298,14 +482,18 @@ const findOrCreateContact = async ({
   return { type, _id: created?._id };
 };
 
-const resolveDetail = (detail: ITrDetail, maps: any) => {
+const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const accountCode = detail.accountId;
   const branchCode = detail.branchId;
   const productCode = detail.productId;
   const departmentCode = detail.departmentId;
+  const fixedAssetCode = detail.fixedAssetId;
 
   if (accountCode && !maps.accountsByCode[accountCode]) {
     throw new Error(`Account not found: ${accountCode}`);
+  }
+  if (fixedAssetCode && !maps.fixedAssetsByCode[fixedAssetCode]) {
+    throw new Error(`Fixed asset not found: ${fixedAssetCode}`);
   }
   if (productCode && !maps.productsByCode[productCode]) {
     throw new Error(`Product not found: ${productCode}`);
@@ -320,6 +508,9 @@ const resolveDetail = (detail: ITrDetail, maps: any) => {
   return {
     ...detail,
     accountId: maps.accountsByCode[accountCode] || detail.accountId,
+    fixedAssetId: fixedAssetCode
+      ? maps.fixedAssetsByCode[fixedAssetCode] || detail.fixedAssetId
+      : detail.fixedAssetId,
     branchId: branchCode
       ? maps.branchesByCode[branchCode] || detail.branchId
       : detail.branchId,
@@ -335,7 +526,127 @@ const resolveDetail = (detail: ITrDetail, maps: any) => {
       branchCode,
       productCode,
       departmentCode,
+      fixedAssetCode,
     },
+  };
+};
+
+const resolveFxaInstances = (
+  instances: TFxaInstanceMigrationInput[],
+  maps: TReferenceMaps,
+) =>
+  instances.map((instance) => {
+    const fixedAssetCode = instance.fixedAssetId;
+    const branchCode = instance.branchId;
+    const departmentCode = instance.departmentId;
+
+    if (fixedAssetCode && !maps.fixedAssetsByCode[fixedAssetCode]) {
+      throw new Error(`Fixed asset not found: ${fixedAssetCode}`);
+    }
+    if (branchCode && !maps.branchesByCode[branchCode]) {
+      throw new Error(`Branch not found: ${branchCode}`);
+    }
+    if (departmentCode && !maps.departmentsByCode[departmentCode]) {
+      throw new Error(`Department not found: ${departmentCode}`);
+    }
+
+    return {
+      ...instance,
+      fixedAssetId: fixedAssetCode
+        ? maps.fixedAssetsByCode[fixedAssetCode]
+        : instance.fixedAssetId,
+      branchId: branchCode ? maps.branchesByCode[branchCode] : instance.branchId,
+      departmentId: departmentCode
+        ? maps.departmentsByCode[departmentCode]
+        : instance.departmentId,
+      depreciationStartDate: instance.depreciationStartDate
+        ? new Date(instance.depreciationStartDate)
+        : instance.depreciationStartDate,
+    };
+  });
+
+const resolveFxaInstanceIds = (
+  refs: string[] = [],
+  doc: ITransaction,
+  maps: TReferenceMaps,
+) => {
+  const usedByCode: Record<string, number> = {};
+  const fixedAssetIdsForRefs = (doc.details || []).flatMap((detail) => {
+    const fixedAssetCode = detail.fixedAssetId;
+    const fixedAssetId = fixedAssetCode
+      ? maps.fixedAssetsByCode[fixedAssetCode] || fixedAssetCode
+      : undefined;
+    const count = Math.max(1, Math.trunc(detail.count || 1));
+
+    return Array.from({ length: count }, () => fixedAssetId);
+  });
+  return refs.map((ref, index) => {
+    if (maps.fxaInstanceIdsById[ref]) {
+      return ref;
+    }
+
+    const fixedAssetId = fixedAssetIdsForRefs[index];
+    const instances = fixedAssetId
+      ? maps.fxaInstanceIdsByAssetAndCode[fixedAssetId]?.[ref] || []
+      : maps.fxaInstanceIdsByCode[ref] || [];
+    const usedIndex = usedByCode[ref] || 0;
+    const instanceId = instances[usedIndex];
+
+    if (!instanceId) {
+      throw new Error(`Fixed asset instance not found: ${ref}`);
+    }
+
+    usedByCode[ref] = usedIndex + 1;
+    return instanceId;
+  });
+};
+
+const resolveTransactionFollowInfos = (
+  doc: ITransaction,
+  maps: TReferenceMaps,
+) => {
+  const moveInBranchCode = doc.followInfos?.moveInBranchId;
+  const moveInDepartmentCode = doc.followInfos?.moveInDepartmentId;
+  const accumulatedDepreciationAccountCode =
+    doc.followInfos?.accumulatedDepreciationAccountId;
+  const lossAccountCode = doc.followInfos?.lossAccountId;
+
+  if (moveInBranchCode && !maps.branchesByCode[moveInBranchCode]) {
+    throw new Error(`Branch not found: ${moveInBranchCode}`);
+  }
+  if (moveInDepartmentCode && !maps.departmentsByCode[moveInDepartmentCode]) {
+    throw new Error(`Department not found: ${moveInDepartmentCode}`);
+  }
+  if (
+    accumulatedDepreciationAccountCode &&
+    !maps.accountsByCode[accumulatedDepreciationAccountCode]
+  ) {
+    throw new Error(
+      `Account not found: ${accumulatedDepreciationAccountCode}`,
+    );
+  }
+  if (lossAccountCode && !maps.accountsByCode[lossAccountCode]) {
+    throw new Error(`Account not found: ${lossAccountCode}`);
+  }
+
+  return {
+    ...(doc.followInfos || {}),
+    moveInBranchId: moveInBranchCode
+      ? maps.branchesByCode[moveInBranchCode]
+      : doc.followInfos?.moveInBranchId,
+    moveInDepartmentId: moveInDepartmentCode
+      ? maps.departmentsByCode[moveInDepartmentCode]
+      : doc.followInfos?.moveInDepartmentId,
+    accumulatedDepreciationAccountId: accumulatedDepreciationAccountCode
+      ? maps.accountsByCode[accumulatedDepreciationAccountCode]
+      : doc.followInfos?.accumulatedDepreciationAccountId,
+    lossAccountId: lossAccountCode
+      ? maps.accountsByCode[lossAccountCode]
+      : doc.followInfos?.lossAccountId,
+    moveInBranchCode,
+    moveInDepartmentCode,
+    accumulatedDepreciationAccountCode,
+    lossAccountCode,
   };
 };
 
@@ -346,10 +657,10 @@ const normalizeBatchDocs = async (
   userId: string,
 ) => {
   const maps = await fetchReferenceMaps(subdomain, models, batch.trDocs);
-  const contactByCode: Record<string, any> = {};
+  const contactByCode: Record<string, TContactResolution> = {};
 
   for (const doc of batch.trDocs) {
-    const contact = doc.extraData?.erkhetCustomer;
+    const contact = doc.extraData?.erkhetCustomer as TErkhetContact | undefined;
     if (contact?.code && !contactByCode[contact.code]) {
       contactByCode[contact.code] = await findOrCreateContact({
         subdomain,
@@ -365,6 +676,10 @@ const normalizeBatchDocs = async (
     const departmentCode = doc.departmentId;
 
     const contact = customerCode ? contactByCode[customerCode] : undefined;
+    const fxaInstances =
+      (doc.extraData?.fxaInstances as TFxaInstanceMigrationInput[]) || [];
+    const fxaInstanceIds = doc.extraData?.fxaInstanceIds || [];
+
     if (customerCode && !contact?._id && !maps.customersByCode[customerCode]) {
       throw new Error(`Customer not found: ${customerCode}`);
     }
@@ -391,10 +706,13 @@ const normalizeBatchDocs = async (
         ? maps.departmentsByCode[departmentCode] || doc.departmentId
         : doc.departmentId,
       details: (doc.details || []).map((detail) => resolveDetail(detail, maps)),
+      followInfos: resolveTransactionFollowInfos(doc, maps),
       contentType: doc.contentType || ERKHET_CONTENT_TYPE,
       contentId: doc.contentId || batch.externalPtrId,
       extraData: {
         ...(doc.extraData || {}),
+        fxaInstances: resolveFxaInstances(fxaInstances, maps),
+        fxaInstanceIds: resolveFxaInstanceIds(fxaInstanceIds, doc, maps),
         migrationSource: 'erkhet',
         externalPtrId: batch.externalPtrId,
         customerCode,
@@ -473,8 +791,8 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
 
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    const successRows: any[] = [];
-    const errorRows: any[] = [];
+    const successRows: TMigrationSuccessRow[] = [];
+    const errorRows: TMigrationErrorRow[] = [];
 
     for (const batch of body.batches) {
       try {
@@ -494,7 +812,7 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
       } catch (e) {
         errorRows.push({
           externalPtrId: batch?.externalPtrId,
-          error: e.message || 'Failed to import Erkhet transaction',
+          error: getErrorMessage(e, 'Failed to import Erkhet transaction'),
         });
       }
     }
@@ -509,7 +827,13 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
     });
   } catch (e) {
     return res
-      .status(e.statusCode || 500)
-      .json({ error: e.message || 'Failed to import Erkhet transactions' });
+      .status(
+        e instanceof Error && 'statusCode' in e
+          ? Number(e.statusCode) || 500
+          : 500,
+      )
+      .json({
+        error: getErrorMessage(e, 'Failed to import Erkhet transactions'),
+      });
   }
 };
