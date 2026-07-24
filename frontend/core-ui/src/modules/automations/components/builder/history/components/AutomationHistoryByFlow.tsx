@@ -3,13 +3,14 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 
 import PrimaryEdge from '@/automations/components/builder/edges/PrimaryEdge';
-import { useAutomationExecutionDetail } from '@/automations/components/builder/history/hooks/useAutomationExecutionDetail';
+import { useAutomationExecutionDetail } from '@/automations/components/builder/history/context/AutomationExecutionDetailContext';
 import ActionNode from '@/automations/components/builder/nodes/components/ActionNode';
 import TriggerNode from '@/automations/components/builder/nodes/components/TriggerNode';
 import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
 import { generateNodes } from '@/automations/utils/automationBuilderUtils/generateNodes';
 import { Background, ConnectionMode, Controls, ReactFlow } from '@xyflow/react';
 import { IAutomationHistory } from 'ui-modules';
+import '@xyflow/react/dist/style.css';
 
 const nodeTypes = {
   trigger: TriggerNode,

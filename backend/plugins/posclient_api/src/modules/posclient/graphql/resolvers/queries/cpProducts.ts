@@ -23,6 +23,7 @@ import {
   getRemBranchId,
   isDiscountSortField,
   pushDiscountRangeFilters,
+  type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
 
 const getPropertyFieldId = (field: string) =>
@@ -604,7 +605,9 @@ const cpProductQueries: Record<string, Resolver> = {
         ],
       };
 
-      let products = await models.Products.find(filters).sort({ code: 1 });
+      let products: ProductWithRemainder[] = await models.Products.find(
+        filters,
+      ).sort({ code: 1 });
       if (!products.length) {
         products = await checkRemainders(
           subdomain,

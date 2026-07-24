@@ -20,6 +20,7 @@ import {
   getRemBranchId,
   isDiscountSortField,
   pushDiscountRangeFilters,
+  type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
 
 const getPropertyFieldId = (field: string) =>
@@ -67,7 +68,7 @@ export interface IProductParams extends ICommonParams {
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
-  similarity?: boolean;
+  isSimilarity?: boolean;
   categoryMeta?: string;
   image?: string;
 
@@ -115,7 +116,7 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
-    similarity,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
@@ -136,8 +137,7 @@ const generateFilter = async (
     tokens: { $in: [token] },
   };
 
-  // one card per bulk-similarity group: standalone products + each group's star
-  if (similarity) {
+  if (isSimilarity) {
     const similarityGroups = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -718,7 +718,9 @@ const productQueries = {
         ],
       };
 
-      let products = await models.Products.find(filters).sort({ code: 1 });
+      let products: ProductWithRemainder[] = await models.Products.find(
+        filters,
+      ).sort({ code: 1 });
       if (!products.length) {
         products = await checkRemainders(
           subdomain,

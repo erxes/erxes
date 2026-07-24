@@ -57,6 +57,8 @@ export interface IHistoriesParams {
   triggerType?: string;
   beginDate?: Date;
   endDate?: Date;
+  // Set to list a workflow child executions; omitted = root executions only
+  parentExecutionId?: string;
 }
 
 export const automationQueries = {
@@ -433,6 +435,28 @@ export const automationQueries = {
     { models }: IContext,
   ) {
     return models.AutomationEmailTemplates.getEmailTemplate(_id);
+  },
+
+  /**
+   * Workflow templates list
+   */
+  async automationWorkflowTemplates(
+    _root,
+    { searchValue }: { searchValue?: string },
+    { models }: IContext,
+  ) {
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.$or = [
+        { name: new RegExp(`.*${searchValue}.*`, 'i') },
+        { description: new RegExp(`.*${searchValue}.*`, 'i') },
+      ];
+    }
+
+    return models.AutomationWorkflowTemplates.find(filter).sort({
+      createdAt: -1,
+    });
   },
 };
 

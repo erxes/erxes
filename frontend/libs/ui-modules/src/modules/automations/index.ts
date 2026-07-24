@@ -10,6 +10,7 @@ export * from './hooks/useAutomationVariableBlockEditorDrop';
 export * from './hooks/useAutomationVariableCodeMirrorDrop';
 export * from './components/AutomationRemoteEntryWrapper';
 export * from './components/AutomationNodeMetaInfoRow';
+export * from './contexts/AutomationVariableInsertionContext';
 export * from './hooks/useFormValidationErrorHandler';
 export * from './utils/automationVariableDragUtils';
 export * from './utils/automationVariableBlockEditorUtils';

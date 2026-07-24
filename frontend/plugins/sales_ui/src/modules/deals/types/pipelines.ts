@@ -1,8 +1,9 @@
 import { MutationHookOptions, OperationVariables } from '@apollo/client';
 
 import { IUser } from 'ui-modules';
-import { PIPELINE_CREATE_SCHEMA } from '../schemas/pipelineFormSchema';
-import { z } from 'zod';
+import type { PaymentConfigItem } from '@/payments';
+import { createPipelineFormSchema } from '../schemas/pipelineFormSchema';
+import type { z } from 'zod';
 
 export interface IPipeline {
   _id: string;
@@ -40,7 +41,7 @@ export interface IPipeline {
   excludeProductIds: string[];
 
   paymentIds?: string[];
-  paymentTypes?: any[];
+  paymentTypes?: PaymentConfigItem[];
 }
 
 export interface ISelectLabelContext {
@@ -92,7 +93,9 @@ export enum PipelineHotKeyScope {
   PipelineAddSheet = 'pipeline-add-sheet',
 }
 
-export type TPipelineForm = z.infer<typeof PIPELINE_CREATE_SCHEMA>;
+export type TPipelineForm = z.infer<
+  ReturnType<typeof createPipelineFormSchema>
+>;
 
 export interface ISelectPipelinesContext {
   pipelineIds: string[];

@@ -1,12 +1,19 @@
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
+  Button,
+  CommandBar,
   Input,
   RecordTable,
   RecordTableInlineCell,
   PopoverScoped,
   Empty,
+  Separator,
+  Spinner,
+  toast,
+  useConfirm,
 } from 'erxes-ui';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { IIntegrationDetail } from '../types/Integration';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
@@ -16,13 +23,16 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
-import { IconMessagesOff } from '@tabler/icons-react';
+import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
+import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
 
 export const IntegrationsRecordTable = () => {
   const params = useParams();
-  const columns = useIntegrationTypeColumns();
+  const isDiscord =
+    params?.integrationType === IntegrationType.DISCORD_MESSENGER;
+  const columns = useIntegrationTypeColumns(isDiscord);
 
   const { integrations, loading, handleFetchMore } = useIntegrations({
     variables: {
@@ -43,12 +53,20 @@ export const IntegrationsRecordTable = () => {
             </div>
           </Empty.Media>
           <Empty.Title>
-            No {INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name}{' '}
+            No{' '}
+            {
+              INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]
+                ?.name
+            }{' '}
             found
           </Empty.Title>
           <Empty.Description>
             Get started by adding your first{' '}
-            {INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name}.
+            {
+              INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]
+                ?.name
+            }
+            .
           </Empty.Description>
         </Empty.Header>
       </Empty>
@@ -59,7 +77,9 @@ export const IntegrationsRecordTable = () => {
     <RecordTable.Provider
       columns={columns}
       data={(integrations || []).filter((integration) => integration)}
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={
+        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
+      }
     >
       <RecordTable.Scroll>
         <RecordTable className="w-full">
@@ -76,7 +96,74 @@ export const IntegrationsRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isDiscord && <IntegrationsCommandBar />}
     </RecordTable.Provider>
+  );
+};
+
+const IntegrationsCommandBar = () => {
+  const { t } = useTranslation('frontline');
+  const { table } = RecordTable.useRecordTable();
+  const { confirm } = useConfirm();
+  const client = useApolloClient();
+  const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION);
+
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const ids = selectedRows.map((row) => row.original._id as string);
+
+  const handleDelete = () => {
+    confirm({
+      message: `Delete ${ids.length} selected integration(s)? This can't be undone.`,
+    }).then(async () => {
+      let failed = 0;
+      for (const id of ids) {
+        try {
+          await removeIntegration({ variables: { id } });
+        } catch {
+          failed += 1;
+        }
+      }
+
+      table.resetRowSelection();
+      await client
+        .refetchQueries({ include: ['Integrations'] })
+        .catch(() => undefined);
+
+      const succeeded = ids.length - failed;
+      toast(
+        failed
+          ? {
+              title: t('error'),
+              description: `${succeeded} removed, ${failed} failed`,
+              variant: 'destructive',
+            }
+          : {
+              title: t('success'),
+              variant: 'success',
+              description: `${succeeded} integration(s) removed`,
+            },
+      );
+    });
+  };
+
+  return (
+    <CommandBar open={selectedRows.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>
+          {t('n-selected', { count: selectedRows.length })}
+        </CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          disabled={loading}
+          onClick={handleDelete}
+        >
+          {loading ? <Spinner /> : <IconTrash />}
+          {t('delete')}
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
   );
 };
 
@@ -131,10 +218,15 @@ export const BrandField = ({
   return null;
 };
 
-export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => {
+export const useIntegrationTypeColumns = (
+  withSelection = false,
+): ColumnDef<IIntegrationDetail>[] => {
   const { t } = useTranslation('frontline');
   return [
     integrationMoreColumn(),
+    ...(withSelection
+      ? [RecordTable.checkboxColumn as ColumnDef<IIntegrationDetail>]
+      : []),
     {
       id: 'name',
       accessorKey: 'name',
@@ -168,7 +260,8 @@ export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => 
       accessorKey: 'healthStatus',
       header: () => <RecordTable.InlineHead label={t('health-status')} />,
       cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
-        const healthStatus = cell.getValue() as IIntegrationDetail['healthStatus'];
+        const healthStatus =
+          cell.getValue() as IIntegrationDetail['healthStatus'];
         const status = healthStatus?.status;
 
         return (

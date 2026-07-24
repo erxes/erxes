@@ -11,6 +11,8 @@ export interface IAutomationExecAction {
   actionConfig?: any;
   nextActionId?: string;
   result?: any;
+  // Set on workflow node actions: links to the child execution for drill-in
+  childExecutionId?: string;
 }
 
 export interface IAutomationExecution {
@@ -30,6 +32,14 @@ export interface IAutomationExecution {
   waitingActionId?: string;
   objToCheck?: any;
   responseActionId?: string;
+  // Workflow child executions: run a workflow's member actions on behalf of
+  // a parent execution that waits on the workflow node.
+  parentExecutionId?: string;
+  workflowId?: string;
+  // Input values frozen when the workflow was entered; members resolve
+  // {{ input.* }} from here.
+  inputs?: Record<string, any>;
+  depth?: number;
 }
 
 export interface IAutomationExecutionDocument
@@ -57,6 +67,7 @@ const execActionSchema = new Schema({
   actionConfig: { type: Object },
   nextActionId: { type: String },
   result: { type: Object },
+  childExecutionId: { type: String },
 });
 
 export const automationExecutionSchema = new Schema({
@@ -82,4 +93,8 @@ export const automationExecutionSchema = new Schema({
   waitingActionId: { type: String },
   responseActionId: { type: String },
   objToCheck: { type: Object, optional: true },
+  parentExecutionId: { type: String, index: true },
+  workflowId: { type: String },
+  inputs: { type: Object },
+  depth: { type: Number, default: 0 },
 });

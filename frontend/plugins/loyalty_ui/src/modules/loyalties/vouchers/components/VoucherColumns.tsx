@@ -7,8 +7,8 @@ import {
   Badge,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { IVoucher } from '@/loyalties/vouchers/types/voucher';
 import { VOUCHER_CP_USER_QUERY } from '@/loyalties/vouchers/graphql/queries/queries';
@@ -41,7 +41,7 @@ const CreatedAtCell = ({ voucher }: { voucher: IVoucher }) => {
   );
 };
 
-export const generateOtherPaymentColumns = (_summary?: any) => [];
+export const generateOtherPaymentColumns = (_summary?: unknown) => [];
 
 // Client portal users have no inline component in `ui-modules`, so resolve them
 // here: prefer the linked erxes customer (matching the backend `getLoyaltyOwner`
@@ -95,25 +95,24 @@ const OwnerCell = ({
   );
 };
 
-export const firstVoucherColumns: ColumnDef<IVoucher>[] = [
+export const firstVoucherColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IVoucher>[] => [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+    ),
     cell: ({ row }) => <CreatedAtCell voucher={row.original} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
+    ),
     cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
       return (
         <RecordTableInlineCell>
           <span className="capitalize">{t(cell.getValue() as string)}</span>
@@ -124,14 +123,13 @@ export const firstVoucherColumns: ColumnDef<IVoucher>[] = [
   },
 ];
 
-export const secondVoucherColumns: ColumnDef<IVoucher>[] = [
+export const secondVoucherColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IVoucher>[] => [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -142,12 +140,8 @@ export const secondVoucherColumns: ColumnDef<IVoucher>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTag} label={t('status')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
     cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
       return (
         <RecordTableInlineCell>
           <Badge variant="default">{t(cell.getValue() as string)}</Badge>
@@ -158,7 +152,9 @@ export const secondVoucherColumns: ColumnDef<IVoucher>[] = [
   },
 ];
 
-export const voucherColumns: ColumnDef<IVoucher>[] = [
-  ...firstVoucherColumns,
-  ...secondVoucherColumns,
+export const voucherColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IVoucher>[] => [
+  ...firstVoucherColumns(t),
+  ...secondVoucherColumns(t),
 ];

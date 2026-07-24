@@ -17,10 +17,11 @@ export const CouponRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={couponColumns}
+      columns={couponColumns(t)}
       data={couponList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'campaignId', 'code']}
+      tableId="loyalty_coupons_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

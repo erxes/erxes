@@ -92,6 +92,108 @@ export const requestBrowserInfo = ({
   }, 2000);
 };
 
+// ---------------------------------------------------------------------------
+// Parent-page (host site) browser info — used by the loader scripts
+// (index.ts / formIndex.ts), which run in the host page itself, to answer
+// 'requestingBrowserInfo' messages sent by the widget iframe. window.location
+// here is the host page's location, not the iframe's.
+// ---------------------------------------------------------------------------
+
+export type IHostBrowserInfo = {
+  remoteAddress?: string;
+  region?: string;
+  countryCode?: string;
+  city?: string;
+  country?: string;
+  url: string;
+  hostname: string;
+  language: string;
+  userAgent: string;
+};
+
+let cachedGeoInfo: Omit<
+  IHostBrowserInfo,
+  'url' | 'hostname' | 'language' | 'userAgent'
+> | null = null;
+
+export const getBrowserInfo = async (): Promise<IHostBrowserInfo> => {
+  if (window.location.hostname === 'localhost') {
+    return {
+      url: window.location.pathname,
+      hostname: window.location.href,
+      language: navigator.language,
+      userAgent: navigator.userAgent,
+      countryCode: 'MN',
+    };
+  }
+
+  if (!cachedGeoInfo) {
+    try {
+      const response = await fetch('https://geo.erxes.io');
+      const location = await response.json();
+
+      cachedGeoInfo = {
+        remoteAddress: location.network,
+        region: location.region,
+        countryCode: location.countryCode,
+        city: location.city,
+        country: location.countryName,
+      };
+    } catch (e) {
+      cachedGeoInfo = {
+        city: '',
+        remoteAddress: '',
+        region: '',
+        country: '',
+        countryCode: '',
+      };
+    }
+  }
+
+  return {
+    ...cachedGeoInfo,
+    url: window.location.pathname,
+    hostname: window.location.origin,
+    language: navigator.language,
+    userAgent: navigator.userAgent,
+  };
+};
+
+// Answers a 'requestingBrowserInfo' message from the widget iframe, and
+// mirrors any 'setLocalStorageItem' request into localStorage. Shared by
+// both loader scripts so an SPA host page gets identical behavior for the
+// messenger widget and the embedded/popup forms.
+export const listenForCommonRequests = async (
+  event: MessageEvent,
+  iframe: HTMLIFrameElement | null | undefined,
+) => {
+  const { message, fromErxes, source, key, value } = event.data || {};
+
+  if (!fromErxes || !iframe?.contentWindow) {
+    return;
+  }
+
+  if (message === 'requestingBrowserInfo') {
+    iframe.contentWindow.postMessage(
+      {
+        fromPublisher: true,
+        source,
+        message: 'sendingBrowserInfo',
+        browserInfo: await getBrowserInfo(),
+      },
+      '*',
+    );
+  }
+
+  if (message === 'setLocalStorageItem') {
+    const erxesStorage = JSON.parse(localStorage.getItem('erxes') || '{}');
+
+    erxesStorage[key] = value;
+
+    localStorage.setItem('erxes', JSON.stringify(erxesStorage));
+  }
+};
+
 export const getDomain = (subdomain: string) => {
   const defaultValue = 'http://localhost:4000';
   const VERSION = getEnv({ name: 'VERSION' });

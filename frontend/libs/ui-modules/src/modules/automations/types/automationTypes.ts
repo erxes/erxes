@@ -65,6 +65,11 @@ export type TAutomationWorkflowNode = {
   description: string;
   config: any;
   automationId: string;
+  // Source template when inserted from one
+  templateId?: string;
+  // Snapshot of the member actions this workflow owns (containment model)
+  actions?: TAutomationAction[];
+  icon?: string;
   position?: any;
 };
 
@@ -79,6 +84,8 @@ export interface IAutomationHistoryAction {
   actionConfig?: any;
   nextActionId?: string;
   result?: any;
+  // Set on workflow node actions: links to the child execution
+  childExecutionId?: string;
 }
 
 export interface IAutomationHistory {

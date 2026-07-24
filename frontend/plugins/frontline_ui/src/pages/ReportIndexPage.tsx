@@ -6,7 +6,7 @@ import {
   ToggleGroup,
 } from 'erxes-ui';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
@@ -26,11 +26,35 @@ export default function ReportIndexPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const activeSection: Section = location.pathname.includes('/call')
-    ? 'call'
-    : location.pathname.includes('/ticket')
-      ? 'ticket'
-      : 'overview';
+  let activeSection: Section = 'overview';
+
+  if (location.pathname.includes('/call')) {
+    activeSection = 'call';
+  } else if (location.pathname.includes('/ticket')) {
+    activeSection = 'ticket';
+  }
+
+  let activeSectionLabel: string | undefined;
+
+  if (activeSection === 'call') {
+    activeSectionLabel = t('call-center');
+  } else if (activeSection === 'ticket') {
+    activeSectionLabel = t('ticket');
+  }
+
+  let reportContent = <ReportsView />;
+
+  if (activeSection === 'ticket') {
+    reportContent = <TicketReportsList />;
+  } else if (activeSection === 'call') {
+    reportContent = <CallReportsView />;
+  }
+
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Frontline',
+    t('reports'),
+    activeSectionLabel,
+  );
 
   return (
     <PageContainer>
@@ -64,17 +88,14 @@ export default function ReportIndexPage() {
             <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconChartHistogram"
+          />
         </PageHeader.Start>
       </PageHeader>
 
-      {activeSection === 'ticket' ? (
-        <TicketReportsList />
-      ) : activeSection === 'call' ? (
-        <CallReportsView />
-      ) : (
-        <ReportsView />
-      )}
+      {reportContent}
     </PageContainer>
   );
 }

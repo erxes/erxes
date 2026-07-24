@@ -48,6 +48,14 @@ const InstagramIntegrationDetail = lazy(() =>
   ),
 );
 
+const DiscordIntegrationDetail = lazy(() =>
+  import('@/integrations/discord/components/DiscordIntegrationDetail').then(
+    (module) => ({
+      default: module.DiscordIntegrationDetail,
+    }),
+  ),
+);
+
 export const IntegrationDetailPage = () => {
   const { t } = useTranslation('frontline');
   const { integrationType, id } = useParams<{
@@ -60,7 +68,7 @@ export const IntegrationDetailPage = () => {
     INTEGRATIONS[integrationType as keyof typeof INTEGRATIONS];
 
   return (
-    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden">
+    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden flex-1 min-h-0">
       <div>
         <Button
           variant="ghost"
@@ -107,8 +115,13 @@ export const IntegrationDetailPage = () => {
         {integrationType === IntegrationType.INSTAGRAM_POST && (
           <InstagramIntegrationDetail isPost />
         )}
+        {integrationType === IntegrationType.DISCORD_MESSENGER && (
+          <DiscordIntegrationDetail />
+        )}
       </Suspense>
-      <IntegrationsRecordTable />
+      <div className="flex-1 min-h-0 flex flex-col">
+        <IntegrationsRecordTable />
+      </div>
     </div>
   );
 };
