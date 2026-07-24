@@ -9,16 +9,8 @@ import {
   visitVisitedPageTab,
 } from '@/navigation/utils/visitedPageTabs';
 import { useAtom } from 'jotai';
-import {
-  useCallback,
-  useLayoutEffect,
-  useRef,
-} from 'react';
-import {
-  useLocation,
-  useNavigate,
-  useNavigationType,
-} from 'react-router-dom';
+import { useCallback, useLayoutEffect, useRef } from 'react';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
 const DEFAULT_VISITED_PAGE_PATH = `/${AppPath.MyInbox}`;
 
@@ -40,11 +32,7 @@ export const useVisitedPageTabs = () => {
       navigationType === 'REPLACE' ? previousPathname.current : undefined;
 
     setTabs((currentTabs) =>
-      visitVisitedPageTab(
-        currentTabs,
-        activePathname,
-        replacedPathname,
-      ),
+      visitVisitedPageTab(currentTabs, activePathname, replacedPathname),
     );
     previousPathname.current = activePathname;
   }, [activePathname, navigationType, setTabs]);
@@ -75,6 +63,11 @@ export const useVisitedPageTabs = () => {
     [activePathname, navigate, setTabs, tabs],
   );
 
+  const closeAllVisitedPageTabs = useCallback(() => {
+    setTabs([{ pathname: DEFAULT_VISITED_PAGE_PATH }]);
+    navigate(DEFAULT_VISITED_PAGE_PATH, { replace: true });
+  }, [navigate, setTabs]);
+
   const reorderVisitedPageTab = useCallback(
     (tabPathname: string, destinationPathname: string) => {
       setTabs((currentTabs) =>
@@ -86,6 +79,7 @@ export const useVisitedPageTabs = () => {
 
   return {
     activePathname,
+    closeAllVisitedPageTabs,
     closeVisitedPageTab,
     openVisitedPageTab,
     reorderVisitedPageTab,

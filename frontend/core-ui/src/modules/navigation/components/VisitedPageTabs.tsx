@@ -1,14 +1,19 @@
-import { NavigationPalette } from '@/navigation/components/NavigationPalette';
+import { VisitedPageTabsShortcutGuide } from '@/navigation/components/VisitedPageTabsShortcutGuide';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
 import { useVisitedPageTabs } from '@/navigation/hooks/useVisitedPageTabs';
 import { pageLoadingPathnamesState } from '@/navigation/states/pageLoadingState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import {
+  getAdjacentVisitedPageTabPathname,
   getVisitedPageTabLabel,
   getVisitedPageTabTitle,
   normalizeVisitedPagePathname,
 } from '@/navigation/utils/visitedPageTabs';
+import {
+  getVisitedPageTabShortcut,
+  isVisitedPageTabShortcutTargetEditable,
+} from '@/navigation/utils/visitedPageTabShortcuts';
 import {
   closestCenter,
   DndContext,
@@ -30,17 +35,11 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import {
-  IconApps,
-  IconFile,
-  IconPlus,
-  IconSearch,
-  IconX,
-} from '@tabler/icons-react';
-import { Button, cn, Sidebar, Spinner, Tabs } from 'erxes-ui';
+import { IconApps, IconFile, IconX } from '@tabler/icons-react';
+import { Button, cn, ScrollArea, Sidebar, Spinner, Tabs } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import type { ElementType } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from 'react-router-dom';
 
@@ -48,7 +47,6 @@ const SortableVisitedPageTab = ({
   canClose,
   closeLabel,
   icon: Icon,
-  index,
   isActive,
   isLoading,
   label,
@@ -58,7 +56,6 @@ const SortableVisitedPageTab = ({
   canClose: boolean;
   closeLabel: string;
   icon: ElementType;
-  index: number;
   isActive: boolean;
   isLoading: boolean;
   label: string;
@@ -130,11 +127,6 @@ const SortableVisitedPageTab = ({
         )}
         <span className="truncate">{label}</span>
       </Tabs.Trigger>
-      {isActive && index < 9 && (
-        <span className="mr-1 rounded border bg-muted px-1 py-0.5 font-mono text-[9px] font-semibold leading-none text-accent-foreground">
-          ⌘{index + 1}
-        </span>
-      )}
       {canClose && (
         <Button
           aria-label={closeLabel}
@@ -163,13 +155,13 @@ export const VisitedPageTabs = () => {
   const pageLoadingPathnames = useAtomValue(pageLoadingPathnamesState);
   const {
     activePathname,
+    closeAllVisitedPageTabs,
     closeVisitedPageTab,
     openVisitedPageTab,
     reorderVisitedPageTab,
     tabs,
   } = useVisitedPageTabs();
   const { toggleSidebar } = Sidebar.useSidebar();
-  const [paletteOpen, setPaletteOpen] = useState(false);
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -215,6 +207,37 @@ export const VisitedPageTabs = () => {
 
   useEffect(() => {
     const handleKeyboardShortcut = (event: KeyboardEvent) => {
+      if (isVisitedPageTabShortcutTargetEditable(event.target)) {
+        return;
+      }
+
+      const tabShortcut = getVisitedPageTabShortcut(event);
+
+      if (tabShortcut) {
+        event.preventDefault();
+
+        if (event.repeat) {
+          return;
+        }
+
+        if (tabShortcut === 'close-all') {
+          closeAllVisitedPageTabs();
+          return;
+        }
+
+        const destinationPathname = getAdjacentVisitedPageTabPathname(
+          tabs,
+          activePathname,
+          tabShortcut,
+        );
+
+        if (destinationPathname) {
+          openVisitedPageTab(destinationPathname);
+        }
+
+        return;
+      }
+
       if (
         event.altKey &&
         !event.metaKey &&
@@ -237,21 +260,6 @@ export const VisitedPageTabs = () => {
       if (event.key === '\\') {
         event.preventDefault();
         toggleSidebar();
-        return;
-      }
-
-      if (event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        setPaletteOpen(true);
-        return;
-      }
-
-      const tabIndex = Number(event.key) - 1;
-      const tab = tabs[tabIndex];
-
-      if (tabIndex >= 0 && tabIndex < 9 && tab) {
-        event.preventDefault();
-        openVisitedPageTab(tab.pathname);
       }
     };
 
@@ -260,6 +268,7 @@ export const VisitedPageTabs = () => {
     return () => window.removeEventListener('keydown', handleKeyboardShortcut);
   }, [
     activePathname,
+    closeAllVisitedPageTabs,
     closeVisitedPageTab,
     openVisitedPageTab,
     tabs,
@@ -274,8 +283,8 @@ export const VisitedPageTabs = () => {
       >
         <div className="flex h-full w-14 shrink-0 items-center justify-center border-r">
           <Sidebar.Trigger
+            aria-label={t('navigation.toggle-panel')}
             className="size-10 shrink-0 rounded-md text-accent-foreground [&>svg]:size-5!"
-            title={t('navigation.toggle-panel')}
           />
         </div>
         <div className="flex min-w-0 flex-1 items-center overflow-hidden">
@@ -289,97 +298,85 @@ export const VisitedPageTabs = () => {
             <Tabs
               value={activePathname}
               onValueChange={openVisitedPageTab}
-              className="min-w-0 shrink overflow-hidden"
+              className="min-w-0 flex-1 overflow-hidden"
             >
-              <Tabs.List
-                variant="segment"
-                className="hide-scroll flex h-10 w-max max-w-full items-center justify-start gap-1 overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-none bg-transparent p-0"
+              <ScrollArea.Root
+                className="group/tabs-scroll h-12 w-full"
+                type="auto"
               >
-                <SortableContext
-                  items={tabs.map((tab) => tab.pathname)}
-                  strategy={horizontalListSortingStrategy}
-                >
-                  {tabs.map((tab, index) => {
-                    const pageLabel = getVisitedPageTabLabel(
-                      tab.pathname,
-                      modules,
-                      labels,
-                    );
-                    const activity = findNavigationActivityByPath(
-                      activities,
-                      tab.pathname,
-                    );
-                    const Icon = activity
-                      ? activity.icon || IconApps
-                      : IconFile;
-                    const translatedPageLabel =
-                      activity?.kind === 'plugin'
-                        ? i18n.t(
-                            pageLabel.toLowerCase().replace(/\s+/g, '-'),
-                            {
-                              ns: activity.id,
-                              defaultValue: pageLabel,
-                            },
-                          )
-                        : pageLabel;
-                    const label = getVisitedPageTabTitle(
-                      translatedPageLabel,
-                      activity?.kind === 'plugin'
-                        ? activity.label
-                        : undefined,
-                    );
-                    const isActive = tab.pathname === activePathname;
-                    const closeLabel = t('navigation.close-tab', {
-                      page: label,
-                    });
+                <ScrollArea.Viewport className="h-12 w-full">
+                  <Tabs.List
+                    variant="segment"
+                    className="flex h-12 w-max min-w-full items-center justify-start gap-1 rounded-none bg-transparent px-0 pt-0 pb-1"
+                  >
+                    <SortableContext
+                      items={tabs.map((tab) => tab.pathname)}
+                      strategy={horizontalListSortingStrategy}
+                    >
+                      {tabs.map((tab) => {
+                        const pageLabel = getVisitedPageTabLabel(
+                          tab.pathname,
+                          modules,
+                          labels,
+                        );
+                        const activity = findNavigationActivityByPath(
+                          activities,
+                          tab.pathname,
+                        );
+                        const Icon = activity
+                          ? activity.icon || IconApps
+                          : IconFile;
+                        const translatedPageLabel =
+                          activity?.kind === 'plugin'
+                            ? i18n.t(
+                                pageLabel.toLowerCase().replace(/\s+/g, '-'),
+                                {
+                                  ns: activity.id,
+                                  defaultValue: pageLabel,
+                                },
+                              )
+                            : pageLabel;
+                        const label = getVisitedPageTabTitle(
+                          translatedPageLabel,
+                          activity?.kind === 'plugin'
+                            ? activity.label
+                            : undefined,
+                        );
+                        const isActive = tab.pathname === activePathname;
+                        const closeLabel = t('navigation.close-tab', {
+                          page: label,
+                        });
 
-                    return (
-                      <SortableVisitedPageTab
-                        key={tab.pathname}
-                        canClose={tabs.length > 1}
-                        closeLabel={closeLabel}
-                        icon={Icon}
-                        index={index}
-                        isActive={isActive}
-                        isLoading={
-                          tab.pathname === routerLoadingPathname ||
-                          pageLoadingPathnames.has(tab.pathname)
-                        }
-                        label={label}
-                        onClose={() => closeVisitedPageTab(tab.pathname)}
-                        pathname={tab.pathname}
-                      />
-                    );
-                  })}
-                </SortableContext>
-              </Tabs.List>
+                        return (
+                          <SortableVisitedPageTab
+                            key={tab.pathname}
+                            canClose={tabs.length > 1}
+                            closeLabel={closeLabel}
+                            icon={Icon}
+                            isActive={isActive}
+                            isLoading={
+                              tab.pathname === routerLoadingPathname ||
+                              pageLoadingPathnames.has(tab.pathname)
+                            }
+                            label={label}
+                            onClose={() => closeVisitedPageTab(tab.pathname)}
+                            pathname={tab.pathname}
+                          />
+                        );
+                      })}
+                    </SortableContext>
+                  </Tabs.List>
+                </ScrollArea.Viewport>
+                <ScrollArea.Bar
+                  className="z-10 h-1.5 border-0 bg-transparent p-0 opacity-60 transition-opacity group-hover/tabs-scroll:opacity-100 hover:opacity-100"
+                  orientation="horizontal"
+                />
+              </ScrollArea.Root>
             </Tabs>
           </DndContext>
-          <Button
-            aria-label={t('navigation.open-plugin')}
-            className="ml-1 size-7 shrink-0 rounded text-accent-foreground hover:bg-accent hover:text-foreground"
-            onClick={() => setPaletteOpen(true)}
-            size="icon"
-            title={t('navigation.open-plugin')}
-            variant="ghost"
-          >
-            <IconPlus className="size-4" />
-          </Button>
         </div>
-        <Button
-          className="h-7 shrink-0 gap-1.5 px-2 text-xs text-accent-foreground"
-          onClick={() => setPaletteOpen(true)}
-          title={t('navigation.search')}
-          variant="ghost"
-        >
-          <IconSearch className="size-3.5" />
-          <span className="hidden sm:inline">{t('navigation.search')}</span>
-          <span className="hidden rounded bg-background px-1 py-0.5 font-mono text-[9px] font-semibold lg:inline">
-            ⌘K
-          </span>
-        </Button>
+        <VisitedPageTabsShortcutGuide />
       </nav>
-      <NavigationPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </>
   );
 };

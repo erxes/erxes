@@ -31,7 +31,6 @@ export const NavigationSidebarFooter = ({
           isSettings && 'bg-primary/10',
         )}
         size="icon"
-        title={organizationT('settings')}
         variant="ghost"
       >
         <Link
@@ -52,7 +51,6 @@ export const NavigationSidebarFooter = ({
             aria-label={sidebarT('profile')}
             className="size-10 rounded-md"
             size="icon"
-            title={userName}
             variant="ghost"
           >
             <Avatar className="size-6">

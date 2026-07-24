@@ -27,9 +27,7 @@ const isVisitedPageTab = (value: unknown): value is IVisitedPageTab =>
   'pathname' in value &&
   typeof value.pathname === 'string';
 
-export const normalizeVisitedPageTabs = (
-  value: unknown,
-): IVisitedPageTab[] => {
+export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
   if (!Array.isArray(value)) {
     return [];
   }
@@ -43,10 +41,7 @@ export const normalizeVisitedPageTabs = (
 
     const pathname = normalizeVisitedPagePathname(tab.pathname);
 
-    if (
-      !shouldTrackVisitedPage(pathname) ||
-      seenPathnames.has(pathname)
-    ) {
+    if (!shouldTrackVisitedPage(pathname) || seenPathnames.has(pathname)) {
       return tabs;
     }
 
@@ -140,8 +135,7 @@ export const getVisitedPageTabLabel = (
   }
 
   const remainingSegments = remainingPath.split('/');
-  const currentPageSegment =
-    remainingSegments[remainingSegments.length - 1];
+  const currentPageSegment = remainingSegments[remainingSegments.length - 1];
 
   return toRouteSegmentLabel(currentPageSegment, labels.details);
 };
@@ -151,10 +145,7 @@ export const getVisitedPageTabTitle = (
   pluginLabel?: string,
 ) => (pluginLabel ? `${pluginLabel} | ${pageLabel}` : pageLabel);
 
-export const addVisitedPageTab = (
-  tabs: unknown,
-  pathname: string,
-) => {
+export const addVisitedPageTab = (tabs: unknown, pathname: string) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
   const normalizedPathname = normalizeVisitedPagePathname(pathname);
 
@@ -168,10 +159,7 @@ export const addVisitedPageTab = (
   return [...normalizedTabs, { pathname: normalizedPathname }];
 };
 
-export const removeVisitedPageTab = (
-  tabs: unknown,
-  pathname: string,
-) => {
+export const removeVisitedPageTab = (tabs: unknown, pathname: string) => {
   const normalizedPathname = normalizeVisitedPagePathname(pathname);
 
   return normalizeVisitedPageTabs(tabs).filter(
@@ -209,9 +197,7 @@ export const visitVisitedPageTab = (
       );
 
       if (destinationAlreadyOpen) {
-        return normalizedTabs.filter(
-          (_, index) => index !== replacedTabIndex,
-        );
+        return normalizedTabs.filter((_, index) => index !== replacedTabIndex);
       }
 
       return normalizedTabs.map((tab, index) =>
@@ -230,9 +216,8 @@ export const moveVisitedPageTab = (
 ) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
   const normalizedPathname = normalizeVisitedPagePathname(pathname);
-  const normalizedDestinationPathname = normalizeVisitedPagePathname(
-    destinationPathname,
-  );
+  const normalizedDestinationPathname =
+    normalizeVisitedPagePathname(destinationPathname);
   const sourceIndex = normalizedTabs.findIndex(
     (tab) => tab.pathname === normalizedPathname,
   );
@@ -274,4 +259,31 @@ export const getVisitedPageTabCloseDestination = (
     normalizedTabs[tabIndex + 1]?.pathname ??
     null
   );
+};
+
+export const getAdjacentVisitedPageTabPathname = (
+  tabs: unknown,
+  pathname: string,
+  direction: 'next' | 'previous',
+) => {
+  const normalizedTabs = normalizeVisitedPageTabs(tabs);
+
+  if (normalizedTabs.length === 0) {
+    return null;
+  }
+
+  const normalizedPathname = normalizeVisitedPagePathname(pathname);
+  const currentIndex = normalizedTabs.findIndex(
+    (tab) => tab.pathname === normalizedPathname,
+  );
+
+  if (currentIndex < 0) {
+    return normalizedTabs[0].pathname;
+  }
+
+  const offset = direction === 'next' ? 1 : -1;
+  const destinationIndex =
+    (currentIndex + offset + normalizedTabs.length) % normalizedTabs.length;
+
+  return normalizedTabs[destinationIndex].pathname;
 };

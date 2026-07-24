@@ -1,11 +1,10 @@
+import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
 import { NavigationCorePanelContent } from '@/navigation/components/NavigationCoreModules';
 import { NavigationPluginPanelContent } from '@/navigation/components/NavigationPlugins';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
-import { visitedPageTabsState } from '@/navigation/states/visitedPageTabsState';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { doesNavigationActivityMatchPath } from '@/navigation/utils/navigationActivities';
-import { IconApps } from '@tabler/icons-react';
+import { IconApps, IconSearch } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -14,14 +13,8 @@ import {
   Separator,
   Sidebar,
 } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const HOVER_PREVIEW_HANDOFF_DELAY = 60;
 
@@ -44,7 +37,7 @@ const NavigationActivityPeek = ({
       onPointerLeave={onPointerLeave}
     >
       <div className="flex h-10 shrink-0 items-center border-b px-3">
-        <span className="truncate text-[13px] font-semibold">
+        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">
           {activity.label}
         </span>
       </div>
@@ -62,12 +55,10 @@ const NavigationActivityPeek = ({
 const NavigationActivityButton = ({
   activity,
   active,
-  openInTabs,
   onSelect,
 }: {
   activity: INavigationActivity;
   active: boolean;
-  openInTabs: boolean;
   onSelect: () => void;
 }) => {
   const Icon = activity.icon || IconApps;
@@ -81,16 +72,12 @@ const NavigationActivityButton = ({
       )}
       onClick={onSelect}
       size="icon"
-      title={activity.label}
       variant="ghost"
     >
       {active && (
         <span className="absolute -left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary" />
       )}
       <Icon className="size-5" />
-      {openInTabs && !active && (
-        <span className="absolute bottom-0.5 left-1/2 size-1 -translate-x-1/2 rounded-full bg-accent-foreground" />
-      )}
     </Button>
   );
 };
@@ -99,7 +86,6 @@ const NavigationActivityHover = ({
   activity,
   active,
   open,
-  openInTabs,
   onClose,
   onOpen,
   onSelect,
@@ -107,7 +93,6 @@ const NavigationActivityHover = ({
   activity: INavigationActivity;
   active: boolean;
   open: boolean;
-  openInTabs: boolean;
   onClose: () => void;
   onOpen: () => void;
   onSelect: () => void;
@@ -169,7 +154,6 @@ const NavigationActivityHover = ({
           <NavigationActivityButton
             activity={activity}
             active={active}
-            openInTabs={openInTabs}
             onSelect={handleSelect}
           />
         </div>
@@ -186,17 +170,25 @@ const NavigationActivityHover = ({
 export const NavigationActivityRail = ({
   activities,
   activeActivityId,
+  isActivityPinned,
   isSettings,
+  onActivityPinnedChange,
+  onSearch,
   onSelectActivity,
+  visibleActivities,
 }: {
   activities: INavigationActivity[];
   activeActivityId: string | null;
+  isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
+  onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
+  onSearch: () => void;
   onSelectActivity: (activity: INavigationActivity) => void;
+  visibleActivities: INavigationActivity[];
 }) => {
-  const tabs = useAtomValue(visitedPageTabsState);
-  const { isMobile, open } = Sidebar.useSidebar();
-  const hoverEnabled = !open && !isMobile;
+  const { isMobile } = Sidebar.useSidebar();
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const hoverEnabled = !isMobile;
   const [previewActivityId, setPreviewActivityId] = useState<string | null>(
     null,
   );
@@ -210,32 +202,39 @@ export const NavigationActivityRail = ({
   return (
     <aside className="flex w-14 shrink-0 flex-col items-center border-r bg-sidebar px-1 py-2">
       <NavigationRailLogo />
+      <Button
+        aria-label={t('go-to')}
+        aria-keyshortcuts="Control+M Meta+M"
+        className="mb-1 size-10 rounded-md text-accent-foreground [&>svg]:size-5!"
+        onClick={onSearch}
+        size="icon"
+        title={t('go-to')}
+        type="button"
+        variant="ghost"
+      >
+        <IconSearch className="size-5" />
+      </Button>
       <div className="flex min-h-0 flex-1 flex-col items-center gap-0.5 overflow-y-auto overflow-x-hidden">
-        {activities.map((activity, index) => {
+        {visibleActivities.map((activity, index) => {
           const active = !isSettings && activity.id === activeActivityId;
-          const openInTabs = tabs.some((tab) =>
-            doesNavigationActivityMatchPath(activity, tab.pathname),
-          );
           const startsCoreSection =
             activity.kind === 'core' &&
-            activities[index - 1]?.kind === 'plugin';
+            visibleActivities[index - 1]?.kind === 'plugin';
 
           return (
             <Fragment key={activity.id}>
               {startsCoreSection && <Separator className="my-1 w-8" />}
               {!hoverEnabled ? (
-              <NavigationActivityButton
-                activity={activity}
-                active={active}
-                openInTabs={openInTabs}
-                onSelect={() => onSelectActivity(activity)}
-              />
+                <NavigationActivityButton
+                  activity={activity}
+                  active={active}
+                  onSelect={() => onSelectActivity(activity)}
+                />
               ) : (
                 <NavigationActivityHover
                   activity={activity}
                   active={active}
                   open={previewActivityId === activity.id}
-                  openInTabs={openInTabs}
                   onClose={() =>
                     setPreviewActivityId((currentActivityId) =>
                       currentActivityId === activity.id
@@ -250,6 +249,12 @@ export const NavigationActivityRail = ({
             </Fragment>
           );
         })}
+        <NavigationActivityMore
+          activities={activities}
+          isActivityPinned={isActivityPinned}
+          onPinnedChange={onActivityPinnedChange}
+          onSelect={onSelectActivity}
+        />
       </div>
       <NavigationSidebarFooter isSettings={isSettings} />
     </aside>

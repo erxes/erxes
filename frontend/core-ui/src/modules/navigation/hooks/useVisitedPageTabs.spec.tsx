@@ -12,11 +12,8 @@ import {
 } from 'react-router-dom';
 
 const TabsLifecycleProbe = () => {
-  const {
-    activePathname,
-    closeVisitedPageTab,
-    tabs,
-  } = useVisitedPageTabs();
+  const { activePathname, closeAllVisitedPageTabs, closeVisitedPageTab, tabs } =
+    useVisitedPageTabs();
   const navigate = useNavigate();
 
   return (
@@ -28,17 +25,14 @@ const TabsLifecycleProbe = () => {
       <button type="button" onClick={() => navigate('/sales/deals')}>
         Open sales
       </button>
-      <button
-        type="button"
-        onClick={() => navigate('/sales/deals/deal-1')}
-      >
+      <button type="button" onClick={() => navigate('/sales/deals/deal-1')}>
         Open deal
       </button>
-      <button
-        type="button"
-        onClick={() => closeVisitedPageTab(activePathname)}
-      >
+      <button type="button" onClick={() => closeVisitedPageTab(activePathname)}>
         Close active
+      </button>
+      <button type="button" onClick={closeAllVisitedPageTabs}>
+        Close all
       </button>
       <button type="button" onClick={() => navigate(-1)}>
         Back
@@ -131,13 +125,8 @@ describe('useVisitedPageTabs', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Toggle tab shell' }));
 
     await expectTabPathnames(['/my-inbox', '/sales/deals']);
-    expect(
-      window.localStorage.getItem('navigation:visited-page-tabs'),
-    ).toBe(
-      JSON.stringify([
-        { pathname: '/my-inbox' },
-        { pathname: '/sales/deals' },
-      ]),
+    expect(window.localStorage.getItem('navigation:visited-page-tabs')).toBe(
+      JSON.stringify([{ pathname: '/my-inbox' }, { pathname: '/sales/deals' }]),
     );
   });
 
@@ -153,8 +142,25 @@ describe('useVisitedPageTabs', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     await expectTabPathnames(['/my-inbox']);
-    expect(screen.getByTestId('active-pathname').textContent).toBe(
+    expect(screen.getByTestId('active-pathname').textContent).toBe('/my-inbox');
+  });
+
+  it('closes every visited page and returns to My Inbox', async () => {
+    renderTabsLifecycle('/my-inbox');
+
+    await expectTabPathnames(['/my-inbox']);
+    fireEvent.click(screen.getByRole('button', { name: 'Open sales' }));
+    await expectTabPathnames(['/my-inbox', '/sales/deals']);
+    fireEvent.click(screen.getByRole('button', { name: 'Open deal' }));
+    await expectTabPathnames([
       '/my-inbox',
-    );
+      '/sales/deals',
+      '/sales/deals/deal-1',
+    ]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close all' }));
+
+    await expectTabPathnames(['/my-inbox']);
+    expect(screen.getByTestId('active-pathname').textContent).toBe('/my-inbox');
   });
 });

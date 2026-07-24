@@ -1,5 +1,6 @@
 import {
   addVisitedPageTab,
+  getAdjacentVisitedPageTabPathname,
   getVisitedPageTabCloseDestination,
   getVisitedPageTabLabel,
   getVisitedPageTabTitle,
@@ -83,10 +84,7 @@ describe('visited page tabs', () => {
         '/operation/tasks',
         '/operation',
       ),
-    ).toEqual([
-      { pathname: '/operation/tasks' },
-      { pathname: '/segments' },
-    ]);
+    ).toEqual([{ pathname: '/operation/tasks' }, { pathname: '/segments' }]);
   });
 
   it('uses only the last page for a nested route label', () => {
@@ -143,5 +141,23 @@ describe('visited page tabs', () => {
       { pathname: '/my-inbox' },
       { pathname: '/contacts' },
     ]);
+  });
+
+  it('moves to adjacent tabs and wraps at each end', () => {
+    const tabs = [
+      { pathname: '/my-inbox' },
+      { pathname: '/contacts' },
+      { pathname: '/segments' },
+    ];
+
+    expect(getAdjacentVisitedPageTabPathname(tabs, '/contacts', 'next')).toBe(
+      '/segments',
+    );
+    expect(getAdjacentVisitedPageTabPathname(tabs, '/segments', 'next')).toBe(
+      '/my-inbox',
+    );
+    expect(
+      getAdjacentVisitedPageTabPathname(tabs, '/my-inbox', 'previous'),
+    ).toBe('/segments');
   });
 });
