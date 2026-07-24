@@ -15,6 +15,8 @@ import {
   DEAL_ACTIVITY_NOTE_TYPE,
 } from './overview/activity/DealActivityFilter';
 
+const INITIAL_ACTIVITY_LIMIT = 5;
+
 export const DealActivityTab = ({ dealId }: { dealId: string }) => {
   const { t } = useTranslation('sales');
   const [{ activityType, activityDate }] = useMultiQueryState<{
@@ -35,13 +37,18 @@ export const DealActivityTab = ({ dealId }: { dealId: string }) => {
     setTotalCount(null);
   }, [dealId, activityType, activityDate]);
 
+  const activityLimit =
+    totalCount && totalCount > INITIAL_ACTIVITY_LIMIT
+      ? totalCount
+      : INITIAL_ACTIVITY_LIMIT;
+
   return (
     <div className="h-full flex flex-col">
-      <div className="w-full xl:max-w-5xl mx-auto px-6 pt-3">
+      <div className="w-full xl:max-w-6xl mx-auto px-6 pt-3">
         <DealActivityFilter recordCount={totalCount} />
       </div>
       <ScrollArea className="flex-1 min-h-0">
-        <div className="w-full xl:max-w-5xl mx-auto px-6 pt-3">
+        <div className="w-full xl:max-w-6xl mx-auto px-6 pt-3">
           <ActivityLogs
             targetId={dealId}
             customActivities={dealCustomActivities}
@@ -59,16 +66,14 @@ export const DealActivityTab = ({ dealId }: { dealId: string }) => {
             dateFrom={range?.from?.toISOString()}
             dateTo={range?.to?.toISOString()}
             onTotalCountChange={setTotalCount}
-            pageSize={5}
-            paginationMode="button"
-            loadMoreLabel={t('view-more-activities')}
+            limit={activityLimit}
             emptyMessage={t('no-activity-logs-found')}
           />
         </div>
       </ScrollArea>
 
       {!!dealId && (
-        <div className="shrink-0 w-full xl:max-w-5xl mx-auto px-6 pb-6 pt-2">
+        <div className="shrink-0 w-full xl:max-w-6xl mx-auto px-6 pb-6 pt-2">
           <DealNoteComposer key={dealId} dealId={dealId} />
         </div>
       )}

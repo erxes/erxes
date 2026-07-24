@@ -18,6 +18,7 @@ import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
 import { AttachmentUploader } from './attachments/AttachmentUploader';
 import { Attachments } from './attachments/Attachments';
+import { DealInlineActions } from '@/deals/actionBar/components/DealInlineActions';
 
 const ARRAY_KEYS = new Set([
   'assignedUserIds',
@@ -113,15 +114,6 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           targetId={_id}
           initialValue={labels?.map((label) => label._id || '') || []}
         />
-        {labels?.map((label) => (
-          <div
-            key={label._id}
-            className="inline-flex items-center h-7 px-2 text-xs font-medium text-white rounded"
-            style={{ backgroundColor: label.colorCode }}
-          >
-            {label.name}
-          </div>
-        ))}
         <DealTagsChip
           value={tagIds}
           onValueChange={(value) => handleChange('tagIds', value)}
@@ -163,6 +155,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             onValueChange={(value) => handleChange('brokerId', value)}
           />
         )}
+        <DealInlineActions deal={deal} />
       </div>
       <div className="flex">
         <AttachmentUploader />

@@ -1,8 +1,12 @@
 {
   "// --- Buttons ---": "",
   "edit": "Edit",
+  "action": "Actions",
   "copy": "Copy",
   "print-document": "Print Document",
+  "search-document": "Search document...",
+  "print-document-failed": "Unable to prepare this document for printing",
+  "print-popup-blocked": "Allow pop-ups to open the print preview",
   "remove": "Remove",
   "delete": "Delete",
   "save": "Save",

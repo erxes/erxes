@@ -1,8 +1,12 @@
 {
   "// --- Buttons ---": "",
   "edit": "Засах",
+  "action": "Үйлдэл",
   "copy": "Хуулах",
   "print-document": "Баримт хэвлэх",
+  "search-document": "Баримт хайх...",
+  "print-document-failed": "Баримтыг хэвлэхэд бэлтгэж чадсангүй",
+  "print-popup-blocked": "Хэвлэх цонхыг нээхийн тулд pop-up зөвшөөрнө үү",
   "remove": "Устгах",
   "delete": "Устгах",
   "save": "Хадгалах",

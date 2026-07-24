@@ -55,7 +55,7 @@ const DealName = ({ deal }: { deal: IDeal }) => {
   return (
     <Textarea
       ref={textareaRef}
-      className="min-h-7 resize-none p-0 text-xl shadow-none focus-visible:shadow-none"
+      className="min-h-7 resize-none p-0 text-lg md:text-xl font-semibold shadow-none focus-visible:shadow-none"
       rows={1}
       placeholder={t('deal-name')}
       value={name}

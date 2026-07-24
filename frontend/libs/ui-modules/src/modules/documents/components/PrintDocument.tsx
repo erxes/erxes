@@ -192,7 +192,9 @@ const Controller = ({ contentType }: { contentType: string }) => {
   const isSheet = paperType === PAPER_TYPES.SHEET;
 
   const [items, setItems] = useState<string[]>(['three']);
-  const [selectedValues, setSelectedValues] = useState<Record<string, any>>({});
+  const [selectedValues, setSelectedValues] = useState<Record<string, string>>(
+    {},
+  );
 
   const renderDescription = (item: string, keys: string[], showAll = true) => {
     const values = form.getValues();
@@ -319,7 +321,9 @@ const Controller = ({ contentType }: { contentType: string }) => {
                                 </Select.Item>
                               ),
                             )}
-                            <Select.Item value="CUSTOM">Custom size</Select.Item>
+                            <Select.Item value="CUSTOM">
+                              Custom size
+                            </Select.Item>
                           </Select.Content>
                         </div>
                       </Select>
@@ -614,7 +618,7 @@ const Controller = ({ contentType }: { contentType: string }) => {
 };
 
 type Props = {
-  items: any[];
+  items: Array<{ _id: string }>;
   contentType: string;
 };
 
@@ -627,20 +631,9 @@ const PrintSheetHeader = () => (
 
 interface PrintSheetProps extends React.ComponentProps<typeof Sheet> {
   children?: ReactNode;
-  disabled?: boolean;
-  className?: string;
-  onDiscard?: () => void;
-  onSave?: () => void;
 }
 
-export const PrintSheet = ({
-  children,
-  disabled = false,
-  className,
-  onDiscard,
-  onSave,
-  ...props
-}: PrintSheetProps) => {
+export const PrintSheet = ({ children, ...props }: PrintSheetProps) => {
   return (
     <Sheet {...props}>
       <Sheet.Trigger asChild>
@@ -679,10 +672,10 @@ export const PrintDocument = (props: Props) => {
     },
   });
 
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const replacerIds: any = items.map((item) => item._id);
+    const replacerIds = items.map((item) => item._id);
 
     form.setValue('replacerIds', replacerIds);
   }, [form, items]);
@@ -723,12 +716,7 @@ export const PrintDocument = (props: Props) => {
 
   return (
     <FormProvider {...form}>
-      <PrintSheet
-        open={open}
-        onOpenChange={setOpen}
-        onDiscard={handleDiscard}
-        onSave={handleProceed}
-      >
+      <PrintSheet open={open} onOpenChange={setOpen}>
         <Resizable.PanelGroup direction="horizontal">
           <Resizable.Panel
             className="h-full flex flex-col bg-gray-100 overflow-auto! styled-scroll"

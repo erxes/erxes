@@ -15,7 +15,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const name = deal?.name || 'Untitled deal';
 
   return (
-    <Sheet.Header className="gap-2 flex-row items-center space-y-0">
+    <Sheet.Header className="gap-2 flex-row items-center space-y-0 pr-0">
       <Button
         variant="ghost"
         size="icon"
@@ -47,10 +47,12 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
             {t('archived')}
           </span>
         )}
-        <DealsActions deals={[deal]} />
         <MoveDealDropdown deal={deal} />
+        <DealsActions deals={[deal]} triggerLabel={t('action')} watchOnly />
       </div>
-      <Sheet.Close />
+      <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
+        <Sheet.Close className="ml-0" />
+      </div>
     </Sheet.Header>
   );
 };

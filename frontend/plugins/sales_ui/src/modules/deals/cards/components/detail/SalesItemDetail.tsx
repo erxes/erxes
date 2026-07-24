@@ -58,7 +58,7 @@ const SalesItemDetailView = () => {
               </Tabs.Content>
               <Tabs.Content value="properties" className="h-full">
                 <ScrollArea className="h-full">
-                  <div className="w-full xl:max-w-5xl mx-auto p-6">
+                  <div className="w-full xl:max-w-6xl mx-auto p-6">
                     <FieldsInDetail
                       key={`${deal?._id || ''}-${JSON.stringify(
                         deal?.propertiesData || {},
