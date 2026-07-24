@@ -41,35 +41,20 @@ const getCloudflareStreamBase = (url: string): string | null => {
 };
 
 const VIDEO_UPLOAD_CONFIG_QUERY = gql`
-  query VideoUploadConfig($codes: [String]) {
-    configsByCode(codes: $codes) {
-      code
-      value
+  query ConfigsFileUploadInfo {
+    configsFileUploadInfo {
+      videoUploadEnabled
     }
   }
 `;
 
-/**
- * Video upload is only offered when the org's file storage is Cloudflare with
- * the CDN on — that is the path that routes videos to Cloudflare Stream. Note
- * `configsByCode` reads DB-stored config only, so env-only self-hosted setups
- * will read as disabled. `loading` lets callers avoid a "not configured" flash.
- */
+
 const useCloudflareStreamEnabled = () => {
   const { data, loading } = useQuery(VIDEO_UPLOAD_CONFIG_QUERY, {
-    variables: { codes: ['UPLOAD_SERVICE_TYPE', 'CLOUDFLARE_USE_CDN'] },
     fetchPolicy: 'cache-first',
   });
 
-  const configs: { code: string; value: unknown }[] = data?.configsByCode ?? [];
-  const valueOf = (code: string) =>
-    configs.find((config) => config.code === code)?.value;
-
-  const service = valueOf('UPLOAD_SERVICE_TYPE');
-  const useCdn = valueOf('CLOUDFLARE_USE_CDN');
-
-  const enabled =
-    service === 'CLOUDFLARE' && (useCdn === 'true' || useCdn === true);
+  const enabled = !!data?.configsFileUploadInfo?.videoUploadEnabled;
 
   return { enabled, loading };
 };
