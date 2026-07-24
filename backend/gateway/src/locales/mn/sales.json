@@ -143,6 +143,8 @@
   "product-groups": "Бүтээгдэхүүний бүлгүүд",
   "product-categories": "Бүтээгдэхүүний ангилалууд",
   "product-config": "Бүтээгдэхүүний тохиргоо",
+  "edit-product": "Бүтээгдэхүүн засах",
+  "edit-product-description": "Одоогийн бүтээгдэхүүнийг орлуулах бүтээгдэхүүн сонгоно уу.",
   "product-category-mapping": "Бүтээгдэхүүн & ангилалын харгалзаа",
   "kiosk-exclude-products": "Киоскд харуулахгүй бүтээгдэхүүн",
   "initial-product-categories": "Анхны бүтээгдэхүүний ангилалууд",

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
 import {
@@ -6,19 +5,14 @@ import {
   ProductAssigneeField,
   ProductCalculatedNumberField,
   ProductNumberField,
-} from '../hooks/getProductColumns';
+} from './getProductColumns';
 import {
   CURRENCY_CODES,
   CurrencyCode,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
-  Tooltip,
-  cn,
   formatAmount,
-  Badge,
-  Popover,
-  Input,
 } from 'erxes-ui';
 import {
   IconCurrencyDollar,
@@ -27,76 +21,21 @@ import {
   IconPentagonNumber1,
   IconUser,
   IconShoppingCart,
-  IconBox,
-  IconFileInvoice,
 } from '@tabler/icons-react';
+import {
+  ProductNameCell,
+  getProductId,
+  hasDuplicateProductId,
+} from './ProductNameCell';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { IProductData } from 'ui-modules';
+import { ProductTypeIcon } from './ProductTypeIcon';
 import { productMoreColumn } from './ProductMoreColumn';
-import { useUpdateProductRecord } from '../hooks/useProductRecord';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 
-const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
-
-const getProductId = (productData: IProductData) =>
-  productData.productId || productData.product?._id || '';
-
-const hasDuplicateProductId = (
-  productsData: IProductData[],
-  productId: string,
-) => {
-  if (!productId) {
-    return false;
-  }
-
-  return (
-    productsData.filter(
-      (productData) => getProductId(productData) === productId,
-    ).length > 1
-  );
-};
-
-const IconChooserForType = ({ type }: { type: string }) => {
-  const { t } = useTranslation('sales');
-  switch (type) {
-    case 'service':
-      return (
-        <Tooltip.Provider>
-          <Tooltip>
-            <Tooltip.Trigger asChild>
-              <Badge className="bg-red-400">
-                <IconFileInvoice className="size-4 text-white" stroke={2} />
-              </Badge>
-            </Tooltip.Trigger>
-            <Tooltip.Content>{t('service')}</Tooltip.Content>
-          </Tooltip>
-        </Tooltip.Provider>
-      );
-    case 'product':
-      return (
-        <Tooltip.Provider>
-          <Tooltip>
-            <Tooltip.Trigger asChild>
-              <Badge className="bg-blue-400">
-                <IconBox className="size-4 text-white" stroke={2} />
-              </Badge>
-            </Tooltip.Trigger>
-            <Tooltip.Content>{t('product')}</Tooltip.Content>
-          </Tooltip>
-        </Tooltip.Provider>
-      );
-    default:
-      return null;
-  }
-};
-
-export const productColumns: (t: TFunction) => ColumnDef<IProductData>[] = (
-  t,
-) => [
-  productMoreColumn,
+export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
+  productMoreColumn(),
   RecordTable.checkboxColumn as ColumnDef<IProductData>,
   {
     id: 'type',
@@ -108,7 +47,7 @@ export const productColumns: (t: TFunction) => ColumnDef<IProductData>[] = (
       const type = cell.getValue() as string;
       return (
         <RecordTableInlineCell className="justify-center">
-          <IconChooserForType type={type} />
+          <ProductTypeIcon type={type} />
         </RecordTableInlineCell>
       );
     },
@@ -122,73 +61,14 @@ export const productColumns: (t: TFunction) => ColumnDef<IProductData>[] = (
       <RecordTable.InlineHead icon={IconLabel} label={t('product-service')} />
     ),
     cell: ({ cell, table }) => {
-      const product = cell.row.original.product;
       const productId = getProductId(cell.row.original);
       const hasDuplicateProduct = hasDuplicateProductId(
         table.options.data,
         productId,
       );
-      const [open, setOpen] = useState<boolean>(false);
-      const [_name, setName] = useState<string>(cell.getValue() as string);
-      const { updateRecord } = useUpdateProductRecord();
-      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-        setName(el.currentTarget.value);
-      };
-      const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          onSave();
-        }
-        if (e.key === 'Escape') {
-          setName(cell.getValue() as string);
-          setOpen(false);
-        }
-      };
 
-      const onSave = () => {
-        if (_name !== cell.getValue() && product) {
-          updateRecord(cell.row.original, {
-            product: { ...product, name: _name },
-          });
-        }
-        setOpen(false);
-      };
       return (
-        <Popover
-          open={open}
-          onOpenChange={(open) => {
-            setOpen(open);
-            if (!open) {
-              onSave();
-            }
-          }}
-        >
-          <RecordTableInlineCell.Trigger
-            className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
-          >
-            <div className="flex gap-1.5 items-center min-w-0">
-              {product?.code && (
-                <Badge
-                  variant="secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpen(true);
-                  }}
-                >
-                  {product.code}
-                </Badge>
-              )}
-              <span>{product?.name}</span>
-            </div>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input
-              value={_name}
-              onChange={onChange}
-              onKeyDown={handleKeyDown}
-            />
-          </RecordTableInlineCell.Content>
-        </Popover>
+        <ProductNameCell cell={cell} hasDuplicateProduct={hasDuplicateProduct} />
       );
     },
     size: 260,

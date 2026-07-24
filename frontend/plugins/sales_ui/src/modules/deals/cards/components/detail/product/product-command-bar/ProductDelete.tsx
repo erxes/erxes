@@ -1,17 +1,15 @@
 import { Button, useConfirm } from 'erxes-ui';
 
 import { IconTrash } from '@tabler/icons-react';
-import { useRemoveProducts } from '../hooks/useRemoveProduct';
+import { useRemoveProducts } from '../hooks/mutations/useRemoveProduct';
 import { useTranslation } from 'react-i18next';
 
 export const ProductsDelete = ({
   productIds,
   refetch,
-  dealId,
 }: {
   productIds: string[];
   refetch: () => void;
-  dealId: string;
 }) => {
   const { confirm } = useConfirm();
   const { removeProducts } = useRemoveProducts();
@@ -29,7 +27,6 @@ export const ProductsDelete = ({
           removeProducts({
             variables: {
               dataIds: productIds,
-              dealId,
               processId,
             },
             onCompleted: () => {
