@@ -89,16 +89,9 @@ export const resetLocal = () => {
   })
 }
 
-// Removes the specified cookie by expiring it immediately.
-const deleteCookie = (name: string) => {
-  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-}
-
-// Clears authentication/session data and refreshes the page.
+// Clears remaining client-side storage and refreshes the page.
+// Auth cookies are HttpOnly, so they must be cleared via the logout mutation first.
 export const clearAllSessionData = () => {
-  deleteCookie("auth-token")
-  deleteCookie("pos-auth-token")
-
   resetLocal()
   sessionStorage.clear()
 
