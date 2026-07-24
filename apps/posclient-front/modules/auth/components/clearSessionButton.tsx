@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation } from "@apollo/client"
-import { Trash2 } from "lucide-react"
+import { Paintbrush } from "lucide-react"
 
 import { clearAllSessionData } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,11 +34,12 @@ const ClearSessionButton = () => {
             variant="ghost"
             size="icon"
             loading={loading}
+            iconOnly
             onClick={() => logout()}
             aria-label="Clear session & refresh"
-            className="absolute right-4 top-4 border-none bg-transparent text-muted-foreground shadow-none hover:bg-gray-100 hover:text-foreground"
+            className="absolute bg-transparent border-none shadow-none right-4 top-4 text-muted-foreground hover:bg-gray-100 hover:text-foreground"
           >
-            <Trash2 className="h-4 w-4" />
+            <Paintbrush className="w-4 h-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">Clear session & refresh</TooltipContent>
