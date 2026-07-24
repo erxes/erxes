@@ -89,6 +89,22 @@ export const resetLocal = () => {
   })
 }
 
+// Removes the specified cookie by expiring it immediately.
+const deleteCookie = (name: string) => {
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+}
+
+// Clears authentication/session data and refreshes the page.
+export const clearAllSessionData = () => {
+  deleteCookie("auth-token")
+  deleteCookie("pos-auth-token")
+
+  resetLocal()
+  sessionStorage.clear()
+
+  window.location.reload()
+}
+
 export function hexToHsl(hex: string) {
   // Remove the '#' symbol from the hex code
   hex = hex.replace("#", "")
