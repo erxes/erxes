@@ -20,10 +20,17 @@ const chooseConfig = gql`
   }
 `
 
+const logout = gql`
+  mutation {
+    posLogout
+  }
+`
+
 const mutations = {
   login,
   configsFetch,
   chooseConfig,
+  logout,
 }
 
 export default mutations
