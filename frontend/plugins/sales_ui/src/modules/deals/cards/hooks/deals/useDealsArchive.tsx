@@ -5,7 +5,7 @@ import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-export function useDealsArchive(options?: MutationHookOptions<any, any>) {
+export function useDealsArchive(options?: MutationHookOptions) {
   const { t } = useTranslation('sales');
   const [archiveDealsBase, { loading, error }] = useMutation(DEALS_ARCHIVE, {
     ...options,
@@ -26,6 +26,7 @@ export function useDealsArchive(options?: MutationHookOptions<any, any>) {
         description: err.message || t('update-failed'),
         variant: 'destructive',
       });
+      options?.onError?.(err);
     },
   });
 

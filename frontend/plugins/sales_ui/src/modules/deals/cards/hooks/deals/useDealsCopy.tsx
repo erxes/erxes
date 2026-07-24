@@ -6,7 +6,7 @@ import { toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-export function useDealsCopy(options?: MutationHookOptions<any, any>) {
+export function useDealsCopy(options?: MutationHookOptions) {
   const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
 

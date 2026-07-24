@@ -78,6 +78,8 @@ export const useDeals = (
         const currentList = prev.deals.list;
 
         let updatedList = currentList;
+        let added = false;
+        let removed = false;
 
         if (action === 'add') {
           const exists = currentList.some(
@@ -87,6 +89,7 @@ export const useDeals = (
             const merged = [...currentList, deal];
             merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
             updatedList = merged;
+            added = true;
           }
         }
 
@@ -100,22 +103,25 @@ export const useDeals = (
         }
 
         if (action === 'remove') {
+          removed = currentList.some((item: IDeal) => item._id === deal?._id);
           updatedList = currentList.filter(
             (item: IDeal) => item._id !== deal?._id,
           );
         }
+        let nextTotalCount = prev.deals.totalCount;
+        if (added) {
+          nextTotalCount = prev.deals.totalCount + 1;
+        } else if (removed) {
+          nextTotalCount = prev.deals.totalCount - 1;
+        }
+
         return {
           ...prev,
           deals: {
             ...prev.deals,
             list: updatedList,
             pageInfo: prev.deals.pageInfo,
-            totalCount:
-              action === 'add'
-                ? prev.deals.totalCount + 1
-                : action === 'remove'
-                ? prev.deals.totalCount - 1
-                : prev.deals.totalCount,
+            totalCount: nextTotalCount,
           },
         };
       },
@@ -145,13 +151,23 @@ export const useDeals = (
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          deals: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.deals,
-            prevResult: prev.deals,
-          }),
+        const mergedDeals = mergeCursorData({
+          direction,
+          fetchMoreResult: fetchMoreResult.deals,
+          prevResult: prev.deals,
         });
+        return {
+          ...prev,
+          deals: {
+            ...mergedDeals,
+            totalCount: mergedDeals.totalCount ?? prev.deals.totalCount,
+            pageInfo: {
+              ...mergedDeals.pageInfo,
+              startCursor: mergedDeals.pageInfo.startCursor ?? '',
+              endCursor: mergedDeals.pageInfo.endCursor ?? '',
+            },
+          },
+        };
       },
     });
   };

@@ -6,7 +6,7 @@ import { toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-export function useDealsRemove(options?: MutationHookOptions<any, any>) {
+export function useDealsRemove(options?: MutationHookOptions) {
   const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
 
@@ -30,6 +30,7 @@ export function useDealsRemove(options?: MutationHookOptions<any, any>) {
         description: err.message || t('update-failed'),
         variant: 'destructive',
       });
+      options?.onError?.(err);
     },
   });
 

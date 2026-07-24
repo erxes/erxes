@@ -7,7 +7,7 @@ import { toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-export function useDealsAdd(options?: MutationHookOptions<any, any>) {
+export function useDealsAdd(options?: MutationHookOptions) {
   const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
   const [defaultValues] = useAtom(dealCreateDefaultValuesState);
@@ -34,6 +34,7 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
         description: err.message || t('update-failed'),
         variant: 'destructive',
       });
+      options?.onError?.(err);
     },
   });
 

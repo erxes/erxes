@@ -123,7 +123,11 @@ export const useDealProductActions = ({
         return row;
       });
 
-      createProductsData(rows, rows);
+      // The server schema has no `product` field: send the stripped rows as
+      // docs and keep the embedded product snapshot only for optimistic UI.
+      const docs = rows.map(({ product, ...doc }) => doc);
+
+      createProductsData(docs, rows);
     },
     [
       calculatePerProductAmount,
@@ -167,6 +171,29 @@ export const useDealProductActions = ({
     [createProductsData],
   );
 
+  const restoreDeletedProduct = useCallback(
+    (productData: IProductData) => {
+      pendingProductDeletionsRef.current.delete(productData._id);
+      setLocalProductsData((prev) => {
+        const alreadyRestored = prev.some(
+          (data) => data._id === productData._id,
+        );
+
+        if (alreadyRestored) {
+          return prev;
+        }
+
+        const restoredProductsData = sortByStableProductOrder([
+          ...prev,
+          productData,
+        ]);
+        updateTotal(restoredProductsData);
+        return restoredProductsData;
+      });
+    },
+    [setLocalProductsData, sortByStableProductOrder, updateTotal],
+  );
+
   const deleteProduct = useCallback(
     (productData: IProductData) => {
       pendingProductDeletionsRef.current.add(productData._id);
@@ -179,30 +206,10 @@ export const useDealProductActions = ({
           processId,
           dataIds: [productData._id],
         },
-        onError: () => {
-          pendingProductDeletionsRef.current.delete(productData._id);
-          setLocalProductsData((prev) => {
-            if (prev.some((data) => data._id === productData._id)) {
-              return prev;
-            }
-
-            const restoredProductsData = sortByStableProductOrder([
-              ...prev,
-              productData,
-            ]);
-            updateTotal(restoredProductsData);
-            return restoredProductsData;
-          });
-        },
+        onError: () => restoreDeletedProduct(productData),
       });
     },
-    [
-      removeProducts,
-      removeRows,
-      setLocalProductsData,
-      sortByStableProductOrder,
-      updateTotal,
-    ],
+    [removeProducts, removeRows, restoreDeletedProduct],
   );
 
   return {

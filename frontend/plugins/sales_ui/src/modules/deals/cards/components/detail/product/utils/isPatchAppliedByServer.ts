@@ -1,5 +1,33 @@
 import { IProduct, IProductData } from 'ui-modules';
 
+const NUMERIC_TOLERANCE = 0.0001;
+
+const NUMERIC_PATCH_FIELDS = new Set<keyof IProductData>([
+  'quantity',
+  'unitPrice',
+  'globalUnitPrice',
+  'unitPricePercent',
+  'taxPercent',
+  'tax',
+  'vatPercent',
+  'discountPercent',
+  'discount',
+  'amount',
+  'maxQuantity',
+]);
+
+const isFieldApplied = (a: unknown, b: unknown, key: string) => {
+  if (
+    NUMERIC_PATCH_FIELDS.has(key as keyof IProductData) &&
+    typeof a === 'number' &&
+    typeof b === 'number'
+  ) {
+    return Math.abs(a - b) < NUMERIC_TOLERANCE;
+  }
+
+  return Object.is(a, b);
+};
+
 const isProductPatchApplied = (
   data: IProductData,
   patchProduct: IProduct | undefined,
@@ -29,5 +57,5 @@ export const isPatchAppliedByServer = (
       return isProductPatchApplied(data, value as IProduct | undefined);
     }
 
-    return Object.is(data[key as keyof IProductData], value);
+    return isFieldApplied(data[key as keyof IProductData], value, key);
   });

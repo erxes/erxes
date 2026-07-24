@@ -14,7 +14,7 @@ interface ISalesProductsDataChangedPayload {
     _id: string;
     processId: string;
     action: string;
-    data: any;
+    data: unknown;
   };
 }
 

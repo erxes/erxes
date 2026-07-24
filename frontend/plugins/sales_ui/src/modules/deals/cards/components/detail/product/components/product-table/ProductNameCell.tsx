@@ -8,7 +8,7 @@ import { useAtomValue } from 'jotai';
 import { useUpdateProductRecord } from '../../hooks/useProductRecord';
 
 const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
-const SINGLE_CLICK_DELAY_MS = 150;
+const SINGLE_CLICK_DELAY_MS = 200;
 
 export const getProductId = (productData: IProductData) =>
   productData.productId || productData.product?._id || '';
@@ -41,6 +41,7 @@ export const ProductNameCell = ({
   const singleClickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  const cancelledRef = useRef(false);
   const { updateRecord } = useUpdateProductRecord();
   const actions = useAtomValue(productRowActionsAtom);
 
@@ -62,11 +63,18 @@ export const ProductNameCell = ({
 
   const onSave = () => {
     clearSingleClickTimeout();
-    if (name !== cell.getValue() && product) {
+    const trimmedName = name.trim();
+    if (trimmedName && trimmedName !== cell.getValue() && product) {
       updateRecord(cell.row.original, {
-        product: { ...product, name },
+        product: { ...product, name: trimmedName },
       });
     }
+    setOpen(false);
+  };
+
+  const cancelEdit = () => {
+    cancelledRef.current = true;
+    setName(cell.getValue() as string);
     setOpen(false);
   };
 
@@ -93,8 +101,7 @@ export const ProductNameCell = ({
       onSave();
     }
     if (event.key === 'Escape') {
-      setName(cell.getValue() as string);
-      setOpen(false);
+      cancelEdit();
     }
   };
 
@@ -103,6 +110,10 @@ export const ProductNameCell = ({
       open={open}
       onOpenChange={(nextOpen) => {
         if (nextOpen) {
+          return;
+        }
+        if (cancelledRef.current) {
+          cancelledRef.current = false;
           return;
         }
         onSave();
@@ -132,7 +143,12 @@ export const ProductNameCell = ({
           <span>{product?.name}</span>
         </div>
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
+      <RecordTableInlineCell.Content
+        onEscapeKeyDown={() => {
+          cancelledRef.current = true;
+          setName(cell.getValue() as string);
+        }}
+      >
         <Input
           value={name}
           onChange={(event) => setName(event.currentTarget.value)}

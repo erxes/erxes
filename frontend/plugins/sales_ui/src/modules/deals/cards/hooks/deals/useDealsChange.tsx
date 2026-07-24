@@ -10,7 +10,18 @@ import { IDeal } from '@/deals/types/deals';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-export function useDealsChange(options?: MutationHookOptions<any, any>) {
+const removeItemFromColumns = (
+  columnItems: DealsBoardState['columnItems'],
+  itemId: string,
+) =>
+  Object.fromEntries(
+    Object.entries(columnItems).map(([columnId, itemIds]) => [
+      columnId,
+      (itemIds ?? []).filter((id: string) => id !== itemId),
+    ]),
+  );
+
+export function useDealsChange(options?: MutationHookOptions) {
   const { t } = useTranslation('sales');
   const [changeDeals, { loading, error }] = useMutation(DEALS_CHANGE, {
     ...options,
@@ -30,6 +41,7 @@ export function useDealsChange(options?: MutationHookOptions<any, any>) {
         description: err.message || t('update-failed'),
         variant: 'destructive',
       });
+      options?.onError?.(err);
     },
   });
 
@@ -40,10 +52,10 @@ export function useDealsChange(options?: MutationHookOptions<any, any>) {
   };
 }
 
-export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
+export function useMoveDealStage(options?: MutationHookOptions) {
   const { changeDeals, loading, error } = useDealsChange(options);
   const [boardState, setBoardState] = useDealsBoard();
-  const [allDealsMap, setAllDealsMap] = useAllDealsMap();
+  const [, setAllDealsMap] = useAllDealsMap();
 
   const moveDealStage = ({
     deal,
@@ -68,18 +80,16 @@ export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
       setBoardState((prev: DealsBoardState | null) => {
         if (!prev) return prev;
 
-        const nextColumnItems = Object.fromEntries(
-          Object.entries(prev.columnItems).map(([columnId, itemIds]) => [
-            columnId,
-            (itemIds ?? []).filter((itemId: string) => itemId !== deal._id),
-          ]),
+        const nextColumnItems = removeItemFromColumns(
+          prev.columnItems,
+          deal._id,
         );
 
         const destinationItems = nextColumnItems[destinationStageId] || [];
         const insertIndex = nextAboveItemId
           ? destinationItems.indexOf(nextAboveItemId) + 1
           : 0;
-        const normalizedIndex = insertIndex > 0 ? insertIndex : 0;
+        const normalizedIndex = Math.max(insertIndex, 0);
 
         destinationItems.splice(normalizedIndex, 0, deal._id);
 
@@ -111,7 +121,7 @@ export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
       }));
     }
 
-    const processId = Math.random().toString();
+    const processId = crypto.randomUUID();
     localStorage.setItem('processId', processId);
 
     return changeDeals({
@@ -128,9 +138,56 @@ export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
         return result;
       })
       .catch((mutationError) => {
+        // Revert only this move's delta on the current state rather than
+        // restoring the whole pre-move snapshot, so a later move or
+        // subscription update in the meantime isn't clobbered.
         if (boardState) {
-          setBoardState(boardState);
-          setAllDealsMap(allDealsMap);
+          const sourceStageId = deal.stageId || '';
+          const originalStageItems = boardState.columnItems[sourceStageId] || [];
+          const originalIndex = originalStageItems.indexOf(deal._id);
+
+          setBoardState((prev: DealsBoardState | null) => {
+            if (!prev) return prev;
+
+            const revertedColumnItems = removeItemFromColumns(
+              prev.columnItems,
+              deal._id,
+            );
+
+            const sourceItems = revertedColumnItems[sourceStageId] || [];
+            const insertIndex =
+              originalIndex >= 0 && originalIndex <= sourceItems.length
+                ? originalIndex
+                : sourceItems.length;
+
+            sourceItems.splice(insertIndex, 0, deal._id);
+
+            return {
+              ...prev,
+              items: {
+                ...prev.items,
+                [deal._id]: {
+                  ...(prev.items[deal._id] || deal),
+                  ...deal,
+                  stageId: sourceStageId,
+                  columnId: sourceStageId,
+                },
+              },
+              columnItems: {
+                ...revertedColumnItems,
+                [sourceStageId]: sourceItems,
+              },
+            };
+          });
+
+          setAllDealsMap((prev: Record<string, IDeal>) => ({
+            ...prev,
+            [deal._id]: {
+              ...(prev[deal._id] || deal),
+              ...deal,
+              stageId: sourceStageId,
+            },
+          }));
         }
 
         throw mutationError;

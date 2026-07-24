@@ -70,7 +70,7 @@ export const useSyncLocalProductsData = ({
             (data.productId
               ? productByIdRef.current[data.productId]
               : undefined),
-          ...(pendingProductPatchesRef.current[data._id] || {}),
+          ...pendingProductPatchesRef.current[data._id],
         };
 
         incomingById.set(data._id, updatedProductData);
