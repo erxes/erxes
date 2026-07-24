@@ -1,27 +1,27 @@
 import {
-  IconAccessPoint,
-  IconCrane,
-  IconTrashX,
-  IconFileImport,
-} from '@tabler/icons-react';
-import dayjs from 'dayjs';
-import {
   Button,
   Label,
   PageSubHeader,
   RecordTable,
+  RecordTableHotkeyProvider,
   Sheet,
   Spinner,
   Tabs,
   ToggleGroup,
   useQueryState,
-  RecordTableHotkeyProvider,
   useSetHotkeyScope,
 } from 'erxes-ui';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
-import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
-import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
+import {
+  ISafeRemainder,
+  SAFE_REMAINDER_STATUSES,
+} from '../types/SafeRemainder';
+import {
+  IconAccessPoint,
+  IconCrane,
+  IconFileImport,
+  IconTrashX,
+} from '@tabler/icons-react';
+import { useRef, useState } from 'react';
 import {
   useSafeRemainderCancel,
   useSafeRemainderDoTr,
@@ -29,25 +29,26 @@ import {
   useSafeRemainderSubmit,
   useSafeRemainderUndoTr,
 } from '../hooks/useSafeRemainderChange';
-import {
-  ISafeRemainder,
-  SAFE_REMAINDER_STATUSES,
-} from '../types/SafeRemainder';
-import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
+
+import { AccountingHeader } from '~/modules/layout/components/Header';
+import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { CENSUS_TABS } from '../types/constants';
+import { EditSafeRemainder } from './SafeRemainderEditForm';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
 import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 import { activeTabState } from '../states';
-import { useAtom } from 'jotai';
-import { CENSUS_TABS } from '../types/constants';
+import dayjs from 'dayjs';
 import { safeRemDetailColumnsIncome } from './SafeRemainderDetailColsIncome';
 import { safeRemDetailColumnsOut } from './SafeRemainderDetailColsOut';
 import { safeRemDetailColumnsSale } from './SafeRemainderDetailColsSale';
-import { EditSafeRemainder } from './SafeRemainderEditForm';
-import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
-import { useRef, useState } from 'react';
+import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
+import { useAtom } from 'jotai';
+import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
+import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderItemsBulkEdit } from '../hooks/useSafeRemainderItemsBulkEdit';
+import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
 import { useTranslation } from 'react-i18next';
-import { AccountingHeader } from '~/modules/layout/components/Header';
 
 export const SafeRemainderDetail = () => {
   const { t } = useTranslation('accounting');
@@ -434,7 +435,6 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
 
 type DuplicateRule = 'last' | 'skip' | 'add';
 
-/** ene duplicate rule options list. */
 const DuplicateRuleOptions = ({
   duplicateRule,
   rules,
@@ -470,7 +470,6 @@ const DuplicateRuleOptions = ({
   );
 };
 
-/** ene import file sheet body. */
 const ImportFromFileSheet = ({
   duplicateRule,
   loading,

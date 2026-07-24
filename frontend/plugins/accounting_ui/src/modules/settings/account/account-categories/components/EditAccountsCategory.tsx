@@ -1,16 +1,16 @@
-import { Sheet, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
-import { useAccountCategoryDetail } from '../hooks/useAccountCategoryDetail';
-import { TAccountCategoryForm } from '../types/AccountCategory';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { accountCategorySchema } from '../constants/accountCategorySchema';
+import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+
 import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
-import { useEffect } from 'react';
-import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
 import { AccountCategoryForm } from './AccountCategoryForm';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { TAccountCategoryForm } from '../types/AccountCategory';
+import { accountCategorySchema } from '../constants/accountCategorySchema';
+import { useAccountCategoryDetail } from '../hooks/useAccountCategoryDetail';
+import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-/** ene selected category edit form. */
 export const EditAccountCategoryForm = ({
   onClose,
 }: {
@@ -72,7 +72,6 @@ export const EditAccountCategoryForm = ({
   );
 };
 
-/** ene query-s category edit sheet open hiine. */
 export const EditAccountCategory = () => {
   const [open, setOpen] = useQueryState<string>('accountCategoryId');
   return (

@@ -2,7 +2,6 @@ import { Icon } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-/** table header cell with icon and translated label. */
 export const HeaderCell = ({
   icon: Icon,
   labelKey,

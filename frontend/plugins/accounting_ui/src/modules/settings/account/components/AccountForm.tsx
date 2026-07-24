@@ -1,4 +1,11 @@
 import {
+  ACCOUNT_KIND_LABELS,
+  ACCOUNT_STATUS_LABELS,
+  AccountKind,
+  AccountStatus,
+  JournalEnum,
+} from '../types/Account';
+import {
   Button,
   Checkbox,
   CurrencyField,
@@ -9,20 +16,13 @@ import {
   Spinner,
   Textarea,
 } from 'erxes-ui';
-import { UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
-import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
+import { UseFormReturn, useWatch } from 'react-hook-form';
+
 import { JOURNAL_LABELS } from '../constants/journalLabel';
-import {
-  AccountKind,
-  ACCOUNT_KIND_LABELS,
-  AccountStatus,
-  ACCOUNT_STATUS_LABELS,
-  JournalEnum,
-} from '../types/Account';
+import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { TAccountForm } from '../types/accountForm';
 
-/** account form fields. */
 const AccountFormFields = ({
   control,
   status,
@@ -300,7 +300,6 @@ const AccountFormFields = ({
   );
 };
 
-/** account form. */
 export const AccountForm = ({
   form,
   handleSubmit,

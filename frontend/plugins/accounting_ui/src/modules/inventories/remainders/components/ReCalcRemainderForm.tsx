@@ -1,18 +1,18 @@
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconRefresh } from '@tabler/icons-react';
 import { Button, Form, Sheet, Spinner, useMultiQueryState } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { selectedProductIdsAtom } from '../states/productCounts';
-import { useForm } from 'react-hook-form';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
-import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
+
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconRefresh } from '@tabler/icons-react';
 import { TReCalcRemainderForm } from '../types/reCalcRemainderForm';
 import { reCalcRemainderSchema } from '../types/reCalcRemainderSchema';
+import { selectedProductIdsAtom } from '../states/productCounts';
+import { useAtomValue } from 'jotai';
+import { useForm } from 'react-hook-form';
+import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-/** remainder recalculation hiih form */
 const ReCalcRemaindersForm = ({
   setOpen,
   productIds,
@@ -36,7 +36,7 @@ const ReCalcRemaindersForm = ({
   });
 
   const { addSafeRemainder, loading } = useReCalcRemainders();
-  /** ene recalc mutation duudna. */
+
   const onSubmit = (data: TReCalcRemainderForm) => {
     const variables: Record<string, unknown> = { ...data };
     if (productIds && productIds.length > 0) {
@@ -136,14 +136,12 @@ const ReCalcRemaindersForm = ({
   );
 };
 
-/** ene recalc sheet open hiine. */
 export const ReCalcRemainderForm = () => {
   const { t } = useTranslation('accounting');
   const selectedProductIds = useAtomValue(selectedProductIdsAtom);
   const [open, setOpen] = useState(false);
   const [frozenProductIds, setFrozenProductIds] = useState<string[]>([]);
 
-  /** ene open bolohdoo product ids hadgalna. */
   const handleOpenChange = (next: boolean) => {
     if (next) setFrozenProductIds(selectedProductIds);
     setOpen(next);

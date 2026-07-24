@@ -1,22 +1,23 @@
-import { useQuery } from '@apollo/client';
-import { Form, isEnabled, Select } from 'erxes-ui';
-import { useEffect, useMemo } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
-import { TR_STATUSES } from '@/transactions/types/constants';
+import { Form, Select, isEnabled } from 'erxes-ui';
 import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
 import {
-  SyncConfigGeneralFields,
   SyncConfigAccountsSection,
-  SyncConfigPaymentsSection,
-  SyncConfigVatCtaxSection,
   SyncConfigFormFooter,
+  SyncConfigGeneralFields,
+  SyncConfigPaymentsSection,
   SyncConfigReturnTypeField,
-  normalizeSyncConfigData,
+  SyncConfigVatCtaxSection,
   TPaymentType,
+  normalizeSyncConfigData,
 } from './SyncConfigFormSections';
+import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+
 import { SyncSettingSection } from './SyncSettingSection';
+import { TR_STATUSES } from '@/transactions/types/constants';
+import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 
 export const syncOrderConfigFormSchema = z.object({
   title: z.string(),
@@ -50,7 +51,6 @@ export const syncOrderConfigFormSchema = z.object({
 
 type ConfigFormValues = z.infer<typeof syncOrderConfigFormSchema>;
 
-/** order sync config form bn */
 export const SyncOrderConfigForm = ({
   form,
   onSubmit,
@@ -96,7 +96,6 @@ export const SyncOrderConfigForm = ({
     posDetailData?.posDetail?.paymentTypes || [];
   const mongolianEnabled = isEnabled('mongolian');
 
-  /** form submission handle hiih normalisation */
   const handleSubmit = (data: ConfigFormValues) =>
     onSubmit(normalizeSyncConfigData(data, mongolianEnabled));
 

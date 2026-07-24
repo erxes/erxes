@@ -1,18 +1,19 @@
-import { TR_STATUSES } from '@/transactions/types/constants';
+import {
+  SyncConfigFormFooter,
+  SyncConfigGeneralFields,
+  SyncConfigPaymentAccountField,
+  SyncConfigPipelineSection,
+  SyncConfigReturnTypeField,
+  usePipelineReset,
+} from './SyncConfigFormSections';
+
 import { Form } from 'erxes-ui';
-import { useEffect } from 'react';
+import { SyncSettingSection } from './SyncSettingSection';
+import { TR_STATUSES } from '@/transactions/types/constants';
 import { UseFormReturn } from 'react-hook-form';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import {
-  SyncConfigGeneralFields,
-  SyncConfigPipelineSection,
-  SyncConfigFormFooter,
-  usePipelineReset,
-  SyncConfigPaymentAccountField,
-  SyncConfigReturnTypeField,
-} from './SyncConfigFormSections';
-import { SyncSettingSection } from './SyncSettingSection';
 
 export const syncDealReturnConfigFormSchema = z.object({
   title: z.string(),
@@ -32,7 +33,6 @@ export const syncDealReturnConfigFormSchema = z.object({
 
 type ConfigFormValues = z.infer<typeof syncDealReturnConfigFormSchema>;
 
-/** deal return sync config form bn */
 export const SyncDealReturnConfigForm = ({
   form,
   onSubmit,

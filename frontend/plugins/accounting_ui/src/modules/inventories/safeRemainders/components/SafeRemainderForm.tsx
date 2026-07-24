@@ -1,16 +1,16 @@
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPlus } from '@tabler/icons-react';
 import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { useSafeRemainderAdd } from '../hooks/useSafeRemainderAdd';
-import { TSafeRemainderForm } from '../types/safeRemainderForm';
-import { safeRemainderSchema } from '../types/safeRemainderSchema';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
-/** safe remainder form uusgeh */
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
+import { TSafeRemainderForm } from '../types/safeRemainderForm';
+import { safeRemainderSchema } from '../types/safeRemainderSchema';
+import { useForm } from 'react-hook-form';
+import { useSafeRemainderAdd } from '../hooks/useSafeRemainderAdd';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 const AddSafeRemainderForm = ({
   setOpen,
 }: {
@@ -24,7 +24,7 @@ const AddSafeRemainderForm = ({
     },
   });
   const { addSafeRemainder, loading } = useSafeRemainderAdd();
-  /** ene safe remainder save hiigeed haana. */
+
   const onSubmit = (data: TSafeRemainderForm) => {
     addSafeRemainder({
       variables: { ...data },
@@ -35,7 +35,6 @@ const AddSafeRemainderForm = ({
     });
   };
 
-  /** form submit hiih error handler bn */
   const onError = (_error: unknown) => {
     return {};
   };
@@ -151,7 +150,6 @@ const AddSafeRemainderForm = ({
   );
 };
 
-/** ene safe remainder add sheet. */
 export const AddSafeRemainder = () => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);

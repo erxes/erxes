@@ -1,20 +1,20 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { useQueryState, useConfirm, toast } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import {
+  MoreActionsCell,
+  SettingsRowsTable,
+  getSharedRowColumns,
+  moreColumn,
+} from '../../components/SettingsRowsTable';
+import { toast, useConfirm, useQueryState } from 'erxes-ui';
+
+import { IVatRow } from '../types/VatRow';
+import { VatRowsCommandbar } from './VatRowsCommandbar';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useVatRows } from '../hooks/useVatRows';
 import { useVatRowsRemove } from '../hooks/useVatRowsRemove';
 import { vatRowDetailAtom } from '../states/vatRowStates';
-import { IVatRow } from '../types/VatRow';
-import { VatRowsCommandbar } from './VatRowsCommandbar';
-import {
-  SettingsRowsTable,
-  getSharedRowColumns,
-  MoreActionsCell,
-  moreColumn,
-} from '../../components/SettingsRowsTable';
 
-/** more column actions cell for vat rows. */
 export const VatRowMoreColumnCell = ({
   cell,
 }: {
@@ -26,13 +26,11 @@ export const VatRowMoreColumnCell = ({
   const { confirm } = useConfirm();
   const { removeVatRows } = useVatRowsRemove();
 
-  /** open edit sheet for selected row. */
   const handleEdit = () => {
     setVatRowDetail(cell.row.original);
     setOpen(cell.row.original._id);
   };
 
-  /** delete selected vat row after confirmation. */
   const handleDelete = () =>
     confirm({
       message: t('are-you-sure-delete-this-vat-row'),
@@ -73,7 +71,6 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = getSharedRowColumns(
   vatRowMoreColumn as ColumnDef<IVatRow>,
 );
 
-/** settings rows table layout-oor vat rows table */
 export const VatRowsTable = () => {
   const { vatRows, loading, handleFetchMore, totalCount } = useVatRows();
 

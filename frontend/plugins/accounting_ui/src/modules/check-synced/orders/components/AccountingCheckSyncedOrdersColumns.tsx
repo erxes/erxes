@@ -1,20 +1,21 @@
 import {
-  IconCalendarPlus,
-  IconCategory,
-  IconCurrencyDollar,
-  IconHash,
-} from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
-import {
   Checkbox,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import {
+  IconCalendarPlus,
+  IconCategory,
+  IconCurrencyDollar,
+  IconHash,
+} from '@tabler/icons-react';
+
 import { AccountingCheckSyncedOrder } from '../types';
-import { isSyncable } from '../../constants/shared';
+import { ColumnDef } from '@tanstack/table-core';
 import { HeaderCell } from '../../constants/HeaderCell';
+import { isSyncable } from '../../constants/shared';
 
 type AccountingCheckSyncedOrdersColumnsOptions = {
   toSyncOrderIds: Record<string, boolean>;
@@ -23,7 +24,6 @@ type AccountingCheckSyncedOrdersColumnsOptions = {
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
 };
 
-/** build the orders table columns for check-synced screen. */
 export const getAccountingCheckSyncedOrdersColumns = ({
   toSyncOrderIds,
   syncableOrderIds,

@@ -1,11 +1,12 @@
-import { useCallback, useMemo } from 'react';
-import { useToast } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { ApolloError } from '@apollo/client';
 import {
   AccountingCheckSyncedResponse,
   AccountingCheckSyncedStatus,
 } from '../deals/types';
+import { useCallback, useMemo } from 'react';
+
+import { ApolloError } from '@apollo/client';
+import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export type CheckOptions = {
   silent?: boolean;
@@ -13,12 +14,11 @@ export type CheckOptions = {
   statusById?: Record<string, AccountingCheckSyncedStatus>;
 };
 
-/** get sync status from item. */
 export const getSyncStatus = (item?: {
   syncStatus?: AccountingCheckSyncedStatus;
 }): AccountingCheckSyncedStatus => item?.syncStatus || 'skipped';
 
-/** split array into chunks. */
+
 export const chunkIds = (ids: string[], size: number) => {
   const chunks: string[][] = [];
 
@@ -29,7 +29,6 @@ export const chunkIds = (ids: string[], size: number) => {
   return chunks;
 };
 
-/** shared setToSync / setAllToSync toggle logic for check-synced hooks. */
 export const useSyncToggle = (
   setToSyncIds: (
     update:
@@ -78,7 +77,7 @@ export const useSyncToggle = (
   return { setToSync, setAllToSync };
 };
 
-/** filter selected IDs from a toSync record. */
+
 export const useSyncSelectedIds = (toSyncIds: Record<string, boolean>) =>
   useMemo(
     () =>
@@ -88,11 +87,11 @@ export const useSyncSelectedIds = (toSyncIds: Record<string, boolean>) =>
     [toSyncIds],
   );
 
-/** check if item is syncable (not skipped). */
+
 export const isSyncable = (item?: { syncStatus?: string }) =>
   getSyncStatus(item as Parameters<typeof getSyncStatus>[0]) !== 'skipped';
 
-/** shared check function creator hook to deduplicate code and avoid type erasure. */
+
 export const useAccountingCheckSyncedAction = <
   TItem extends {
     isSynced?: boolean;

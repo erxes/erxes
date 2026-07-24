@@ -1,18 +1,18 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { useQueryState, useConfirm } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { useCtaxRows } from '../hooks/useCtaxRows';
-import { ICtaxRow } from '../types/CtaxRow';
-import { CtaxRowsCommandbar } from './CtaxRowsCommandbar';
-import { useCtaxRowsRemove } from '../hooks/useCtaxRowsRemove';
 import {
+  MoreActionsCell,
   SettingsRowsTable,
   getSharedRowColumns,
-  MoreActionsCell,
   moreColumn,
 } from '../../components/SettingsRowsTable';
+import { useConfirm, useQueryState } from 'erxes-ui';
 
-/** more column actions cell for ctax rows. */
+import { CtaxRowsCommandbar } from './CtaxRowsCommandbar';
+import { ICtaxRow } from '../types/CtaxRow';
+import { useCtaxRows } from '../hooks/useCtaxRows';
+import { useCtaxRowsRemove } from '../hooks/useCtaxRowsRemove';
+import { useTranslation } from 'react-i18next';
+
 export const CtaxMoreColumnCell = ({
   cell,
 }: {
@@ -23,12 +23,10 @@ export const CtaxMoreColumnCell = ({
   const { confirm } = useConfirm();
   const { removeCtaxRows } = useCtaxRowsRemove();
 
-  /** open edit sheet for selected row. */
   const handleEdit = () => {
     setOpen(cell.row.original._id);
   };
 
-  /** delete selected ctax row after confirmation. */
   const handleDelete = () =>
     confirm({
       message: t('are-you-sure-delete-this-account'),
@@ -56,7 +54,6 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = getSharedRowColumns(
   ctaxRowMoreColumn as ColumnDef<ICtaxRow>,
 );
 
-/** ctax rows table with record table. */
 export const CtaxRowsTable = () => {
   const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
 

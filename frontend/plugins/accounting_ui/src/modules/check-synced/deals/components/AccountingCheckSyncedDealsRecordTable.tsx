@@ -1,16 +1,16 @@
-import { IconShoppingCartX } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { getAccountingCheckSyncedDealsColumns } from './AccountingCheckSyncedDealsColumns';
-import { isSyncable } from '../../constants/shared';
 import {
   ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
   useAccountingCheckSyncedDeals,
 } from '../hooks/useAccountingCheckSyncedDeals';
-import { AccountingCheckSyncedDealsCommandBar } from './AccountingCheckSyncedDealsCommandBar';
 
-/** ene deal table-iig zurj bga. */
+import { AccountingCheckSyncedDealsCommandBar } from './AccountingCheckSyncedDealsCommandBar';
+import { IconShoppingCartX } from '@tabler/icons-react';
+import { RecordTable } from 'erxes-ui';
+import { getAccountingCheckSyncedDealsColumns } from './AccountingCheckSyncedDealsColumns';
+import { isSyncable } from '../../constants/shared';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 export const AccountingCheckSyncedDealsRecordTable = () => {
   const { t } = useTranslation('accounting');
   const {

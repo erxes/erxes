@@ -1,7 +1,7 @@
-import { cn, Sheet } from 'erxes-ui';
+import { Sheet, cn } from 'erxes-ui';
+
 import { ReactNode } from 'react';
 
-/** ene accounting sheet wrapper. */
 export const AccountingSheet = ({
   title,
   children,

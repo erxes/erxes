@@ -1,12 +1,3 @@
-import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
-import {
-  parseDateRangeFromString,
-  useMultiQueryState,
-  useToast,
-} from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { atom, useAtom, useSetAtom } from 'jotai';
-import { useEffect, useMemo } from 'react';
 import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_MUTATION,
   ACCOUNTING_CHECK_SYNCED_ORDERS_QUERY,
@@ -20,17 +11,27 @@ import {
   AccountingSyncResult,
 } from '../types';
 import {
-  getSyncStatus,
-  chunkIds,
-  useSyncToggle,
-  useSyncSelectedIds,
-  useAccountingCheckSyncedAction,
-} from '../../constants/shared';
-import {
   AccountingCheckSyncedOrdersStatusCounts,
   accountingCheckSyncedOrdersStatusCountsAtom,
   accountingCheckSyncedOrdersTotalCountAtom,
 } from '../states';
+import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import {
+  chunkIds,
+  getSyncStatus,
+  useAccountingCheckSyncedAction,
+  useSyncSelectedIds,
+  useSyncToggle,
+} from '../../constants/shared';
+import {
+  parseDateRangeFromString,
+  useMultiQueryState,
+  useToast,
+} from 'erxes-ui';
+import { useEffect, useMemo } from 'react';
+
+import { useTranslation } from 'react-i18next';
 
 const ACCOUNTING_SYNC_ORDERS_BATCH_SIZE = 1;
 const ACCOUNTING_CHECK_SYNCED_ORDERS_PER_PAGE = 50;
@@ -43,7 +44,6 @@ const checkedOrdersAtom = atom<
 
 const toSyncOrderIdsAtom = atom<Record<string, boolean>>({});
 
-/** check-synced orders query variable barih */
 export const useAccountingCheckSyncedOrdersVariables = (
   variables?: QueryHookOptions<AccountingOrdersQueryResult>['variables'],
 ) => {
@@ -82,7 +82,6 @@ export const useAccountingCheckSyncedOrdersVariables = (
   };
 };
 
-/** check-synced orders query mutation hook bn */
 export const useAccountingCheckSyncedOrders = (
   options?: QueryHookOptions<AccountingOrdersQueryResult>,
 ) => {
@@ -128,7 +127,6 @@ export const useAccountingCheckSyncedOrders = (
 
   const syncSelectedOrderIds = useSyncSelectedIds(toSyncOrderIds);
 
-  /** songogdson orders sync status shalgah */
   const checkOrders =
     useAccountingCheckSyncedAction<AccountingCheckSyncedOrder>({
       contentType: 'sales:order',
@@ -139,7 +137,6 @@ export const useAccountingCheckSyncedOrders = (
       successMsg: 'orders-checked',
     });
 
-  /** orders-iig accounting sync hiih */
   const syncOrders = async (ids: string[]) => {
     if (!variables.ruleId) {
       toast({
@@ -337,7 +334,6 @@ export const useAccountingCheckSyncedOrders = (
     setStatusCounts(counts);
   }, [orders, setStatusCounts, syncSelectedOrderIds.length]);
 
-  /** orders ihuu tatah pagination oor */
   const handleFetchMore = () => {
     const currentPage = Math.ceil(
       orders.length / ACCOUNTING_CHECK_SYNCED_ORDERS_PER_PAGE,

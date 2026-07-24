@@ -1,24 +1,24 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet } from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import {
+  RemainderFormField,
+  ReserveRemFormFooter,
+} from './ReserveRemFormParts';
 import {
   SelectBranches,
   SelectCategory,
   SelectDepartments,
   SelectProduct,
 } from 'ui-modules';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import { useReserveRemAdd } from '../hooks/useReserveRemAdd';
-import { reserveRemSchema, TReserveRemForm } from '../types/reserveRemForm';
-import {
-  RemainderFormField,
-  ReserveRemFormFooter,
-} from './ReserveRemFormParts';
+import { TReserveRemForm, reserveRemSchema } from '../types/reserveRemForm';
 
-/** reserve remainder form uusgeh */
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
+import { useForm } from 'react-hook-form';
+import { useReserveRemAdd } from '../hooks/useReserveRemAdd';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 const AddReserveRemForm = ({
   setOpen,
 }: {
@@ -36,7 +36,6 @@ const AddReserveRemForm = ({
 
   const { addReserveRem, loading } = useReserveRemAdd();
 
-  /** ene reserve remainder save hiigeed haana. */
   const onSubmit = (data: TReserveRemForm) => {
     addReserveRem({
       variables: { ...data },
@@ -127,7 +126,6 @@ const AddReserveRemForm = ({
   );
 };
 
-/** ene reserve remainder add sheet. */
 export const AddReserveRem = () => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);

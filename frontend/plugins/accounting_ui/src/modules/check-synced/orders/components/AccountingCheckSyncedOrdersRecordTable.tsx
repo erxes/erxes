@@ -1,16 +1,16 @@
-import { RecordTable } from 'erxes-ui';
-import { IconShoppingCartX } from '@tabler/icons-react';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { getAccountingCheckSyncedOrdersColumns } from './AccountingCheckSyncedOrdersColumns';
-import { isSyncable } from '../../constants/shared';
 import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_SESSION_KEY,
   useAccountingCheckSyncedOrders,
 } from '../hooks/useAccountingCheckSyncedOrders';
-import { AccountingCheckSyncedOrdersCommandBar } from './AccountingCheckSyncedOrdersCommandBar';
 
-/** ene order baihgui ued garna. */
+import { AccountingCheckSyncedOrdersCommandBar } from './AccountingCheckSyncedOrdersCommandBar';
+import { IconShoppingCartX } from '@tabler/icons-react';
+import { RecordTable } from 'erxes-ui';
+import { getAccountingCheckSyncedOrdersColumns } from './AccountingCheckSyncedOrdersColumns';
+import { isSyncable } from '../../constants/shared';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 const NoOrdersEmptyState = () => {
   const { t } = useTranslation('accounting');
   return (
@@ -30,7 +30,6 @@ const NoOrdersEmptyState = () => {
   );
 };
 
-/** ene order table-iig zurj bga. */
 export const AccountingCheckSyncedOrdersRecordTable = () => {
   const {
     canSync,

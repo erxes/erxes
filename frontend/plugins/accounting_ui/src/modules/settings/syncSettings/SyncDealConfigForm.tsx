@@ -1,23 +1,24 @@
-import { useQuery } from '@apollo/client';
 import { Form, isEnabled } from 'erxes-ui';
-import { useEffect } from 'react';
+import {
+  SyncConfigAccountsSection,
+  SyncConfigFormFooter,
+  SyncConfigGeneralFields,
+  SyncConfigPaymentsSection,
+  SyncConfigPipelineSection,
+  SyncConfigVatCtaxSection,
+  TPaymentType,
+  normalizeSyncConfigData,
+  usePipelineReset,
+} from './SyncConfigFormSections';
+
+import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
+import { SyncSettingSection } from './SyncSettingSection';
+import { TR_STATUSES } from '@/transactions/types/constants';
 import { UseFormReturn } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { TR_STATUSES } from '@/transactions/types/constants';
-import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
-import {
-  SyncConfigGeneralFields,
-  SyncConfigPipelineSection,
-  SyncConfigAccountsSection,
-  SyncConfigPaymentsSection,
-  SyncConfigVatCtaxSection,
-  SyncConfigFormFooter,
-  usePipelineReset,
-  normalizeSyncConfigData,
-  TPaymentType,
-} from './SyncConfigFormSections';
-import { SyncSettingSection } from './SyncSettingSection';
 
 export const syncDealConfigFormSchema = z.object({
   title: z.string(),
@@ -53,7 +54,6 @@ export const syncDealConfigFormSchema = z.object({
 
 type ConfigFormValues = z.infer<typeof syncDealConfigFormSchema>;
 
-/** deal sync config form bn */
 export const SyncDealConfigForm = ({
   form,
   onSubmit,
@@ -92,7 +92,6 @@ export const SyncDealConfigForm = ({
     pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
   const mongolianEnabled = isEnabled('mongolian');
 
-  /** form submission handle hiih normalisation */
   const handleSubmit = (data: ConfigFormValues) =>
     onSubmit(normalizeSyncConfigData(data, mongolianEnabled));
 

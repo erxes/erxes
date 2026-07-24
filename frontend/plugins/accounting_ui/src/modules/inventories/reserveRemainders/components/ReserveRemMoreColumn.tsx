@@ -1,5 +1,3 @@
-import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { Cell } from '@tanstack/react-table';
 import {
   Combobox,
   Command,
@@ -10,18 +8,21 @@ import {
   Sheet,
   useConfirm,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { Control, useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
-import { useReserveRemEdit } from '../hooks/useReserveRemEdit';
-import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
-import { IReserveRem } from '../types/ReserveRem';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import {
   RemainderFormField,
   ReserveRemFormFooter,
 } from './ReserveRemFormParts';
+import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
+
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { Cell } from '@tanstack/react-table';
+import { IReserveRem } from '../types/ReserveRem';
+import { useReserveRemEdit } from '../hooks/useReserveRemEdit';
+import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TEditForm = {
   branchId?: string;
@@ -31,7 +32,6 @@ type TEditForm = {
   remainder: number;
 };
 
-/** edit reserve remainder form fields. */
 const EditReserveRemFields = ({ control }: { control: Control<TEditForm> }) => {
   const { t } = useTranslation('accounting');
   return (
@@ -100,7 +100,6 @@ const EditReserveRemFields = ({ control }: { control: Control<TEditForm> }) => {
     </div>
   );
 };
-/** ene reserve remainder edit sheet. */
 const EditReserveRemSheet = ({
   setOpen,
   reserveRem,
@@ -120,7 +119,6 @@ const EditReserveRemSheet = ({
     },
   });
 
-  /** ene edit save hiigeed sheet haana. */
   const onSubmit = (data: TEditForm) => {
     editReserveRem({
       variables: { _id: reserveRem._id, ...data },
@@ -143,7 +141,6 @@ const EditReserveRemSheet = ({
   );
 };
 
-/** ene edit/delete menu. */
 const ReserveRemMoreColumnCell = ({
   cell,
 }: {
@@ -156,7 +153,6 @@ const ReserveRemMoreColumnCell = ({
 
   const reserveRem = cell.row.original;
 
-  /** ene delete confirm hiigeed ustgana. */
   const handleDelete = () =>
     confirm({
       message: t('are-you-sure'),

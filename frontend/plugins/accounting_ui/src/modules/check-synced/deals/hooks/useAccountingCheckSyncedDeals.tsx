@@ -1,17 +1,3 @@
-import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
-import {
-  EnumCursorDirection,
-  isUndefinedOrNull,
-  mergeCursorData,
-  parseDateRangeFromString,
-  useMultiQueryState,
-  useRecordTableCursor,
-  useToast,
-  validateFetchMore,
-} from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { atom, useAtom, useSetAtom } from 'jotai';
-import { useEffect, useMemo } from 'react';
 import {
   ACCOUNTING_CHECK_SYNCED_DEALS_QUERY,
   ACCOUNTING_CHECK_SYNCED_MUTATION,
@@ -25,17 +11,32 @@ import {
   AccountingSyncResult,
 } from '../types';
 import {
-  getSyncStatus,
-  chunkIds,
-  useSyncToggle,
-  useSyncSelectedIds,
-  useAccountingCheckSyncedAction,
-} from '../../constants/shared';
-import {
   AccountingCheckSyncedDealsStatusCounts,
   accountingCheckSyncedDealsStatusCountsAtom,
   accountingCheckSyncedDealsTotalCountAtom,
 } from '../states';
+import {
+  EnumCursorDirection,
+  isUndefinedOrNull,
+  mergeCursorData,
+  parseDateRangeFromString,
+  useMultiQueryState,
+  useRecordTableCursor,
+  useToast,
+  validateFetchMore,
+} from 'erxes-ui';
+import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import {
+  chunkIds,
+  getSyncStatus,
+  useAccountingCheckSyncedAction,
+  useSyncSelectedIds,
+  useSyncToggle,
+} from '../../constants/shared';
+import { useEffect, useMemo } from 'react';
+
+import { useTranslation } from 'react-i18next';
 
 const ACCOUNTING_CHECK_SYNCED_DEALS_PER_PAGE = 50;
 const ACCOUNTING_SYNC_DEALS_BATCH_SIZE = 1;
@@ -48,7 +49,6 @@ const checkedDealsAtom = atom<
 
 const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
 
-/** check-synced deals query variable barih */
 export const useAccountingCheckSyncedDealsVariables = (
   variables?: QueryHookOptions<AccountingDealsQueryResult>['variables'],
 ) => {
@@ -118,7 +118,6 @@ export const useAccountingCheckSyncedDealsVariables = (
   };
 };
 
-/** check-synced deals query mutation hook bn */
 export const useAccountingCheckSyncedDeals = (
   options?: QueryHookOptions<AccountingDealsQueryResult>,
 ) => {
@@ -168,7 +167,6 @@ export const useAccountingCheckSyncedDeals = (
 
   const syncSelectedDealIds = useSyncSelectedIds(toSyncDealIds);
 
-  /** songogdson deals sync status shalgah */
   const checkDeals = useAccountingCheckSyncedAction<AccountingCheckSyncedDeal>({
     contentType: 'sales:deal',
     setCheckedItems: setCheckedDeals,
@@ -178,7 +176,6 @@ export const useAccountingCheckSyncedDeals = (
     successMsg: 'deals-checked',
   });
 
-  /** deals-iig accounting sync hiih */
   const syncDeals = async (ids: string[]) => {
     if (!variables.ruleId) {
       toast({
@@ -377,7 +374,6 @@ export const useAccountingCheckSyncedDeals = (
     setStatusCounts(counts);
   }, [deals, setStatusCounts, syncSelectedDealIds.length]);
 
-  /** deals ihuu tatah pagination oor */
   const handleFetchMore = ({
     direction,
   }: {

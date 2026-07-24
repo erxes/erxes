@@ -1,9 +1,9 @@
-import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
+import { Skeleton, isUndefinedOrNull } from 'erxes-ui';
+
 import { useTranslation } from 'react-i18next';
 
 type StatusCounts = Record<string, number>;
 
-/** ene count-oo l haruulj bga. */
 export const CheckSyncedTotalCount = ({
   totalCount,
   counts,

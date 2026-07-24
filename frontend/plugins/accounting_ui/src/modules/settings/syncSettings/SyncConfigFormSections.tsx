@@ -1,15 +1,3 @@
-import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { JournalEnum } from '@/settings/account/types/Account';
-import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
-import { SelectVat } from '@/settings/vat/components/SelectVatRow';
-import { TR_STATUS_OPTIONS } from '@/transactions/types/constants';
-import {
-  ISyncGeneralFields,
-  ISyncReturnTypeFields,
-  ISyncAccountsSectionFields,
-  ISyncPaymentsFields,
-  ISyncVatCtaxFields,
-} from '@/settings/types/SyncConfig';
 import {
   Button,
   Checkbox,
@@ -19,7 +7,6 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { useEffect, useMemo, useRef } from 'react';
 import {
   Control,
   FieldPath,
@@ -27,17 +14,31 @@ import {
   UseFormReturn,
   useWatch,
 } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import {
+  ISyncAccountsSectionFields,
+  ISyncGeneralFields,
+  ISyncPaymentsFields,
+  ISyncReturnTypeFields,
+  ISyncVatCtaxFields,
+} from '@/settings/types/SyncConfig';
+import {
+  SelectBoard,
   SelectBranches,
   SelectDepartments,
-  SelectBoard,
   SelectPipeline,
   SelectStage,
 } from 'ui-modules';
+import { useEffect, useMemo, useRef } from 'react';
+
 import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
+import { JournalEnum } from '@/settings/account/types/Account';
+import { SelectAccount } from '@/settings/account/components/SelectAccount';
+import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
+import { SelectVat } from '@/settings/vat/components/SelectVatRow';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 import { SyncSettingSection } from './SyncSettingSection';
+import { TR_STATUS_OPTIONS } from '@/transactions/types/constants';
+import { useTranslation } from 'react-i18next';
 
 export interface IUsePipelineResetForm {
   boardId?: string;
@@ -45,7 +46,6 @@ export interface IUsePipelineResetForm {
   stageId?: string;
 }
 
-/** board/pipeline changed ued pipeline/stage reset hiih */
 export const usePipelineReset = <T extends IUsePipelineResetForm>(
   form: UseFormReturn<T>,
 ) => {
@@ -93,13 +93,11 @@ export const usePipelineReset = <T extends IUsePipelineResetForm>(
   return { boardId, pipelineId };
 };
 
-/** normalize rule IDs to array. */
 export const normalizeRuleIds = (value?: string | string[]) => {
   if (!value) return [];
   return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
 };
 
-/** normalize VAT/CTax fields before submit. */
 export const normalizeSyncConfigData = <
   T extends {
     hasVat?: boolean;
@@ -114,19 +112,18 @@ export const normalizeSyncConfigData = <
   mongolianEnabled: boolean,
 ): T => ({
   ...data,
-  vatRowId: data.hasVat ? (data.vatRowId ?? '') : '',
+  vatRowId: data.hasVat ? data.vatRowId ?? '' : '',
   reverseVatRules:
     mongolianEnabled && !data.hasVat
       ? normalizeRuleIds(data.reverseVatRules)
       : [],
-  ctaxRowId: data.hasCtax ? (data.ctaxRowId ?? '') : '',
+  ctaxRowId: data.hasCtax ? data.ctaxRowId ?? '' : '',
   reverseCtaxRules:
     !mongolianEnabled || data.hasCtax
       ? []
       : normalizeRuleIds(data.reverseCtaxRules),
 });
 
-/** sync config form iin payment account field */
 export const SyncConfigPaymentAccountField = <
   TFieldValues extends FieldValues,
 >({
@@ -167,7 +164,6 @@ export const SyncConfigPaymentAccountField = <
   );
 };
 
-/** return type select field bn */
 const ReturnTypeFieldContent = ({
   field,
   t,
@@ -198,7 +194,6 @@ const ReturnTypeFieldContent = ({
   );
 };
 
-/** return type select field. */
 export const SyncConfigReturnTypeField = <
   TFieldValues extends FieldValues & ISyncReturnTypeFields,
 >({
@@ -217,7 +212,6 @@ export const SyncConfigReturnTypeField = <
   );
 };
 
-/** date rule select field. */
 const DateRuleFieldContent = ({
   field,
   t,
@@ -249,7 +243,6 @@ const DateRuleFieldContent = ({
   );
 };
 
-/** transaction status select field. */
 const TrStatusFieldContent = ({
   field,
   t,
@@ -276,7 +269,6 @@ const TrStatusFieldContent = ({
   </Form.Item>
 );
 
-/** general fields (title, dateRule, trStatus) bn */
 export const SyncConfigGeneralFields = <
   TFieldValues extends FieldValues & ISyncGeneralFields,
 >({
@@ -314,7 +306,6 @@ export const SyncConfigGeneralFields = <
   );
 };
 
-/** pipeline/stage selection section bn */
 export const SyncConfigPipelineSection = <T extends IUsePipelineResetForm>({
   boardId,
   pipelineId,
@@ -380,7 +371,6 @@ export const SyncConfigPipelineSection = <T extends IUsePipelineResetForm>({
   );
 };
 
-/** accounts section sale account branch department bn */
 export const SyncConfigAccountsSection = <
   TFieldValues extends FieldValues & ISyncAccountsSectionFields,
 >({
@@ -481,7 +471,6 @@ export type TPaymentType = {
   title: string;
 };
 
-/** payment account iin payments section bn */
 export const SyncConfigPaymentsSection = <
   TFieldValues extends FieldValues & ISyncPaymentsFields,
 >({
@@ -538,13 +527,10 @@ type VatCtaxSelectProps = {
   onValueChange: (value: string) => void;
 };
 
-/** VAT row selector adapter for sync config tax fields. */
 const SelectVatItem = (props: VatCtaxSelectProps) => <SelectVat {...props} />;
 
-/** CTax row selector adapter for sync config tax fields. */
 const SelectCtaxItem = (props: VatCtaxSelectProps) => <SelectCtax {...props} />;
 
-/** single VAT or CTAX toggle + conditional select/rule section. */
 const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
   control,
   hasName,
@@ -607,7 +593,9 @@ const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
         ) : (
           <FormSelectEbarimtProductRule
             name={
-              `reverse${kind === 'vat' ? 'Vat' : 'Ctax'}Rules` as FieldPath<TFieldValues>
+              `reverse${
+                kind === 'vat' ? 'Vat' : 'Ctax'
+              }Rules` as FieldPath<TFieldValues>
             }
             label={t(reverseLabel)}
             kind={kind}
@@ -619,7 +607,6 @@ const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
   );
 };
 
-/** VAT/CTax toggle selection section bn */
 export const SyncConfigVatCtaxSection = <
   TFieldValues extends FieldValues & ISyncVatCtaxFields,
 >({
@@ -651,7 +638,6 @@ export const SyncConfigVatCtaxSection = <
   </section>
 );
 
-/** sync config form iin footer cancel/save bn */
 export const SyncConfigFormFooter = ({ loading }: { loading: boolean }) => {
   const { t } = useTranslation('accounting');
 

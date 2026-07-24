@@ -1,15 +1,15 @@
 import { Button, Sheet } from 'erxes-ui';
-import { TCtaxRowForm, CtaxKind, CtaxStatus } from '../types/CtaxRow';
-import { ctaxFormSchema } from '../constants/ctaxFormSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { CtaxKind, CtaxStatus, TCtaxRowForm } from '../types/CtaxRow';
+
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { CtaxRowForm } from './CtaxRowForm';
 import { IconPlus } from '@tabler/icons-react';
+import { ctaxFormSchema } from '../constants/ctaxFormSchema';
 import { useAddCtaxRow } from '../hooks/useCtaxRowAdd';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-/** ene ctax add form setup. */
 export const AddCtaxForm = ({
   setOpen,
 }: {
@@ -37,7 +37,6 @@ export const AddCtaxForm = ({
   return <CtaxRowForm form={form} onSubmit={onSubmit} loading={loading} />;
 };
 
-/** ene ctax add sheet. */
 export const AddCtaxs = () => {
   const [open, setOpen] = useState(false);
 

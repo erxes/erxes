@@ -1,15 +1,15 @@
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPlus } from '@tabler/icons-react';
 import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { useAdjustInventoryAdd } from '../hooks/useAdjustInventoryAdd';
+
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
 import { TAdjustInventoryForm } from '../types/adjustInventoryForm';
 import { adjustInventorySchema } from '../types/adjustInventorySchema';
+import { useAdjustInventoryAdd } from '../hooks/useAdjustInventoryAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-/** inventory adjustment form uusgeh */
 const AddAdjustInventoryForm = ({
   setOpen,
 }: {
@@ -23,7 +23,7 @@ const AddAdjustInventoryForm = ({
     },
   });
   const { addAdjustInventory, loading } = useAdjustInventoryAdd();
-  /** ene submit hiigeed sheet haana. */
+
   const onSubmit = (data: TAdjustInventoryForm) => {
     addAdjustInventory({
       variables: { ...data },
@@ -92,7 +92,6 @@ const AddAdjustInventoryForm = ({
   );
 };
 
-/** ene add inventory sheet open hiine. */
 export const AddAdjustInventory = () => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);

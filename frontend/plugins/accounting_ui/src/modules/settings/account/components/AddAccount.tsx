@@ -1,16 +1,16 @@
-import { Sheet, Button } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { Button, Sheet } from 'erxes-ui';
+
+import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
+import { AccountForm } from './AccountForm';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
 import { TAccountForm } from '../types/accountForm';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { accountSchema } from '../constants/accountSchema';
 import { useAccountAdd } from '../hooks/useAccountAdd';
-import { AccountForm } from './AccountForm';
-import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
-import { IconPlus } from '@tabler/icons-react';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-/** ene account add form setup. */
 const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
@@ -33,7 +33,6 @@ const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   );
 };
 
-/** ene account add sheet. */
 export const AddAccount = () => {
   const [open, setOpen] = useState(false);
 

@@ -1,4 +1,3 @@
-import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   Combobox,
@@ -7,6 +6,8 @@ import {
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+
 import { useTranslation } from 'react-i18next';
 
 interface SettingsRowsTableProps<TData> {
@@ -18,7 +19,6 @@ interface SettingsRowsTableProps<TData> {
   Commandbar: React.ComponentType;
 }
 
-/** RecordTable-g heregleed settings rows table hiih */
 export const SettingsRowsTable = <TData,>({
   columns,
   data,
@@ -54,7 +54,6 @@ export const SettingsRowsTable = <TData,>({
   );
 };
 
-/** tax/vat/ctax row iin shared column definitions avah */
 export const getSharedRowColumns = <T,>(
   moreColumn: ColumnDef<T>,
 ): ColumnDef<T>[] => [
@@ -104,7 +103,6 @@ export const getSharedRowColumns = <T,>(
   },
 ];
 
-/** shared more actions cell with edit/delete popover. */
 export const MoreActionsCell = <T,>({
   cell: _cell,
   onEdit,
@@ -141,7 +139,6 @@ export const MoreActionsCell = <T,>({
   );
 };
 
-/** shared more column definition. */
 export const moreColumn = {
   id: 'more',
   size: 33,

@@ -1,16 +1,16 @@
 import { Button, Sheet } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { TAccountCategoryForm } from '../types/AccountCategory';
-import { useForm } from 'react-hook-form';
-import { useState } from 'react';
-import { accountCategorySchema } from '../constants/accountCategorySchema';
+
 import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
 import { AccountCategoryForm } from './AccountCategoryForm';
-import { useAccountCategoryAdd } from '../hooks/useAccountCategoryAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
+import { TAccountCategoryForm } from '../types/AccountCategory';
+import { accountCategorySchema } from '../constants/accountCategorySchema';
+import { useAccountCategoryAdd } from '../hooks/useAccountCategoryAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-/** ene account category add form setup. */
 const AddAccountCategoryForm = ({
   setOpen,
 }: {
@@ -42,7 +42,6 @@ const AddAccountCategoryForm = ({
   );
 };
 
-/** ene account category add sheet. */
 export const AddAccountCategory = () => {
   const [open, setOpen] = useState(false);
 

@@ -1,15 +1,15 @@
 import { Button, Sheet } from 'erxes-ui';
 import { TVatRowForm, VatKind, VatStatus } from '../types/VatRow';
-import { vatFormSchema } from '../constants/vatFormSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { VatRowForm } from './VatRowForm';
-import { IconPlus } from '@tabler/icons-react';
-import { useAddVatRow } from '../hooks/useVatRowAdd';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import { useState } from 'react';
 
-/** VAT row add form setup. */
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
+import { VatRowForm } from './VatRowForm';
+import { useAddVatRow } from '../hooks/useVatRowAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { vatFormSchema } from '../constants/vatFormSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 export const AddVatForm = ({
   setOpen,
 }: {
@@ -38,7 +38,6 @@ export const AddVatForm = ({
   return <VatRowForm form={form} onSubmit={onSubmit} loading={loading} />;
 };
 
-/** add vat sheet trigger. */
 export const AddVats = () => {
   const [open, setOpen] = useState(false);
 

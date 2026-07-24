@@ -1,7 +1,6 @@
-import { Form, Input, Select } from 'erxes-ui';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { Form, Input, Select } from 'erxes-ui';
 
-/** tax/vat/ctax form iin shared fields bn */
 export const TaxRowCommonFields = <T extends FieldValues>({
   control,
   kinds,

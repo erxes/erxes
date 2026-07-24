@@ -1,16 +1,16 @@
-import { Sheet, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
+import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+
+import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { AccountForm } from './AccountForm';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { TAccountForm } from '../types/accountForm';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { accountSchema } from '../constants/accountSchema';
 import { useAccountDetail } from '../hooks/useAccountDetail';
-import { useEffect } from 'react';
 import { useAccountEdit } from '../hooks/useAccountEdit';
-import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-/** ene selected account edit form. */
 export const EditAccountForm = () => {
   const { accountDetail, closeDetail, loading } = useAccountDetail();
   const { editAccount, loading: editLoading } = useAccountEdit();
@@ -69,7 +69,6 @@ export const EditAccountForm = () => {
   );
 };
 
-/** ene query-s account edit sheet open hiine. */
 export const EditAccount = () => {
   const [open, setOpen] = useQueryState<string>('accountId');
   return (

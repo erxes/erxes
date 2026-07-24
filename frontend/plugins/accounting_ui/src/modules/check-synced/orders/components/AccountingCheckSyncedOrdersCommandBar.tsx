@@ -1,7 +1,6 @@
-import { CheckSyncedCommandBar } from '../../components/CheckSyncedCommandBar';
 import { AccountingCheckSyncedOrderRulePicker } from './AccountingCheckSyncedOrderRuleSelect';
+import { CheckSyncedCommandBar } from '../../components/CheckSyncedCommandBar';
 
-/** ene order-d zoriulsan commandbar. */
 export const AccountingCheckSyncedOrdersCommandBar = (
   props: Omit<
     Parameters<typeof CheckSyncedCommandBar>[0],
