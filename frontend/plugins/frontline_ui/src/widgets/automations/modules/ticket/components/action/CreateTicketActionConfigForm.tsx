@@ -294,6 +294,7 @@ export const CreateTicketActionConfigForm = ({
           label={t('tags')}
           propertyType={propertyType}
           selectMode="many"
+          enabled={[TPlaceholderInputSuggestion.CallTag]}
         />
         <PlaceholderFormField
           control={control}

@@ -2,7 +2,6 @@ import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { BaseAPI } from '~/apis/base';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
-import { ITokiInvoice } from '../types';
 import { redis } from 'erxes-api-shared/utils';
 import * as QRCode from 'qrcode';
 
@@ -196,7 +195,8 @@ export class TokiAPI extends BaseAPI {
 
       const res = await response.json().catch(() => ({}));
 
-      console.log('[TOKI][HEADERS] Body:', res);
+      // Security: do not log raw response body, just token presence
+      console.log('[TOKI][HEADERS] Body: received, accessToken present:', !!res.data?.accessToken);
 
       if (response.status !== 200 || res.error || !res.data?.accessToken) {
         throw new Error(
@@ -207,25 +207,26 @@ export class TokiAPI extends BaseAPI {
       }
 
       console.log('[TOKI][HEADERS] Access token received successfully');
-
       console.log('[TOKI][HEADERS] Saving token to redis');
+
       await redis.set(cacheKey, res.data.accessToken, 'EX', 3600);
 
       return {
         Authorization: `Bearer ${res.data.accessToken}`,
         'Content-Type': 'application/json',
       };
-    } catch (e: any) {
-      console.error('[TOKI][HEADERS] Error', e);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error('[TOKI][HEADERS] Error', { message });
 
       console.error('[TOKI] Failed to get access token', {
         apiUrl: this.apiUrl,
         merchantId: this.tokiMerchantId,
         username: this.tokiUsername,
-        error: e.message,
+        error: message,
       });
 
-      throw new Error(`Failed to get Toki access token: ${e.message}`);
+      throw new Error(`Failed to get Toki access token: ${message}`);
     }
   }
 

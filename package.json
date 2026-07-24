@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "3.0.57",
+  "version": "3.0.58",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
@@ -240,7 +240,6 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-environment-node": "^29.7.0",
-    "js:tsc@latest": "link:@nrwl/js:tsc@latest",
     "nodemon": "^3.1.10",
     "nx": "20.0.8",
     "postcss": "8.4.38",

@@ -68,6 +68,7 @@ export interface IProduct {
   tagIds?: string[];
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];
+  videos?: IAttachment[];
   status?: string;
   vendorId?: string;
   vendorCode?: string;

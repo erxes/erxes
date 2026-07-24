@@ -128,6 +128,7 @@ const TagsSelectProvider = ({
         tagGroups,
         type,
         targetIds,
+        options,
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
@@ -363,6 +364,8 @@ const TagsSelectedList = ({
     type,
     value,
     loading,
+    options,
+    tags,
   } = useTagsSelectContext();
   const { giveTags } = useGiveTags();
 
@@ -375,17 +378,24 @@ const TagsSelectedList = ({
 
   const missingIds = useMemo(() => {
     if (loading) return [];
+    // an id resolving to a known tag but absent from the local selection is a
+    // pending removal, not an unknown id — don't render it
     return selectedIds.filter(
-      (id) => !selectedTags.some((tag) => tag._id === id),
+      (id) =>
+        !selectedTags.some((tag) => tag._id === id) &&
+        !tags?.some((tag) => tag._id === id),
     );
-  }, [loading, selectedIds, selectedTags]);
+  }, [loading, selectedIds, selectedTags, tags]);
 
   const removeId = (id: string) => {
     if (mode === 'single') {
       setSelectedTags([]);
       (onValueChange as (value: string | undefined) => void)?.(undefined);
       if (targetIds) {
-        giveTags({ variables: { type, targetIds, tagIds: [] } });
+        giveTags({
+          variables: { type, targetIds, tagIds: [] },
+          ...options?.([]),
+        });
       }
       return;
     }
@@ -393,14 +403,14 @@ const TagsSelectedList = ({
     setSelectedTags(selectedTags.filter((tag) => tag._id !== id));
     (onValueChange as (value: string[]) => void)?.(newIds);
     if (targetIds) {
-      giveTags({ variables: { type, targetIds, tagIds: newIds } });
+      giveTags({
+        variables: { type, targetIds, tagIds: newIds },
+        ...options?.(newIds),
+      });
     }
   };
 
-  if (
-    (!selectedTags || selectedTags.length === 0) &&
-    missingIds.length === 0
-  ) {
+  if ((!selectedTags || selectedTags.length === 0) && missingIds.length === 0) {
     return null;
   }
 
@@ -435,6 +445,7 @@ const TagsSelectedList = ({
                     targetIds,
                     tagIds: [],
                   },
+                  ...options?.([]),
                 });
               }
             } else {
@@ -450,6 +461,7 @@ const TagsSelectedList = ({
                     targetIds,
                     tagIds: newTags.map((t) => t._id),
                   },
+                  ...options?.(newTags.map((t) => t._id)),
                 });
               }
             }
