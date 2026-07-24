@@ -39820,7 +39820,7 @@ snapshots:
     dependencies:
       is-ssh: 1.4.1
       protocols: 1.4.8
-      qs: 6.14.0
+      qs: 6.15.2
       query-string: 6.14.1
 
   parse-path@7.1.0:
