@@ -24,7 +24,10 @@ const useTaskDetailSheetUrlSync = (
   const listUrlRef = useRef<string | null>(null);
   const skipNextSyncRef = useRef(false);
   const activeTaskRef = useRef(activeTask);
-  activeTaskRef.current = activeTask;
+
+  useEffect(() => {
+    activeTaskRef.current = activeTask;
+  }, [activeTask]);
 
   useEffect(() => {
     if (skipNextSyncRef.current) {
