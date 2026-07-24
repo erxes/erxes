@@ -33,19 +33,21 @@ export const useDealActions = ({
   const allUnwatched = deals.every((deal) => deal.isWatched === false);
   const showRemove = deals.every((deal) => deal.status === 'archived');
 
-  const archiveLabel = allArchived
-    ? t('unarchive')
-    : allActive
-    ? t('archive')
-    : isSingle
-    ? t('archive')
-    : t('archive-mixed');
+  let archiveLabel = t('archive-mixed');
 
-  const watchLabel = allWatched
-    ? t('unwatch')
-    : allUnwatched
-    ? t('watch')
-    : t('watch-mixed');
+  if (allArchived) {
+    archiveLabel = t('unarchive');
+  } else if (allActive || isSingle) {
+    archiveLabel = t('archive');
+  }
+
+  let watchLabel = t('watch-mixed');
+
+  if (allWatched) {
+    watchLabel = t('unwatch');
+  } else if (allUnwatched) {
+    watchLabel = t('watch');
+  }
 
   const handleArchive = async () => {
     if (!isSingle) {

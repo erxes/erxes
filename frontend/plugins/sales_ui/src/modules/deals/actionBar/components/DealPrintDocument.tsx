@@ -45,27 +45,22 @@ type DealPrintDocumentProps = {
 };
 
 const printHtml = (printWindow: Window, html: string, title: string) => {
-  let hasPrinted = false;
+  const printUrl = URL.createObjectURL(
+    new Blob([html], { type: 'text/html;charset=utf-8' }),
+  );
 
-  const print = () => {
-    if (hasPrinted) {
-      return;
-    }
+  printWindow.addEventListener(
+    'load',
+    () => {
+      URL.revokeObjectURL(printUrl);
+      printWindow.document.title = title;
+      printWindow.focus();
+      printWindow.print();
+    },
+    { once: true },
+  );
 
-    hasPrinted = true;
-    printWindow.focus();
-    printWindow.print();
-  };
-
-  printWindow.addEventListener('load', print, { once: true });
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.document.title = title;
-
-  if (printWindow.document.readyState === 'complete') {
-    window.setTimeout(print, 0);
-  }
+  printWindow.location.replace(printUrl);
 };
 
 export const DealPrintDocument = ({
