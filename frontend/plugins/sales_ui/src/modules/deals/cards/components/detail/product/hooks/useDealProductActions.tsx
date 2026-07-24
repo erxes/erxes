@@ -27,7 +27,7 @@ interface UseDealProductActionsParams {
 }
 
 const startProcess = () => {
-  const processId = Math.random().toString();
+  const processId = crypto.randomUUID();
   localStorage.setItem('processId', processId);
   return processId;
 };
@@ -115,7 +115,7 @@ export const useDealProductActions = ({
           unitPrice: product.unitPrice,
           globalUnitPrice: product.unitPrice,
           unitPricePercent: 100,
-          _id: Math.random().toString(),
+          _id: crypto.randomUUID(),
         };
 
         calculatePerProductAmount('discount', row);
@@ -140,7 +140,7 @@ export const useDealProductActions = ({
       // The server persists docs verbatim, so send only persisted fields —
       // not the embedded product object or bundle conditions.
       const doc: IProductData = {
-        _id: Math.random().toString(),
+        _id: crypto.randomUUID(),
         productId: productData.productId || productData.product?._id,
         uom: productData.uom,
         currency: productData.currency,
