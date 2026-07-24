@@ -13,6 +13,7 @@ const healthSchema = new Schema(
     botUsername: { type: String },
     lastVerifiedAt: { type: Date },
     lastError: { type: String },
+    backfillPending: { type: Boolean },
   },
   { _id: false },
 );
@@ -24,7 +25,6 @@ export const discordBotSchema = new Schema(
     applicationId: { type: String, required: true },
     token: { type: String, required: true },
     guildId: { type: String },
-    // Display name of the guild; set by the wizard or self-healed from REST.
     guildName: { type: String },
     channelId: { type: String },
     description: { type: String },
