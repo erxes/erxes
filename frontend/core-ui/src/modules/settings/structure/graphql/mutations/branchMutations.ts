@@ -46,8 +46,8 @@ export const ADD_BRANCH = gql`
 `;
 
 export const EDIT_BRANCH = gql`
-  mutation BranchesEdit($id: String! $workhours: JSON ${commonDefs}) {
-    branchesEdit(_id: $id, workhours: $workhours, ${commonVars}) {
+  mutation BranchesEdit($id: String! $workhours: JSON $holidays: JSON ${commonDefs}) {
+    branchesEdit(_id: $id, workhours: $workhours, holidays: $holidays, ${commonVars}) {
       _id
       address
       code
@@ -59,6 +59,8 @@ export const EDIT_BRANCH = gql`
       email
       phoneNumber
       radius
+      workhours
+      holidays
       links
       image {
         name

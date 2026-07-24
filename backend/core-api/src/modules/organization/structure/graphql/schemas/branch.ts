@@ -20,6 +20,7 @@ export const BranchTypes = `
         radius: Int
         hasChildren:Boolean
         workhours:JSON
+        holidays:JSON
         phoneNumber: String
         email: String
         links: JSON
@@ -51,6 +52,7 @@ const commonBranchParams = `
     userIds: [String]
     radius: Int
     workhours: JSON
+    holidays: JSON
     status: String
     ${commonContactInfoParams}
 `;
