@@ -189,14 +189,14 @@ export const PipelineMoreColumnCell = ({
 export const pipelinesColumns: (
   t: TFunction,
 ) => ColumnDef<IPipeline & { hasChildren: boolean; type?: string }>[] = (t) => [
-  RecordTable.checkboxColumn as ColumnDef<
-    IPipeline & { hasChildren: boolean; type?: string }
-  >,
   {
     id: 'more',
     cell: PipelineMoreColumnCell,
     size: 33,
   },
+  RecordTable.checkboxColumn as ColumnDef<
+    IPipeline & { hasChildren: boolean; type?: string }
+  >,
   {
     id: 'name',
     header: () => t('name'),
@@ -334,7 +334,7 @@ const PipelineRecordTable = () => {
         columns={pipelinesColumns(t)}
         data={pipelines || []}
         className="m-3"
-        stickyColumns={['checkbox', 'more', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
         <PipelineCommandBar />
         <RecordTableTree id="pipelines-list" ordered>

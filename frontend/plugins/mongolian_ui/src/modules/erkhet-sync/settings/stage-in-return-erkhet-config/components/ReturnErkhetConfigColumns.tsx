@@ -35,7 +35,7 @@ export const buildReturnErkhetConfigColumns = (
         )}
       />
     ),
-    size: 25,
+    size: 33,
   },
   checkboxColumn as ColumnDef<TReturnErkhetConfigRow>,
   {

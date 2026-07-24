@@ -56,6 +56,6 @@ export const ExchangeRatesMoreColumnCell = ({
 export const exchangeRatesMoreColumn = {
   id: 'more',
   cell: ExchangeRatesMoreColumnCell,
-  size: 24,
+  size: 33,
   minSize: 24,
 };

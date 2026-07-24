@@ -48,8 +48,8 @@ const CurrencyCell = ({ value }: { value?: string }) => (
 
 const checkBoxColumn = {
   ...RecordTable.checkboxColumn,
-  size: 24,
-  minSize: 24,
+  size: 33,
+  minSize: 33,
 } as ColumnDef<IExchangeRate>;
 
 export const exchangeRatesColumns: ColumnDef<IExchangeRate>[] = [

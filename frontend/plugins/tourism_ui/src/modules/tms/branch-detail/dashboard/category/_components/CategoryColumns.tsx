@@ -30,8 +30,8 @@ export const categoryColumns: (
   mainLanguage,
   t = (k) => k,
 ) => [
-  RecordTable.checkboxColumn as ColumnDef<ICategory & { hasChildren: boolean }>,
   categoryMoreColumn(branchLanguages, mainLanguage),
+  RecordTable.checkboxColumn as ColumnDef<ICategory & { hasChildren: boolean }>,
   {
     id: 'attachment',
     header: () => <RecordTable.InlineHead icon={IconImageInPicture} label="" />,

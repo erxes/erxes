@@ -483,7 +483,7 @@ const buildColumns = ({
         )}
       />
     ),
-    size: 25,
+    size: 33,
   },
   checkboxColumn as ColumnDef<TPosOrderErkhetConfig>,
   {

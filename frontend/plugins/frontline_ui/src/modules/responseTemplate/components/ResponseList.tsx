@@ -99,7 +99,7 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
   return [
     {
       id: 'more',
-      size: 25,
+      size: 33,
       cell: ResponseMoreCell,
     },
     {
