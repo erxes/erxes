@@ -6,6 +6,7 @@ import AccTransaction from '@/accounting/graphql/resolvers/customResolvers/accTr
 import AccTrRecord from '@/accounting/graphql/resolvers/customResolvers/accTrRecord';
 import AccTrDetail from '@/accounting/graphql/resolvers/customResolvers/accTrDetail';
 import AdjustInvDetail from '@/accounting/graphql/resolvers/customResolvers/adjustInvDetail';
+import { AdjustFxaDetail } from '@/accounting/graphql/resolvers/customResolvers/adjustFxaDetail';
 import {
   AccountingConfigs as MutationsAccountingConfig,
   AccountingCheckSynced as MutationsAccountingCheckSynced,
@@ -14,6 +15,7 @@ import {
   VatRows as MutationsVatRow,
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
+  AdjustFixedAssets as MutationsAdjustFixedAssets,
   AdjustInventories as MutationsAdjustInventories,
   AccountPermissions as MutationsAccountPermissions,
 } from '@/accounting/graphql/resolvers/mutations';
@@ -25,6 +27,7 @@ import {
   CtaxRows as QueriesCtaxRows,
   Transactions as QueriesTransactions,
   Inventories as QueriesInventories,
+  AdjustFixedAssets as QueriesAdjustFixedAssets,
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
   AccountPermissions as QueriesAccountPermissions,
@@ -32,6 +35,7 @@ import {
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
 import SafeRemainder from '@/inventories/graphql/resolvers/customResolvers/safeRemainder';
+import { FxaInstance } from '@/fixedAssets/graphql/resolvers/customResolvers/fxaInstance';
 import {
   ReserveRems as QueriesReserveRem,
   SafeRemainderItems as QueriesSafeRemainderItem,
@@ -43,6 +47,8 @@ import {
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
 } from '@/inventories/graphql/resolvers/mutations';
+import MutationsFixedAssets from '~/modules/fixedAssets/graphql/resolvers/mutations/fixedAssets';
+import QueriesFixedAssets from '~/modules/fixedAssets/graphql/resolvers/queries/fixedAssets';
 
 const resolvers: any = {
   ...apolloCustomScalars,
@@ -53,10 +59,12 @@ const resolvers: any = {
   AccCommonTrRecord: AccTrRecord,
   AccTrDetail,
   AdjustInvDetail,
+  AdjustFxaDetail,
 
   ReserveRem,
   SafeRemainderItem,
   SafeRemainder,
+  FxaInstance,
 
   Mutation: {
     ...MutationsAccountCategory,
@@ -67,11 +75,13 @@ const resolvers: any = {
     ...MutationsCtaxRow,
     ...MutationsTransactions,
     ...MutationsAdjustInventories,
+    ...MutationsAdjustFixedAssets,
     ...MutationsAccountPermissions,
     ...MutationsRemainder,
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
+    ...MutationsFixedAssets,
   },
   Query: {
     ...QueriesAccount,
@@ -82,11 +92,13 @@ const resolvers: any = {
     ...QueriesTransactions,
     ...QueriesInventories,
     ...QueriesAdjustInventories,
+    ...QueriesAdjustFixedAssets,
     ...QueriesJournalReport,
     ...QueriesAccountPermissions,
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,
     ...QueriesSafeRemainder,
+    ...QueriesFixedAssets,
   },
 };
 

@@ -7,6 +7,7 @@ import AccountingCheckSynced from './checkSynced';
 import Transactions from './transacations';
 import AdjustInventories from './adjustInventories';
 import AccountPermissions from './permissions';
+export { AdjustFixedAssets } from './adjustFixedAssets';
 
 export {
   Accounts,

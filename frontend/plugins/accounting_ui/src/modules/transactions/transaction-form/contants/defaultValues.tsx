@@ -5,6 +5,10 @@ import { getTempId } from '../components/utils';
 import {
   TBankJournal,
   TCashJournal,
+  TFxaIncomeJournal,
+  TFxaMoveJournal,
+  TFxaOutJournal,
+  TFxaSaleJournal,
   TInvIncomeJournal,
   TInvMoveJournal,
   TInvOutJournal,
@@ -32,6 +36,7 @@ const trDetailWrapper = (detail?: ITrDetail) => {
     _id: detail?._id ?? getTempId(),
     account: detail?.account,
     accountId: detail?.accountId ?? '',
+    fixedAssetId: detail?.fixedAssetId ?? '',
     amount: detail?.amount ?? 0,
     checked: false,
   };
@@ -157,22 +162,22 @@ const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
     ...DEFAULT_CTAX_VALUES(doc),
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      }))
+          ...trDetailWrapper(det),
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        }))
       : [
-        {
-          ...trDetailWrapper(),
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ],
+          {
+            ...trDetailWrapper(),
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ],
   };
 };
 
@@ -185,22 +190,22 @@ const INV_OUT_JOURNAL_DEFAULT_VALUES = (
     side: TR_SIDES.CREDIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      }))
+          ...trDetailWrapper(det),
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        }))
       : [
-        {
-          ...trDetailWrapper(),
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ],
+          {
+            ...trDetailWrapper(),
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ],
   };
 };
 
@@ -213,22 +218,22 @@ const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
     side: TR_SIDES.CREDIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      }))
+          ...trDetailWrapper(det),
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        }))
       : [
-        {
-          ...trDetailWrapper(),
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ],
+          {
+            ...trDetailWrapper(),
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ],
   };
 };
 
@@ -241,22 +246,22 @@ const INV_SALE_JOURNAL_DEFAULT_VALUES = (
     side: TR_SIDES.CREDIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      }))
+          ...trDetailWrapper(det),
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        }))
       : [
-        {
-          ...trDetailWrapper(),
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ],
+          {
+            ...trDetailWrapper(),
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ],
   };
 };
 
@@ -269,22 +274,127 @@ const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
     side: TR_SIDES.DEBIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
+          ...trDetailWrapper(det),
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        }))
+      : [
+          {
+            ...trDetailWrapper(),
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ],
+  };
+};
+
+const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
+  return {
+    fixedAssetAccountId: doc?.followInfos?.fixedAssetAccountId,
+    accumulatedDepreciationAccountId:
+      doc?.followInfos?.accumulatedDepreciationAccountId,
+    depreciationExpenseAccountId:
+      doc?.followInfos?.depreciationExpenseAccountId,
+    gainAccountId: doc?.followInfos?.gainAccountId,
+    lossAccountId: doc?.followInfos?.lossAccountId,
+    revaluationReserveAccountId: doc?.followInfos?.revaluationReserveAccountId,
+    deferredTaxAssetAccountId: doc?.followInfos?.deferredTaxAssetAccountId,
+    deferredTaxLiabilityAccountId:
+      doc?.followInfos?.deferredTaxLiabilityAccountId,
+    incomeTaxExpenseAccountId: doc?.followInfos?.incomeTaxExpenseAccountId,
+    moveInBranchId: doc?.followInfos?.moveInBranchId,
+    moveInDepartmentId: doc?.followInfos?.moveInDepartmentId,
+    responsibleUserId: doc?.followInfos?.responsibleUserId,
+  };
+};
+
+const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
+  doc?.details?.length
+    ? doc?.details.map((det) => ({
         ...trDetailWrapper(det),
-        productId: det.productId || '',
-        product: det.product,
+        fixedAssetId: det.fixedAssetId || '',
         count: det.count ?? 0,
         unitPrice: det.unitPrice ?? 0,
         amount: det.amount ?? 0,
       }))
-      : [
+    : [
         {
           ...trDetailWrapper(),
-          productId: '',
+          fixedAssetId: '',
           count: 0,
           unitPrice: 0,
           amount: 0,
         },
-      ],
+      ];
+
+const FXA_EXTRA_DATA_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => ({
+  ...doc?.extraData,
+  fxaInstances: doc?.extraData?.fxaInstances || [],
+  fxaInstanceIds: doc?.extraData?.fxaInstanceIds || [],
+});
+
+const FXA_INCOME_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TFxaIncomeJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.FXA_INCOME,
+    side: TR_SIDES.DEBIT,
+    ...DEFAULT_VAT_VALUES(doc),
+    ...DEFAULT_CTAX_VALUES(doc),
+    followInfos: FXA_FOLLOW_INFOS_DEFAULT_VALUES(doc),
+    followExtras: doc?.followExtras,
+    extraData: FXA_EXTRA_DATA_DEFAULT_VALUES(doc),
+    details: fxaDetailsDefaultValues(doc),
+  };
+};
+
+const FXA_OUT_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TFxaOutJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.FXA_OUT,
+    side: TR_SIDES.CREDIT,
+    followInfos: FXA_FOLLOW_INFOS_DEFAULT_VALUES(doc),
+    followExtras: doc?.followExtras,
+    extraData: FXA_EXTRA_DATA_DEFAULT_VALUES(doc),
+    details: fxaDetailsDefaultValues(doc),
+  };
+};
+
+const FXA_MOVE_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TFxaMoveJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.FXA_MOVE,
+    side: TR_SIDES.CREDIT,
+    followInfos: FXA_FOLLOW_INFOS_DEFAULT_VALUES(doc),
+    followExtras: doc?.followExtras,
+    extraData: FXA_EXTRA_DATA_DEFAULT_VALUES(doc),
+    details: fxaDetailsDefaultValues(doc),
+  };
+};
+
+const FXA_SALE_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TFxaSaleJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.FXA_SALE,
+    side: TR_SIDES.CREDIT,
+    ...DEFAULT_VAT_VALUES(doc),
+    ...DEFAULT_CTAX_VALUES(doc),
+    followInfos: FXA_FOLLOW_INFOS_DEFAULT_VALUES(doc),
+    followExtras: doc?.followExtras,
+    extraData: FXA_EXTRA_DATA_DEFAULT_VALUES(doc),
+    details: fxaDetailsDefaultValues(doc),
   };
 };
 
@@ -337,6 +447,22 @@ export const JOURNALS_BY_JOURNAL = (
 
     case TrJournalEnum.INV_SALE_RETURN:
       result = INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_INCOME:
+      result = FXA_INCOME_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_OUT:
+      result = FXA_OUT_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_MOVE:
+      result = FXA_MOVE_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_SALE:
+      result = FXA_SALE_JOURNAL_DEFAULT_VALUES(doc);
       break;
 
     default: // MAIN

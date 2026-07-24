@@ -8,6 +8,7 @@ import JournalReport from './journalReport';
 import AccountPermissions from './permissions';
 import Transactions from './transactionsCommon';
 import VatRows from './vatRows';
+export { AdjustFixedAssets } from './adjustFixedAssets';
 
 export {
   AccountCategories,
@@ -19,5 +20,5 @@ export {
   Inventories,
   JournalReport,
   Transactions,
-  VatRows
+  VatRows,
 };

@@ -82,7 +82,14 @@ export const TR_STATUSES = {
     'complete',
   ],
   ACTIVE: ['progress', 'assigned', 'confirmed', 'canelled', 'complete'],
-  CONVERSATION: ['draft', 'mentioned', 'approved', 'rejeced', 'returned', 'plan'],
+  CONVERSATION: [
+    'draft',
+    'mentioned',
+    'approved',
+    'rejeced',
+    'returned',
+    'plan',
+  ],
 };
 
 export const TR_INVENTORY_STATUS_TYPES = {
@@ -90,9 +97,7 @@ export const TR_INVENTORY_STATUS_TYPES = {
   SOON: 'soon',
   REAL: 'real',
 
-  OMIT_STATUSES: [
-    TR_STATUSES.PLAN,
-  ],
+  OMIT_STATUSES: [TR_STATUSES.PLAN],
   SOON_STATUSES: [
     TR_STATUSES.DRAFT,
     TR_STATUSES.MENTIONED,
@@ -136,6 +141,12 @@ export const JOURNALS = {
   INV_SALE_RETURN: 'invSaleReturn',
   INV_SALE_RETURN_COST: 'invSaleReturnCost',
   INV_SALE_RETURN_OUT: 'invSaleReturnOut',
+  FXA_INCOME: 'fxaIncome',
+  FXA_OUT: 'fxaOut',
+  FXA_OUT_DEPRECIATION: 'fxaOutDepreciation',
+  FXA_OUT_LOSS: 'fxaOutLoss',
+  FXA_MOVE: 'fxaMove',
+  FXA_SALE: 'fxaSale',
   // INV_IN_RETURN: 'invInReturn',
   // INV_JUSTIFY: 'invJustify',
   // INV_CONVERT: 'invConvert',
@@ -158,6 +169,12 @@ export const JOURNALS = {
     'invSaleReturn',
     'invSaleReturnOut',
     'invSaleReturnCost',
+    'fxaIncome',
+    'fxaOut',
+    'fxaOutDepreciation',
+    'fxaOutLoss',
+    'fxaMove',
+    'fxaSale',
     'expense',
     'exchangeDiff',
   ],
@@ -188,22 +205,25 @@ export const JOURNALS = {
     'invMoveIn',
     'invSale',
     'invSaleReturn',
+    'fxaIncome',
+    'fxaOut',
+    'fxaMove',
+    'fxaSale',
     'tax',
   ],
-  ALL_WITH_CURRENCIES: [
-    'cash',
-    'bank',
-    'receivable',
-    'payable',
-  ],
+  ALL_WITH_CURRENCIES: ['cash', 'bank', 'receivable', 'payable'],
   SINGLES: [
     'main',
     'cash',
     'bank',
     'receivable',
     'payable',
-    'tax'
-  ]
+    'tax',
+    'fxaIncome',
+    'fxaOut',
+    'fxaMove',
+    'fxaSale',
+  ],
 };
 
 export const TR_FOLLOW_TYPES = {
@@ -216,6 +236,8 @@ export const TR_FOLLOW_TYPES = {
   INV_SALE_RETURN_OUT: 'invSaleReturnOut',
   INV_SALE_RETURN_COST: 'invSaleReturnCost',
   INV_MOVE_IN: 'invMoveIn',
+  FXA_OUT_DEPRECIATION: 'fxaOutDepreciation',
+  FXA_OUT_LOSS: 'fxaOutLoss',
   ALL: [
     'vat',
     'ctax',
@@ -226,6 +248,8 @@ export const TR_FOLLOW_TYPES = {
     'invSaleReturnOut',
     'invSaleReturnCost',
     'invMoveIn',
+    'fxaOutDepreciation',
+    'fxaOutLoss',
   ],
 };
 
@@ -233,5 +257,7 @@ export const TR_DETAIL_FOLLOW_TYPES = {
   SALE_OUT: 'saleOut',
   SALE_COST: 'saleCost',
   MOVE_IN: 'moveIn',
-  ALL: ['saleOut', 'saleCost', 'moveIn'],
+  FXA_OUT_DEPRECIATION: 'fxaOutDepreciation',
+  FXA_OUT_LOSS: 'fxaOutLoss',
+  ALL: ['saleOut', 'saleCost', 'moveIn', 'fxaOutDepreciation', 'fxaOutLoss'],
 };

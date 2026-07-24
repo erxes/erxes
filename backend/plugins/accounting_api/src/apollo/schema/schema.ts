@@ -29,6 +29,11 @@ import {
   types as journalReportTypes,
 } from '@/accounting/graphql/schemas/journalReports';
 import {
+  mutations as adjustFixedAssetMutations,
+  queries as adjustFixedAssetQueries,
+  types as adjustFixedAssetTypes,
+} from '@/accounting/graphql/schemas/adjustFixedAsset';
+import {
   mutations as transactionMutations,
   queries as transactionQueries,
   types as transactionTypes,
@@ -64,6 +69,26 @@ import {
   types as safeRemainderItemTypes,
   inputTypes as safeRemainderItemInputTypes,
 } from '~/modules/inventories/graphql/schemas/safeRemainderItem';
+import {
+  mutations as fixedAssetMutations,
+  queries as fixedAssetQueries,
+  types as fixedAssetTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fixedAsset';
+import {
+  mutations as fixedAssetCategoryMutations,
+  queries as fixedAssetCategoryQueries,
+  types as fixedAssetCategoryTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fixedAssetCategory';
+import {
+  mutations as fxaInstanceMutations,
+  queries as fxaInstanceQueries,
+  types as fxaInstanceTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fxaInstance';
+import {
+  mutations as fxaInstanceLogMutations,
+  queries as fxaInstanceLogQueries,
+  types as fxaInstanceLogTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fxaInstanceLog';
 
 export const types = `
   enum CacheControlScope {
@@ -90,6 +115,11 @@ export const types = `
   ${accInventoryTypes}
   ${adjustInventoryTypes}
   ${journalReportTypes}
+  ${fixedAssetCategoryTypes}
+  ${fixedAssetTypes}
+  ${fxaInstanceTypes}
+  ${fxaInstanceLogTypes}
+  ${adjustFixedAssetTypes}
   ${remainderTypes}
   ${reserveRemsTypes}
   ${safeRemainderTypes}
@@ -107,6 +137,11 @@ export const queries = `
   ${accInventoryQueries}
   ${adjustInventoryQueries}
   ${journalReportQueries}
+  ${fixedAssetCategoryQueries}
+  ${fixedAssetQueries}
+  ${fxaInstanceQueries}
+  ${fxaInstanceLogQueries}
+  ${adjustFixedAssetQueries}
   ${remainderQueries}
   ${reserveRemsQueries}
   ${safeRemainderQueries}
@@ -122,6 +157,11 @@ export const mutations = `
   ${transactionMutations}
   ${accInventoryMutations}
   ${adjustInventoryMutations}
+  ${fixedAssetCategoryMutations}
+  ${fixedAssetMutations}
+  ${fxaInstanceMutations}
+  ${fxaInstanceLogMutations}
+  ${adjustFixedAssetMutations}
   ${remainderMutations}
   ${reserveRemsMutations}
   ${safeRemainderMutations}
