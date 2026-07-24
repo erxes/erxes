@@ -17,6 +17,7 @@ import {
   IAutomationHistoryAction,
   IAutomationsActionConfigConstants,
   IAutomationsTriggerConfigConstants,
+  ApprovalLockState,
   TAiKnowledgeSourceConfig,
   TAutomationAction,
   TAutomationActionProps,
@@ -54,6 +55,9 @@ export interface ConstantsQueryResponse {
 export type NodeData<TConfig = any> = {
   id: string;
   nodeIndex: number;
+  // Form path of the node's entry when it doesn't live in the root actions
+  // array (e.g. workflow members: `workflows.0.actions.1`)
+  formPath?: string;
   label: string;
   nodeType: AutomationNodeType;
   icon?: string;
@@ -82,6 +86,7 @@ export type WorkflowNodeData = {
   description: string;
   label: string;
   nodeType: string;
+  icon?: string;
   flowDirection?: TAutomationFlowDirection;
 };
 
@@ -101,6 +106,7 @@ export interface IAutomationDoc {
   createdUser?: any;
   tags?: any[];
   tagIds?: string[];
+  approvalLockState?: ApprovalLockState;
 }
 
 export interface IAutomationNoteDoc {

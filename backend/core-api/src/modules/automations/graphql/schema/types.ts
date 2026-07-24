@@ -25,9 +25,13 @@ const commonActionTypes = `
 const workflowTypes = `
   id:String
   automationId:String
+  templateId:String
+  nextActionId:String
   name:String
   description:String
   config:JSON
+  actions: [JSON]
+  icon: String
   position:JSON
 `;
 
@@ -63,6 +67,7 @@ const types = `
 
     createdUser: User
     updatedUser: User
+    approvalLockState(action: String): ApprovalLockState
 
   }
 
@@ -102,6 +107,10 @@ const types = `
     actions: [JSON]
     startWaitingDate: Date
     waitingActionId: String
+    parentExecutionId: String
+    workflowId: String
+    inputs: JSON
+    depth: Int
   }
 
   type AutomationHistories {
@@ -145,6 +154,18 @@ const types = `
     list: [AutomationEmailTemplate]
     totalCount: Float
     pageInfo: PageInfo
+  }
+
+  type AutomationWorkflowTemplate {
+    _id: String!
+    name: String!
+    description: String
+    entryActionId: String
+    actions: JSON
+    inputs: JSON
+    createdBy: String
+    createdAt: Date
+    updatedAt: Date
   }
 `;
 

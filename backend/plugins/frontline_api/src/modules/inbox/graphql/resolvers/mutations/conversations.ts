@@ -13,6 +13,7 @@ import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
+import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
@@ -82,6 +83,9 @@ export const dispatchConversationToService = async (
 
       case 'instagram':
         return await handleInstagramIntegration({ subdomain, data });
+
+      case 'discord':
+        return await handleDiscordIntegration({ subdomain, data });
 
       case 'calls':
         break;
@@ -387,6 +391,16 @@ export const sendNotifications = async (
           });
 
           if (cpUser?._id && cpUser.clientPortalId) {
+            const clientPortal = await sendTRPCMessage({
+              subdomain,
+              pluginName: 'core',
+              method: 'query',
+              module: 'clientPortals',
+              action: 'get',
+              input: { _id: cpUser.clientPortalId },
+              defaultValue: null,
+            });
+
             await sendTRPCMessage({
               subdomain,
               pluginName: 'core',
@@ -398,7 +412,7 @@ export const sendNotifications = async (
                 clientPortalId: cpUser.clientPortalId,
                 eventType: 'conversationMessage',
                 data: {
-                  title: 'New chat message',
+                  title: clientPortal?.name || 'New chat message',
                   message: strip(doc.content) || 'You have a new message',
                   type: 'info',
                   contentType: 'conversation',
@@ -486,6 +500,57 @@ const getConversationById = async (models: IModels, selector) => {
 
 export const conversationMutations = {
   /**
+   * Relays an agent's "is typing…" presence from the inbox composer to the
+   * conversation's channel. Generic + best-effort: it resolves the integration
+   * and hands off to that service via `dispatchConversationToService` with
+   * `action: 'typing'`. Only the Discord broker implements this today; every
+   * other service no-ops until it adds a `typing` handler — so extending this to
+   * Facebook/Instagram/etc. later is purely additive in that broker, with no
+   * change here or on the client. Never surfaces an error (typing is presence,
+   * not delivery), so a failure can't disrupt composing.
+   */
+  async conversationAgentTyping(
+    _root,
+    {
+      conversationId,
+      typing = true,
+    }: { conversationId: string; typing?: boolean },
+    { models, subdomain }: IContext,
+  ) {
+    try {
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
+      if (!conversation?.integrationId) {
+        return false;
+      }
+
+      const integration = await models.Integrations.getIntegration({
+        _id: conversation.integrationId,
+      });
+      if (!integration?.kind) {
+        return false;
+      }
+
+      const serviceName = integration.kind.split('-')[0];
+
+      await dispatchConversationToService(subdomain, serviceName, {
+        action: 'typing',
+        type: serviceName,
+        payload: JSON.stringify({
+          integrationId: integration._id,
+          conversationId: conversation._id,
+          typing,
+        }),
+        integrationId: integration._id,
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
    * Create new message in conversation
    */
   async conversationMessageAdd(
@@ -503,7 +568,13 @@ export const conversationMutations = {
 
       const { _id: integrationId } = integration;
       const { _id: conversationId } = conversation;
-      const { content = '', internal, attachments = [], extraInfo } = doc;
+      const {
+        content = '',
+        internal,
+        attachments = [],
+        extraInfo,
+        poll,
+      } = doc;
       const { _id: userId } = user;
 
       await sendNotifications(subdomain, {
@@ -595,6 +666,7 @@ export const conversationMutations = {
             internal,
             attachments,
             extraInfo,
+            poll,
             userId,
           }),
           integrationId,
@@ -608,16 +680,34 @@ export const conversationMutations = {
       }
 
       if (response?.data?.data) {
-        const { conversationId, content } = response.data.data;
-        if (conversationId && content) {
-          await models.Conversations.updateConversation(conversationId, {
-            content: content || '',
-            updatedAt: new Date(),
-          });
+        const {
+          conversationId: responseConversationId,
+          content: responseContent,
+          displayContent,
+          extraData,
+        } = response.data.data;
+        if (responseConversationId && responseContent) {
+          await models.Conversations.updateConversation(
+            responseConversationId,
+            {
+              content: responseContent || '',
+              updatedAt: new Date(),
+            },
+          );
         }
 
+        // A service may return a `displayContent` to persist on the message
+        // instead of the raw composer payload — e.g. Discord rewrites its
+        // `{@discord:ID}` mention tokens into readable `@Name` for the bubble —
+        // and `extraData` for structured content (e.g. a created Discord poll).
+        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
+          ...doc,
+          ...(displayContent ? { content: displayContent } : {}),
+          ...(extraData ? { extraData } : {}),
+        };
+
         const message = await models.ConversationMessages.addMessage(
-          doc,
+          messageDoc,
           userId,
         );
 

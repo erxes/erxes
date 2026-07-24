@@ -3,7 +3,6 @@ import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate, ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IApprovalRequestDocument } from '../../db/definitions/approvalRequests';
-import { checkApprovalLock } from '../../utils/checkApprovalLock';
 
 type ApprovalLockStateArgs = {
   contentType: string;
@@ -70,8 +69,7 @@ export const approvalQueries = {
     args: ApprovalLockStateArgs,
     { models, user }: IContext,
   ) {
-    return checkApprovalLock.state({
-      models,
+    return models.ApprovalLocks.getState({
       user,
       ...args,
     });
@@ -82,8 +80,7 @@ export const approvalQueries = {
     args: ApprovalLockStatesArgs,
     { models, user }: IContext,
   ) {
-    return checkApprovalLock.states({
-      models,
+    return models.ApprovalLocks.getStates({
       user,
       ...args,
       ownerIdsByContentId: normalizeOwnerIdsByContentId(
@@ -107,8 +104,7 @@ export const approvalQueries = {
       return request;
     }
 
-    const state = await checkApprovalLock.state({
-      models,
+    const state = await models.ApprovalLocks.getState({
       user,
       contentType: request.contentType,
       contentId: request.contentId,

@@ -49,9 +49,13 @@ query AutomationDetail($id: String!) {
     workflows {
       id
       automationId
+      templateId
+      nextActionId
       name
       description
       config
+      actions 
+      icon
       position
     }
     createdUser {
@@ -80,6 +84,14 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         tagIds
         triggers { id }
         actions { id }
+        approvalLockState(action: "edit") {
+          contentType
+          contentId
+          action
+          locked
+          hasAccess
+          reason
+        }
         createdUser {
           ${COMMON_USER_FIELDS}
         }
@@ -123,5 +135,19 @@ export const GET_AUTOMATION_WEBHOOK_ENDPOINT = gql`
       _id: $id
       waitEventActionId: $waitEventActionId
     )
+  }
+`;
+
+export const AUTOMATION_WORKFLOW_TEMPLATES = gql`
+  query AutomationWorkflowTemplates($searchValue: String) {
+    automationWorkflowTemplates(searchValue: $searchValue) {
+      _id
+      name
+      description
+      entryActionId
+      actions
+      inputs
+      createdAt
+    }
   }
 `;

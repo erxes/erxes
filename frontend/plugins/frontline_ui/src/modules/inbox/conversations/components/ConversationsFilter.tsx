@@ -51,6 +51,8 @@ export const FilterConversationsPopover = () => {
               className="bg-background"
             />
             <Command.List className="max-h-none">
+              <Filter.SearchValueTrigger />
+              <Command.Separator className="my-1" />
               <Filter.CommandItem onSelect={() => setQueries({ status: null })}>
                 <IconSquare />
                 {t('unresolved')}
@@ -140,6 +142,7 @@ export const ConversationFilterBar = ({
     participated: boolean;
     created: Date;
     channelId: string;
+    searchValue: string;
   }>([
     'status',
     'unassigned',
@@ -147,6 +150,7 @@ export const ConversationFilterBar = ({
     'participated',
     'created',
     'channelId',
+    'searchValue',
   ]);
 
   if (Object.values(filterStates).length === 0) {
@@ -158,6 +162,7 @@ export const ConversationFilterBar = ({
       className={inboxLayout === 'list' ? 'pl-2' : 'pt-1'}
       id="conversations-filter-bar"
     >
+      <Filter.SearchValueBarItem />
       {status === ConversationStatus.CLOSED && (
         <Filter.BarItem queryKey="status">
           <Filter.BarName>

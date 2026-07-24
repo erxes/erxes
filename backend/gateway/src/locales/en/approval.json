@@ -11,6 +11,7 @@
   "cancel": "Cancel",
   "cancel-request": "Cancel request",
   "created": "Created",
+  "decision-history": "Decision history",
   "first-wins": "First wins",
   "invalid-notification": "This approval notification is missing request details.",
   "lock": "Lock",
@@ -60,8 +61,11 @@
   "target": "Target",
   "this-record": "This record",
   "no-requests": "No approval requests",
+  "no-decisions": "No decisions yet",
+  "request-details": "Request details",
   "unanimous": "Unanimous",
   "unknown-error": "Unknown error",
   "unlock": "Unlock",
+  "view-details": "View details",
   "waiting-for-approver": "Waiting for approver"
 }

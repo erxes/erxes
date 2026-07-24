@@ -1,7 +1,5 @@
 import { ApprovalRequest } from 'erxes-api-shared/core-modules';
-import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { resolveApprovalContent } from '../../utils/resolveApprovalContent';
 
 export const approvalCustomResolvers = {
   ApprovalRequest: {
@@ -24,25 +22,13 @@ export const approvalCustomResolvers = {
     async content(
       { contentType, contentId }: ApprovalRequest,
       _args: unknown,
-      { models }: IContext,
+      _context: IContext,
     ) {
-      try {
-        return await resolveApprovalContent({
-          models,
-          contentType,
-          contentId,
-        });
-      } catch (error) {
-        if (!(error instanceof ExpectedError) || error.code !== 'NOT_FOUND') {
-          throw error;
-        }
-
-        return {
-          contentType,
-          contentId,
-          label: contentType,
-        };
-      }
+      return {
+        contentType,
+        contentId,
+        label: contentType,
+      };
     },
   },
 };

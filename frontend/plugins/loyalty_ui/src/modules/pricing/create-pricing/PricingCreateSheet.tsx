@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   DatePicker,
   Input,
   Select,
@@ -11,6 +10,11 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useCreatePricing } from '@/pricing/hooks/useCreatePricing';
+import {
+  PRICING_PRIORITY_OPTIONS,
+  PricingPriorityFormValue,
+  priorityFromFormValue,
+} from '@/pricing/constants';
 import {
   SelectCompany,
   SelectSegment,
@@ -33,7 +37,7 @@ interface PricingCreateSheetProps {
 interface PricingFormValues {
   name: string;
   status: 'draft';
-  isPriority: boolean;
+  priority: PricingPriorityFormValue;
   startDate: string | null;
   endDate: string | null;
   appliesTo: 'category' | 'product' | 'segment' | 'vendor' | 'tag' | 'bundle';
@@ -64,11 +68,17 @@ const getTargetValidationError = (
     case 'category':
       return values.productCategoryIds.length
         ? null
-        : { field: 'productCategoryIds', message: t('select-at-least-one-category') };
+        : {
+            field: 'productCategoryIds',
+            message: t('select-at-least-one-category'),
+          };
     case 'product':
       return values.appliesProductIds.length
         ? null
-        : { field: 'appliesProductIds', message: t('select-at-least-one-product') };
+        : {
+            field: 'appliesProductIds',
+            message: t('select-at-least-one-product'),
+          };
     case 'segment':
       return values.segmentId
         ? null
@@ -76,7 +86,10 @@ const getTargetValidationError = (
     case 'vendor':
       return values.vendorCompanyIds.length
         ? null
-        : { field: 'vendorCompanyIds', message: t('select-at-least-one-vendor') };
+        : {
+            field: 'vendorCompanyIds',
+            message: t('select-at-least-one-vendor'),
+          };
     case 'tag':
       return values.productTagIds.length
         ? null
@@ -84,7 +97,10 @@ const getTargetValidationError = (
     case 'bundle':
       return values.bundleProductIds.length
         ? null
-        : { field: 'bundleProductIds', message: t('select-at-least-one-bundle-product') };
+        : {
+            field: 'bundleProductIds',
+            message: t('select-at-least-one-bundle-product'),
+          };
     default:
       return null;
   }
@@ -100,7 +116,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
     defaultValues: {
       name: '',
       status: 'draft',
-      isPriority: false,
+      priority: 'none',
       startDate: null,
       endDate: null,
       appliesTo: 'category',
@@ -117,6 +133,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   });
 
   const appliesTo = form.watch('appliesTo');
+  const priority = form.watch('priority');
   const formValues = form.watch();
 
   useEffect(() => {
@@ -178,7 +195,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
         name: values.name.trim(),
         status: 'draft',
         applyType: values.appliesTo,
-        isPriority: values.isPriority,
+        priority: priorityFromFormValue(values.priority),
       };
 
       if (values.startDate) {
@@ -281,19 +298,29 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
 
               <Form.Field
                 control={form.control}
-                name="isPriority"
+                name="priority"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>{t('priority')}</Form.Label>
                     <Form.Control>
-                      <div className="flex items-center h-9">
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={(checked) =>
-                            field.onChange(checked === true)
-                          }
-                        />
-                      </div>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger>
+                          <Select.Value placeholder={t('select-priority')} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {PRICING_PRIORITY_OPTIONS.map((option) => (
+                            <Select.Item
+                              key={option.label}
+                              value={option.value}
+                            >
+                              {t(option.label)}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -382,7 +409,9 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                           <Select.Item value="vendor">
                             {t('specific-vendor')}
                           </Select.Item>
-                          <Select.Item value="tag">{t('specific-tag')}</Select.Item>
+                          <Select.Item value="tag">
+                            {t('specific-tag')}
+                          </Select.Item>
                           <Select.Item value="bundle">
                             {t('specific-bundle')}
                           </Select.Item>
@@ -473,7 +502,8 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('products-label')} <span className="text-destructive">*</span>
+                        {t('products-label')}{' '}
+                        <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <SelectProduct
@@ -499,7 +529,8 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('segment-label')} <span className="text-destructive">*</span>
+                        {t('segment-label')}{' '}
+                        <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <SelectSegment
@@ -520,7 +551,8 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('vendors')} <span className="text-destructive">*</span>
+                        {t('vendors')}{' '}
+                        <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <SelectCompany

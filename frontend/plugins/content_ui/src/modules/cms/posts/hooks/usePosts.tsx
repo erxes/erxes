@@ -35,6 +35,7 @@ export const usePostsVariables = (
       status,
       type,
       categories,
+      author,
       created,
       updated,
       publishedDate,
@@ -47,6 +48,7 @@ export const usePostsVariables = (
     status: string;
     type: string;
     categories: string | string[];
+    author: string;
     created: string;
     updated: string;
     publishedDate: string;
@@ -58,6 +60,7 @@ export const usePostsVariables = (
     'status',
     'type',
     'categories',
+    'author',
     'created',
     'updated',
     'publishedDate',
@@ -112,6 +115,7 @@ export const usePostsVariables = (
     type: type || undefined,
     tagIds: tags || undefined,
     categoryIds,
+    authorId: author || undefined,
     dateField: dateField || undefined,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,

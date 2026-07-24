@@ -62,6 +62,10 @@ const queries: Record<string, Resolver> = {
 
 export default queries;
 
+queries.paymentsPublic.wrapperConfig = {
+  skipPermission: true,
+};
+
 queries.cpPaymentsPublic.wrapperConfig = {
   forClientPortal: true,
 };

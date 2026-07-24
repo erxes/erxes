@@ -5,6 +5,7 @@ export const GET_SALES_PIPELINE_DETAIL = gql`
     salesPipelineDetail(_id: $_id) {
       _id
       name
+      paymentIds
       paymentTypes
     }
   }

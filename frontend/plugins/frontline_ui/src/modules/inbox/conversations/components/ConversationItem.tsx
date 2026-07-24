@@ -1,4 +1,5 @@
 import {
+  Avatar,
   BlockEditorReadOnly,
   Button,
   Checkbox,
@@ -8,8 +9,20 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import {
+  IconPhoneIncoming,
+  IconPhoneOutgoing,
+  IconPhoneX,
+} from '@tabler/icons-react';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { currentUserState, CustomersInline, MembersInline } from 'ui-modules';
+import { DiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
+import { IntegrationType } from '@/types/Integration';
+import {
+  CALL_STATUS_LABEL_KEYS,
+  NOT_ANSWERED_STATUSES,
+  parseCallConversationContent,
+} from '@/integrations/call/utils/callContentUtils';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { activeConversationState } from '../states/activeConversationState';
 import { ConversationIntegrationBadge } from '@/integrations/components/IntegrationBadge';
@@ -23,8 +36,10 @@ import { useTranslation } from 'react-i18next';
 
 export const ConversationItem = ({
   onConversationSelect,
+  channelInfo,
 }: {
   onConversationSelect: () => void;
+  channelInfo?: DiscordConversationChannel;
 }) => {
   const { t } = useTranslation('frontline');
   const inboxLayout = useAtomValue(inboxLayoutState);
@@ -33,18 +48,31 @@ export const ConversationItem = ({
     useConversationContext();
   const { channel } = integration || {};
 
+  // A Discord conversation represents its channel, not a single person, so show
+  // the channel name as the title and its first letter as the avatar.
+  const channelProfileName = channelInfo?.channelName;
+  const channelLetter = channelProfileName?.trim()?.[0]?.toUpperCase();
+
   if (inboxLayout === 'split') {
     return (
+      // skipcq: JS-0415
       <ConversationContainer
         className="p-4 pl-6 h-auto overflow-hidden flex-col items-start cursor-pointer"
         onConversationSelect={onConversationSelect}
       >
         <CustomersInline.Provider customers={customer ? [customer] : []}>
           <div className="flex w-full gap-3 leading-tight">
-            <ConversationSelector />
+            {/* skipcq: JS-0357 */}
+            <ConversationSelector channelLetter={channelLetter} />
             <div className="flex-1 space-y-1">
               <div className="flex items-center">
-                <CustomersInline.Title className="truncate" />
+                {channelProfileName ? (
+                  <span className="truncate text-sm font-medium" title={`#${channelProfileName}`}>
+                    #{channelProfileName}
+                  </span>
+                ) : (
+                  <CustomersInline.Title className="truncate" />
+                )}
                 <div className="ml-auto text-accent-foreground">
                   {createdAt && (
                     <RelativeDateDisplay.Value
@@ -71,8 +99,18 @@ export const ConversationItem = ({
   return (
     <ConversationContainer onConversationSelect={onConversationSelect}>
       <CustomersInline.Provider customers={customer ? [customer] : []}>
-        <ConversationSelector />
-        <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
+        {/* skipcq: JS-0357 */}
+        <ConversationSelector channelLetter={channelLetter} />
+        {channelProfileName ? (
+          <span
+            className="w-56 truncate flex-none text-foreground"
+            title={`#${channelProfileName}`}
+          >
+            #{channelProfileName}
+          </span>
+        ) : (
+          <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
+        )}
         <ConversationItemContent />
         <div className="w-auto text-right flex-none">
           <span> {t('to')} </span>
@@ -97,16 +135,49 @@ export const ConversationItem = ({
 export const ConversationItemContent = () => {
   const { t } = useTranslation('frontline');
   const inboxLayout = useAtomValue(inboxLayoutState);
-  const { content, assignedUserId, assignedUser } = useConversationContext();
+  const { content, assignedUserId, assignedUser, integration } =
+    useConversationContext();
   if (!content) return null;
 
-  if (content.includes('callDirection/')) {
-    const callDirection = content.split('callDirection/')[1];
+  const callContent =
+    integration?.kind === IntegrationType.CALL ||
+    content.includes('callDirection/')
+      ? parseCallConversationContent(content)
+      : null;
+
+  if (callContent) {
+    const { direction, status } = callContent;
+    const isNotAnswered = !!status && NOT_ANSWERED_STATUSES.includes(status);
+    const isAnswered = status === 'answered';
 
     return (
       <div className="flex items-center gap-2 w-full justify-between flex-nowrap">
-        <div className="font-medium">
-          {callDirection === 'INCOMING' ? t('incoming-call') : t('outgoing-call')}
+        <div
+          className={cn(
+            'font-medium flex items-center gap-1',
+            isNotAnswered && 'text-destructive',
+            isAnswered && 'text-success',
+          )}
+        >
+          {isNotAnswered ? (
+            <IconPhoneX className="size-4" />
+          ) : direction === 'incoming' ? (
+            <IconPhoneIncoming className="size-4" />
+          ) : (
+            <IconPhoneOutgoing className="size-4" />
+          )}
+          <span>
+            {direction === 'incoming' ? t('incoming-call') : t('outgoing-call')}
+          </span>
+          {status && (
+            <span
+              className={cn(
+                !isNotAnswered && !isAnswered && 'text-accent-foreground',
+              )}
+            >
+              · {t(CALL_STATUS_LABEL_KEYS[status])}
+            </span>
+          )}
         </div>
         {assignedUserId && assignedUser && (
           <MembersInline.Provider memberIds={[assignedUserId]}>
@@ -191,7 +262,7 @@ const ConversationContainer = ({
   );
 };
 
-const ConversationSelector = () => {
+const ConversationSelector = ({ channelLetter }: { channelLetter?: string }) => {
   const [conversationId] = useQueryState<string>('conversationId');
   const { integrationId } = useConversationContext();
 
@@ -205,10 +276,18 @@ const ConversationSelector = () => {
       <div className="absolute size-full bg-primary/10 rounded-full" />
       <ConversationCheckbox />
       <div className="transition-opacity duration-200 relative opacity-100 group-hover:opacity-0 peer-data-[state=checked]:opacity-0">
-        <CustomersInline.Avatar
-          size={conversationId ? 'xl' : 'lg'}
-          className=""
-        />
+        {channelLetter ? (
+          <Avatar size={conversationId ? 'xl' : 'lg'}>
+            <Avatar.Fallback className="bg-primary/10 text-primary font-medium">
+              {channelLetter}
+            </Avatar.Fallback>
+          </Avatar>
+        ) : (
+          <CustomersInline.Avatar
+            size={conversationId ? 'xl' : 'lg'}
+            className=""
+          />
+        )}
         <ConversationIntegrationBadge integrationId={integrationId} />
       </div>
     </div>

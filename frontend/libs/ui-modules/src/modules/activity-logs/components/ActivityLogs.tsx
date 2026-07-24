@@ -11,6 +11,7 @@ import { ActivityLogCustomActivity } from '../types';
 import { ActivityLogRow } from './ActivityLogRow';
 import { ActivityLogActorName } from './ActivityLogActor';
 import { internalNoteCustomActivity } from '../../internal-notes/components/InternalNoteActivityRow';
+import { relationCustomActivities } from './RelationActivityRow';
 
 type ActivityLogFormRootProps = {
   targetId: string;
@@ -112,9 +113,11 @@ const ActivityLogsLegacy = ({
   options,
   showExactDate,
 }: LegacyProps) => {
-  const mergedActivities = showInternalNotes
-    ? [internalNoteCustomActivity, ...(customActivities || [])]
-    : customActivities;
+  const mergedActivities = [
+    ...(showInternalNotes ? [internalNoteCustomActivity] : []),
+    ...relationCustomActivities,
+    ...(customActivities || []),
+  ];
 
   return (
     <ActivityLogsRoot

@@ -10,7 +10,6 @@ export const types = `
     contentType: String
     contentId: String
     label: String
-    link: String
     ownerId: String
   }
 
@@ -68,11 +67,11 @@ export const types = `
 
   input ApprovalLockCreateInput {
     contentType: String!
-    contentId: String!
-    ownerId: String
+    contentTypeId: String!
+    ownerId: String!
     allowedUserIds: [String]
-    approverScope: String!
-    approvalMode: String!
+    scope: String
+    mode: String
   }
 
   input ApprovalRequestCreateInput {

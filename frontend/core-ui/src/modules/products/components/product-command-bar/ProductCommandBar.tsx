@@ -1,10 +1,26 @@
 import { IconPlus } from '@tabler/icons-react';
 
-import { ApolloError } from '@apollo/client';
+import { ApolloCache, ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { Button, CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { Can, Export, IProduct, PrintDocument, TagsSelect } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
+import { ProductMerge } from './ProductMerge';
+
+const updateProductsTagCache = (
+  cache: ApolloCache<unknown>,
+  productIds: string[],
+  newSelectedTagIds: string[],
+) => {
+  productIds.forEach((productId) => {
+    cache.modify({
+      id: cache.identify({ __typename: 'Product', _id: productId }),
+      fields: {
+        tagIds: () => newSelectedTagIds,
+      },
+    });
+  });
+};
 
 export const ProductCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -39,26 +55,9 @@ export const ProductCommandBar = () => {
                 ) || []
               }
               targetIds={productIds}
-              options={(newSelectedTagIds, action, changedTagId) => ({
-                update: (cache) => {
-                  productIds.forEach((productId) => {
-                    cache.modify({
-                      id: cache.identify({
-                        __typename: 'Product',
-                        _id: productId,
-                      }),
-                      fields: {
-                        tagIds: (existingTagIds) => {
-                          const ids = (existingTagIds as string[]) ?? [];
-                          if (action === 'remove' && changedTagId) {
-                            return ids.filter((id) => id !== changedTagId);
-                          }
-                          return [...new Set([...ids, ...newSelectedTagIds])];
-                        },
-                      },
-                    });
-                  });
-                },
+              options={(newSelectedTagIds) => ({
+                update: (cache) =>
+                  updateProductsTagCache(cache, productIds, newSelectedTagIds),
                 onError: (e: ApolloError) => {
                   toast({
                     title: 'Error',
@@ -80,6 +79,11 @@ export const ProductCommandBar = () => {
             ids={productIds}
           />
         </Can>
+        <Separator.Inline />
+        <ProductMerge
+          productIds={productIds}
+          products={selectedRows.map((row: Row<IProduct>) => row.original)}
+        />
         <Separator.Inline />
         <ProductsDelete productIds={productIds} />
         <Separator.Inline />

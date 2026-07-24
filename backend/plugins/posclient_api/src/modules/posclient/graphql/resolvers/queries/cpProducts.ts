@@ -19,7 +19,11 @@ import {
 import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
+  getDiscountSortedProducts,
   getRemBranchId,
+  isDiscountSortField,
+  pushDiscountRangeFilters,
+  type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
 
 const getPropertyFieldId = (field: string) =>
@@ -31,8 +35,7 @@ const getProductPropertyValue = (product: any, fieldId: string) =>
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
 
-const isPropertyField = (field: string) =>
-  field.includes('propertiesData.');
+const isPropertyField = (field: string) => field.includes('propertiesData.');
 
 const propertyExistsFilter = (fieldIds: string[]) => ({
   $or: [
@@ -77,6 +80,11 @@ export interface IProductParams extends ICommonParams {
   maxRemainder?: number;
   minPrice?: number;
   maxPrice?: number;
+  minDiscountValue?: number;
+  maxDiscountValue?: number;
+  minDiscountPercent?: number;
+  maxDiscountPercent?: number;
+  discountConditions?: Record<string, unknown>;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -117,6 +125,11 @@ const generateFilter = async (
     maxRemainder,
     minPrice,
     maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -146,7 +159,6 @@ const generateFilter = async (
       $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
     });
   }
-  
 
   if (type) {
     filter.type = type;
@@ -312,6 +324,14 @@ const generateFilter = async (
     });
   }
 
+  pushDiscountRangeFilters($and, config, branchId, {
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+  });
+
   const lastFilter = { ...filter, $and };
 
   if (isKiosk) {
@@ -429,6 +449,23 @@ const cpProductQueries: Record<string, Resolver> = {
       });
     }
 
+    if (isDiscountSortField(sortField)) {
+      const products = await getDiscountSortedProducts({
+        models,
+        filter,
+        config,
+        params,
+      });
+
+      return checkRemainders(
+        subdomain,
+        models,
+        config,
+        products,
+        branchId || '',
+      );
+    }
+
     const paginatedProducts = await paginate(
       models.Products.find(filter).sort(sortParams).lean(),
       paginationArgs,
@@ -484,9 +521,8 @@ const cpProductQueries: Record<string, Resolver> = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);
@@ -569,7 +605,9 @@ const cpProductQueries: Record<string, Resolver> = {
         ],
       };
 
-      let products = await models.Products.find(filters).sort({ code: 1 });
+      let products: ProductWithRemainder[] = await models.Products.find(
+        filters,
+      ).sort({ code: 1 });
       if (!products.length) {
         products = await checkRemainders(
           subdomain,

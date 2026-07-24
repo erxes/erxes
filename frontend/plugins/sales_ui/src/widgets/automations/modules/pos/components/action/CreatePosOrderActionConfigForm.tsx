@@ -196,6 +196,25 @@ export const CreatePosOrderActionConfigForm = ({
           </Form.Item>
         )}
       />
+
+      <Form.Field
+        control={control}
+        name="items"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('order-items')}</Form.Label>
+            <PlaceholderInput
+              propertyType={propertyType}
+              value={field.value || ''}
+              onChange={field.onChange}
+              placeholderConfig={{ selectMode: 'one' }}
+              enabled={[TPlaceholderInputSuggestion.Attribute]}
+            />
+            <Form.Description>{t('order-items-description')}</Form.Description>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
     </Form>
   );
 };

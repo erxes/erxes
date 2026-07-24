@@ -181,6 +181,17 @@ export const dealSchema = schemaWrapper(
       },
       paymentsData: { type: Object, optional: true, label: 'Payments' },
       extraData: { type: Object, optional: true },
+      brokerType: {
+        type: String,
+        optional: true,
+        enum: ['customer', 'company', 'user'],
+        label: 'Broker type',
+      },
+      brokerId: {
+        type: String,
+        optional: true,
+        label: 'Broker ID',
+      },
     },
     {
       timestamps: true,

@@ -91,14 +91,24 @@ export const ApprovalLockButton = ({
         resolvedApproverScope === 'lockerAndAllowedUsers'
           ? approvalMode
           : 'firstWins';
+      const ownerId = variables.ownerId || currentUser?._id;
+
+      if (!ownerId) {
+        toast({
+          title: t('lock-failed'),
+          variant: 'destructive',
+        });
+
+        return;
+      }
 
       await createLock({
         contentType: variables.contentType,
-        contentId: variables.contentId,
-        ownerId: variables.ownerId,
+        contentTypeId: variables.contentId,
+        ownerId,
         allowedUserIds,
-        approverScope: resolvedApproverScope,
-        approvalMode: resolvedApprovalMode,
+        scope: resolvedApproverScope,
+        mode: resolvedApprovalMode,
       });
       toast({ title: t('lock-created'), variant: 'success' });
       setOpen(false);

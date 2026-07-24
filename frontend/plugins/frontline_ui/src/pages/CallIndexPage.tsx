@@ -1,12 +1,14 @@
 import { CallQueueRecordTable } from '@/integrations/call/components/CallQueueRecordTable';
 import { IconPhone } from '@tabler/icons-react';
-import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
+import { Breadcrumb, Button, PageContainer, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 export const CallIndexPage = () => {
   const { t } = useTranslation('frontline');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('queue-switchboard'));
+
   return (
     <PageContainer>
       <PageHeader>
@@ -32,6 +34,11 @@ export const CallIndexPage = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconPhone"
+          />
         </PageHeader.Start>
       </PageHeader>
       <CallQueueRecordTable />

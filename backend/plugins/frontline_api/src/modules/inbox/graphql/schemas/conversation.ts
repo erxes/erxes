@@ -76,6 +76,7 @@ export const types = `
     engageData: EngageData
     formWidgetData: JSON
     messengerAppData: JSON
+    extraData: JSON
     botGreetMessage: String
     user: User
     mailData: MailData
@@ -156,10 +157,19 @@ type ConversationListResponse {
     isCustomerRead: Boolean,
   }
 
+  # A native poll an agent composes in the inbox (currently Discord).
+  input ConversationPollInput {
+    question: String!
+    options: [String!]!
+    duration: Int
+    allowMultiselect: Boolean
+  }
+
 `;
 
 const mutationFilterParams = `
   channelId: String
+  integrationId: String
   status: String
   unassigned: String
   tag: String
@@ -172,6 +182,7 @@ const mutationFilterParams = `
   segment: String
   customerId: String
   brandId: String
+  searchValue: String
 `;
 
 const convertParams = `
@@ -234,6 +245,7 @@ export const mutations = `
     attachments: [AttachmentInput],
     contentType: String
     extraInfo: JSON
+    poll: ConversationPollInput
   ): ConversationMessage
   conversationMessageEdit(
     _id: String!,
@@ -248,6 +260,7 @@ export const mutations = `
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
+  conversationAgentTyping(conversationId: String!, typing: Boolean): Boolean
   changeConversationOperator(_id: String!, operatorStatus: String!): JSON
   conversationSetAutomatedReplyControl(
     _id: String!

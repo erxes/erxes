@@ -319,6 +319,8 @@ export const ordersEdit = async (
     subBranchId: doc.branchId,
     customerId: doc.customerId,
     customerType: doc.customerType,
+    brokerId: doc.brokerId,
+    brokerType: doc.brokerType,
     userId: posUser ? posUser._id : '',
     type: doc.type,
     totalAmount: getTotalAmount(preparedDoc.items),
@@ -480,7 +482,10 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
   return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
 }
 
-export async function cancelPosOrder(models: IModels, _id: string): Promise<any> {
+export async function cancelPosOrder(
+  models: IModels,
+  _id: string,
+): Promise<any> {
   const order = await models.Orders.getOrder(_id);
 
   checkOrderStatus(order);
@@ -1167,16 +1172,18 @@ const orderMutations: Record<string, Resolver> = {
           module: 'relation',
           action: 'createRelation',
           input: {
-            entities: [
-              {
-                contentType: 'sales:deal',
-                contentId: deal._id,
-              },
-              {
-                contentType: `core:${order.customerType || 'customer'}`,
-                contentId: order.customerId,
-              },
-            ],
+            relation: {
+              entities: [
+                {
+                  contentType: 'sales:deal',
+                  contentId: deal._id,
+                },
+                {
+                  contentType: `core:${order.customerType || 'customer'}`,
+                  contentId: order.customerId,
+                },
+              ],
+            },
           },
           defaultValue: null,
         });

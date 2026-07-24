@@ -14,7 +14,7 @@ export const AgentRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={agentColumns}
+      columns={agentColumns(t)}
       data={agentList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'number']}

@@ -1,16 +1,17 @@
 export const types = `
   type Favorite {
     _id: String!
-    type: String!
     path: String!
+    breadcrumb: [String]
+    icon: String
   }
 `;
 
 export const queries = `
   getFavoritesByCurrentUser: [Favorite]
-  isFavorite(type: String!, path: String!, ): Boolean
+  isFavorite(path: String!): Boolean
 `;
 
 export const mutations = `
-  toggleFavorite(type: String!, path: String!, ): Favorite
+  toggleFavorite(path: String!, breadcrumb: [String!], icon: String): Favorite
 `;

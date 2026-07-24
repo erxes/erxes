@@ -16,11 +16,11 @@ import {
 
 type LockCreateInput = {
   contentType: string;
-  contentId: string;
-  ownerId?: string;
+  contentTypeId: string;
+  ownerId: string;
   allowedUserIds?: string[];
-  approverScope: ApprovalApproverScope;
-  approvalMode: ApprovalMode;
+  scope?: ApprovalApproverScope;
+  mode?: ApprovalMode;
 };
 
 type RequestCreateInput = {
