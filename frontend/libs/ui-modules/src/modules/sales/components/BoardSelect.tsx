@@ -23,7 +23,7 @@ export const BoardSelect = ({
   }, [boardId, setBoardId]);
 
   return (
-    <SelectBoard
+    <SelectBoard.InlineCell
       value={boardId || currentBoard?.boardId || ''}
       className={className}
       onValueChange={(boardId) => {

@@ -7,6 +7,7 @@ import { AddVats } from '@/settings/vat/components/AddVats';
 import { AddCtaxs } from '@/settings/ctax/components/AddCtaxs';
 import { AddAccountingConfig } from '../syncSettings/AddAccountingConfig';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
+import { Can, Import } from 'ui-modules';
 
 export const AccountingTopbar = () => {
   const { pathname } = useLocation();
@@ -54,6 +55,13 @@ export const AccountingTopbar = () => {
   if (pathname === '/settings/accounting/config/vat-rows') {
     return (
       <div className="flex items-center gap-3">
+        <Can action="vatRowsImportManage">
+          <Import
+            pluginName="accounting"
+            moduleName="account"
+            collectionName="vatRows"
+          />
+        </Can>
         <AddVats />
       </div>
     );

@@ -1,48 +1,15 @@
-import {
-  Sheet,
-  ScrollArea,
-  isDeeplyEqual,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
-import { useAccountCategoryDetail } from '../hooks/useAccountCategoryDetail';
+import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+
+import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
+import { AccountCategoryForm } from './AccountCategoryForm';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { TAccountCategoryForm } from '../types/AccountCategory';
+import { accountCategorySchema } from '../constants/accountCategorySchema';
+import { useAccountCategoryDetail } from '../hooks/useAccountCategoryDetail';
+import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { accountCategorySchema } from '../constants/accountCategorySchema';
-import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
-import { useEffect } from 'react';
-import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
-import { AccountCategoryForm } from './AccountCategoryForm';
-
-export const EditAccountCategory = () => {
-  const [open, setOpen] = useQueryState<string>('accountCategoryId');
-  return (
-    <Sheet
-      open={open !== null}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) setOpen(null);
-      }}
-    >
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>Дансны ангилал засах</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            Дансны ангилал засах
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <EditAccountCategoryForm onClose={() => setOpen(null)} />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
-  );
-};
 
 export const EditAccountCategoryForm = ({
   onClose,
@@ -102,5 +69,21 @@ export const EditAccountCategoryForm = ({
         </div>
       )}
     </>
+  );
+};
+
+export const EditAccountCategory = () => {
+  const [open, setOpen] = useQueryState<string>('accountCategoryId');
+  return (
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <AccountingSheet title="Дансны ангилал засах">
+        <EditAccountCategoryForm onClose={() => setOpen(null)} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

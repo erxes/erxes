@@ -1,42 +1,20 @@
-import { Button, Sheet, ScrollArea } from 'erxes-ui';
-import { TCtaxRowForm, CtaxKind, CtaxStatus } from '../types/CtaxRow';
-import { ctaxFormSchema } from '../constants/ctaxFormSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Sheet } from 'erxes-ui';
+import { CtaxKind, CtaxStatus, TCtaxRowForm } from '../types/CtaxRow';
+
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { CtaxRowForm } from './CtaxRowForm';
 import { IconPlus } from '@tabler/icons-react';
+import { ctaxFormSchema } from '../constants/ctaxFormSchema';
 import { useAddCtaxRow } from '../hooks/useCtaxRowAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const AddCtaxs = () => {
-  return (
-    <Sheet>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          НХАТ нэмэх
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>НХАТ нэмэх</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            НХАТ нэмэх
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <AddCtaxForm />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-export const AddCtaxForm = () => {
+export const AddCtaxForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
     defaultValues: {
@@ -51,9 +29,28 @@ export const AddCtaxForm = () => {
       variables: { ...data },
       onCompleted: () => {
         form.reset();
+        setOpen(false);
       },
     });
   };
 
   return <CtaxRowForm form={form} onSubmit={onSubmit} loading={loading} />;
+};
+
+export const AddCtaxs = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          НХАТ нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="НХАТ нэмэх">
+        <AddCtaxForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
+  );
 };
