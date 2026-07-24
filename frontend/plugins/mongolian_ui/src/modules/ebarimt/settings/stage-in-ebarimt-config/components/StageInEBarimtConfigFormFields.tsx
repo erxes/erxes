@@ -12,25 +12,19 @@ import {
 import { FormArea } from './FormFields/FormInput';
 import { SelectBranchDistrict } from './selects/SelectBranchDistrict';
 import { SelectSubBranchDistrict } from './selects/SelectSubBranchDistrict';
+import { useEBarimtDistrictHandlers } from '@/ebarimt/settings/hooks/useEBarimtDistrictHandlers';
+
+const getSelectedId = (value: string | string[]) =>
+  Array.isArray(value) ? value[0] : value;
 
 export const StageInEBarimtConfigFormFields = ({
   form,
   onSubmit,
   formId,
-  onBoardChange,
-  onPipelineChange,
-  onBranchChange,
-  onSubBranchChange,
-  onSetValue,
 }: {
   form: UseFormReturn<TStageInEbarimtConfig>;
   onSubmit: (data: TStageInEbarimtConfig) => void;
   formId: string;
-  onBoardChange: (value: string | string[]) => void;
-  onPipelineChange: (value: string | string[]) => void;
-  onBranchChange: (value: string) => void;
-  onSubBranchChange: (value: string) => void;
-  onSetValue: (name: string, value: any) => void;
 }) => {
   const { t } = useTranslation('mongolian');
   const selectedBoardId = form.watch('boardId');
@@ -39,6 +33,29 @@ export const StageInEBarimtConfigFormFields = ({
   const hasCitytax = form.watch('hasCitytax');
   const selectedBranchCode = form.watch('branchOfProvince');
   const selectedSubBranchCode = form.watch('subProvince');
+
+  const handleBoardChange = (value: string | string[]) => {
+    form.setValue('boardId', getSelectedId(value));
+    form.setValue('pipelineId', '');
+    form.setValue('stageId', '');
+  };
+
+  const handlePipelineChange = (value: string | string[]) => {
+    form.setValue('pipelineId', getSelectedId(value));
+    form.setValue('stageId', '');
+  };
+
+  const {
+    handleBranchChange,
+    handleDistrictCodeChange,
+    handleSubBranchChange,
+  } = useEBarimtDistrictHandlers({
+    deriveDistrictCode: true,
+    getBranchCode: () => form.getValues('branchOfProvince'),
+    setBranchCode: (value) => form.setValue('branchOfProvince', value),
+    setDistrictCode: (value) => form.setValue('districtCode', value),
+    setSubBranchCode: (value) => form.setValue('subProvince', value),
+  });
 
   return (
     <Form {...form}>
@@ -65,7 +82,7 @@ export const StageInEBarimtConfigFormFields = ({
                 <Form.Label>{t('destination-stage-board')}</Form.Label>
                 <SelectBoard.FormItem
                   value={field.value}
-                  onValueChange={onBoardChange}
+                  onValueChange={handleBoardChange}
                 />
                 <Form.Message />
               </Form.Item>
@@ -80,7 +97,7 @@ export const StageInEBarimtConfigFormFields = ({
                 <SelectPipeline.FormItem
                   value={field.value}
                   boardId={selectedBoardId}
-                  onValueChange={onPipelineChange}
+                  onValueChange={handlePipelineChange}
                 />
                 <Form.Message />
               </Form.Item>
@@ -144,7 +161,7 @@ export const StageInEBarimtConfigFormFields = ({
                 <Form.Label>{t('branch-of-province-district')}</Form.Label>
                 <SelectBranchDistrict
                   value={field.value || ''}
-                  onValueChange={onBranchChange}
+                  onValueChange={handleBranchChange}
                 />
                 <Form.Message />
               </Form.Item>
@@ -159,7 +176,7 @@ export const StageInEBarimtConfigFormFields = ({
                 <SelectSubBranchDistrict
                   value={field.value || ''}
                   branchCode={selectedBranchCode || ''}
-                  onValueChange={onSubBranchChange}
+                  onValueChange={handleSubBranchChange}
                 />
                 <Form.Message />
               </Form.Item>
@@ -172,7 +189,9 @@ export const StageInEBarimtConfigFormFields = ({
             control={form.control}
             branchCode={selectedBranchCode || ''}
             subBranchCode={selectedSubBranchCode || ''}
-            setValue={onSetValue}
+            setValue={(_name, value) => form.setValue('districtCode', value)}
+            autoDerive={false}
+            onValueChange={handleDistrictCodeChange}
           />
         </div>
 
