@@ -24,7 +24,7 @@ export const useAutomationsRecordTable = (
   const { data, loading, fetchMore } = useQuery<QueryResponse>(
     AUTOMATIONS_MAIN_LIST,
     {
-      ...(options || {}),
+      ...options,
       variables: {
         ...filters,
       },
