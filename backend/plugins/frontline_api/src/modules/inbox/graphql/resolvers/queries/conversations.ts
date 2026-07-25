@@ -8,19 +8,34 @@ import { countByConversations } from '@/inbox/conversationUtils';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { cursorPaginate,markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
-import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
+import QueryBuilder, { IListArgs, IUserArgs } from '~/conversationQueryBuilder';
 
 const count = async (models: IModels, query: any): Promise<number> => {
   const result = await models.Conversations.countDocuments(query);
   return Number(result);
 };
 
-const toQueryUser = (user: IContext['user']) => ({
-  _id: user._id,
-  code: user.code,
-  starredConversationIds: user.starredConversationIds,
-  role: user.role,
-});
+const DEFAULT_USER_ARGS: IUserArgs = {
+  _id: '',
+  code: '',
+  starredConversationIds: [],
+  role: '',
+};
+
+const toQueryUser = (
+  user: IContext['user'] | null | undefined,
+): IUserArgs | null => {
+  if (!user) {
+    return null;
+  }
+
+  return {
+    _id: user._id,
+    code: user.code,
+    starredConversationIds: user.starredConversationIds,
+    role: user.role,
+  };
+};
 
 export const conversationQueries = {
   /**
@@ -60,7 +75,12 @@ export const conversationQueries = {
       return { list, totalCount, pageInfo };
     }
 
-    const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
+    const qb = new QueryBuilder(
+      models,
+      subdomain,
+      params,
+      toQueryUser(user) ?? DEFAULT_USER_ARGS,
+    );
 
     await qb.buildAllQueries();
 
@@ -147,7 +167,7 @@ export const conversationQueries = {
     const { only } = params;
 
     const response: IConversationRes = {};
-    const _user = toQueryUser(user);
+    const _user = toQueryUser(user) ?? DEFAULT_USER_ARGS;
 
     const qb = new QueryBuilder(models, subdomain, params, _user);
 
@@ -225,7 +245,12 @@ export const conversationQueries = {
     params: IListArgs,
     { user, models, subdomain }: IContext,
   ) {
-    const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
+    const qb = new QueryBuilder(
+      models,
+      subdomain,
+      params,
+      toQueryUser(user) ?? DEFAULT_USER_ARGS,
+    );
 
     await qb.buildAllQueries();
 
@@ -240,7 +265,12 @@ export const conversationQueries = {
     params: IListArgs,
     { user, models, subdomain }: IContext,
   ) {
-    const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
+    const qb = new QueryBuilder(
+      models,
+      subdomain,
+      params,
+      toQueryUser(user) ?? DEFAULT_USER_ARGS,
+    );
 
     await qb.buildAllQueries();
 
@@ -262,7 +292,7 @@ export const conversationQueries = {
       models,
       subdomain,
       {},
-      { _id: user._id, code: user.code },
+      toQueryUser(user) ?? DEFAULT_USER_ARGS,
     );
 
     await qb.buildAllQueries();
@@ -273,7 +303,7 @@ export const conversationQueries = {
     const response = await models.Conversations.countDocuments({
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
-      readUserIds: { $ne: user._id },
+      readUserIds: { $ne: user?._id ?? '' },
       $and: [{ $or: qb.userRelevanceQuery() }],
     });
 

@@ -38,7 +38,7 @@ export interface IListArgs {
   skip?: number;
 }
 
-interface IUserArgs {
+export interface IUserArgs {
   _id: string;
   code?: string;
   starredConversationIds?: string[];
