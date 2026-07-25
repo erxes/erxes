@@ -130,7 +130,7 @@ cd erxes
 pnpm install
 
 # Set up environment variables
-cp .env.example .env
+cp .env.sample .env
 # Edit .env and configure MONGO_URL, REDIS_HOST, etc.
 
 # Start core services (Gateway + Core API)
