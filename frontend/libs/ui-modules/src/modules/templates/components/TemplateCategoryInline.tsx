@@ -45,7 +45,7 @@ export const TemplateCategoriesInlineProvider = ({
   placeholder?: string;
   updateCategories?: Dispatch<SetStateAction<TemplateCategory[]>>;
 }) => {
-  const [_categories, _setCategories] = useState<TemplateCategory[]>(
+  const [_categories, setCategories] = useState<TemplateCategory[]>(
     categories || [],
   );
 
@@ -58,7 +58,7 @@ export const TemplateCategoriesInlineProvider = ({
         placeholder: isUndefinedOrNull(placeholder)
           ? 'Select category'
           : placeholder,
-        updateCategories: updateCategories || _setCategories,
+        updateCategories: updateCategories || setCategories,
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
