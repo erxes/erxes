@@ -30,10 +30,10 @@ export const formatDateISOStringToRelativeDateShort = (isoDate: string) => {
   const targetDate = new Date(isoDate);
 
   return formatDistanceStrict(targetDate, now, { addSuffix: false })
-    .replace(/\s*years?/g, 'y')
-    .replace(/\s*months?/g, 'mo')
-    .replace(/\s*days?/g, 'd')
-    .replace(/\s*hours?/g, 'h')
-    .replace(/\s*minutes?/g, 'm')
-    .replace(/\s*seconds?/g, 's');
+    .replaceAll(/\s*years?/g, 'y')
+    .replaceAll(/\s*months?/g, 'mo')
+    .replaceAll(/\s*days?/g, 'd')
+    .replaceAll(/\s*hours?/g, 'h')
+    .replaceAll(/\s*minutes?/g, 'm')
+    .replaceAll(/\s*seconds?/g, 's');
 };
