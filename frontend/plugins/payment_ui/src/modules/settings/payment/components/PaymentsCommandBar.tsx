@@ -38,7 +38,7 @@ export const PaymentsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {t('selected', { count: table.getFilteredSelectedRowModel().rows.length })}
+          {t('selected', '{{count}} selected', { count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <Button
@@ -47,7 +47,7 @@ export const PaymentsCommandBar = () => {
           onClick={handleDelete}
         >
           <IconTrash />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

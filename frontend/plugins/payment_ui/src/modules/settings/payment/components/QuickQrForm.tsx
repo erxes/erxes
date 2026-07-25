@@ -93,19 +93,19 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
         control={control}
         render={({ field }: any) => (
           <Form.Item>
-            <Form.Label>{t('type')} *</Form.Label>
+            <Form.Label>{t('type', 'Type')} *</Form.Label>
             <Form.Control>
               <Select
                 value={field.value}
                 onValueChange={field.onChange}
               >
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-type')} />
+                  <Select.Value placeholder={t('select-type', 'Select type')} />
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Group>
-                    <Select.Item value="company">{t('mcc-company')}</Select.Item>
-                    <Select.Item value="person">{t('mcc-person')}</Select.Item>
+                    <Select.Item value="company">{t('mcc-company', 'Company')}</Select.Item>
+                    <Select.Item value="person">{t('mcc-person', 'Individual')}</Select.Item>
                   </Select.Group>
                 </Select.Content>
               </Select>
@@ -116,25 +116,25 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
 
       {type && (
         <>
-          {isCompany && renderItem('companyName', t('company-name'))}
-          {!isCompany && renderItem('firstName', t('first-name'))}
-          {!isCompany && renderItem('lastName', t('last-name'))}
+          {isCompany && renderItem('companyName', t('company-name', 'Company Name'))}
+          {!isCompany && renderItem('firstName', t('first-name', 'First Name'))}
+          {!isCompany && renderItem('lastName', t('last-name', 'Last Name'))}
 
-          {renderItem('registerNumber', t('register-number'))}
+          {renderItem('registerNumber', t('register-number', 'Register Number'))}
 
           <Form.Field
             name="mccCode"
             control={control}
             render={({ field }: any) => (
               <Form.Item>
-                <Form.Label>{t('mcc-code')} *</Form.Label>
+                <Form.Label>{t('mcc-code', 'MCC Code')} *</Form.Label>
                 <Form.Control>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder={t('select-mcc-code')} />
+                      <Select.Value placeholder={t('select-mcc-code', 'Select MCC Code')} />
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Group>
@@ -156,14 +156,14 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
             control={control}
             render={({ field }: any) => (
               <Form.Item>
-                <Form.Label>{t('city')} *</Form.Label>
+                <Form.Label>{t('city', 'City')} *</Form.Label>
                 <Form.Control>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder={t('select-city')} />
+                      <Select.Value placeholder={t('select-city', 'Select city')} />
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Group>
@@ -181,7 +181,7 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
           />
 
           <Form.Item>
-            <Form.Label>{t('district')} *</Form.Label>
+            <Form.Label>{t('district', 'District')} *</Form.Label>
             <SelectDistrict
               cityCode={watch('city')}
               value={watch('district')}
@@ -189,21 +189,21 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
             />
           </Form.Item>
 
-          {renderItem('businessName', t('business-name'))}
-          {renderItem('address', t('address'))}
-          {renderItem('phone', t('phone'))}
-          {renderItem('email', t('email'), true, 'email')}
-          {renderItem('bankAccount', t('account-number'))}
+          {renderItem('businessName', t('business-name', 'Business Name'))}
+          {renderItem('address', t('address', 'Address'))}
+          {renderItem('phone', t('phone', 'Phone'))}
+          {renderItem('email', t('email', 'Email'), true, 'email')}
+          {renderItem('bankAccount', t('account-number', 'Account Number'))}
 
           <Form.Item>
-            <Form.Label>{t('bank')} *</Form.Label>
+            <Form.Label>{t('bank', 'Bank')} *</Form.Label>
             <Form.Control>
               <Select
                 value={watch('bankCode')}
                 onValueChange={(value) => setValue('bankCode', value)}
               >
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-bank')} />
+                  <Select.Value placeholder={t('select-bank', 'Select bank')} />
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Group>
@@ -218,8 +218,8 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
             </Form.Control>
           </Form.Item>
 
-          {renderItem('ibanNumber', t('iban-number'))}
-          {renderItem('bankAccountName', t('account-name'))}
+          {renderItem('ibanNumber', t('iban-number', 'IBAN Number'))}
+          {renderItem('bankAccountName', t('account-name', 'Account Name'))}
 
           {!payment && (
             <Form.Field
@@ -227,7 +227,7 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
               control={control}
               render={({ field }: any) => (
                 <Form.Item>
-                  <Form.Label>{t('is-flat')}</Form.Label>
+                  <Form.Label>{t('is-flat', 'Is flat')}</Form.Label>
                   <Form.Control>
                     <Switch
                       checked={field.value === true}

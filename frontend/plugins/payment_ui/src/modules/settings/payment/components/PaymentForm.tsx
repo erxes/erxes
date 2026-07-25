@@ -268,13 +268,13 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
         })
           .then(() => {
             toast({
-              title: t('success'),
-              description: t('payment-method-updated'),
+              title: t('success', 'Success'),
+              description: t('payment-method-updated', 'Payment method updated successfully'),
             });
           })
           .catch((e) => {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e.message,
             });
           });
@@ -286,13 +286,13 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
         })
           .then(() => {
             toast({
-              title: t('success'),
-              description: t('payment-method-added'),
+              title: t('success', 'Success'),
+              description: t('payment-method-added', 'Payment method added successfully'),
             });
           })
           .catch((e) => {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e.message,
             });
           });
@@ -330,7 +330,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       >
         <Sheet.Header className="gap-3 border-b">
           <Sheet.Title>
-            {payment ? t('edit-payment') : t('add-payment')}
+            {payment ? t('edit-payment', 'Edit Payment') : t('add-payment', 'Add Payment')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -353,7 +353,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
 
                   return (
                     <Form.Item>
-                      <Form.Label>{t('payment-method-label')} *</Form.Label>
+                      <Form.Label>{t('payment-method-label', 'Payment Method')} *</Form.Label>
                       <Popover
                         open={kindOpen}
                         onOpenChange={(open) => {
@@ -367,13 +367,13 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                         >
                           <Combobox.Value
                             value={selectedMethod?.name}
-                            placeholder={t('select-payment-method')}
+                            placeholder={t('select-payment-method', 'Select payment method')}
                           />
                         </Combobox.Trigger>
                         <Combobox.Content>
                           <Command shouldFilter={false}>
                             <Command.Input
-                              placeholder={t('search-payment-method')}
+                              placeholder={t('search-payment-method', 'Search payment method')}
                               value={kindSearch}
                               onValueChange={setKindSearch}
                             />
@@ -415,9 +415,9 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('display-name')} *</Form.Label>
+                    <Form.Label>{t('display-name', 'Display Name')} *</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('enter-payment-name')} />
+                      <Input {...field} placeholder={t('enter-payment-name', 'Enter a name for this payment method')} />
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -429,7 +429,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('status')} *</Form.Label>
+                    <Form.Label>{t('status', 'Status')} *</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -442,7 +442,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                             <Select.Value
                               placeholder={
                                 <span className="font-medium text-muted-foreground text-sm text-center truncate">
-                                  {t('select-status')}
+                                  {t('select-status', 'Select status')}
                                 </span>
                               }
                             >
@@ -458,13 +458,13 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                               className="h-7 text-xs capitalize"
                               value="active"
                             >
-                              {t('active')}
+                              {t('active', 'Active')}
                             </Select.Item>
                             <Select.Item
                               className="h-7 text-xs capitalize"
                               value="inactive"
                             >
-                              {t('inactive')}
+                              {t('inactive', 'Inactive')}
                             </Select.Item>
                           </Select.Group>
                         </Select.Content>
@@ -481,9 +481,9 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   <Form.Item>
                     <div className="flex items-center justify-between gap-3">
                       <div className="space-y-0.5">
-                        <Form.Label>{t('send-email-after-payment')}</Form.Label>
+                        <Form.Label>{t('send-email-after-payment', 'Send email after successful payment')}</Form.Label>
                         <p className="text-xs text-muted-foreground">
-                          {t('send-email-description')}
+                          {t('send-email-description', 'Automatically send a QR ticket to the customer\'s email when payment is completed.')}
                         </p>
                       </div>
                       <Form.Control>
@@ -534,7 +534,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
@@ -542,10 +542,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {isSubmitting
-              ? t('saving')
+              ? t('saving', 'Saving...')
               : payment
-                ? t('update-payment-method')
-                : t('save-payment-method')}
+                ? t('update-payment-method', 'Update Payment Method')
+                : t('save-payment-method', 'Save Payment Method')}
           </Button>
         </Sheet.Footer>
       </form>

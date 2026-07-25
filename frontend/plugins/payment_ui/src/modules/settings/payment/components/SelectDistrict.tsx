@@ -23,7 +23,7 @@ const SelectDistrict = (props: Props) => {
   return (
     <Select onValueChange={onChange} value={value} disabled={!cityCode}>
       <Select.Trigger>
-        <Select.Value placeholder={t('select-district')} />
+        <Select.Value placeholder={t('select-district', 'Select district')} />
       </Select.Trigger>
       <Select.Content>
         <Select.Group>

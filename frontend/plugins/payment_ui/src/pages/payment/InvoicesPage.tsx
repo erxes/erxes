@@ -17,7 +17,7 @@ export const InvoicesPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/settings/payment">
                     <IconCurrencyDollar />
-                    {t('payment')}
+                    {t('payment', 'Payment')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -28,7 +28,7 @@ export const InvoicesPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/settings/payment/invoices">
                     <IconInvoice />
-                    {t('invoices')}
+                    {t('invoices', 'Invoices')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

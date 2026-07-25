@@ -79,7 +79,7 @@ const KhanbankForm: React.FC<Props> = ({ payment, form, Form }) => {
   return (
     <div className="grid grid-cols-2 gap-4 mt-4">
       <Form.Item>
-        <Form.Label>{t('name')} *</Form.Label>
+        <Form.Label>{t('name', 'Name')} *</Form.Label>
         <Form.Control>
           <Input
             {...register('name', {

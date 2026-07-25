@@ -28,7 +28,7 @@ export const InvoiceStatusFilter = () => {
           onSelect={() => setView('root')}
         >
           <IconChevronLeft className="w-3 h-3" />
-          {t('back')}
+          {t('back', 'Back')}
         </Command.Item>
         <Command.Separator />
         {STATUS_OPTIONS.map((opt) => (

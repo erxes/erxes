@@ -10,7 +10,7 @@ export const PaymentAddSheet = () => {
   return (
     <Sheet onOpenChange={setOpen} open={open}>
       <Sheet.Trigger asChild>
-        <Button variant="outline">{t('add-payment')}</Button>
+        <Button variant="outline">{t('add-payment', 'Add Payment')}</Button>
       </Sheet.Trigger>
       <Sheet.View
         className="p-0"

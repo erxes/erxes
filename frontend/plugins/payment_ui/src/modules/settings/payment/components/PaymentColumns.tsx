@@ -50,7 +50,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
                 <Command.List>
                   <Command.Item value="edit" onSelect={() => setOpen(true)}>
                     <IconEdit className="w-4 h-4" />
-                    {t('edit')}
+                    {t('edit', 'Edit')}
                   </Command.Item>
 
                   <Command.Item
@@ -59,7 +59,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
                       removePayment({ variables: { _ids: [payment._id] } })
                     }
                   >
-                    <IconTrash /> {t('delete')}
+                    <IconTrash /> {t('delete', 'Delete')}
                   </Command.Item>
                 </Command.List>
               </Command>
@@ -82,7 +82,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
     accessorKey: 'kind',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('payment-method-label')} icon={IconSettings} />;
+      return <RecordTable.InlineHead label={t('payment-method-label', 'Payment Method')} icon={IconSettings} />;
     },
     cell: ({ cell }) => {
       const kind = cell.getValue() as string;
@@ -107,7 +107,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
     accessorKey: 'name',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('name')} icon={IconHash} />;
+      return <RecordTable.InlineHead label={t('name', 'Name')} icon={IconHash} />;
     },
     cell: ({ cell }) => {
       const payment = cell.row.original;
@@ -134,7 +134,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
     accessorKey: 'status',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('status')} icon={IconProgress} />;
+      return <RecordTable.InlineHead label={t('status', 'Status')} icon={IconProgress} />;
     },
     cell: ({ cell }) => {
       return (
@@ -149,7 +149,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
     accessorKey: 'credentials',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('credentials')} icon={IconKey} />;
+      return <RecordTable.InlineHead label={t('credentials', 'Credentials')} icon={IconKey} />;
     },
     cell: () => {
       return (
@@ -164,7 +164,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
     accessorKey: 'createdAt',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />;
+      return <RecordTable.InlineHead label={t('created-at', 'Created At')} icon={IconCalendarPlus} />;
     },
     cell: ({ cell }) => {
       return (

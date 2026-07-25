@@ -31,7 +31,7 @@ export const Invoice = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconInvoice />
         </div>
-        <span className="text-sm">{t('no-invoices')}</span>
+        <span className="text-sm">{t('no-invoices', 'No invoices to display at the moment.')}</span>
       </div>
     );
   }
@@ -39,7 +39,7 @@ export const Invoice = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('invoices')}</span>
+        <span className="font-medium text-primary">{t('invoices', 'Invoices')}</span>
       </div>
       <Separator />
       <ScrollArea className="flex-auto">
