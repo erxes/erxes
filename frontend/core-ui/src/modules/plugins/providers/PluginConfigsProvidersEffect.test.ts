@@ -36,6 +36,7 @@ describe('loadPluginI18nNamespace', () => {
   it('loads an explicit namespace for plugins whose locale name differs', async () => {
     await loadPluginI18nNamespace({
       name: 'erxes_agent',
+      i18n: true,
       i18nNamespace: 'mastra',
     });
 
