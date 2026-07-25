@@ -55,10 +55,10 @@ export const ProjectDetailBreadCrumb = () => {
         <Separator.Inline />
         <ToggleGroup type="single" value={pathname}>
           <ToggleGroup.Item value={`${basePath}/overview`} asChild>
-            <Link to={`${basePath}/overview`}>{t('overview')}</Link>
+            <Link to={`${basePath}/overview`}>{t('overview', 'Overview')}</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item value={`${basePath}/tasks`} asChild>
-            <Link to={`${basePath}/tasks`}>{t('tasks')}</Link>
+            <Link to={`${basePath}/tasks`}>{t('tasks', 'Tasks')}</Link>
           </ToggleGroup.Item>
         </ToggleGroup>
         <Breadcrumb.Item className="ml-1">

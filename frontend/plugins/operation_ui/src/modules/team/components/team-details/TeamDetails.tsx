@@ -17,7 +17,7 @@ export const TeamDetails = () => {
   const { team, loading } = useGetTeam({ variables: { _id: teamId } });
 
   if (loading) return null;
-  if (!team) return <div>{t('not-found')}</div>;
+  if (!team) return <div>{t('not-found', 'Not found')}</div>;
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16">

@@ -15,7 +15,7 @@ export const ActivityCycle = ({
   if (action === ACTIVITY_ACTIONS.CREATED) {
     return (
       <div className="inline-flex items-center gap-1">
-        {t('added-cycle')}
+        {t('added-cycle', 'added cycle')}
         <span className="font-bold">
           <CycleInline cycleId={metadata.newValue} />
         </span>
@@ -24,11 +24,11 @@ export const ActivityCycle = ({
   }
   return (
     <div className="inline-flex items-center gap-1">
-      {t('changed-cycle')}
+      {t('changed-cycle', 'changed cycle')}
       <span className="font-bold">
         <CycleInline cycleId={metadata.previousValue || ''} />
       </span>
-      {t('to')}
+      {t('to', 'to')}
       <span className="font-bold">
         <CycleInline cycleId={metadata.newValue} />
       </span>

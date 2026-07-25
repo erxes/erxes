@@ -82,7 +82,7 @@ function TeamItem({ team }: TeamItemProps) {
             <Sidebar.Menu>
               {team.triageEnabled && (
                 <NavigationMenuLinkItem
-                  name={t('triage')}
+                  name={t('triage', 'Triage')}
                   pathPrefix="operation/team"
                   path={`${team._id}/triage`}
                   className="pl-6 font-medium"
@@ -90,14 +90,14 @@ function TeamItem({ team }: TeamItemProps) {
                 />
               )}
               <NavigationMenuLinkItem
-                name={t('projects')}
+                name={t('projects', 'Projects')}
                 pathPrefix="operation/team"
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`${team._id}/projects`}
               />
               <NavigationMenuLinkItem
-                name={t('tasks')}
+                name={t('tasks', 'Tasks')}
                 pathPrefix="operation/team"
                 path={`${team._id}/tasks`}
                 className="pl-6 font-medium"
@@ -105,7 +105,7 @@ function TeamItem({ team }: TeamItemProps) {
               />
               {team.cycleEnabled && (
                 <NavigationMenuLinkItem
-                  name={t('cycles')}
+                  name={t('cycles', 'Cycles')}
                   pathPrefix="operation/team"
                   path={`${team._id}/cycles`}
                   className="pl-6 font-medium"
@@ -128,7 +128,7 @@ export function TeamsNavigation() {
   });
 
   return (
-    <NavigationMenuGroup name={t('your-teams')}>
+    <NavigationMenuGroup name={t('your-teams', 'Your Teams')}>
       {loading ? (
         <LoadingSkeleton />
       ) : (
@@ -150,12 +150,12 @@ const TeamActionsMenu = ({ team }: { team: Team }) => {
       await navigator.clipboard.writeText(teamLink);
       toast({
         variant: 'default',
-        title: t('link-copied-to-clipboard'),
+        title: t('link-copied-to-clipboard', 'Link copied to clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: t('failed-to-copy-link'),
+        title: t('failed-to-copy-link', 'Failed to copy link'),
         description: e as string,
       });
     }
@@ -183,7 +183,7 @@ const TeamActionsMenu = ({ team }: { team: Team }) => {
           }}
         >
           <IconSettings className="size-4" />
-          {t('go-to-team-settings')}
+          {t('go-to-team-settings', 'Go to team settings')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={(e) => {
@@ -192,7 +192,7 @@ const TeamActionsMenu = ({ team }: { team: Team }) => {
           className="cursor-pointer"
         >
           <IconLink className="size-4" />
-          {t('copy-link')}
+          {t('copy-link', 'Copy link')}
         </DropdownMenu.Item>
 
         {/* <DropdownMenu.Item className="cursor-pointer">

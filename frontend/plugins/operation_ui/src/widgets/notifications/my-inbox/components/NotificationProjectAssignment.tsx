@@ -26,7 +26,7 @@ export const NotificationProjectAssignment = ({
   });
 
   const isAssigned = title === 'Project Assigned';
-  const action = isAssigned ? t('assigned-you-to') : t('changed-status-on');
+  const action = isAssigned ? t('assigned-you-to', 'assigned you to') : t('changed-status-on', 'changed status on');
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-md mx-auto justify-center items-center h-full text-muted-foreground">
@@ -34,7 +34,7 @@ export const NotificationProjectAssignment = ({
         <IconClipboard size={64} className="text-accent-foreground" stroke={1} />
       </div>
 
-      <p className="font-bold text-lg">{t('project')}</p>
+      <p className="font-bold text-lg">{t('project', 'Project')}</p>
 
       <div className="flex flex-col items-center gap-2 text-center">
         <div className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export const NotificationProjectAssignment = ({
             <Skeleton className="inline-block w-24 h-4 align-middle" />
           ) : (
             <span className="font-bold text-foreground">
-              {project?.name || t('a-project')}
+              {project?.name || t('a-project', 'a project')}
             </span>
           )}
         </p>
@@ -70,7 +70,7 @@ export const NotificationProjectAssignment = ({
 
       <Button variant="secondary" asChild>
         <Link to={`/settings/team-member?user_id=${fromUserId}`}>
-          {t('view')} {fromUser?.details?.fullName || fromUser?.email}
+          {t('view', 'View')} {fromUser?.details?.fullName || fromUser?.email}
         </Link>
       </Button>
     </div>

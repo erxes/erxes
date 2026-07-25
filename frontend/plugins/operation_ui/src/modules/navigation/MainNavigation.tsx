@@ -15,7 +15,7 @@ export const MainNavigation = () => {
     <>
       {showProjects && (
         <NavigationMenuLinkItem
-          name={t('projects')}
+          name={t('projects', 'Projects')}
           icon={IconClipboard}
           pathPrefix="operation"
           path="projects"
@@ -23,7 +23,7 @@ export const MainNavigation = () => {
       )}
       {showTasks && (
         <NavigationMenuLinkItem
-          name={t('my-tasks')}
+          name={t('my-tasks', 'My tasks')}
           icon={IconUserFilled}
           pathPrefix="operation"
           path="tasks"

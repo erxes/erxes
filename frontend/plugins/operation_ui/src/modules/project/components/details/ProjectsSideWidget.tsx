@@ -27,7 +27,7 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
   return (
     <SideMenu defaultValue="project">
       <SideMenu.Content value="project">
-        <SideMenu.Header Icon={IconChartHistogram} label={t('project-report')} />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('project-report', 'Project Report')} />
         <>
           <div className="p-4 border-b">
             <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -38,7 +38,7 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
                   size="sm"
                 >
                   <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                  {t('progress')}
+                  {t('progress', 'Progress')}
                 </Button>
               </Collapsible.Trigger>
               <Collapsible.Content>
@@ -63,7 +63,7 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="project"
-          label={t('project-report')}
+          label={t('project-report', 'Project Report')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>
@@ -100,19 +100,19 @@ export const ProjectsSideWidgetTabs = ({
             value={ProjectsSideWidgetTabsEnum.Assignees}
             className="flex-auto"
           >
-            {t('assignees')}
+            {t('assignees', 'Assignees')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ProjectsSideWidgetTabsEnum.Teams}
             className="flex-auto"
           >
-            {t('teams')}
+            {t('teams', 'Teams')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ProjectsSideWidgetTabsEnum.Milestones}
             className="flex-auto"
           >
-            {t('milestones')}
+            {t('milestones', 'Milestones')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

@@ -38,11 +38,11 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
             <div className="flex flex-col gap-1">
               <h5 className="font-semibold">{triage.name}</h5>
               <p className="text-sm text-accent-foreground uppercase">
-                {t('triage-number', { number: triage.number })}
+                {t('triage-number', 'Triage #{{number}}', { number: triage.number })}
               </p>
               <div className="flex flex-wrap gap-1 pt-2 pb-1">
                 <Badge variant="secondary">
-                  <IconCaretLeftRight className="size-4" /> {t('triage')}
+                  <IconCaretLeftRight className="size-4" /> {t('triage', 'Triage')}
                 </Badge>
                 <PriorityBadge priority={triage.priority} />
               </div>
@@ -56,7 +56,7 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
               className="text-muted-foreground px-1 hover:bg-background pointer-events-none"
             >
               <IconCalendarEventFilled />
-              {t('created-on')}{' '}
+              {t('created-on', 'Created on:')}{' '}
               {triage.createdAt &&
                 format(new Date(triage.createdAt), 'MMM dd, yyyy')}
             </Button>

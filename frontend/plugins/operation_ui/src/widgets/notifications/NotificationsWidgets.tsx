@@ -42,7 +42,7 @@ const NotificationsWidgets = (props: any) => {
       NotificationContent[collectionType as keyof typeof NotificationContent];
 
     if (!NotificationComponent) {
-      return <div>{t('no-notification-component-found')}</div>;
+      return <div>{t('no-notification-component-found', 'No notification component found')}</div>;
     }
 
     return <NotificationComponent {...props} />;

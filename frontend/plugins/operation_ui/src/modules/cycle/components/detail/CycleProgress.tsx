@@ -65,14 +65,14 @@ export const CycleProgress = ({
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="total" />
-          <p className="text-xs font-medium text-muted-foreground">{t('total-colon')}</p>
+          <p className="text-xs font-medium text-muted-foreground">{t('total-colon', 'Total:')}</p>
         </span>
         <p className="text-xs font-medium">{progress?.totalScope || 0}</p>
       </span>
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="started" />
-          <p className="text-xs font-medium text-muted-foreground">{t('started-colon')}</p>
+          <p className="text-xs font-medium text-muted-foreground">{t('started-colon', 'Started:')}</p>
         </span>
         <p className="text-xs font-medium">
           {progress?.totalStartedScope || 0}
@@ -82,7 +82,7 @@ export const CycleProgress = ({
         <span className="flex items-center gap-2">
           <ProgressDot status="completed" />
           <p className="text-xs font-medium text-muted-foreground">
-            {t('completed-colon')}
+            {t('completed-colon', 'Completed:')}
           </p>
         </span>
         <p className="text-xs font-medium">

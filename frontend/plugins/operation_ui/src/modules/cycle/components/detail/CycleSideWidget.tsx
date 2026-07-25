@@ -35,7 +35,7 @@ export const CycleSideWidget = ({ cycleId }: { cycleId: string }) => {
   return (
     <SideMenu defaultValue="cycle">
       <SideMenu.Content value="cycle">
-        <SideMenu.Header Icon={IconChartHistogram} label={t('cycle-report')} />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('cycle-report', 'Cycle Report')} />
         <>
           <div className="p-4 border-b">
             <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -46,7 +46,7 @@ export const CycleSideWidget = ({ cycleId }: { cycleId: string }) => {
                   size="sm"
                 >
                   <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                  {t('progress')}
+                  {t('progress', 'Progress')}
                 </Button>
               </Collapsible.Trigger>
               <Collapsible.Content>
@@ -84,7 +84,7 @@ export const CycleSideWidget = ({ cycleId }: { cycleId: string }) => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="cycle"
-          label={t('cycle-report')}
+          label={t('cycle-report', 'Cycle Report')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>
@@ -121,13 +121,13 @@ export const CycleSideWidgetTabs = ({
             value={CycleSideWidgetTabsEnum.Assignees}
             className="flex-auto"
           >
-            {t('assignees')}
+            {t('assignees', 'Assignees')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={CycleSideWidgetTabsEnum.Projects}
             className="flex-auto"
           >
-            {t('projects')}
+            {t('projects', 'Projects')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

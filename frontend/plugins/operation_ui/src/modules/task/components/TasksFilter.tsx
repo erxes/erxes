@@ -114,42 +114,42 @@ const TasksFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  {t('search')}
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="assignee">
                   <IconUser />
-                  {t('assignee')}
+                  {t('assignee', 'Assignee')}
                 </Filter.Item>
                 <Filter.Item value="createdBy">
                   <IconUserPlus />
-                  {t('creator')}
+                  {t('creator', 'Creator')}
                 </Filter.Item>
                 {!teamId && (
                   <Filter.Item value="team">
                     <IconUsers />
-                    {t('team')}
+                    {t('team', 'Team')}
                   </Filter.Item>
                 )}
                 <Filter.Item value="priority">
                   <IconAlertSquareRounded />
-                  {t('priority')}
+                  {t('priority', 'Priority')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconProgressCheck />
-                  {t('status')}
+                  {t('status', 'Status')}
                 </Filter.Item>
                 {(!teamId || (teamId && team?.cycleEnabled)) && (
                   <Filter.Item value="cycleFilter">
                     <IconRestore />
-                    {t('cycle')}
+                    {t('cycle', 'Cycle')}
                   </Filter.Item>
                 )}
                 {(!teamId ||
@@ -159,60 +159,60 @@ const TasksFilterPopover = () => {
                       TeamEstimateTypes.NOT_IN_USE)) && (
                   <Filter.Item value="estimatePoint">
                     <IconTriangle />
-                    {t('estimate')}
+                    {t('estimate', 'Estimate')}
                   </Filter.Item>
                 )}
                 <TagsFilter />
                 {projectId && !queries?.milestone && (
                   <Filter.Item value="milestone">
                     <IconSquareRotated />
-                    {t('milestone')}
+                    {t('milestone', 'Milestone')}
                   </Filter.Item>
                 )}
                 <Command.Separator className="my-1" />
-                <Command.Group heading={t('dates')}>
+                <Command.Group heading={t('dates', 'DATES')}>
                   <Filter.Item value="targetDate">
                     <IconCalendarEvent />
-                    {t('due-date')}
+                    {t('due-date', 'Due date')}
                   </Filter.Item>
                   <Filter.Item value="createdDate">
                     <IconCalendarPlus />
-                    {t('created-date')}
+                    {t('created-date', 'Created date')}
                   </Filter.Item>
                   <Filter.Item value="updatedDate">
                     <IconCalendar />
-                    {t('updated-date')}
+                    {t('updated-date', 'Updated date')}
                   </Filter.Item>
                   <Filter.Item value="startDate">
                     <IconCalendarTime />
-                    {t('started-date')}
+                    {t('started-date', 'Started date')}
                   </Filter.Item>
                   <Filter.Item value="completedDate">
                     <IconCalendarX />
-                    {t('completed-date')}
+                    {t('completed-date', 'Completed date')}
                   </Filter.Item>
                 </Command.Group>
                 <Command.Separator className="my-1" />
-                <Command.Group heading={t('projects')}>
+                <Command.Group heading={t('projects', 'Projects')}>
                   <Filter.Item value="project">
                     <IconClipboard />
-                    {t('project')}
+                    {t('project', 'Project')}
                   </Filter.Item>
                   <Filter.Item value="projectStatus">
                     <IconProgressCheck />
-                    {t('project-status')}
+                    {t('project-status', 'Project Status')}
                   </Filter.Item>
                   <Filter.Item value="projectPriority">
                     <IconFlag />
-                    {t('project-priority')}
+                    {t('project-priority', 'Project Priority')}
                   </Filter.Item>
                   <Filter.Item value="projectLeadId">
                     <IconUser />
-                    {t('project-lead')}
+                    {t('project-lead', 'Project Lead')}
                   </Filter.Item>
                   <Filter.Item value="projectMilestoneName" inDialog>
                     <IconSquareRotated />
-                    {t('project-milestone-name')}
+                    {t('project-milestone-name', 'Project Milestone Name')}
                   </Filter.Item>
                 </Command.Group>
               </Command.List>
@@ -326,7 +326,7 @@ export const TasksFilter = () => {
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
               <IconSearch />
-              {t('search')}
+              {t('search', 'Search')}
             </Filter.BarName>
             <Filter.BarButton filterKey="searchValue" inDialog>
               {searchValue}
@@ -336,35 +336,35 @@ export const TasksFilter = () => {
         <Filter.BarItem queryKey="project">
           <Filter.BarName>
             <IconClipboard />
-            {t('project')}
+            {t('project', 'Project')}
           </Filter.BarName>
           <SelectProject.FilterBar queryKey="project" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="projectStatus">
           <Filter.BarName>
             <IconProgressCheck />
-            {t('project-status')}
+            {t('project-status', 'Project Status')}
           </Filter.BarName>
           <SelectStatus.FilterBar queryKey="projectStatus" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="projectPriority">
           <Filter.BarName>
             <IconFlag />
-            {t('project-priority')}
+            {t('project-priority', 'Project Priority')}
           </Filter.BarName>
           <SelectPriority.FilterBar queryKey="projectPriority" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="projectLeadId">
           <Filter.BarName>
             <IconUser />
-            {t('project-lead')}
+            {t('project-lead', 'Project Lead')}
           </Filter.BarName>
           <SelectLead.FilterBar queryKey="projectLeadId" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="projectMilestoneName">
           <Filter.BarName>
             <IconSquareRotated />
-            {t('project-milestone-name')}
+            {t('project-milestone-name', 'Project Milestone Name')}
           </Filter.BarName>
           <ProjectMilestoneNameFilter.Bar queryKey="projectMilestoneName" />
         </Filter.BarItem>
@@ -372,7 +372,7 @@ export const TasksFilter = () => {
           <Filter.BarItem queryKey="team">
             <Filter.BarName>
               <IconUsers />
-              {t('team')}
+              {t('team', 'Team')}
             </Filter.BarName>
             <SelectTeam.FilterBar />
           </Filter.BarItem>
@@ -380,14 +380,14 @@ export const TasksFilter = () => {
         <Filter.BarItem queryKey="priority">
           <Filter.BarName>
             <IconAlertSquareRounded />
-            {t('priority')}
+            {t('priority', 'Priority')}
           </Filter.BarName>
           <SelectPriority.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgressCheck />
-            {t('status')}
+            {t('status', 'Status')}
           </Filter.BarName>
           {teamId ? (
             <SelectStatusTask.FilterBar
@@ -401,7 +401,7 @@ export const TasksFilter = () => {
         <Filter.BarItem queryKey="assignee">
           <Filter.BarName>
             <IconUser />
-            {t('assignee')}
+            {t('assignee', 'Assignee')}
           </Filter.BarName>
           <SelectAssigneeTask.FilterBar teamIds={resolvedTeamIds} />
         </Filter.BarItem>
@@ -409,7 +409,7 @@ export const TasksFilter = () => {
           <Filter.BarItem queryKey="cycleFilter">
             <Filter.BarName>
               <IconRestore />
-              {t('cycle')}
+              {t('cycle', 'Cycle')}
             </Filter.BarName>
             <SelectCycle.FilterBar />
           </Filter.BarItem>
@@ -422,7 +422,7 @@ export const TasksFilter = () => {
             <Filter.BarItem queryKey="estimatePoint">
               <Filter.BarName>
                 <IconTriangle />
-                {t('estimate')}
+                {t('estimate', 'Estimate')}
               </Filter.BarName>
               <SelectEstimatedPoint.FilterBar />
             </Filter.BarItem>
@@ -432,7 +432,7 @@ export const TasksFilter = () => {
           <Filter.BarItem queryKey="milestone">
             <Filter.BarName>
               <IconSquareRotated />
-              {t('milestone')}
+              {t('milestone', 'Milestone')}
             </Filter.BarName>
             <SelectMilestone.FilterBar projectId={projectId} />
           </Filter.BarItem>
@@ -440,42 +440,42 @@ export const TasksFilter = () => {
         <Filter.BarItem queryKey="createdBy">
           <Filter.BarName>
             <IconUserPlus />
-            {t('creator')}
+            {t('creator', 'Creator')}
           </Filter.BarName>
           <SelectCreatorTask.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="targetDate">
           <Filter.BarName>
             <IconCalendarEvent />
-            {t('due-date')}
+            {t('due-date', 'Due date')}
           </Filter.BarName>
           <SelectDueDateFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendarPlus />
-            {t('created')}
+            {t('created', 'Created')}
           </Filter.BarName>
           <SelectCreatedDateFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updatedDate">
           <Filter.BarName>
             <IconCalendar />
-            {t('updated')}
+            {t('updated', 'Updated')}
           </Filter.BarName>
           <SelectUpdatedDateFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="startDate">
           <Filter.BarName>
             <IconCalendarTime />
-            {t('started')}
+            {t('started', 'Started')}
           </Filter.BarName>
           <SelectStartedDateFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="completedDate">
           <Filter.BarName>
             <IconCalendarX />
-            {t('completed')}
+            {t('completed', 'Completed')}
           </Filter.BarName>
           <SelectCompletedDateFilter.FilterBar />
         </Filter.BarItem>

@@ -50,14 +50,14 @@ export const CreateTeam = () => {
       addTeam({
         variables: data,
         onCompleted: (data) => {
-          toast({ title: t('success') });
+          toast({ title: t('success', 'Success') });
           navigate(`/settings/operation/team/details/${data.teamAdd._id}`);
           form.reset();
           _setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -71,7 +71,7 @@ export const CreateTeam = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('create-team')}
+          {t('create-team', 'Create team')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -82,13 +82,13 @@ export const CreateTeam = () => {
             onSubmit={form.handleSubmit(submitHandler, (errors) => {
               toast({
                 variant: 'destructive',
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: Object.entries(errors)[0][1].message,
               });
             })}
           >
             <Sheet.Header>
-              <Sheet.Title>{t('add-team')}</Sheet.Title>
+              <Sheet.Title>{t('add-team', 'Add team')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -96,10 +96,10 @@ export const CreateTeam = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'secondary'} onClick={onClose}>
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {t('create')}
+                {t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

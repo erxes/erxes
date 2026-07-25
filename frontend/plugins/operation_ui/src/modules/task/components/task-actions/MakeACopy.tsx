@@ -73,8 +73,8 @@ export const MakeACopyTrigger = ({
   const handleMakeACopy = () => {
     if (!task) {
       toast({
-        title: t('error'),
-        description: t('task-not-found'),
+        title: t('error', 'Error'),
+        description: t('task-not-found', 'Task not found'),
         variant: 'destructive',
       });
       return;
@@ -90,7 +90,7 @@ export const MakeACopyTrigger = ({
       disabled={taskId ? loading || !task : !task}
     >
       <IconCopy className="size-4" />
-      <div className="flex items-center">{t('make-a-copy')}</div>
+      <div className="flex items-center">{t('make-a-copy', 'Make a copy')}</div>
     </Command.Item>
   );
 };

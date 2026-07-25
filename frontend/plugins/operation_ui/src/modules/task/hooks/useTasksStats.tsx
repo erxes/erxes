@@ -268,7 +268,7 @@ export const useTasksStats = ({
           id: projectId,
           name:
             project?.name ||
-            (projectId === 'no-project' ? t('no-project-label') : t('unknown-project')),
+            (projectId === 'no-project' ? t('no-project-label', 'No Project') : t('unknown-project', 'Unknown Project')),
           totalTasks: stats.total,
           completedTasks: stats.completed,
           startedTasks: stats.started,

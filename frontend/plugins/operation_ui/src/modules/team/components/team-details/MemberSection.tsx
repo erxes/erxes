@@ -14,11 +14,11 @@ export const MemberSection = ({ team }: { team: ITeam }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>{t('manage-team-members')}</p>
+          <p>{t('manage-team-members', 'Manage team members')}</p>
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              {team.memberCount} {team.memberCount === 1 ? t('member') : t('members')}
+              {team.memberCount} {team.memberCount === 1 ? t('member', 'member') : t('members', 'Members')}
             </p>
             <IconChevronRight className="w-4 h-4" />
             {/* <Popover>

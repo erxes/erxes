@@ -25,7 +25,7 @@ export const TeamTemplatesPage = () => {
                     }
                   >
                     <IconArrowLeft size={16} className="stroke-foreground" />
-                    {t('team-settings')}
+                    {t('team-settings', 'Team settings')}
                   </Button>
                 </Breadcrumb.Link>
               </Breadcrumb.Item>

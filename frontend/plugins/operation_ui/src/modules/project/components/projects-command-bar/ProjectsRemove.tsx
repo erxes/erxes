@@ -13,7 +13,7 @@ export const ProjectsDeleteTrigger = ({
     <Command.Item onSelect={() => setCurrentContent('delete')}>
       <div className="flex gap-2 items-center text-red-500">
         <IconTrash size={16} />
-        {t('delete-project')}
+        {t('delete-project', 'Delete Project')}
       </div>
     </Command.Item>
   );
@@ -45,11 +45,11 @@ export const ProjectsDeleteContent = ({
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="text-sm font-medium">
-        {t('delete-confirmation', { count: projectIds.length })}
+        {t('delete-confirmation', 'Are you sure you want to delete {{count}} projects?', { count: projectIds.length })}
       </div>
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
-          {t('cancel')}
+          {t('cancel', 'Cancel')}
         </Button>
         <Button
           variant="destructive"
@@ -57,7 +57,7 @@ export const ProjectsDeleteContent = ({
           onClick={handleDelete}
           disabled={loading}
         >
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
       </div>
     </div>

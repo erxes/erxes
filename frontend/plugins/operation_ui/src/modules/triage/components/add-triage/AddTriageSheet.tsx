@@ -44,7 +44,7 @@ export const AddTriageSheet = ({
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-triage')}
+          {t('add-triage', 'Add triage')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View

@@ -168,7 +168,7 @@ export const CreateTaskActionConfigForm = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('name')}</Form.Label>
+            <Form.Label>{t('name', 'Name')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -184,7 +184,7 @@ export const CreateTaskActionConfigForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('description')}</Form.Label>
+            <Form.Label>{t('description', 'Description')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -202,7 +202,7 @@ export const CreateTaskActionConfigForm = ({
           name="teamId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('team')}</Form.Label>
+              <Form.Label>{t('team', 'Team')}</Form.Label>
               <SelectTeam.FormItem
                 mode="single"
                 value={field.value || ''}
@@ -223,7 +223,7 @@ export const CreateTaskActionConfigForm = ({
           name="status"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('status')}</Form.Label>
+              <Form.Label>{t('status', 'Status')}</Form.Label>
               <TaskStatusFormItem
                 value={field.value || ''}
                 teamId={teamId}
@@ -241,7 +241,7 @@ export const CreateTaskActionConfigForm = ({
           name="priority"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('priority')}</Form.Label>
+              <Form.Label>{t('priority', 'Priority')}</Form.Label>
               <SelectPriority.FormItem
                 value={field.value || 0}
                 onValueChange={field.onChange}
@@ -266,7 +266,7 @@ export const CreateTaskActionConfigForm = ({
           name="projectId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('project')}</Form.Label>
+              <Form.Label>{t('project', 'Project')}</Form.Label>
               <SelectProject.FormItem
                 teamId={teamId}
                 value={field.value || ''}
@@ -285,7 +285,7 @@ export const CreateTaskActionConfigForm = ({
           name="milestoneId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('milestone')}</Form.Label>
+              <Form.Label>{t('milestone', 'Milestone')}</Form.Label>
               <SelectMilestone.FormItem
                 projectId={projectId}
                 value={field.value || ''}

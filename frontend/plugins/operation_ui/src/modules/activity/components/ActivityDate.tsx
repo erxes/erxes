@@ -15,7 +15,7 @@ export const ActivityDate = ({
 
   return (
     <div className="inline-flex items-center gap-1 whitespace-nowrap">
-      {t('changed')} {type === 'start' ? t('start') : t('end')} {t('date')}
+      {t('changed', 'changed')} {type === 'start' ? t('start', 'start') : t('end', 'end')} {t('date', 'date')}
       {previousValue && (
         <>
           {' '}
@@ -24,7 +24,7 @@ export const ActivityDate = ({
           </Badge>
         </>
       )}{' '}
-      {t('to')}
+      {t('to', 'to')}
       <Badge variant="secondary" className="flex-none">
         {format(new Date(newValue), 'MMM d, yyyy')}
       </Badge>

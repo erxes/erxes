@@ -14,15 +14,15 @@ export const ActivityEstimate = ({
   if (action === ACTIVITY_ACTIONS.CREATED) {
     return (
       <div>
-        {t('added-estimate-point')}{' '}
+        {t('added-estimate-point', 'added estimate point')}{' '}
         <span className="font-bold">{metadata.newValue}</span>
       </div>
     );
   }
   return (
     <div>
-      {t('changed-estimate-point')}{' '}
-      <span className="font-bold">{metadata.previousValue}</span> {t('to')}{' '}
+      {t('changed-estimate-point', 'changed estimate point')}{' '}
+      <span className="font-bold">{metadata.previousValue}</span> {t('to', 'to')}{' '}
       <span className="font-bold">{metadata.newValue}</span>
     </div>
   );

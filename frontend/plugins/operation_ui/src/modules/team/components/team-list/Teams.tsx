@@ -20,11 +20,11 @@ export function Teams() {
           <Table.Header>
             <Table.Row className="rounded-t-md">
               <Table.Head className="w-auto rounded-tl-md pl-2">
-                {t('title')}
+                {t('title', 'Title')}
               </Table.Head>
-              <Table.Head className="w-20">{t('members')}</Table.Head>
-              <Table.Head className="w-20">{t('tasks')}</Table.Head>
-              <Table.Head className="w-32">{t('created-at')}</Table.Head>
+              <Table.Head className="w-20">{t('members', 'Members')}</Table.Head>
+              <Table.Head className="w-20">{t('tasks', 'Tasks')}</Table.Head>
+              <Table.Head className="w-32">{t('created-at', 'Created At')}</Table.Head>
             </Table.Row>
           </Table.Header>
           <Table.Body className="">
@@ -68,9 +68,9 @@ export function Teams() {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-team-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-team-yet', 'No team yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    {t('get-started-creating-team')}
+                    {t('get-started-creating-team', 'Get started by creating your first team.')}
                   </p>
                 </div>
                 <CreateTeam />

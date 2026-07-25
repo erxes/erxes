@@ -88,7 +88,7 @@ export const MilestoneFields = ({
                     {...field}
                     ref={nameInputRef}
                     type="text"
-                    placeholder={t('milestone-name')}
+                    placeholder={t('milestone-name', 'Milestone name')}
                     autoFocus
                     className="bg-transparent outline-hidden border-none focus:ring-0 focus:outline-hidden w-full"
                   />

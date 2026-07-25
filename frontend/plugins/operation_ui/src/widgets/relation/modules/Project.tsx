@@ -77,7 +77,7 @@ export const Project = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconClipboard />
         </div>
-        <span className="text-sm">{t('no-projects-to-display')}</span>
+        <span className="text-sm">{t('no-projects-to-display', 'No projects to display at the moment.')}</span>
         <AddProjectRelation onSelect={onSelect} label="Add project" />
       </div>
     );
@@ -86,7 +86,7 @@ export const Project = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('projects')}</span>
+        <span className="font-medium text-primary">{t('projects', 'Projects')}</span>
         <AddProjectRelation onSelect={onSelect} />
       </div>
       <Separator />

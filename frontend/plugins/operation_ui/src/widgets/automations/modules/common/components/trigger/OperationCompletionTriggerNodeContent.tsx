@@ -50,7 +50,7 @@ export const OperationCompletionTriggerNodeContent = ({
           <AutomationNodeMetaInfoRow
             fieldName="Teams"
             content={
-              config?.teamIds?.length ? config.teamIds.join(', ') : t('any-team')
+              config?.teamIds?.length ? config.teamIds.join(', ') : t('any-team', 'Any team')
             }
           />
         </>

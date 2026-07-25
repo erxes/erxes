@@ -21,7 +21,7 @@ export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
       id={activity._id}
     >
       {activity.createdBy === 'system' ? (
-        <div className="text-accent-foreground">{t('system')}</div>
+        <div className="text-accent-foreground">{t('system', 'System')}</div>
       ) : (
         <MembersInline.Provider memberIds={memberIds}>
           <MembersInline.Title />

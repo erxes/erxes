@@ -19,7 +19,7 @@ export const TasksEditPriorityTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconAlertSquareRounded className="size-4" />
-        {t('change-priority')}
+        {t('change-priority', 'Change Priority')}
       </div>
       <IconChevronRight />
     </Command.Item>

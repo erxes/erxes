@@ -13,7 +13,7 @@ export const useDeleteStatus = () => {
       refetchQueries: [GET_STATUSES_BY_TYPE],
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

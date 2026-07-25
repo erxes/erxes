@@ -15,7 +15,7 @@ export const ProjectsChangePriorityTrigger = ({
         setCurrentContent('priority');
       }}
     >
-      <div className="flex gap-2 items-center">{t('change-priority')}</div>
+      <div className="flex gap-2 items-center">{t('change-priority', 'Change Priority')}</div>
     </Command.Item>
   );
 };

@@ -107,7 +107,7 @@ export const SelectLeadFilterItem = () => {
   return (
     <Filter.Item value="lead">
       <IconUser />
-      {t('lead')}
+      {t('lead', 'Lead')}
     </Filter.Item>
   );
 };
@@ -231,7 +231,7 @@ export const SelectLeadInlineCell = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <RecordTableInlineCell.Trigger>
-          <SelectLeadValue placeholder={t('lead-not-specified')} />
+          <SelectLeadValue placeholder={t('lead-not-specified', 'Lead not specified')} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectLeadContent teamIds={teamIds} />
@@ -250,7 +250,7 @@ const SelectLeadFormValue = () => {
       members={members}
       updateMembers={setMembers}
       className="font-medium text-base text-foreground"
-      placeholder={t('select-lead')}
+      placeholder={t('select-lead', 'Select lead')}
     />
   );
 };

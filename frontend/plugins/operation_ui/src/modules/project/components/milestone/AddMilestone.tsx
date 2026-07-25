@@ -41,7 +41,7 @@ export const AddMilestone = ({
 
   const triggerContent = (
     <div className="flex items-center justify-between">
-      {t('milestone')} <IconPlus size={16} strokeWidth={2} />
+      {t('milestone', 'Milestone')} <IconPlus size={16} strokeWidth={2} />
     </div>
   );
 

@@ -122,7 +122,7 @@ export const CreateProjectActionConfigForm = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('name')}</Form.Label>
+            <Form.Label>{t('name', 'Name')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -138,7 +138,7 @@ export const CreateProjectActionConfigForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('description')}</Form.Label>
+            <Form.Label>{t('description', 'Description')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -154,7 +154,7 @@ export const CreateProjectActionConfigForm = ({
         name="teamIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('teams')}</Form.Label>
+            <Form.Label>{t('teams', 'Teams')}</Form.Label>
             <SelectTeam.FormItem
               mode="multiple"
               value={field.value || []}
@@ -171,7 +171,7 @@ export const CreateProjectActionConfigForm = ({
           name="status"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('status')}</Form.Label>
+              <Form.Label>{t('status', 'Status')}</Form.Label>
               <SelectStatus.FormItem
                 value={field.value || 0}
                 onValueChange={field.onChange}
@@ -187,7 +187,7 @@ export const CreateProjectActionConfigForm = ({
           name="priority"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('priority')}</Form.Label>
+              <Form.Label>{t('priority', 'Priority')}</Form.Label>
               <SelectPriority.FormItem
                 value={field.value || 0}
                 onValueChange={field.onChange}

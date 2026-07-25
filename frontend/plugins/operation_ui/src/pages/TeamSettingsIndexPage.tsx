@@ -7,7 +7,7 @@ export const TeamsSettingsPage = () => {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <div className="w-full flex justify-between items-center px-8 py-6">
-        <h1 className="text-xl font-semibold">{t('teams')}</h1>
+        <h1 className="text-xl font-semibold">{t('teams', 'Teams')}</h1>
         <CreateTeam />
       </div>
       <div className="flex-1 min-h-0">

@@ -90,7 +90,7 @@ export const TasksCommandBar = () => {
           <Popover.Trigger asChild>
             <Button variant="secondary">
               <IconRepeat />
-{t('actions')}
+{t('actions', 'Actions')}
             </Button>
           </Popover.Trigger>
           <Popover.Content
@@ -131,7 +131,7 @@ export const TasksCommandBar = () => {
                             </Avatar.Fallback>
                           </Avatar>
                         </div>
-                        {t('assign-to-me')}
+                        {t('assign-to-me', 'Assign to me')}
                       </div>
                     </Command.Item>
                     <TasksAssignToTrigger
@@ -177,7 +177,7 @@ export const TasksCommandBar = () => {
                     >
                       <div className="flex gap-2 items-center">
                         <IconTrash className="size-4" />
-                        {t('delete')}
+                        {t('delete', 'Delete')}
                       </div>
                     </Command.Item>
                   </Command.Group>

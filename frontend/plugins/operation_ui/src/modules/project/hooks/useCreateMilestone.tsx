@@ -17,15 +17,15 @@ export const useCreateMilestone = () => {
     {
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('milestone-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('milestone-created-successfully', 'Milestone created successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

@@ -15,17 +15,17 @@ export const TaskBreadCrump = ({ link }: { link: string }) => {
           <Button variant="ghost" asChild>
             <Link to={link}>
               <IconCheckbox />
-              {t('tasks')}
+              {t('tasks', 'Tasks')}
             </Link>
           </Button>
         </Breadcrumb.Item>
         <Breadcrumb.Separator />
         <ToggleGroup type="single" value={pathname}>
           <ToggleGroup.Item value="/operation/tasks" asChild>
-            <Link to="/operation/tasks">{t('assigned')}</Link>
+            <Link to="/operation/tasks">{t('assigned', 'Assigned')}</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="/operation/tasks/created" asChild>
-            <Link to="/operation/tasks/created">{t('created')}</Link>
+            <Link to="/operation/tasks/created">{t('created', 'Created')}</Link>
           </ToggleGroup.Item>
         </ToggleGroup>
       </>
@@ -37,7 +37,7 @@ export const TaskBreadCrump = ({ link }: { link: string }) => {
       <Button variant="ghost" asChild>
         <Link to={link}>
           <IconCheckbox />
-          {t('tasks')}
+          {t('tasks', 'Tasks')}
         </Link>
       </Button>
     </Breadcrumb.Item>

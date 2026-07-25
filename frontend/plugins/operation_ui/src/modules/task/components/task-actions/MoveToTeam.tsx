@@ -80,8 +80,8 @@ export const MoveToTeamProvider = ({
       );
 
       toast({
-        title: t('success'),
-        description: t('tasks-moved-to-team', { count: taskIds.length }),
+        title: t('success', 'Success'),
+        description: t('tasks-moved-to-team', 'Successfully moved {{count}} tasks to team.', { count: taskIds.length }),
         variant: 'default',
       });
       client.refetchQueries({ include: ['GetTasks'] });
@@ -219,11 +219,11 @@ export const TaskMoveToTeamContent = ({
   };
   return (
     <Command>
-      <Command.Input placeholder={t('search-teams')} />
+      <Command.Input placeholder={t('search-teams', 'Search teams...')} />
 
       {teamsLoading ? (
         <div className="p-4 text-center text-sm text-muted-foreground">
-          {t('loading-teams')}
+          {t('loading-teams', 'Loading teams...')}
         </div>
       ) : teams && teams.length > 0 ? (
         <Command.List>
@@ -240,7 +240,7 @@ export const TaskMoveToTeamContent = ({
                   <span>{team.name}</span>
                   {team._id === currentTeamId && (
                     <span className="text-xs text-muted-foreground">
-                      {t('current-team')}
+                      {t('current-team', 'Current team')}
                     </span>
                   )}
                 </div>
@@ -250,7 +250,7 @@ export const TaskMoveToTeamContent = ({
         </Command.List>
       ) : (
         <div className="p-4 text-center text-sm text-muted-foreground">
-          {t('no-teams-available')}
+          {t('no-teams-available', 'No teams available')}
         </div>
       )}
 
@@ -295,7 +295,7 @@ export const TasksMoveToTeamTrigger = ({
   return (
     <Command.Item onSelect={() => setCurrentContent('moveToTeam')}>
       <IconUsersGroup className="size-4" />
-      <div className="flex items-center">{t('move-to-team')}</div>
+      <div className="flex items-center">{t('move-to-team', 'Move to team')}</div>
     </Command.Item>
   );
 };
@@ -358,8 +358,8 @@ export const ProjectTeamConflictDialog = ({
       );
 
       toast({
-        title: t('success'),
-        description: t('added-team-to-projects-and-moved-tasks'),
+        title: t('success', 'Success'),
+        description: t('added-team-to-projects-and-moved-tasks', 'Added team to projects and moved tasks successfully'),
         variant: 'default',
       });
       client.refetchQueries({ include: ['GetTasks'] });
@@ -397,8 +397,8 @@ export const ProjectTeamConflictDialog = ({
       );
 
       toast({
-        title: t('success'),
-        description: t('removed-tasks-from-projects-and-moved'),
+        title: t('success', 'Success'),
+        description: t('removed-tasks-from-projects-and-moved', 'Removed tasks from projects and moved to team successfully'),
         variant: 'default',
       });
       client.refetchQueries({ include: ['GetTasks'] });
@@ -429,7 +429,7 @@ export const ProjectTeamConflictDialog = ({
             <div className="flex size-10 items-center justify-center rounded-full bg-warning/10">
               <IconAlertTriangle className="size-5 text-warning" />
             </div>
-            <Dialog.Title>{t('project-team-conflict')}</Dialog.Title>
+            <Dialog.Title>{t('project-team-conflict', 'Project Team Conflict')}</Dialog.Title>
           </div>
           <Dialog.Description className="pt-4">
             {projectCount === 1 ? (
@@ -460,7 +460,7 @@ export const ProjectTeamConflictDialog = ({
             disabled={isProcessing}
             className="w-full"
           >
-            {t('add-team-to-projects', { teamName: targetTeamName, count: projectCount })}
+            {t('add-team-to-projects', 'Add "{{teamName}}" to {{count, plural, one {project} other {projects}}}', { teamName: targetTeamName, count: projectCount })}
           </Button>
           <Button
             onClick={handleRemoveFromProjects}
@@ -468,7 +468,7 @@ export const ProjectTeamConflictDialog = ({
             variant="outline"
             className="w-full"
           >
-            {t('remove-tasks-from-projects-and-move', { taskCount: totalTaskCount, projectCount })}
+            {t('remove-tasks-from-projects-and-move', 'Remove {{taskCount, plural, one {task} other {tasks}}} from {{projectCount, plural, one {project} other {projects}}} and move to team', { taskCount: totalTaskCount, projectCount })}
           </Button>
           <Button
             onClick={() => onOpenChange(false)}
@@ -476,7 +476,7 @@ export const ProjectTeamConflictDialog = ({
             variant="ghost"
             className="w-full"
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

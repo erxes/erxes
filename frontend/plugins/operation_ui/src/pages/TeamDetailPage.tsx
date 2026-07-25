@@ -21,7 +21,7 @@ export const TeamDetailPage = () => {
                   onClick={() => navigate('/settings/operation/team')}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
-                  {t('teams')}
+                  {t('teams', 'Teams')}
                 </Button>
               </Breadcrumb.Link>
             </Breadcrumb.Item>

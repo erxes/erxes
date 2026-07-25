@@ -62,7 +62,7 @@ export const OperationCompletionTriggerConfigForm = ({
           name="projectId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('project')}</Form.Label>
+              <Form.Label>{t('project', 'Project')}</Form.Label>
               <SelectProject.FormItem
                 value={field.value || ''}
                 onValueChange={(value) => field.onChange(value || '')}
@@ -81,7 +81,7 @@ export const OperationCompletionTriggerConfigForm = ({
               name="projectId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('project')}</Form.Label>
+                  <Form.Label>{t('project', 'Project')}</Form.Label>
                   <SelectProject.FormItem
                     value={field.value || ''}
                     onValueChange={(value) => {
@@ -99,7 +99,7 @@ export const OperationCompletionTriggerConfigForm = ({
               name="milestoneId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('milestone')}</Form.Label>
+                  <Form.Label>{t('milestone', 'Milestone')}</Form.Label>
                   <SelectMilestone.FormItem
                     projectId={projectId}
                     value={field.value || ''}
@@ -122,7 +122,7 @@ export const OperationCompletionTriggerConfigForm = ({
             name="teamIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('teams')}</Form.Label>
+                <Form.Label>{t('teams', 'Teams')}</Form.Label>
                 <SelectTeam.FormItem
                   mode="multiple"
                   value={field.value || []}
@@ -152,7 +152,7 @@ const CompletionModeField = ({
       name="mode"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('completion-mode')}</Form.Label>
+          <Form.Label>{t('completion-mode', 'Completion mode')}</Form.Label>
           <OperationCompletionModeInput
             value={field.value}
             onChange={field.onChange}

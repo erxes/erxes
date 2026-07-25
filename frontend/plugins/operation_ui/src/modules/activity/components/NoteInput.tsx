@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
   const { t } = useTranslation('operation');
-  const editor = useBlockEditor({ placeholder: t('leave-a-note') });
+  const editor = useBlockEditor({ placeholder: t('leave-a-note', 'Leave a note...') });
   const { createNote, loading } = useCreateNote();
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -81,7 +81,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
           // disabled={editor?.document?.length === 0}
           onClick={onSend}
         >
-          {t('send')}
+          {t('send', 'Send')}
           <Kbd className="ml-1">
             <IconCommand size={12} />
             <IconCornerDownLeft size={12} />

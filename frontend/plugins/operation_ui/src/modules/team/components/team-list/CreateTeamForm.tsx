@@ -19,8 +19,8 @@ export const CreateTeamForm = ({
           name="icon"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('icon')}</Form.Label>
-              <Form.Description className="sr-only">{t('icon')}</Form.Description>
+              <Form.Label>{t('icon', 'Icon')}</Form.Label>
+              <Form.Description className="sr-only">{t('icon', 'Icon')}</Form.Description>
               <Form.Control>
                 <IconPicker
                   onValueChange={field.onChange}
@@ -37,8 +37,8 @@ export const CreateTeamForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>{t('team-name')}</Form.Label>
-              <Form.Description className="sr-only">{t('team-name-label')}</Form.Description>
+              <Form.Label>{t('team-name', 'Team name')}</Form.Label>
+              <Form.Description className="sr-only">{t('team-name-label', 'Team Name')}</Form.Description>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -52,8 +52,8 @@ export const CreateTeamForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('description-label')}</Form.Label>
-            <Form.Description className="sr-only">{t('description-label')}</Form.Description>
+            <Form.Label>{t('description-label', 'description')}</Form.Label>
+            <Form.Description className="sr-only">{t('description-label', 'description')}</Form.Description>
             <Form.Control>
               <Textarea {...field} />
             </Form.Control>
@@ -67,8 +67,8 @@ export const CreateTeamForm = ({
         name="memberIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('members')}</Form.Label>
-            <Form.Description className="sr-only">{t('members')}</Form.Description>
+            <Form.Label>{t('members', 'Members')}</Form.Label>
+            <Form.Description className="sr-only">{t('members', 'Members')}</Form.Description>
             <Form.Control>
               <SelectMember.FormItem
                 value={field.value}

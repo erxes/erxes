@@ -46,7 +46,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
     accessorKey: 'name',
     header: () => {
       const { t } = useTranslation('operation');
-      return <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />;
+      return <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />;
     },
     cell: ({ cell }) => {
       const name = cell.getValue() as string;
@@ -112,7 +112,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
     accessorKey: 'donePercent',
     header: () => {
       const { t } = useTranslation('operation');
-      return <RecordTable.InlineHead label={t('progress')} icon={IconProgress} />;
+      return <RecordTable.InlineHead label={t('progress', 'Progress')} icon={IconProgress} />;
     },
     cell: ({ cell }) => {
       const { donePercent } = cell.row.original;
@@ -160,7 +160,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
     accessorKey: 'status',
     header: () => {
       const { t } = useTranslation('operation');
-      return <RecordTable.InlineHead label={t('status')} icon={IconProgressCheck} />;
+      return <RecordTable.InlineHead label={t('status', 'Status')} icon={IconProgressCheck} />;
     },
     cell: ({ cell }) => {
       const { isActive, isCompleted } = cell.row.original;
@@ -177,7 +177,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
     accessorKey: 'startDate',
     header: () => {
       const { t } = useTranslation('operation');
-      return <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />;
+      return <RecordTable.InlineHead label={t('start-date', 'Start Date')} icon={IconCalendarFilled} />;
     },
     cell: ({ cell }) => {
       const startDate = cell.getValue() as string;
@@ -196,7 +196,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
     accessorKey: 'endDate',
     header: () => {
       const { t } = useTranslation('operation');
-      return <RecordTable.InlineHead label={t('end-date')} icon={IconCalendarFilled} />;
+      return <RecordTable.InlineHead label={t('end-date', 'End Date')} icon={IconCalendarFilled} />;
     },
     cell: ({ cell }) => {
       const { endDate, startDate } = cell.row.original;

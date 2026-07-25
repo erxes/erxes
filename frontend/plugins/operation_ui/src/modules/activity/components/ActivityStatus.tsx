@@ -56,9 +56,9 @@ export const ActivityStatus = ({
 
   return (
     <div className="flex items-center gap-1">
-      {t('changed-status')}
+      {t('changed-status', 'changed status')}
       {renderStatusBadge(previousValue)}
-      {t('to')}
+      {t('to', 'to')}
       {renderStatusBadge(newValue)}
     </div>
   );

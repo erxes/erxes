@@ -75,7 +75,7 @@ export const SetDueDateMenu = ({
           onClick={() => setShowCalendar(false)}
         >
           <IconChevronLeft className="size-4 mr-1" />
-          {t('back-to-options')}
+          {t('back-to-options', 'Back to options')}
         </Button>
         <Calendar
           mode="single"
@@ -101,7 +101,7 @@ export const SetDueDateMenu = ({
           disabled={loading}
         >
           <IconCalendarTime className="size-4 mr-2" />
-          <span>{t('custom-date')}</span>
+          <span>{t('custom-date', 'Custom date')}</span>
         </Command.Item>
 
         <Command.Separator />
@@ -148,7 +148,7 @@ export const TasksSetDueDateTrigger = ({
   return (
     <Command.Item onSelect={() => setCurrentContent('setTargetDate')}>
       <IconCalendarEvent className="size-4" />
-      <div className="flex items-center">{t('set-target-date')}</div>
+      <div className="flex items-center">{t('set-target-date', 'Set Target Date')}</div>
     </Command.Item>
   );
 };

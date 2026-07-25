@@ -15,7 +15,7 @@ export const ProjectsChangeStatusTrigger = ({
         setCurrentContent('status');
       }}
     >
-      <div className="flex gap-2 items-center">{t('change-status')}</div>
+      <div className="flex gap-2 items-center">{t('change-status', 'Change Status')}</div>
     </Command.Item>
   );
 };

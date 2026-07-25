@@ -97,22 +97,22 @@ export const CopyTaskMenu = ({
   });
 
   const getAssigneeName = (assigneeId: string): string => {
-    if (!assigneeId) return t('unassigned');
+    if (!assigneeId) return t('unassigned', 'Unassigned');
     const user = users?.find((u) => u._id === assigneeId);
     return user?.details?.fullName || assigneeId;
   };
 
   const getTagNames = (taskTagIds: string[]): string => {
-    if (!taskTagIds?.length) return t('none');
+    if (!taskTagIds?.length) return t('none', 'None');
     const tagNames = taskTagIds
       .map((id) => tags?.find((t) => t._id === id)?.name)
       .filter(Boolean);
-    return tagNames.length > 0 ? tagNames.join(', ') : t('none');
+    return tagNames.length > 0 ? tagNames.join(', ') : t('none', 'None');
   };
 
   const getStatusLabel = (status: string): string => {
     return (
-      statuses?.find((s) => s.value === status)?.label || status || t('no-status')
+      statuses?.find((s) => s.value === status)?.label || status || t('no-status', 'No Status')
     );
   };
 
@@ -160,21 +160,21 @@ export const CopyTaskMenu = ({
     const content = generateContent(type);
     const labels: Record<CopyType, string> = {
       url: 'URL',
-      title: t('title'),
-      titleAndDescription: t('title-and-description'),
-      markdown: t('markdown'),
+      title: t('title', 'Title'),
+      titleAndDescription: t('title-and-description', 'Title & Description'),
+      markdown: t('markdown', 'Markdown'),
     };
     try {
       await navigator.clipboard.writeText(content);
       toast({
-        title: t('copied'),
-        description: t('copied-to-clipboard', { label: labels[type] }),
+        title: t('copied', 'Copied!'),
+        description: t('copied-to-clipboard', '{{label}} copied to clipboard', { label: labels[type] }),
       });
       setOpen(false);
     } catch {
       toast({
-        title: t('error'),
-        description: t('failed-to-copy'),
+        title: t('error', 'Error'),
+        description: t('failed-to-copy', 'Failed to copy'),
         variant: 'destructive',
       });
     }
@@ -211,7 +211,7 @@ export const CopyTaskTrigger = ({
   return (
     <Command.Item onSelect={() => setCurrentContent('copy')}>
       <IconCopy className="size-4" />
-      <div className="flex items-center flex-1">{t('copy')}</div>
+      <div className="flex items-center flex-1">{t('copy', 'Copy')}</div>
       <IconChevronRight className="size-4 text-muted-foreground" />
     </Command.Item>
   );

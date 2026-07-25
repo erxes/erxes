@@ -42,30 +42,30 @@ const ProjectsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="name" inDialog>
                   <IconSearch />
-                  {t('search')}
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <SelectLead.FilterItem />
                 {!teamId && (
                   <Filter.Item value="team">
                     <IconUsers />
-                    {t('team')}
+                    {t('team', 'Team')}
                   </Filter.Item>
                 )}
                 <Filter.Item value="priority">
                   <IconAlertSquareRounded />
-                  {t('priority')}
+                  {t('priority', 'Priority')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconProgressCheck />
-                  {t('status')}
+                  {t('status', 'Status')}
                 </Filter.Item>
                 <TagsFilter />
               </Command.List>
@@ -108,7 +108,7 @@ export const ProjectsFilter = () => {
           <Filter.BarItem queryKey="name">
             <Filter.BarName>
               <IconSearch />
-              {t('search')}
+              {t('search', 'Search')}
             </Filter.BarName>
             <Filter.BarButton filterKey="name" inDialog>
               {name}
@@ -120,7 +120,7 @@ export const ProjectsFilter = () => {
           <Filter.BarItem queryKey="team">
             <Filter.BarName>
               <IconUsers />
-              {t('team')}
+              {t('team', 'Team')}
             </Filter.BarName>
             <SelectTeam.FilterBar />
           </Filter.BarItem>
@@ -128,14 +128,14 @@ export const ProjectsFilter = () => {
         <Filter.BarItem queryKey="priority">
           <Filter.BarName>
             <IconAlertSquareRounded />
-            {t('priority')}
+            {t('priority', 'Priority')}
           </Filter.BarName>
           <SelectPriority.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgressCheck />
-            {t('status')}
+            {t('status', 'Status')}
           </Filter.BarName>
           <SelectStatus.FilterBar />
         </Filter.BarItem>

@@ -35,7 +35,7 @@ export const AddCycleSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-cycle')}
+          {t('add-cycle', 'Add cycle')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -55,9 +55,9 @@ export const AddCycleSheetHeader = () => {
   const { t } = useTranslation('operation');
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>{t('add-cycle')}</Sheet.Title>
+      <Sheet.Title>{t('add-cycle', 'Add cycle')}</Sheet.Title>
       <Sheet.Description className="sr-only">
-        {t('add-a-new-cycle')}
+        {t('add-a-new-cycle', 'Add a new cycle to your organization.')}
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

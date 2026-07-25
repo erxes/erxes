@@ -20,7 +20,7 @@ export const TasksAssignToTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconUser className="size-4" />
-        {t('assign-to')}
+        {t('assign-to', 'Assign to')}
       </div>
       <IconChevronRight />
     </Command.Item>

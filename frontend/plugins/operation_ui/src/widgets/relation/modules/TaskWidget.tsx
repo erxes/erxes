@@ -26,5 +26,5 @@ export const TaskWidget = ({ taskId }: { taskId: string }) => {
     return <TriageWidgetCard triage={triage} />;
   }
 
-  return <div>{t('no-task-or-triage-found')}</div>;
+  return <div>{t('no-task-or-triage-found', 'No task or triage found')}</div>;
 };

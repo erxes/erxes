@@ -24,7 +24,7 @@ export const TeamSettings = () => {
                 breadcrumbs={
                   <Button variant="ghost" className="font-semibold">
                     <IconUserSquare className="w-4 h-4 text-accent-foreground" />
-                    {t('team')}
+                    {t('team', 'Team')}
                   </Button>
                 }
               />

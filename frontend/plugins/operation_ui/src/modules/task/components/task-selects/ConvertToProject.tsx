@@ -29,7 +29,7 @@ export const ConvertToProject = ({ task }: { task: ITask }) => {
         variant="outline"
         onClick={() => navigate(`/operation/projects/${project._id}/overview`)}
       >
-        {loading ? <Spinner /> : t('go-to-project-btn')}
+        {loading ? <Spinner /> : t('go-to-project-btn', 'Go to Project')}
       </Button>
     );
   }
@@ -38,7 +38,7 @@ export const ConvertToProject = ({ task }: { task: ITask }) => {
     <>
       <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
         <Sheet.Trigger asChild>
-          <Button variant="outline">{t('convert-to-project')}</Button>
+          <Button variant="outline">{t('convert-to-project', 'Convert to Project')}</Button>
         </Sheet.Trigger>
         <Sheet.View
           className="sm:max-w-3xl w-full p-0"

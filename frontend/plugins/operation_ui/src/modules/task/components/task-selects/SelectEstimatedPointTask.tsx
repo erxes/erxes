@@ -81,13 +81,13 @@ export const SelectEstimatedPointProvider = ({
     if (variant === SelectTriggerVariant.CARD) {
       return (
         <Badge variant="secondary" className="opacity-50">
-          {t('estimate-not-enabled')}
+          {t('estimate-not-enabled', 'Estimate not enabled')}
         </Badge>
       );
     }
     return (
       <Button variant="secondary" className="text-muted-foreground" disabled>
-        {t('estimate-not-enabled')}
+        {t('estimate-not-enabled', 'Estimate not enabled')}
       </Button>
     );
   }
@@ -119,7 +119,7 @@ const SelectEstimatedPointValue = ({
       <div className="flex items-center gap-2 text-accent-foreground">
         <IconTriangle className="size-4 shrink-0" />
         <span className="truncate font-medium">
-          {placeholder || t('select-estimate')}
+          {placeholder || t('select-estimate', 'Select estimate')}
         </span>
       </div>
     );
@@ -164,8 +164,8 @@ const SelectEstimatedPointContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-estimate')} />
-      <Command.Empty>{t('no-estimate-found')}</Command.Empty>
+      <Command.Input placeholder={t('search-estimate', 'Search estimate')} />
+      <Command.Empty>{t('no-estimate-found', 'No estimate found')}</Command.Empty>
       <Command.List>
         {(estimateChoices || []).map((estimate) => (
           <SelectEstimatedPointCommandItem

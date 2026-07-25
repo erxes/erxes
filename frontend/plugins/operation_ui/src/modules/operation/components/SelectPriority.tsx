@@ -74,7 +74,7 @@ const SelectPriorityBadgeValue = ({
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-priority')}
+        {placeholder || t('select-priority', 'Select priority')}
       </span>
     );
   }
@@ -114,8 +114,8 @@ const SelectPriorityContent = () => {
   const { t } = useTranslation('operation');
   return (
     <Command>
-      <Command.Input placeholder={t('search-priority')} />
-      <Command.Empty>{t('no-priority-found')}</Command.Empty>
+      <Command.Input placeholder={t('search-priority', 'Search priority')} />
+      <Command.Empty>{t('no-priority-found', 'No priority found')}</Command.Empty>
       <Command.List>
         {PROJECT_PRIORITIES_OPTIONS.map((priority, index) => (
           <SelectPriorityCommandItem key={priority} priority={index} />

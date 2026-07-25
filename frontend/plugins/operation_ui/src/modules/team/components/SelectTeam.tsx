@@ -152,7 +152,7 @@ const SelectTeamContent = () => {
   const { loading, teams } = useSelectTeamContext();
   return (
     <Command>
-      <Command.Input placeholder={t('search-teams')} />
+      <Command.Input placeholder={t('search-teams', 'Search teams...')} />
       <Command.List>
         <Combobox.Empty loading={loading} />
         {teams?.map((team) => (

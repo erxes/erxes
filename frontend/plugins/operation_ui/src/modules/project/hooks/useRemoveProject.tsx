@@ -18,14 +18,14 @@ export const useRemoveProject = () => {
       ...options,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('project-removed-successfully'),
+          title: t('success', 'Success'),
+          description: t('project-removed-successfully', 'Project removed successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

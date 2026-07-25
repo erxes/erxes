@@ -20,7 +20,7 @@ const ProjectsSettings = () => {
                   breadcrumbs={
                     <Button variant="ghost" className="font-semibold">
                       <IconClipboard className="w-4 h-4 text-accent-foreground" />
-                      {t('projects')}
+                      {t('projects', 'Projects')}
                     </Button>
                   }
                 >

@@ -25,28 +25,28 @@ export const DeclineTriage = ({ triageId }: { triageId: string }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline">{t('decline-triage')}</Button>
+        <Button variant="outline">{t('decline-triage', 'Decline Triage')}</Button>
       </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header>
-          <Dialog.Title>{t('decline-triage')}</Dialog.Title>
+          <Dialog.Title>{t('decline-triage', 'Decline Triage')}</Dialog.Title>
           <Dialog.Description className="pt-1">
-            {t('decline-triage-reason')}
+            {t('decline-triage-reason', 'Please provide a reason for declining this triage.')}
           </Dialog.Description>
         </Dialog.Header>
         <div className="py-3">
           <Textarea
-            placeholder={t('reason-placeholder')}
+            placeholder={t('reason-placeholder', 'Reason...')}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
         </div>
         <Dialog.Footer>
           <Dialog.Close asChild>
-            <Button variant="ghost">{t('cancel')}</Button>
+            <Button variant="ghost">{t('cancel', 'Cancel')}</Button>
           </Dialog.Close>
           <Button onClick={declineTriage} disabled={!reason || loading}>
-            {t('decline')}
+            {t('decline', 'Decline')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

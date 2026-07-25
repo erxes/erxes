@@ -11,7 +11,7 @@ export const ProjectBreadCrumb = ({ link }: { link: string }) => {
       <Button variant="ghost" asChild>
         <Link to={link}>
           <IconClipboard />
-          {t('projects')}
+          {t('projects', 'Projects')}
         </Link>
       </Button>
     </Breadcrumb.Item>

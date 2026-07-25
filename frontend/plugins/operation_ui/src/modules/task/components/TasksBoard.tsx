@@ -125,15 +125,15 @@ export const TasksBoard = () => {
             className="text-muted-foreground"
           />
           <h2 className="text-lg font-semibold text-muted-foreground">
-            {t('no-team-yet')}
+            {t('no-team-yet', 'No team yet')}
           </h2>
           <p className="text-md text-muted-foreground mb-4">
-            {t('create-team-to-start')}
+            {t('create-team-to-start', 'Create a team to start organizing your board.')}
           </p>
           <Button variant="outline" asChild>
             <Link to={`/settings/operation/team`}>
               <IconSettings />
-              {t('go-to-settings')}
+              {t('go-to-settings', 'Go to settings')}
             </Link>
           </Button>
         </div>

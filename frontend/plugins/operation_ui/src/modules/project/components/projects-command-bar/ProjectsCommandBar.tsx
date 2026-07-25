@@ -40,7 +40,7 @@ export const ProjectsCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('selected', { count: selectedRows.length })}</CommandBar.Value>
+        <CommandBar.Value>{t('selected', '{{count}} selected', { count: selectedRows.length })}</CommandBar.Value>
         <Can action="projectExportManage">
           <Separator.Inline />
           <Export
@@ -62,7 +62,7 @@ export const ProjectsCommandBar = () => {
           <Popover.Trigger asChild>
             <Button variant="secondary">
               <IconRepeat />
-              {t('actions')}
+              {t('actions', 'Actions')}
             </Button>
           </Popover.Trigger>
           <Popover.Content
