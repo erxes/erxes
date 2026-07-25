@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { format, endOfDay, startOfMonth, subMonths } from 'date-fns';
 import { ScrollArea, Spinner, Tabs } from 'erxes-ui';
-import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 
-import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
-import { CALL_QUEUE_LIST } from '@/integrations/call/graphql/queries/callQueueList';
 import { getDateRange } from '@/report/utils/dateFilters';
 
 import { CallFiltersContext } from './hooks/useCallFilters';
+import { useReportIntegrations } from './hooks/useReportIntegrations';
 import { SubHeader } from './components/SubHeader';
 import { KpiSection } from './components/KpiSection/KpiSection';
 import { OverviewSection } from './components/OverviewSection/OverviewSection';
@@ -17,10 +15,10 @@ import { AgentsSection } from './components/AgentsSection/AgentsSection';
 import { CallbacksSection } from './components/CallbacksSection/CallbacksSection';
 import { TopNumbersSection } from './components/TopNumbersSection/TopNumbersSection';
 
-import { deduplicateIntegrations, normalizeQueue } from './utils';
+import { deduplicateIntegrations } from './utils';
 import type { CallFilters, SelectOption } from './types';
 
-type QueueRecord = { _id?: string; name?: string; queue?: string };
+const ALL_QUEUES_OPTION: SelectOption = { label: 'All queues', value: 'all' };
 
 const TABS = [
   { value: 'overview', label: 'overview' },
@@ -43,18 +41,19 @@ export function CallReportsPage() {
   const { t } = useTranslation('frontline');
   const [tab, setTab] = useState<TabValue>('overview');
   const [integrationId, setIntegrationId] = useState('');
-  const [queueId, setQueueId] = useState('');
+  const [queueId, setQueueId] = useState('all');
   const [direction, setDirection] = useState('all');
   const [dateFilter, setDateFilter] = useState('last-3-months');
 
   // ── Integrations ─────────────────────────────────────────────────────────
-  const { callUserIntegrations = [], loading: integrationsLoading } =
-    useCallUserIntegration();
+  // All call integrations — not limited to ones the current user operates.
+  const { integrations, loading: integrationsLoading } =
+    useReportIntegrations();
 
   const integrationOptions = useMemo<SelectOption[]>(() => {
-    const deduped = deduplicateIntegrations(callUserIntegrations as any);
+    const deduped = deduplicateIntegrations(integrations);
     return deduped.map((i) => ({ label: i.phone, value: i.inboxId }));
-  }, [callUserIntegrations]);
+  }, [integrations]);
 
   // Auto-select first integration
   useEffect(() => {
@@ -63,27 +62,35 @@ export function CallReportsPage() {
   }, [integrationOptions, integrationId]);
 
   // ── Queues ───────────────────────────────────────────────────────────────
-  const { data: queuesData, loading: queuesLoading } = useQuery<
-    { callQueueList: Array<string | QueueRecord> },
-    { inboxId: string }
-  >(CALL_QUEUE_LIST, {
-    variables: { inboxId: integrationId },
-    skip: !integrationId,
-  });
+  // Queue options come from the selected integration's own queue list
+  // (union across duplicate docs sharing the same inboxId), plus "All queues".
+  // `queueNames` is index-parallel to `queues`, so use it for friendly labels.
+  const queueOptions = useMemo<SelectOption[]>(() => {
+    const labels = new Map<string, string>();
+    for (const integration of integrations) {
+      if (integration.inboxId !== integrationId) continue;
+      (integration.queues ?? []).forEach((queue, index) => {
+        if (!queue) return;
+        const value = String(queue);
+        const name = integration.queueNames?.[index];
+        if (name && name !== value) {
+          labels.set(value, `${name} (${value})`);
+        } else if (!labels.has(value)) {
+          labels.set(value, value);
+        }
+      });
+    }
+    return [
+      ALL_QUEUES_OPTION,
+      ...Array.from(labels, ([value, label]) => ({ label, value })),
+    ];
+  }, [integrations, integrationId]);
 
-  const queueOptions = useMemo<SelectOption[]>(
-    () =>
-      (queuesData?.callQueueList ?? [])
-        .map(normalizeQueue)
-        .filter((q): q is SelectOption => Boolean(q)),
-    [queuesData],
-  );
-
-  // Auto-select first queue (or reset when integration changes)
+  // Reset to "All queues" when the selected queue disappears
+  // (e.g. after switching integration)
   useEffect(() => {
-    if (!queueOptions.length) return;
     if (!queueOptions.some(({ value }) => value === queueId)) {
-      setQueueId(queueOptions[0].value);
+      setQueueId(ALL_QUEUES_OPTION.value);
     }
   }, [queueOptions, queueId]);
 
@@ -128,7 +135,7 @@ export function CallReportsPage() {
     ],
   );
 
-  const hasQueue = Boolean(queueId);
+  const hasIntegration = Boolean(integrationId);
 
   return (
     <CallFiltersContext.Provider value={filtersCtx}>
@@ -138,7 +145,6 @@ export function CallReportsPage() {
           integrationOptions={integrationOptions}
           queueOptions={queueOptions}
           integrationsLoading={integrationsLoading}
-          queuesLoading={queuesLoading}
         />
 
         {/* ── Empty / error states ──────────────────────────────────────── */}
@@ -147,23 +153,15 @@ export function CallReportsPage() {
             {t('no-call-integration-found')}
           </div>
         )}
-        {!queuesLoading &&
-          integrationId &&
-          integrationOptions.length > 0 &&
-          !queueOptions.length && (
-            <div className="m-6 rounded-xl border-2 border-dashed p-12 text-center text-sm text-muted-foreground">
-              {t('no-queues-assigned')}
-            </div>
-          )}
 
-        {(integrationsLoading || queuesLoading) && !hasQueue && (
+        {integrationsLoading && !hasIntegration && (
           <div className="flex flex-1 items-center justify-center">
             <Spinner />
           </div>
         )}
 
         {/* ── Main content ─────────────────────────────────────────────── */}
-        {hasQueue && (
+        {hasIntegration && (
           <Tabs
             value={tab}
             onValueChange={(v) => setTab(v as TabValue)}

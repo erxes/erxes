@@ -56,6 +56,18 @@ export const CALL_CUSTOMER_DETAIL = gql`
   }
 `;
 
+export const CALL_REPORT_INTEGRATIONS = gql`
+  query callReportIntegrations {
+    callReportIntegrations {
+      _id
+      inboxId
+      phone
+      queues
+      queueNames
+    }
+  }
+`;
+
 export const CALL_ACTIVE_SESSION = gql`
   query callsActiveSession {
     callsActiveSession {
