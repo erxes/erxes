@@ -101,7 +101,7 @@ export const useConversations = (
             playNotificationSound();
           }
         }
-        if (!subscriptionData.data || !prev) return prev;
+        if (!subscriptionData.data || !prev?.conversations?.list) return prev;
         const newMessage =
           subscriptionData.data.conversationClientMessageInserted;
         const conversationId = newMessage?.conversationId;
