@@ -21,7 +21,7 @@ import {
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { redis } from 'erxes-api-shared/utils';
+import { hashPassword, redis, verifyPassword } from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -33,7 +33,24 @@ import {
   generateUserInvitationActivityLog,
 } from '../../meta/activity-log';
 
-const SALT_WORK_FACTOR = 10;
+// Legacy verifier for `bcrypt(sha256(password))` hashes still in the DB from
+// before the scrypt migration. Wired in as `legacyBcryptCompare` on
+// `verifyPassword` so existing user logins keep working until those rows are
+// re-hashed. The SHA-256 here is intentional — it must mirror the historical
+// `generatePassword` pipeline byte-for-byte, otherwise legacy hashes would
+// no longer verify. Delete this function (and the option) once a one-shot
+// silent re-hash on successful login has cycled all users to scrypt.
+// codeql[js/insufficient-password-hash]
+const legacyBcryptCompare = (
+  password: string,
+  storedHash: string,
+): Promise<boolean> => {
+  const legacyDigest = crypto
+    .createHash('sha256')
+    .update(password)
+    .digest('hex');
+  return bcrypt.compare(legacyDigest, storedHash);
+};
 
 interface IEditProfile {
   username?: string;
@@ -568,30 +585,31 @@ export const loadUserClass = (
     }
 
     /*
-     * Generates new password hash using plan text password
+     * Generates new password hash using plaintext password.
+     * Uses scrypt via the shared `hashPassword` helper (CWE-916). Stored
+     * hashes are self-describing (`scrypt$N=...,r=...,p=...$salt$hash`) so
+     * future parameter tuning stays backward-compatible.
      */
     public static generatePassword(password: string) {
-      const hashPassword = crypto
-        .createHash('sha256')
-        .update(password)
-        .digest('hex');
-
-      return bcrypt.hash(hashPassword, SALT_WORK_FACTOR);
+      return hashPassword(password);
     }
 
     /*
-      Compare password
-    */
+     * Compare password against a stored hash.
+     *
+     * Accepts BOTH the current scrypt format (new writes) AND legacy
+     * `bcrypt(sha256(password))` hashes already in the DB — the latter via
+     * the `legacyBcryptCompare` callback below. The callback is the only
+     * remaining SHA-256-in-password-pipeline call site; it exists solely
+     * for backwards compatibility so existing users can keep logging in
+     * after deploy. Plan to delete it once a silent re-hash migration on
+     * successful login has cycled all users to the scrypt format.
+     */
     public static async comparePassword(
       password: string,
       userPassword: string,
     ) {
-      const hashPassword = crypto
-        .createHash('sha256')
-        .update(password)
-        .digest('hex');
-
-      return bcrypt.compare(hashPassword, userPassword);
+      return verifyPassword(password, userPassword, { legacyBcryptCompare });
     }
 
     /*
