@@ -2,14 +2,8 @@ import { IModels } from '~/connectionResolvers';
 import { BaseAPI } from '~/apis/base';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
-import {
-  graphqlPubsub,
-  isEnabled,
-  sendWorkerMessage,
-} from 'erxes-api-shared/utils';
-import { splitType } from 'erxes-api-shared/core-modules';
 
-//  TYPES
+// TYPES
 export interface ITDBConfig {
   username: string;
   password: string;
@@ -119,6 +113,7 @@ export class TDBAPI extends BaseAPI {
         PAYMENTS.tdb.apiUrl ||
         'https://acsmc.tdbmlabs.mn:8000',
     });
+
     this.username = config.username;
     this.password = config.password;
     this.domain = domain;
@@ -129,13 +124,11 @@ export class TDBAPI extends BaseAPI {
   ): Promise<ITDBCreateOrderResponse> {
     const redirectUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.tdb.kind}?transactionId=${transaction._id}`;
 
-    console.log('redirectUrl', redirectUrl)
-
     const payload: ITDBCreateOrderRequest = {
       typeRid: 'purch',
       amount: transaction.amount,
       currency: 'MNT',
-      description: transaction.description || `Invoice`,
+      description: transaction.description || 'Invoice',
       language: 'en',
       hppRedirectUrl: redirectUrl,
     };
@@ -169,11 +162,19 @@ export class TDBAPI extends BaseAPI {
 
     const status = (response?.order?.status || '').toUpperCase();
 
-    const SUCCESSFUL_STATUSES = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
+    switch (status) {
+      case 'FULLYPAID':
+      case 'PARTPAID':
+      case 'AUTHORIZED':
+      case 'PAID':
+        return PAYMENT_STATUS.PAID;
 
-    return SUCCESSFUL_STATUSES.includes(status)
-      ? PAYMENT_STATUS.PAID
-      : PAYMENT_STATUS.PENDING;
+      case 'EXPIRED':
+        return PAYMENT_STATUS.FAILED;
+
+      default:
+        return PAYMENT_STATUS.PENDING;
+    }
   }
 
   async manualCheck(transaction: ITransactionDocument): Promise<string> {
