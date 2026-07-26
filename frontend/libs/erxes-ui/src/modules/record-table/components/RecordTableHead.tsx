@@ -55,7 +55,7 @@ export const RecordTableHead = ({
         }),
       )}
       style={{
-        width: `calc(var(--header-${column.id}-size) * 1px)`,
+        width: `var(--header-${column.id}-width)`,
         left:
           column.getIsPinned() === 'left'
             ? `${column.getStart('left')}px`

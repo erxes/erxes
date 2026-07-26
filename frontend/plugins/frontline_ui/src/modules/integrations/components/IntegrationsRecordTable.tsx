@@ -62,7 +62,7 @@ export const IntegrationsRecordTable = () => {
       stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.Scroll>
-        <RecordTable className="w-full">
+        <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton

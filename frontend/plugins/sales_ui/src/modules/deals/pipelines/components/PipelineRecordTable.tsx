@@ -339,7 +339,7 @@ const PipelineRecordTable = () => {
         <PipelineCommandBar />
         <RecordTableTree id="pipelines-list" ordered>
           <RecordTable.Scroll>
-            <RecordTable className="w-full">
+            <RecordTable>
               <RecordTable.Header />
               <RecordTable.Body>
                 <RecordTable.RowList Row={RecordTableTree.Row} />
