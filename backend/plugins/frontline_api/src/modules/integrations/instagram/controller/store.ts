@@ -111,20 +111,20 @@ export const getOrCreateComment = async (
   customer: IInstagramCustomer,
 ) => {
   const mainConversation = await models.InstagramCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
+    comment_id: { $eq: commentParams.comment_id },
   });
   const parentConversation = await models.InstagramCommentConversation.findOne({
-    comment_id: commentParams.parent_id,
+    comment_id: { $eq: commentParams.parent_id },
   });
   const replyConversation =
     await models.InstagramCommentConversationReply.findOne({
-      comment_id: commentParams.comment_id,
+      comment_id: { $eq: commentParams.comment_id },
     });
   if (mainConversation || replyConversation) {
     return;
   }
   const post = await models.InstagramPostConversations.findOne({
-    postId: commentParams.post_id,
+    postId: { $eq: commentParams.post_id },
   });
   let attachment: any[] = [];
   if (commentParams.photo) {
@@ -161,10 +161,10 @@ export const getOrCreateComment = async (
   }
   const conversation =
     (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.comment_id,
+      comment_id: { $eq: commentParams.comment_id },
     })) ||
     (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.parent_id,
+      comment_id: { $eq: commentParams.parent_id },
     }));
 
   if (!conversation) {
