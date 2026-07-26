@@ -126,10 +126,10 @@ export function SettingsSidebar({
 export function SettingsNavigationGroup({
   name,
   children,
-}: {
+}: Readonly<{
   name: string;
   children: React.ReactNode;
-}) {
+}>) {
   if (React.Children.count(children) === 0) return null;
 
   return (
