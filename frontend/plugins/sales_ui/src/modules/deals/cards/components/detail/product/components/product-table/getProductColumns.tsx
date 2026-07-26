@@ -20,8 +20,8 @@ import { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/table-core';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import clsx from 'clsx';
-import { useUpdateProductRecord } from '../hooks/useProductRecord';
-import { calculateProductValues } from '../hooks/useProductCalculations';
+import { useUpdateProductRecord } from '../../hooks/useProductRecord';
+import { calculateProductValues } from '../../hooks/useProductCalculations';
 
 export const ProductNumberField = ({
   value,

@@ -8,7 +8,20 @@ const ROOT_PATHNAME = '/';
 const IDENTIFIER_PATTERN = /^[a-zA-Z0-9_-]{16,}$/;
 const MONGODB_IDENTIFIER_PATTERN = /^[a-f\d]{24}$/i;
 
-const normalizeModulePath = (path: string) => path.replace(/^\/+|\/+$/g, '');
+const normalizeModulePath = (path: string) => {
+  let startIndex = 0;
+  let endIndex = path.length;
+
+  while (startIndex < endIndex && path[startIndex] === '/') {
+    startIndex += 1;
+  }
+
+  while (endIndex > startIndex && path[endIndex - 1] === '/') {
+    endIndex -= 1;
+  }
+
+  return path.slice(startIndex, endIndex);
+};
 
 export const normalizeVisitedPagePathname = (pathname: string) => {
   if (pathname === ROOT_PATHNAME) {

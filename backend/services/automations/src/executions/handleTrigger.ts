@@ -22,9 +22,6 @@ export const handleTrigger = async (
   const { type, targets, repeatOptions, recordType, eventUpdateDescription } =
     input;
 
-  // A button/postback resume must not RE-trigger the automation it resumed
-  // (the agent would misread the button label as user text) — but the same
-  // event stays a valid trigger for every OTHER automation.
   const excludeAutomationIds: string[] = [];
 
   if (repeatOptions) {
@@ -50,8 +47,6 @@ export const handleTrigger = async (
       type,
       targets,
     );
-
-    console.log({ waitingAction });
 
     if (waitingAction) {
       // A broken wait must not block fresh trigger processing below

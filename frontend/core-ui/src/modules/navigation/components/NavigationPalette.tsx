@@ -46,6 +46,13 @@ export const NavigationPalette = ({
             const firstTabIndex = tabs.findIndex((tab) =>
               doesNavigationActivityMatchPath(activity, tab.pathname),
             );
+            let shortcutLabel = t('open');
+
+            if (activity.id === activeActivityId) {
+              shortcutLabel = t('active');
+            } else if (firstTabIndex >= 0) {
+              shortcutLabel = `⌘${firstTabIndex + 1}`;
+            }
 
             return (
               <Command.Item
@@ -55,13 +62,7 @@ export const NavigationPalette = ({
               >
                 <Icon />
                 <span>{activity.label}</span>
-                <Command.Shortcut>
-                  {activity.id === activeActivityId
-                    ? t('active')
-                    : firstTabIndex >= 0
-                    ? `⌘${firstTabIndex + 1}`
-                    : t('open')}
-                </Command.Shortcut>
+                <Command.Shortcut>{shortcutLabel}</Command.Shortcut>
               </Command.Item>
             );
           })}

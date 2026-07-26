@@ -49,6 +49,7 @@ export interface ProductDetail {
   status?: string;
   attachment?: ProductAttachment;
   attachmentMore?: ProductAttachment[] | ProductAttachment;
+  videos?: ProductAttachment[] | ProductAttachment;
   barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;

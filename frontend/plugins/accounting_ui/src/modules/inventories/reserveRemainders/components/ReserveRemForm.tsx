@@ -1,44 +1,23 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet } from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import {
+  RemainderFormField,
+  ReserveRemFormFooter,
+} from './ReserveRemFormParts';
 import {
   SelectBranches,
   SelectCategory,
   SelectDepartments,
   SelectProduct,
 } from 'ui-modules';
-import { useReserveRemAdd } from '../hooks/useReserveRemAdd';
-import { reserveRemSchema, TReserveRemForm } from '../types/reserveRemForm';
-import {
-  RemainderFormField,
-  ReserveRemFormFooter,
-  ReserveRemSheet,
-} from './ReserveRemFormParts';
+import { TReserveRemForm, reserveRemSchema } from '../types/reserveRemForm';
 
-export const AddReserveRem = () => {
-  const { t } = useTranslation('accounting');
-  const [open, setOpen] = useState(false);
-  return (
-    <ReserveRemSheet
-      open={open}
-      onOpenChange={setOpen}
-      title={t('add-reserve-remainder')}
-      trigger={
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus />
-            {t('add-reserve-remainder')}
-          </Button>
-        </Sheet.Trigger>
-      }
-    >
-      <AddReserveRemForm setOpen={setOpen} />
-    </ReserveRemSheet>
-  );
-};
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
+import { useForm } from 'react-hook-form';
+import { useReserveRemAdd } from '../hooks/useReserveRemAdd';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const AddReserveRemForm = ({
   setOpen,
@@ -70,10 +49,10 @@ const AddReserveRemForm = ({
   return (
     <Form {...form}>
       <form
-        className="flex flex-col flex-auto overflow-auto"
+        className="flex flex-col flex-1 bg-background min-h-0"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="p-5 space-y-4">
+        <div className="p-5 min-h-0 flex-1 overflow-y-auto space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Form.Field
               control={form.control}
@@ -144,5 +123,23 @@ const AddReserveRemForm = ({
         <ReserveRemFormFooter loading={loading} />
       </form>
     </Form>
+  );
+};
+
+export const AddReserveRem = () => {
+  const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          {t('add-reserve-remainder')}
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title={t('add-reserve-remainder')}>
+        <AddReserveRemForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

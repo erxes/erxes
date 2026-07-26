@@ -1,4 +1,4 @@
-import { cn, Separator, Sidebar } from 'erxes-ui';
+import { cn, Separator } from 'erxes-ui';
 import React from 'react';
 import { FavoriteToggleIconButton } from '../../favorites/components/FavoriteToggleIconButton';
 

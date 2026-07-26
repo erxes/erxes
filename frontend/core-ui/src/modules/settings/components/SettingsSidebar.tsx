@@ -25,7 +25,9 @@ const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
 };
 
-export function SettingsSidebar({ hideExit = false }: { hideExit?: boolean }) {
+export function SettingsSidebar({
+  hideExit = false,
+}: Readonly<{ hideExit?: boolean }>) {
   const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
   const { isLoaded, isWildcard, hasModulePermission, hasPluginPermission } =
     usePermissionCheck();

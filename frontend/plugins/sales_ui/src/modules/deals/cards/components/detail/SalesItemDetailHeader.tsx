@@ -5,17 +5,29 @@ import { IDeal } from '@/deals/types/deals';
 import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
+  IconSettings,
 } from '@tabler/icons-react';
 import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
   const { t } = useTranslation('sales');
   const { isSidebarOpen, setIsSidebarOpen } = useFocusSheet();
   const [name, setName] = useState(deal?.name || 'Untitled deal');
+  const boardId = deal.pipeline?.boardId || deal.boardId;
+  const pipelineId = deal.pipeline?._id || deal.pipelineId;
+  const productConfigUrl =
+    boardId && pipelineId
+      ? `/settings/sales/deals?${new URLSearchParams({
+          activeBoardId: boardId,
+          pipelineId,
+          tab: 'productConfig',
+        }).toString()}`
+      : undefined;
 
   useEffect(() => {
     setName(deal?.name || 'Untitled deal');
@@ -76,6 +88,14 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
           </span>
         )}
         <DealsActions deals={[deal]} />
+        {productConfigUrl && (
+          <Button variant="outline" asChild>
+            <Link to={productConfigUrl}>
+              <IconSettings />
+              {t('product-config')}
+            </Link>
+          </Button>
+        )}
         <MoveDealDropdown deal={deal} />
       </div>
       <Sheet.Close />

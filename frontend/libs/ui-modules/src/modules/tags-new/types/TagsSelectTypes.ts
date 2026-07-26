@@ -1,7 +1,10 @@
-import { MutationHookOptions } from "@apollo/client";
-import { GiveTagsMutationResponse, GiveTagsMutationVariables } from "ui-modules/modules/tags-new/types/TagMutationTypes";
-import { ITag } from "ui-modules/modules/tags-new/types/Tag";
-import { ReactNode } from "react"
+import { MutationHookOptions } from '@apollo/client';
+import {
+  GiveTagsMutationResponse,
+  GiveTagsMutationVariables,
+} from 'ui-modules/modules/tags-new/types/TagMutationTypes';
+import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
+import { ReactNode } from 'react';
 type SingleTagsSelectProps = {
   mode: 'single';
   value?: string;
@@ -40,4 +43,7 @@ export type TagsSelectContextType = {
   type: string | null;
   loading: boolean;
   targetIds?: string[];
+  options?: (
+    newSelectedTagIds: string[],
+  ) => MutationHookOptions<GiveTagsMutationResponse, GiveTagsMutationVariables>;
 };

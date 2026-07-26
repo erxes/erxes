@@ -3,7 +3,20 @@ import {
   INavigationActivityModule,
 } from '@/navigation/types/NavigationActivity';
 
-const normalizePath = (path: string) => path.replace(/^\/+|\/+$/g, '');
+const normalizePath = (path: string) => {
+  let startIndex = 0;
+  let endIndex = path.length;
+
+  while (startIndex < endIndex && path[startIndex] === '/') {
+    startIndex += 1;
+  }
+
+  while (endIndex > startIndex && path[endIndex - 1] === '/') {
+    endIndex -= 1;
+  }
+
+  return path.slice(startIndex, endIndex);
+};
 
 const getModulePaths = (module: INavigationActivityModule): string[] => [
   normalizePath(module.path),
