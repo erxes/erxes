@@ -12,7 +12,7 @@ const toDimension = (value?: number | string) => {
     return undefined;
   }
 
-  return `${num}mm`;
+  return num;
 };
 
 export const prepareContent = ({
@@ -22,10 +22,25 @@ export const prepareContent = ({
   contents: string[];
   config: Record<string, any>;
 }) => {
-  const { copies, paperWidth, paperHeight } = config || {};
+  const { copies, paperWidth, paperHeight, type } = config || {};
 
   const width = toDimension(paperWidth ?? config?.width);
   const height = toDimension(paperHeight ?? config?.height);
+
+  const isRoll = type === 'roll';
+
+  const sizing =
+    isRoll && !height
+      ? 'width: 100%;'
+      : isRoll
+      ? `width: ${width}mm;
+              height: ${height}mm;
+              overflow: hidden;
+              break-after: page;
+              page-break-after: always;`
+      : `width: ${width}mm;${
+          height ? `\n              min-height: ${height}mm;` : ''
+        }`;
 
   const pageStyle = width
     ? `
@@ -38,11 +53,12 @@ export const prepareContent = ({
               padding: 0;
             }
             .label-item {
-              width: ${width};${
-        height ? `\n              min-height: ${height};` : ''
-      }
               box-sizing: border-box;
-              overflow: hidden;
+              ${sizing}
+            }
+            .label-item:last-child {
+              break-after: auto;
+              page-break-after: auto;
             }
             img,
             svg {

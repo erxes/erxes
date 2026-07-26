@@ -15,6 +15,7 @@ export interface IDiscordBotModel extends Model<IDiscordBotDocument> {
   getBots(
     filter: FilterQuery<IDiscordBotDocument>,
   ): Promise<IDiscordBotDocument[]>;
+  getBotsByInboxChannel(channelId: string): Promise<IDiscordBotDocument[]>;
   createBot(
     doc: IDiscordBot & { createdBy: string; channelIds?: string[] },
   ): Promise<IDiscordBotDocument>;
@@ -37,7 +38,6 @@ export interface IDiscordBotModel extends Model<IDiscordBotDocument> {
 export const loadDiscordBotClass = (models: IModels) => {
   // skipcq: JS-0327 — Mongoose's schema.loadClass() requires a class of statics.
   class DiscordBot {
-    /** Fetch a bot by id, throwing if it does not exist. */
     public static async getBot(_id: string) {
       const bot = await models.DiscordBots.findOne({ _id });
 
@@ -48,14 +48,35 @@ export const loadDiscordBotClass = (models: IModels) => {
       return bot;
     }
 
-    /** List bots matching the filter, newest first. */
     public static getBots(
       filter: FilterQuery<IDiscordBotDocument>,
     ): Promise<IDiscordBotDocument[]> {
       return models.DiscordBots.find(filter).sort({ createdAt: -1 }).exec();
     }
 
-    /** Create a bot, validate its token, then spin up its inbox integration. */
+    public static async getBotsByInboxChannel(
+      channelId: string,
+    ): Promise<IDiscordBotDocument[]> {
+      if (!channelId) {
+        return [];
+      }
+
+      const integrationIds = await models.Integrations.find({
+        kind: DISCORD_INBOX_KIND,
+        channelId,
+      }).distinct('_id');
+
+      if (!integrationIds.length) {
+        return [];
+      }
+
+      return models.DiscordBots.find({
+        erxesApiId: { $in: integrationIds },
+      })
+        .sort({ createdAt: -1 })
+        .exec();
+    }
+
     public static async createBot(
       doc: IDiscordBot & { createdBy: string; channelIds?: string[] },
     ) {
@@ -69,8 +90,6 @@ export const loadDiscordBotClass = (models: IModels) => {
 
       const validated = await models.DiscordBots.validateConnection(bot._id);
 
-      // Connect → create inbox Integration → link via erxesApiId. Only once the
-      // token is confirmed valid (a broken bot shouldn't spawn an integration).
       if (validated.health?.isTokenValid) {
         try {
           return await models.DiscordBots.ensureInboxIntegration(
@@ -90,19 +109,12 @@ export const loadDiscordBotClass = (models: IModels) => {
       return validated;
     }
 
-    /** Update a bot (re-sanitizing a rotated token) and re-validate its connection. */
     public static async updateBot(
       _id: string,
       doc: IDiscordBotEditInput & { updatedBy: string },
     ) {
       await models.DiscordBots.getBot(_id);
 
-      // Sanitize the token on rotation: a pasted token routinely picks up
-      // trailing newlines or zero-width chars that break the `Authorization`
-      // ByteString, which would otherwise fail validateConnection with a
-      // misleading "Invalid bot token". Only rewrite it when the edit includes
-      // it — `sanitizeToken(undefined)` is `''`, so blindly sanitizing would
-      // blank a token an edit didn't touch.
       const sanitized: IDiscordBotEditInput & { updatedBy: string } = {
         ...doc,
         ...(doc.token === undefined ? {} : { token: sanitizeToken(doc.token) }),
@@ -117,20 +129,20 @@ export const loadDiscordBotClass = (models: IModels) => {
       return models.DiscordBots.validateConnection(_id);
     }
 
-    /**
-     * Validates the bot token against Discord and records the outcome in
-     * `health`. Called on every create/update so the connection status stays
-     * in sync with the configuration — no manual step needed. Never throws:
-     * an invalid token is surfaced via `health` rather than blocking the save.
-     */
     public static async validateConnection(_id: string) {
       const bot = await models.DiscordBots.getBot(_id);
 
-      /** Persist the given health snapshot and return the refreshed bot doc. */
       const setHealth = async (health: IDiscordBotDocument['health']) =>
         (await models.DiscordBots.findOneAndUpdate(
           { _id },
-          { $set: { health } },
+          {
+            $set: {
+              health: {
+                ...health,
+                backfillPending: bot.health?.backfillPending,
+              },
+            },
+          },
           { new: true },
         )) as IDiscordBotDocument;
 
@@ -160,15 +172,6 @@ export const loadDiscordBotClass = (models: IModels) => {
       }
     }
 
-    /**
-     * Creates the inbox Integration that backs this bot and links it via
-     * `erxesApiId`, then associates it with the given inbox channels. Idempotent:
-     * a bot already linked is returned untouched, so this can be called from both
-     * `createBot` and the gateway distributor (self-healing for bots created
-     * directly in the DB). Mirrors Facebook's integration creation, minus the
-     * core "add integration" UI round-trip — here the bot connection is the
-     * trigger.
-     */
     public static async ensureInboxIntegration(
       _id: string,
       userId?: string,
@@ -180,13 +183,6 @@ export const loadDiscordBotClass = (models: IModels) => {
         return bot;
       }
 
-      // Channel membership is what surfaces the conversation in agent inboxes,
-      // and every inbox scoping query (conversation filter, sidebar) reads it
-      // off the integration's own `channelId` — the same field core sets for
-      // Facebook/messenger/etc. Discord setup may pass several inbox channels,
-      // but the scoping model is one channel per integration, so we bind to the
-      // first. An empty selection leaves it unscoped (system/owner-only), exactly
-      // like any other integration created without a channel.
       const integration = await models.Integrations.createIntegration(
         {
           kind: DISCORD_INBOX_KIND,
@@ -197,11 +193,6 @@ export const loadDiscordBotClass = (models: IModels) => {
         userId || '',
       );
 
-      // Claim the link atomically: `createBot` and the reconcile loop's
-      // self-heal can call this for the same bot concurrently, each creating
-      // its own integration. Only the caller that still finds the bot
-      // unlinked wins; the loser drops the integration it just created
-      // instead of leaving it orphaned for the sweep to reap later.
       const claimed = await models.DiscordBots.findOneAndUpdate(
         { _id, $or: [{ erxesApiId: null }, { erxesApiId: '' }] },
         { $set: { erxesApiId: integration._id } },
@@ -224,13 +215,9 @@ export const loadDiscordBotClass = (models: IModels) => {
       return claimed;
     }
 
-    /**
-     * Removes the integration's membership from every inbox channel. The
-     * integration id is pushed into `Channels.integrationIds` on create
-     * (`ensureInboxIntegration`); without this pull the reference lingers after
-     * the integration is gone, leaving channels pointing at dead integrations.
-     */
-    public static async detachIntegrationsFromChannels(integrationIds: string[]) {
+    public static async detachIntegrationsFromChannels(
+      integrationIds: string[],
+    ) {
       if (!integrationIds.length) {
         return;
       }
@@ -241,13 +228,6 @@ export const loadDiscordBotClass = (models: IModels) => {
       );
     }
 
-    /**
-     * Deletes the inbox conversations (and their messages) backed by the given
-     * integrations. Removing an integration does *not* cascade to its
-     * conversations, so without this they outlive the bot — and a later
-     * automation firing on such a leftover conversation can no longer resolve a
-     * bot ("Discord bot not found for this conversation").
-     */
     public static async removeInboxConversations(integrationIds: string[]) {
       if (!integrationIds.length) {
         return;
@@ -265,12 +245,9 @@ export const loadDiscordBotClass = (models: IModels) => {
       });
     }
 
-    /** Delete a bot and tear down its integration, conversations, and mirrors. */
     public static async removeBot(_id: string) {
       const bot = await models.DiscordBots.getBot(_id);
 
-      // Tear down the linked inbox integration and the local mirror so no
-      // orphaned conversations/customers remain.
       if (bot.erxesApiId) {
         try {
           await models.DiscordBots.detachIntegrationsFromChannels([
@@ -304,19 +281,6 @@ export const loadDiscordBotClass = (models: IModels) => {
       return models.DiscordBots.deleteOne({ _id });
     }
 
-    /**
-     * Reaps `discord-messenger` integration documents that no live bot points
-     * at. A Discord integration is created per bot and linked via
-     * `bot.erxesApiId`; if the bot is removed outside the coordinated teardown
-     * (deleted directly in the DB, or left behind by an earlier plugin version),
-     * its integration document leaks and keeps showing as a phantom channel in
-     * the inbox sidebar. This is the safety net for those orphans.
-     *
-     * `graceMs` skips integrations created within the window: during creation
-     * the integration document briefly exists before its bot is linked (core
-     * creates the integration, then the message broker creates the bot), and we
-     * must not reap one mid-creation.
-     */
     public static async sweepOrphanIntegrations(graceMs = 10 * 60 * 1000) {
       const liveIds = (
         await models.DiscordBots.find({
@@ -337,7 +301,6 @@ export const loadDiscordBotClass = (models: IModels) => {
       await models.DiscordBots.detachIntegrationsFromChannels(orphanIds);
       await models.DiscordBots.removeInboxConversations(orphanIds);
 
-      // Drop the Discord-side mirror rows tied to the orphaned integrations too.
       const mirrorConversationIds = await models.DiscordConversations.find({
         integrationId: { $in: orphanIds },
       }).distinct('_id');
