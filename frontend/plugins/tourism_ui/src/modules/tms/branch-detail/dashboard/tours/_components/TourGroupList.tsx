@@ -174,10 +174,10 @@ function EmptyState({
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        {t('no-grouped-tours-yet')}
+        {t('no-grouped-tours-yet', 'No grouped tours yet')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">
-        {t('no-grouped-tours-yet-desc')}
+        {t('no-grouped-tours-yet-desc', 'Tours with a group code will appear here.')}
       </p>
       <TourCreateSheet
         branchId={branchId}

@@ -59,7 +59,7 @@ export const TourCommandBar = ({
     }
 
     confirm({
-      message: t('confirm-delete-tours', { count: selectedCount }),
+      message: t('confirm-delete-tours', 'Are you sure you want to delete the {{count}} selected tours?', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       removeTours({
@@ -68,7 +68,7 @@ export const TourCommandBar = ({
         },
         onError: (e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -76,9 +76,9 @@ export const TourCommandBar = ({
         onCompleted: () => {
           table.resetRowSelection();
           toast({
-            title: t('success'),
+            title: t('success', 'Success'),
             variant: 'success',
-            description: t('tours-deleted-successfully'),
+            description: t('tours-deleted-successfully', 'Tours deleted successfully'),
           });
         },
       });
@@ -96,7 +96,7 @@ export const TourCommandBar = ({
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', '{{count}} selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         {selectedCount === 1 && (
           <>
@@ -121,7 +121,7 @@ export const TourCommandBar = ({
           onClick={handleRemove}
         >
           {loading ? <Spinner /> : <IconTrash />}
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

@@ -71,7 +71,7 @@ export const ElementDuplicate = ({
     };
 
     confirm({
-      message: t('confirm-duplicate-element'),
+      message: t('confirm-duplicate-element', 'Are you sure you want to duplicate this element?'),
       options: { confirmationValue: 'duplicate' },
     }).then(async () => {
       try {
@@ -88,25 +88,25 @@ export const ElementDuplicate = ({
           variables: buildDuplicatePayload(source),
           onCompleted: () => {
             toast({
-              title: t('success'),
+              title: t('success', 'Success'),
               variant: 'success',
-              description: t('element-duplicated-successfully'),
+              description: t('element-duplicated-successfully', 'Element duplicated successfully'),
             });
           },
           onError: (e: unknown) => {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description:
-                e instanceof Error ? e.message : t('failed-to-create-element'),
+                e instanceof Error ? e.message : t('failed-to-create-element', 'Failed to create element'),
               variant: 'destructive',
             });
           },
         });
       } catch (e: unknown) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description:
-            e instanceof Error ? e.message : t('failed-to-load-element-detail'),
+            e instanceof Error ? e.message : t('failed-to-load-element-detail', 'Failed to load element detail'),
           variant: 'destructive',
         });
       }

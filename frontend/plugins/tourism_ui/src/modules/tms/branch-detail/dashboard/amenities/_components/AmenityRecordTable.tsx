@@ -101,11 +101,11 @@ function EmptyStateRow({
       />
 
       <h2 className="text-lg font-semibold text-muted-foreground">
-        {t('no-amenities-yet')}
+        {t('no-amenities-yet', 'No amenities yet')}
       </h2>
 
       <p className="max-w-sm text-sm text-muted-foreground">
-        {t('no-amenities-yet-desc')}
+        {t('no-amenities-yet-desc', 'Create your first amenity to get started.')}
       </p>
 
       <AmenityCreateSheet

@@ -30,7 +30,7 @@ export const ToursViewControl = ({ className }: ToursViewControlProps) => {
       <Popover.Trigger asChild>
         <Button variant="ghost" className={className}>
           <IconAdjustmentsHorizontal />
-          {t('view')}
+          {t('view', 'View')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -51,7 +51,7 @@ export const ToursViewControl = ({ className }: ToursViewControlProps) => {
               className="flex-col gap-0 h-11"
             >
               <IconTable className="size-5!" />
-              <span className="text-xs font-normal">{t('table-view')}</span>
+              <span className="text-xs font-normal">{t('table-view', 'Table')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="calendar" asChild>
@@ -61,7 +61,7 @@ export const ToursViewControl = ({ className }: ToursViewControlProps) => {
               className="flex-col gap-0 h-11"
             >
               <IconCalendarMonth className="size-5!" />
-              <span className="text-xs font-normal">{t('calendar')}</span>
+              <span className="text-xs font-normal">{t('calendar', 'Calendar')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

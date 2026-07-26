@@ -261,17 +261,17 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
           <section className="min-h-0 overflow-y-auto bg-background">
             <Dialog.Header className="px-6 py-6 border-b bg-muted/30">
               <Dialog.Title className="text-xl">
-                {t('customize-tour-pdf')}
+                {t('customize-tour-pdf', 'Customize Tour PDF')}
               </Dialog.Title>
               <Dialog.Description className="max-w-xl text-sm leading-6">
-                {t('customize-tour-pdf-desc')}
+                {t('customize-tour-pdf-desc', 'Control which tour sections appear and rename the built-in text used in the exported PDF.')}
               </Dialog.Description>
             </Dialog.Header>
 
             <div className="px-6 py-5 space-y-4">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 <IconLayoutGrid size={14} />
-                {t('visible-sections')}
+                {t('visible-sections', 'Visible Sections')}
               </div>
 
               <div className="grid gap-3">
@@ -309,7 +309,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               <div className="pt-2">
                 <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <IconLayoutGrid size={14} />
-                  {t('attached-itinerary')}
+                  {t('attached-itinerary', 'Attached Itinerary')}
                 </div>
 
                 <div className="grid gap-3">
@@ -351,10 +351,10 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
             <div className="px-6 py-6 border-b bg-background/70 backdrop-blur">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 <IconForms size={14} />
-                {t('static-text')}
+                {t('static-text', 'Static Text')}
               </div>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {t('update-built-in-labels')}
+                {t('update-built-in-labels', 'Update the built-in labels used in the cover, overview, and pricing sections.')}
               </p>
             </div>
 
@@ -362,7 +362,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               <div className="px-4 py-4 border shadow-sm rounded-2xl border-border/60 bg-background">
                 <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <IconFileDescription size={14} />
-                  {t('tour-labels')}
+                  {t('tour-labels', 'Tour Labels')}
                 </div>
 
                 <div className="space-y-4">
@@ -388,7 +388,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               <div className="px-4 py-4 border shadow-sm rounded-2xl border-border/60 bg-background">
                 <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <IconFileDescription size={14} />
-                  {t('itinerary-labels')}
+                  {t('itinerary-labels', 'Itinerary Labels')}
                 </div>
 
                 <div className="space-y-4">
@@ -413,17 +413,17 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
 
               <div className="px-4 py-4 border border-dashed rounded-2xl border-border/70 bg-background/70">
                 <p className="text-sm leading-6 text-muted-foreground">
-                  {t('preview-refreshes-auto')}
+                  {t('preview-refreshes-auto', 'Preview refreshes automatically when these values change. Use short labels for the cleanest PDF layout.')}
                 </p>
               </div>
             </div>
 
             <Dialog.Footer className="sticky bottom-0 px-6 py-4 border-t bg-background/95 backdrop-blur">
               <Button variant="outline" onClick={onReset}>
-                {t('reset-to-defaults')}
+                {t('reset-to-defaults', 'Reset to defaults')}
               </Button>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                {t('close')}
+                {t('close', 'Close')}
               </Button>
             </Dialog.Footer>
           </aside>

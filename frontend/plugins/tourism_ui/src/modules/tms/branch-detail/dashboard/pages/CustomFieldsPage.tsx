@@ -188,12 +188,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [addType] = useMutation(TOUR_CUSTOM_TYPE_ADD, {
     onCompleted: () => {
-      toast({ title: t('success'), description: t('tour-type-created') });
+      toast({ title: t('success', 'Success'), description: t('tour-type-created', 'Tour type created') });
       refetchTypes();
     },
     onError: (error) =>
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -201,12 +201,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [editType] = useMutation(TOUR_CUSTOM_TYPE_EDIT, {
     onCompleted: () => {
-      toast({ title: t('success'), description: t('tour-type-updated') });
+      toast({ title: t('success', 'Success'), description: t('tour-type-updated', 'Tour type updated') });
       refetchTypes();
     },
     onError: (error) =>
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -214,13 +214,13 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [removeType] = useMutation(TOUR_CUSTOM_TYPE_REMOVE, {
     onCompleted: () => {
-      toast({ title: t('success'), description: t('tour-type-removed') });
+      toast({ title: t('success', 'Success'), description: t('tour-type-removed', 'Tour type removed') });
       refetchTypes();
       refetchGroups();
     },
     onError: (error) =>
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -228,12 +228,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [addGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_ADD, {
     onCompleted: () => {
-      toast({ title: t('success'), description: t('field-group-created') });
+      toast({ title: t('success', 'Success'), description: t('field-group-created', 'Field group created') });
       refetchGroups();
     },
     onError: (error) =>
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -241,12 +241,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [editGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_EDIT, {
     onCompleted: () => {
-      toast({ title: t('success'), description: t('field-group-updated') });
+      toast({ title: t('success', 'Success'), description: t('field-group-updated', 'Field group updated') });
       refetchGroups();
     },
     onError: (error) =>
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -254,13 +254,13 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [removeGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_REMOVE, {
     onCompleted: () => {
-      toast({ title: t('success'), description: t('field-group-removed') });
+      toast({ title: t('success', 'Success'), description: t('field-group-removed', 'Field group removed') });
       setSelectedGroup(null);
       refetchGroups();
     },
     onError: (error) =>
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -268,13 +268,13 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const handleRemoveType = (type: ITourCustomPostType) => {
     confirm({
-      message: t('confirm-delete-tour-type', { label: type.label }),
+      message: t('confirm-delete-tour-type', 'Delete "{{label}}" tour type?', { label: type.label }),
     }).then(() => removeType({ variables: { _id: type._id } }));
   };
 
   const handleRemoveGroup = (group: ITourCustomFieldGroup) => {
     confirm({
-      message: t('confirm-delete-field-group', { label: group.label }),
+      message: t('confirm-delete-field-group', 'Delete "{{label}}" field group and all its fields?', { label: group.label }),
     }).then(() => removeGroup({ variables: { _id: group._id } }));
   };
 
@@ -313,7 +313,7 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
     field: ITourCustomField,
   ) => {
     confirm({
-      message: t('confirm-delete-field', { label: field.label }),
+      message: t('confirm-delete-field', 'Delete "{{label}}" field?', { label: field.label }),
     }).then(() => {
       const fields = (group.fields || []).filter(
         (item) => item._id !== field._id,
@@ -327,7 +327,7 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
       <PageSubHeader>
         <div className="flex items-center gap-2 text-sm font-medium">
           <IconSettings size={16} />
-          {t('custom-fields')}
+          {t('custom-fields', 'Custom Fields')}
         </div>
         <div className="flex items-center gap-2 ml-auto">
           <Button
@@ -339,7 +339,7 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
             }}
           >
             <IconPlus size={16} />
-            {t('tour-type')}
+            {t('tour-type', 'Tour Type')}
           </Button>
           <Button
             size="sm"
@@ -349,7 +349,7 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
             }}
           >
             <IconPlus size={16} />
-            {t('field-group')}
+            {t('field-group', 'Field Group')}
           </Button>
         </div>
       </PageSubHeader>
@@ -357,8 +357,8 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
       <div className="flex-auto min-h-0 p-4 overflow-auto">
         <Tabs defaultValue="groups" className="flex flex-col gap-4">
           <Tabs.List className="w-fit">
-            <Tabs.Trigger value="groups">{t('field-groups')}</Tabs.Trigger>
-            <Tabs.Trigger value="types">{t('tour-types')}</Tabs.Trigger>
+            <Tabs.Trigger value="groups">{t('field-groups', 'Field Groups')}</Tabs.Trigger>
+            <Tabs.Trigger value="types">{t('tour-types', 'Tour Types')}</Tabs.Trigger>
           </Tabs.List>
 
           <Tabs.Content value="groups" className="min-h-0">
@@ -514,9 +514,9 @@ const TourTypesView = ({
       <Table>
         <Table.Header>
           <Table.Row>
-            <Table.Head className="w-[45%] px-4">{t('label')}</Table.Head>
-            <Table.Head className="px-4">{t('key')}</Table.Head>
-            <Table.Head className="px-4 w-28">{t('status')}</Table.Head>
+            <Table.Head className="w-[45%] px-4">{t('label', 'Label')}</Table.Head>
+            <Table.Head className="px-4">{t('key', 'Key')}</Table.Head>
+            <Table.Head className="px-4 w-28">{t('status', 'Status')}</Table.Head>
             <Table.Head className="w-20" />
           </Table.Row>
         </Table.Header>
@@ -524,7 +524,7 @@ const TourTypesView = ({
           {customTypes.length === 0 ? (
             <Table.Row>
               <Table.Cell colSpan={4} className="h-24 text-center">
-                {t('no-custom-tour-types-yet')}
+                {t('no-custom-tour-types-yet', 'No custom tour types yet')}
               </Table.Cell>
             </Table.Row>
           ) : (
@@ -547,7 +547,7 @@ const TourTypesView = ({
                   <Badge
                     variant={type.isActive === false ? 'secondary' : 'default'}
                   >
-                    {type.isActive === false ? t('inactive') : t('active')}
+                    {type.isActive === false ? t('inactive', 'Inactive') : t('active', 'Active')}
                   </Badge>
                 </Table.Cell>
                 <Table.Cell className="px-2 py-2">
@@ -613,7 +613,7 @@ const FieldGroupsView = ({
   if (!groups.length) {
     return (
       <div className="flex items-center justify-center h-40 border rounded-lg text-muted-foreground">
-        {t('no-custom-field-groups-yet')}
+        {t('no-custom-field-groups-yet', 'No custom field groups yet')}
       </div>
     );
   }
@@ -624,7 +624,7 @@ const FieldGroupsView = ({
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.Head className="px-4">{t('field-group')}</Table.Head>
+              <Table.Head className="px-4">{t('field-group', 'Field Group')}</Table.Head>
               <Table.Head className="w-20" />
             </Table.Row>
           </Table.Header>
@@ -640,7 +640,7 @@ const FieldGroupsView = ({
               >
                 <Table.Cell className="min-w-0 px-4 py-3 whitespace-normal">
                   <div className="font-medium leading-5 break-words [overflow-wrap:anywhere]">
-                    {group.label || t('untitled-group')}
+                    {group.label || t('untitled-group', 'Untitled group')}
                   </div>
                   {group.code && (
                     <div className="text-xs text-muted-foreground break-words [overflow-wrap:anywhere]">
@@ -649,7 +649,7 @@ const FieldGroupsView = ({
                   )}
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {(group.customTourTypeIds || []).length === 0 ? (
-                      <Badge variant="secondary">{t('all-tours')}</Badge>
+                      <Badge variant="secondary">{t('all-tours', 'All tours')}</Badge>
                     ) : (
                       (group.customTourTypeIds || []).map((typeId) => (
                         <Badge
@@ -708,7 +708,7 @@ const FieldGroupsView = ({
           />
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">
-            {t('select-a-field-group')}
+            {t('select-a-field-group', 'Select a field group')}
           </div>
         )}
       </div>
@@ -741,21 +741,21 @@ const FieldList = ({
             {group.label}
           </div>
           <div className="text-xs text-muted-foreground">
-            {t('fields-count', { count: fields.length })}
+            {t('fields-count', '{{count}} field{{count, plural, one{} other{s}}}', { count: fields.length })}
           </div>
         </div>
         <Button size="sm" className="ml-auto" onClick={() => onAddField(group)}>
           <IconPlus size={16} />
-          {t('add-field')}
+          {t('add-field', 'Add Field')}
         </Button>
       </div>
       <div className="overflow-auto">
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.Head className="w-[45%] px-4">{t('field')}</Table.Head>
-              <Table.Head className="px-4">{t('type')}</Table.Head>
-              <Table.Head className="w-24 px-4">{t('required')}</Table.Head>
+              <Table.Head className="w-[45%] px-4">{t('field', 'Field')}</Table.Head>
+              <Table.Head className="px-4">{t('type', 'Type')}</Table.Head>
+              <Table.Head className="w-24 px-4">{t('required', 'Required')}</Table.Head>
               <Table.Head className="w-20" />
             </Table.Row>
           </Table.Header>
@@ -763,7 +763,7 @@ const FieldList = ({
             {fields.length === 0 ? (
               <Table.Row>
                 <Table.Cell colSpan={4} className="h-24 text-center">
-                  {t('no-fields-in-group')}
+                  {t('no-fields-in-group', 'No fields in this group')}
                 </Table.Cell>
               </Table.Row>
             ) : (
@@ -779,7 +779,7 @@ const FieldList = ({
                     {field.type}
                   </Table.Cell>
                   <Table.Cell className="px-4 py-3">
-                    {field.isRequired ? t('yes') : t('no')}
+                    {field.isRequired ? t('yes', 'Yes') : t('no', 'No')}
                   </Table.Cell>
                   <Table.Cell className="px-2 py-2">
                     <div className="flex justify-end gap-1">
@@ -850,7 +850,7 @@ const TourTypeDrawer = ({
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
-            {editingType ? t('edit-tour-type') : t('new-tour-type')}
+            {editingType ? t('edit-tour-type', 'Edit Tour Type') : t('new-tour-type', 'New Tour Type')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -863,7 +863,7 @@ const TourTypeDrawer = ({
               <TextField
                 form={form}
                 name="label"
-                label={t('label')}
+                label={t('label', 'Label')}
                 onChange={(value) => {
                   if (!editingType && !form.getValues('code')) {
                     form.setValue('code', generateCode(value));
@@ -873,12 +873,12 @@ const TourTypeDrawer = ({
                   }
                 }}
               />
-              <TextField form={form} name="pluralLabel" label={t('plural-label')} />
-              <TextField form={form} name="code" label={t('key')} />
+              <TextField form={form} name="pluralLabel" label={t('plural-label', 'Plural Label')} />
+              <TextField form={form} name="code" label={t('key', 'Key')} />
               <TextAreaField
                 form={form}
                 name="description"
-                label={t('description')}
+                label={t('description', 'Description')}
               />
               <Form.Field
                 control={form.control}
@@ -891,7 +891,7 @@ const TourTypeDrawer = ({
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label>{t('active')}</Form.Label>
+                    <Form.Label>{t('active', 'Active')}</Form.Label>
                   </Form.Item>
                 )}
               />
@@ -902,9 +902,9 @@ const TourTypeDrawer = ({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
-              <Button type="submit">{editingType ? t('save') : t('create')}</Button>
+              <Button type="submit">{editingType ? t('save', 'Save') : t('create', 'Create')}</Button>
             </Sheet.Footer>
           </form>
         </Form>
@@ -938,7 +938,7 @@ const FieldGroupDrawer = ({
   const typeSelectOptions = useMemo(
     () =>
       typeOptions.map((type) => ({
-        label: type.label || type.code || t('unnamed-type'),
+        label: type.label || type.code || t('unnamed-type', 'Unnamed type'),
         value: type._id,
       })),
     [typeOptions, t],
@@ -958,7 +958,7 @@ const FieldGroupDrawer = ({
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
-            {editingGroup ? t('edit-field-group') : t('new-field-group')}
+            {editingGroup ? t('edit-field-group', 'Edit Field Group') : t('new-field-group', 'New Field Group')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -971,14 +971,14 @@ const FieldGroupDrawer = ({
               <TextField
                 form={form}
                 name="label"
-                label={t('label')}
+                label={t('label', 'Label')}
                 onChange={(value) => {
                   if (!editingGroup && !form.getValues('code')) {
                     form.setValue('code', generateCode(value));
                   }
                 }}
               />
-              <TextField form={form} name="code" label={t('key')} />
+              <TextField form={form} name="code" label={t('key', 'Key')} />
               <Form.Field
                 control={form.control}
                 name="customTourTypeIds"
@@ -987,16 +987,16 @@ const FieldGroupDrawer = ({
 
                   return (
                     <Form.Item>
-                      <Form.Label>{t('show-on-tour-types')}</Form.Label>
+                      <Form.Label>{t('show-on-tour-types', 'Show On Tour Types')}</Form.Label>
                       <Form.Control>
                         <MultipleSelector
                           value={typeSelectOptions.filter((option) =>
                             selectedValues.includes(option.value),
                           )}
                           options={typeSelectOptions}
-                          placeholder={t('select-tour-types')}
+                          placeholder={t('select-tour-types', 'Select tour types')}
                           hidePlaceholderWhenSelected
-                          emptyIndicator={t('no-tour-types')}
+                          emptyIndicator={t('no-tour-types', 'No tour types')}
                           onChange={(options) =>
                             field.onChange(
                               options.map((option) => option.value),
@@ -1015,9 +1015,9 @@ const FieldGroupDrawer = ({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
-              <Button type="submit">{editingGroup ? t('save') : t('create')}</Button>
+              <Button type="submit">{editingGroup ? t('save', 'Save') : t('create', 'Create')}</Button>
             </Sheet.Footer>
           </form>
         </Form>
@@ -1053,7 +1053,7 @@ const FieldDrawer = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
-          <Sheet.Title>{editingField ? t('edit-field') : t('new-field')}</Sheet.Title>
+          <Sheet.Title>{editingField ? t('edit-field', 'Edit Field') : t('new-field', 'New Field')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Form {...form}>
@@ -1065,27 +1065,27 @@ const FieldDrawer = ({
               <TextField
                 form={form}
                 name="label"
-                label={t('label')}
+                label={t('label', 'Label')}
                 onChange={(value) => {
                   if (!editingField && !form.getValues('code')) {
                     form.setValue('code', generateCode(value));
                   }
                 }}
               />
-              <TextField form={form} name="code" label={t('key')} />
+              <TextField form={form} name="code" label={t('key', 'Key')} />
               <Form.Field
                 control={form.control}
                 name="type"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('field-type')}</Form.Label>
+                    <Form.Label>{t('field-type', 'Field Type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder={t('select-field-type')} />
+                          <Select.Value placeholder={t('select-field-type', 'Select field type')} />
                         </Select.Trigger>
                         <Select.Content>
                           {FIELD_TYPES.map((option) => (
@@ -1105,14 +1105,14 @@ const FieldDrawer = ({
               <TextAreaField
                 form={form}
                 name="description"
-                label={t('description')}
+                label={t('description', 'Description')}
               />
               {needsOptions && (
                 <TextField
                   form={form}
                   name="options"
-                  label={t('options')}
-                  placeholder={t('option-placeholder')}
+                  label={t('options', 'Options')}
+                  placeholder={t('option-placeholder', 'Option A, Option B')}
                 />
               )}
               <Form.Field
@@ -1126,7 +1126,7 @@ const FieldDrawer = ({
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label>{t('required')}</Form.Label>
+                    <Form.Label>{t('required', 'Required')}</Form.Label>
                   </Form.Item>
                 )}
               />
@@ -1137,9 +1137,9 @@ const FieldDrawer = ({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
-              <Button type="submit">{editingField ? t('save') : t('create')}</Button>
+              <Button type="submit">{editingField ? t('save', 'Save') : t('create', 'Create')}</Button>
             </Sheet.Footer>
           </form>
         </Form>

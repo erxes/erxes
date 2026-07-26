@@ -38,21 +38,21 @@ export const TourMoreColumn = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-tour'),
+      message: t('confirm-delete-tour', 'Are you sure you want to delete this tour?'),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removeTours({
         variables: { ids: [tour._id] },
         onCompleted: () => {
           toast({
-            title: t('success'),
+            title: t('success', 'Success'),
             variant: 'success',
-            description: t('tour-deleted-successfully'),
+            description: t('tour-deleted-successfully', 'Tour deleted successfully'),
           });
         },
         onError: (e) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -71,15 +71,15 @@ export const TourMoreColumn = ({
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit className="w-4 h-4" />
-              {t('edit')}
+              {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="duplicate" onSelect={handleDuplicate}>
               <IconCopy className="w-4 h-4" />
-              {t('duplicate')}
+              {t('duplicate', 'Duplicate')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
               <IconTrash className="w-4 h-4" />
-              {t('delete')}
+              {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

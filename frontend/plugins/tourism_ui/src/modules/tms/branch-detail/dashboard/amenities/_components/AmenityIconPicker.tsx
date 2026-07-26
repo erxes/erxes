@@ -47,7 +47,7 @@ export const AmenityIconPicker = forwardRef<
 
       <Combobox.Content className="w-60 min-w-60">
         <Command>
-          <Command.Input placeholder={t('search-icon')} />
+          <Command.Input placeholder={t('search-icon', 'Search icon...')} />
           <Command.List className="max-h-[200px] overflow-y-auto hide-scroll [&>div]:flex [&>div]:flex-wrap [&>div]:gap-2 justify-center">
             <Command.Item
               value="No icon"

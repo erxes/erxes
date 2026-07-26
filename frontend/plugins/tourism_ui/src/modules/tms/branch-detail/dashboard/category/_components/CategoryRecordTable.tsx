@@ -98,11 +98,11 @@ function EmptyStateRow({
       />
 
       <h2 className="text-lg font-semibold text-muted-foreground">
-        {t('no-categories-yet')}
+        {t('no-categories-yet', 'No categories yet')}
       </h2>
 
       <p className="max-w-sm text-sm text-muted-foreground">
-        {t('no-categories-yet-desc')}
+        {t('no-categories-yet-desc', 'Create your first category to get started.')}
       </p>
 
       <CategoryCreateSheet

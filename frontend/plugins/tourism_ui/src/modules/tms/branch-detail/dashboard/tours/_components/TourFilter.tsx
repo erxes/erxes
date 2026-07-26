@@ -39,7 +39,7 @@ function SelectStatusFilterItem() {
   return (
     <Filter.Item value="status">
       <IconProgressCheck />
-      {t('status')}
+      {t('status', 'Status')}
     </Filter.Item>
   );
 }
@@ -49,7 +49,7 @@ function SelectDateStatusFilterItem() {
   return (
     <Filter.Item value="date_status">
       <IconCalendarEvent />
-      {t('date-status')}
+      {t('date-status', 'Date status')}
     </Filter.Item>
   );
 }
@@ -59,7 +59,7 @@ function SelectCategoryFilterItem() {
   return (
     <Filter.Item value="categoryIds">
       <IconListTree />
-      {t('category')}
+      {t('category', 'Category')}
     </Filter.Item>
   );
 }
@@ -69,7 +69,7 @@ function SelectTourSearchFilterItem() {
   return (
     <Filter.Item value="tourSearchValue" inDialog>
       <IconSearch />
-      {t('search')}
+      {t('search', 'Search')}
     </Filter.Item>
   );
 }
@@ -82,7 +82,7 @@ function TourSearchValueBarItem() {
     <Filter.BarItem queryKey="tourSearchValue">
       <Filter.BarName>
         <IconSearch />
-        {t('search')}
+        {t('search', 'Search')}
       </Filter.BarName>
       <Filter.BarButton filterKey="tourSearchValue" inDialog>
         {tourSearchValue}
@@ -98,7 +98,7 @@ function SelectStatusFilterView() {
   return (
     <Filter.View filterKey="status">
       <Command>
-        <Command.Input placeholder={t('search-status')} />
+        <Command.Input placeholder={t('search-status', 'Search status')} />
         <Command.List>
           {STATUS_OPTIONS.map((item) => (
             <Command.Item
@@ -143,11 +143,11 @@ function SelectCategoryFilterView({ branchId }: { branchId: string }) {
   return (
     <Filter.View filterKey="categoryIds">
       <Command>
-        <Command.Input placeholder={t('search-categories')} />
+        <Command.Input placeholder={t('search-categories', 'Search categories')} />
         <Command.List>
-          <Command.Empty>{t('no-categories-found')}</Command.Empty>
+          <Command.Empty>{t('no-categories-found', 'No categories found')}</Command.Empty>
           {loading ? (
-            <Command.Item disabled>{t('loading')}</Command.Item>
+            <Command.Item disabled>{t('loading', 'Loading...')}</Command.Item>
           ) : (
             categories.map((category: ICategory) => {
               const isSelected = value.includes(category._id);
@@ -179,7 +179,7 @@ function SelectDateStatusFilterView() {
   return (
     <Filter.View filterKey="date_status">
       <Command>
-        <Command.Input placeholder={t('search-date-status')} />
+        <Command.Input placeholder={t('search-date-status', 'Search date status')} />
         <Command.List>
           {DATE_STATUS_OPTIONS.map((item) => (
             <Command.Item
@@ -206,7 +206,7 @@ const TourFilterPopover = ({ branchId }: { branchId: string }) => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
               <Command.List className="p-1">
                 <SelectTourSearchFilterItem />
                 <Command.Separator className="my-1" />
@@ -223,7 +223,7 @@ const TourFilterPopover = ({ branchId }: { branchId: string }) => {
       </Filter.Popover>
       <Filter.Dialog>
         <Filter.View filterKey="tourSearchValue" inDialog>
-          <Filter.DialogStringView filterKey="tourSearchValue" label={t('search')} />
+          <Filter.DialogStringView filterKey="tourSearchValue" label={t('search', 'Search')} />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -266,7 +266,7 @@ export const TourFilter = ({ branchId }: { branchId: string }) => {
     selectedCategoryNames.length > 0
       ? selectedCategoryNames.join(', ')
       : selectedCategoryIds.length > 0
-        ? t('x-selected', { count: selectedCategoryIds.length })
+        ? t('x-selected', '{{count}} selected', { count: selectedCategoryIds.length })
         : undefined;
 
   return (
@@ -278,30 +278,30 @@ export const TourFilter = ({ branchId }: { branchId: string }) => {
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgressCheck />
-            {t('status')}
+            {t('status', 'Status')}
           </Filter.BarName>
           <Filter.BarButton filterKey="status">
-            {selectedStatusLabel || t('select-status')}
+            {selectedStatusLabel || t('select-status', 'Select status')}
           </Filter.BarButton>
         </Filter.BarItem>
 
         <Filter.BarItem queryKey="date_status">
           <Filter.BarName>
             <IconCalendarEvent />
-            {t('date-status')}
+            {t('date-status', 'Date status')}
           </Filter.BarName>
           <Filter.BarButton filterKey="date_status">
-            {selectedDateStatusLabel || t('select-date-status')}
+            {selectedDateStatusLabel || t('select-date-status', 'Select date status')}
           </Filter.BarButton>
         </Filter.BarItem>
 
         <Filter.BarItem queryKey="categoryIds">
           <Filter.BarName>
             <IconListTree />
-            {t('category')}
+            {t('category', 'Category')}
           </Filter.BarName>
           <Filter.BarButton filterKey="categoryIds">
-            {selectedCategoryLabel || t('select-category')}
+            {selectedCategoryLabel || t('select-category', 'Select category')}
           </Filter.BarButton>
         </Filter.BarItem>
 

@@ -23,8 +23,8 @@ export const TourPage = ({ branch }: { branch: IBranch }) => {
                 setIsGroup(value === 'grouped' ? true : null);
               }}
             >
-              <ToggleGroup.Item value="list">{t('tours-list')}</ToggleGroup.Item>
-              <ToggleGroup.Item value="grouped">{t('grouped')}</ToggleGroup.Item>
+              <ToggleGroup.Item value="list">{t('tours-list', 'Tours')}</ToggleGroup.Item>
+              <ToggleGroup.Item value="grouped">{t('grouped', 'Grouped')}</ToggleGroup.Item>
             </ToggleGroup>
           )}
           <ToursViewControl />

@@ -51,12 +51,12 @@ export const DayForm = ({
             className="cursor-move text-muted-foreground"
             size={20}
           />
-          <h3 className="text-lg font-semibold">{t('day-title', { number: dayIndex + 1 })}</h3>
+          <h3 className="text-lg font-semibold">{t('day-title', 'Day {{number}}', { number: dayIndex + 1 })}</h3>
         </div>
 
         <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground">
-            {t('day-cost')}{' '}
+            {t('day-cost', 'day cost:')}{' '}
             <span className="font-semibold">
               {dayCost} {currencySymbol}
             </span>
@@ -82,12 +82,12 @@ export const DayForm = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              {t('day-title-label')}<span className="text-primary">{labelSuffix}</span>{' '}
+              {t('day-title-label', 'Day Title')}<span className="text-primary">{labelSuffix}</span>{' '}
               <span className="text-destructive">*</span>
             </Form.Label>
 
             <Form.Control>
-              <Input {...field} placeholder={t('enter-day-title')} />
+              <Input {...field} placeholder={t('enter-day-title', 'Enter the title for this day')} />
             </Form.Control>
 
             <Form.Message className="text-destructive" />
@@ -98,7 +98,7 @@ export const DayForm = ({
       <div className="border-2 border-dashed rounded-lg min-h-[120px] flex items-center justify-center">
         {droppedElements.length === 0 ? (
           <p className="text-sm text-center text-muted-foreground">
-            {t('please-drag-drop-elements')}
+            {t('please-drag-drop-elements', 'Please drag and drop from elements')}
           </p>
         ) : (
           <div className="w-full p-4">
@@ -134,7 +134,7 @@ export const DayForm = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              {t('description-for-customers')}
+              {t('description-for-customers', 'Description for customers')}
               <span className="text-primary">{labelSuffix}</span>
             </Form.Label>
 
@@ -154,7 +154,7 @@ export const DayForm = ({
         name={`groupDays.${dayIndex}.images`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('upload-images')}</Form.Label>
+            <Form.Label>{t('upload-images', 'Upload Images')}</Form.Label>
 
             <ImageUploadGrid
               value={field.value}

@@ -99,8 +99,8 @@ export const CategoryCreateSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: t('error'),
-        description: t('enter-main-lang-before-creating'),
+        title: t('error', 'Error'),
+        description: t('enter-main-lang-before-creating', 'Please enter values for the main language before creating.'),
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
@@ -123,8 +123,8 @@ export const CategoryCreateSheet = ({
       });
 
       toast({
-        title: t('success'),
-        description: t('category-created-successfully'),
+        title: t('success', 'Success'),
+        description: t('category-created-successfully', 'Category created successfully'),
       });
 
       form.reset({
@@ -137,9 +137,9 @@ export const CategoryCreateSheet = ({
       handleOpenChange(false);
     } catch (error) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description:
-          error instanceof Error ? error.message : t('failed-to-create-category'),
+          error instanceof Error ? error.message : t('failed-to-create-category', 'Failed to create category'),
         variant: 'destructive',
       });
     }
@@ -151,7 +151,7 @@ export const CategoryCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            {t('create-category')}
+            {t('create-category', 'Create category')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -163,7 +163,7 @@ export const CategoryCreateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>{t('create-category')}</Sheet.Title>
+              <Sheet.Title>{t('create-category', 'Create category')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex gap-2 items-center ml-auto">
                   <TourFieldLanguageSwitch
@@ -202,11 +202,11 @@ export const CategoryCreateSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
 
               <Button type="submit" disabled={loading}>
-                {loading ? t('creating') : t('create')}
+                {loading ? t('creating', 'Creating...') : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

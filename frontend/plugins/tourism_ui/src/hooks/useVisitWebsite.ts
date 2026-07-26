@@ -31,8 +31,8 @@ export const useVisitWebsite = (
 
       if (!url) {
         toast({
-          title: t('error'),
-          description: t('unable-to-open-website'),
+          title: t('error', 'Error'),
+          description: t('unable-to-open-website', 'Unable to open website, unexpected hostname format'),
           variant: 'destructive',
         });
         return;

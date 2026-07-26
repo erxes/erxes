@@ -65,7 +65,7 @@ const ItineraryItemLabel = ({ itinerary }: { itinerary: IItinerary }) => {
       <span className="truncate">{itinerary.name}</span>
       {itinerary.duration && (
         <span className="text-xs text-muted-foreground shrink-0">
-          ({itinerary.duration} {t('days')})
+          ({itinerary.duration} {t('days', '{{count}} days')})
         </span>
       )}
     </div>
@@ -123,7 +123,7 @@ const SelectItineraryContent = () => {
         variant="secondary"
         wrapperClassName="flex-auto"
         focusOnMount
-        placeholder={t('search-itineraries')}
+        placeholder={t('search-itineraries', 'Search itineraries...')}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         {!isInitialLoading && selectedItinerary && (
@@ -159,7 +159,7 @@ const SelectItineraryValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedItinerary) {
     return (
       <span className="text-muted-foreground">
-        {placeholder || t('select-itinerary')}
+        {placeholder || t('select-itinerary', 'Select itinerary')}
       </span>
     );
   }
@@ -169,7 +169,7 @@ const SelectItineraryValue = ({ placeholder }: { placeholder?: string }) => {
       <span className="truncate">{selectedItinerary.name}</span>
       {selectedItinerary.duration && (
         <span className="text-xs text-muted-foreground shrink-0">
-          ({selectedItinerary.duration} {t('days')})
+          ({selectedItinerary.duration} {t('days', '{{count}} days')})
         </span>
       )}
     </div>

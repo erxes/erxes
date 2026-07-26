@@ -25,10 +25,10 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
       <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
         <IconUsers className="w-8 h-8 text-muted-foreground" />
 
-        <h3 className="text-base font-semibold">{t('no-customers-yet')}</h3>
+        <h3 className="text-base font-semibold">{t('no-customers-yet', 'No customers yet')}</h3>
 
         <p className="max-w-xs text-sm text-muted-foreground">
-          {t('no-customers-yet-desc')}
+          {t('no-customers-yet-desc', 'This tour does not have any booked customers yet. Once an order is created, customers will appear here.')}
         </p>
       </div>
     );
@@ -38,7 +38,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
     <div className="p-3 space-y-3">
       <div className="flex items-center justify-between px-1">
         <span className="text-xs text-muted-foreground">
-          {t('customers-count', { count: customerIds.length })}
+          {t('customers-count', '{{count}} customer{{count, plural, one{} other{s}}}', { count: customerIds.length })}
         </span>
 
         <Button
@@ -47,7 +47,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
           className="px-2 text-xs h-7"
           onClick={() => refetch()}
         >
-          {t('refresh')}
+          {t('refresh', 'Refresh')}
         </Button>
       </div>
 
@@ -72,7 +72,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
                 <div className="flex items-center justify-between gap-2 text-muted-foreground">
                   <span className="inline-flex items-center gap-2">
                     <IconPhone className="w-4 h-4" />
-                    {t('phone')}
+                    {t('phone', 'Phone')}
                   </span>
                   <span className="text-foreground">
                     {customer.primaryPhone || '-'}
@@ -82,7 +82,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
                 <div className="flex items-center justify-between gap-2 text-muted-foreground">
                   <span className="inline-flex items-center gap-2">
                     <IconMail className="w-4 h-4" />
-                    {t('email')}
+                    {t('email', 'Email')}
                   </span>
                   <Tooltip.Provider>
                     <Tooltip>
@@ -111,7 +111,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
                   navigate(`/contacts/customers?contactId=${customer._id}`)
                 }
               >
-                {t('view-customer')}
+                {t('view-customer', 'View customer')}
                 <IconUser className="w-4 h-4" />
               </Button>
             </div>

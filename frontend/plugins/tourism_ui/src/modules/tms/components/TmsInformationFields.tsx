@@ -177,15 +177,15 @@ export const TmsInformationFields = ({
         <div className="flex gap-2 items-center">
           <div className="flex h-5 px-2 justify-center items-center gap-1 rounded-[21px] bg-[rgba(79,70,229,0.10)] transition-all duration-300">
             <p className="text-primary leading-none text-[12px] font-semibold uppercase font-mono">
-              {t('step', { step: currentStep })}
+              {t('step', 'STEP {{step}}', { step: currentStep })}
             </p>
           </div>
           <p className="text-primary font-inter text-[14px] font-semibold leading-[140%] transition-all duration-300">
             {currentStep === 1
-              ? t('general-information')
+              ? t('general-information', 'General information')
               : currentStep === 2
-                ? t('permission')
-                : t('payments')}
+                ? t('permission', 'Permission')
+                : t('payments', 'PAYMENTS')}
           </p>
         </div>
         <div className="flex gap-2 items-center self-stretch">
@@ -204,10 +204,10 @@ export const TmsInformationFields = ({
         </div>
         <p className="self-stretch text-muted-foreground font-inter text-[13px] font-medium leading-[140%] transition-all duration-300">
           {currentStep === 1
-            ? t('setup-tms-information')
+            ? t('setup-tms-information', 'Set up your TMS information')
             : currentStep === 2
-              ? t('setup-permission')
-              : t('setup-payments')}
+              ? t('setup-permission', 'Setup your permission')
+              : t('setup-payments', 'Setup your payments')}
         </p>
       </div>
       <div className="overflow-hidden relative flex-1 min-h-0">
@@ -223,7 +223,7 @@ export const TmsInformationFields = ({
             onClick={handleCancel}
             className="transition-all duration-200 hover:scale-105"
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
         ) : (
           <Button
@@ -231,7 +231,7 @@ export const TmsInformationFields = ({
             onClick={handlePrevious}
             className="transition-all duration-200 hover:scale-105"
           >
-            {t('previous')}
+            {t('previous', 'Previous')}
           </Button>
         )}
         {currentStep < 3 ? (
@@ -239,7 +239,7 @@ export const TmsInformationFields = ({
             onClick={handleNext}
             className="transition-all duration-200 hover:scale-105"
           >
-            {t('next')}
+            {t('next', 'Next')}
           </Button>
         ) : (
           <Button
@@ -247,7 +247,7 @@ export const TmsInformationFields = ({
             disabled={isLoading}
             className="transition-all duration-200 hover:scale-105"
           >
-            {isLoading ? t('saving') : t('save')}
+            {isLoading ? t('saving', 'Saving...') : t('save', 'Save')}
           </Button>
         )}
       </div>

@@ -28,21 +28,21 @@ export const ActionMenu = ({
   const { t } = useTranslation('tourism');
   const dropdownItems: DropdownItem[] = [
     {
-      label: t('edit'),
+      label: t('edit', 'Edit'),
       icon: <IconEdit size={16} stroke={1.5} />,
       onClick: onEdit,
     },
     ...(onVisitWebsite
       ? [
           {
-            label: t('open-website'),
+            label: t('open-website', 'Open website'),
             icon: <IconWorld size={16} stroke={1.5} />,
             onClick: onVisitWebsite,
           },
         ]
       : []),
     {
-      label: t('remove'),
+      label: t('remove', 'Remove'),
       icon: <IconTrash size={16} stroke={1.5} />,
       onClick: onDelete,
     },
@@ -57,7 +57,7 @@ export const ActionMenu = ({
           aria-haspopup="true"
           type="button"
         >
-          {t('action')}
+          {t('action', 'Action')}
           <IconChevronDown size={18} stroke={2} />
         </button>
       </Popover.Trigger>

@@ -118,16 +118,16 @@ export const CustomizePdfDialog: React.FC<CustomizePdfDialogProps> = ({
         <div className="grid md:grid-cols-[1.15fr_0.85fr] max-h-[80vh]">
           <section className="min-h-0 overflow-y-auto bg-background">
             <Dialog.Header className="px-6 py-6 border-b bg-muted/30">
-              <Dialog.Title className="text-xl">{t('customize-pdf')}</Dialog.Title>
+              <Dialog.Title className="text-xl">{t('customize-pdf', 'Customize PDF')}</Dialog.Title>
               <Dialog.Description className="max-w-xl text-sm leading-6">
-                {t('customize-pdf-desc')}
+                {t('customize-pdf-desc', 'Control which sections appear and shape the language used in the exported itinerary.')}
               </Dialog.Description>
             </Dialog.Header>
 
             <div className="px-6 py-5 space-y-4">
               <div className="flex items-center gap-2 text-xs font-medium tracking-[0.18em] uppercase text-muted-foreground">
                 <IconLayoutGrid size={14} />
-                {t('visible-sections')}
+                {t('visible-sections', 'Visible Sections')}
               </div>
 
               <div className="grid gap-3">
@@ -170,10 +170,10 @@ export const CustomizePdfDialog: React.FC<CustomizePdfDialogProps> = ({
             <div className="px-6 py-6 border-b bg-background/70 backdrop-blur">
               <div className="flex items-center gap-2 text-xs font-medium tracking-[0.18em] uppercase text-muted-foreground">
                 <IconForms size={14} />
-                {t('static-text')}
+                {t('static-text', 'Static Text')}
               </div>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {t('rename-built-in-labels')}
+                {t('rename-built-in-labels', 'Rename the built-in labels shown across the cover, day blocks, and notes page.')}
               </p>
             </div>
 
@@ -181,7 +181,7 @@ export const CustomizePdfDialog: React.FC<CustomizePdfDialogProps> = ({
               <div className="px-4 py-4 border shadow-sm rounded-2xl border-border/60 bg-background">
                 <div className="flex items-center gap-2 mb-4 text-xs font-medium tracking-[0.18em] uppercase text-muted-foreground">
                   <IconFileDescription size={14} />
-                  {t('label-editor')}
+                  {t('label-editor', 'Label Editor')}
                 </div>
 
                 <div className="space-y-4">
@@ -206,17 +206,17 @@ export const CustomizePdfDialog: React.FC<CustomizePdfDialogProps> = ({
 
               <div className="px-4 py-4 border border-dashed rounded-2xl border-border/70 bg-background/70">
                 <p className="text-sm leading-6 text-muted-foreground">
-                  {t('preview-refreshes-auto')}
+                  {t('preview-refreshes-auto', 'Preview refreshes automatically when these values change. Use short labels for the cleanest PDF layout.')}
                 </p>
               </div>
             </div>
 
             <Dialog.Footer className="sticky bottom-0 px-6 py-4 border-t bg-background/95 backdrop-blur">
               <Button variant="outline" onClick={onReset}>
-                {t('reset-to-defaults')}
+                {t('reset-to-defaults', 'Reset to defaults')}
               </Button>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                {t('close')}
+                {t('close', 'Close')}
               </Button>
             </Dialog.Footer>
           </aside>

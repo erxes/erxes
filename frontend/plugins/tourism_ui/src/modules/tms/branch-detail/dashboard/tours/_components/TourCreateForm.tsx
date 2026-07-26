@@ -286,8 +286,8 @@ export const TourCreateForm = ({
   const handleSubmit = async (values: TourFormValues) => {
     if (!branchId) {
       toast({
-        title: t('error'),
-        description: t('branch-required'),
+        title: t('error', 'Error'),
+        description: t('branch-required', 'Branch required'),
         variant: 'destructive',
       });
       return;
@@ -295,8 +295,8 @@ export const TourCreateForm = ({
 
     if (!values.pricingOptions || values.pricingOptions.length === 0) {
       toast({
-        title: t('error'),
-        description: t('at-least-one-pricing'),
+        title: t('error', 'Error'),
+        description: t('at-least-one-pricing', 'At least one pricing option is required'),
         variant: 'destructive',
       });
       return;
@@ -416,17 +416,17 @@ export const TourCreateForm = ({
       }
 
       toast({
-        title: t('success'),
-        description: t('tour-created-successfully'),
+        title: t('success', 'Success'),
+        description: t('tour-created-successfully', 'Tour created successfully'),
       });
 
       form.reset();
       onSuccess?.();
     } catch (error) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description:
-          error instanceof Error ? error.message : t('failed-to-create-tour'),
+          error instanceof Error ? error.message : t('failed-to-create-tour', 'Failed to create tour'),
         variant: 'destructive',
       });
     }
@@ -436,8 +436,8 @@ export const TourCreateForm = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: t('error'),
-        description: t('enter-main-lang-before-creating'),
+        title: t('error', 'Error'),
+        description: t('enter-main-lang-before-creating', 'Please enter values for the main language before creating.'),
         variant: 'destructive',
       });
       setSelectedLang(resolvedPrimaryLanguage);
@@ -451,7 +451,7 @@ export const TourCreateForm = ({
         className="flex flex-col h-full"
       >
         <Sheet.Header>
-          <Sheet.Title>{t('create-tour')}</Sheet.Title>
+          <Sheet.Title>{t('create-tour', 'Create tour')}</Sheet.Title>
           {allLanguages.length > 1 && (
             <div className="flex items-center gap-2 ml-auto">
               <TourFieldLanguageSwitch
@@ -542,7 +542,7 @@ export const TourCreateForm = ({
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />
-              <Form.Label className="mx-2">{t('duration-info')}</Form.Label>
+              <Form.Label className="mx-2">{t('duration-info', 'Duration Info')}</Form.Label>
               <div className="flex-1 border-t" />
             </div>
 
@@ -560,7 +560,7 @@ export const TourCreateForm = ({
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />
-              <Form.Label className="mx-2">{t('crew')}</Form.Label>
+              <Form.Label className="mx-2">{t('crew', 'Crew')}</Form.Label>
               <div className="flex-1 border-t" />
             </div>
 
@@ -568,7 +568,7 @@ export const TourCreateForm = ({
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />
-              <Form.Label className="mx-2">{t('pricing-info')}</Form.Label>
+              <Form.Label className="mx-2">{t('pricing-info', 'Pricing Info')}</Form.Label>
               <div className="flex-1 border-t" />
             </div>
 
@@ -593,7 +593,7 @@ export const TourCreateForm = ({
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />
-              <Form.Label className="mx-2">{t('more-info')}</Form.Label>
+              <Form.Label className="mx-2">{t('more-info', 'More Info')}</Form.Label>
               <div className="flex-1 border-t" />
             </div>
 
@@ -606,13 +606,13 @@ export const TourCreateForm = ({
             <div className="pt-4 space-y-4">
               <Tabs defaultValue="info1" className="w-full">
                 <Tabs.List className="grid w-full grid-cols-5">
-                  <Tabs.Trigger value="info1">{t('included')}</Tabs.Trigger>
-                  <Tabs.Trigger value="info2">{t('not-included')}</Tabs.Trigger>
-                  <Tabs.Trigger value="info3">{t('highlights')}</Tabs.Trigger>
+                  <Tabs.Trigger value="info1">{t('included', 'Included')}</Tabs.Trigger>
+                  <Tabs.Trigger value="info2">{t('not-included', 'Not Included')}</Tabs.Trigger>
+                  <Tabs.Trigger value="info3">{t('highlights', 'Highlights')}</Tabs.Trigger>
                   <Tabs.Trigger value="info4">
-                    {t('additional-information')}
+                    {t('additional-information', 'Additional Information')}
                   </Tabs.Trigger>
-                  <Tabs.Trigger value="info5">{t('notes')}</Tabs.Trigger>
+                  <Tabs.Trigger value="info5">{t('notes', 'Notes')}</Tabs.Trigger>
                 </Tabs.List>
 
                 <Tabs.Content value="info1" className="pt-4">
@@ -666,11 +666,11 @@ export const TourCreateForm = ({
             disabled={loading}
             onClick={onSuccess}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
 
           <Button type="submit" disabled={loading}>
-            {loading ? t('creating') : t('create')}
+            {loading ? t('creating', 'Creating...') : t('create', 'Create')}
           </Button>
         </Sheet.Footer>
       </form>

@@ -194,8 +194,8 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
     Boolean(previewBlob) && !previewLoading && !shouldWaitForResources;
   const previewStatusText =
     previewLoading || shouldWaitForResources
-      ? t('preparing-pdf-preview')
-      : t('preview-refreshes-after-edits');
+      ? t('preparing-pdf-preview', 'Preparing PDF preview...')
+      : t('preview-refreshes-after-edits', 'Preview refreshes automatically after edits and customization changes.');
 
   const revokePreviewUrl = useCallback(() => {
     if (previewObjectUrlRef.current) {
@@ -240,7 +240,7 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
   const generatePreview = useCallback(
     async (force = false) => {
       if (!localizedTour) {
-        setPreviewError(t('no-tour-data'));
+        setPreviewError(t('no-tour-data', 'No tour data available.'));
         return;
       }
 
@@ -270,8 +270,8 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
 
         if (totalImages > 0 && loadedImages < totalImages) {
           toast({
-            title: t('some-images-failed'),
-            description: t('some-images-failed-desc', { failed: totalImages - loadedImages, total: totalImages }),
+            title: t('some-images-failed', 'Some images failed to load'),
+            description: t('some-images-failed-desc', '{{failed}} of {{total}} image(s) could not be loaded. The preview may have missing images.', { failed: totalImages - loadedImages, total: totalImages }),
           });
         }
 
@@ -293,7 +293,7 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
         setPreviewError(
           error instanceof Error
             ? error.message
-            : t('failed-to-generate-preview'),
+            : t('failed-to-generate-preview', 'Failed to generate preview.'),
         );
       } finally {
         if (isMountedRef.current && requestId === previewRequestIdRef.current) {
@@ -324,8 +324,8 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
     triggerDownload(url, generateFilename(localizedTour.name));
 
     toast({
-      title: t('pdf-downloaded'),
-      description: t('pdf-downloaded-desc', { name: localizedTour.name || 'Tour' }),
+      title: t('pdf-downloaded', 'PDF downloaded'),
+      description: t('pdf-downloaded-desc', '"{{name}}" has been downloaded.', { name: localizedTour.name || 'Tour' }),
       variant: 'success',
     });
   }, [localizedTour, previewBlob, toast, triggerDownload]);
@@ -468,11 +468,11 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
           ]);
         } catch (error) {
           toast({
-            title: t('refresh-failed'),
+            title: t('refresh-failed', 'Refresh failed'),
             description:
               error instanceof Error
                 ? error.message
-                : t('failed-to-reload-tour'),
+                : t('failed-to-reload-tour', 'Failed to reload tour details.'),
             variant: 'destructive',
           });
         } finally {
@@ -544,7 +544,7 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
         onClick={() => handlePreviewOpenChange(true)}
       >
         <IconFileTypePdf size={16} />
-        {size !== 'icon' && t('preview-pdf')}
+        {size !== 'icon' && t('preview-pdf', 'Preview PDF')}
       </Button>
 
       <Dialog open={previewOpen} onOpenChange={handlePreviewOpenChange}>
@@ -560,9 +560,9 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
           </Dialog.Close>
 
           <Dialog.Header className="border-b px-6 py-4 pr-14 space-y-1">
-            <Dialog.Title>{t('tour-pdf-preview')}</Dialog.Title>
+            <Dialog.Title>{t('tour-pdf-preview', 'Tour PDF preview')}</Dialog.Title>
             <Dialog.Description>
-              {t('review-pdf-before-downloading')}
+              {t('review-pdf-before-downloading', 'Review the generated PDF before downloading it. You can also open the tour editor from here and refresh the preview.')}
             </Dialog.Description>
           </Dialog.Header>
 
@@ -571,7 +571,7 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
               <div className="flex h-full items-center justify-center">
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Spinner />
-                  {t('preparing-pdf-preview')}
+                  {t('preparing-pdf-preview', 'Preparing PDF preview...')}
                 </div>
               </div>
             ) : previewError ? (
@@ -581,18 +581,18 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
                 </p>
                 <Button variant="outline" onClick={handleRefreshPreview}>
                   <IconRefresh size={16} />
-                  {t('retry-preview')}
+                  {t('retry-preview', 'Retry preview')}
                 </Button>
               </div>
             ) : previewUrl ? (
               <iframe
-                title={t('tour-pdf-preview')}
+                title={t('tour-pdf-preview', 'Tour PDF preview')}
                 src={previewUrl}
                 className="h-full w-full border-0 bg-white"
               />
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                {t('no-preview-available')}
+                {t('no-preview-available', 'No preview available yet.')}
               </div>
             )}
           </div>
@@ -607,7 +607,7 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
                 disabled={!localizedTour}
               >
                 <IconAdjustmentsHorizontal size={16} />
-                {t('customize')}
+                {t('customize', 'Customize')}
               </Button>
 
               <Button
@@ -616,7 +616,7 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
                 disabled={previewLoading || !localizedTour}
               >
                 {previewLoading ? <Spinner /> : <IconRefresh size={16} />}
-                {t('refresh')}
+                {t('refresh', 'Refresh')}
               </Button>
 
               <Button
@@ -625,12 +625,12 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
                 disabled={!canEdit}
               >
                 <IconEdit size={16} />
-                {t('edit-tour-btn')}
+                {t('edit-tour-btn', 'Edit tour')}
               </Button>
 
               <Button onClick={handleDownload} disabled={!canDownload}>
                 <IconDownload size={16} />
-                {t('download-pdf')}
+                {t('download-pdf', 'Download PDF')}
               </Button>
             </div>
           </Dialog.Footer>

@@ -40,21 +40,21 @@ export const AmenityMoreColumn = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-amenity'),
+      message: t('confirm-delete-amenity', 'Are you sure you want to delete this amenity?'),
       options: { confirmationValue: 'delete' },
     })
       .then(() => {
         removeAmenities({ variables: { ids: [amenity._id] } })
           .then(() => {
             toast({
-              title: t('success'),
+              title: t('success', 'Success'),
               variant: 'success',
-              description: t('amenity-deleted-successfully'),
+              description: t('amenity-deleted-successfully', 'Amenity deleted successfully'),
             });
           })
           .catch((e: any) => {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -63,7 +63,7 @@ export const AmenityMoreColumn = ({
       .catch((e: unknown) => {
         if (e instanceof Error) {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -82,7 +82,7 @@ export const AmenityMoreColumn = ({
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                {t('edit')}
+                {t('edit', 'Edit')}
               </Command.Item>
               <AmenityDuplicate amenity={amenity} branchId={branchId}>
                 {({ onClick, disabled }) => (
@@ -92,13 +92,13 @@ export const AmenityMoreColumn = ({
                     disabled={disabled}
                   >
                     <IconCopy className="w-4 h-4" />
-                    {t('duplicate')}
+                    {t('duplicate', 'Duplicate')}
                   </Command.Item>
                 )}
               </AmenityDuplicate>
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash className="w-4 h-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>

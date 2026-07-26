@@ -252,7 +252,7 @@ export const TourGroupAddSheet = ({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <Sheet.View className="w-[420px] sm:max-w-[420px] p-0">
           <Sheet.Header>
-            <Sheet.Title>{t('add-tour')}</Sheet.Title>
+            <Sheet.Title>{t('add-tour', 'Add tour')}</Sheet.Title>
           </Sheet.Header>
           <Sheet.Content className="flex items-center justify-center py-12">
             <Spinner />
@@ -265,8 +265,8 @@ export const TourGroupAddSheet = ({
   const handleSubmit = async (values: GroupTourAddFormValues) => {
     if (!branchId) {
       toast({
-        title: t('error'),
-        description: t('branch-required'),
+        title: t('error', 'Error'),
+        description: t('branch-required', 'Branch required'),
         variant: 'destructive',
       });
       return;
@@ -314,18 +314,18 @@ export const TourGroupAddSheet = ({
       },
       onCompleted: () => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
           variant: 'success',
-          description: t('tour-added-to-group-successfully'),
+          description: t('tour-added-to-group-successfully', 'Tour added to group successfully'),
         });
         onOpenChange(false);
         form.reset();
       },
       onError: (error: unknown) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description:
-            error instanceof Error ? error.message : t('failed-to-add-tour'),
+            error instanceof Error ? error.message : t('failed-to-add-tour', 'Failed to add tour'),
           variant: 'destructive',
         });
       },
@@ -337,8 +337,8 @@ export const TourGroupAddSheet = ({
 
     if (!refValue?.trim()) {
       toast({
-        title: t('error'),
-        description: t('enter-ref-before-creating'),
+        title: t('error', 'Error'),
+        description: t('enter-ref-before-creating', 'Please enter the ref number in the main language before creating.'),
         variant: 'destructive',
       });
       setSelectedLang(resolvedPrimaryLanguage);
@@ -354,7 +354,7 @@ export const TourGroupAddSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>{t('add-tour')}</Sheet.Title>
+              <Sheet.Title>{t('add-tour', 'Add tour')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -375,11 +375,11 @@ export const TourGroupAddSheet = ({
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('ref-number-label')}{''}
+                        {t('ref-number-label', 'Ref number')}{''}
                         <span className="text-primary">{labelSuffix}</span>
                       </Form.Label>
                       <Form.Control>
-                        <Input placeholder={t('enter-ref-number')} {...field} />
+                        <Input placeholder={t('enter-ref-number', 'Enter ref number')} {...field} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -392,7 +392,7 @@ export const TourGroupAddSheet = ({
                   render={() => (
                     <Form.Item>
                       <Form.Label>
-                        {t('start-date')} <span className="text-destructive">*</span>
+                        {t('start-date', 'Start date')} <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <RHFDatePicker
@@ -407,7 +407,7 @@ export const TourGroupAddSheet = ({
                 />
 
                 <Form.Item>
-                  <Form.Label>{t('end-date')}</Form.Label>
+                  <Form.Label>{t('end-date', 'End Date')}</Form.Label>
                   <Form.Control>
                     <Input
                       value={
@@ -415,7 +415,7 @@ export const TourGroupAddSheet = ({
                           ? dateFormatter.format(computedEndDate)
                           : ''
                       }
-                      placeholder={t('calculated-from-duration')}
+                      placeholder={t('calculated-from-duration', 'Calculated from duration')}
                       disabled
                       readOnly
                     />
@@ -431,10 +431,10 @@ export const TourGroupAddSheet = ({
                 disabled={loading}
                 onClick={() => onOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? t('adding') : t('add-tour')}
+                {loading ? t('adding', 'Adding...') : t('add-tour', 'Add tour')}
               </Button>
             </Sheet.Footer>
           </form>
