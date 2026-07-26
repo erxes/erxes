@@ -7,7 +7,7 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { allTasksMapState } from '@/task/components/TasksBoard';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { taskCountByBoardAtom } from '@/task/states/tasksTotalCountState';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
@@ -33,7 +33,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
     _id,
     createdAt,
   } = useAtomValue(taskBoardItemAtom)(id);
-  const setActiveTask = useSetAtom(taskDetailSheetState);
+  const [, setActiveTask] = useTaskDetailSheet();
   const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
 
   return (
