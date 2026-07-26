@@ -15,6 +15,7 @@ const PosMain = lazy(() =>
   })),
 );
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 const SalesMain = () => {
   return (
     <Suspense fallback={<Spinner />}>

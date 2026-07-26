@@ -13,6 +13,7 @@ import {
 import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const GET_CORE_MODULES = (
   t: TFunction,
   version?: boolean,

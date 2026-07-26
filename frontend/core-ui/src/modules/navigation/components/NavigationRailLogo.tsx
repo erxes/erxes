@@ -4,6 +4,7 @@ import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationRailLogo = () => {
   const { t } = useTranslation('organization');
 

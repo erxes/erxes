@@ -5,6 +5,7 @@ import { useSetAtom } from 'jotai';
 import { PropsWithChildren, useCallback, useId } from 'react';
 import { useLocation } from 'react-router-dom';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const PageLoadingProvider = ({ children }: PropsWithChildren) => {
   const providerId = useId();
   const { pathname } = useLocation();

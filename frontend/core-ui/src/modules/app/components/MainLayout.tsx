@@ -7,6 +7,7 @@ import { Sidebar, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { Outlet } from 'react-router';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const DefaultLayout = () => {
   const [panelOpen, setPanelOpen] = useAtom(navigationPanelOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');

@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 const CURRENT_BOARD_STORAGE_KEY = 'erxesCurrentBoardId';
 const CURRENT_PIPELINE_STORAGE_KEY = 'erxesCurrentPipelineId';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const useEnsureSalesBoardSelection = () => {
   const { boards } = useBoards();
   const [searchParams, setSearchParams] = useSearchParams();

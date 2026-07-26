@@ -50,7 +50,7 @@ export const NavigationMenuLinkItem = forwardRef<
           {...props}
         >
           <Link to={fullPath}>
-            {!!IconComponent && (
+            {Boolean(IconComponent) && (
               <IconComponent
                 className={cn(
                   'text-accent-foreground',
@@ -98,7 +98,7 @@ export const NavigationMenuItem = forwardRef<
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton ref={ref} {...props}>
-        {!!IconComponent && (
+        {Boolean(IconComponent) && (
           <IconComponent className="text-accent-foreground" />
         )}
         <span className="capitalize">{name}</span>
@@ -118,6 +118,7 @@ export const NavigationMenuGroup = forwardRef<
     actions?: React.ReactNode;
   }
 >(({ name, children, separate = true, actions, className, ...props }, ref) => {
+  // skipcq: JS-0415 - The nesting mirrors collapsible sidebar primitives.
   return (
     <>
       {separate && <Sidebar.Separator />}

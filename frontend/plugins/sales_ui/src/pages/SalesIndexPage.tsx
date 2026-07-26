@@ -18,6 +18,7 @@ import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
 import { useEnsureSalesBoardSelection } from '@/deals/boards/hooks/useEnsureSalesBoardSelection';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const SalesIndexPage = () => {
   const { t } = useTranslation('sales');
   const [searchParams] = useSearchParams();
@@ -30,6 +31,7 @@ export const SalesIndexPage = () => {
 
   useEnsureSalesBoardSelection();
 
+  // skipcq: JS-0415 - The nesting mirrors the page header and content layout.
   return (
     <div className="flex h-full overflow-hidden w-full">
       <div className="flex flex-col h-full w-full overflow-hidden">

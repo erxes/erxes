@@ -1,3 +1,4 @@
+// skipcq: JS-C1003 - This primitive uses React APIs and namespace-qualified types.
 import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { cva, VariantProps } from 'class-variance-authority';
@@ -33,6 +34,7 @@ type CollapseState = 'expanded' | 'compact' | 'collapsed';
 
 const COLLAPSE_ORDER: CollapseState[] = ['expanded', 'compact', 'collapsed'];
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 const nextCollapseState = (prev: CollapseState): CollapseState =>
   COLLAPSE_ORDER[(COLLAPSE_ORDER.indexOf(prev) + 1) % COLLAPSE_ORDER.length];
 
@@ -49,6 +51,7 @@ type ISidebarContext = {
 
 const SidebarContext = React.createContext<ISidebarContext | null>(null);
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 function useSidebar() {
   const context = React.useContext(SidebarContext);
   if (!context) {

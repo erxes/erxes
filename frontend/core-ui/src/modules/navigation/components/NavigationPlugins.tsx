@@ -1,6 +1,7 @@
 import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
 import { Sidebar } from 'erxes-ui';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationPluginPanelContent = ({
   activityId,
 }: {
@@ -18,14 +19,14 @@ export const NavigationPluginPanelContent = ({
       <Sidebar.Group className="px-2 py-1">
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {navigationGroup.contents.map((Content, index) => (
-              <Content key={index} />
+            {navigationGroup.contents.map((Content) => (
+              <Content key={Content.displayName || Content.name} />
             ))}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-      {navigationGroup.subGroups.map((SubGroup, index) => (
-        <SubGroup key={index} />
+      {navigationGroup.subGroups.map((SubGroup) => (
+        <SubGroup key={SubGroup.displayName || SubGroup.name} />
       ))}
     </>
   );

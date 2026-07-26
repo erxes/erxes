@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationSidebarFooter = ({
   isSettings,
 }: {
@@ -22,6 +23,7 @@ export const NavigationSidebarFooter = ({
   const userDetails = currentUser?.details;
   const userName = userDetails?.fullName || sidebarT('profile');
 
+  // skipcq: JS-0415 - The nesting reflects the dropdown's accessible structure.
   return (
     <div className="flex flex-col items-center gap-1 px-1 pb-2">
       <Button

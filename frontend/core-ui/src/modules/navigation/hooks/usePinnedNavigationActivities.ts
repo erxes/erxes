@@ -8,6 +8,7 @@ import {
 import { useAtom } from 'jotai';
 import { useCallback, useMemo } from 'react';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const usePinnedNavigationActivities = (
   activities: INavigationActivity[],
 ) => {

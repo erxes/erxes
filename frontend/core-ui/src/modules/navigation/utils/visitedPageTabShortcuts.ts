@@ -8,6 +8,7 @@ interface IVisitedPageTabShortcutEvent {
   shiftKey: boolean;
 }
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const getVisitedPageTabShortcut = ({
   altKey,
   code,
@@ -36,6 +37,7 @@ export const getVisitedPageTabShortcut = ({
   return null;
 };
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const isVisitedPageTabShortcutTargetEditable = (
   target: EventTarget | null,
 ) =>

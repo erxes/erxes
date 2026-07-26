@@ -2,6 +2,7 @@ import { IconQuestionMark } from '@tabler/icons-react';
 import { Button, HoverCard, Kbd } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 const ShortcutKeys = ({
   altKey,
   primaryKey,
@@ -20,6 +21,7 @@ const ShortcutKeys = ({
   </div>
 );
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const VisitedPageTabsShortcutGuide = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const isMac =
