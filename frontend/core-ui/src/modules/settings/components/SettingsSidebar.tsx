@@ -158,8 +158,8 @@ export function SettingsExitButton() {
     keyPrefix: 'sidebar',
   });
 
-  // skipcq: JS-0415 - The nesting mirrors the sidebar menu primitives.
   return (
+    /* skipcq: JS-0415 - The nesting mirrors the sidebar menu primitives. */
     <Sidebar.Header className="p-4">
       <Sidebar.Menu>
         <Sidebar.MenuItem>

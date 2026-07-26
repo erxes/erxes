@@ -38,6 +38,7 @@ export const useLoadingIndicator = (isLoading = true) => {
 
     onLoadingChange(loadingSourceId, true);
 
+    /* skipcq: JS-0045 - React effects return cleanup callbacks. */
     return () => {
       onLoadingChange(loadingSourceId, false);
     };

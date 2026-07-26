@@ -31,8 +31,8 @@ export const SalesIndexPage = () => {
 
   useEnsureSalesBoardSelection();
 
-  // skipcq: JS-0415 - The nesting mirrors the page header and content layout.
   return (
+    /* skipcq: JS-0415 - The nesting mirrors the page header and content layout. */
     <div className="flex h-full overflow-hidden w-full">
       <div className="flex flex-col h-full w-full overflow-hidden">
         <PageHeader>

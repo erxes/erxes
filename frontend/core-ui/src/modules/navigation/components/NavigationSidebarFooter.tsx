@@ -23,8 +23,8 @@ export const NavigationSidebarFooter = ({
   const userDetails = currentUser?.details;
   const userName = userDetails?.fullName || sidebarT('profile');
 
-  // skipcq: JS-0415 - The nesting reflects the dropdown's accessible structure.
   return (
+    /* skipcq: JS-0415 - The nesting reflects the accessible dropdown structure. */
     <div className="flex flex-col items-center gap-1 px-1 pb-2">
       <Button
         asChild

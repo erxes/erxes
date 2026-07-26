@@ -118,8 +118,8 @@ export const NavigationMenuGroup = forwardRef<
     actions?: React.ReactNode;
   }
 >(({ name, children, separate = true, actions, className, ...props }, ref) => {
-  // skipcq: JS-0415 - The nesting mirrors collapsible sidebar primitives.
   return (
+    /* skipcq: JS-0415 - The nesting mirrors collapsible sidebar primitives. */
     <>
       {separate && <Sidebar.Separator />}
       <Collapsible open>
