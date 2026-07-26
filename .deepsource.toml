@@ -31,12 +31,10 @@ name = "javascript"
   environment = ["nodejs", "browser"]
   dialect = "typescript"
   module_system = "es-modules"
+  skip_doc_coverage = ["class-expression", "method-definition"]
 
 [[analyzers]]
 name = "docker"
 
 [[transformers]]
 name = "prettier"
-
-[analyzers.meta]
-    skip_doc_coverage = ["class-expression", "method-definition"]
