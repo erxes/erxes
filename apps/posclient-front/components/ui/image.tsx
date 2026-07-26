@@ -31,7 +31,7 @@ const Image: FC<
   const [isImageLoading, setIsImageLoading] = useState(true)
   const [srcI, setSrcI] = useState(fixedSrc || fallBack || "/product.png")
   const handleComplete = () => setIsImageLoading(false)
-  const fromCF = srcI.includes("https://imagedelivery.net/")
+  const fromCF = srcI.startsWith("https://imagedelivery.net/")
   const getLoader = () => {
     if (srcI.includes("//:localhost") || srcI.startsWith("/")) {
       return undefined
