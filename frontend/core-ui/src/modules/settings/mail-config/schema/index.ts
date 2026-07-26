@@ -23,9 +23,16 @@ const AWS_SES_SCHEMA = COMMON_FIELDS.extend({
   AWS_SES_CONFIG_SET: z.string(),
 });
 
+const SENDGRID_SCHEMA = COMMON_FIELDS.extend({
+  DEFAULT_EMAIL_SERVICE: z.literal('sendgrid'),
+  SENDGRID_API_KEY: z.string(),
+  SENDGRID_SUBUSER: z.string().optional(),
+});
+
 const MAIL_CONFIG_SCHEMA = z.discriminatedUnion('DEFAULT_EMAIL_SERVICE', [
   CUSTOM_MAIL_SERVICE_SCHEMA,
   AWS_SES_SCHEMA,
+  SENDGRID_SCHEMA,
 ]);
 
 export { MAIL_CONFIG_SCHEMA };

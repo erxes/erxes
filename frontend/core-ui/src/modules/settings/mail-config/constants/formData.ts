@@ -29,7 +29,7 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
       inputType: 'select',
       label: t('default-email-service'),
       description: t('default-email-service-desc'),
-      options: ['SES', 'custom'],
+      options: ['SES', 'sendgrid', 'custom'],
     },
   ],
   custom: [
@@ -97,6 +97,22 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
       type: 'input',
       label: 'AWS SES Config Set',
       description: '',
+    },
+  ],
+  sendgrid: [
+    {
+      name: 'SENDGRID_API_KEY',
+      inputType: 'input',
+      type: 'password',
+      label: 'SendGrid API Key',
+      description: t('sendgrid-api-key-desc'),
+    },
+    {
+      name: 'SENDGRID_SUBUSER',
+      inputType: 'input',
+      type: 'input',
+      label: 'SendGrid Subuser',
+      description: t('sendgrid-subuser-desc'),
     },
   ],
 }}

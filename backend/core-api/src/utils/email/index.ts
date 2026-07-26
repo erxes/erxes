@@ -1,59 +1,42 @@
 import { getConfig } from '@/organization/settings/utils/configs';
 import { IEmailParams } from '@/organization/types';
-import * as AWS from 'aws-sdk';
-import { getEnv } from 'erxes-api-shared/utils';
+import {
+  deliverEmail,
+  getEnv,
+  IDeliveryLogPort,
+  loadEmailProviderConfig,
+  toDeliveryLogProvider,
+} from 'erxes-api-shared/utils';
 import * as Handlebars from 'handlebars';
-import * as nodemailer from 'nodemailer';
 import { IModels } from '~/connectionResolvers';
 import { applyTemplate } from '~/utils/common';
 
-export const createTransporter = async ({ ses }, models?: IModels) => {
-  if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = await getConfig(
-      'AWS_SES_ACCESS_KEY_ID',
-      '',
-      models,
-    );
-    const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
-      'AWS_SES_SECRET_ACCESS_KEY',
-      '',
-      models,
-    );
-    const AWS_REGION = await getConfig('AWS_REGION', '', models);
-
-    AWS.config.update({
-      region: AWS_REGION,
-      accessKeyId: AWS_SES_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
+/**
+ * Backs the shared send path with this service's own models, so every email
+ * leaving core-api is recorded without each caller having to remember to.
+ */
+const createDeliveryLogPort = (models: IModels): IDeliveryLogPort => ({
+  async create(input) {
+    const delivery = await models.EmailDeliveries.createEmailDelivery({
+      toEmails: input.toEmails,
+      ccEmails: input.ccEmails,
+      from: input.from,
+      subject: input.subject,
+      provider: toDeliveryLogProvider(input.provider),
+      source: input.source,
+      sourceId: input.sourceId,
+      userId: input.userId,
+      notificationId: input.notificationId,
+      status: 'queued',
     });
 
-    return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
-    });
-  }
+    return delivery?._id;
+  },
 
-  const MAIL_SERVICE = await getConfig('MAIL_SERVICE', '', models);
-  const MAIL_PORT = await getConfig('MAIL_PORT', '', models);
-  const MAIL_USER = await getConfig('MAIL_USER', '', models);
-  const MAIL_PASS = await getConfig('MAIL_PASS', '', models);
-  const MAIL_HOST = await getConfig('MAIL_HOST', '', models);
-
-  let auth;
-
-  if (MAIL_USER && MAIL_PASS) {
-    auth = {
-      user: MAIL_USER,
-      pass: MAIL_PASS,
-    };
-  }
-
-  return nodemailer.createTransport({
-    service: MAIL_SERVICE,
-    host: MAIL_HOST,
-    port: MAIL_PORT,
-    auth,
-  });
-};
+  async update(id, patch) {
+    await models.EmailDeliveries.recordHandoff(id, patch);
+  },
+});
 
 export const sendEmail = async (
   subdomain: string,
@@ -75,11 +58,12 @@ export const sendEmail = async (
   } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const DEFAULT_EMAIL_SERVICE = await getConfig(
-    'DEFAULT_EMAIL_SERVICE',
-    'SES',
-    models,
-  );
+
+  // do not send email it is running in test mode
+  if (NODE_ENV === 'test') {
+    return;
+  }
+
   const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '', models);
   const defaultTemplateType = await getConfig(
     'COMPANY_EMAIL_TEMPLATE_TYPE',
@@ -87,48 +71,18 @@ export const sendEmail = async (
     models,
   );
   const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '', models);
-  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '', models);
-  const AWS_SES_ACCESS_KEY_ID = await getConfig(
-    'AWS_SES_ACCESS_KEY_ID',
-    '',
-    models,
-  );
-  const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
-    'AWS_SES_SECRET_ACCESS_KEY',
-    '',
-    models,
-  );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
   const VERSION = getEnv({ name: 'VERSION' });
 
-  // do not send email it is running in test mode
-  if (NODE_ENV === 'test') {
-    return;
-  }
+  const providerConfig = await loadEmailProviderConfig((code, defaultValue) =>
+    getConfig(code, defaultValue, models),
+  );
 
-  // try to create transporter or throw configuration error
-  let transporter;
-  let sendgridMail;
-
-  try {
-    transporter = await createTransporter(
-      { ses: DEFAULT_EMAIL_SERVICE === 'SES' },
-      models,
-    );
-
-    if (transportMethod === 'sendgrid' || (VERSION && VERSION === 'saas')) {
-      sendgridMail = require('@sendgrid/mail');
-
-      const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
-
-      sendgridMail.setApiKey(SENDGRID_API_KEY);
-    }
-  } catch (e) {
-    //   return debugError(e.message);
-    console.log(e);
-    return;
+  // SaaS has always gone out through SendGrid regardless of the tenant's
+  // configured provider, and callers can still force it per message.
+  if (transportMethod === 'sendgrid' || VERSION === 'saas') {
+    providerConfig.DEFAULT_EMAIL_SERVICE = 'sendgrid';
   }
 
   const { data = {}, name } = template;
@@ -151,6 +105,8 @@ export const sendEmail = async (
       hasCompanyFromEmail = false;
     }
   }
+
+  const log = models ? createDeliveryLogPort(models) : undefined;
 
   for (const toEmail of toEmails) {
     if (modifier) {
@@ -176,67 +132,41 @@ export const sendEmail = async (
       html = Handlebars.compile(customHtml)(customHtmlData || {});
     }
 
-    const mailOptions: any = {
-      from:
-        fromEmail ||
-        (hasCompanyFromEmail
-          ? `Noreply <${COMPANY_EMAIL_FROM}>`
-          : 'noreply@erxes.io'),
-      to: toEmail,
-      subject: title,
-      html,
-      attachments,
-    };
+    const from =
+      fromEmail ||
+      (hasCompanyFromEmail
+        ? `Noreply <${COMPANY_EMAIL_FROM}>`
+        : 'noreply@erxes.io');
 
-    if (!mailOptions.from) {
-      throw new Error(`"From" email address is missing: ${mailOptions.from}`);
+    if (!from) {
+      throw new Error(`"From" email address is missing: ${from}`);
     }
-
-    let headers: { [key: string]: string } = {};
-
-    if (models && subdomain) {
-      const emailDelivery = await models.EmailDeliveries.createEmailDelivery({
-        kind: 'transaction',
-        to: [toEmail],
-        from: mailOptions.from,
-        subject: title || '',
-        content: html,
-        status: 'pending',
-        provider: sendgridMail ? 'sendgrid' : transporter ? 'ses' : 'smtp',
-        userId,
-        email: toEmail,
-      });
-
-      headers = {
-        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-        EmailDeliveryId: emailDelivery?._id,
-      };
-    }
-
-    if (AWS_SES_ACCESS_KEY_ID && AWS_SES_SECRET_ACCESS_KEY) {
-      headers['X-SES-CONFIGURATION-SET'] = AWS_SES_CONFIG_SET || 'erxes-saas';
-    }
-
-    mailOptions.headers = headers;
 
     try {
-      if (sendgridMail) {
-        await sendgridMail.send(mailOptions).catch((error) => {
-          console.error(error);
+      await deliverEmail({
+        cacheKey: subdomain,
+        config: providerConfig,
+        message: {
+          from,
+          to: [toEmail],
+          subject: title || '',
+          html: html || '',
+          attachments: (attachments || []).map((attachment: any) => ({
+            filename: attachment.filename || attachment.name || '',
+            path: attachment.path || attachment.url,
+            content: attachment.content,
+            contentType: attachment.contentType || attachment.type,
+          })),
+        },
+        log,
+        meta: {
+          source: 'transactional',
+          userId,
+        },
+      });
 
-          if (error.response) {
-            console.error(error.response.body);
-          }
-        });
-      } else {
-        await transporter.sendMail(mailOptions);
-      }
-
-      console.log(
-        `Email sent successfully: ${toEmail} from ${mailOptions.from}`,
-      );
+      console.log(`Email sent successfully: ${toEmail} from ${from}`);
     } catch (e) {
-      // debugError(`Error sending email: ${e.message}`);
       console.log(`Error sending email: ${e.message}`);
     }
   }

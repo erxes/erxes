@@ -17,19 +17,18 @@ export interface IAttachmentParams {
 
 export interface IEmailDeliveries {
   subject: string;
-  body?: string;
   content?: string;
-  to: string[];
-  cc?: string[];
-  bcc?: string[];
-  attachments?: IAttachmentParams[];
-  from: string;
-  kind: string;
+  toEmails: string[];
+  ccEmails?: string[];
+  from?: string;
+  provider: 'sendgrid' | 'smtp' | 'ses';
+  status?: 'queued' | 'sent' | 'failed';
+  messageId?: string;
+  /** What produced this email, e.g. 'automation' | 'broadcast' | 'transactional'. */
+  source?: string;
+  sourceId?: string;
   userId?: string;
-  customerId?: string;
-  status?: string;
-  email?: string;
-  provider?: string;
+  notificationId?: string;
 }
 
 export interface IEmailDeliveriesDocument extends IEmailDeliveries, Document {

@@ -310,10 +310,15 @@ export const engageMutations = {
 
     for (const cusId of customerIds) {
       await models.EmailDeliveries.create({
-        ...doc,
-        customerId: cusId,
-        kind: 'transaction',
-        status: 'pending',
+        toEmails: doc.to || [],
+        ccEmails: doc.cc || [],
+        from: doc.from,
+        subject: doc.subject,
+        provider: 'ses',
+        status: 'sent',
+        source: 'broadcast',
+        sourceId: cusId,
+        userId: doc.userId,
       });
     }
 

@@ -26,6 +26,15 @@ type TSESMailConfig = {
   AWS_SES_CONFIG_SET: string;
 };
 
+type TSendgridMailConfig = {
+  DEFAULT_EMAIL_SERVICE: 'sendgrid';
+  COMPANY_EMAIL_FROM: string;
+  COMPANY_EMAIL_TEMPLATE_TYPE: string;
+  COMPANY_EMAIL_TEMPLATE: string;
+  SENDGRID_API_KEY: string;
+  SENDGRID_SUBUSER?: string;
+};
+
 interface TInput {
   name: string;
   inputType: 'input' | 'select' | 'editor';
@@ -43,6 +52,7 @@ export {
   TMailConfigForm,
   TCustomMailConfig,
   TSESMailConfig,
+  TSendgridMailConfig,
   TInput,
   TFormData,
 };
