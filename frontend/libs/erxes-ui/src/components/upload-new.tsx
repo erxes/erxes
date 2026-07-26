@@ -54,16 +54,18 @@ export const formatBytes = (
   size?: 'bytes' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' | 'EB' | 'ZB' | 'YB',
 ) => {
   const k = 1000;
-  const dm = decimals < 0 ? 0 : decimals;
+  const dm = Math.max(decimals, 0);
   const sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
   if (bytes === 0 || bytes === undefined)
-    return size !== undefined ? `0 ${size}` : '0 bytes';
+    return size === undefined ? '0 bytes' : `0 ${size}`;
   const i =
-    size !== undefined
-      ? sizes.indexOf(size)
-      : Math.floor(Math.log(bytes) / Math.log(k));
-  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    size === undefined
+      ? Math.floor(Math.log(bytes) / Math.log(k))
+      : sizes.indexOf(size);
+  return (
+    Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  );
 };
 
 type DropzoneContextType = Omit<
@@ -154,7 +156,7 @@ const DropzoneContent = ({ className }: { className?: string }) => {
     <div className={cn('flex flex-col', className)}>
       {files.map((file, idx) => {
         const fileError = errors.find((e) => e.name === file.name);
-        const isSuccessfullyUploaded = !!successes.find((e) => e === file.name);
+        const isSuccessfullyUploaded = successes.includes(file.name);
 
         return (
           <div
