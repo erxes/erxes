@@ -49,6 +49,8 @@ import {
   IconFolder,
 } from '@tabler/icons-react';
 
+import { IconComponent } from 'erxes-ui';
+
 export const ICONS = [
   { value: 'alarm', label: 'alarm', icon: IconAlarm },
   { value: 'briefcase', label: 'briefcase', icon: IconBriefcase },
@@ -102,19 +104,35 @@ export const ICONS = [
 ];
 
 export const REACTIONS = [
-  { value: 'https://erxes.s3.amazonaws.com/icons/sad.svg', label: 'Sad' },
+  {
+    value: 'https://erxes.s3.amazonaws.com/icons/sad.svg',
+    label: 'Sad',
+    icon: 'mood-sad',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-mood-sad"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 10l.01 0" /><path d="M15 10l.01 0" /><path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" /></svg>`,
+  },
   {
     value: 'https://erxes.s3.amazonaws.com/icons/neutral.svg',
     label: 'Neutral',
+    icon: 'mood-neutral',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-mood-neutral"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 10l.01 0" /><path d="M15 10l.01 0" /></svg>`,
   },
   {
     value: 'https://erxes.s3.amazonaws.com/icons/grinning.svg',
     label: 'Happy',
+    icon: 'mood-happy',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 9l.01 0" /><path d="M15 9l.01 0" /><path d="M8 13a4 4 0 1 0 8 0h-8" /></svg>`,
   },
-  { value: 'https://erxes.s3.amazonaws.com/icons/like.svg', label: 'Like' },
+  {
+    value: 'https://erxes.s3.amazonaws.com/icons/like.svg',
+    label: 'Like',
+    icon: 'thumbs-up',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-thumb-up"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3" /></svg>`,
+  },
   {
     value: 'https://erxes.s3.amazonaws.com/icons/dislike.svg',
     label: 'Dislike',
+    icon: 'thumbs-down',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-thumb-down"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3" /></svg>`,
   },
 ];
 

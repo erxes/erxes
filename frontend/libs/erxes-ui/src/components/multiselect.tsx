@@ -9,12 +9,14 @@ import { cn } from 'erxes-ui/lib';
 
 export interface MultiSelectOption {
   value: string;
-  label: string;
+  label: string | React.ReactNode;
   disable?: boolean;
   /** fixed option that can&lsquo;t be removed. */
   fixed?: boolean;
   /** Group the options by providing key. */
-  [key: string]: string | boolean | undefined;
+  [key: string]: any;
+  svg?: string;
+  icon?: string;
 }
 interface GroupOption {
   [key: string]: MultiSelectOption[];
@@ -474,33 +476,39 @@ export const MultipleSelector = React.forwardRef<
           <div className="flex flex-wrap gap-1 w-full">
             {selected.map((option) => {
               return (
-                <div
+                <Command.Item
                   key={option.value}
+                  value={option.value}
+                  disabled={option.disable}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onSelect={() => {
+                    if (selected.length >= maxSelected) {
+                      onMaxSelected?.(selected.length);
+                      return;
+                    }
+                    setInputValue('');
+                    const newOptions = [...selected, option];
+                    setSelected(newOptions);
+                    onChange?.(newOptions);
+                  }}
                   className={cn(
-                    'animate-fadeIn relative inline-flex h-7 cursor-default items-center rounded-md border border-solid bg-background pe-7 pl-2 ps-2 text-xs font-medium text-secondary-foreground transition-all hover:bg-background disabled:cursor-not-allowed disabled:opacity-50 data-fixed:pe-2',
-                    badgeClassName,
+                    'cursor-pointer',
+                    option.disable && 'cursor-not-allowed opacity-50',
                   )}
-                  data-fixed={option.fixed}
-                  data-disabled={disabled || undefined}
                 >
-                  {option.label}
-                  <button
-                    className="absolute -inset-y-px -end-px flex size-7 items-center justify-center rounded-e-lg border border-transparent p-0 text-muted-foreground/80 outline-0 transition-colors hover:text-foreground focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleUnselect(option);
-                      }
-                    }}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onClick={() => handleUnselect(option)}
-                    aria-label="Remove"
-                  >
-                    <IconX size={14} strokeWidth={2} aria-hidden="true" />
-                  </button>
-                </div>
+                  <div className="flex items-center gap-2 w-full">
+                    {option.svg && (
+                      <span
+                        className="w-5 h-5 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
+                        dangerouslySetInnerHTML={{ __html: option.svg }}
+                      />
+                    )}
+                    <span>{option.label}</span>
+                  </div>
+                </Command.Item>
               );
             })}
             {/* Avoid having the "Search" Icon */}
