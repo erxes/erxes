@@ -248,14 +248,19 @@ export async function cursorPaginateAggregation<T>({
 export const checkCollectionCodeDuplication = async (
   collection: any,
   code: string,
+  excludeId?: string,
 ) => {
   if (code.includes('/')) {
     throw new Error('The "/" character is not allowed in the code');
   }
 
-  const category = await collection.findOne({
-    code,
-  });
+  const filter: any = { code };
+
+  if (excludeId) {
+    filter._id = { $ne: excludeId };
+  }
+
+  const category = await collection.findOne(filter);
 
   if (category) {
     throw new Error('Code must be unique');
