@@ -1,6 +1,4 @@
-import {
-  updatePageLoadingSourceState,
-} from '@/navigation/states/pageLoadingState';
+import { updatePageLoadingSourceState } from '@/navigation/states/pageLoadingState';
 import { normalizeVisitedPagePathname } from '@/navigation/utils/visitedPageTabs';
 import { LoadingIndicatorProvider } from 'erxes-ui';
 import { useSetAtom } from 'jotai';

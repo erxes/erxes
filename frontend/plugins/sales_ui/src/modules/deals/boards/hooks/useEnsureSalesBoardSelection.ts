@@ -17,9 +17,7 @@ export const useEnsureSalesBoardSelection = () => {
     }
 
     const storedBoardId = localStorage.getItem(CURRENT_BOARD_STORAGE_KEY);
-    const storedPipelineId = localStorage.getItem(
-      CURRENT_PIPELINE_STORAGE_KEY,
-    );
+    const storedPipelineId = localStorage.getItem(CURRENT_PIPELINE_STORAGE_KEY);
     const selectedBoard =
       boards.find((board) => board._id === boardId) ??
       boards.find((board) => board._id === storedBoardId) ??
@@ -31,10 +29,7 @@ export const useEnsureSalesBoardSelection = () => {
       pipelines[0];
     const selectedPipelineId = selectedPipeline?._id || null;
 
-    if (
-      boardId === selectedBoard._id &&
-      pipelineId === selectedPipelineId
-    ) {
+    if (boardId === selectedBoard._id && pipelineId === selectedPipelineId) {
       return;
     }
 
@@ -57,10 +52,7 @@ export const useEnsureSalesBoardSelection = () => {
     localStorage.setItem(CURRENT_BOARD_STORAGE_KEY, selectedBoard._id);
 
     if (selectedPipelineId) {
-      localStorage.setItem(
-        CURRENT_PIPELINE_STORAGE_KEY,
-        selectedPipelineId,
-      );
+      localStorage.setItem(CURRENT_PIPELINE_STORAGE_KEY, selectedPipelineId);
     } else {
       localStorage.removeItem(CURRENT_PIPELINE_STORAGE_KEY);
     }

@@ -25,9 +25,6 @@ export const visitedPageTabsState = atom(
     const nextTabs =
       typeof update === 'function' ? update(currentTabs) : update;
 
-    set(
-      storedVisitedPageTabsState,
-      normalizeVisitedPageTabs(nextTabs),
-    );
+    set(storedVisitedPageTabsState, normalizeVisitedPageTabs(nextTabs));
   },
 );

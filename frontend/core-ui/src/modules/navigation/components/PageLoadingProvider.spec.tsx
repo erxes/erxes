@@ -2,12 +2,8 @@ jest.mock('erxes-ui', () => ({
   ...jest.requireActual(
     '../../../../../libs/erxes-ui/src/components/loading-context',
   ),
-  ...jest.requireActual(
-    '../../../../../libs/erxes-ui/src/components/spinner',
-  ),
-  ...jest.requireActual(
-    '../../../../../libs/erxes-ui/src/components/skeleton',
-  ),
+  ...jest.requireActual('../../../../../libs/erxes-ui/src/components/spinner'),
+  ...jest.requireActual('../../../../../libs/erxes-ui/src/components/skeleton'),
 }));
 
 import { PageLoadingProvider } from '@/navigation/components/PageLoadingProvider';

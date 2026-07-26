@@ -59,9 +59,7 @@ export const NavigationMenuLinkItem = forwardRef<
               />
             )}
             {label || (
-              <span className="min-w-0 flex-1 truncate capitalize">
-                {name}
-              </span>
+              <span className="min-w-0 flex-1 truncate capitalize">{name}</span>
             )}
             {children}
           </Link>
