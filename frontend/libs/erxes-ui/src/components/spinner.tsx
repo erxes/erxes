@@ -37,7 +37,8 @@ const SPINNER_SPOKES = Array.from({ length: 10 }, (_, index) => ({
 }));
 
 interface SpinnerContentProps
-  extends VariantProps<typeof spinnerVariants>,
+  extends
+    VariantProps<typeof spinnerVariants>,
     VariantProps<typeof loaderVariants> {
   className?: string;
   containerClassName?: string;
