@@ -31,7 +31,13 @@ name = "javascript"
   environment = ["nodejs", "browser"]
   dialect = "typescript"
   module_system = "es-modules"
-  skip_doc_coverage = ["class-expression", "method-definition"]
+  skip_doc_coverage = [
+    "class-expression",
+    "method-definition",
+    "arrow-function-expression",
+    "function-declaration",
+    "function-expression",
+  ]
 
 [[analyzers]]
 name = "docker"
