@@ -8,6 +8,7 @@ import { cva } from 'class-variance-authority';
 
 import { Table } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib/utils';
+import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 
 import { useRecordTable } from './RecordTableProvider';
 
@@ -64,7 +65,7 @@ export const RecordTableHead = ({
       {...props}
     >
       {children}
-      {header.column.id !== 'checkbox' && header.column.id !== 'more' && (
+      {!isStructuralColumn(column.id) && (
         <>
           <span
             {...attributes}

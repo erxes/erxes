@@ -3,8 +3,7 @@ import { CSSProperties, forwardRef, useMemo } from 'react';
 import { Table } from '@tanstack/react-table';
 
 import { cn } from 'erxes-ui/lib/utils';
-
-const FIXED_WIDTH_COLUMNS = ['more', 'checkbox'];
+import { isFixedWidthColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 
 interface RecordTableContainerProps {
   table: Table<any>;
@@ -19,9 +18,7 @@ const RecordTableContainer = forwardRef<
     const headers = table.getFlatHeaders();
     const flexWidth = headers.reduce(
       (total, header) =>
-        FIXED_WIDTH_COLUMNS.includes(header.column.id)
-          ? total
-          : total + header.getSize(),
+        isFixedWidthColumn(header.column) ? total : total + header.getSize(),
       0,
     );
     const colSizes: { [key: string]: number | string } = {};
@@ -31,7 +28,7 @@ const RecordTableContainer = forwardRef<
         colSizes[`--header-${header.id}-size`] = header.getSize();
         colSizes[`--col-${header.column.id}-size`] = header.column.getSize();
         const width =
-          FIXED_WIDTH_COLUMNS.includes(header.column.id) || !flexWidth
+          isFixedWidthColumn(header.column) || !flexWidth
             ? `${header.getSize()}px`
             : `${(header.getSize() / flexWidth) * 100}%`;
         colSizes[`--header-${header.id}-width`] = width;
