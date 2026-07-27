@@ -5,7 +5,7 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import { ITicket, TicketHotKeyScope } from '@/ticket/types';
 import {
   IconAlertSquareRounded,
@@ -23,7 +23,6 @@ import {
   RecordTableInlineCell,
   Tooltip,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ticketsMoreColumn } from './TicketsMoreColumn';
@@ -45,7 +44,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
         const name = cell.getValue() as string;
         const [value, setValue] = useState(name);
         const { updateTicket } = useUpdateTicket();
-        const setActiveTicket = useSetAtom(ticketDetailSheetState);
+        const [, setActiveTicket] = useTicketDetailSheet();
 
         const handleUpdate = () => {
           if (value !== name) {
