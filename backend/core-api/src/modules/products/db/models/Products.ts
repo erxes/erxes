@@ -424,6 +424,10 @@ export const loadProductClass = (
     }
 
     public static async removeProducts(_ids: string[]) {
+      if (!Array.isArray(_ids)) {
+        throw new Error('Product ids are required');
+      }
+
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
       let response = 'deleted';
