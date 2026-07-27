@@ -18,12 +18,14 @@ export const useSavePosInEbarimtConfig = () => {
     CREATE_MN_CONFIG,
     {
       refetchQueries: refetchOptions,
+      awaitRefetchQueries: true,
     },
   );
   const [updateConfig, { loading: updateLoading }] = useMutation(
     UPDATE_MN_CONFIG,
     {
       refetchQueries: refetchOptions,
+      awaitRefetchQueries: true,
     },
   );
   const loading = createLoading || updateLoading;

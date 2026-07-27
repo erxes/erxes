@@ -2,6 +2,15 @@ export enum AutomationsPath {
   Index = '/',
   Create = '/create',
   Detail = '/edit/:id',
+  TemplateCreate = '/templates/create',
+  TemplateDetail = '/templates/:id',
+}
+
+/** Absolute paths for linking into the automations pages. */
+export enum AutomationsAbsolutePath {
+  Index = '/automations',
+  Templates = '/automations?view=templates',
+  TemplateCreate = '/automations/templates/create',
 }
 
 /** Relative route paths used by `AutomationSettingsRoutes`. */

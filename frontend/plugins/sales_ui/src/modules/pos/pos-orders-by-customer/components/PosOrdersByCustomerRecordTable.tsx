@@ -10,10 +10,11 @@ export const PosOrdersByCustomerRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={PosOrdersByCustomerColumns}
+      columns={PosOrdersByCustomerColumns(t)}
       data={posOrderByCustomerList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'type']}
+      tableId="pos_orders_by_customer_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

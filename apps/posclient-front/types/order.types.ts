@@ -53,6 +53,8 @@ export interface IOrderCommon {
   type?: IOrderType
   customerId?: string
   customerType?: CustomerType
+  brokerId?: string
+  brokerType?: string
   description?: string
   billType?: IBillType
   registerNumber?: string

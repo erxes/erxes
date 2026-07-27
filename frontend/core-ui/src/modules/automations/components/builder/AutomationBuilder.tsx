@@ -1,6 +1,5 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect } from 'react';
-import '@xyflow/react/dist/style.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -20,7 +19,8 @@ import {
   automationBuilderFormSchema,
   TAutomationBuilderForm,
 } from '@/automations/utils/automationFormDefinitions';
-import { useAtom } from 'jotai';
+import { normalizeAutomationWorkflows } from '@/automations/utils/workflowInputs';
+import { useAtom, useSetAtom } from 'jotai';
 import { AutomationBuilderTabsType, IAutomation } from '@/automations/types';
 import { AutomationBuilderHeader } from '@/automations/components/builder/header/AutomationBuilderHeader';
 import { AutomationHistories } from '@/automations/components/builder/history/components/AutomationHistories';
@@ -31,14 +31,20 @@ type AutomationBuilderProps = {
 
 export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
   const [activeTab, setActiveTab] = useAtom(automationBuilderActiveTabState);
-  const [isOpenSideBar, setOpenSidebar] = useAtom(
-    automationBuilderSiderbarOpenState,
-  );
+  const setOpenSidebar = useSetAtom(automationBuilderSiderbarOpenState);
   const [queryParams] = useMultiQueryState<{
     activeNodeId: string;
     activeTab: AutomationBuilderTabsType;
   }>(['activeNodeId', 'activeTab']);
   const cleanedDetail = deepCleanNulls(detail);
+
+  // Migrates legacy workflow formats (raw trigger.* refs, memberActionIds
+  // reference model) on load; no-op for clean data
+  const normalized = normalizeAutomationWorkflows({
+    triggers: cleanedDetail?.triggers ?? [],
+    actions: cleanedDetail?.actions ?? [],
+    workflows: cleanedDetail?.workflows ?? [],
+  });
 
   const form = useForm<TAutomationBuilderForm>({
     resolver: zodResolver(automationBuilderFormSchema),
@@ -46,9 +52,7 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
       ...cleanedDetail,
       edgeType: cleanedDetail?.edgeType ?? 'default',
       flowDirection: cleanedDetail?.flowDirection ?? 'horizontal',
-      triggers: cleanedDetail?.triggers ?? [],
-      actions: cleanedDetail?.actions ?? [],
-      workflows: cleanedDetail?.workflows ?? [],
+      ...normalized,
     },
   });
 
@@ -59,18 +63,17 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
     if (activeTab !== nextActiveTab) {
       setActiveTab(nextActiveTab);
     }
-
-    if (queryParams.activeNodeId && !isOpenSideBar) {
-      setOpenSidebar(true);
-    }
   }, [
     activeTab,
-    isOpenSideBar,
-    queryParams.activeNodeId,
     queryParams.activeTab,
     setActiveTab,
-    setOpenSidebar,
   ]);
+
+  useEffect(() => {
+    if (queryParams.activeNodeId) {
+      setOpenSidebar(true);
+    }
+  }, [queryParams.activeNodeId, setOpenSidebar]);
 
   return (
     <AutomationProvider detail={detail}>

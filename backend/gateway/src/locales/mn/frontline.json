@@ -576,6 +576,7 @@
   "integration-desc-instagram-post": "Instagram пост дахь сэтгэгдэл болон хариуг удирдаарай.",
   "integration-desc-call": "Grandstream дуудлагын холболтыг ашиглан ирж буй болон гарч буй дуудлагуудыг удирдаарай.",
   "integration-desc-imap": "Имэйл харилцаа удирдахын тулд IMAP-аар дамжуулан имэйл бүртгэлээ холбоорой.",
+  "integration-desc-discord": "Discord сувгийн зурвасуудыг Багийн Инбокснаас холбож удирдаарай.",
   "connecting-to-facebook": "Facebook-д холбогдож байна...",
   "connect-facebook-account": "Facebook Бүртгэл Холбох",
   "accounts-found": "{{count}} бүртгэл олдлоо",

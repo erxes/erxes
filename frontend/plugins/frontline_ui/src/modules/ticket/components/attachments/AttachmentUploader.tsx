@@ -70,6 +70,7 @@ const AttachmentUploader = ({ id, attachments }: Props) => {
       <Attachments.Files />
       <Attachments.Preview />
       <Attachments.Video />
+      <Attachments.Audio />
     </Attachments.Root>
   );
 };

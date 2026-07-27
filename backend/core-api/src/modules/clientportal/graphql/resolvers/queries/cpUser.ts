@@ -3,6 +3,7 @@ import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { getTokiConnection } from '~/modules/clientportal/utils';
 
 interface IClientPortalUserFilterParams {
   clientPortalId?: string;

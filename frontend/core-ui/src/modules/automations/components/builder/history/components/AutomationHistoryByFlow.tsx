@@ -10,6 +10,7 @@ import { generateEdges } from '@/automations/utils/automationBuilderUtils/genera
 import { generateNodes } from '@/automations/utils/automationBuilderUtils/generateNodes';
 import { Background, ConnectionMode, Controls, ReactFlow } from '@xyflow/react';
 import { IAutomationHistory } from 'ui-modules';
+import '@xyflow/react/dist/style.css';
 
 const nodeTypes = {
   trigger: TriggerNode,

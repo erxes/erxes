@@ -353,7 +353,7 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      const { propertiesData } = await sendTRPCMessage({
+      const fieldData = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
@@ -367,7 +367,7 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      companyData.propertiesData = propertiesData;
+      companyData.propertiesData = fieldData?.propertiesData || {};
 
       // trackData note: trackedData is not used for now
       // companyData.trackedData = trackedData;

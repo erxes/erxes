@@ -21,6 +21,7 @@ export default `
   formWidgetData
   messengerAppData
   botData
+  extraData
   user {
     _id
     username

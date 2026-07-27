@@ -45,6 +45,8 @@ export const orderTypeFields = `
   origin: String
   customer: PosCustomer
   customerType: String,
+  brokerId: String,
+  brokerType: String,
   items: [PosOrderItem]
   user: PosUser
   putResponses: [PosPutResponse]
@@ -64,6 +66,8 @@ const addEditParams = `
   branchId: String,
   customerId: String,
   customerType: String,
+  brokerId: String,
+  brokerType: String,
   deliveryInfo: JSON,
   billType: String,
   registerNumber: String,

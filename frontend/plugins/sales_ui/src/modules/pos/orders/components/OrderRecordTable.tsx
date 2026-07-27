@@ -6,6 +6,7 @@ import {
 import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable, Spinner } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
 
@@ -17,11 +18,14 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { posOrdersSummary } = usePosOrdersSummary({ posId });
 
-  const allColumns = [
-    ...firstOrderColumns,
-    ...generateOtherPaymentColumns(posOrdersSummary),
-    ...secondOrderColumns,
-  ];
+  const allColumns = useMemo(
+    () => [
+      ...firstOrderColumns(t),
+      ...generateOtherPaymentColumns(t, posOrdersSummary),
+      ...secondOrderColumns(t),
+    ],
+    [posOrdersSummary, t],
+  );
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
@@ -33,6 +37,7 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
       data={ordersList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'number']}
+      tableId="pos_orders_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

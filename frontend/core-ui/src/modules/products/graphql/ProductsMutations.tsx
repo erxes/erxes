@@ -15,6 +15,7 @@ const productsAdd = gql`
     $propertiesData: JSON
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
+    $videos: [AttachmentInput]
     $pdfAttachment: PdfAttachmentInput
     $vendorId: String
     $scopeBrandIds: [String]
@@ -37,6 +38,7 @@ const productsAdd = gql`
       propertiesData: $propertiesData
       attachment: $attachment
       attachmentMore: $attachmentMore
+      videos: $videos
       pdfAttachment: $pdfAttachment
       vendorId: $vendorId
       scopeBrandIds: $scopeBrandIds
@@ -132,6 +134,7 @@ const productsEdit = gql`
     $scopeBrandIds: [String]
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
+    $videos: [AttachmentInput]
     $duration: Float
     $durationType: ProductDurationType
   ) {
@@ -155,6 +158,7 @@ const productsEdit = gql`
       scopeBrandIds: $scopeBrandIds
       attachment: $attachment
       attachmentMore: $attachmentMore
+      videos: $videos
       duration: $duration
       durationType: $durationType
     ) {
@@ -186,6 +190,13 @@ const productsEdit = gql`
         name
         size
         type
+      }
+      videos {
+        url
+        name
+        size
+        type
+        duration
       }
       uom
       subUoms

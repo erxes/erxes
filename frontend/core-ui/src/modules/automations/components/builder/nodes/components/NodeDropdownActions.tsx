@@ -1,15 +1,10 @@
-import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
-import { AutomationNodesType, NodeData } from '@/automations/types';
-import {
-  IconDots,
-  IconEdit,
-  IconSettings,
-  IconTrash,
-} from '@tabler/icons-react';
-import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
+import { NodeData } from '@/automations/types';
+import { IconDots, IconSettings, IconTrash } from '@tabler/icons-react';
+import { AlertDialog, Button, DropdownMenu } from 'erxes-ui';
 import { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
+import { NodeEditMetaDataDialog } from './NodeEditMetaDataDialog';
 
 export const NodeDropdownActions = ({
   id,
@@ -20,7 +15,6 @@ export const NodeDropdownActions = ({
 }) => {
   const { t } = useTranslation('automations');
   const {
-    fieldName,
     isOpenDialog,
     isOpenDropDown,
     isOpenRemoveAlert,
@@ -62,7 +56,6 @@ export const NodeDropdownActions = ({
           setOpenDialog={setOpenDialog}
           data={data}
           id={id}
-          fieldName={fieldName}
         />
         <DropdownMenu.Item asChild>
           <Button
@@ -126,48 +119,5 @@ export const NodeRemoveActionDialog = ({
         </AlertDialog.Footer>
       </AlertDialog.Content>
     </AlertDialog>
-  );
-};
-
-const NodeEditMetaDataDialog = ({
-  isOpenDialog,
-  setOpenDialog,
-  data,
-  id,
-  fieldName,
-}: {
-  isOpenDialog: boolean;
-  setOpenDialog: Dispatch<SetStateAction<boolean>>;
-  data: NodeData;
-  id: string;
-  fieldName:
-    | AutomationNodesType.Triggers
-    | AutomationNodesType.Actions
-    | AutomationNodesType.Workflows;
-}) => {
-  const { t } = useTranslation('automations');
-  return (
-    <Dialog open={isOpenDialog} onOpenChange={setOpenDialog}>
-      <Dialog.Trigger asChild>
-        <DropdownMenu.Item asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start"
-            onClick={(e) => e.stopPropagation()}
-            onDoubleClick={(e) => e.stopPropagation()}
-          >
-            <IconEdit className="size-4" />
-            {t('edit', 'Edit')}
-          </Button>
-        </DropdownMenu.Item>
-      </Dialog.Trigger>
-      <NodeEditMetaDataForm
-        id={id}
-        fieldName={fieldName}
-        data={data}
-        callback={() => setOpenDialog(false)}
-      />
-    </Dialog>
   );
 };

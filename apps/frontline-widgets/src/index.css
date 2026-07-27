@@ -13,6 +13,10 @@
   width: 100%;
   border-radius: 1rem;
   overflow: hidden;
+  /* Must match the embedded document's color scheme — a mismatch with a
+     dark host page forces an opaque white canvas on the iframe */
+  color-scheme: light;
+  background: transparent;
 }
 
 /* Launcher iframe — extra space so the badge can overflow the button edge */
@@ -28,6 +32,9 @@
   opacity: 0;
   transition: opacity 0.3s ease;
   background: transparent;
+  /* Must match the about:blank document's (light) scheme — a mismatch with a
+     dark host page forces an opaque white canvas on the iframe */
+  color-scheme: light;
 }
 
 .erxes-messenger-hidden {

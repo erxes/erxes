@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid';
 import { useTranslation } from 'react-i18next';
 import {
   Control,
+  FieldArray,
   FieldArrayPath,
   FieldValues,
   Path,
@@ -41,7 +42,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
       icon: '',
       config: '',
       scoreCampaignId: '',
-    });
+    } as FieldArray<TFieldValues, FieldArrayPath<TFieldValues>>);
   };
 
   const fieldPath = (index: number, key: string) =>
@@ -55,19 +56,19 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
         </h2>
 
         <p className="text-[#71717A] font-['Inter'] text-xs font-medium leading-[140%]">
-          {t('type-must-use-latin')}
-          {' '}Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: &quot;skipEbarimt: true&quot;,
-          Харилцагч сонгосон үед л харагдах бол: &quot;mustCustomer: true&quot;, Хэрэв
-          хуваах боломжгүй бол: &quot;notSplit: true&quot; Урьдчилж төлсөн төлбөрөөр
-          (Татвар тооцсон) бол: &quot;preTax: true&quot;, Тухайн төрөл нь QRCode
-          шаардлагатай бол &quot;require&quot;: &quot;qrCode&quot;
+          {t('type-must-use-latin')} Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол:
+          &quot;skipEbarimt: true&quot;, Харилцагч сонгосон үед л харагдах бол:
+          &quot;mustCustomer: true&quot;, Хэрэв хуваах боломжгүй бол:
+          &quot;notSplit: true&quot; Урьдчилж төлсөн төлбөрөөр (Татвар тооцсон)
+          бол: &quot;preTax: true&quot;, Тухайн төрөл нь QRCode шаардлагатай бол
+          &quot;require&quot;: &quot;qrCode&quot;
         </p>
       </div>
 
       {fields.map((field, index) => (
         <div
           key={field.id}
-          className="flex gap-4 justify-between items-end px-4 mb-4 w-full"
+          className="flex gap-4 justify-between items-start px-4 mb-4 w-full"
         >
           <div className="flex-1">
             <Form.Field
@@ -85,6 +86,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
                       value={field.value || ''}
                     />
                   </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -105,6 +107,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
                       value={field.value || ''}
                     />
                   </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -118,39 +121,42 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
                   <Form.Label className="text-xs text-gray-600">
                     {t('ICON')}
                   </Form.Label>
-                  <Select
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  >
-                    <Select.Trigger className="mb-0">
-                      <Select.Value placeholder={t('select-option')}>
-                        {field.value && (
-                          <div className="flex gap-2 items-center">
-                            <PaymentIcon iconType={field.value} size={16} />
-                            {
-                              paymentIconOptions.find(
-                                (icon) => icon.value === field.value,
-                              )?.label
-                            }
-                          </div>
-                        )}
-                      </Select.Value>
-                    </Select.Trigger>
-                    <Select.Content>
-                      {paymentIconOptions.map((icon) => (
-                        <Select.Item
-                          key={icon.value}
-                          className="text-xs"
-                          value={icon.value}
-                        >
-                          <div className="flex gap-2 items-center">
-                            <PaymentIcon iconType={icon.value} size={16} />
-                            {icon.label}
-                          </div>
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
+                  <Form.Control>
+                    <Select
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                    >
+                      <Select.Trigger>
+                        <Select.Value placeholder={t('select-option')}>
+                          {field.value && (
+                            <div className="flex gap-2 items-center">
+                              <PaymentIcon iconType={field.value} size={16} />
+                              {
+                                paymentIconOptions.find(
+                                  (icon) => icon.value === field.value,
+                                )?.label
+                              }
+                            </div>
+                          )}
+                        </Select.Value>
+                      </Select.Trigger>
+                      <Select.Content>
+                        {paymentIconOptions.map((icon) => (
+                          <Select.Item
+                            key={icon.value}
+                            className="text-xs"
+                            value={icon.value}
+                          >
+                            <div className="flex gap-2 items-center">
+                              <PaymentIcon iconType={icon.value} size={16} />
+                              {icon.label}
+                            </div>
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -171,6 +177,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
                       value={field.value || ''}
                     />
                   </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -189,7 +196,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
                       value={field.value || ''}
                       onValueChange={field.onChange}
                     >
-                      <Select.Trigger className="mb-0">
+                      <Select.Trigger>
                         <Select.Value placeholder={t('score-campaigns')} />
                       </Select.Trigger>
                       <Select.Content>
@@ -201,13 +208,14 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
                       </Select.Content>
                     </Select>
                   </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
           </div>
           <Button
             variant="ghost"
-            className="px-2 h-8 text-destructive"
+            className="mt-6 px-2 h-8 shrink-0 text-destructive"
             type="button"
             onClick={() => remove(index)}
           >

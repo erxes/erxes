@@ -40,6 +40,11 @@ export type TAutomationVariableSourceNode = {
   nodeType: AutomationNodeType;
   label: string;
   icon?: string;
+  // Pseudo sources (e.g. workflow inputs) carry their variables directly
+  // instead of fetching output definitions by node type.
+  staticVariables?: TAutomationOutputVariable[];
+  // Overrides the Trigger/Action tag shown next to the source label
+  kindLabel?: string;
 };
 
 export type TAutomationVariableEmptyState = {

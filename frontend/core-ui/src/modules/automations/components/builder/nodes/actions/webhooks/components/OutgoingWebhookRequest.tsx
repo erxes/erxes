@@ -3,7 +3,7 @@ import { AUTOMATION_INCOMING_WEBHOOK_API_METHODS } from '@/automations/component
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label, Select } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
-import { PlaceholderInput } from 'ui-modules';
+import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 const DISABLED_WEBHOOK_URL_SUGGESTIONS = {
@@ -57,7 +57,7 @@ export const OutgoingWebhookRequest = () => {
               <Form.Label>{t('url', 'URL')}</Form.Label>
               <PlaceholderInput
                 {...field}
-                disabled={DISABLED_WEBHOOK_URL_SUGGESTIONS}
+                disabled={[TPlaceholderInputSuggestion.Attribute, TPlaceholderInputSuggestion.Emoji, TPlaceholderInputSuggestion.Date, TPlaceholderInputSuggestion.Option, TPlaceholderInputSuggestion.CallUser, TPlaceholderInputSuggestion.CallTag, TPlaceholderInputSuggestion.CallProduct, TPlaceholderInputSuggestion.CallCompany, TPlaceholderInputSuggestion.CallCustomer]}
               />
               <Form.Message />
             </Form.Item>

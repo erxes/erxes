@@ -18,6 +18,13 @@ export const ConversationMessages = ({
       },
       fetchPolicy: 'cache-and-network',
     });
+
+  // A conversation with messages from more than one customer is a group chat
+  // (Discord channel in group mode); show per-message authors in that case.
+  const isGroupConversation =
+    new Set((messages || []).map((m: IMessage) => m.customerId).filter(Boolean))
+      .size > 1;
+
   return (
     <InboxMessagesContainer
       fetchMore={handleFetchMore}
@@ -31,6 +38,7 @@ export const ConversationMessages = ({
             ...message,
             previousMessage: messages[index - 1],
             nextMessage: messages[index + 1],
+            isGroupConversation,
           }}
           key={message._id}
         >

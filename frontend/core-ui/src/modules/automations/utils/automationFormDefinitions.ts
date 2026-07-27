@@ -73,10 +73,13 @@ const automationActionSchema = z.object({
 const automationWorkflowSchema = z.object({
   id: z.string(),
   automationId: z.string(),
+  templateId: z.string().optional(),
   nextActionId: z.string().optional(),
   name: z.string(),
   description: z.string(),
   config: z.record(z.any()),
+  actions: z.array(automationActionSchema).optional(),
+  icon: z.any(),
   position: automationNodePositionSchema,
 });
 

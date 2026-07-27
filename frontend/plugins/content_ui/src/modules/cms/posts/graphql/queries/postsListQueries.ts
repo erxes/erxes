@@ -16,6 +16,7 @@ export const POSTS_LIST = gql`
     $searchValue: String
     $status: PostStatus
     $tagIds: [String]
+    $authorId: String
     $sortField: String
     $sortDirection: String
     $language: String
@@ -38,6 +39,7 @@ export const POSTS_LIST = gql`
       searchValue: $searchValue
       status: $status
       tagIds: $tagIds
+      authorId: $authorId
       sortField: $sortField
       sortDirection: $sortDirection
       language: $language

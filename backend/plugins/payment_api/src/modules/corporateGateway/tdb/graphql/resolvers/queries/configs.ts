@@ -18,7 +18,7 @@ const queries = {
     });
 
     return {
-      list: result.list.map((config) => config.toJSON()),
+      list: result.list,
       totalCount: result.totalCount,
       pageInfo: result.pageInfo,
     };
@@ -39,7 +39,7 @@ const queries = {
       },
     });
 
-    return result.list.map((config) => config.toJSON());
+    return result.list;
   },
 
   async tdbConfigsDetail(
