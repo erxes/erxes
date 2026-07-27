@@ -21,7 +21,9 @@
     "more": "More",
     "more-activities": "More plugins and modules",
     "plugins": "Plugins",
-    "core-modules": "Core modules"
+    "core-modules": "Core modules",
+    "collapse-plugin-navigation": "Collapse plugin navigation",
+    "expand-plugin-navigation": "Expand plugin navigation"
   },
   "core-modules": {
     "_": "Core modules",

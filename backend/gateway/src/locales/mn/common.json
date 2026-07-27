@@ -21,7 +21,9 @@
     "more": "Бусад",
     "more-activities": "Бусад плагин ба модулиуд",
     "plugins": "Плагинууд",
-    "core-modules": "Үндсэн модулиуд"
+    "core-modules": "Үндсэн модулиуд",
+    "collapse-plugin-navigation": "Плагины навигацийг хураах",
+    "expand-plugin-navigation": "Плагины навигацийг дэлгэх"
   },
   "core-modules": {
     "_": "Үндсэн модулиуд",

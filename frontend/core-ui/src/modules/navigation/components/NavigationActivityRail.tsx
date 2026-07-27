@@ -3,8 +3,9 @@ import { NavigationCorePanelContent } from '@/navigation/components/NavigationCo
 import { NavigationPluginPanelContent } from '@/navigation/components/NavigationPlugins';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
+import { NotificationCount } from '@/notification/components/MyInboxNavigationItem';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { IconApps, IconSearch } from '@tabler/icons-react';
+import { IconApps, IconInbox, IconSearch, IconStar } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -13,6 +14,7 @@ import {
   Separator,
   Sidebar,
 } from 'erxes-ui';
+import type { ReactNode } from 'react';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -57,10 +59,14 @@ const NavigationActivityPeek = ({
 const NavigationActivityButton = ({
   activity,
   active,
+  expanded,
+  indicator,
   onSelect,
 }: {
   activity: INavigationActivity;
   active: boolean;
+  expanded: boolean;
+  indicator?: ReactNode;
   onSelect: () => void;
 }) => {
   const Icon = activity.icon || IconApps;
@@ -69,17 +75,26 @@ const NavigationActivityButton = ({
     <Button
       aria-label={activity.label}
       className={cn(
-        'relative size-10 rounded-md text-accent-foreground [&>svg]:size-5!',
+        'relative h-10 rounded-md text-accent-foreground [&>svg]:size-4!',
+        expanded
+          ? 'w-full justify-start gap-2 px-2'
+          : 'w-10 justify-center px-0',
         active && 'bg-primary/10 text-primary hover:bg-primary/10',
       )}
       onClick={onSelect}
-      size="icon"
+      size={expanded ? 'default' : 'icon'}
       variant="ghost"
     >
       {active && (
         <span className="absolute -left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary" />
       )}
-      <Icon className="size-5" />
+      <Icon className="size-4" />
+      {expanded && (
+        <span className="min-w-0 truncate text-left text-[13px] font-medium">
+          {activity.label}
+        </span>
+      )}
+      {expanded && indicator}
     </Button>
   );
 };
@@ -88,6 +103,7 @@ const NavigationActivityButton = ({
 const NavigationActivityHover = ({
   activity,
   active,
+  expanded,
   open,
   onClose,
   onOpen,
@@ -95,6 +111,7 @@ const NavigationActivityHover = ({
 }: {
   activity: INavigationActivity;
   active: boolean;
+  expanded: boolean;
   open: boolean;
   onClose: () => void;
   onOpen: () => void;
@@ -158,6 +175,7 @@ const NavigationActivityHover = ({
           <NavigationActivityButton
             activity={activity}
             active={active}
+            expanded={expanded}
             onSelect={handleSelect}
           />
         </div>
@@ -175,25 +193,37 @@ const NavigationActivityHover = ({
 export const NavigationActivityRail = ({
   activities,
   activeActivityId,
+  isFavoritesActive,
+  isInboxActive,
   isActivityPinned,
   isSettings,
   onActivityPinnedChange,
   onSearch,
+  onSelectFavorites,
+  onSelectInbox,
   onSelectActivity,
   visibleActivities,
 }: {
   activities: INavigationActivity[];
   activeActivityId: string | null;
+  isFavoritesActive: boolean;
+  isInboxActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSearch: () => void;
+  onSelectFavorites: () => void;
+  onSelectInbox: () => void;
   onSelectActivity: (activity: INavigationActivity) => void;
   visibleActivities: INavigationActivity[];
 }) => {
-  const { isMobile } = Sidebar.useSidebar();
+  const { isMobile, state } = Sidebar.useSidebar();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-  const hoverEnabled = !isMobile;
+  const { t: sidebarT } = useTranslation('common', {
+    keyPrefix: 'sidebar',
+  });
+  const expanded = state === 'expanded' && !isMobile;
+  const hoverEnabled = !expanded && !isMobile;
   const [previewActivityId, setPreviewActivityId] = useState<string | null>(
     null,
   );
@@ -204,22 +234,71 @@ export const NavigationActivityRail = ({
     }
   }, [hoverEnabled]);
 
+  const inboxActivity: INavigationActivity = {
+    id: 'navigation:inbox',
+    label: sidebarT('my-inbox'),
+    icon: IconInbox,
+    kind: 'core',
+    modules: [],
+    defaultPath: 'my-inbox',
+  };
+  const favoritesActivity: INavigationActivity = {
+    id: 'navigation:favorites',
+    label: sidebarT('favorites'),
+    icon: IconStar,
+    kind: 'core',
+    modules: [],
+    defaultPath: '',
+  };
+
   return (
-    <aside className="flex w-14 shrink-0 flex-col items-center border-r bg-sidebar px-1 py-2">
-      <NavigationRailLogo />
+    <aside
+      className={cn(
+        'flex shrink-0 flex-col border-r bg-sidebar px-2 py-2',
+        expanded ? 'w-full items-stretch' : 'w-14 items-center',
+      )}
+    >
+      <NavigationRailLogo expanded={expanded} />
       <Button
         aria-label={t('go-to')}
         aria-keyshortcuts="Control+M Meta+M"
-        className="mb-1 size-10 rounded-md text-accent-foreground [&>svg]:size-5!"
+        className={cn(
+          'mb-1 h-10 rounded-md text-accent-foreground [&>svg]:size-4!',
+          expanded
+            ? 'w-full justify-start gap-2 px-2'
+            : 'w-10 justify-center px-0',
+        )}
         onClick={onSearch}
-        size="icon"
+        size={expanded ? 'default' : 'icon'}
         title={t('go-to')}
         type="button"
         variant="ghost"
       >
-        <IconSearch className="size-5" />
+        <IconSearch className="size-4" />
+        {expanded && (
+          <span className="truncate text-[13px] font-medium">{t('go-to')}</span>
+        )}
       </Button>
-      <div className="flex min-h-0 flex-1 flex-col items-center gap-0.5 overflow-y-auto overflow-x-hidden">
+      <NavigationActivityButton
+        activity={inboxActivity}
+        active={isInboxActive}
+        expanded={expanded}
+        indicator={<NotificationCount />}
+        onSelect={onSelectInbox}
+      />
+      <NavigationActivityButton
+        activity={favoritesActivity}
+        active={isFavoritesActive}
+        expanded={expanded}
+        onSelect={onSelectFavorites}
+      />
+      <Separator className={cn('my-1', expanded ? 'w-full' : 'w-8')} />
+      <div
+        className={cn(
+          'flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden',
+          expanded ? 'items-stretch' : 'items-center',
+        )}
+      >
         {visibleActivities.map((activity, index) => {
           const active = !isSettings && activity.id === activeActivityId;
           const startsCoreSection =
@@ -228,17 +307,23 @@ export const NavigationActivityRail = ({
 
           return (
             <Fragment key={activity.id}>
-              {startsCoreSection && <Separator className="my-1 w-8" />}
+              {startsCoreSection && (
+                <Separator
+                  className={cn('my-1', expanded ? 'w-full' : 'w-8')}
+                />
+              )}
               {!hoverEnabled ? (
                 <NavigationActivityButton
                   activity={activity}
                   active={active}
+                  expanded={expanded}
                   onSelect={() => onSelectActivity(activity)}
                 />
               ) : (
                 <NavigationActivityHover
                   activity={activity}
                   active={active}
+                  expanded={expanded}
                   open={previewActivityId === activity.id}
                   onClose={() =>
                     setPreviewActivityId((currentActivityId) =>
@@ -256,12 +341,13 @@ export const NavigationActivityRail = ({
         })}
         <NavigationActivityMore
           activities={activities}
+          expanded={expanded}
           isActivityPinned={isActivityPinned}
           onPinnedChange={onActivityPinnedChange}
           onSelect={onSelectActivity}
         />
       </div>
-      <NavigationSidebarFooter isSettings={isSettings} />
+      <NavigationSidebarFooter expanded={expanded} isSettings={isSettings} />
     </aside>
   );
 };

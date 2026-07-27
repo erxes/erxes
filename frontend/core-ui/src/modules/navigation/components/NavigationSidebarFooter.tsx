@@ -2,21 +2,25 @@ import { useAuth } from '@/auth/hooks/useAuth';
 import { SelectLanguages } from '@/navigation/components/SelectLanguages';
 import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { User } from '@/navigation/components/User';
+import { navigationPanelViewState } from '@/navigation/states/navigationPanelState';
 import { AppPath } from '@/types/paths/AppPath';
 import { IconSettings } from '@tabler/icons-react';
 import { Avatar, Button, cn, DropdownMenu, readImage } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationSidebarFooter = ({
+  expanded,
   isSettings,
 }: {
+  expanded: boolean;
   isSettings: boolean;
 }) => {
   const currentUser = useAtomValue(currentUserState);
+  const setPanelView = useSetAtom(navigationPanelViewState);
   const { handleLogout } = useAuth();
   const { t: organizationT } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
@@ -25,34 +29,53 @@ export const NavigationSidebarFooter = ({
 
   return (
     /* skipcq: JS-0415 - The nesting reflects the accessible dropdown structure. */
-    <div className="flex flex-col items-center gap-1 px-1 pb-2">
+    <div
+      className={cn(
+        'flex flex-col gap-1 pb-2',
+        expanded ? 'items-stretch' : 'items-center',
+      )}
+    >
       <Button
         asChild
         className={cn(
-          'size-10 rounded-md [&>svg]:size-5!',
+          'h-10 rounded-md [&>svg]:size-4!',
+          expanded
+            ? 'w-full justify-start gap-2 px-2'
+            : 'w-10 justify-center px-0',
           isSettings && 'bg-primary/10',
         )}
-        size="icon"
+        size={expanded ? 'default' : 'icon'}
         variant="ghost"
       >
         <Link
           aria-label={organizationT('settings')}
+          onClick={() => setPanelView('activity')}
           to={`/${AppPath.Settings}`}
         >
           <IconSettings
             className={cn(
-              'size-5 text-accent-foreground',
+              'size-4 text-accent-foreground',
               isSettings && 'text-primary',
             )}
           />
+          {expanded && (
+            <span className="truncate text-[13px] font-medium">
+              {organizationT('settings')}
+            </span>
+          )}
         </Link>
       </Button>
       <DropdownMenu>
         <DropdownMenu.Trigger asChild>
           <Button
             aria-label={sidebarT('profile')}
-            className="size-10 rounded-md"
-            size="icon"
+            className={cn(
+              'h-10 rounded-md',
+              expanded
+                ? 'w-full justify-start gap-2 px-2'
+                : 'w-10 justify-center px-0',
+            )}
+            size={expanded ? 'default' : 'icon'}
             variant="ghost"
           >
             <Avatar className="size-6">
@@ -64,6 +87,11 @@ export const NavigationSidebarFooter = ({
                 {userName.charAt(0)}
               </Avatar.Fallback>
             </Avatar>
+            {expanded && (
+              <span className="min-w-0 truncate text-[13px] font-medium">
+                {userName}
+              </span>
+            )}
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end" className="space-y-1" side="right">

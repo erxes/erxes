@@ -1,22 +1,15 @@
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
-import { MyInboxNavigationItem } from '@/notification/components/MyInboxNavigationItem';
-import { useTranslation } from 'react-i18next';
 import { IconX } from '@tabler/icons-react';
 import { useToggleFavorite } from 'ui-modules';
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SidebarNavigationFavorites() {
-  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const favorites = useFavorites();
 
   return (
-    <section className="px-2 pb-2">
-      <h2 className="px-2 pb-1 pt-1 font-mono text-[10px] font-semibold uppercase tracking-wide text-accent-foreground">
-        {t('favorites')}
-      </h2>
+    <section className="px-2 py-1">
       <Sidebar.Menu>
-        <MyInboxNavigationItem />
         {favorites.map((item) => {
           return <SidebarNavigationFavoritesItem key={item.path} {...item} />;
         })}

@@ -2,13 +2,11 @@ import { VisitedPageTabsShortcutGuide } from '@/navigation/components/VisitedPag
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
 import { useVisitedPageTabs } from '@/navigation/hooks/useVisitedPageTabs';
-import { pageLoadingPathnamesState } from '@/navigation/states/pageLoadingState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import {
   getAdjacentVisitedPageTabPathname,
   getVisitedPageTabLabel,
   getVisitedPageTabTitle,
-  normalizeVisitedPagePathname,
 } from '@/navigation/utils/visitedPageTabs';
 import {
   getVisitedPageTabShortcut,
@@ -36,12 +34,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconApps, IconFile, IconX } from '@tabler/icons-react';
-import { Button, cn, ScrollArea, Sidebar, Spinner, Tabs } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { Button, cn, ScrollArea, Sidebar, Tabs } from 'erxes-ui';
 import type { ElementType } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from 'react-router-dom';
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 const SortableVisitedPageTab = ({
@@ -49,7 +45,6 @@ const SortableVisitedPageTab = ({
   closeLabel,
   icon: Icon,
   isActive,
-  isLoading,
   label,
   onClose,
   pathname,
@@ -58,7 +53,6 @@ const SortableVisitedPageTab = ({
   closeLabel: string;
   icon: ElementType;
   isActive: boolean;
-  isLoading: boolean;
   label: string;
   onClose: () => void;
   pathname: string;
@@ -98,7 +92,6 @@ const SortableVisitedPageTab = ({
         'group/tab flex h-8 min-w-28 max-w-52 shrink-0 items-center rounded-md border border-transparent text-accent-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
         isDragging && 'z-10 opacity-40',
       )}
-      aria-busy={isLoading}
       data-active={isActive}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -112,20 +105,12 @@ const SortableVisitedPageTab = ({
         title={label}
         className="h-full min-w-0 flex-1 justify-start gap-1.5 rounded-md bg-transparent px-2 text-xs font-medium text-inherit shadow-none hover:bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-inherit data-[state=active]:shadow-none data-[state=active]:hover:bg-transparent"
       >
-        {isLoading ? (
-          <Spinner
-            size="sm"
-            className="text-primary"
-            containerClassName="size-3.5 shrink-0"
-          />
-        ) : (
-          <Icon
-            className={cn(
-              'size-3.5 shrink-0 text-muted-foreground',
-              isActive && 'text-primary',
-            )}
-          />
-        )}
+        <Icon
+          className={cn(
+            'size-3.5 shrink-0 text-muted-foreground',
+            isActive && 'text-primary',
+          )}
+        />
         <span className="truncate">{label}</span>
       </Tabs.Trigger>
       {canClose && (
@@ -153,8 +138,6 @@ export const VisitedPageTabs = () => {
   const { i18n, t } = useTranslation('common');
   const activities = useNavigationActivities();
   const modules = usePluginsModules();
-  const navigation = useNavigation();
-  const pageLoadingPathnames = useAtomValue(pageLoadingPathnamesState);
   const {
     activePathname,
     closeAllVisitedPageTabs,
@@ -184,17 +167,6 @@ export const VisitedPageTabs = () => {
     details: t('navigation.details'),
     myInbox: t('my-inbox'),
   };
-  const pendingPathname = navigation.location?.pathname
-    ? normalizeVisitedPagePathname(navigation.location.pathname)
-    : activePathname;
-  let routerLoadingPathname: string | null = null;
-
-  if (navigation.state !== 'idle') {
-    const pendingTabIsOpen = tabs.some(
-      (tab) => tab.pathname === pendingPathname,
-    );
-    routerLoadingPathname = pendingTabIsOpen ? pendingPathname : activePathname;
-  }
 
   // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -291,14 +263,8 @@ export const VisitedPageTabs = () => {
     /* skipcq: JS-0415 - The nesting follows the DnD, tabs, and scroll primitives. */
     <nav
       aria-label={t('navigation.visited-pages')}
-      className="fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-1.5 border-b bg-muted pr-2"
+      className="fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-1.5 border-b bg-muted px-2"
     >
-      <div className="flex h-full w-14 shrink-0 items-center justify-center border-r">
-        <Sidebar.Trigger
-          aria-label={t('navigation.toggle-panel')}
-          className="size-10 shrink-0 rounded-md text-accent-foreground [&>svg]:size-5!"
-        />
-      </div>
       <div className="flex min-w-0 flex-1 items-center overflow-hidden">
         <DndContext
           autoScroll={false}
@@ -366,10 +332,6 @@ export const VisitedPageTabs = () => {
                           closeLabel={closeLabel}
                           icon={Icon}
                           isActive={isActive}
-                          isLoading={
-                            tab.pathname === routerLoadingPathname ||
-                            pageLoadingPathnames.has(tab.pathname)
-                          }
                           label={label}
                           onClose={() => closeVisitedPageTab(tab.pathname)}
                           pathname={tab.pathname}

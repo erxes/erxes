@@ -1,7 +1,7 @@
 import { NavigationActivityPinButton } from '@/navigation/components/NavigationActivityPinButton';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { IconApps, IconDots } from '@tabler/icons-react';
-import { Button, Popover, ScrollArea, Separator } from 'erxes-ui';
+import { Button, cn, Popover, ScrollArea, Separator } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -63,11 +63,13 @@ const NavigationActivityMoreGroup = ({
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationActivityMore = ({
   activities,
+  expanded,
   isActivityPinned,
   onPinnedChange,
   onSelect,
 }: {
   activities: INavigationActivity[];
+  expanded: boolean;
   isActivityPinned: (activityId: string) => boolean;
   onPinnedChange: (activityId: string, pinned: boolean) => void;
   onSelect: (activity: INavigationActivity) => void;
@@ -96,12 +98,22 @@ export const NavigationActivityMore = ({
       <Popover.Trigger asChild>
         <Button
           aria-label={t('more-activities')}
-          className="size-10 rounded-md text-accent-foreground [&>svg]:size-5!"
-          size="icon"
+          className={cn(
+            'h-10 rounded-md text-accent-foreground [&>svg]:size-4!',
+            expanded
+              ? 'w-full justify-start gap-2 px-2'
+              : 'w-10 justify-center px-0',
+          )}
+          size={expanded ? 'default' : 'icon'}
           type="button"
           variant="ghost"
         >
-          <IconDots className="size-5" />
+          <IconDots className="size-4" />
+          {expanded && (
+            <span className="truncate text-[13px] font-medium">
+              {t('more')}
+            </span>
+          )}
         </Button>
       </Popover.Trigger>
       <Popover.Content
