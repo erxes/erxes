@@ -22,6 +22,37 @@ import { useTranslation } from 'react-i18next';
 const HOVER_PREVIEW_HANDOFF_DELAY = 60;
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
+const NavigationSectionHeading = ({
+  expanded,
+  label,
+}: {
+  expanded: boolean;
+  label: string;
+}) => (
+  <div className="relative h-6 w-full shrink-0">
+    <div
+      className={cn(
+        'absolute inset-0 flex items-center px-2 font-mono text-[10px] font-semibold uppercase text-accent-foreground transition-opacity duration-200 ease-linear motion-reduce:transition-none',
+        expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
+      )}
+    >
+      {label}
+    </div>
+    <div
+      aria-hidden
+      className={cn(
+        'absolute inset-0 flex items-center justify-center transition-[opacity,transform] duration-200 ease-linear motion-reduce:transition-none',
+        expanded
+          ? 'pointer-events-none scale-x-75 opacity-0'
+          : 'scale-x-100 opacity-100',
+      )}
+    >
+      <Separator className="w-8" />
+    </div>
+  </div>
+);
+
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationActivityPeek = ({
   activity,
   onPointerEnter,
@@ -278,13 +309,10 @@ export const NavigationActivityRail = ({
           expanded ? 'items-stretch' : 'items-center',
         )}
       >
-        {expanded ? (
-          <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
-            {sidebarT('favorites')}
-          </Sidebar.GroupLabel>
-        ) : (
-          <div aria-hidden className="h-6 shrink-0" />
-        )}
+        <NavigationSectionHeading
+          expanded={expanded}
+          label={sidebarT('favorites')}
+        />
         <NavigationActivityButton
           activity={inboxActivity}
           active={isInboxActive}
@@ -293,23 +321,16 @@ export const NavigationActivityRail = ({
           onSelect={onSelectInbox}
         />
         <SidebarNavigationFavorites expanded={expanded} />
-        {visibleActivities[0] &&
-          (expanded ? (
-            <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
-              {t(
-                visibleActivities[0].kind === 'plugin'
-                  ? 'plugins'
-                  : 'core-modules',
-              )}
-            </Sidebar.GroupLabel>
-          ) : (
-            <div
-              aria-hidden
-              className="flex h-6 shrink-0 items-center justify-center"
-            >
-              <Separator className="w-8" />
-            </div>
-          ))}
+        {visibleActivities[0] && (
+          <NavigationSectionHeading
+            expanded={expanded}
+            label={t(
+              visibleActivities[0].kind === 'plugin'
+                ? 'plugins'
+                : 'core-modules',
+            )}
+          />
+        )}
         {visibleActivities.map((activity, index) => {
           const active = !isSettings && activity.id === activeActivityId;
           const startsCoreSection =
@@ -318,19 +339,12 @@ export const NavigationActivityRail = ({
 
           return (
             <Fragment key={activity.id}>
-              {startsCoreSection &&
-                (expanded ? (
-                  <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
-                    {t('core-modules')}
-                  </Sidebar.GroupLabel>
-                ) : (
-                  <div
-                    aria-hidden
-                    className="flex h-6 shrink-0 items-center justify-center"
-                  >
-                    <Separator className="w-8" />
-                  </div>
-                ))}
+              {startsCoreSection && (
+                <NavigationSectionHeading
+                  expanded={expanded}
+                  label={t('core-modules')}
+                />
+              )}
               {!hoverEnabled ? (
                 <NavigationActivityButton
                   activity={activity}
