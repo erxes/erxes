@@ -298,12 +298,19 @@ export const usePipelinesBulkRemove = () => {
       );
 
       const failures = results.filter((result) => result.status === 'rejected');
-      if (failures.length > 0) {
-        throw new Error(t('failed-to-delete-pipelines', { count: failures.length }));
-      }
 
-      // Single refetch after all operations complete
-      client.refetchQueries({ include: ['SalesPipelines', 'SalesBoards'] });
+      // Some deletions can land even when others fail, so refresh before
+      // reporting either outcome — and wait for it, or the caller sees
+      // "success" while the table still lists removed pipelines.
+      await client.refetchQueries({
+        include: ['SalesPipelines', 'SalesBoards'],
+      });
+
+      if (failures.length > 0) {
+        throw new Error(
+          t('failed-to-delete-pipelines', { count: failures.length }),
+        );
+      }
 
       toast({
         title: t('success'),
