@@ -45,8 +45,8 @@ export const NavigationPanel = () => {
   const title = isFavorites
     ? sidebarT('favorites')
     : isSettings
-    ? organizationT('settings')
-    : activity?.label;
+      ? organizationT('settings')
+      : activity?.label;
   const toggleLabel = navigationT(
     panelOpen ? 'collapse-plugin-navigation' : 'expand-plugin-navigation',
   );
