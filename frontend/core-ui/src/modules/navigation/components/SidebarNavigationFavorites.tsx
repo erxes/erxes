@@ -49,6 +49,7 @@ export function SidebarNavigationFavoritesItem({
     <NavigationMenuLinkItem
       name={name}
       icon={Icon}
+      itemClassName="flex h-10 w-full shrink-0 items-center justify-center"
       path={pathWithoutUi}
       className={cn(
         'h-10 rounded-md text-[13px]',

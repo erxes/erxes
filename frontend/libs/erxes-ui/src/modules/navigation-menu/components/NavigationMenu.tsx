@@ -14,6 +14,7 @@ export const NavigationMenuLinkItem = forwardRef<
     isActive?: boolean;
     label?: React.ReactNode;
     action?: React.ReactNode;
+    itemClassName?: string;
   }
 >(
   (
@@ -27,6 +28,7 @@ export const NavigationMenuLinkItem = forwardRef<
       isActive: isActiveProp,
       label,
       action,
+      itemClassName,
       ...props
     },
     ref,
@@ -41,7 +43,7 @@ export const NavigationMenuLinkItem = forwardRef<
     const isActive = pathname.startsWith(fullPath);
 
     return (
-      <Sidebar.MenuItem>
+      <Sidebar.MenuItem className={itemClassName}>
         <Sidebar.MenuButton
           asChild
           isActive={isActiveProp ? isActiveProp : isActive}

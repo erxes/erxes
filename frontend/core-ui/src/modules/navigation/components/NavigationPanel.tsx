@@ -62,7 +62,7 @@ export const NavigationPanel = () => {
     <aside
       data-state={panelOpen ? 'expanded' : 'collapsed'}
       className={cn(
-        'peer z-20 flex shrink-0 flex-col bg-sidebar transition-[width] duration-200 ease-linear',
+        'peer z-20 flex shrink-0 flex-col bg-sidebar',
         panelOpen && isMobile && 'min-w-0 flex-1',
         panelOpen && !isMobile && 'h-full w-64 border-r',
         !panelOpen && isMobile && 'h-full w-10 border-r',
