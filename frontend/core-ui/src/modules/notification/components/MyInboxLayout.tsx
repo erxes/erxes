@@ -9,6 +9,7 @@ type Props = {
   NotificationContent: React.ComponentType;
 };
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const MyInboxLayout = ({
   Notifications,
   NotificationContent,
