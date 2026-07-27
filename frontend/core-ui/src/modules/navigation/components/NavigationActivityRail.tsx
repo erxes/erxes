@@ -75,7 +75,7 @@ const NavigationActivityButton = ({
     <Button
       aria-label={activity.label}
       className={cn(
-        'relative h-10 rounded-md text-accent-foreground [&>svg]:size-4!',
+        'relative h-10 rounded-md [&>svg]:size-4!',
         expanded
           ? 'w-full justify-start gap-2 px-2'
           : 'w-10 justify-center px-0',
@@ -88,7 +88,9 @@ const NavigationActivityButton = ({
       {active && (
         <span className="absolute -left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary" />
       )}
-      <Icon className="size-4" />
+      <Icon
+        className={cn('size-4 text-accent-foreground', active && 'text-primary')}
+      />
       {expanded && (
         <span className="min-w-0 truncate text-left text-[13px] font-medium">
           {activity.label}
@@ -263,7 +265,7 @@ export const NavigationActivityRail = ({
         aria-label={t('go-to')}
         aria-keyshortcuts="Control+M Meta+M"
         className={cn(
-          'mb-1 h-10 rounded-md text-accent-foreground [&>svg]:size-4!',
+          'mb-1 h-10 rounded-md [&>svg]:size-4!',
           expanded
             ? 'w-full justify-start gap-2 px-2'
             : 'w-10 justify-center px-0',
@@ -274,7 +276,7 @@ export const NavigationActivityRail = ({
         type="button"
         variant="ghost"
       >
-        <IconSearch className="size-4" />
+        <IconSearch className="size-4 text-accent-foreground" />
         {expanded && (
           <span className="truncate text-[13px] font-medium">{t('go-to')}</span>
         )}
