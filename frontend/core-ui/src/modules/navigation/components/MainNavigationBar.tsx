@@ -91,13 +91,13 @@ export const MainNavigationBar = () => {
     navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
   };
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
+  /** Opens the Inbox activity. */
   const handleSelectInbox = () => {
     setPanelView('activity');
     navigate(`/${AppPath.MyInbox}`);
   };
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
+  /** Toggles the Favorites navigation panel. */
   const handleSelectFavorites = () => {
     if (isFavoritesActive) {
       setPanelView('activity');
