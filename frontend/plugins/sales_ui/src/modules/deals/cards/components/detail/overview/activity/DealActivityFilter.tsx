@@ -148,6 +148,7 @@ export const DealActivityFilter = ({
   return (
     <Filter id={DEAL_ACTIVITY_FILTER_ID}>
       <Filter.Bar>
+        <DealActivityFilterPopover />
         {activityType === DEAL_ACTIVITY_ACTIVITY_TYPE && (
           <Filter.BarItem queryKey="activityType">
             <Filter.BarName>
@@ -176,7 +177,6 @@ export const DealActivityFilter = ({
             />
           </Filter.BarItem>
         )}
-        <DealActivityFilterPopover />
         <DealActivityRecordCount recordCount={recordCount} />
       </Filter.Bar>
       <DealActivityFilterDialog />

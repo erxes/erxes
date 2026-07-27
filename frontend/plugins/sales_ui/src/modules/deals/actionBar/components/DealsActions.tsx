@@ -16,11 +16,13 @@ export const DealsActions = ({
   deals,
   selectedCount,
   triggerLabel,
-  watchOnly,
+  variant = 'dropdown',
+  watchOnly = false,
 }: {
   deals: IDeal[];
   selectedCount?: number;
   triggerLabel?: string;
+  variant?: 'dropdown' | 'inline' | 'watch';
   watchOnly?: boolean;
 }) => {
   const { t } = useTranslation('sales');
@@ -37,6 +39,60 @@ export const DealsActions = ({
     watchLabel,
   } = useDealActions({ deals, selectedCount });
 
+  if (variant === 'watch' || watchOnly) {
+    return (
+      <Button
+        variant="outline"
+        className="flex items-center gap-2"
+        onClick={() => void handleWatch()}
+        disabled={isLoading}
+      >
+        <IconEye />
+        {watchLabel}
+      </Button>
+    );
+  }
+
+  if (variant === 'inline') {
+    return (
+      <>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 gap-1.5 px-2"
+          onClick={() => void handleCopy()}
+          disabled={isLoading}
+        >
+          <IconCopy />
+          {t('duplicate')}
+        </Button>
+        <DealPrintDocument deals={deals} disabled={isLoading} />
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 gap-1.5 px-2"
+          onClick={() => void handleArchive()}
+          disabled={isLoading}
+        >
+          <IconArchive />
+          {archiveLabel}
+        </Button>
+        {showRemove && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1.5 px-2 text-red-700 hover:text-red-700"
+            onClick={() => void handleRemove()}
+            disabled={isLoading}
+          >
+            <IconTrash />
+            {t('remove')}
+          </Button>
+        )}
+      </>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -50,42 +106,36 @@ export const DealsActions = ({
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-48 min-w-fit!">
-        {!watchOnly && (
-          <DropdownMenu.Item onClick={handleCopy} disabled={isLoading}>
-            <IconCopy />
-            {t('duplicate')} {isSingle ? '' : `(${count})`}
-          </DropdownMenu.Item>
-        )}
+        <DropdownMenu.Item onClick={handleCopy} disabled={isLoading}>
+          <IconCopy />
+          {t('duplicate')} {isSingle ? '' : `(${count})`}
+        </DropdownMenu.Item>
 
         <DropdownMenu.Item onClick={handleWatch} disabled={isLoading}>
           <IconEye />
           {watchLabel} {isSingle ? '' : `(${count})`}
         </DropdownMenu.Item>
 
-        {!watchOnly && (
-          <>
-            <DealPrintDocument
-              deals={deals}
-              disabled={isLoading}
-              variant="submenu"
-            />
+        <DealPrintDocument
+          deals={deals}
+          disabled={isLoading}
+          variant="submenu"
+        />
 
-            <DropdownMenu.Item onClick={handleArchive} disabled={isLoading}>
-              <IconArchive />
-              {archiveLabel} {isSingle ? '' : `(${count})`}
-            </DropdownMenu.Item>
+        <DropdownMenu.Item onClick={handleArchive} disabled={isLoading}>
+          <IconArchive />
+          {archiveLabel} {isSingle ? '' : `(${count})`}
+        </DropdownMenu.Item>
 
-            {showRemove && (
-              <DropdownMenu.Item
-                onClick={handleRemove}
-                disabled={isLoading}
-                className="text-red-700 focus:text-red-700"
-              >
-                <IconTrash className="text-red-700" />
-                {t('remove')} {isSingle ? '' : `(${count})`}
-              </DropdownMenu.Item>
-            )}
-          </>
+        {showRemove && (
+          <DropdownMenu.Item
+            onClick={handleRemove}
+            disabled={isLoading}
+            className="text-red-700 focus:text-red-700"
+          >
+            <IconTrash className="text-red-700" />
+            {t('remove')} {isSingle ? '' : `(${count})`}
+          </DropdownMenu.Item>
         )}
       </DropdownMenu.Content>
     </DropdownMenu>

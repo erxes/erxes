@@ -26,9 +26,6 @@ type ActivityLogFormRootProps = {
   dateFrom?: Date | string;
   dateTo?: Date | string;
   onTotalCountChange?: (totalCount: number) => void;
-  pageSize?: number;
-  paginationMode?: 'infinite' | 'button';
-  loadMoreLabel?: React.ReactNode;
   children: React.ReactNode;
 };
 
@@ -45,15 +42,11 @@ const ActivityLogsRoot = ({
   dateFrom,
   dateTo,
   onTotalCountChange,
-  pageSize,
-  paginationMode,
-  loadMoreLabel,
   children,
 }: ActivityLogFormRootProps) => {
   const {
     activityLogs,
     loading,
-    loadingMore,
     error,
     handleFetchMore,
     hasNextPage,
@@ -63,7 +56,7 @@ const ActivityLogsRoot = ({
     {
       targetId,
       action,
-      limit: pageSize ?? limit,
+      limit,
       variant,
       activityType,
       excludeActivityType,
@@ -88,7 +81,6 @@ const ActivityLogsRoot = ({
       targetId={targetId}
       activityLogs={activityLogs}
       loading={loading}
-      loadingMore={loadingMore}
       variant={variant}
       error={error}
       customActivities={customActivities}
@@ -98,8 +90,6 @@ const ActivityLogsRoot = ({
       totalCount={totalCount}
       limit={limit}
       showExactDate={showExactDate}
-      paginationMode={paginationMode}
-      loadMoreLabel={loadMoreLabel}
     >
       {children}
     </ActivityLogProvider>
@@ -118,25 +108,9 @@ const ActivityLogsContent = ({ emptyMessage }: { emptyMessage?: string }) => {
   );
 };
 
-// Legacy props interface for backward compatibility
-type LegacyProps = {
-  targetId: string;
-  action?: string;
-  limit?: number;
-  variant?: 'forward' | 'backward';
-  customActivities?: ActivityLogCustomActivity[];
+type LegacyProps = Omit<ActivityLogFormRootProps, 'children'> & {
   showInternalNotes?: boolean;
   emptyMessage?: string;
-  options?: QueryHookOptions<ActivityLogsQueryData>;
-  showExactDate?: boolean;
-  activityType?: string;
-  excludeActivityType?: string;
-  dateFrom?: Date | string;
-  dateTo?: Date | string;
-  onTotalCountChange?: (totalCount: number) => void;
-  pageSize?: number;
-  paginationMode?: 'infinite' | 'button';
-  loadMoreLabel?: React.ReactNode;
 };
 
 // Legacy component wrapper
@@ -155,9 +129,6 @@ const ActivityLogsLegacy = ({
   dateFrom,
   dateTo,
   onTotalCountChange,
-  pageSize,
-  paginationMode,
-  loadMoreLabel,
 }: LegacyProps) => {
   const mergedActivities = [
     ...(showInternalNotes ? [internalNoteCustomActivity] : []),
@@ -179,9 +150,6 @@ const ActivityLogsLegacy = ({
       dateFrom={dateFrom}
       dateTo={dateTo}
       onTotalCountChange={onTotalCountChange}
-      pageSize={pageSize}
-      paginationMode={paginationMode}
-      loadMoreLabel={loadMoreLabel}
     >
       <ActivityLogsWrapper>
         <ActivityLogsContent emptyMessage={emptyMessage} />

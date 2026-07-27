@@ -34,14 +34,23 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   }, [deal?.name]);
 
   const handleName = () => {
-    if (!deal || !name.trim()) return;
+    if (!deal) return;
 
-    if (name === deal.name) return;
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      setName(deal.name || 'Untitled deal');
+      return;
+    }
+
+    setName(trimmedName);
+
+    if (trimmedName === deal.name) return;
 
     editDeals({
       variables: {
         _id: deal._id,
-        name,
+        name: trimmedName,
       },
     });
   };
@@ -62,8 +71,9 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
       <div className="flex flex-col flex-1 min-w-0">
         <Sheet.Title>
           <Input
-            className="h-auto p-0 border-0 bg-transparent text-lg font-semibold shadow-none focus-visible:ring-1"
+            className="h-8 w-auto min-w-32 max-w-full border-0 bg-transparent px-2 py-1 text-lg font-semibold shadow-none"
             placeholder={t('deal-name')}
+            size={Math.min(Math.max(name.length, 12), 48)}
             value={name}
             onChange={(event) => {
               setName(event.target.value);
@@ -96,7 +106,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
           </Button>
         )}
         <MoveDealDropdown deal={deal} />
-        <DealsActions deals={[deal]} triggerLabel={t('action')} watchOnly />
+        <DealsActions deals={[deal]} variant="watch" />
       </div>
       <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
         <Sheet.Close className="ml-0" />
