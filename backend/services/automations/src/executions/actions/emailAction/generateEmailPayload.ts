@@ -3,6 +3,7 @@ import {
   replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
 import { getEnv, resolveDefaultSenderEmail } from 'erxes-api-shared/utils';
+import { assertSenderAllowed } from '../../../utils/emailSender';
 import { getConfig } from '../../../utils/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
 import { renderEmailContent } from './renderEmailContent';
@@ -68,6 +69,9 @@ export const generateEmailPayload = async ({
     }
     fromUserEmail = emails[0];
   }
+
+  // Refuse early rather than building a payload the provider will reject.
+  await assertSenderAllowed(subdomain, fromUserEmail);
 
   const templateContent = renderEmailContent(config?.content, config?.html);
 

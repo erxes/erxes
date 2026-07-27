@@ -1,14 +1,18 @@
 import { IEngageMessage } from '@/broadcast/@types';
 import {
   checkCampaignDoc,
-  createTransporter,
   getEditorAttributeUtil,
   sendBroadcast,
   sendEngageEmail,
   updateConfigs,
 } from '@/broadcast/utils';
-import { ISingleSenderInput } from 'erxes-api-shared/utils';
+import {
+  getBroadcastCacheKey,
+  getBroadcastEmailConfig,
+} from '@/broadcast/utils/outboundEmail';
+import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { createDeliveryLogPort } from '~/utils/email/deliveryLog';
 import { removeVerifiedSender, verifySender } from '~/utils/email/senders';
 
 export const engageMutations = {
@@ -219,14 +223,19 @@ export const engageMutations = {
     });
 
     try {
-      const transporter = await createTransporter(models);
-      const response = await transporter.sendMail({
-        from,
-        to,
-        subject: title,
-        html: content,
-        content: replacedContent,
+      const response = await deliverEmail({
+        cacheKey: getBroadcastCacheKey(models),
+        config: await getBroadcastEmailConfig(models),
+        message: {
+          from,
+          to: [to],
+          subject: title,
+          html: replacedContent || content,
+        },
+        log: createDeliveryLogPort(models),
+        meta: { source: 'broadcast', userId: fromUser?._id },
       });
+
       return JSON.stringify(response);
     } catch (e) {
       console.log(e);

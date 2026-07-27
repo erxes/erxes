@@ -1,5 +1,11 @@
-import { getEnv } from 'erxes-api-shared/utils';
+import { deliverEmail, getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { createDeliveryLogPort } from '~/utils/email/deliveryLog';
+import {
+  getBroadcastCacheKey,
+  getBroadcastEmailConfig,
+  toOutboundEmail,
+} from './outboundEmail';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 
 const getConfigSet = async (models: IModels) => {
@@ -295,15 +301,33 @@ export const sendEngageEmail = async (
   models: IModels,
   data: any,
 ) => {
-  const transporter = await createTransporter(models);
   const { customer } = data;
 
   const configSet = await getConfigSet(models);
 
   try {
-    await transporter.sendMail(
-      prepareEmailParams(subdomain, customer, data, configSet),
-    );
+    await deliverEmail({
+      cacheKey: getBroadcastCacheKey(models),
+      config: await getBroadcastEmailConfig(models),
+      // `data.fromEmail` is the sender. It used to be omitted here, which left
+      // the configuration set sitting in the `from` slot and produced a `From`
+      // header that was not an address at all.
+      message: toOutboundEmail(
+        prepareEmailParams(
+          subdomain,
+          customer,
+          data,
+          data.fromEmail,
+          configSet,
+        ),
+      ),
+      log: createDeliveryLogPort(models),
+      meta: {
+        source: 'broadcast',
+        sourceId: data.engageMessageId,
+        userId: data.createdBy,
+      },
+    });
 
     console.log(`Sent email to: ${customer?.primaryEmail}`);
   } catch (e) {

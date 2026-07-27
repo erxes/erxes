@@ -1,12 +1,17 @@
-import { getEnv } from 'erxes-api-shared/utils';
-import { createTransporter } from './createTransporter';
+import {
+  deliverEmail,
+  getEnv,
+  loadEmailProviderConfig,
+} from 'erxes-api-shared/utils';
 import { debugError } from '../../../debugger';
+import { createDeliveryLogPort } from '../../../utils/emailDeliveryLog';
 import { getConfig } from '../../../utils/utils';
 
 export const sendEmails = async (
   subdomain: string,
   {
     payload,
+    executionId,
   }: {
     payload: {
       title: string;
@@ -15,6 +20,7 @@ export const sendEmails = async (
       ccEmails: string[];
       customHtml: string;
     };
+    executionId?: string;
   },
 ) => {
   const {
@@ -27,21 +33,7 @@ export const sendEmails = async (
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
-  const DEFAULT_EMAIL_SERVICE = await getConfig(
-    subdomain,
-    'DEFAULT_EMAIL_SERVICE',
-    'SES',
-  );
   const COMPANY_EMAIL_FROM = await getConfig(subdomain, 'COMPANY_EMAIL_FROM');
-  const AWS_SES_CONFIG_SET = await getConfig(subdomain, 'AWS_SES_CONFIG_SET');
-  const AWS_SES_ACCESS_KEY_ID = await getConfig(
-    subdomain,
-    'AWS_SES_ACCESS_KEY_ID',
-  );
-  const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
-    subdomain,
-    'AWS_SES_SECRET_ACCESS_KEY',
-  );
 
   if (!fromEmail && !COMPANY_EMAIL_FROM) {
     throw new Error('From Email is required');
@@ -51,77 +43,52 @@ export const sendEmails = async (
     throw new Error('Node environment is required');
   }
 
-  let transporter;
+  const from = fromEmail || COMPANY_EMAIL_FROM;
+
+  if (!from) {
+    throw new Error(`"From" email address is missing: ${from}`);
+  }
+
+  let config;
 
   try {
-    transporter = await createTransporter({
-      subdomain,
-      ses: DEFAULT_EMAIL_SERVICE === 'SES',
-    });
+    config = await loadEmailProviderConfig((code, defaultValue) =>
+      getConfig(subdomain, code, defaultValue),
+    );
   } catch (e) {
     debugError(e.message);
     throw new Error(e.message);
   }
 
-  let response: any;
-  const mailOptions: any = {
-    from: fromEmail || COMPANY_EMAIL_FROM,
-    to: toEmails.join(', '), // Combine all to emails with commas
-    cc: ccEmails.length ? ccEmails.join(', ') : undefined, // Combine all cc emails with commas
-    subject: title,
-    html: customHtml,
-  };
-
-  let headers: { [key: string]: string } = {};
-
-  if (!!AWS_SES_ACCESS_KEY_ID?.length && !!AWS_SES_SECRET_ACCESS_KEY.length) {
-    // For multiple recipients, you might want to handle email deliveries differently
-    // Either create one delivery record for all recipients or handle separately
-    // const emailDelivery = await sendCoreMessage({
-    //   subdomain,
-    //   action: "emailDeliveries.create",
-    //   data: {
-    //     kind: "transaction",
-    //     to: toEmails.join(", "), // All recipients
-    //     from: fromEmail,
-    //     subject: title,
-    //     body: customHtml,
-    //     status: "pending",
-    //   },
-    //   isRPC: true,
-    // });
-
-    headers = {
-      'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-      // EmailDeliveryId: emailDelivery && emailDelivery._id,
-    };
-  } else {
-    headers['X-SES-CONFIGURATION-SET'] = 'erxes';
-  }
-
-  mailOptions.headers = headers;
-
-  if (!mailOptions.from) {
-    throw new Error(`"From" email address is missing: ${mailOptions.from}`);
-  }
-
   try {
-    const info = await transporter.sendMail(mailOptions);
-    response = {
-      from: mailOptions.from,
-      messageId: info.messageId,
-      toEmails, // All to emails
+    const result = await deliverEmail({
+      cacheKey: subdomain,
+      config,
+      message: {
+        from,
+        to: toEmails,
+        cc: ccEmails.length ? ccEmails : undefined,
+        subject: title,
+        html: customHtml,
+      },
+      log: createDeliveryLogPort(subdomain),
+      meta: { source: 'automation', sourceId: executionId },
+    });
+
+    return {
+      from,
+      messageId: result.messageId,
+      toEmails,
       ccEmails: ccEmails.length ? ccEmails : undefined,
     };
   } catch (error) {
-    response = {
-      from: mailOptions.from,
+    debugError(error);
+
+    return {
+      from,
       toEmails,
-      ccEmails: mailOptions.cc,
+      ccEmails: ccEmails.length ? ccEmails : undefined,
       error,
     };
-    debugError(error);
   }
-
-  return response;
 };

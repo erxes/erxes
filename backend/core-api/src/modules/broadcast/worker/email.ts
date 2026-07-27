@@ -3,7 +3,14 @@ import * as _ from 'lodash';
 import { generateModels } from '~/connectionResolvers';
 import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 import { replaceContent } from '~/modules/documents/utils';
-import { createTransporter, prepareEmailParams, readFileUrl } from '../utils';
+import { deliverEmail } from 'erxes-api-shared/utils';
+import { createDeliveryLogPort } from '~/utils/email/deliveryLog';
+import { prepareEmailParams, readFileUrl } from '../utils';
+import {
+  getBroadcastCacheKey,
+  getBroadcastEmailConfig,
+  toOutboundEmail,
+} from '../utils/outboundEmail';
 
 const CHUNK_SIZE = 50; // Send 50 emails at a time
 const CHUNK_DELAY = 2000; // 2 second delay between each chunk
@@ -15,7 +22,9 @@ export const handleEmailProcessor = async (payload) => {
 
   const models = await generateModels(subdomain);
 
-  const transporter = await createTransporter(models);
+  const providerConfig = await getBroadcastEmailConfig(models);
+  const cacheKey = getBroadcastCacheKey(models);
+  const log = createDeliveryLogPort(models);
 
   await models.Stats.findOneAndUpdate(
     { engageMessageId: engageMessage._id },
@@ -60,18 +69,24 @@ export const handleEmailProcessor = async (payload) => {
             resolveImageUrl: (url) => readFileUrl(url, subdomain),
           });
 
-          await transporter.sendMail(
-            prepareEmailParams(
-              subdomain,
-              customer,
-              {
-                ...engageMessage,
-                email: { ...engageMessage.email, content: htmlContent },
-              },
-              fromEmail,
-              configSet,
+          await deliverEmail({
+            cacheKey,
+            config: providerConfig,
+            message: toOutboundEmail(
+              prepareEmailParams(
+                subdomain,
+                customer,
+                {
+                  ...engageMessage,
+                  email: { ...engageMessage.email, content: htmlContent },
+                },
+                fromEmail,
+                configSet,
+              ),
             ),
-          );
+            log,
+            meta: { source: 'broadcast', sourceId: engageMessage._id },
+          });
 
           STATS.validCustomersCount++;
 

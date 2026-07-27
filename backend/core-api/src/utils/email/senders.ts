@@ -117,6 +117,32 @@ export const getVerifiedSenderEmails = async (
   }
 };
 
+export const isSenderAllowed = async (
+  models: IModels,
+  email: string,
+): Promise<boolean> => {
+  const { supportsSenderVerification } = await getEmailSenderOptions(models);
+
+  if (!supportsSenderVerification) {
+    return true;
+  }
+
+  const address = email.trim().toLowerCase();
+  const domain = address.split('@')[1];
+
+  const senders = await listProviderSenders(models);
+
+  return senders.some((sender) => {
+    if (sender.status !== 'verified') {
+      return false;
+    }
+
+    return sender.type === 'single'
+      ? sender.value.toLowerCase() === address
+      : sender.value.toLowerCase() === domain;
+  });
+};
+
 export const verifySender = async (
   models: IModels,
   input: ISingleSenderInput,
