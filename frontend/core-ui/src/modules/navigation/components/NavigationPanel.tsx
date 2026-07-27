@@ -71,7 +71,7 @@ export const NavigationPanel = () => {
     >
       <header
         className={cn(
-          'flex h-13 shrink-0 items-center gap-2',
+          'flex h-13 shrink-0 items-center gap-2 pt-1',
           panelOpen ? 'px-2' : 'justify-center px-1',
         )}
       >

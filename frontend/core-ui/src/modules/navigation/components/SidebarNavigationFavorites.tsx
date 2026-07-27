@@ -53,7 +53,7 @@ export function SidebarNavigationFavoritesItem({
       className={cn(
         'h-10 rounded-md text-[13px]',
         expanded
-          ? 'w-full justify-start px-2'
+          ? 'w-full justify-start px-3'
           : 'mx-auto w-10 justify-center px-0',
       )}
       label={

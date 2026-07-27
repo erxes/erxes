@@ -101,7 +101,7 @@ export const NavigationActivityMore = ({
           className={cn(
             'h-10 shrink-0 rounded-md [&>svg]:size-4!',
             expanded
-              ? 'w-full justify-start gap-2 px-2'
+              ? 'w-full justify-start gap-2 px-3'
               : 'w-10 justify-center px-0',
           )}
           size={expanded ? 'default' : 'icon'}
