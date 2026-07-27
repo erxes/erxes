@@ -89,7 +89,10 @@ const NavigationActivityButton = ({
         <span className="absolute -left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary" />
       )}
       <Icon
-        className={cn('size-4 text-accent-foreground', active && 'text-primary')}
+        className={cn(
+          'size-4 text-accent-foreground',
+          active && 'text-primary',
+        )}
       />
       {expanded && (
         <span className="min-w-0 truncate text-left text-[13px] font-medium">
