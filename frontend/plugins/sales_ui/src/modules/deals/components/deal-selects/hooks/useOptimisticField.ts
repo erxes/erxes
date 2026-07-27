@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 type FieldValueCommit<T> = (
   value: T,
   previousValue: T,
-) => Promise<unknown> | unknown;
+) => PromiseLike<unknown> | void;
 
 interface UseOptimisticFieldOptions<T> {
   value: T;
@@ -86,6 +86,81 @@ export const useOptimisticField = <T>({
     }
   }, []);
 
+  const isCurrentGeneration = useCallback(
+    (queuedValue: QueuedValue<T>) =>
+      queuedValue.generation === generationRef.current,
+    [],
+  );
+
+  const protectValueUntilSourceCatchesUp = useCallback((nextValue: T) => {
+    protectedValueRef.current = {
+      active: !isEqualRef.current(sourceValueRef.current, nextValue),
+      value: nextValue,
+    };
+  }, []);
+
+  const confirmQueuedValue = useCallback(
+    (queuedValue: QueuedValue<T>) => {
+      if (!isCurrentGeneration(queuedValue)) {
+        return;
+      }
+
+      confirmedValueRef.current = queuedValue.value;
+
+      const isLatestValue =
+        queuedValue.version === versionRef.current &&
+        queuedValueRef.current === null;
+
+      if (isLatestValue) {
+        protectValueUntilSourceCatchesUp(queuedValue.value);
+      }
+    },
+    [isCurrentGeneration, protectValueUntilSourceCatchesUp],
+  );
+
+  const rollbackQueuedValue = useCallback(
+    (queuedValue: QueuedValue<T>) => {
+      if (!isCurrentGeneration(queuedValue)) {
+        return;
+      }
+
+      const hasNewerValue =
+        queuedValue.version !== versionRef.current ||
+        queuedValueRef.current !== null;
+
+      if (hasNewerValue) {
+        return;
+      }
+
+      const rollbackValue = confirmedValueRef.current;
+      protectValueUntilSourceCatchesUp(rollbackValue);
+      updateDisplayedValue(rollbackValue);
+    },
+    [
+      isCurrentGeneration,
+      protectValueUntilSourceCatchesUp,
+      updateDisplayedValue,
+    ],
+  );
+
+  const commitQueuedValue = useCallback(
+    async (queuedValue: QueuedValue<T>) => {
+      if (!isCurrentGeneration(queuedValue)) {
+        return;
+      }
+
+      const previousValue = confirmedValueRef.current;
+
+      try {
+        await onCommitRef.current(queuedValue.value, previousValue);
+        confirmQueuedValue(queuedValue);
+      } catch {
+        rollbackQueuedValue(queuedValue);
+      }
+    },
+    [confirmQueuedValue, isCurrentGeneration, rollbackQueuedValue],
+  );
+
   const drainQueue = useCallback(async () => {
     if (runningRef.current) {
       return;
@@ -99,61 +174,14 @@ export const useOptimisticField = <T>({
     while (queuedValueRef.current) {
       const queuedValue = queuedValueRef.current;
       queuedValueRef.current = null;
-
-      if (queuedValue.generation !== generationRef.current) {
-        continue;
-      }
-
-      const previousValue = confirmedValueRef.current;
-
-      try {
-        await onCommitRef.current(queuedValue.value, previousValue);
-
-        if (queuedValue.generation !== generationRef.current) {
-          continue;
-        }
-
-        confirmedValueRef.current = queuedValue.value;
-
-        if (
-          queuedValue.version === versionRef.current &&
-          !queuedValueRef.current
-        ) {
-          const sourceIsConfirmed = isEqualRef.current(
-            sourceValueRef.current,
-            queuedValue.value,
-          );
-
-          protectedValueRef.current = {
-            active: !sourceIsConfirmed,
-            value: queuedValue.value,
-          };
-        }
-      } catch {
-        if (queuedValue.generation !== generationRef.current) {
-          continue;
-        }
-
-        const hasNewerValue =
-          queuedValue.version !== versionRef.current ||
-          queuedValueRef.current !== null;
-
-        if (!hasNewerValue) {
-          const rollbackValue = confirmedValueRef.current;
-          protectedValueRef.current = {
-            active: !isEqualRef.current(sourceValueRef.current, rollbackValue),
-            value: rollbackValue,
-          };
-          updateDisplayedValue(rollbackValue);
-        }
-      }
+      await commitQueuedValue(queuedValue);
     }
 
     runningRef.current = false;
     if (mountedRef.current) {
       setSaving(false);
     }
-  }, [updateDisplayedValue]);
+  }, [commitQueuedValue]);
 
   const setValue = useCallback(
     (nextValue: T) => {

@@ -74,20 +74,20 @@ export const SelectTagsProvider = ({
     if (!tag) return;
 
     const isSingleMode = mode === 'single';
-    const multipleValue = Array.isArray(value) ? value : value ? [value] : [];
+    const multipleValue = getTagIds(value);
     const isSelected = !isSingleMode && multipleValue.includes(tag._id);
 
-    const newSelectedTagIds = isSingleMode
-      ? [tag._id]
-      : isSelected
-      ? multipleValue.filter((t) => t !== tag._id)
-      : [...multipleValue, tag._id];
+    let newSelectedTagIds = [tag._id];
+    let newSelectedTags = [tag];
 
-    const newSelectedTags = isSingleMode
-      ? [tag]
-      : isSelected
-      ? selectedTags.filter((t) => t._id !== tag._id)
-      : [...selectedTags, tag];
+    if (!isSingleMode) {
+      newSelectedTagIds = isSelected
+        ? multipleValue.filter((tagId) => tagId !== tag._id)
+        : [...multipleValue, tag._id];
+      newSelectedTags = isSelected
+        ? selectedTags.filter(({ _id }) => _id !== tag._id)
+        : [...selectedTags, tag];
+    }
 
     setSelectedTags(newSelectedTags);
     onValueChange?.(isSingleMode ? tag._id : newSelectedTagIds);

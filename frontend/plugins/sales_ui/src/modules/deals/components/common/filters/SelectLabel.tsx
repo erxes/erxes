@@ -51,6 +51,14 @@ export const useSelectLabelsContext = () => {
   return context || ({} as ISelectLabelContext);
 };
 
+const getLabelIds = (value?: string[] | string) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value : [value];
+};
+
 export const SelectLabelsProvider = ({
   children,
   value,
@@ -59,26 +67,26 @@ export const SelectLabelsProvider = ({
 }: ISelectLabelProviderProps) => {
   const [newLabelName, setNewLabelName] = useState<string>('');
   const [selectedLabels, setSelectedLabels] = useState<IPipelineLabel[]>([]);
-  const labelIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const labelIds = getLabelIds(value);
 
   const handleSelectCallback = (label: IPipelineLabel) => {
-    if (!label) return;
+    if (!label._id) return;
 
     const isSingleMode = mode === 'single';
-    const multipleValue = Array.isArray(value) ? value : value ? [value] : [];
-    const isSelected = !isSingleMode && multipleValue.includes(label._id || '');
+    const multipleValue = getLabelIds(value);
+    const isSelected = !isSingleMode && multipleValue.includes(label._id);
 
-    const newSelectedLabelIds = isSingleMode
-      ? [label._id]
-      : isSelected
-      ? multipleValue.filter((p) => p !== label._id)
-      : [...multipleValue, label._id];
+    let newSelectedLabelIds = [label._id];
+    let newSelectedLabels = [label];
 
-    const newSelectedLabels = isSingleMode
-      ? [label]
-      : isSelected
-      ? selectedLabels.filter((p) => p._id !== label._id)
-      : [...selectedLabels, label];
+    if (!isSingleMode) {
+      newSelectedLabelIds = isSelected
+        ? multipleValue.filter((labelId) => labelId !== label._id)
+        : [...multipleValue, label._id];
+      newSelectedLabels = isSelected
+        ? selectedLabels.filter(({ _id }) => _id !== label._id)
+        : [...selectedLabels, label];
+    }
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -382,7 +390,6 @@ export const SelectLabelsFilterBar = ({
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
-  label?: string;
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
   targetId?: string;

@@ -34,14 +34,23 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   }, [deal?.name]);
 
   const handleName = () => {
-    if (!deal || !name.trim()) return;
+    if (!deal) return;
 
-    if (name === deal.name) return;
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      setName(deal.name || 'Untitled deal');
+      return;
+    }
+
+    setName(trimmedName);
+
+    if (trimmedName === deal.name) return;
 
     editDeals({
       variables: {
         _id: deal._id,
-        name,
+        name: trimmedName,
       },
     });
   };
