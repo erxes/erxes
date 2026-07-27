@@ -6,6 +6,7 @@ import { TMailConfigForm } from '@/settings/mail-config/types';
 import { Path, useWatch } from 'react-hook-form';
 import { AnimatePresence } from 'framer-motion';
 import { useConfig } from '@/settings/file-upload/hook/useConfigs';
+import { VerifiedSenders } from '@/settings/mail-config/components/VerifiedSenders';
 import { IconLoader2 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -198,6 +199,15 @@ const MailConfigForm = () => {
             ),
           )}
         </AnimatePresence>
+
+        <Form.Item className="col-span-4 flex flex-col justify-between">
+          <div>
+            <Form.Label>{t('verified-senders')}</Form.Label>
+            <Form.Description>{t('verified-senders-desc')}</Form.Description>
+          </div>
+          <VerifiedSenders />
+        </Form.Item>
+
         <Form.Item className="col-span-4 grid grid-cols-4">
           <Button
             size={'sm'}

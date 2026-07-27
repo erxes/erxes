@@ -3,13 +3,16 @@ import {
   IReportQueryParams,
   ISmsDeliveryQueryParams,
 } from '@/broadcast/@types';
-import { awsRequests } from '@/broadcast/trackers';
 import {
   countsByKind,
   countsByStatus,
   countsByTag,
   prepareAvgStats,
 } from '@/broadcast/utils';
+import {
+  getEmailSenderOptions,
+  getVerifiedSenderEmails,
+} from '~/utils/email/senders';
 import { ICursorPaginateParams, IUser } from 'erxes-api-shared/core-types';
 import { cursorPaginate, getCustomerName } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
@@ -244,19 +247,23 @@ export const engageQueries = {
       isActive: true,
     };
 
-    const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
+    // `null` means the configured provider keeps no sender registry (plain
+    // SMTP), in which case every member is an eligible sender.
+    const verifiedEmails = isVerified
+      ? await getVerifiedSenderEmails(models)
+      : null;
 
-    if (isVerified) {
-      query.email = { $in: verifiedEmails || [] };
+    if (verifiedEmails) {
+      query.email = { $in: verifiedEmails };
     }
 
     if (searchValue) {
       query.email = { $regex: searchValue, $options: '$i' };
     }
 
-    if (isVerified && searchValue) {
+    if (verifiedEmails && searchValue) {
       query.email = {
-        $in: verifiedEmails || [],
+        $in: verifiedEmails,
         $regex: searchValue,
         $options: 'i',
       };
@@ -318,22 +325,37 @@ export const engageQueries = {
 
     return { list: data, totalCount };
   },
+  /**
+   * Config-only answer about the org's mail setup. Anything needing the
+   * provider's API is resolved lazily by the `EmailSenderOptions` field
+   * resolvers, so a caller that only wants to know which provider is configured
+   * never triggers an outbound request.
+   */
+  async emailSenderOptions(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return await getEmailSenderOptions(models);
+  },
+
   async engageVerifiedEmails(
     _root: undefined,
     _args: undefined,
     { models }: IContext,
-
-  ){
+  ) {
     const users = await models.Users.find({
       isActive: true,
-    })
-    const userEmails = users?.map(u => u.email);
-    const allVerifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+    });
+    const userEmails = users?.map((u) => u.email);
+    const allVerifiedEmails = await getVerifiedSenderEmails(models);
 
+    // `null` means the configured provider keeps no sender registry (plain
+    // SMTP), in which case every member's address is usable as a sender.
     if (!allVerifiedEmails) {
-      return [];
+      return userEmails;
     }
 
-    return allVerifiedEmails.filter(email => userEmails.includes(email));  }
+    return allVerifiedEmails.filter((email) => userEmails.includes(email));
+  },
 };

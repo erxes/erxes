@@ -76,6 +76,7 @@
 
   "sender": "Sender",
   "use-company-email": "Use company email",
+  "verified-sender-email": "Verified sender",
   "custom-sender-email": "Custom sender email",
   "to": "To",
   "cc": "CC",

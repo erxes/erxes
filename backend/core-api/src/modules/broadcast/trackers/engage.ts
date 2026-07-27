@@ -175,46 +175,5 @@ export const engageTracker = async (req: Request, res: Response) => {
   }
 };
 
-export const awsRequests = {
-  async getVerifiedEmails(models: IModels) {
-    const api = await getApi(models, 'ses');
-
-    return new Promise((resolve, reject) => {
-      api.listVerifiedEmailAddresses((error, data) => {
-        if (error) {
-          return reject(error);
-        }
-
-        return resolve(data.VerifiedEmailAddresses);
-      });
-    });
-  },
-
-  async verifyEmail(models: IModels, email: string) {
-    const api = await getApi(models, 'ses');
-
-    return new Promise((resolve, reject) => {
-      api.verifyEmailAddress({ EmailAddress: email }, (error, data) => {
-        if (error) {
-          return reject(error);
-        }
-
-        return resolve(data);
-      });
-    });
-  },
-
-  async removeVerifiedEmail(models: IModels, email: string) {
-    const api = await getApi(models, 'ses');
-
-    return new Promise((resolve, reject) => {
-      api.deleteVerifiedEmailAddress({ EmailAddress: email }, (error, data) => {
-        if (error) {
-          return reject(error);
-        }
-
-        return resolve(data);
-      });
-    });
-  },
-};
+// Sender verification now goes through the provider layer in
+// `~/utils/email/senders`, so that it works the same on SES and SendGrid.

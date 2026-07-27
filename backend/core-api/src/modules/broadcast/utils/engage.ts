@@ -1,7 +1,7 @@
 import { IEngageMessage } from '@/broadcast/@types';
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '@/broadcast/constants';
-import { awsRequests } from '@/broadcast/trackers';
 import { isUsingElk } from '@/broadcast/utils';
+import { getVerifiedSenderEmails } from '~/utils/email/senders';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { fetchEs } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -195,11 +195,14 @@ export const checkCampaignDoc = async (
       throw new Error(`From user email is not specified: ${user.username}`);
     }
 
-    const verifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+    const verifiedEmails = await getVerifiedSenderEmails(models);
 
-    if (!verifiedEmails.includes(user.email)) {
-      throw new Error(`From user email "${user.email}" is not verified in AWS`);
+    // `null` means the configured provider keeps no sender registry (plain
+    // SMTP), so there is nothing to check the address against.
+    if (verifiedEmails && !verifiedEmails.includes(user.email)) {
+      throw new Error(
+        `From user email "${user.email}" is not a verified sender`,
+      );
     }
   }
 

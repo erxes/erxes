@@ -185,6 +185,32 @@ export const types = `
     message: String!
     createdAt: Date
   }
+
+  """
+  A sender identity as the configured email provider knows it, including ones
+  still awaiting confirmation. "single" is one verified address, "domain" is an
+  authenticated domain that any address below it may send from.
+  """
+  type EmailSender {
+    id: String
+    type: String
+    value: String
+    name: String
+    status: String
+  }
+
+  """
+  Everything a sender picker needs, without exposing the organization's mail
+  credentials. "senders" and "supportsDynamicSender" reach the provider's API,
+  so only ask for them when they are actually rendered.
+  """
+  type EmailSenderOptions {
+    provider: String
+    supportsSenderVerification: Boolean
+    supportsDynamicSender: Boolean
+    defaultSenderEmail: String
+    senders: [EmailSender]
+  }
 `;
 
 const queryParams = `
@@ -210,6 +236,7 @@ export const queries = `
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
   engageBroadcastTraces(engageMessageId: String!): [BroadcastTrace]
   engageVerifiedEmails: [String]
+  emailSenderOptions: EmailSenderOptions
 `;
 
 const mutationParams = `
@@ -239,7 +266,14 @@ export const mutations = `
   engageMessageSetPause(_id: String!): EngageMessage
   engageMessageSetLiveManual(_id: String!): EngageMessage
   engagesUpdateConfigs(configsMap: JSON!): JSON
-  engageMessageVerifyEmail(email: String!): String
+  engageMessageVerifyEmail(
+    email: String!
+    name: String
+    replyTo: String
+    address: String
+    city: String
+    country: String
+  ): String
   engageMessageRemoveVerifiedEmail(email: String!): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage

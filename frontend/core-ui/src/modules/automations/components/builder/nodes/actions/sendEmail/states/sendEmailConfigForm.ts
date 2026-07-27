@@ -7,7 +7,7 @@ export const sendEmailConfigFormSchema = z.object({
   subject: z.string(),
   content: z.string(),
   html: z.string(),
-  type: z.enum(['default', 'custom']),
+  type: z.enum(['default', 'verified', 'custom']),
 });
 
 export type TAutomationSendEmailConfig = z.infer<

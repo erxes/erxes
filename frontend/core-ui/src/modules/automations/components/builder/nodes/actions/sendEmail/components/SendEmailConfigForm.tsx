@@ -1,6 +1,8 @@
 import { useSendEmailSidebarForm } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailSidebarForm';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
+import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
+import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
 import {
@@ -22,6 +24,11 @@ export const SendEmailConfigForm = ({
   });
   const { form, contentType, availableVariableSourceNodes } =
     useSendEmailSidebarForm(currentActionIndex, currentAction);
+  const {
+    supportsSenderVerification,
+    supportsDynamicSender,
+    defaultSenderEmail,
+  } = useSenderOptions();
   const { t } = useTranslation('automations');
   return (
     <FormProvider {...form}>
@@ -43,14 +50,36 @@ export const SendEmailConfigForm = ({
               >
                 <label className="flex space-x-2 items-center">
                   <RadioGroup.Item value="default" id="env-sender" />
-                  <Label htmlFor="env-sender">{t('use-company-email')}</Label>
-                </label>
-                <label className="flex space-x-2 items-center">
-                  <RadioGroup.Item value="custom" id="custom-sender" />
-                  <Label htmlFor="custom-sender">
-                    {t('custom-sender-email')}
+                  <Label htmlFor="env-sender">
+                    {t('use-company-email')}
+                    {defaultSenderEmail && (
+                      <span className="ml-1 text-muted-foreground font-normal">
+                        ({defaultSenderEmail})
+                      </span>
+                    )}
                   </Label>
                 </label>
+                {supportsSenderVerification && (
+                  <label className="flex space-x-2 items-center">
+                    <RadioGroup.Item value="verified" id="verified-sender" />
+                    <Label htmlFor="verified-sender">
+                      {t('verified-sender-email')}
+                    </Label>
+                  </label>
+                )}
+                {/*
+                  A free-form address can only be delivered when an
+                  authenticated domain covers it, so the option stays hidden
+                  until one exists.
+                */}
+                {supportsDynamicSender && (
+                  <label className="flex space-x-2 items-center">
+                    <RadioGroup.Item value="custom" id="custom-sender" />
+                    <Label htmlFor="custom-sender">
+                      {t('custom-sender-email')}
+                    </Label>
+                  </label>
+                )}
               </RadioGroup>
             </Form.Item>
           )}
@@ -59,6 +88,23 @@ export const SendEmailConfigForm = ({
           name="type"
           control={form.control}
           render={({ field }) => {
+            if (field.value === 'verified') {
+              return (
+                <Form.Field
+                  name="fromEmailPlaceHolder"
+                  control={form.control}
+                  render={({ field: senderField }) => (
+                    <Form.Item className="py-4">
+                      <SelectVerifiedSender
+                        value={senderField.value}
+                        onChange={senderField.onChange}
+                      />
+                    </Form.Item>
+                  )}
+                />
+              );
+            }
+
             if (field.value === 'custom') {
               return (
                 <Form.Field

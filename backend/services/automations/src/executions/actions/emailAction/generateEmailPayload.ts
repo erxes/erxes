@@ -2,7 +2,8 @@ import {
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { getEnv } from 'erxes-api-shared/utils';
+import { getEnv, resolveDefaultSenderEmail } from 'erxes-api-shared/utils';
+import { getConfig } from '../../../utils/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
 import { renderEmailContent } from './renderEmailContent';
 import { replaceDocuments } from './replaceDocuments';
@@ -32,8 +33,10 @@ export const generateEmailPayload = async ({
   const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
 
   const isSaasVersion = version === 'saas';
-  const isProduction = getEnv({ name: 'NODE_ENV' }) === 'production';
   const isDefaultSender = senderType === 'default' || !senderType;
+  // A picked verified sender arrives as a literal address in the same field the
+  // custom placeholder uses, so both resolve through the same path.
+  const isPickedSender = senderType === 'custom' || senderType === 'verified';
   const normalizedFromEmailPlaceHolder = normalizeEmailActionPlaceholders(
     fromEmailPlaceHolder || '',
     targetType,
@@ -44,11 +47,17 @@ export const generateEmailPayload = async ({
   );
   let fromUserEmail = '';
 
-  if (isSaasVersion || isDefaultSender || !isProduction) {
-    fromUserEmail = DEFAULT_AWS_EMAIL;
+  if (isDefaultSender) {
+    // Shared with the settings UI so it can show which address this resolves
+    // to; the picker must never offer a sender this path would refuse.
+    fromUserEmail = resolveDefaultSenderEmail({
+      isSaas: isSaasVersion,
+      companyEmailFrom: await getConfig(subdomain, 'COMPANY_EMAIL_FROM', ''),
+      fallbackEmail: DEFAULT_AWS_EMAIL,
+    });
   }
 
-  if (senderType === 'custom' || (!isSaasVersion && !fromUserEmail)) {
+  if (isPickedSender) {
     const emails = await collectEmails(normalizedFromEmailPlaceHolder, {
       subdomain,
       execution,

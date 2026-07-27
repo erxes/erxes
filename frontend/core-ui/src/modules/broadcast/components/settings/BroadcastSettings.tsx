@@ -4,7 +4,7 @@ import { Form, Input } from 'erxes-ui';
 import { useEffect } from 'react';
 import { ControllerRenderProps, FieldValues, useForm } from 'react-hook-form';
 import { useVersion } from 'ui-modules';
-import { BroadcastSettingsVerifiedEmail } from './BroadcastSettingsVerifiedEmail';
+import { VerifiedSenders } from '@/settings/mail-config/components/VerifiedSenders';
 import { useBroadcastConfig } from '@/broadcast/hooks/useBroadcastConfig';
 
 export const BroadcastSettings = () => {
@@ -77,7 +77,7 @@ export const BroadcastSettings = () => {
             <Form.Item>
               <Form.Label>Verified emails</Form.Label>
               <Form.Control>
-                <BroadcastSettingsVerifiedEmail />
+                <VerifiedSenders />
               </Form.Control>
             </Form.Item>
           )}

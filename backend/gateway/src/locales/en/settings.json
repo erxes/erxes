@@ -128,7 +128,11 @@
     "template": "Template",
     "temp-desc": "Your email will be sent with erxes email template.",
     "default-email-service": "Default email service",
-    "default-email-service-desc": "Choose your email service name. The default email service is SES."
+    "default-email-service-desc": "Choose your email service name. The default email service is SES.",
+    "sendgrid-api-key-desc": "API key from your SendGrid account. Used to send mail and manage senders.",
+    "sendgrid-subuser-desc": "Optional. Scopes sender management to a SendGrid subuser.",
+    "verified-senders": "Verified senders",
+    "verified-senders-desc": "Addresses your provider allows mail to be sent from. A sender can only send after opening its confirmation link."
   },
 
   "tags": {

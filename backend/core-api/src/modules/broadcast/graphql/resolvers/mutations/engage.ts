@@ -1,5 +1,4 @@
 import { IEngageMessage } from '@/broadcast/@types';
-import { awsRequests } from '@/broadcast/trackers';
 import {
   checkCampaignDoc,
   createTransporter,
@@ -8,7 +7,9 @@ import {
   sendEngageEmail,
   updateConfigs,
 } from '@/broadcast/utils';
+import { ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { removeVerifiedSender, verifySender } from '~/utils/email/senders';
 
 export const engageMutations = {
   /**
@@ -153,10 +154,13 @@ export const engageMutations = {
    */
   async engageMessageVerifyEmail(
     _root: undefined,
-    { email }: { email: string },
+    input: ISingleSenderInput,
     { models }: IContext,
   ) {
-    const response = await awsRequests.verifyEmail(models, email);
+    // SES only needs the address; SendGrid additionally stores a name and a
+    // postal address on the sender identity, so both arrive through here and
+    // each provider takes what it understands.
+    const response = await verifySender(models, input);
 
     return JSON.stringify(response);
   },
@@ -169,9 +173,9 @@ export const engageMutations = {
     { email }: { email: string },
     { models }: IContext,
   ) {
-    const response = await awsRequests.removeVerifiedEmail(models, email);
+    await removeVerifiedSender(models, email);
 
-    return JSON.stringify(response);
+    return JSON.stringify({ email });
   },
 
   async engageMessageSendTestEmail(

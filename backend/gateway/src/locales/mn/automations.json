@@ -76,6 +76,7 @@
 
   "sender": "Илгээгч",
   "use-company-email": "Компанийн имэйл ашиглах",
+  "verified-sender-email": "Баталгаажсан илгээгч",
   "custom-sender-email": "Өөр илгээгч имэйл",
   "to": "Хүлээн авагч",
   "cc": "CC",

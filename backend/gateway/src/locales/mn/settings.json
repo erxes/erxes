@@ -121,7 +121,11 @@
     "template": "Загвар",
     "temp-desc": "Имэйл erxes-ийн загвараар илгээгдэнэ.",
     "default-email-service": "Анхдагч имэйл үйлчилгээ",
-    "default-email-service-desc": "Анхдагч имэйл үйлчилгээ нь SES байна."
+    "default-email-service-desc": "Анхдагч имэйл үйлчилгээ нь SES байна.",
+    "sendgrid-api-key-desc": "SendGrid account-ийн API key. Имэйл илгээх болон илгээгч удирдахад ашиглана.",
+    "sendgrid-subuser-desc": "Заавал биш. Илгээгчийн удирдлагыг тодорхой SendGrid subuser-ээр хязгаарлана.",
+    "verified-senders": "Баталгаажсан илгээгчид",
+    "verified-senders-desc": "Provider-ийн зөвшөөрсөн илгээгч хаягууд. Баталгаажуулах линкийг нээсний дараа л илгээх боломжтой болно."
   },
   "tags": {
     "_": "Таг",

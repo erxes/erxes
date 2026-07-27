@@ -33,6 +33,29 @@ export const loadEmailProviderConfig = async (
 };
 
 /**
+ * The address the "company email" sender resolves to.
+ *
+ * On SaaS every tenant sends through the one provider account erxes owns, so
+ * the sender has to stay the address erxes verified there — a tenant's own
+ * `COMPANY_EMAIL_FROM` is not registered with the provider and would be
+ * rejected. Self-hosted installs own their provider account, so their
+ * configured address wins and the env only covers installs that never set one.
+ *
+ * Lives here so the automations service and the settings UI answer this the
+ * same way; the UI must never offer a sender the send path would refuse.
+ */
+export const resolveDefaultSenderEmail = ({
+  isSaas,
+  companyEmailFrom,
+  fallbackEmail,
+}: {
+  isSaas: boolean;
+  companyEmailFrom?: string;
+  fallbackEmail?: string;
+}): string =>
+  (isSaas ? fallbackEmail : companyEmailFrom || fallbackEmail) || '';
+
+/**
  * A stable fingerprint of the config, used to invalidate cached providers when
  * a tenant edits its mail settings.
  */
