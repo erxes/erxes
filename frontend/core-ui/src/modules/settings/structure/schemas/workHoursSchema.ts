@@ -14,9 +14,24 @@ const WORK_HOURS_SCHEMA = z
   .optional()
   .nullable();
 
-export const WORKING_HOURS_SCHEMA = z.object(
-  Object.values(WorkDay).reduce((acc, day) => {
-    (acc as Record<string, any>)[day] = WORK_HOURS_SCHEMA;
-    return acc;
-  }, {} as Record<string, any>),
-);
+export const HOLIDAY_SCHEMA = z.object({
+  _id: z.string(),
+  name: z.string().default(''),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  inactive: z.boolean().default(false),
+  // Optional working hours during the holiday period.
+  startFrom: z.string().optional(),
+  endTo: z.string().optional(),
+});
+
+export const WORKING_HOURS_SCHEMA = z.object({
+  ...Object.values(WorkDay).reduce(
+    (acc, day) => {
+      acc[day] = WORK_HOURS_SCHEMA;
+      return acc;
+    },
+    {} as Record<WorkDay, typeof WORK_HOURS_SCHEMA>,
+  ),
+  holidays: z.array(HOLIDAY_SCHEMA).default([]),
+});
