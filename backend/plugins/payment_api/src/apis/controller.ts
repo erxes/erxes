@@ -169,6 +169,10 @@ export const callbackHandler = async (req, res) => {
               console.error('Error: ', e);
             }
           }
+
+          if(invoice.redirectUri) {
+            return res.redirect(invoice.redirectUri);
+          }
         } catch (e) {
           console.error('Error: ', e);
         }
