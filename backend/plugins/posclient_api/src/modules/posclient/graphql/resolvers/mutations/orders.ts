@@ -1074,7 +1074,6 @@ const orderMutations: Record<string, Resolver> = {
     { _id, billType, registerNumber }: ISettlePaymentParams,
     { config, models, subdomain, posUser }: IContext,
   ) {
-    assertPosUser(posUser);
 
     const order = await models.Orders.getOrder(_id);
 
