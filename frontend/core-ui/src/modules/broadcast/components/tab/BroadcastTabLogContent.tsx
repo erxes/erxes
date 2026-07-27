@@ -6,6 +6,7 @@ import {
   IconInfoCircle,
 } from '@tabler/icons-react';
 import { cn, Empty, RelativeDateDisplay } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { BROADCAST_TRACES } from '../../graphql/queries';
 
 type TraceType = 'success' | 'failure' | 'regular';
@@ -65,6 +66,7 @@ const TraceRow = ({ trace, isLast }: { trace: any; isLast: boolean }) => {
 };
 
 export const BroadcastTabLogContent = ({ message }: { message: any }) => {
+  const { t } = useTranslation('broadcasts', { keyPrefix: 'log' });
   const { data, loading } = useQuery(BROADCAST_TRACES, {
     variables: { engageMessageId: message?._id },
     skip: !message?._id,
@@ -75,7 +77,7 @@ export const BroadcastTabLogContent = ({ message }: { message: any }) => {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       <div className="flex-1 overflow-y-auto px-8 py-5">
-        {loading && <p className="text-sm text-muted-foreground">Loading...</p>}
+        {loading && <p className="text-sm text-muted-foreground">{t('loading', 'Loading...')}</p>}
 
         {!loading && traces.length === 0 && (
           <Empty>
@@ -83,9 +85,9 @@ export const BroadcastTabLogContent = ({ message }: { message: any }) => {
               <Empty.Media variant="icon">
                 <IconActivity />
               </Empty.Media>
-              <Empty.Title>No traces yet</Empty.Title>
+              <Empty.Title>{t('no-traces', 'No traces yet')}</Empty.Title>
               <Empty.Description>
-                Traces will appear here once the broadcast starts sending.
+                {t('no-traces-description', 'Traces will appear here once the broadcast starts sending.')}
               </Empty.Description>
             </Empty.Header>
           </Empty>

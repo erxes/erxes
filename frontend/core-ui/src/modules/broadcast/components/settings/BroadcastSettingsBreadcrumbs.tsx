@@ -17,7 +17,7 @@ export function BroadcastSettingsBreadcrumbs() {
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
-                <Link to={pathname}>{t('broadcast-config')}</Link>
+                <Link to={pathname}>{t('broadcast-config', 'Broadcast config')}</Link>
               </Button>
             </Breadcrumb.Item>
           </Breadcrumb.List>

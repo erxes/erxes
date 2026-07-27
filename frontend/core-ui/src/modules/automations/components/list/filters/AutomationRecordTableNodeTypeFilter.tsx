@@ -3,18 +3,20 @@ import { Combobox, Command, IconComponent } from 'erxes-ui';
 import { AutomationNodeType } from '@/automations/types';
 import { IconCheck } from '@tabler/icons-react';
 import { useAutomationRecordTableNodeTypeFilter } from '@/automations/hooks/useAutomationRecordTableNodeTypeFilter';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationRecordTableNodeTypeFilter = ({
   nodeType,
 }: {
   nodeType: AutomationNodeType.Action | AutomationNodeType.Trigger;
 }) => {
+  const { t } = useTranslation('automations');
   const { list, queryValue, loading, error, queryKey, setQueries } =
     useAutomationRecordTableNodeTypeFilter(nodeType);
 
   return (
     <Command>
-      <Command.Input placeholder="Search" focusOnMount />
+      <Command.Input placeholder={t('search-filter', 'Search')} focusOnMount />
 
       <Command.List>
         <Combobox.Empty error={error} loading={loading} />

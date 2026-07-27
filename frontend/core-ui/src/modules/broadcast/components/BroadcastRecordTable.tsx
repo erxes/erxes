@@ -1,15 +1,17 @@
 import { broadcastColumns } from '@/broadcast/components/BroadcastColumns';
 import { useMessages } from '@/broadcast/hooks/useBroadcastMessages';
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { BroadcastCommandBar } from './BroadcastCommandBar';
 
 export const BroadcastRecordTable = () => {
+  const { t } = useTranslation('broadcasts');
   const { messages, pageInfo, loading, handleFetchMore } = useMessages();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
-      columns={broadcastColumns}
+      columns={broadcastColumns(t)}
       data={messages || [{}]}
       stickyColumns={['more', 'checkbox', 'avatar', 'name']}
       className="m-3"

@@ -154,7 +154,7 @@ export function CPUserDetailGeneral() {
               onClick={() => setSetPasswordOpen(true)}
             >
               <IconKey className="w-4 h-4" />
-              {t('clientPortalUser.setPassword', {
+              {t('clientPortalUser.setPassword.title', {
                 defaultValue: 'Set password',
               })}
             </Button>

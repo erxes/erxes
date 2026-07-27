@@ -11,7 +11,7 @@ import { getApprovalRequestUserName } from './approvalRequestUtils';
 type ApprovalRequestDetailSheetProps = {
   request: ApprovalRequest;
   onCompleted: () => void;
-  t: (key: string) => string;
+  t: (key: string, defaultValue: string) => string;
   children: ReactNode;
 };
 
@@ -64,7 +64,7 @@ export const ApprovalRequestDetailSheet = ({
       <Sheet.View className="sm:max-w-xl">
         <Sheet.Header>
           <div className="min-w-0">
-            <Sheet.Title>{t('request-details')}</Sheet.Title>
+            <Sheet.Title>{t('request-details', 'Request details')}</Sheet.Title>
             <Sheet.Description className="truncate">
               {targetLabel}
             </Sheet.Description>
@@ -87,30 +87,30 @@ export const ApprovalRequestDetailSheet = ({
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <DetailField label={t('status')}>
+              <DetailField label={t('status', 'Status')}>
                 <Badge variant="secondary">
-                  {t(`status-${request.status}`)}
+                  {t(`status-${request.status}`, request.status)}
                 </Badge>
               </DetailField>
-              <DetailField label={t('requester')}>
+              <DetailField label={t('requester', 'Requester')}>
                 {getApprovalRequestUserName(request.requester)}
               </DetailField>
-              <DetailField label={t('created')}>
+              <DetailField label={t('created', 'Created')}>
                 <RelativeDateDisplay.Value value={request.createdAt} />
               </DetailField>
-              <DetailField label={t('resolved')}>
+              <DetailField label={t('resolved', 'Resolved')}>
                 {request.resolvedAt ? (
                   <RelativeDateDisplay.Value value={request.resolvedAt} />
                 ) : (
                   '-'
                 )}
               </DetailField>
-              <DetailField label={t('approvers')}>
+              <DetailField label={t('approvers', 'Approvers')}>
                 {approverNames.length ? approverNames.join(', ') : '-'}
               </DetailField>
             </div>
 
-            <DetailField label={t('reason')}>
+            <DetailField label={t('reason', 'Reason')}>
               <div className="whitespace-pre-wrap break-words rounded-md border bg-muted/30 p-3 text-muted-foreground">
                 {request.reason || '-'}
               </div>
@@ -119,7 +119,7 @@ export const ApprovalRequestDetailSheet = ({
             <Separator />
 
             <div className="space-y-3">
-              <div className="text-sm font-medium">{t('decision-history')}</div>
+              <div className="text-sm font-medium">{t('decision-history', 'Decision history')}</div>
               {request.decisions.length ? (
                 <div className="space-y-2">
                   {request.decisions.map((decision) => (
@@ -136,7 +136,7 @@ export const ApprovalRequestDetailSheet = ({
                           })}
                         </div>
                         <Badge variant="secondary">
-                          {t(`status-${decision.decision}`)}
+                          {t(`status-${decision.decision}`, decision.decision)}
                         </Badge>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
@@ -152,7 +152,7 @@ export const ApprovalRequestDetailSheet = ({
                 </div>
               ) : (
                 <div className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-                  {t('no-decisions')}
+                  {t('no-decisions', 'No decisions yet')}
                 </div>
               )}
             </div>

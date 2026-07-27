@@ -1,13 +1,7 @@
-import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
-import { AutomationNodesType, NodeData } from '@/automations/types';
-import {
-  IconDots,
-  IconEdit,
-  IconSettings,
-  IconTrash,
-} from '@tabler/icons-react';
-import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
+import { NodeData } from '@/automations/types';
+import { IconDots, IconSettings, IconTrash } from '@tabler/icons-react';
+import { AlertDialog, Button, DropdownMenu } from 'erxes-ui';
 import { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NodeEditMetaDataDialog } from './NodeEditMetaDataDialog';
@@ -19,6 +13,7 @@ export const NodeDropdownActions = ({
   id: string;
   data: NodeData;
 }) => {
+  const { t } = useTranslation('automations');
   const {
     isOpenDialog,
     isOpenDropDown,
@@ -70,7 +65,7 @@ export const NodeDropdownActions = ({
             onClick={(e) => openNodeConfigurationForm(id)}
           >
             <IconSettings className="size-4" />
-            Configuration
+            {t('configuration', 'Configuration')}
           </Button>
         </DropdownMenu.Item>
         <NodeRemoveActionDialog
@@ -105,21 +100,21 @@ export const NodeRemoveActionDialog = ({
             onDoubleClick={(e) => e.stopPropagation()}
           >
             <IconTrash className="size-4" />
-            {t('delete')}
+            {t('delete', 'Delete')}
           </Button>
         </DropdownMenu.Item>
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>{t('delete-confirm-title')}</AlertDialog.Title>
+          <AlertDialog.Title>{t('delete-confirm-title', 'Are you absolutely sure?')}</AlertDialog.Title>
           <AlertDialog.Description>
-            {t('delete-confirm-description')}
+            {t('delete-confirm-description', 'This action cannot be undone.')}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+          <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
           <AlertDialog.Action onClick={onRemoveNode}>
-            {t('continue')}
+            {t('continue', 'Continue')}
           </AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>

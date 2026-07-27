@@ -73,7 +73,7 @@ export const LogContentTypeFilter = () => {
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder={t('logs.searchContentType')}
+        placeholder={t('logs.searchContentType', 'Search content type')}
         value={search}
         onValueChange={setSearch}
       />

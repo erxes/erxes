@@ -10,20 +10,22 @@ import {
 } from 'erxes-ui';
 import { IconCopy, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TokenCell = ({ token }: { token: string }) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation('settings');
   const masked = token.slice(0, 6) + '••••••••••••••••••••';
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(token);
       setCopied(true);
-      toast({ variant: 'success', title: 'Token copied to clipboard' });
+      toast({ variant: 'success', title: t('apps.token-copied', 'Token copied to clipboard') });
       setTimeout(() => setCopied(false), 1000);
     } catch {
-      toast({ variant: 'destructive', title: 'Failed to copy token' });
+      toast({ variant: 'destructive', title: t('apps.token-copy-failed', 'Failed to copy token') });
     }
   };
 
@@ -40,12 +42,12 @@ const TokenCell = ({ token }: { token: string }) => {
   );
 };
 
-export const appsSettingsColumns: ColumnDef<IApp>[] = [
+export const getAppsSettingsColumns = (t: (key: string, fallback: string) => string): ColumnDef<IApp>[] => [
   { ...RecordTable.checkboxColumn, size: 20 } as ColumnDef<IApp>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: 'App Name',
+    header: t('apps.app-name', 'App Name'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -53,13 +55,13 @@ export const appsSettingsColumns: ColumnDef<IApp>[] = [
   {
     id: 'token',
     accessorKey: 'token',
-    header: 'Token',
+    header: t('apps.token', 'Token'),
     cell: ({ cell }) => <TokenCell token={cell.getValue() as string} />,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: 'Status',
+    header: t('status', 'Status'),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (
@@ -74,7 +76,7 @@ export const appsSettingsColumns: ColumnDef<IApp>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: 'Created At',
+    header: t('created-at', 'Created At'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {format(new Date(cell.getValue() as string), 'yyyy/MM/dd') ||

@@ -9,8 +9,10 @@ import {
 } from 'erxes-ui';
 import { useOAuthClientsRemove } from '../hooks/useOAuthClientsRemove';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const OAuthClientsCommandBar = () => {
+  const { t } = useTranslation('settings');
   const { table } = RecordTable.useRecordTable();
   const { oauthClientAppsRemove } = useOAuthClientsRemove();
   const { confirm } = useConfirm();
@@ -31,7 +33,7 @@ export const OAuthClientsCommandBar = () => {
               variables: { _id },
               onError: (error) => {
                 toast({
-                  title: 'Error',
+                  title: t('error', 'Error'),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -58,7 +60,7 @@ export const OAuthClientsCommandBar = () => {
             <Separator.Inline />
             <Button variant="destructive" onClick={onRemove}>
               <IconTrash />
-              Delete
+              {t('delete', 'Delete')}
             </Button>
           </>
         </Can>

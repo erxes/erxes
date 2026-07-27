@@ -151,7 +151,7 @@ export const DelayConfigForm = ({
                 control={control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('wait-for')}</Form.Label>
+                    <Form.Label>{t('wait-for', 'Wait for')}</Form.Label>
                     <Input
                       {...field}
                       type="number"
@@ -169,7 +169,7 @@ export const DelayConfigForm = ({
                 control={control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('time-unit')}</Form.Label>
+                    <Form.Label>{t('time-unit', 'Time unit')}</Form.Label>
                     <Select
                       value={field.value}
                       onValueChange={(value) =>
@@ -177,14 +177,14 @@ export const DelayConfigForm = ({
                       }
                     >
                       <Select.Trigger id="time-unit" className="h-9">
-                        <Select.Value placeholder={t('select-unit')} />
+                        <Select.Value placeholder={t('select-unit', 'Select unit')} />
                       </Select.Trigger>
                       <Select.Content>
-                        <Select.Item value="minute">{t('minutes')}</Select.Item>
-                        <Select.Item value="hour">{t('hours')}</Select.Item>
-                        <Select.Item value="day">{t('days')}</Select.Item>
-                        <Select.Item value="month">{t('month')}</Select.Item>
-                        <Select.Item value="year">{t('year')}</Select.Item>
+                        <Select.Item value="minute">{t('minutes', 'Minutes')}</Select.Item>
+                        <Select.Item value="hour">{t('hours', 'Hours')}</Select.Item>
+                        <Select.Item value="day">{t('days', 'Days')}</Select.Item>
+                        <Select.Item value="month">{t('month', 'Month')}</Select.Item>
+                        <Select.Item value="year">{t('year', 'Year')}</Select.Item>
                       </Select.Content>
                     </Select>
                     <Form.Message />

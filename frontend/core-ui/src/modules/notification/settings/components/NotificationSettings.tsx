@@ -2,8 +2,10 @@ import { Switch } from 'erxes-ui';
 import { useNotificationSettingsContext } from '../context/NotificationSettingsProvider';
 import { NotificationSettingsChannelChip } from './NotificationSettingsChannelChip';
 import { NotificationSettingsModule } from './NotificationSettingsModule';
+import { useTranslation } from 'react-i18next';
 
 export const NotificationSettings = () => {
+  const { t } = useTranslation('notification');
   const { plugin, togglePlugin } = useNotificationSettingsContext();
 
   return (
@@ -23,7 +25,7 @@ export const NotificationSettings = () => {
                 />
               </div>
               <p className="mb-3 text-muted-foreground text-xs">
-                Receive notifications from this plugin
+                {t('receive-notifications-from-plugin', 'Receive notifications from this plugin')}
               </p>
 
               <NotificationSettingsChannelChip />

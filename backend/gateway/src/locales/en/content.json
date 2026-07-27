@@ -320,7 +320,7 @@
   "published": "Published",
   "publishing": "Publishing...",
   "ready": "Ready",
-  "records-found": "records found",
+  "records-found": "{{count}} records found",
   "remove": "Remove",
   "remove-parent": "Remove parent",
   "remove-post-type": "Remove post type",

@@ -14,10 +14,12 @@ import {
   useSetQueryStateByKey,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Can, MembersInline } from 'ui-modules';
 import { DocumentPreview } from './DocumentPreview';
 
 export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
+  const { t } = useTranslation('documents');
   const setQuery = useSetQueryStateByKey();
   const { removeDocument } = useDocumentRemove();
   const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
 
           <div className="flex items-start justify-between gap-2 p-4">
             <h3 className="truncate text-sm font-semibold leading-tight">
-              {document.name || 'Untitled'}
+              {document.name || t('untitled', 'Untitled')}
             </h3>
             <Can action="removeDocuments">
               <DropdownMenu>
@@ -71,7 +73,7 @@ export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
                     onSelect={() => setDocumentToDelete(document._id)}
                   >
                     <IconTrash />
-                    Delete
+                    {t('delete', 'Delete')}
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu>
@@ -105,16 +107,15 @@ export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
       >
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>Delete document</AlertDialog.Title>
+            <AlertDialog.Title>{t('delete-document', 'Delete document')}</AlertDialog.Title>
             <AlertDialog.Description>
-              This document will be permanently deleted. This action cannot be
-              undone.
+              {t('delete-document-description', 'This document will be permanently deleted. This action cannot be undone.')}
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+            <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
             <AlertDialog.Action onClick={handleDeleteDocument}>
-              Delete document
+              {t('delete-document', 'Delete document')}
             </AlertDialog.Action>
           </AlertDialog.Footer>
         </AlertDialog.Content>

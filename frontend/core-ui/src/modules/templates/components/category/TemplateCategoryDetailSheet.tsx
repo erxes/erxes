@@ -1,9 +1,11 @@
 import { useTemplateCategoryDetail } from '@/templates/hooks/useTemplateCategoryDetail';
 import { IconLoader2 } from '@tabler/icons-react';
 import { Sheet, useQueryState, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { TemplateCategoryForm } from './TemplateCategoryForm';
 
 export const TemplateCategoryDetailSheet = () => {
+  const { t } = useTranslation('templates');
   const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
 
   const { toast } = useToast();
@@ -33,7 +35,7 @@ export const TemplateCategoryDetailSheet = () => {
         ) : (
           <>
             <Sheet.Header>
-              <Sheet.Title>Edit Category</Sheet.Title>
+              <Sheet.Title>{t('category.edit-category', 'Edit Category')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
 
@@ -41,7 +43,7 @@ export const TemplateCategoryDetailSheet = () => {
               category={categoryDetail}
               onCompleted={() => {
                 toast({
-                  title: 'Category updated successfully',
+                  title: t('category.update-success', 'Category updated successfully'),
                   variant: 'success',
                 });
                 setOpen(null);

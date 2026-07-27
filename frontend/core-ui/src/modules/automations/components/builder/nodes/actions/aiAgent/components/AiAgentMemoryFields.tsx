@@ -1,8 +1,10 @@
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { Form, Input, Select, Switch } from 'erxes-ui';
 import { useFormContext, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const AiAgentMemoryFields = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
 
   const readEnabled = useWatch({
@@ -18,10 +20,9 @@ export const AiAgentMemoryFields = () => {
   return (
     <div className="grid gap-4 rounded-md border bg-muted/20 p-4">
       <div className="space-y-1">
-        <h4 className="text-sm font-medium">Memory</h4>
+        <h4 className="text-sm font-medium">{t('memory', 'Memory')}</h4>
         <p className="text-xs text-muted-foreground">
-          Reuse saved AI results in later steps and optionally persist this AI
-          result for future actions.
+          {t('memory-description', 'Reuse saved AI results in later steps and optionally persist this AI result for future actions.')}
         </p>
       </div>
 
@@ -31,9 +32,9 @@ export const AiAgentMemoryFields = () => {
         render={({ field }) => (
           <Form.Item className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
             <div className="space-y-1">
-              <Form.Label>Read From Memory</Form.Label>
+              <Form.Label>{t('read-from-memory', 'Read From Memory')}</Form.Label>
               <Form.Description>
-                Load previously saved automation memory into this AI step.
+                {t('read-from-memory-description', 'Load previously saved automation memory into this AI step.')}
               </Form.Description>
             </div>
             <Form.Control>
@@ -50,13 +51,12 @@ export const AiAgentMemoryFields = () => {
             name="memory.read.namespace"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Read Namespace</Form.Label>
+                <Form.Label>{t('read-namespace', 'Read Namespace')}</Form.Label>
                 <Form.Control>
                   <Input placeholder="main" {...field} />
                 </Form.Control>
                 <Form.Description>
-                  Use the same namespace across related AI actions to share
-                  memory.
+                  {t('read-namespace-description', 'Use the same namespace across related AI actions to share memory.')}
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
@@ -71,9 +71,9 @@ export const AiAgentMemoryFields = () => {
         render={({ field }) => (
           <Form.Item className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
             <div className="space-y-1">
-              <Form.Label>Save Result To Memory</Form.Label>
+              <Form.Label>{t('save-result-to-memory', 'Save Result To Memory')}</Form.Label>
               <Form.Description>
-                Persist this AI result so later actions can reuse it.
+                {t('save-result-to-memory-description', 'Persist this AI result so later actions can reuse it.')}
               </Form.Description>
             </div>
             <Form.Control>
@@ -90,7 +90,7 @@ export const AiAgentMemoryFields = () => {
             name="memory.write.namespace"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Write Namespace</Form.Label>
+                <Form.Label>{t('write-namespace', 'Write Namespace')}</Form.Label>
                 <Form.Control>
                   <Input placeholder="main" {...field} />
                 </Form.Control>
@@ -104,12 +104,12 @@ export const AiAgentMemoryFields = () => {
             name="memory.write.key"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Memory Key</Form.Label>
+                <Form.Label>{t('memory-key', 'Memory Key')}</Form.Label>
                 <Form.Control>
                   <Input placeholder="attributes" {...field} />
                 </Form.Control>
                 <Form.Description>
-                  Examples: `lastTopic`, `attributes`, `lastReplyText`
+                  {t('memory-key-description', 'Examples: `lastTopic`, `attributes`, `lastReplyText`')}
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
@@ -121,13 +121,12 @@ export const AiAgentMemoryFields = () => {
             name="memory.write.resultPath"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Result Path</Form.Label>
+                <Form.Label>{t('result-path', 'Result Path')}</Form.Label>
                 <Form.Control>
                   <Input placeholder="attributes" {...field} />
                 </Form.Control>
                 <Form.Description>
-                  Leave empty to save the whole result. Examples: `topicId`,
-                  `attributes`, `text`
+                  {t('result-path-description', 'Leave empty to save the whole result. Examples: `topicId`, `attributes`, `text`')}
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
@@ -140,18 +139,18 @@ export const AiAgentMemoryFields = () => {
               name="memory.write.mode"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Write Mode</Form.Label>
+                  <Form.Label>{t('write-mode', 'Write Mode')}</Form.Label>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
-                      <Select.Value placeholder="Select mode" />
+                      <Select.Value placeholder={t('select-mode', 'Select mode')} />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="replace">Replace</Select.Item>
-                      <Select.Item value="merge">Merge</Select.Item>
+                      <Select.Item value="replace">{t('replace', 'Replace')}</Select.Item>
+                      <Select.Item value="merge">{t('merge', 'Merge')}</Select.Item>
                     </Select.Content>
                   </Select>
                   <Form.Description>
-                    Use `merge` when saving structured attributes.
+                    {t('write-mode-description', 'Use `merge` when saving structured attributes.')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -163,7 +162,7 @@ export const AiAgentMemoryFields = () => {
               name="memory.write.ttlMinutes"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>TTL (minutes)</Form.Label>
+                  <Form.Label>{t('ttl-minutes', 'TTL (minutes)')}</Form.Label>
                   <Form.Control>
                     <Input
                       type="number"
@@ -176,7 +175,7 @@ export const AiAgentMemoryFields = () => {
                     />
                   </Form.Control>
                   <Form.Description>
-                    Saved memory expires automatically after this duration.
+                    {t('ttl-minutes-description', 'Saved memory expires automatically after this duration.')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>

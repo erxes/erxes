@@ -6,6 +6,7 @@ import { NotificationItem } from '@/notification/components/NotificationItem';
 import { useNotifications } from '@/notification/hooks/useNotifications';
 import { hiddenNotificationIdsState } from '../states/notificationState';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const Notifications = () => {
   return (
@@ -17,6 +18,7 @@ export const Notifications = () => {
 };
 
 const NotificationList = () => {
+  const { t } = useTranslation('notification');
   const hiddenNotificationIds = useAtomValue(hiddenNotificationIdsState);
 
   const { notifications, loading, handleFetchMore, totalCount } =
@@ -36,7 +38,7 @@ const NotificationList = () => {
           <IconInbox />
         </div>
         <span className="text-sm">
-          No notifications to display at the moment.
+          {t('no-notifications', 'No notifications to display at the moment.')}
         </span>
       </div>
     );
@@ -67,7 +69,7 @@ const NotificationList = () => {
                 >
                   <div>
                     <Spinner containerClassName="inline-flex flex-none" />
-                    loading more...
+                    {t('loading-more', 'loading more...')}
                   </div>
                 </Button>
               )}

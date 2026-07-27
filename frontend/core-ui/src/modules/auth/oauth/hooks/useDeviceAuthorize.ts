@@ -5,8 +5,10 @@ import { REACT_APP_API_URL, toast } from 'erxes-ui';
 
 import { buildActionGroups } from '../utils/buildActionGroups';
 import type { ConsentDetailsResponse, ConsentScope } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const useDeviceAuthorize = () => {
+  const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
@@ -58,9 +60,9 @@ export const useDeviceAuthorize = () => {
         if (controller.signal.aborted) return;
 
         toast({
-          title: 'Could not load access request',
+          title: t('could-not-load-access-request', 'Could not load access request'),
           description:
-            error instanceof Error ? error.message : 'Something went wrong.',
+            error instanceof Error ? error.message : t('something-went-wrong', 'Something went wrong'),
           variant: 'destructive',
         });
       } finally {
@@ -94,8 +96,8 @@ export const useDeviceAuthorize = () => {
   const approve = async () => {
     if (!userCode) {
       toast({
-        title: 'Missing code',
-        description: 'Device authorization code is missing.',
+        title: t('missing-code', 'Missing code'),
+        description: t('device-code-missing', 'Device authorization code is missing.'),
         variant: 'destructive',
       });
       return;
@@ -103,8 +105,8 @@ export const useDeviceAuthorize = () => {
 
     if (selectedScopes.length === 0) {
       toast({
-        title: 'Select at least one permission',
-        description: 'Choose the access you want to grant before authorizing.',
+        title: t('select-at-least-one-permission', 'Select at least one permission'),
+        description: t('choose-access-before-authorizing', 'Choose the access you want to grant before authorizing.'),
         variant: 'destructive',
       });
       return;
@@ -139,15 +141,15 @@ export const useDeviceAuthorize = () => {
       setApproved(true);
 
       toast({
-        title: 'Access granted',
-        description: 'You can return to the application now.',
+        title: t('access-granted', 'Access granted'),
+        description: t('you-can-return-to-app', 'You can return to the application now.'),
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: 'Authorization failed',
+        title: t('authorization-failed', 'Authorization failed'),
         description:
-          error instanceof Error ? error.message : 'Something went wrong.',
+          error instanceof Error ? error.message : t('something-went-wrong', 'Something went wrong'),
         variant: 'destructive',
       });
     } finally {
@@ -179,9 +181,9 @@ export const useDeviceAuthorize = () => {
       setDenied(true);
     } catch (error) {
       toast({
-        title: 'Cancel failed',
+        title: t('cancel-failed', 'Cancel failed'),
         description:
-          error instanceof Error ? error.message : 'Something went wrong.',
+          error instanceof Error ? error.message : t('something-went-wrong', 'Something went wrong'),
         variant: 'destructive',
       });
     } finally {

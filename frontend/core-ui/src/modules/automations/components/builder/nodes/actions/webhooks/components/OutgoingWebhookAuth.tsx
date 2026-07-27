@@ -2,8 +2,10 @@ import { TOutgoingWebhookForm } from '@/automations/components/builder/nodes/act
 import { IconKey } from '@tabler/icons-react';
 import { Form, Input, Label, Select, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const OutgoingWebhookAuth = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TOutgoingWebhookForm>();
 
   return (
@@ -17,7 +19,7 @@ export const OutgoingWebhookAuth = () => {
 
             return (
               <Form.Item>
-                <Form.Label>Authentication</Form.Label>
+                <Form.Label>{t('authentication', 'Authentication')}</Form.Label>
                 <Select
                   defaultValue="none"
                   value={authObj?.type}
@@ -29,10 +31,10 @@ export const OutgoingWebhookAuth = () => {
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="none">None</Select.Item>
-                    <Select.Item value="basic">Basic Auth</Select.Item>
-                    <Select.Item value="bearer">Bearer Token Auth</Select.Item>
-                    <Select.Item value="jwt">JWT Bearer</Select.Item>
+                    <Select.Item value="none">{t('none', 'None')}</Select.Item>
+                    <Select.Item value="basic">{t('basic-auth', 'Basic Auth')}</Select.Item>
+                    <Select.Item value="bearer">{t('bearer-token-auth', 'Bearer Token Auth')}</Select.Item>
+                    <Select.Item value="jwt">{t('jwt-bearer', 'JWT Bearer')}</Select.Item>
                   </Select.Content>
                 </Select>
 
@@ -73,10 +75,11 @@ const OutgoingWebhookBasicType = ({
   authObj: Extract<TOutgoingWebhookForm['auth'], { type: 'basic' }>;
   onChange: (...event: any[]) => void;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
-        <Label>User</Label>
+        <Label>{t('user', 'User')}</Label>
         <Input
           placeholder="Username or expression"
           className="font-mono"
@@ -89,7 +92,7 @@ const OutgoingWebhookBasicType = ({
         />
       </div>
       <div className="space-y-2">
-        <Label>Password</Label>
+        <Label>{t('password', 'Password')}</Label>
         <Input
           type="password"
           placeholder="Password or expression"
@@ -112,9 +115,10 @@ const OutgoingWebhookBearerType = ({
   authObj: Extract<TOutgoingWebhookForm['auth'], { type: 'bearer' }>;
   onChange: (...event: any[]) => void;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <div className="space-y-2">
-      <Label>Value</Label>
+      <Label>{t('value', 'Value')}</Label>
       <Input
         placeholder="Bearer {{ $vars.token }}"
         className="font-mono"
@@ -131,11 +135,12 @@ const OutgoingWebhookJWTType = ({
   authObj: Extract<TOutgoingWebhookForm['auth'], { type: 'jwt' }>;
   onChange: (...event: any[]) => void;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>JWT Secret</Label>
+          <Label>{t('jwt-secret', 'JWT Secret')}</Label>
           <Input
             type="password"
             placeholder="Your JWT signing secret"
@@ -149,7 +154,7 @@ const OutgoingWebhookJWTType = ({
           />
         </div>
         <div className="space-y-2">
-          <Label>Algorithm</Label>
+          <Label>{t('algorithm', 'Algorithm')}</Label>
           <Select
             defaultValue="HS256"
             value={authObj.algorithm}
@@ -176,7 +181,7 @@ const OutgoingWebhookJWTType = ({
       </div>
 
       <div className="space-y-2">
-        <Label>JWT Header (JSON)</Label>
+        <Label>{t('jwt-header-json', 'JWT Header (JSON)')}</Label>
         <Textarea
           placeholder='{"typ": "JWT", "alg": "HS256"}'
           className="font-mono text-sm min-h-[80px]"
@@ -190,7 +195,7 @@ const OutgoingWebhookJWTType = ({
       </div>
 
       <div className="space-y-2">
-        <Label>JWT Payload (JSON)</Label>
+        <Label>{t('jwt-payload-json', 'JWT Payload (JSON)')}</Label>
         <Textarea
           placeholder='{"sub": "{{ workflow.id }}", "iat": "{{ now }}", "exp": "{{ now + 3600 }}"}'
           className="font-mono text-sm min-h-[120px]"
@@ -204,7 +209,7 @@ const OutgoingWebhookJWTType = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Token Placement</Label>
+        <Label>{t('token-placement', 'Token Placement')}</Label>
         <Select
           defaultValue="header"
           value={authObj.placement}
@@ -214,9 +219,9 @@ const OutgoingWebhookJWTType = ({
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
-            <Select.Item value="header">Authorization Header</Select.Item>
-            <Select.Item value="query">Query Parameter</Select.Item>
-            <Select.Item value="body">Request Body</Select.Item>
+            <Select.Item value="header">{t('authorization-header', 'Authorization Header')}</Select.Item>
+            <Select.Item value="query">{t('query-parameter', 'Query Parameter')}</Select.Item>
+            <Select.Item value="body">{t('request-body', 'Request Body')}</Select.Item>
           </Select.Content>
         </Select>
       </div>
@@ -226,7 +231,7 @@ const OutgoingWebhookJWTType = ({
           <IconKey className="size-5 text-primary mt-0.5" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-primary">
-              JWT Token Generation
+              {t('jwt-token-generation', 'JWT Token Generation')}
             </p>
             <p className="text-xs text-primary/70">
               n8n will automatically generate and sign the JWT token using your

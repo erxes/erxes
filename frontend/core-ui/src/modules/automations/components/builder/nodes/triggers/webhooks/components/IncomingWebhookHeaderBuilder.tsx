@@ -1,6 +1,7 @@
 import { TIncomingWebhookForm } from '@/automations/components/builder/nodes/triggers/webhooks/states/automationIncomingWebhookFormDefinition';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const IncomingWebhookHeadersBuilder = ({
   headers = [],
@@ -9,6 +10,7 @@ export const IncomingWebhookHeadersBuilder = ({
   headers: TIncomingWebhookForm['headers'];
   onChange: (...event: any[]) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const handleChange = (
     index: number,
     field: 'key' | 'value' | 'description',
@@ -31,14 +33,14 @@ export const IncomingWebhookHeadersBuilder = ({
     return (
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
-          <Form.Label>Headers</Form.Label>
+          <Form.Label>{t('headers', 'Headers')}</Form.Label>
           <IncomingWebhookHeaderAddButton
             onChange={onChange}
             headers={headers}
           />
         </div>
         <div className="text-sm text-muted-foreground text-center py-8">
-          No headers added yet. Click "Add Header" to get started.
+          {t('no-headers-added-yet-click', 'No headers added yet. Click "Add Header" to get started.')}
         </div>
       </div>
     );
@@ -47,7 +49,7 @@ export const IncomingWebhookHeadersBuilder = ({
   return (
     <>
       <div className="flex flex-row justify-between">
-        <Form.Label>Headers</Form.Label>
+        <Form.Label>{t('headers', 'Headers')}</Form.Label>
         <IncomingWebhookHeaderAddButton onChange={onChange} headers={headers} />
       </div>
       <div>
@@ -75,6 +77,7 @@ const IncomingWebhookHeaderAddButton = ({
   onChange: (headers: TIncomingWebhookForm['headers']) => void;
   headers: TIncomingWebhookForm['headers'];
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <Button
       size="sm"
@@ -83,7 +86,7 @@ const IncomingWebhookHeaderAddButton = ({
         onChange([...(headers || []), { key: '', value: '', description: '' }])
       }
     >
-      <IconPlus /> Add Header
+      <IconPlus /> {t('add-header', 'Add Header')}
     </Button>
   );
 };

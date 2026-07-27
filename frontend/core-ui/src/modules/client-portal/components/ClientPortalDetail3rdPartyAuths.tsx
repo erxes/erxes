@@ -5,12 +5,14 @@ import { ClientPortalDetailGoogle } from './ClientPortalDetailGoogle';
 import { ClientPortalDetailFacebook } from './ClientPortalDetailFacebook';
 import { ClientPortalDetailSocialPay } from './ClientPortalDetailSocialPay';
 import { ClientPortalDetailToki } from './ClientPortalDetailToki';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalDetail3rdPartyAuths = ({
   clientPortal = {},
 }: {
   clientPortal?: IClientPortal;
 }) => {
+  const { t } = useTranslation('client-portal');
   const [authType, setAuthType] = useState<string>('google');
   return (
     <InfoCard title="Third Party Authentication">
@@ -22,16 +24,16 @@ export const ClientPortalDetail3rdPartyAuths = ({
           variant="outline"
         >
           <ToggleGroup.Item value="google" className="flex-auto">
-            Google
+            {t('google', 'Google')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="facebook" className="flex-auto">
-            Facebook
+            {t('facebook', 'Facebook')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="socialpay" className="flex-auto">
-            SocialPay
+            {t('socialpay', 'SocialPay')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="toki" className="flex-auto">
-            Toki
+            {t('toki', 'Toki')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs value={authType} onValueChange={setAuthType}>

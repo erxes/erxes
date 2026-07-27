@@ -9,6 +9,7 @@ import {
   TextOverflowTooltip,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useProductCategories } from '../hooks/useProductCategories';
 import { useProductCategoriesTotalCount } from '../hooks/useProductCategoriesTotalCount';
 import {
@@ -38,6 +39,7 @@ export const ProductCategoriesRecordTable = () => {
     searchValue: queries?.searchValue || undefined,
   };
 
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   const { productCategories, loading } = useProductCategories({
     variables: filterVariables,
     fetchPolicy: 'cache-and-network',
@@ -70,7 +72,7 @@ export const ProductCategoriesRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={productCategoryColumns(categoryObject)}
+      columns={productCategoryColumns(categoryObject, t)}
       data={isInitialLoading ? [] : categories || []}
       className="h-full"
     >
@@ -92,11 +94,10 @@ export const ProductCategoriesRecordTable = () => {
   );
 };
 
-export const productCategoryColumns: (
+export const productCategoryColumns = (
   categoryObject: Record<string, IProductCategory>,
-) => ColumnDef<IProductCategory & { hasChildren: boolean }>[] = (
-  categoryObject,
-) => [
+  t: (key: string) => string,
+): ColumnDef<IProductCategory & { hasChildren: boolean }>[] => [
   categoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
     IProductCategory & { hasChildren: boolean }
@@ -121,16 +122,14 @@ export const productCategoryColumns: (
   },
   {
     id: 'name',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabelFilled} label="Name" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconLabelFilled} label={t('name', 'Name')} />,
     accessorKey: 'name',
     cell: ProductCategoryNameCell,
     size: 300,
   },
   {
     id: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     accessorKey: 'code',
     cell: ({ cell }) => {
       return (
@@ -143,9 +142,7 @@ export const productCategoryColumns: (
 
   {
     id: 'productCount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconPackage} label="Product Count" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconPackage} label={t('product-count', 'Product count')} />,
     accessorKey: 'productCount',
     cell: ({ cell }) => {
       return (
@@ -157,7 +154,7 @@ export const productCategoryColumns: (
   },
   {
     id: 'parentId',
-    header: () => <RecordTable.InlineHead icon={IconPackage} label="Parent" />,
+    header: () => <RecordTable.InlineHead icon={IconPackage} label={t('parent', 'Parent')} />,
     accessorKey: 'parentId',
     cell: ({ cell }) => {
       const parent = categoryObject[cell.getValue() as string];

@@ -29,6 +29,7 @@ import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import { ApprovalLockButton } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationAiAgentDetail = ({
   detail,
@@ -37,6 +38,7 @@ export const AutomationAiAgentDetail = ({
   detail?: TAiAgentFormDetail;
   handleSave: (input: AiAgentInput) => Promise<unknown>;
 }) => {
+  const { t } = useTranslation('automations');
   const isEditing = !!detail;
   const [searchParams, setSearchParams] = useSearchParams();
   const queryKind = searchParams.get('kind');
@@ -72,8 +74,8 @@ export const AutomationAiAgentDetail = ({
   const handleSubmit = form.handleSubmit(handleSave, (error) => {
     console.error(error);
     toast({
-      title: 'Invalid form',
-      description: 'Please review the highlighted fields.',
+      title: t('invalid-form', 'Invalid form'),
+      description: t('review-highlighted-fields', 'Please review the highlighted fields.'),
       variant: 'destructive',
     });
   });
@@ -82,11 +84,11 @@ export const AutomationAiAgentDetail = ({
     <div className="flex h-full min-h-0 w-full flex-col">
       <FormProvider {...form}>
         <AutomationSettingsDetailHeader
-          title={isEditing ? 'Edit AI Agent' : 'Create AI Agent'}
+          title={isEditing ? t('edit-ai-agent', 'Edit AI Agent') : t('create-ai-agent', 'Create AI Agent')}
           description={
             isEditing
-              ? 'Update your AI agent'
-              : 'Create a new AI agent for automation'
+              ? t('update-your-ai-agent', 'Update your AI agent')
+              : t('create-new-ai-agent', 'Create a new AI agent for automation')
           }
           backTo={AutomationSettingsPath.Agents}
           actions={
@@ -102,7 +104,7 @@ export const AutomationAiAgentDetail = ({
               )}
               <Button onClick={handleSubmit}>
                 <IconDeviceFloppy className="size-4 " />
-                Save
+                {t('save', 'Save')}
               </Button>
             </div>
           }
@@ -117,19 +119,19 @@ export const AutomationAiAgentDetail = ({
             <Tabs.List className="mt-4 shrink-0">
               <Tabs.Trigger className="w-1/4 gap-2" value="general">
                 <IconSettings className="size-4" />
-                General
+                {t('general', 'General')}
               </Tabs.Trigger>
               <Tabs.Trigger className="w-1/4 gap-2" value="connection">
                 <IconPlug className="size-4" />
-                Connection
+                {t('connection', 'Connection')}
               </Tabs.Trigger>
               <Tabs.Trigger className="w-1/4 gap-2" value="context">
                 <IconBook2 className="size-4" />
-                Context
+                {t('context', 'Context')}
               </Tabs.Trigger>
               <Tabs.Trigger className="w-1/4 gap-2" value="health">
                 <IconActivityHeartbeat className="size-4" />
-                Health
+                {t('health', 'Health')}
               </Tabs.Trigger>
             </Tabs.List>
 

@@ -1,10 +1,12 @@
 import { FormType } from '@/documents/hooks/useDocumentForm';
 import { Button, useQueryState } from 'erxes-ui';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SubmitHandler, useFormContext } from 'react-hook-form';
 import { useDocument } from '../hooks/useDocument';
 
 export const DocumentSheet = () => {
+  const { t } = useTranslation('documents');
   const [documentId, setDocumentId] = useQueryState('documentId');
   const [contentType] = useQueryState<string>('contentType');
 
@@ -37,14 +39,14 @@ export const DocumentSheet = () => {
           setValue('contentType', contentType);
         }}
       >
-        Add Document
+        {t('add-document-btn', 'Add Document')}
       </Button>
     );
   }
 
   return (
     <Button onClick={handleSubmit(submitHandler)} disabled={!hasChanges}>
-      Save Document
+      {t('save-document', 'Save Document')}
     </Button>
   );
 };

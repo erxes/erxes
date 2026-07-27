@@ -27,16 +27,16 @@ export function FileUploadMainFields({
           control={form.control}
           render={({ field }: { field: any }) => (
             <div className="space-y-2">
-              <Form.Label>{t('upload-file-types')}</Form.Label>
+              <Form.Label>{t('upload-file-types', 'Upload file types')}</Form.Label>
               <MultipleSelector
                 {...field}
                 options={fileMimeTypesOptions}
                 badgeClassName={selectorBadgeClassName}
-                placeholder="Select option"
+                placeholder={t('select-option', 'Select option')}
                 hideClearAllButton
                 hidePlaceholderWhenSelected
                 emptyIndicator={
-                  <p className="text-center text-sm">No results found</p>
+                  <p className="text-center text-sm">{t('no-results-found', 'No results found')}</p>
                 }
               />
             </div>
@@ -50,16 +50,16 @@ export function FileUploadMainFields({
           control={form.control}
           render={({ field }: { field: any }) => (
             <div className="space-y-2">
-              <Form.Label>{t('upload-file-types-of-widget')}</Form.Label>
+              <Form.Label>{t('upload-file-types-of-widget', 'Upload file types of widget')}</Form.Label>
               <MultipleSelector
                 {...field}
                 options={fileMimeTypesOptions}
                 badgeClassName={selectorBadgeClassName}
-                placeholder="Select option"
+                placeholder={t('select-option', 'Select option')}
                 hideClearAllButton
                 hidePlaceholderWhenSelected
                 emptyIndicator={
-                  <p className="text-center text-sm">No results found</p>
+                  <p className="text-center text-sm">{t('no-results-found', 'No results found')}</p>
                 }
               />
             </div>
@@ -72,7 +72,7 @@ export function FileUploadMainFields({
         name="FILE_SYSTEM_PUBLIC"
         render={({ field }: { field: any }) => (
           <Form.Item>
-            <Form.Label>{t('bucket-file-system-type')}</Form.Label>
+            <Form.Label>{t('bucket-file-system-type', 'Bucket file system type')}</Form.Label>
             <Form.Control>
               <Select
                 name={field.name}

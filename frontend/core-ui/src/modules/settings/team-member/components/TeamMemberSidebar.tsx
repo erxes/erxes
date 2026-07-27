@@ -14,12 +14,12 @@ export function TeamMemberSidebar() {
             <TeamMemberSidebarItem
               to={`${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`}
             >
-              {t('Members')}
+              {t('members', 'Members')}
             </TeamMemberSidebarItem>
             <TeamMemberSidebarItem
               to={`${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`}
             >
-              {t('Permission groups')}
+              {t('permission-groups', 'Permission groups')}
             </TeamMemberSidebarItem>
           </Sidebar.Menu>
         </Sidebar.GroupContent>

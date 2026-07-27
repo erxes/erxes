@@ -110,8 +110,8 @@ export const ProductDetailSheet = () => {
   const handleSave = (data: ProductFormValues) => {
     if (!productDetail?._id) {
       toast({
-        title: t('errorTitle'),
-        description: t('productIdMissing'),
+        title: t('errorTitle', 'Error'),
+        description: t('productIdMissing', 'Product ID is missing'),
         variant: 'destructive',
       });
       return;
@@ -121,15 +121,15 @@ export const ProductDetailSheet = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: t('successTitle'),
-          description: t('productUpdated'),
+          title: t('successTitle', 'Success'),
+          description: t('productUpdated', 'Product updated successfully'),
           variant: 'success',
         });
       },
       onError: (err) => {
         toast({
-          title: t('errorTitle'),
-          description: err.message || t('unknownError'),
+          title: t('errorTitle', 'Error'),
+          description: err.message || t('unknownError', 'An unknown error occurred'),
           variant: 'destructive',
         });
       },
@@ -139,8 +139,8 @@ export const ProductDetailSheet = () => {
   const handleInvalid = (errors: Record<string, { message?: string }>) => {
     const firstError = Object.values(errors)[0];
     toast({
-      title: t('validationErrorTitle'),
-      description: firstError?.message || t('validationErrorDescription'),
+      title: t('validationErrorTitle', 'Validation error'),
+      description: firstError?.message || t('validationErrorDescription', 'Please check the form fields'),
       variant: 'destructive',
     });
   };
@@ -294,8 +294,8 @@ const ProductDetailEmptyState = () => {
           <Empty.Media variant="icon">
             <IconCloudExclamation />
           </Empty.Media>
-          <Empty.Title>{t('notFound')}</Empty.Title>
-          <Empty.Description>{t('notFoundDescription')}</Empty.Description>
+          <Empty.Title>{t('notFound', 'Product not found')}</Empty.Title>
+          <Empty.Description>{t('notFoundDescription', 'There seems to be no product with this ID.')}</Empty.Description>
         </Empty.Header>
       </Empty>
     </div>
@@ -312,9 +312,9 @@ const ProductDetailErrorState = () => {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>{t('errorTitle')}</Empty.Title>
+          <Empty.Title>{t('errorTitle', 'Error')}</Empty.Title>
           <Empty.Description>
-            {error?.message ?? t('unknownError')}
+            {error?.message ?? t('unknownError', 'An unknown error occurred')}
           </Empty.Description>
         </Empty.Header>
       </Empty>

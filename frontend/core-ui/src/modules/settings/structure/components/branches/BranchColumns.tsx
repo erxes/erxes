@@ -16,13 +16,13 @@ import { useBranchInlineEdit } from '../../hooks/useBranchActions';
 import { ChangeEvent, useState } from 'react';
 import { BranchesMoreColumn } from './BranchesMoreColumn';
 
-export const BranchColumns: ColumnDef<IBranchListItem>[] = [
+export const getBranchColumns = (t: (key: string, fallback: string) => string): ColumnDef<IBranchListItem>[] => [
   BranchesMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IBranchListItem>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     cell: ({ cell }) => {
       const { code, _id } = cell.row.original;
       const [_code, setCode] = useState<string>(code);
@@ -66,7 +66,7 @@ export const BranchColumns: ColumnDef<IBranchListItem>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="title" />,
+    header: () => <RecordTable.InlineHead label={t('title', 'Title')} />,
     cell: ({ cell }) => {
       const { title, _id, code } = cell.row.original;
       const [_title, setTitle] = useState<string>(title);
@@ -108,7 +108,7 @@ export const BranchColumns: ColumnDef<IBranchListItem>[] = [
   {
     id: 'parentId',
     accessorKey: 'parentId',
-    header: () => <RecordTable.InlineHead label="parent" />,
+    header: () => <RecordTable.InlineHead label={t('parent', 'Parent')} />,
     cell: ({ cell }) => {
       const { parentId, _id, code } = cell.row.original;
       const { branchesEdit } = useBranchInlineEdit();
@@ -133,7 +133,7 @@ export const BranchColumns: ColumnDef<IBranchListItem>[] = [
   {
     id: 'address',
     accessorKey: 'address',
-    header: () => <RecordTable.InlineHead label="address" />,
+    header: () => <RecordTable.InlineHead label={t('address', 'Address')} />,
     cell: ({ cell }) => {
       const { address, _id, code } = cell.row.original;
       const [_address, setAddress] = useState<string>(address);
@@ -177,7 +177,7 @@ export const BranchColumns: ColumnDef<IBranchListItem>[] = [
   {
     id: 'userCount',
     accessorKey: 'userCount',
-    header: () => <RecordTable.InlineHead label="team member count" />,
+    header: () => <RecordTable.InlineHead label={t('team-member-count', 'Team member count')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-center flex w-full justify-center">

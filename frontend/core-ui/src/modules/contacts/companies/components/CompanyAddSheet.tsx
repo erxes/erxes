@@ -54,7 +54,7 @@ export const CompanyAddSheet = () => {
       >
         <Sheet.Header className="p-5">
           <Sheet.Title>{t('company.add._', 'Add company')}</Sheet.Title>
-          <Sheet.Description className="sr-only">Add a new company</Sheet.Description>
+          <Sheet.Description className="sr-only">{t('company.add.add-new-company', 'Add a new company')}</Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
         <AddCompanyForm onOpenChange={setOpen} />
@@ -69,7 +69,7 @@ export const CompanyAddSheetHeader = () => {
     <Sheet.Header className="p-5">
       <Sheet.Title>{t('_', 'Add Company')}</Sheet.Title>
       <Sheet.Description className="sr-only">
-        Add a new company
+        {t('add-new-company', 'Add a new company')}
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

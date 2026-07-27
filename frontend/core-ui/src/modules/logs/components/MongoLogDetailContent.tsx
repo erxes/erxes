@@ -1,4 +1,5 @@
 import { IconDatabase } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from 'erxes-ui';
 import { ILogDoc } from '../types';
 import { maskFields } from '../utils/logFormUtils';
@@ -41,6 +42,7 @@ function MongoUpdateLogDetailContent({
 }
 
 export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
+  const { t } = useTranslation('common');
   const mongoPayload = (payload || {}) as IMongoLogPayload;
   const { collectionName, fullDocument } = mongoPayload;
   const actionLabel = formatLabel(action);
@@ -49,11 +51,11 @@ export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
 
   return (
     <LogDetailSection
-      title={action === 'update' ? 'Changes' : 'Document Snapshot'}
+      title={action === 'update' ? t('logs.mongo-changes', 'Changes') : t('logs.document-snapshot', 'Document Snapshot')}
       description={
         collectionName
           ? `${actionLabel} event captured for ${collectionLabel}.`
-          : 'Mongo document change captured by the log service.'
+          : t('logs.mongo-change-captured', 'Mongo document change captured by the log service.')
       }
       icon={IconDatabase}
     >
@@ -75,7 +77,7 @@ export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
         <MongoUpdateLogDetailContent payload={mongoPayload} />
       ) : (
         <LogDetailJsonPanel
-          title={action === 'delete' ? 'Removed Document' : 'Document'}
+          title={action === 'delete' ? t('logs.removed-document', 'Removed Document') : t('logs.document', 'Document')}
           description="Snapshot stored with this Mongo change event."
           src={currentDocument}
           emptyMessage="No document snapshot was captured for this event."

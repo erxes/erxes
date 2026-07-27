@@ -3,6 +3,7 @@ import { AiAgentSecretField } from '@/automations/components/settings/components
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input, Select } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const CloudflareAiGatewayConnectionForm = ({
   existingApiKeyMask,
@@ -11,6 +12,7 @@ export const CloudflareAiGatewayConnectionForm = ({
   existingApiKeyMask?: string;
   existingGatewayTokenMask?: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentForm>();
 
   return (
@@ -22,26 +24,25 @@ export const CloudflareAiGatewayConnectionForm = ({
         name="connection.config.mode"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Gateway Mode</Form.Label>
+            <Form.Label>{t('gateway-mode', 'Gateway Mode')}</Form.Label>
             <Form.Control>
               <Select
                 onValueChange={field.onChange}
                 value={field.value || 'compat'}
               >
                 <Select.Trigger>
-                  <Select.Value placeholder="Select gateway mode" />
+                  <Select.Value placeholder={t('select-gateway-mode', 'Select gateway mode')} />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="compat">Compat</Select.Item>
+                  <Select.Item value="compat">{t('compat', 'Compat')}</Select.Item>
                   <Select.Item value="openai-provider">
-                    OpenAI Provider
+                    {t('openai-provider', 'OpenAI Provider')}
                   </Select.Item>
                 </Select.Content>
               </Select>
             </Form.Control>
             <Form.Description>
-              Compat keeps one OpenAI-compatible endpoint while the model name
-              selects the downstream provider.
+              {t('gateway-mode-description', 'Compat keeps one OpenAI-compatible endpoint while the model name selects the downstream provider.')}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -54,12 +55,12 @@ export const CloudflareAiGatewayConnectionForm = ({
           name="connection.config.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Account ID</Form.Label>
+              <Form.Label>{t('account-id', 'Account ID')}</Form.Label>
               <Form.Control>
-                <Input placeholder="Use platform default" {...field} />
+                <Input placeholder={t('use-platform-default', 'Use platform default')} {...field} />
               </Form.Control>
               <Form.Description>
-                Leave empty to use the platform Cloudflare account.
+                {t('account-id-description', 'Leave empty to use the platform Cloudflare account.')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -71,12 +72,12 @@ export const CloudflareAiGatewayConnectionForm = ({
           name="connection.config.gatewayId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Gateway ID</Form.Label>
+              <Form.Label>{t('gateway-id', 'Gateway ID')}</Form.Label>
               <Form.Control>
-                <Input placeholder="Use platform default" {...field} />
+                <Input placeholder={t('use-platform-default', 'Use platform default')} {...field} />
               </Form.Control>
               <Form.Description>
-                Leave empty to use the platform AI Gateway.
+                {t('gateway-id-description', 'Leave empty to use the platform AI Gateway.')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -105,16 +106,15 @@ export const CloudflareAiGatewayConnectionForm = ({
         name="connection.config.baseUrl"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Base URL Override</Form.Label>
+            <Form.Label>{t('base-url-override', 'Base URL Override')}</Form.Label>
             <Form.Control>
               <Input
-                placeholder="Generated from account, gateway, and mode"
+                placeholder={t('base-url-override-placeholder', 'Generated from account, gateway, and mode')}
                 {...field}
               />
             </Form.Control>
             <Form.Description>
-              Optional. When empty, the backend builds the Cloudflare Gateway
-              URL from the account, gateway, and mode.
+              {t('base-url-override-description', 'Optional. When empty, the backend builds the Cloudflare Gateway URL from the account, gateway, and mode.')}
             </Form.Description>
             <Form.Message />
           </Form.Item>

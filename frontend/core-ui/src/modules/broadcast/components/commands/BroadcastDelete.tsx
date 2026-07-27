@@ -3,6 +3,7 @@ import { ApolloError } from '@apollo/client';
 import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, useConfirm, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
 
 export const BroadcastDelete = ({
@@ -12,6 +13,7 @@ export const BroadcastDelete = ({
   broadcastIds: string[];
   rows: Row<any>[];
 }) => {
+  const { t } = useTranslation('broadcasts');
   const { confirm } = useConfirm();
   const { removeBroadcast } = useBroadcastRemove();
 
@@ -23,12 +25,12 @@ export const BroadcastDelete = ({
         className="text-destructive"
         onClick={() =>
           confirm({
-            message: `Are you sure you want to delete the ${broadcastIds.length} selected broadcast?`,
+            message: t('delete-action.confirm', 'Are you sure you want to delete the {{count}} selected broadcast?', { count: broadcastIds.length }),
           }).then(() => {
             removeBroadcast(broadcastIds, {
               onError: (e: ApolloError) => {
                 toast({
-                  title: 'Error',
+                  title: t('error', 'Error'),
                   description: e.message,
                   variant: 'destructive',
                 });
@@ -38,9 +40,8 @@ export const BroadcastDelete = ({
                   row.toggleSelected(false);
                 });
                 toast({
-                  title: 'Success',
+                  title: t('delete-action.success', 'Broadcast deleted successfully'),
                   variant: 'success',
-                  description: 'Broadcast deleted successfully',
                 });
               },
             });
@@ -48,7 +49,7 @@ export const BroadcastDelete = ({
         }
       >
         <IconTrash />
-        Delete
+        {t('delete', 'Delete')}
       </Button>
     </Can>
   );

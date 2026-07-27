@@ -49,37 +49,37 @@ const CustomersFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter._')}
+                placeholder={t('filter._', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  {t('filter.search')}
+                  {t('filter.search', 'Search')}
                 </Filter.Item>
                 <TagsFilter />
                 <Filter.Item value="brand">
                   <IconLabel />
-                  {t('filter.brand')}
+                  {t('filter.brand', 'Brand')}
                 </Filter.Item>
                 <SelectMember.FilterItem />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="created">
                   <IconCalendarPlus />
-                  {t('filter.created-at')}
+                  {t('filter.created-at', 'Created At')}
                 </Filter.Item>
                 <Filter.Item value="updated">
                   <IconCalendarUp />
-                  {t('filter.updated-at')}
+                  {t('filter.updated-at', 'Updated At')}
                 </Filter.Item>
                 <Filter.Item value="lastSeen">
                   <IconCalendarTime />
-                  {t('filter.last-seen-at')}
+                  {t('filter.last-seen-at', 'Last Seen At')}
                 </Filter.Item>
                 <Filter.Item value="birthday">
                   <IconCalendar />
-                  {t('filter.birthday')}
+                  {t('filter.birthday', 'Birthday')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <PropertiesFilter />
@@ -136,7 +136,7 @@ export const CustomersFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            {t('filter.search')}
+            {t('filter.search', 'Search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -146,28 +146,28 @@ export const CustomersFilter = () => {
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
-            {t('filter.created-at')}
+            {t('filter.created-at', 'Created At')}
           </Filter.BarName>
           <Filter.Date filterKey="created" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updated">
           <Filter.BarName>
             <IconCalendarUp />
-            {t('filter.updated-at')}
+            {t('filter.updated-at', 'Updated At')}
           </Filter.BarName>
           <Filter.Date filterKey="updated" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="lastSeen">
           <Filter.BarName>
             <IconCalendarTime />
-            {t('filter.last-seen-at')}
+            {t('filter.last-seen-at', 'Last Seen At')}
           </Filter.BarName>
           <Filter.Date filterKey="lastSeen" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="birthday">
           <Filter.BarName>
             <IconCalendar />
-            {t('filter.birthday')}
+            {t('filter.birthday', 'Birthday')}
           </Filter.BarName>
           <Filter.Date filterKey="birthday" />
         </Filter.BarItem>

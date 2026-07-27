@@ -15,12 +15,14 @@ import { useSearchParams } from 'react-router-dom';
 import { Can } from 'ui-modules';
 import { useResendInvite } from '../../hooks/useResendInvite';
 import { useUsersStatusEdit } from '../../hooks/useUserEdit';
+import { useTranslation } from 'react-i18next';
 
 export const TeamMemberMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IUser, unknown>;
 }) => {
+  const { t } = useTranslation('settings');
   const [searchParams, setSearchParams] = useSearchParams();
   const [, setResetPasswordOpen] = useQueryState('reset_password_id');
 
@@ -64,7 +66,7 @@ export const TeamMemberMoreColumnCell = ({
           <Command.List>
             <Can action="teamMembersUpdate">
               <Command.Item value="edit" onSelect={handleEdit}>
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit', 'Edit')}
               </Command.Item>
             </Can>
             <Can action="permissionsManage">
@@ -72,7 +74,7 @@ export const TeamMemberMoreColumnCell = ({
                 value="permissions"
                 onSelect={handleEditPermissions}
               >
-                <IconSettings size={18} /> Edit Permission Groups
+                <IconSettings size={18} /> {t('team-member.edit-permission-groups', 'Edit Permission Groups')}
               </Command.Item>
             </Can>
             <Can action="teamMembersResetPassword">
@@ -83,7 +85,7 @@ export const TeamMemberMoreColumnCell = ({
                   setRenderingTeamMemberResetPasswordAtom(true);
                 }}
               >
-                <IconLock /> Reset Password
+                <IconLock /> {t('team-member.reset-password', 'Reset Password')}
               </Command.Item>
             </Can>
             <Can action="teamMembersUpdate">
@@ -112,7 +114,7 @@ export const TeamMemberMoreColumnCell = ({
                   ) : (
                     <IconToggleRight size={18} />
                   )}
-                  {isActive ? 'Deactivate' : 'Activate'}
+                  {isActive ? t('deactivate', 'Deactivate') : t('activate', 'Activate')}
                 </div>
               </Command.Item>
             </Can>
@@ -128,7 +130,7 @@ export const TeamMemberMoreColumnCell = ({
                       toast({ title: error.message, variant: 'destructive' }),
                     onCompleted: () =>
                       toast({
-                        title: 'Invitation has been resent',
+                        title: t('team-member.invitation-resent', 'Invitation has been resent'),
                         variant: 'success',
                       }),
                   })
@@ -136,7 +138,7 @@ export const TeamMemberMoreColumnCell = ({
               >
                 <div className="flex items-center gap-2">
                   {loading ? <Spinner size="sm" /> : <IconRefresh size={18} />}
-                  Resend Invite
+                  {t('team-member.resend-invite', 'Resend Invite')}
                 </div>
               </Command.Item>
             </Can>

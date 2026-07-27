@@ -4,8 +4,10 @@ import {
   ActivityLogs,
   TActivityLog,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const ProductTagAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('product');
   const isAdded = activity.activityType === 'product.tag_added';
   const labels: string[] = isAdded
     ? activity.changes?.added?.labels || []
@@ -15,7 +17,7 @@ const ProductTagAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
     <div className="flex flex-wrap items-center gap-1 text-sm text-foreground">
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">
-        {isAdded ? 'added tag' : 'removed tag'}
+        {isAdded ? t('added-tag', 'added tag') : t('removed-tag', 'removed tag')}
       </span>
       {labels.length ? (
         labels.map((label: string, index: number) => (
@@ -24,7 +26,7 @@ const ProductTagAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
           </Badge>
         ))
       ) : (
-        <span className="font-medium">tag</span>
+        <span className="font-medium">{t('tag', 'tag')}</span>
       )}
     </div>
   );

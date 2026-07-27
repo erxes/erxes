@@ -58,9 +58,9 @@ export const ManagePropertiesConfigForm = ({
       <div className="p-4">
         <Alert variant="default" className="mb-4">
           <IconInfoCircle className="mr-2 inline size-4 text-muted-foreground" />
-          <Alert.Title>{t('no-matching-context-title')}</Alert.Title>
+          <Alert.Title>{t('no-matching-context-title', 'We couldn\'t find a matching context')}</Alert.Title>
           <Alert.Description>
-            {t('no-matching-context-description')}
+            {t('no-matching-context-description', 'This action may not apply to the current workflow. Select a module or choose a trigger/action to proceed.')}
           </Alert.Description>
         </Alert>
       </div>
@@ -78,7 +78,7 @@ export const ManagePropertiesConfigForm = ({
             name="module"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('property-type')}</Form.Label>
+                <Form.Label>{t('property-type', 'Property Type')}</Form.Label>
                 <Select
                   value={field.value}
                   onValueChange={(value) => {
@@ -95,7 +95,7 @@ export const ManagePropertiesConfigForm = ({
                   }}
                 >
                   <Select.Trigger>
-                    <Select.Value placeholder={t('select-property-type')} />
+                    <Select.Value placeholder={t('select-property-type', 'Select a property type')} />
                   </Select.Trigger>
                   <Select.Content>
                     {propertyTypes.map(({ value, description }) => (
@@ -115,7 +115,7 @@ export const ManagePropertiesConfigForm = ({
             render={({ field }) => {
               return (
                 <Form.Item className="mt-2">
-                  <Form.Label>{t('rules')}</Form.Label>
+                  <Form.Label>{t('rules', 'Rules')}</Form.Label>
 
                   {(field.value || []).map((_, index) => (
                     <ManagePropertyRule
@@ -130,7 +130,7 @@ export const ManagePropertiesConfigForm = ({
                     variant="secondary"
                     onClick={() => append({ field: '', operator: '' })}
                   >
-                    <Label>{t('add-rule')}</Label>
+                    <Label>{t('add-rule', 'Add Rule')}</Label>
                   </Button>
                 </Form.Item>
               );

@@ -71,9 +71,9 @@ export const NodeEditMetaDataForm = ({ id, data, callback }: Props) => {
 
   return (
     <Dialog.Content>
-      <Dialog.Title>{t('edit-node-metadata-title')}</Dialog.Title>
+      <Dialog.Title>{t('edit-node-metadata-title', 'Edit Node Metadata')}</Dialog.Title>
       <Dialog.Description>
-        {t('edit-node-metadata-description')}
+        {t('edit-node-metadata-description', 'Customize the name and description of this node for better clarity.')}
       </Dialog.Description>
       <IconPicker
         onValueChange={(icon) => setDoc({ ...doc, icon: icon || '' })}
@@ -90,7 +90,7 @@ export const NodeEditMetaDataForm = ({ id, data, callback }: Props) => {
         onChange={handleChange}
       />
       <Dialog.Footer>
-        <Button onClick={handleSave}>{t('save')}</Button>
+        <Button onClick={handleSave}>{t('save', 'Save')}</Button>
       </Dialog.Footer>
     </Dialog.Content>
   );

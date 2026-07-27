@@ -4,6 +4,7 @@ import { useRemoveCategories } from '@/products/product-category/hooks/useRemove
 import type { ReactNode } from 'react';
 import { useCallback } from 'react';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 interface CategoriesDeleteProps {
   categoryIds: string;
@@ -16,6 +17,7 @@ export const CategoriesDelete = ({
   onDeleteSuccess,
   children,
 }: CategoriesDeleteProps) => {
+  const { t } = useTranslation('product');
   const { confirm } = useConfirm();
   const { removeCategory, loading } = useRemoveCategories();
   const { toast } = useToast();
@@ -34,7 +36,11 @@ export const CategoriesDelete = ({
     }
 
     confirm({
-      message: `Are you sure you want to delete the ${categoryCount} selected categories?`,
+      message: t('category.confirm-delete-categories', {
+        defaultValue:
+          'Are you sure you want to delete the {{count}} selected category(ies)?',
+        count: categoryCount,
+      }),
       options: confirmOptions,
     })
       .then(() => {
@@ -43,19 +49,20 @@ export const CategoriesDelete = ({
             const errorMessage =
               errors.length > 0
                 ? errors.map((e) => e.message).join(', ')
-                : 'Failed to delete categories';
+                : t('category.failed-to-delete', 'Failed to delete categories');
             toast({
-              title: 'Error',
+              title: t('category.error', 'Error'),
               description: errorMessage,
               variant: 'destructive',
             });
           },
           onCompleted: () => {
             toast({
-              title: 'Success',
-              description: `${categoryCount} ${
-                categoryCount === 1 ? 'category' : 'categories'
-              } deleted successfully.`,
+              title: t('category.success', 'Success'),
+              description: t('category.categories-deleted', {
+                defaultValue: '{{count}} category(ies) deleted successfully.',
+                count: categoryCount,
+              }),
               variant: 'success',
             });
 
@@ -94,7 +101,7 @@ export const CategoriesDelete = ({
         disabled={disabled}
       >
         <IconTrash />
-        Delete
+        {t('delete', 'Delete')}
       </Button>
     </Can>
   );

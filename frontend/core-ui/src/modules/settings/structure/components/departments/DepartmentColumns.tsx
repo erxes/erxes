@@ -15,13 +15,13 @@ import { useState } from 'react';
 import { DepartmentsMoreColumn } from './DepartmentsMoreColumn';
 import { DepartmentMembersSheet } from './DepartmentMembersSheet';
 
-export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
+export const getDepartmentColumns = (t: (key: string, fallback: string) => string): ColumnDef<IDepartmentListItem>[] => [
   DepartmentsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IDepartmentListItem>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     cell: ({ cell }) => {
       const { departmentsEdit, loading } = useDepartmentInlineEdit();
       const { _id, code } = cell.row.original;
@@ -65,7 +65,7 @@ export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="title" />,
+    header: () => <RecordTable.InlineHead label={t('title', 'Title')} />,
     cell: ({ cell }) => {
       const { departmentsEdit, loading } = useDepartmentInlineEdit();
       const { _id, code, title } = cell.row.original;
@@ -107,7 +107,7 @@ export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
   {
     id: 'supervisorId',
     accessorKey: 'supervisorId',
-    header: () => <RecordTable.InlineHead label="supervisor" />,
+    header: () => <RecordTable.InlineHead label={t('supervisor', 'Supervisor')} />,
     cell: ({ cell }) => {
       const { _id, code } = cell.row.original;
       const { departmentsEdit } = useDepartmentInlineEdit();
@@ -133,7 +133,7 @@ export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
   {
     id: 'userCount',
     accessorKey: 'userCount',
-    header: () => <RecordTable.InlineHead label="team member count" />,
+    header: () => <RecordTable.InlineHead label={t('team-member-count', 'Team member count')} />,
     cell: ({ cell }) => {
       const { _id } = cell.row.original;
       const count = Number(cell.getValue() ?? 0);

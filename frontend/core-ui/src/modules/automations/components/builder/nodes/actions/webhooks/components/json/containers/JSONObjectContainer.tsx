@@ -2,6 +2,7 @@ import { memo, useState, useCallback, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { setAtJSONProperty } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
 import { JSONTreeNode } from '../editor/JSONTreeNode';
 
@@ -18,6 +19,7 @@ export const JSONObjectContainer = memo(function JSONObjectContainer({
   path,
   value,
 }: JSONObjectContainerProps) {
+  const { t } = useTranslation('automations');
   const { getValues, setValue } = useFormContext();
   const [newKey, setNewKey] = useState('');
 
@@ -85,7 +87,7 @@ export const JSONObjectContainer = memo(function JSONObjectContainer({
           className="h-8"
         />
         <Button variant="outline" size="sm" onClick={addField}>
-          <IconPlus className="mr-1 h-3 w-3" /> Add
+          <IconPlus className="mr-1 h-3 w-3" /> {t('add', 'Add')}
         </Button>
       </div>
     </div>

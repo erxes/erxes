@@ -15,8 +15,9 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { IProductCategory } from 'ui-modules';
+import { IProductCategory } from '@/products/types/productTypes';
 import { CategoryHotKeyScope } from '../types/CategoryHotKeyScope';
 import { CategoryTotalCount } from './CategoryTotalCount';
 
@@ -69,6 +70,7 @@ const ParentCategoryOptionItem = ({
 };
 
 const ParentCategoryFilterBar = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   const [query, setQuery] = useQueryState<string>('parentId');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<IProductCategory>();
@@ -101,18 +103,18 @@ const ParentCategoryFilterBar = () => {
     <Filter.BarItem queryKey="parentId">
       <Filter.BarName>
         <IconFolders />
-        Parent
+        {t('parent', 'Parent')}
       </Filter.BarName>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="parentId">
             <SelectParentCategoryBadge category={selected} />
-            {!selected && <Combobox.Value placeholder="Select parent" />}
+            {!selected && <Combobox.Value placeholder={t('select-parent', 'Select parent')} />}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
           <Command className="outline-hidden">
-            <Command.Input placeholder="Search categories" />
+            <Command.Input placeholder={t('search-categories', 'Search categories')} />
             <Command.List>
               {productCategories?.map((category: IProductCategory) => (
                 <ParentCategoryOptionItem
@@ -131,6 +133,7 @@ const ParentCategoryFilterBar = () => {
 };
 
 const ParentCategoryFilterView = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   const [query, setQuery] = useQueryState<string>('parentId');
   const { resetFilterState } = useFilterContext();
   const [selected, setSelected] = useState<IProductCategory>();
@@ -168,7 +171,7 @@ const ParentCategoryFilterView = () => {
     return (
       <Command.Empty>
         <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
-          No categories found
+          {t('no-categories-found', 'No categories found')}
         </div>
       </Command.Empty>
     );
@@ -177,7 +180,7 @@ const ParentCategoryFilterView = () => {
   return (
     <Filter.View filterKey="parentId">
       <Command className="outline-hidden">
-        <Command.Input placeholder="Search categories" />
+        <Command.Input placeholder={t('search-categories', 'Search categories')} />
         <Command.List>
           {renderPlaceholder()}
           {productCategories?.map((category: IProductCategory) => (
@@ -195,10 +198,11 @@ const ParentCategoryFilterView = () => {
 };
 
 const StatusFilterItem = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   return (
     <Filter.Item value="status">
       <IconCircleDot />
-      Status
+      {t('status', 'Status')}
     </Filter.Item>
   );
 };
@@ -232,6 +236,7 @@ const StatusFilterView = () => {
 };
 
 const StatusFilterBar = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   const [status, setStatus] = useQueryState<string>('status');
 
   if (!status) {
@@ -242,14 +247,14 @@ const StatusFilterBar = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconCircleDot />
-        Status
+        {t('status', 'Status')}
       </Filter.BarName>
       <Select
         value={status || ''}
         onValueChange={(value) => setStatus(value || null)}
       >
         <Filter.BarButton filterKey="status">
-          <Select.Value placeholder="Select status" />
+          <Select.Value placeholder={t('select-status', 'Select status')} />
         </Filter.BarButton>
         <Select.Content>
           {STATUS_OPTIONS.map((option) => (
@@ -278,6 +283,7 @@ export const CategoryFilter = () => {
 };
 
 export const CategoriesFilterPopover = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   return (
     <>
       <Filter.Popover scope={CategoryHotKeyScope.CategoriesPage}>
@@ -285,16 +291,16 @@ export const CategoriesFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
 
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <Filter.Item value="parentId">
                   <IconFolders />
-                  Parent
+                  {t('parent', 'Parent')}
                 </Filter.Item>
                 <StatusFilterItem />
               </Command.List>

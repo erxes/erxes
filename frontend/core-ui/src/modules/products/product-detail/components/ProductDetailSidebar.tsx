@@ -1,6 +1,8 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ProductDetailSidebar = () => {
+  const { t } = useTranslation('product');
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
 
   const tabs = ['overview', 'properties', 'activity', 'similarity'];
@@ -8,7 +10,7 @@ export const ProductDetailSidebar = () => {
   return (
     <Sidebar.Content>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('general', 'General')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
             {tabs.map((tab) => (

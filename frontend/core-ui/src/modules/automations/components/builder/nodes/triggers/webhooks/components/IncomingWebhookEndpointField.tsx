@@ -5,19 +5,21 @@ import { Button, Form, Input, Popover } from 'erxes-ui';
 import { ControllerRenderProps } from 'react-hook-form';
 import { useAutomationWebhookEndpoint } from '../hooks/useAutomationWebhookEndpoint';
 import { TIncomingWebhookForm } from '../states/automationIncomingWebhookFormDefinition';
+import { useTranslation } from 'react-i18next';
 
 export const IncomingWebhookEndpointField = ({
   field,
 }: {
   field: ControllerRenderProps<TIncomingWebhookForm, 'endpoint'>;
 }) => {
+  const { t } = useTranslation('automations');
   const { endpoint } = useAutomationWebhookEndpoint();
 
   return (
     <>
       <Form.Item className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 mb-0">
-          <Form.Label>Webhook URL</Form.Label>
+          <Form.Label>{t('webhook-url', 'Webhook URL')}</Form.Label>
           <WebhookUrlCreatePageInfo />
         </div>
         <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(8rem,12rem)] overflow-hidden rounded-md border bg-background">

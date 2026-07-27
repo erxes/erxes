@@ -19,7 +19,7 @@ export const SelectLanguages = () => {
   return (
     <DropdownMenu.Sub>
       <DropdownMenu.SubTrigger>
-        {t('change-language')}
+        {t('change-language', 'Change Language')}
         <IconChevronRight className="ml-auto" />
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>

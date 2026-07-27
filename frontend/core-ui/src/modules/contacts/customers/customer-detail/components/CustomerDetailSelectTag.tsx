@@ -17,7 +17,7 @@ export const CustomerDetailSelectTag = ({
   return (
     <fieldset className="space-y-2 px-8">
       <Label asChild>
-        <legend>{t('tags')}</legend>
+        <legend>{t('tags', 'Tags')}</legend>
       </Label>{' '}
       <TagsSelect.Provider
         mode="multiple"

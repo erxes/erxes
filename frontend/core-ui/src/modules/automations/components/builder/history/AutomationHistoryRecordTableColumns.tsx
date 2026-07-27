@@ -18,28 +18,28 @@ import { useTranslation } from 'react-i18next';
 
 const TitleHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead label={t('name')} />;
+  return <RecordTable.InlineHead label={t('name', 'Name')} />;
 };
 
 const DescriptionHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead label={t('trigger')} />;
+  return <RecordTable.InlineHead label={t('trigger', 'Trigger')} />;
 };
 
 const TriggerHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead label={t('trigger')} />;
+  return <RecordTable.InlineHead label={t('trigger', 'Trigger')} />;
 };
 
 const StatusHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead label={t('status')} />;
+  return <RecordTable.InlineHead label={t('status', 'Status')} />;
 };
 
 const CreatedAtHeader = () => {
   const { t } = useTranslation('automations');
   return (
-    <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />
+    <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at', 'Created at')} />
   );
 };
 

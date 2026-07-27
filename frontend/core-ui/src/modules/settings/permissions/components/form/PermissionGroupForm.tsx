@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Separator } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { PermissionModulesForm } from './PermissionModulesForm';
+import { useTranslation } from 'react-i18next';
 
 const EMPTY_DEFAULTS: IPermissionGroupSchema = {
   name: '',
@@ -23,6 +24,7 @@ export const PermissionGroupForm = ({
   onCancel?: () => void;
   mode?: 'add' | 'edit';
 }) => {
+  const { t } = useTranslation('settings');
   const form = useForm<IPermissionGroupSchema>({
     resolver: zodResolver(PERMISSION_GROUP_SCHEMA),
     defaultValues: {
@@ -49,11 +51,11 @@ export const PermissionGroupForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item className="flex-1 min-w-0">
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name', 'Name')}</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
-                      placeholder="Group name"
+                      placeholder={t('permissions.group-name-placeholder', 'Group name')}
                       className="w-full"
                     />
                   </Form.Control>
@@ -66,11 +68,11 @@ export const PermissionGroupForm = ({
               name="description"
               render={({ field }) => (
                 <Form.Item className="flex-1 min-w-0">
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>{t('description', 'Description')}</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
-                      placeholder="Description"
+                      placeholder={t('description-placeholder', 'Description')}
                       className="w-full"
                     />
                   </Form.Control>
@@ -86,16 +88,16 @@ export const PermissionGroupForm = ({
         </div>
         <div className="px-6 sm:px-8 py-4 border-t flex items-center justify-end gap-3">
           <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting
               ? mode === 'edit'
-                ? 'Saving...'
-                : 'Creating...'
+                ? t('saving', 'Saving...')
+                : t('creating', 'Creating...')
               : mode === 'edit'
-              ? 'Save Changes'
-              : 'Create Group'}
+              ? t('save-changes', 'Save Changes')
+              : t('permissions.create-group', 'Create Group')}
           </Button>
         </div>
       </form>

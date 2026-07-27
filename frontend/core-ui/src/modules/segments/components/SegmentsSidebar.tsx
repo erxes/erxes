@@ -14,7 +14,7 @@ export const SegmentListSidebar = ({ types, className }: Props) => {
   return (
     <Sidebar collapsible="none" className={cn('flex-none', className)}>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('segment-types')}</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('segment-types', 'Segment Types')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {types.map(({ description, contentType }) => (

@@ -6,23 +6,23 @@ export function useProductFieldTypes() {
   return [
     {
       value: ProductsPath.Products,
-      label: t('product-service'),
+      label: t('product-service', 'Product Service'),
     },
     {
       value: ProductsPath.Categories,
-      label: t('categories'),
+      label: t('categories', 'Categories'),
     },
     {
       value: ProductsPath.Uoms,
-      label: t('uom'),
+      label: t('uom', 'UOM'),
     },
     {
       value: ProductsPath.GeneralConfig,
-      label: t('general-config'),
+      label: t('general-config', 'General config'),
     },
     {
       value: ProductsPath.SimilarityGroup,
-      label: t('similarity-group'),
+      label: t('similarity-group', 'Similarity Group'),
     },
     {
       value: ProductsPath.Similarities,
@@ -30,15 +30,15 @@ export function useProductFieldTypes() {
     },
     {
       value: ProductsPath.BundleCondition,
-      label: t('bundle-condition'),
+      label: t('bundle-condition', 'Bundle Condition'),
     },
     {
       value: ProductsPath.BundleRule,
-      label: t('bundle-rule'),
+      label: t('bundle-rule', 'Bundle Rule'),
     },
     {
       value: ProductsPath.ProductRule,
-      label: t('product-rule'),
+      label: t('product-rule', 'Product Rule'),
     },
     {
       value: ProductsPath.Packages,

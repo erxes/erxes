@@ -52,7 +52,7 @@ export const ProductRuleSheet = () => {
         <Sheet.Trigger asChild>
           <Button className="whitespace-nowrap shrink-0">
             <IconPlus />
-            {t('add-product-rule')}
+            {t('add-product-rule', 'Add product rule')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>

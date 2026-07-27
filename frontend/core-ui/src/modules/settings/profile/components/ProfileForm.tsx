@@ -53,7 +53,7 @@ export const ProfileForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(submitHandler)} className="grid gap-5">
         <div className="flex flex-col gap-4">
-          <Form.Label>{t('profile-picture')}</Form.Label>
+          <Form.Label>{t('profile-picture', 'Profile picture')}</Form.Label>
           <Form.Field
             control={form.control}
             name="details.avatar"
@@ -79,7 +79,7 @@ export const ProfileForm = () => {
                         />
                       </div>
                       <Form.Description>
-                        {t('profile-description')}
+                        {t('profile-description', 'Upload a profile picture to help identify you.')}
                       </Form.Description>
                     </div>
                   </Upload.Root>
@@ -89,21 +89,21 @@ export const ProfileForm = () => {
           />
         </div>
         <div className="flex flex-col gap-3">
-          <Form.Label>{t('name')}</Form.Label>
-          <Form.Description>{t('name-description')}</Form.Description>
+          <Form.Label>{t('name', 'Name')}</Form.Label>
+          <Form.Description>{t('name-description', 'This is your public display name.')}</Form.Description>
           <DefaultFields />
         </div>
         <div className="flex flex-col gap-3">
-          <Form.Label>{t('email')}</Form.Label>
+          <Form.Label>{t('email', 'Email')}</Form.Label>
           <Form.Description>
-            {t('email-description')}
+            {t('email-description', 'This is your public email address.')}
           </Form.Description>
           <FormField
             name={'email' as keyof FormType}
             element="input"
             attributes={{
               type: 'email',
-              placeholder: 'Enter email',
+              placeholder: t('enter-email', 'Enter email'),
             }}
           />
         </div>
@@ -111,14 +111,14 @@ export const ProfileForm = () => {
           <AdvancedFields />
         </div>
         <div className="flex flex-col flex-1 gap-3">
-          <Form.Label>{t('link')}</Form.Label>
-          <Form.Description>{t('link-description')}</Form.Description>
+          <Form.Label>{t('link', 'Link')}</Form.Label>
+          <Form.Description>{t('link-description', 'This is your public link address.')}</Form.Description>
           <LinkFields />
         </div>
         <div className="w-full flex justify-end">
           <Button type="submit" disabled={updating} size="sm">
             {(updating && <Spinner size={'sm'} className="text-white" />) ||
-              t('update')}
+              t('update', 'Update')}
           </Button>
         </div>
       </form>

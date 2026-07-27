@@ -12,6 +12,7 @@ import {
 } from '@/settings/permissions/types';
 import { PermissionGroupDetails } from '@/settings/permissions/components/PermissionGroupDetails';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const MemberPermission = ({
   userId,
@@ -20,6 +21,7 @@ export const MemberPermission = ({
   userId: string;
   permissionGroupIds?: string[];
 }) => {
+  const { t } = useTranslation('settings');
   const { defaultGroups, loading: defaultLoading } =
     useGetPermissionDefaultGroups();
   const { permissionGroups, loading: customLoading } = useGetPermissionGroups();
@@ -54,14 +56,14 @@ export const MemberPermission = ({
       },
       onCompleted: () => {
         toast({
-          title: 'Permission groups updated',
-          description: 'Permission groups updated successfully',
+          title: t('permissions.groups-updated', 'Permission groups updated'),
+          description: t('permissions.groups-updated-description', 'Permission groups updated successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -145,7 +147,7 @@ export const MemberPermission = ({
             className="w-full justify-start font-medium"
           >
             <Collapsible.TriggerIcon />
-            Custom Permission Groups
+            {t('permissions.custom-groups', 'Custom Permission Groups')}
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content className="pt-3 space-y-3">

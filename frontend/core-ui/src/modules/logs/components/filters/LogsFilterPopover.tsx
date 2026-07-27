@@ -12,6 +12,7 @@ import {
   Filter,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
 
 import { LogActionsFilter } from './LogActionFilter';
@@ -21,6 +22,7 @@ import { LogSourceFilter } from './LogSourceFilter';
 import { LogStatusFilter } from './LogStatusFilter';
 
 export const LogsFilterPopover = () => {
+  const { t } = useTranslation('common');
   const [queries] = useMultiQueryState<{
     status: string;
     source: string;
@@ -51,41 +53,41 @@ export const LogsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter._', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="status">
                   <IconProgressCheck />
-                  Status
+                  {t('logs.status', 'Status')}
                 </Filter.Item>
                 <Filter.Item value="source">
                   <IconSourceCode />
-                  Source
+                  {t('logs.source', 'Source')}
                 </Filter.Item>
                 {queries?.source && (
                   <Filter.Item value="action">
                     <IconProgressCheck />
-                    Action
+                    {t('logs.action', 'Action')}
                   </Filter.Item>
                 )}
                 <Filter.Item value="userIds">
                   <IconUser />
-                  User
+                  {t('logs.user', 'User')}
                 </Filter.Item>
                 <Filter.Item value="contentType">
                   <IconTag />
-                  Content Type
+                  {t('logs.content-type', 'Content Type')}
                 </Filter.Item>
                 <Filter.Item value="docId" inDialog>
                   <IconHash />
-                  Document ID
+                  {t('logs.document-id', 'Document ID')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdAt">
                   <IconCalendarPlus />
-                  Created At
+                  {t('logs.created-at', 'Created At')}
                 </Filter.Item>
               </Command.List>
             </Command>

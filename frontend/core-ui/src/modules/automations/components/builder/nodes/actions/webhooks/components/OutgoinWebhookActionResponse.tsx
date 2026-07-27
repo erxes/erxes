@@ -2,6 +2,7 @@ import { ActionResultComponentProps } from '@/automations/components/builder/nod
 import { Badge, Button, Dialog } from 'erxes-ui';
 import { IconEye } from '@tabler/icons-react';
 import ReactJson from 'react-json-view';
+import { useTranslation } from 'react-i18next';
 
 type TWebhookHistoryResult = {
   request?: {
@@ -68,6 +69,7 @@ const InfoRow = ({
 export const OutgoinWebhookActionResponse = ({
   result,
 }: ActionResultComponentProps<TWebhookHistoryResult>) => {
+  const { t } = useTranslation('automations');
   const request = result?.request || {};
   const response = result?.response;
   const error = result?.error;
@@ -107,12 +109,12 @@ export const OutgoinWebhookActionResponse = ({
         <Dialog.Trigger asChild>
           <Button variant="ghost" className="px-0">
             <IconEye className="mr-2 h-4 w-4" />
-            See Request & Response
+            {t('see-request-and-response', 'See Request & Response')}
           </Button>
         </Dialog.Trigger>
         <Dialog.Content className="max-w-5xl overflow-hidden">
           <Dialog.Header className="space-y-1 text-left">
-            <Dialog.Title>Outgoing Webhook Result</Dialog.Title>
+            <Dialog.Title>{t('outgoing-webhook-result', 'Outgoing Webhook Result')}</Dialog.Title>
             <Dialog.Description>
               Review the final request and received response for this webhook
               action.
@@ -120,7 +122,7 @@ export const OutgoinWebhookActionResponse = ({
           </Dialog.Header>
 
           <div className="grid max-h-[70vh] gap-4 overflow-auto pr-2 md:grid-cols-2">
-            <Section title="Request">
+            <Section title={t('request', 'Request')}>
               <InfoRow label="Method" value={request.method} />
               <InfoRow label="URL" value={request.url} />
               <InfoRow
@@ -149,7 +151,7 @@ export const OutgoinWebhookActionResponse = ({
               ) : null}
             </Section>
 
-            <Section title={error ? 'Error' : 'Response'}>
+            <Section title={error ? t('error', 'Error') : t('response', 'Response')}>
               {response ? (
                 <>
                   <InfoRow label="Status" value={response.status} />

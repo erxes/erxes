@@ -5,6 +5,7 @@ import {
 import { useBroadcastMembers } from '@/broadcast/hooks/useBroadcastMembers';
 import { AvatarProps, cn, Combobox, Command, Form, Popover } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 import { BroadcastMemberInline } from '../BroadcastMemberInline';
 
@@ -107,6 +108,7 @@ const SelectMemberCommandItem = ({ member }: { member: any }) => {
 };
 
 const SelectMemberContent = () => {
+  const { t } = useTranslation('broadcasts');
   const [search, setSearch] = React.useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const {
@@ -134,7 +136,7 @@ const SelectMemberContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder="Search member..."
+        placeholder={t('search-member', 'Search member...')}
         className="h-9"
       />
       <Command.List>

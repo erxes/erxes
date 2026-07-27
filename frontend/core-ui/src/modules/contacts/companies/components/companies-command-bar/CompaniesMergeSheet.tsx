@@ -5,6 +5,7 @@ import {
 import { Button, Sheet, cn } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { CompaniesMergeTooltip } from '@/contacts/companies/components/companies-command-bar/CompaniesMergeTooltip';
+import { useTranslation } from 'react-i18next';
 
 const noop = () => {
   //
@@ -25,12 +26,13 @@ export const CompaniesMergeSheet = ({
   onSave = noop,
   ...props
 }: CompaniesMergeSheetProps) => {
+  const { t } = useTranslation('contact');
   return (
     <Sheet {...props}>
       <Sheet.Trigger asChild>
         <Button variant={'secondary'} disabled={disabled}>
           <IconArrowMerge />
-          Merge
+          {t('merge', 'Merge')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
@@ -49,15 +51,18 @@ export const CompaniesMergeSheet = ({
   );
 };
 
-const CompaniesMergeSheetHeader = () => (
-  <Sheet.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
-    <Button variant="ghost" size="icon">
-      <IconLayoutSidebarLeftCollapse />
-    </Button>
-    <Sheet.Title>Merge Companies</Sheet.Title>
-    <Sheet.Close />
-  </Sheet.Header>
-);
+const CompaniesMergeSheetHeader = () => {
+  const { t } = useTranslation('contact');
+  return (
+    <Sheet.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
+      <Button variant="ghost" size="icon">
+        <IconLayoutSidebarLeftCollapse />
+      </Button>
+      <Sheet.Title>{t('company.merge', 'Merge Companies')}</Sheet.Title>
+      <Sheet.Close />
+    </Sheet.Header>
+  );
+};
 
 interface CompaniesMergeSheetFooterProps {
   onDiscard: () => void;
@@ -68,6 +73,7 @@ const CompaniesMergeSheetFooter = ({
   onDiscard,
   onSave,
 }: CompaniesMergeSheetFooterProps) => {
+  const { t } = useTranslation('contact');
   return (
     <Sheet.Footer className="flex justify-end p-5">
       <Button
@@ -76,14 +82,14 @@ const CompaniesMergeSheetFooter = ({
         }}
         variant="secondary"
       >
-        Discard
+        {t('discard', 'Discard')}
       </Button>
       <Button
         onClick={() => {
           onSave();
         }}
       >
-        Save
+        {t('save', 'Save')}
       </Button>
     </Sheet.Footer>
   );
@@ -94,11 +100,12 @@ export const CompaniesMergeSheetTrigger = ({
 }: {
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('contact');
   return (
     <CompaniesMergeTooltip disabled={!disabled}>
       <Button variant={'secondary'} disabled={disabled}>
         <IconArrowMerge />
-        Merge
+        {t('merge', 'Merge')}
       </Button>
     </CompaniesMergeTooltip>
   );

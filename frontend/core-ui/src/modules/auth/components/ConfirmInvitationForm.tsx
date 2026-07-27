@@ -7,8 +7,10 @@ import { motion } from 'framer-motion';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { currentOrganizationState, isCurrentUserLoadedState } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ConfirmInvitationForm = () => {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [token] = useQueryState<string>('token');
   const currentOrganization = useAtomValue(currentOrganizationState);
@@ -25,7 +27,7 @@ export const ConfirmInvitationForm = () => {
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -79,11 +81,10 @@ export const ConfirmInvitationForm = () => {
               className="space-y-3"
             >
               <h1 className="font-semibold text-2xl text-foreground">
-                Invalid Invitation Link
+                {t('invalid-invitation-link', 'Invalid Invitation Link')}
               </h1>
               <p className="text-muted-foreground text-base">
-                This invitation link is invalid or has expired. Please request a
-                new invitation from your organization administrator.
+                {t('invitation-link-expired', 'This invitation link is invalid or has expired. Please request a new invitation from your organization administrator.')}
               </p>
             </motion.div>
           </div>
@@ -127,14 +128,14 @@ export const ConfirmInvitationForm = () => {
             className="text-center space-y-2"
           >
             <h1 className="font-semibold text-2xl text-foreground">
-              You've been invited!
+              {t('youve-been-invited', "You've been invited!")}
             </h1>
             <p className="text-muted-foreground text-base">
-              Join{' '}
+              {t('join-and-collaborate', 'Join')}{' '}
               <span className="font-semibold text-foreground">
                 {currentOrganization?.orgShortName || 'erxes'}
               </span>{' '}
-              and start collaborating
+              {t('and-start-collaborating', 'and start collaborating')}
             </p>
           </motion.div>
         </div>
@@ -150,7 +151,7 @@ export const ConfirmInvitationForm = () => {
             size="lg"
             disabled={loading}
           >
-            Accept invitation
+            {t('accept-invitation', 'Accept invitation')}
           </Button>
         </motion.div>
       </motion.div>

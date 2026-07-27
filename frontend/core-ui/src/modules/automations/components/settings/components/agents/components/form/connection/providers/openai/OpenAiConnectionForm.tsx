@@ -9,12 +9,14 @@ import {
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const OpenAiConnectionForm = ({
   existingApiKeyMask,
 }: {
   existingApiKeyMask?: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { control, watch } = useFormContext<TAiAgentForm>();
   const provider = watch('connection.provider') as TAiAgentProvider;
   const providerLabel = AI_AGENT_PROVIDER_LABELS[provider] || 'OpenAI-compatible';
@@ -37,7 +39,7 @@ export const OpenAiConnectionForm = ({
         name="connection.config.baseUrl"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Base URL</Form.Label>
+            <Form.Label>{t('base-url', 'Base URL')}</Form.Label>
             <Form.Control>
               <Input placeholder={defaultBaseUrl} {...field} />
             </Form.Control>

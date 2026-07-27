@@ -3,8 +3,10 @@ import { Combobox, Command, Filter, PageSubHeader } from 'erxes-ui';
 import { DepartmentsTotalCount } from './DepartmentsTotalCount';
 import { SelectDepartments } from 'ui-modules';
 import { SelectStructureStatus } from '../SelectStructureStatus';
+import { useTranslation } from 'react-i18next';
 
 export const DepartmentsFilter = () => {
+  const { t } = useTranslation('settings');
   return (
     <PageSubHeader>
       <Filter id="departments">
@@ -15,7 +17,7 @@ export const DepartmentsFilter = () => {
               <Filter.View>
                 <Command>
                   <Filter.CommandInput
-                    placeholder="Filter"
+                    placeholder={t('filter', 'Filter')}
                     variant="secondary"
                     className="bg-background"
                   />

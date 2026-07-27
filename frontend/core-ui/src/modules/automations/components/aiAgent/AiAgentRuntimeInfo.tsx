@@ -96,14 +96,14 @@ export const AiAgentRuntimeInfo = ({
           </div>
           {summary.inputChars ? (
             <div className="flex items-center justify-between gap-4">
-              <span>{t('ai-agent-input')}</span>
+              <span>{t('ai-agent-input', 'AI input')}</span>
               <span className="text-foreground">
                 {summary.inputChars} chars
               </span>
             </div>
           ) : null}
           <div className="flex items-center justify-between gap-4">
-            <span>{t('ai-agent-input-mode')}</span>
+            <span>{t('ai-agent-input-mode', 'Input mode')}</span>
             <span className="text-foreground">
               {t(INPUT_MODE_LABEL_KEYS[summary.inputMode])}
             </span>

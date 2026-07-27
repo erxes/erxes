@@ -4,6 +4,7 @@ import {
   REACT_APP_API_URL,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { TExportProgress } from 'ui-modules';
 
 export function ExportHistoryActionsCell({
@@ -11,6 +12,7 @@ export function ExportHistoryActionsCell({
 }: {
   exportItem: TExportProgress;
 }) {
+  const { t } = useTranslation('import-export');
   const canDownload = !!exportItem.fileKey;
 
   if (!canDownload) {
@@ -40,7 +42,7 @@ export function ExportHistoryActionsCell({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
         <DropdownMenu.Item onClick={handleDownload}>
-          <IconDownload /> Download file
+          <IconDownload /> {t('download-file', 'Download file')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

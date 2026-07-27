@@ -1,6 +1,7 @@
 import { formatImportExportEntityTypeLabel } from '@/import-export/shared/formatEntityTypeLabel';
 import { IconFileExport } from '@tabler/icons-react';
 import { Badge, Empty, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useExportHistoriesRecordTable } from './ExportHistoriesContext';
 
 const SELECTED_CONTENT_TYPE_INFO = {
@@ -22,6 +23,7 @@ const UNSELECTED_CONTENT_TYPE_INFO = {
 };
 
 export const ExportHistoriesEmptyState = () => {
+  const { t } = useTranslation('import-export');
   const [selectedEntityType] = useQueryState<string>('type', {
     defaultValue: 'all',
   });
@@ -31,16 +33,16 @@ export const ExportHistoriesEmptyState = () => {
   const isAllSelected = selectedEntityType === 'all';
 
   const label = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.label
+    ? t('all-types', UNSELECTED_CONTENT_TYPE_INFO.label)
     : SELECTED_CONTENT_TYPE_INFO.label(selectedEntityType, contentTypes);
 
   const emptyTitle = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.title
-    : SELECTED_CONTENT_TYPE_INFO.title(label);
+    ? t('no-exports-yet', UNSELECTED_CONTENT_TYPE_INFO.title)
+    : t('no-type-exports-yet', 'No {{label}} exports yet', { label });
 
   const emptyDescription = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.emptyDescription
-    : SELECTED_CONTENT_TYPE_INFO.emptyDescription(label);
+    ? t('export-description', UNSELECTED_CONTENT_TYPE_INFO.emptyDescription)
+    : t('export-type-description', '{{label}} exports will appear here after someone downloads records in that section. Completed files can be downloaded again from this page.', { label });
 
   return (
     <tr>

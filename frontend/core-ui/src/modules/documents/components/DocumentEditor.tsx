@@ -11,6 +11,7 @@ import { Button, BlockEditor, cn, IBlockEditor, useBlockEditor } from 'erxes-ui'
 
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AttributeInEditor } from 'ui-modules';
 
 const EditorController = ({
@@ -164,6 +165,7 @@ const DocumentTitleEditor = ({
   onChange: (value: string) => void;
   onEnterPress: () => void;
 }) => {
+  const { t } = useTranslation('documents');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -207,13 +209,14 @@ const DocumentTitleEditor = ({
       rows={1}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      placeholder="Untitled"
+      placeholder={t('untitled', 'Untitled')}
       className="w-full min-w-0 flex-1 resize-none overflow-hidden border-none bg-transparent px-8 pb-3 pt-10 text-[2.25rem] font-bold leading-tight tracking-tight outline-hidden placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-0"
     />
   );
 };
 
 export const DocumentEditor = () => {
+  const { t } = useTranslation('documents');
   const { document, documentId, loading } = useDocument();
   const editor = useBlockEditor({});
   const { attributes, loading: attributesLoading } = useDocumentAttributes();
@@ -239,10 +242,9 @@ export const DocumentEditor = () => {
       <div className="flex h-full items-center justify-center bg-muted/40">
         <div className="flex flex-col items-center gap-2 text-center">
           <IconFileText className="size-10 text-muted-foreground/60" />
-          <p className="font-medium text-foreground">No document found</p>
+          <p className="font-medium text-foreground">{t('no-document-found', 'No document found')}</p>
           <p className="max-w-xs text-sm text-muted-foreground">
-            This document may have been deleted. Pick another from the list to
-            keep editing.
+            {t('no-document-found-description', 'This document may have been deleted. Pick another from the list to keep editing.')}
           </p>
         </div>
       </div>
@@ -272,7 +274,7 @@ export const DocumentEditor = () => {
               className="mr-5 mt-10 shrink-0 gap-1.5"
               onClick={() => setSidebarOpen(true)}
             >
-              Attributes
+              {t('attributes', 'Attributes')}
               <IconLayoutSidebarRightExpand className="size-4" />
             </Button>
           )}

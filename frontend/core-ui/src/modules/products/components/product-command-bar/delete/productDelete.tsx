@@ -21,18 +21,21 @@ const ProductsDeleteButton = ({
   muted?: boolean;
   trailing?: ReactNode;
   onClick?: () => void;
-}) => (
-  <Button
-    variant="secondary"
-    className={muted ? 'text-muted-foreground' : 'text-destructive'}
-    onClick={onClick}
-    disabled={disabled}
-  >
-    <IconTrash />
-    Delete
-    {trailing}
-  </Button>
-);
+}) => {
+  const { t } = useTranslation('product');
+  return (
+    <Button
+      variant="secondary"
+      className={muted ? 'text-muted-foreground' : 'text-destructive'}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <IconTrash />
+      {t('delete', 'Delete')}
+      {trailing}
+    </Button>
+  );
+};
 
 export const ProductsDelete = ({
   productIds,
@@ -53,7 +56,7 @@ export const ProductsDelete = ({
 
   const confirmOptions = { confirmationValue: 'delete' };
   const disabled = loading || !productIds?.length;
-  const blockedLabel = t('unavailable');
+  const blockedLabel = t('unavailable', 'Unavailable');
 
   const handleClick = useCallback(async () => {
     if (disabled) {
@@ -62,9 +65,7 @@ export const ProductsDelete = ({
 
     try {
       await confirm({
-        message: `Are you sure you want to delete the ${
-          productIds.length
-        } selected product${productIds.length === 1 ? '' : 's'}?`,
+        message: t('confirm-delete-products', { defaultValue: 'Are you sure you want to delete the {{count}} selected product(s)?', count: productIds.length }),
         options: confirmOptions,
       });
 
@@ -72,13 +73,13 @@ export const ProductsDelete = ({
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Products deleted successfully',
+            title: t('products-deleted', 'Products deleted successfully'),
             variant: 'success',
           });
         },
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });

@@ -26,7 +26,7 @@ const Selector = (
   };
   return (
     <Form.Item className="pb-4">
-      <Form.Label>{t('currency')}</Form.Label>
+      <Form.Label>{t('currency', 'Currency')}</Form.Label>
       <Form.Control>
         <MultipleSelector
           options={currencyOptions}

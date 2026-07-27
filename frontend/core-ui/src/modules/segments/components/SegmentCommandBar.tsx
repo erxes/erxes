@@ -1,10 +1,12 @@
 import { Row } from '@tanstack/table-core';
 import { CommandBar, Separator } from 'erxes-ui/components';
 import { RecordTable } from 'erxes-ui/modules/record-table';
+import { useTranslation } from 'react-i18next';
 import { ISegment } from 'ui-modules';
 import { SegmentRemoveButtonCommandBar } from './SegmentsRemoveButton';
 
 export const SegmentCommandBar = () => {
+  const { t } = useTranslation('segment');
   const { table } = RecordTable.useRecordTable();
 
   const segmentIds = table
@@ -17,7 +19,7 @@ export const SegmentCommandBar = () => {
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected', '{{total}} selected', { total: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <SegmentRemoveButtonCommandBar

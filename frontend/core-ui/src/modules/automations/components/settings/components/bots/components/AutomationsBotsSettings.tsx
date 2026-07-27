@@ -8,6 +8,7 @@ import { AutomationSettingsPageShell } from '@/automations/components/settings/c
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { Card, cn, getPluginAssetsUrl, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const BotCard = ({
   name,
@@ -64,11 +65,12 @@ const BotsList = ({
 
 export const AutomationsBotsSettings = () => {
   const { automationBotsConstants, isEmpty, loading } = useAutomationBots();
+  const { t } = useTranslation('automations');
 
   return (
     <AutomationSettingsPageShell
-      title="Automation bots"
-      description="Set up your bots and start connecting with your customers"
+      title={t('automation-bots', 'Automation bots')}
+      description={t('automation-bots-description', 'Set up your bots and start connecting with your customers')}
     >
       {isEmpty && <AutomationBotsEmptyState />}
       {!isEmpty && (

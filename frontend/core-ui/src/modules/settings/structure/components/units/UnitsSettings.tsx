@@ -1,11 +1,13 @@
 import { RecordTable } from 'erxes-ui';
 import { useUnitsList } from '../../hooks/useUnitsList';
-import { UnitsColumns } from './UnitsColumns';
+import { getUnitsColumns } from './UnitsColumns';
+import { useTranslation } from 'react-i18next';
 import { UnitEdit } from './detail/UnitEdit';
 import { UnitsFilter } from './UnitsFilter';
 import { UnitsCommandBar } from './UnitsCommandBar';
 
 export function UnitsSettings() {
+  const { t } = useTranslation('settings');
   const { units, loading } = useUnitsList();
   return (
     <div className="w-full overflow-hidden flex flex-col">
@@ -13,7 +15,7 @@ export function UnitsSettings() {
       <UnitsFilter />
       <RecordTable.Provider
         data={units || []}
-        columns={UnitsColumns}
+        columns={getUnitsColumns(t)}
         stickyColumns={['more', 'checkbox', 'code', 'title']}
         className="m-3"
       >

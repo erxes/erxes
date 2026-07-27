@@ -13,6 +13,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 interface SelectProjectTypesContextType {
   templateTypes?: Array<TemplateType>;
   values?: string[];
@@ -66,12 +67,13 @@ export const SelectProjectTypesProvider = ({
 };
 
 const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('templates');
   const { values, templateTypes = [] } = useSelectProjectTypesContext();
 
   if (!values) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status...'}
+        {placeholder || t('form.type-placeholder', 'Select template type')}
       </span>
     );
   }
@@ -94,7 +96,7 @@ const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
       {selectedTypes?.length ? (
         selectedTypes.join(', ')
       ) : (
-        <span>Төрөл сонгоно уу</span>
+        <span>{t('form.type-placeholder', 'Select template type')}</span>
       )}
     </>
   );
@@ -128,6 +130,7 @@ const SelectProjectTypesCommandItem = ({ type }: { type: TemplateType }) => {
 };
 
 const SelectProjectTypesContent = () => {
+  const { t } = useTranslation('templates');
   const {
     onValueChange,
     values = [],
@@ -136,9 +139,9 @@ const SelectProjectTypesContent = () => {
 
   return (
     <Command id="status-command-menu">
-      <Command.Input placeholder="Төрөл сонгоно уу" />
+      <Command.Input placeholder={t('form.type-placeholder', 'Select template type')} />
       <Command.List>
-        <Command.Empty>No status found</Command.Empty>
+        <Command.Empty>{t('select.no-status', 'No status found')}</Command.Empty>
 
         {templateTypes.map((type) => (
           <SelectProjectTypesCommandItem type={type} />

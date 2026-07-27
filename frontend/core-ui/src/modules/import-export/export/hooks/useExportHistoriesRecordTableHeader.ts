@@ -1,8 +1,10 @@
 import { formatImportExportEntityTypeLabel } from '@/import-export/shared/formatEntityTypeLabel';
 import { useQueryState } from 'erxes-ui';
 import { useExportHistoriesRecordTable } from '../components/ExportHistoriesContext';
+import { useTranslation } from 'react-i18next';
 
 export const useExportHistoriesRecordTableHeader = () => {
+  const { t } = useTranslation('import-export');
   const [selectedEntityType, setSelectedEntityType] = useQueryState<string>(
     'type',
     {
@@ -15,12 +17,12 @@ export const useExportHistoriesRecordTableHeader = () => {
 
   const totalLabel =
     totalCount === 1
-      ? '1 export job'
-      : `${totalCount.toLocaleString()} export jobs`;
+      ? t('export-job-one', '1 export job')
+      : `${totalCount.toLocaleString()} ${t('export-jobs', 'export jobs')}`;
 
   const selectedTypeLabel =
     selectedEntityType === 'all'
-      ? 'All types'
+      ? t('all-types', 'All types')
       : formatImportExportEntityTypeLabel(
           selectedEntityType || 'all',
           contentTypes,

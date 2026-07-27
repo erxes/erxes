@@ -1,7 +1,9 @@
 import { IconBellRinging, IconMenuDeep, IconSearch } from '@tabler/icons-react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const BroadcastWebNotificationMockup = () => {
+  const { t } = useTranslation('broadcasts');
   const { watch } = useFormContext();
 
   const title = watch('notification.title');
@@ -26,7 +28,7 @@ export const BroadcastWebNotificationMockup = () => {
                     <div className="flex items-center gap-2 border-b px-4 py-3">
                       <IconBellRinging className="h-4 w-4 text-primary" />
                       <span className="text-sm font-medium">
-                        In-app notification
+                        {t('in-app-notification', 'In-app push notification')}
                       </span>
                     </div>
 
@@ -44,11 +46,11 @@ export const BroadcastWebNotificationMockup = () => {
                       </svg>
                       <div>
                         <div className="mb-1 text-sm font-semibold">
-                          {title || 'Notification title'}
+                          {title || t('mockup.notification-title', 'Notification title')}
                         </div>
 
                         <div className="text-sm text-muted-foreground whitespace-pre-line">
-                          {content || 'Notification content will appear here'}
+                          {content || t('mockup.notification-content', 'Notification content will appear here')}
                         </div>
                       </div>
                     </div>

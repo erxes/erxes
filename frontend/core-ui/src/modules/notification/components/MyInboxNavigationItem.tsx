@@ -9,7 +9,7 @@ export const MyInboxNavigationItem = () => {
   return (
     <NavigationMenuLinkItem
       path={'my-inbox'}
-      name={t('my-inbox')}
+      name={t('my-inbox', 'My inbox')}
       icon={IconInbox}
       children={<NotificationCount />}
     />

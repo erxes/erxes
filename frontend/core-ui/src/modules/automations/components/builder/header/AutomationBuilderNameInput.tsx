@@ -15,7 +15,7 @@ export const AutomationBuilderNameInput = () => {
           <Input
             autoFocus
             placeholder={
-              fieldState.error ? fieldState.error.message : t('automation-name-placeholder')
+              fieldState.error ? fieldState.error.message : t('automation-name-placeholder', 'Automation name')
             }
             className={'w-64 h-7 rounded-md'}
             {...field}

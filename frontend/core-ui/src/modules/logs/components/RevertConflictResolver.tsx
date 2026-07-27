@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Badge, ToggleGroup, cn } from 'erxes-ui';
 import {
   IconAlertTriangle,
@@ -63,6 +64,7 @@ const FieldRow = ({
   mode: Mode;
   onChange: (mode: Mode) => void;
 }) => {
+  const { t } = useTranslation('common');
   const previous = formatValue(field.revertValue);
   const current = formatValue(field.currentValue);
 
@@ -79,20 +81,20 @@ const FieldRow = ({
           value={mode}
           onValueChange={(v) => v && onChange(v as Mode)}
         >
-          <ToggleGroup.Item value="restore">Restore previous</ToggleGroup.Item>
-          <ToggleGroup.Item value="keep">Keep current</ToggleGroup.Item>
+          <ToggleGroup.Item value="restore">{t('logs.restore-previous', 'Restore previous')}</ToggleGroup.Item>
+          <ToggleGroup.Item value="keep">{t('logs.keep-current', 'Keep current')}</ToggleGroup.Item>
         </ToggleGroup>
       </div>
       <div className="flex items-stretch gap-2">
         <ValueChip
-          label="Previous"
+          label={t('logs.previous', 'Previous')}
           value={previous}
           active={mode === 'restore'}
         />
         <div className="flex shrink-0 items-center text-muted-foreground">
           <IconArrowRight className="size-4" />
         </div>
-        <ValueChip label="Current" value={current} active={mode === 'keep'} />
+        <ValueChip label={t('logs.current', 'Current')} value={current} active={mode === 'keep'} />
       </div>
     </div>
   );
@@ -148,6 +150,7 @@ export const RevertConflictResolver = ({
   onChoice,
   onSetAll,
 }: RevertConflictResolverProps) => {
+  const { t } = useTranslation('common');
   const fieldCount = conflicts.reduce((n, c) => n + c.fields.length, 0);
   const modes = conflicts.flatMap((c) =>
     c.fields.map((f) => choices[conflictKey(c)]?.[f.field] ?? 'restore'),
@@ -167,20 +170,20 @@ export const RevertConflictResolver = ({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground">
             {multi
-              ? 'These records changed after your action'
-              : 'This record changed after your action'}
+              ? t('logs.records-changed-multi', 'These records changed after your action')
+              : t('logs.records-changed-single', 'This record changed after your action')}
           </p>
           <p className="mt-0.5 text-sm text-muted-foreground">
             {fieldCount} detail{fieldCount === 1 ? ' was' : 's were'} edited in
             the meantime. Choose which version to keep — the highlighted side is
-            what you’ll end up with.
+            what you'll end up with.
           </p>
         </div>
       </div>
 
       <div className="flex items-center justify-between gap-3 border-y bg-muted/30 px-4 py-2">
         <span className="text-xs font-medium text-muted-foreground">
-          Apply to everything
+          {t('logs.apply-to-everything', 'Apply to everything')}
         </span>
         <ToggleGroup
           type="single"
@@ -191,11 +194,11 @@ export const RevertConflictResolver = ({
         >
           <ToggleGroup.Item value="restore" className="gap-1.5">
             <IconArrowBackUp className="size-3.5" />
-            Restore all
+            {t('logs.restore-all', 'Restore all')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="keep" className="gap-1.5">
             <IconCheck className="size-3.5" />
-            Keep all
+            {t('logs.keep-all', 'Keep all')}
           </ToggleGroup.Item>
         </ToggleGroup>
       </div>

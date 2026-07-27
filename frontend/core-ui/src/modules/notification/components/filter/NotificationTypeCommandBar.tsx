@@ -1,12 +1,14 @@
 import { NOTIFICATION_TYPE_ICONS } from '@/notification/constants/notifications';
 import { IconCheck } from '@tabler/icons-react';
 import { Command, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const NotificationTypeCommandBar = () => {
+  const { t } = useTranslation('notification');
   const [type, setType] = useQueryState<string>('type');
   return (
     <Command>
-      <Command.Input placeholder="Search" focusOnMount />
+      <Command.Input placeholder={t('search', 'Search')} focusOnMount />
       <Command.List>
         <Command.Empty />
         {['info', 'success', 'warning', 'error'].map((value) => {

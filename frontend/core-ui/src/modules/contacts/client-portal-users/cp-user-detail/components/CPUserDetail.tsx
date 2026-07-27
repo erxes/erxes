@@ -33,7 +33,7 @@ export function CPUserDetail() {
         errorState={<CPUserDetailErrorState />}
       >
         <FocusSheet.Header
-          title={t('title', { defaultValue: 'Client Portal User' })}
+          title={t('title', 'Client Portal User')}
         />
         <FocusSheet.Content>
           <FocusSheet.SideBar>
@@ -66,6 +66,9 @@ export function CPUserDetail() {
 }
 
 function CPUserDetailEmptyState() {
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'clientPortalUser.detail',
+  });
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
@@ -73,9 +76,9 @@ function CPUserDetailEmptyState() {
           <Empty.Media variant="icon">
             <IconCloudExclamation />
           </Empty.Media>
-          <Empty.Title>Client Portal User not found</Empty.Title>
+          <Empty.Title>{t('not-found', 'Client Portal User not found')}</Empty.Title>
           <Empty.Description>
-            There seems to be no client portal user with this ID.
+            {t('not-found-description', 'There seems to be no client portal user with this ID.')}
           </Empty.Description>
         </Empty.Header>
       </Empty>
@@ -84,6 +87,7 @@ function CPUserDetailEmptyState() {
 }
 
 function CPUserDetailErrorState() {
+  const { t } = useTranslation('contact');
   const { error } = useClientPortalUser();
   return (
     <div className="flex items-center justify-center h-full">
@@ -92,7 +96,7 @@ function CPUserDetailErrorState() {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>Error</Empty.Title>
+          <Empty.Title>{t('error', 'Error')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
       </Empty>

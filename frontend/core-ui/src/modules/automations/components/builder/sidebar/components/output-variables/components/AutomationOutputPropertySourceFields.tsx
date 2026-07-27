@@ -1,4 +1,5 @@
 import { Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   TAutomationVariableDragPayload,
   useFields,
@@ -27,6 +28,7 @@ export const AutomationOutputPropertySourceFields = ({
   buildVariablePayload: TAutomationVariablePayloadBuilder;
   onInsertVariable?: (payload: TAutomationVariableDragPayload) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { fields, loading } = useFields({
     contentType: source.propertyType,
   });
@@ -78,8 +80,8 @@ export const AutomationOutputPropertySourceFields = ({
         <AutomationVariableBrowserEmptyState
           text={
             searchQuery
-              ? 'No matching property fields.'
-              : 'No property fields available.'
+              ? t('no-matching-property-fields', 'No matching property fields.')
+              : t('no-property-fields-available', 'No property fields available.')
           }
         />
       )}

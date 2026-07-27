@@ -13,6 +13,7 @@ import {
   useSetHotkeyScope,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   type ProductAttachmentItem,
   toProductAttachmentItem,
@@ -29,6 +30,7 @@ import { CategoryUpdateMoreFields } from './CategoryUpdateMoreFields';
 import { useProductCategoryDetail } from '../hooks/useCategoryDetail';
 
 export const CategoryDetailSheet = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   const [activeTab] = useAtom(renderingCategoryDetailAtom);
   const setHotkeyScope = useSetHotkeyScope();
   const [categoryId, setCategoryId] = useQueryState<string>('category_id');
@@ -94,14 +96,14 @@ export const CategoryDetailSheet = () => {
         },
         onError: (e: { message: any }) => {
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
         },
         onCompleted: () => {
           toast({
-            title: 'Category updated successfully',
+            title: t('category-updated', 'Category updated successfully'),
             variant: 'success',
           });
           form.reset();
@@ -155,7 +157,7 @@ export const CategoryDetailSheet = () => {
           )}
         >
           <div className="p-5 text-sm text-destructive">
-            {error?.message || 'Failed to load category.'}
+            {error?.message || t('failed-to-load-category', 'Failed to load category.')}
           </div>
         </Sheet.View>
       </Sheet>
@@ -184,10 +186,10 @@ export const CategoryDetailSheet = () => {
             className="flex overflow-hidden flex-col h-full"
           >
             <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-              <Sheet.Title>Edit Category</Sheet.Title>
+              <Sheet.Title>{t('edit-category', 'Edit Category')}</Sheet.Title>
               <Sheet.Close />
               <Sheet.Description className="sr-only">
-                Edit Category Details
+                {t('edit-category-details', 'Edit Category Details')}
               </Sheet.Description>
             </Sheet.Header>
 
@@ -214,10 +216,10 @@ export const CategoryDetailSheet = () => {
                 variant="outline"
                 onClick={() => setOpen(null)}
               >
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={editLoading}>
-                {editLoading ? 'Saving...' : 'Save'}
+                {editLoading ? t('saving', 'Saving...') : t('save', 'Save')}
               </Button>
             </Sheet.Footer>
           </form>

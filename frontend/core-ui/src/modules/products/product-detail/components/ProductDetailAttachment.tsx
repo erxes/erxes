@@ -64,7 +64,10 @@ export const ProductDetailAttachment = ({
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 items-stretch md:grid-cols-3">
         <div className="h-full md:col-span-1">
-          <InfoCard title={t('featured-image')} className="h-full">
+          <InfoCard
+            title={t('featured-image', 'Featured image')}
+            className="h-full"
+          >
             <InfoCard.Content className="h-full">
               <ProductPrimaryImageUpload
                 value={featured}
@@ -74,7 +77,10 @@ export const ProductDetailAttachment = ({
           </InfoCard>
         </div>
         <div className="h-full md:col-span-2">
-          <InfoCard title={t('secondary-images')} className="h-full">
+          <InfoCard
+            title={t('secondary-images', 'Secondary images')}
+            className="h-full"
+          >
             <InfoCard.Content className="h-full">
               <ProductSecondaryImagesUpload
                 value={secondary}
@@ -85,7 +91,7 @@ export const ProductDetailAttachment = ({
           </InfoCard>
         </div>
       </div>
-      <InfoCard title={t('videos') || 'Videos'} className="h-full">
+      <InfoCard title={t('videos', 'Videos')} className="h-full">
         <InfoCard.Content className="h-full">
           <ProductVideosUpload
             value={videoItems}

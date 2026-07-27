@@ -2,6 +2,7 @@ import { IconCheck } from '@tabler/icons-react';
 
 import { DeviceAuthorizeScopeGroup } from './DeviceAuthorizeScopeGroup';
 import type { ActionGroup } from '../types';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   loadingDetails: boolean;
@@ -22,6 +23,7 @@ export const DeviceAuthorizeScopes = ({
   loading,
   onToggle,
 }: Props) => {
+  const { t } = useTranslation('auth');
   if (loadingDetails) {
     return (
       <div className="space-y-3">
@@ -35,7 +37,7 @@ export const DeviceAuthorizeScopes = ({
   if (isCodeMissing) {
     return (
       <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-        Device authorization code is missing.
+        {t('device-code-missing', 'Device authorization code is missing.')}
       </div>
     );
   }
@@ -51,17 +53,16 @@ export const DeviceAuthorizeScopes = ({
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm font-medium">
           <IconCheck className="size-4 text-primary" />
-          This application will be able to:
+          {t('app-will-be-able-to', 'This application will be able to:')}
         </div>
         <p className="text-sm text-muted-foreground">
-          Only permissions your account already has are shown here.
+          {t('only-your-permissions-shown', 'Only permissions your account already has are shown here.')}
         </p>
       </div>
 
       {hasNoGrantableScopes ? (
         <div className="rounded-lg border p-4 text-sm text-muted-foreground">
-          Your account does not have any grantable permissions from this
-          request.
+          {t('no-grantable-permissions', 'Your account does not have any grantable permissions from this request.')}
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border">

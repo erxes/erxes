@@ -2,6 +2,7 @@ import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRunt
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const toNumber = (value: string) => {
   if (value === '') {
@@ -12,6 +13,7 @@ const toNumber = (value: string) => {
 };
 
 export const AiAgentRuntimeForm = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentForm>();
   const values = useWatch({
     control,
@@ -24,7 +26,7 @@ export const AiAgentRuntimeForm = () => {
         name="runtime.temperature"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Temperature</Form.Label>
+            <Form.Label>{t('temperature', 'Temperature')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
@@ -38,7 +40,7 @@ export const AiAgentRuntimeForm = () => {
               />
             </Form.Control>
             <Form.Description>
-              Lower values keep routing and extraction more deterministic.
+              {t('temperature-description', 'Lower values keep routing and extraction more deterministic.')}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -50,7 +52,7 @@ export const AiAgentRuntimeForm = () => {
         name="runtime.maxTokens"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Max Tokens</Form.Label>
+            <Form.Label>{t('max-tokens', 'Max Tokens')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
@@ -63,7 +65,7 @@ export const AiAgentRuntimeForm = () => {
               />
             </Form.Control>
             <Form.Description>
-              Caps the length of the AI response so automation steps stay fast.
+              {t('max-tokens-description', 'Caps the length of the AI response so automation steps stay fast.')}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -75,7 +77,7 @@ export const AiAgentRuntimeForm = () => {
         name="runtime.timeoutMs"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Timeout (ms)</Form.Label>
+            <Form.Label>{t('timeout-ms', 'Timeout (ms)')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
@@ -88,8 +90,7 @@ export const AiAgentRuntimeForm = () => {
               />
             </Form.Control>
             <Form.Description>
-              The automation waits for the provider until this timeout is
-              reached.
+              {t('timeout-ms-description', 'The automation waits for the provider until this timeout is reached.')}
             </Form.Description>
             <Form.Message />
           </Form.Item>

@@ -6,12 +6,14 @@ import { Can } from 'ui-modules';
 import { useBrandsRemove } from '../hooks/useBrandsRemove';
 import { renderingBrandDetailAtom } from '../state';
 import { IBrand } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const BrandsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IBrand, unknown>;
 }) => {
+  const { t } = useTranslation('settings');
   const [, setBrandDetail] = useQueryState('brand_id');
   const setRenderingBrandDetail = useSetAtom(renderingBrandDetailAtom);
   const { _id, name } = cell.row.original;
@@ -27,7 +29,7 @@ export const BrandsMoreColumnCell = ({
         await brandsRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -53,12 +55,12 @@ export const BrandsMoreColumnCell = ({
                   setBrandDetail(_id);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit', 'Edit')}
               </Command.Item>
             </Can>
             <Can action="brandsDelete">
               <Command.Item value="delete" onSelect={handleDelete}>
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete', 'Delete')}
               </Command.Item>
             </Can>
           </Command.List>

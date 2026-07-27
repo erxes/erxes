@@ -1,6 +1,7 @@
 import { IconApi, IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SubmitHandler } from 'react-hook-form';
 import { useOAuthClientsForm } from '../hooks/useOAuthClientsForm';
 import { useOAuthClientsAdd } from '../hooks/useOAuthClientsAdd';
@@ -9,6 +10,7 @@ import { OAuthClientForm } from './OAuthClientForm';
 import { OAuthClientSecretDialog } from './OAuthClientSecretDialog';
 
 export const CreateOAuthClient = () => {
+  const { t } = useTranslation('settings');
   const { toast } = useToast();
   const { oauthClientAppsAdd, loading } = useOAuthClientsAdd();
   const {
@@ -32,7 +34,7 @@ export const CreateOAuthClient = () => {
         onCompleted: ({ oauthClientAppsAdd: oauthClientApp }) => {
           toast({
             variant: 'success',
-            title: 'OAuth client created successfully',
+            title: t('oauth-client.created-successfully', 'OAuth client created successfully'),
           });
           if (oauthClientApp?.generatedSecret) {
             setRevealedSecret({
@@ -45,7 +47,7 @@ export const CreateOAuthClient = () => {
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -60,7 +62,7 @@ export const CreateOAuthClient = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Create OAuth client
+            {t('oauth-client.create', 'Create OAuth client')}
           </Button>
         </Sheet.Trigger>
         <Sheet.View className="p-0">
@@ -71,7 +73,7 @@ export const CreateOAuthClient = () => {
             >
               <Sheet.Header>
                 <IconApi />
-                <Sheet.Title>Create OAuth client</Sheet.Title>
+                <Sheet.Title>{t('oauth-client.create', 'Create OAuth client')}</Sheet.Title>
                 <Sheet.Close />
               </Sheet.Header>
               <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -79,10 +81,10 @@ export const CreateOAuthClient = () => {
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant="secondary" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? <Spinner /> : 'Create client'}
+                  {loading ? <Spinner /> : t('oauth-client.create-client', 'Create client')}
                 </Button>
               </Sheet.Footer>
             </form>

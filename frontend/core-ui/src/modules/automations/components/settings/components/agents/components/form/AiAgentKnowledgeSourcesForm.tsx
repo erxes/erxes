@@ -18,13 +18,13 @@ export const AiAgentKnowledgeSourcesForm = () => {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">{t('knowledge-sources')}</h3>
+        <h3 className="text-sm font-medium">{t('knowledge-sources', 'Knowledge sources')}</h3>
         <span className="text-xs text-muted-foreground">
           {indexedCount} indexed · {indexingCount} indexing
         </span>
       </div>
       <p className="text-sm text-muted-foreground">
-        {t('knowledge-sources-description')}
+        {t('knowledge-sources-description', 'Select the records this agent may index and retrieve during an automation run.')}
       </p>
 
       <div className="mt-4 flex gap-4">

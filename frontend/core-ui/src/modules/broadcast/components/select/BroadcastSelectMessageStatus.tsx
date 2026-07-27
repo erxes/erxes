@@ -12,6 +12,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectProjectStatusContextType {
   value?: string;
@@ -66,12 +67,13 @@ const SelectProjectStatusValue = ({
 }: {
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('broadcasts');
   const { value } = useSelectProjectStatusContext();
 
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status...'}
+        {placeholder || t('select-status-placeholder', 'Select status...')}
       </span>
     );
   }
@@ -107,11 +109,12 @@ const SelectProjectStatusCommandItem = ({
 };
 
 const SelectProjectStatusContent = () => {
+  const { t } = useTranslation('broadcasts');
   return (
     <Command id="status-command-menu">
-      <Command.Input placeholder="Select status" />
+      <Command.Input placeholder={t('select-status', 'Select status')} />
       <Command.List>
-        <Command.Empty>No status found</Command.Empty>
+        <Command.Empty>{t('no-status-found', 'No status found')}</Command.Empty>
         {BROADCAST_MESSAGE_STATUS.map((item) => (
           <SelectProjectStatusCommandItem
             key={item.value}

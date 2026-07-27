@@ -15,7 +15,7 @@ export const MyInboxHeader = () => {
           <Button variant="ghost" asChild>
             <Link to="/my-inbox">
               <IconInbox />
-              {t('my-inbox')}
+              {t('my-inbox', 'My Inbox')}
             </Link>
           </Button>
           <div className="flex gap-2 items-center ml-auto">

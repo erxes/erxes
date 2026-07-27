@@ -71,7 +71,7 @@ export const GeneralConfigForm = () => {
   if (configsLoading) {
     return (
       <div className="space-y-6">
-        <InfoCard title={t('general-settings')}>
+        <InfoCard title={t('general-settings', 'General settings')}>
           <InfoCard.Content>
             <Skeleton className="w-full h-36" />
           </InfoCard.Content>
@@ -82,7 +82,7 @@ export const GeneralConfigForm = () => {
 
   return (
     <div className="space-y-6">
-      <InfoCard title={t('general-settings')}>
+      <InfoCard title={t('general-settings', 'General settings')}>
         <InfoCard.Content>
           <div className="flex gap-2 items-center">
             <Checkbox
@@ -94,13 +94,13 @@ export const GeneralConfigForm = () => {
             />
 
             <Label htmlFor="isRequireUOM" className="cursor-pointer">
-              {t('is-required-uom')}
+              {t('is-required-uom', 'Require UOM')}
             </Label>
           </div>
 
           {isRequireUOM && (
             <div className="space-y-2">
-              <Label>{t('default-uom')}</Label>
+              <Label>{t('default-uom', 'Default UOM')}</Label>
               <SelectUOM value={defaultUom} onValueChange={setDefaultUom} />
             </div>
           )}
@@ -109,7 +109,7 @@ export const GeneralConfigForm = () => {
             <div className="flex justify-end">
               <Button onClick={handleSave} disabled={updating}>
                 <IconCheck />
-                {updating ? t('saving') : t('save')}
+                {updating ? t('saving', 'Saving...') : t('save', 'Save')}
               </Button>
             </div>
           )}

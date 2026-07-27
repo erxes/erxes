@@ -13,7 +13,7 @@ import { ISegment } from 'ui-modules';
 import { segmentMoreColumn } from './SegmentsMoreColumn';
 
 const columns: (
-  t: (key: string) => string,
+  t: (key: string, defaultValue: string) => string,
 ) => ColumnDef<{ order: string; hasChildren: boolean } & ISegment>[] = (t) => [
   segmentMoreColumn,
   {
@@ -23,7 +23,7 @@ const columns: (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label={t('name')} />,
+    header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       const [, setSegmentId] = useQueryState('segmentId');
       const { _id, name } = cell.row.original;
@@ -77,7 +77,7 @@ const columns: (
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label={t('description')} />,
+    header: () => <RecordTable.InlineHead label={t('description', 'Description')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -89,7 +89,7 @@ const columns: (
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => <RecordTable.InlineHead label={t('count')} />,
+    header: () => <RecordTable.InlineHead label={t('count', 'Count')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

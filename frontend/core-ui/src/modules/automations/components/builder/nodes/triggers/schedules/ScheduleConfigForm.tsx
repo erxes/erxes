@@ -36,9 +36,9 @@ export const ScheduleConfigForm = ({
   const form = useForm<ScheduleConfig>({
     resolver: zodResolver(
       createScheduleConfigSchema(
-        t('schedule-cron-required'),
-        t('schedule-cron-format-error'),
-        t('schedule-timezone-required'),
+        t('schedule-cron-required', 'Cron expression is required'),
+        t('schedule-cron-format-error', 'Use a 5, 6, or 7 field cron expression'),
+        t('schedule-timezone-required', 'Timezone is required'),
       ),
     ),
     defaultValues: {
@@ -51,8 +51,8 @@ export const ScheduleConfigForm = ({
     submit: () =>
       form.handleSubmit(handleSave, () => {
         toast({
-          title: t('schedule-validation-title'),
-          description: t('schedule-validation-description'),
+          title: t('schedule-validation-title', 'Check the schedule configuration'),
+          description: t('schedule-validation-description', 'A valid cron expression and timezone are required.'),
           variant: 'destructive',
         });
       })(),
@@ -66,7 +66,7 @@ export const ScheduleConfigForm = ({
           name="cron"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('schedule-cron-label')}</Form.Label>
+              <Form.Label>{t('schedule-cron-label', 'Cron expression')}</Form.Label>
               <Form.Control>
                 <Input
                   {...field}
@@ -75,7 +75,7 @@ export const ScheduleConfigForm = ({
                 />
               </Form.Control>
               <Form.Description>
-                {t('schedule-cron-description')}
+                {t('schedule-cron-description', 'Five to seven fields. For example, 0 9 * * 1 runs every Monday at 09:00.')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -87,12 +87,12 @@ export const ScheduleConfigForm = ({
           name="timezone"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('schedule-timezone-label')}</Form.Label>
+              <Form.Label>{t('schedule-timezone-label', 'Timezone')}</Form.Label>
               <Form.Control>
                 <Input {...field} placeholder="Asia/Ulaanbaatar" />
               </Form.Control>
               <Form.Description>
-                {t('schedule-timezone-description')}
+                {t('schedule-timezone-description', 'Use an IANA timezone such as UTC, Asia/Ulaanbaatar, or America/New_York.')}
               </Form.Description>
               <Form.Message />
             </Form.Item>

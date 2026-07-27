@@ -12,8 +12,10 @@ import {
   Popover,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoriesFilterBar = () => {
+  const { t } = useTranslation('automations');
   const [queries, setQueries] = useMultiQueryState<{
     status?: StatusBadgeValue;
     createdAt: string;
@@ -24,7 +26,7 @@ export const AutomationHistoriesFilterBar = () => {
       <Filter.BarItem queryKey="status">
         <Filter.BarName>
           <IconProgressCheck />
-          Status
+          {t('status', 'Status')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
@@ -68,7 +70,7 @@ export const AutomationHistoriesFilterBar = () => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          Filter by created at
+          {t('filter-by-created-at', 'Filter by created at')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>

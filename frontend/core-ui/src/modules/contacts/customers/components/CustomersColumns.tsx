@@ -72,7 +72,7 @@ export const createCustomersColumns = (
     accessorKey: 'name',
     header: () => (
       <RecordTable.InlineHead
-        label={t('customer.name')}
+        label={t('customer.name', 'Name')}
         icon={IconLabelFilled}
       />
     ),
@@ -117,7 +117,7 @@ export const createCustomersColumns = (
     id: 'emails',
     accessorKey: 'primaryEmail',
     header: () => (
-      <RecordTable.InlineHead label={t('customer.emails')} icon={IconMail} />
+      <RecordTable.InlineHead label={t('customer.emails', 'Emails')} icon={IconMail} />
     ),
     cell: ({ cell }) => {
       const { primaryEmail, _id, emailValidationStatus, emails } =
@@ -139,7 +139,7 @@ export const createCustomersColumns = (
     id: 'phones',
     accessorKey: 'primaryPhone',
     header: () => (
-      <RecordTable.InlineHead label={t('customer.phones')} icon={IconPhone} />
+      <RecordTable.InlineHead label={t('customer.phones', 'Phones')} icon={IconPhone} />
     ),
     cell: ({ cell }) => {
       const { _id, primaryPhone, phones, phoneValidationStatus } =
@@ -162,7 +162,7 @@ export const createCustomersColumns = (
     id: 'tagIds',
     accessorKey: 'tagIds',
     header: () => (
-      <RecordTable.InlineHead label={t('customer.tags')} icon={IconTags} />
+      <RecordTable.InlineHead label={t('customer.tags', 'Tags')} icon={IconTags} />
     ),
     cell: ({ cell }) => {
       return (
@@ -195,7 +195,7 @@ export const createCustomersColumns = (
     id: 'sex',
     accessorKey: 'sex',
     header: () => (
-      <RecordTable.InlineHead label={t('customer.sex')} icon={IconGenderMale} />
+      <RecordTable.InlineHead label={t('customer.sex', 'Sex')} icon={IconGenderMale} />
     ),
     cell: ({ cell }) => {
       const { customerEdit } = useCustomerEdit();
@@ -231,7 +231,7 @@ export const createCustomersColumns = (
     id: 'owner',
     accessorKey: 'owner',
     header: () => (
-      <RecordTable.InlineHead label={t('customer.owner')} icon={IconUser} />
+      <RecordTable.InlineHead label={t('customer.owner', 'Owner')} icon={IconUser} />
     ),
     cell: ({ cell }) => {
       return (
@@ -249,7 +249,7 @@ export const createCustomersColumns = (
     accessorKey: 'lastSeenAt',
     header: () => (
       <RecordTable.InlineHead
-        label={t('customer.last-seen')}
+        label={t('customer.last-seen', 'Last Seen')}
         icon={IconClock}
       />
     ),
@@ -268,7 +268,7 @@ export const createCustomersColumns = (
     accessorKey: 'sessionCount',
     header: () => (
       <RecordTable.InlineHead
-        label={t('customer.session-count')}
+        label={t('customer.session-count', 'Session Count')}
         icon={IconChartBar}
       />
     ),
@@ -285,7 +285,7 @@ export const createCustomersColumns = (
     accessorKey: 'createdAt',
     header: () => (
       <RecordTable.InlineHead
-        label={t('customer.created-at')}
+        label={t('customer.created-at', 'Created At')}
         icon={IconCalendarPlus}
       />
     ),

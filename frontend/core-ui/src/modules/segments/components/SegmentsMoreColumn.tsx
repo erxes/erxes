@@ -11,12 +11,14 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Can, ISegment } from 'ui-modules';
 import { useRemoveSegments } from '../hooks/useRemoveSegments';
+import { useTranslation } from 'react-i18next';
 
 export const SegmentMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<{ order: string; hasChildren: boolean } & ISegment, unknown>;
 }) => {
+  const { t } = useTranslation('segment');
   const { _id, name } = cell.row.original;
   const [, setSegmentId] = useQueryState<string>('segmentId');
   const { confirm } = useConfirm();
@@ -29,8 +31,8 @@ export const SegmentMoreColumnCell = ({
   const handleDelete = () => {
     if (!_id) {
       toast({
-        title: 'Error',
-        description: 'Segment ID is missing',
+        title: t('error', 'Error'),
+        description: t('segment-id-missing', 'Segment ID is missing'),
         variant: 'destructive',
       });
       return;
@@ -42,13 +44,13 @@ export const SegmentMoreColumnCell = ({
       try {
         await removeSegments([_id]);
         toast({
-          title: 'Success',
+          title: t('success', 'Success'),
           variant: 'success',
-          description: 'Segment deleted successfully',
+          description: t('segment-deleted', 'Segment deleted successfully'),
         });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -67,10 +69,10 @@ export const SegmentMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

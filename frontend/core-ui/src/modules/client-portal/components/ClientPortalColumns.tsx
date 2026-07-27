@@ -25,7 +25,7 @@ import {
 import { useState } from 'react';
 import { clientPortalMoreColumn } from './ClientPortalMoreColumn';
 
-export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
+export const getClientPortalColumns = (t: (key: string, defaultValue?: string) => string): ColumnDef<IClientPortal>[] => [
   clientPortalMoreColumn,
   {
     ...RecordTable.checkboxColumn,
@@ -35,7 +35,7 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label="Name" />,
+    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -60,7 +60,7 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   {
     id: 'domain',
     accessorKey: 'domain',
-    header: () => <RecordTable.InlineHead icon={IconBrowser} label="Domain" />,
+    header: () => <RecordTable.InlineHead icon={IconBrowser} label={t('domain', 'Domain')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.row.original.domain} />
@@ -71,14 +71,14 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   {
     id: 'token',
     accessorKey: 'token',
-    header: () => <RecordTable.InlineHead icon={IconKey} label="Token" />,
+    header: () => <RecordTable.InlineHead icon={IconKey} label={t('token', 'Token')} />,
     cell: ({ cell }) => {
       const [isCopied, setIsCopied] = useState(false);
 
       const handleCopy = () => {
         setIsCopied(true);
         navigator.clipboard.writeText(cell.row.original.token ?? '');
-        toast({ title: 'Copied to clipboard' });
+        toast({ title: t('copied-to-clipboard', 'Copied to clipboard') });
         setTimeout(() => setIsCopied(false), 2000);
       };
 
@@ -108,7 +108,7 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created At" />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created At')} />
     ),
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>

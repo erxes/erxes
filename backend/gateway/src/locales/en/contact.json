@@ -18,7 +18,19 @@
       "phone-verification-status": "Phone verification status",
       "description": "Description",
       "subscribed": "Subscribed",
-      "success-message": "Customer added successfully"
+      "success-message": "Customer added successfully",
+      "title-lead": "Create Lead",
+      "title-customer": "Create Customer",
+      "creating": "Creating...",
+      "customer-information": "Customer Information",
+      "select-owner": "Select owner",
+      "choose": "Choose",
+      "lead-created-success": "Lead created successfully",
+      "customer-created-success": "Customer created successfully",
+      "customer-properties": "Customer Properties",
+      "no-properties-found": "No properties found. Create properties in Settings.",
+      "avatar-upload-description": "Upload an avatar for the customer",
+      "create-new-customer": "Create new customer"
     },
     "detail": {
       "add-tags": "Add tags",
@@ -34,11 +46,18 @@
       "emails": "Emails",
       "description": "Description",
       "subscribed": "Subscribed",
-      "score": "Score"
+      "score": "Score",
+      "not-found": "Customer not found",
+      "not-found-description": "There seems to be no customer with this ID."
     },
     "edit": "Edit customer",
     "delete": "Delete customer",
     "confirm-delete": "Are you sure you want to delete this customer?",
+    "delete-confirm": "Are you sure you want to delete the {{count}} selected customers?",
+    "delete-success": "Customers deleted successfully",
+    "merge-success": "Customers merged successfully",
+    "merge-customers": "Merge Customers",
+    "merge-only-two-contacts": "You can only merge 2 contacts",
     "name": "Name",
     "emails": "Emails",
     "phones": "Phones",
@@ -50,6 +69,7 @@
     "created-at": "Created At"
   },
   "company": {
+    "_": "Company",
     "name": "Name",
     "emails": "Emails",
     "phones": "Phones",
@@ -73,12 +93,25 @@
       "plan": "Plan",
       "description": "Description",
       "owner-placeholder": "Select owner",
-      "industry-placeholder": "Select industries"
+      "industry-placeholder": "Select industries",
+      "select-country": "Select country"
     },
     "add": {
       "_": "Add Company",
+      "add-new-company": "Add a new company",
       "success-message": "Company added successfully"
-    }
+    },
+    "detail": {
+      "_": "Company Details",
+      "not-found": "Company not found",
+      "not-found-description": "There seems to be no company with this ID."
+    },
+    "delete-confirm": "Are you sure you want to delete the {{count}} selected companies?",
+    "delete-success": "Companies deleted successfully",
+    "merge": "Merge Companies",
+    "merge-only-two": "You can only merge 2 companies",
+    "update-success": "Company details updated successfully.",
+    "update-failed": "Update Failed"
   },
   "lead": {
     "add": {
@@ -89,9 +122,111 @@
       "lead-detail": "Lead details"
     }
   },
+  "clientPortalUser": {
+    "_": "Client Portal Users",
+    "add": {
+      "_": "Add client portal user",
+      "description": "Create a new client portal user",
+      "success": "Client portal user created"
+    },
+    "delete": {
+      "confirm": "Are you sure you want to delete this client portal user?",
+      "success": "User deleted"
+    },
+    "pushDevices": "Push: {{count}} device(s)",
+    "pushNoDevices": "Push: No devices",
+    "setPassword": {
+      "title": "Set password",
+      "description": "Set new password for the client portal user",
+      "success": "This user's password has been changed",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "New password",
+      "repeatPassword": "Re-type password",
+      "repeatPasswordPlaceholder": "Re-type password",
+      "save": "Save"
+    },
+    "noUsers": "No client portal users",
+    "detail": {
+      "title": "Client Portal User",
+      "general": "General",
+      "overview": "Overview",
+      "activity-log": "Activity log",
+      "notifications": "Notifications",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "type": "Type",
+      "username": "Username",
+      "company": "Company",
+      "companyRegistrationNumber": "Company registration number",
+      "customer": "Customer",
+      "openCustomerInContacts": "Open customer in contacts",
+      "lastLogin": "Last login",
+      "created": "Created",
+      "addFirstName": "Add first name",
+      "addLastName": "Add last name",
+      "addEmail": "Add email",
+      "addPhone": "Add phone",
+      "addUsername": "Add username",
+      "addCompanyRegNumber": "Add registration number",
+      "not-found": "Client Portal User not found",
+      "not-found-description": "There seems to be no client portal user with this ID.",
+      "noNotifications": "No notifications",
+      "noNotificationsDescription": "This user has no notifications yet.",
+      "sendNotification": {
+        "title": "Send notification",
+        "description": "Send a notification to this client portal user",
+        "success": "Notification sent",
+        "titleLabel": "Title",
+        "titlePlaceholder": "Notification title",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Notification message",
+        "typeLabel": "Type",
+        "priorityLabel": "Priority",
+        "send": "Send notification"
+      },
+      "read": "Read",
+      "unread": "Unread",
+      "sentToPlatforms": "Sent to platforms"
+    }
+  },
   "upload": "Upload",
   "upload-description": "Upload 1:1, 2MB max",
   "save": "Save",
   "cancel": "Cancel",
-  "success": "Success"
+  "success": "Success",
+  "error": "Error",
+  "delete": "Delete",
+  "discard": "Discard",
+  "merge": "Merge",
+  "edit": "Edit",
+  "search": "Search",
+  "selected": "{{count}} selected",
+  "subscribed": "Subscribed",
+  "lifecycle-state": "Lifecycle State",
+  "lifecycle-state-lead": "Lead",
+  "lifecycle-state-customer": "Customer",
+  "choose-state": "Choose state",
+  "unknown": "Unknown",
+  "change-state": "Change State",
+  "state-changed-success": "State changed to \"{{label}}\" successfully",
+  "verification-status-updated": "Verification status updated successfully",
+  "verify": "Verify",
+  "verified": "Verified",
+  "unverified": "Unverified",
+  "emailVerified": "Email verified",
+  "phoneVerified": "Phone verified",
+  "yes": "Yes",
+  "no": "No",
+  "clientPortal": "Client portal",
+  "type": "Type",
+  "firstName": "First name",
+  "lastName": "Last name",
+  "username": "Username",
+  "password": "Password",
+  "phone": "Phone",
+  "select": "Select...",
+  "general": "General",
+  "contacts": "Contacts"
 }

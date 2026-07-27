@@ -5,10 +5,12 @@ import { useSetAtom } from 'jotai';
 import { toast, useQueryState } from 'erxes-ui';
 import { ICustomerDetail, useCustomerDetail } from 'ui-modules';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const useCustomerDetailWithQuery = (
   options?: QueryHookOptions<{ customerDetail: ICustomerDetail }>,
 ) => {
+  const { t } = useTranslation('contact');
   const [_id] = useQueryState('contactId');
   const setRendering = useSetAtom(renderingCustomerDetailAtom);
 
@@ -25,7 +27,7 @@ export const useCustomerDetailWithQuery = (
       setRendering(false);
       if (error) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

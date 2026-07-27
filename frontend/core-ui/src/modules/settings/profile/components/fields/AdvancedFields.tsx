@@ -17,9 +17,9 @@ const AdvancedFields = () => {
       <Accordion.Item className="py-0 border-b-0" value="advanced">
         <Accordion.Trigger className="flex flex-1 items-center justify-between py-0 text-left font-normal leading-6 transition-all [&[data-state=open]>svg]:rotate-180 hover:no-underline">
           <div className="flex flex-col gap-3">
-            <Form.Label>{t('more-information')}</Form.Label>
+            <Form.Label>{t('more-information', 'More Information')}</Form.Label>
             <Form.Description>
-              {t('more-information-description')}
+              {t('more-information-description', 'Provide any relevant additional personal information, if applicable.')}
             </Form.Description>
           </div>
         </Accordion.Trigger>

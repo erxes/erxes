@@ -16,7 +16,7 @@ export function AutomationSettingsBreadcrumb() {
         onClick={() => navigate(getAutomationSettingsReturnPath())}
       >
         <IconAffiliate className="w-4 h-4 text-accent-foreground" />
-        {t('automations')}
+        {t('automations', 'Automations')}
       </Button>
       <Separator.Inline />
     </>

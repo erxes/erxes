@@ -10,6 +10,7 @@ import {
   IconXboxXFilled,
 } from '@tabler/icons-react';
 import { SideMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useBroadcastStatistic } from '../hooks/useBroadcastStatistic';
 
 const STATISTIC_KINDS = {
@@ -48,6 +49,7 @@ const STATISTIC_KINDS = {
 };
 
 export const BroadcastStatistic = () => {
+  const { t } = useTranslation('broadcasts');
   const { statistics } = useBroadcastStatistic();
 
   return (
@@ -55,7 +57,7 @@ export const BroadcastStatistic = () => {
       <SideMenu.Content value="statistic">
         <SideMenu.Header
           Icon={IconChartCandle}
-          label="Average email statistics"
+          label={t('average-email-statistics', 'Average email statistics')}
         />
         <div className="h-full bg-white p-4 space-y-3 overflow-y-auto">
           {Object.entries(STATISTIC_KINDS).map(
@@ -89,7 +91,7 @@ export const BroadcastStatistic = () => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="statistic"
-          label="Statistic"
+          label={t('statistic', 'Statistic')}
           Icon={IconChartCandle}
         />
       </SideMenu.Sidebar>

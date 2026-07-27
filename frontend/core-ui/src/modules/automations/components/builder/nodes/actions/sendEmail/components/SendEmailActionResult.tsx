@@ -4,11 +4,13 @@ import { ActionResultComponentProps } from '@/automations/components/builder/nod
 import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { IconEye } from '@tabler/icons-react';
 import { Badge, Button, Dialog, Popover } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationSendEmailActionResult = ({
   result,
   action,
 }: ActionResultComponentProps<any>) => {
+  const { t } = useTranslation('automations');
   const { getLabelColor, getLabelText } = useSendEmailActionResult();
   const config = (action?.actionConfig ||
     {}) as Partial<TAutomationSendEmailConfig>;
@@ -40,7 +42,7 @@ export const AutomationSendEmailActionResult = ({
         {response.error ? (
           <div className="text-destructive">{errorText}</div>
         ) : (
-          'Sent successfully'
+          t('sent-successfully', 'Sent successfully')
         )}
       </div>
       <Popover>
@@ -79,7 +81,7 @@ export const AutomationSendEmailActionResult = ({
                 <Dialog>
                   <Dialog.Trigger asChild>
                     <Button variant="ghost">
-                      See Content
+                      {t('see-content', 'See Content')}
                       <IconEye />
                     </Button>
                   </Dialog.Trigger>

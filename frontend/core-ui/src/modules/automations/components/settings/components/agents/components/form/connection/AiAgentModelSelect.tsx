@@ -6,6 +6,7 @@ import { TAiAgentForm } from '@/automations/components/settings/components/agent
 import { Form, Select } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const formatModelLabel = (model: string) => {
   return model
@@ -15,6 +16,7 @@ const formatModelLabel = (model: string) => {
 };
 
 export const AiAgentModelSelect = () => {
+  const { t } = useTranslation('automations');
   const { control, watch } = useFormContext<TAiAgentForm>();
   const provider = watch('connection.provider') as TAiAgentProvider;
   const currentModel = watch('connection.model');
@@ -35,14 +37,14 @@ export const AiAgentModelSelect = () => {
       name="connection.model"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Model</Form.Label>
+          <Form.Label>{t('model', 'Model')}</Form.Label>
           <Form.Control>
             <Select
               onValueChange={field.onChange}
               value={field.value || undefined}
             >
               <Select.Trigger>
-                <Select.Value placeholder="Select model" />
+                <Select.Value placeholder={t('select-model', 'Select model')} />
               </Select.Trigger>
               <Select.Content>
                 {modelOptions.map((model) => (
@@ -54,7 +56,7 @@ export const AiAgentModelSelect = () => {
             </Select>
           </Form.Control>
           <Form.Description>
-            Choose the model this automation agent should use.
+            {t('model-description', 'Choose the model this automation agent should use.')}
           </Form.Description>
           <Form.Message />
         </Form.Item>

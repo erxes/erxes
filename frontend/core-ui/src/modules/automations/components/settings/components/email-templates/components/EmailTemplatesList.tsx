@@ -2,6 +2,7 @@ import { EmailTemplateCard } from '@/automations/components/settings/components/
 import { IAutomationEmailTemplate } from '@/automations/components/settings/components/email-templates/types/automationEmailTemplates';
 import { IconMail } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface EmailTemplatesListProps {
   templates: IAutomationEmailTemplate[];
@@ -14,6 +15,7 @@ export function EmailTemplatesList({
   loading,
   onRemove,
 }: EmailTemplatesListProps) {
+  const { t } = useTranslation('automations');
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -28,10 +30,9 @@ export function EmailTemplatesList({
         <div className="size-16 rounded-full bg-muted flex items-center justify-center mb-4">
           <IconMail className="size-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-semibold mb-2">No email templates</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('no-email-templates', 'No email templates')}</h3>
         <p className="text-muted-foreground text-sm max-w-sm">
-          Create your first email template to get started with automated email
-          campaigns.
+          {t('no-email-templates-description', 'Create your first email template to get started with automated email campaigns.')}
         </p>
       </div>
     );

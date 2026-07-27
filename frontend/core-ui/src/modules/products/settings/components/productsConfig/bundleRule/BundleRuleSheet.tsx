@@ -52,7 +52,7 @@ export const BundleRuleSheet = () => {
         <Sheet.Trigger asChild>
           <Button className="whitespace-nowrap shrink-0">
             <IconPlus />
-            {t('add-bundle-rule')}
+            {t('add-bundle-rule', 'Add Bundle Rule')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Collapsible } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { TagsManager } from './tagsManager';
 import { useParams } from 'react-router-dom';
 import { useProductDetail } from '../hooks/useProductDetail';
@@ -15,6 +16,7 @@ export function ProductProperties() {
 }
 
 function HotelSection() {
+  const { t } = useTranslation('product');
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -36,7 +38,7 @@ function HotelSection() {
             strokeLinejoin="round"
           />
         </motion.svg>
-        <span className="text-gray-600 font-medium">Hotels</span>
+        <span className="text-gray-600 font-medium">{t('hotels', 'Hotels')}</span>
       </Collapsible.Trigger>
       <AnimatePresence initial={false}>
         {isOpen && (
@@ -49,7 +51,7 @@ function HotelSection() {
               className="overflow-hidden"
             >
               <div className="p-4 border-b border-gray-200">
-                <p>Hotel details go here...</p>
+                <p>{t('hotel-details-placeholder', 'Hotel details go here...')}</p>
               </div>
             </motion.div>
           </Collapsible.Content>
@@ -60,6 +62,7 @@ function HotelSection() {
 }
 
 function TagsSection() {
+  const { t } = useTranslation('product');
   const [isOpen, setIsOpen] = useState(true);
   const params = useParams();
   const productId = params?.id as string;
@@ -84,7 +87,7 @@ function TagsSection() {
             strokeLinejoin="round"
           />
         </motion.svg>
-        <span className="text-gray-600 font-medium">Tags</span>
+        <span className="text-gray-600 font-medium">{t('tags', 'Tags')}</span>
       </Collapsible.Trigger>
       <AnimatePresence initial={false}>
         {isOpen && (

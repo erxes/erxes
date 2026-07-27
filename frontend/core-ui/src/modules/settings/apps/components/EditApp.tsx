@@ -7,6 +7,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { editingAppAtom } from '../state';
 import { useAppsForm } from '../hooks/useAppsForm';
@@ -16,6 +17,7 @@ import { AppsForm } from './AppsForm';
 import { TAppsForm } from '../hooks/useAppsForm';
 
 export const EditApp = () => {
+  const { t } = useTranslation('settings');
   const { toast } = useToast();
   const [editingApp, setEditingApp] = useAtom(editingAppAtom);
   const { appsEdit, loading } = useAppsEdit();
@@ -41,12 +43,12 @@ export const EditApp = () => {
       appsEdit({
         variables: { _id: editingApp._id, ...data },
         onCompleted: () => {
-          toast({ variant: 'success', title: 'App updated successfully' });
+          toast({ variant: 'success', title: t('apps.updated-successfully', 'App updated successfully') });
           onClose();
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -65,7 +67,7 @@ export const EditApp = () => {
           >
             <Sheet.Header>
               <IconShieldCog />
-              <Sheet.Title>Edit App</Sheet.Title>
+              <Sheet.Title>{t('apps.edit', 'Edit App')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -73,10 +75,10 @@ export const EditApp = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'secondary'} onClick={onClose}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Update'}
+                {loading ? <Spinner /> : t('update', 'Update')}
               </Button>
             </Sheet.Footer>
           </form>

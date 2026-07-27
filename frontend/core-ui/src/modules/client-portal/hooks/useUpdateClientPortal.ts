@@ -2,8 +2,10 @@ import { CLIENT_PORTAL_UPDATE } from '../graphql/mutations/clientPortalUpdate';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { GET_CLIENT_PORTAL } from '../graphql/queires/getClientPortal';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useUpdateClientPortal = () => {
+  const { t } = useTranslation('client-portal');
   const [updateClientPortal, { loading }] = useMutation(CLIENT_PORTAL_UPDATE);
 
   const handleUpdateClientPortal = (options: MutationFunctionOptions) => {
@@ -11,8 +13,8 @@ export const useUpdateClientPortal = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Client portal updated successfully',
+          title: t('success', 'Success'),
+          description: t('client-portal-updated-successfully', 'Client portal updated successfully'),
           variant: 'success',
         });
         options.onCompleted?.(data);

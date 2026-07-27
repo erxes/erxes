@@ -1,7 +1,9 @@
 import { IconBellRinging } from '@tabler/icons-react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const BroadcastMobileNotificationMockup = () => {
+  const { t } = useTranslation('broadcasts');
   const { watch } = useFormContext();
 
   const title = watch('notification.title');
@@ -61,15 +63,15 @@ export const BroadcastMobileNotificationMockup = () => {
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                     <IconBellRinging className="h-3 w-3" />
                     Erxes
-                    <span className="ml-auto">now</span>
+                    <span className="ml-auto">{t('mockup.now', 'now')}</span>
                   </div>
 
                   <div className="text-sm font-semibold mb-2">
-                    {title || 'Notification title'}
+                    {title || t('mockup.notification-title', 'Notification title')}
                   </div>
 
                   <div className="text-sm text-muted-foreground line-clamp-3">
-                    {content || 'Notification content will appear here'}
+                    {content || t('mockup.notification-content', 'Notification content will appear here')}
                   </div>
                 </div>
               </div>

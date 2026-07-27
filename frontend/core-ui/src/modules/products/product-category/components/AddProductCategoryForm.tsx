@@ -8,12 +8,14 @@ import {
   useScopedHotkeys,
   useSetHotkeyScope,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { AddCategoryForm } from '../add-category/components/AddProductCategory';
 import { CategoryHotKeyScope } from '../types/CategoryHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const ProductCategoryAddSheet = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -59,7 +61,7 @@ export const ProductCategoryAddSheet = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Add Category
+            {t('add-category', 'Add Category')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -77,9 +79,10 @@ export const ProductCategoryAddSheet = () => {
 };
 
 export const CategoryAddSheetHeader = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   return (
     <Sheet.Header className="gap-3 border-b">
-      <Sheet.Title>Create Category</Sheet.Title> <Sheet.Close />
+      <Sheet.Title>{t('create-category', 'Create Category')}</Sheet.Title> <Sheet.Close />
     </Sheet.Header>
   );
 };

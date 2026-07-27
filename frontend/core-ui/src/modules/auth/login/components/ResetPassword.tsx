@@ -7,8 +7,10 @@ import {
   ResetPasswordFormType,
   useResetPasswordForm,
 } from '@/auth/login/hooks/useLoginForm';
+import { useTranslation } from 'react-i18next';
 
 export const ResetPassword = ({ token }: { token: string }) => {
+  const { t } = useTranslation('auth');
   const { form } = useResetPasswordForm();
 
   const { handleResetPassword } = useLogin();
@@ -30,7 +32,7 @@ export const ResetPassword = ({ token }: { token: string }) => {
               <Form.Control>
                 <Input
                   type="password"
-                  placeholder="Enter password"
+                  placeholder={t('enter-password', 'Enter password')}
                   {...field}
                 />
               </Form.Control>
@@ -45,7 +47,7 @@ export const ResetPassword = ({ token }: { token: string }) => {
               <Form.Control>
                 <Input
                   type="password"
-                  placeholder="Confirm password"
+                  placeholder={t('confirm-password', 'Confirm password')}
                   {...field}
                 />
               </Form.Control>
@@ -55,7 +57,7 @@ export const ResetPassword = ({ token }: { token: string }) => {
         />
 
         <Button type="submit" onClick={form.handleSubmit(submitHandler)}>
-          Change password
+          {t('change-password', 'Change password')}
         </Button>
       </form>
     </Form>

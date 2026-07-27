@@ -2,8 +2,10 @@ import { ApolloError } from '@apollo/client';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { Can, Export, TagsSelect } from 'ui-modules';
 import { CompaniesDelete } from './CompaniesDelete';
+import { useTranslation } from 'react-i18next';
 
 export const CompaniesCommandBar = () => {
+  const { t } = useTranslation('contact');
   const { table } = RecordTable.useRecordTable();
   const intersection = (arrays: string[][]): string[] => {
     if (arrays.length === 0) return [];
@@ -16,7 +18,7 @@ export const CompaniesCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{t('selected', '{{count}} selected', { count: selectedRows.length })}</CommandBar.Value>
         <Can action="tagsTag">
           <>
             <Separator.Inline />
@@ -49,7 +51,7 @@ export const CompaniesCommandBar = () => {
                 },
                 onError: (e: ApolloError) => {
                   toast({
-                    title: 'Error',
+                    title: t('error', 'Error'),
                     description: e.message,
                     variant: 'destructive',
                   });

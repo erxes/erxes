@@ -3,10 +3,12 @@ import { useDocumentsTypes } from '@/documents/hooks/useDocumentsTypes';
 import { IconCube } from '@tabler/icons-react';
 
 import { Breadcrumb, Button, Separator, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Can, PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const DocumentsHeader = () => {
+  const { t } = useTranslation('documents');
   const [contentType] = useQueryState<string>('contentType');
   const { documentsTypes } = useDocumentsTypes();
   const selectedDocumentType = documentsTypes.find(
@@ -26,7 +28,7 @@ export const DocumentsHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to="/documents">
                   <IconCube />
-                  Documents
+                  {t('documents', 'Documents')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

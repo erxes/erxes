@@ -8,11 +8,13 @@ import {
   messageProConfigFormSchema,
   TMessageProConfigForm,
 } from '../states/messageProConfigForm';
+import { useTranslation } from 'react-i18next';
 
 export const MessageProConfigForm = ({
   handleSave,
   currentAction,
 }: TAutomationActionProps<TMessageProConfigForm>) => {
+  const { t } = useTranslation('automations');
   const { documentsTypes } = useDocumentsTypes();
   const form = useForm<TMessageProConfigForm>({
     resolver: zodResolver(messageProConfigFormSchema),
@@ -32,7 +34,7 @@ export const MessageProConfigForm = ({
           name="contentType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Document type</Form.Label>
+              <Form.Label>{t('document-type', 'Document type')}</Form.Label>
               <Select
                 value={field.value}
                 onValueChange={(value) => {
@@ -41,7 +43,7 @@ export const MessageProConfigForm = ({
                 }}
               >
                 <Select.Trigger className="h-9">
-                  <Select.Value placeholder="Select a document type" />
+                  <Select.Value placeholder={t('select-a-document-type', 'Select a document type')} />
                 </Select.Trigger>
                 <Select.Content>
                   {documentsTypes.map(({ contentType, label }) => (
@@ -52,7 +54,7 @@ export const MessageProConfigForm = ({
                 </Select.Content>
               </Select>
               <Form.Description className="text-xs">
-                Narrows the document list below to documents of this type.
+                {t('document-type-description', 'Narrows the document list below to documents of this type.')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -63,17 +65,16 @@ export const MessageProConfigForm = ({
           name="documentId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Document</Form.Label>
+              <Form.Label>{t('document', 'Document')}</Form.Label>
               <SelectDocument.FormItem
                 mode="single"
                 value={field.value}
                 onValueChange={(value) => field.onChange(value as string)}
-                placeholder="Select a document"
+                placeholder={t('select-a-document', 'Select a document')}
                 contentType={contentType}
               />
               <Form.Description className="text-xs">
-                The selected document is rendered with the trigger/target record
-                and exposed as this action&apos;s output.
+                {t('document-render-description', 'The selected document is rendered with the trigger/target record and exposed as this action\'s output.')}
               </Form.Description>
               <Form.Message />
             </Form.Item>

@@ -9,8 +9,10 @@ import { useDepartmentForm } from '@/settings/structure/hooks/useDepartmentForm'
 import { TDepartmentForm } from '@/settings/structure/types/department';
 import { DepartmentForm } from '../DepartmentForm';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const DepartmentEdit = () => {
+  const { t } = useTranslation('settings');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('department_id');
@@ -45,16 +47,16 @@ export const DepartmentEdit = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success', 'Success!'),
           variant: 'success',
-          description: 'Department updated successfully',
+          description: t('department.updated-successfully', 'Department updated successfully'),
         });
         methods.reset();
         setOpen(null);
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -97,11 +99,11 @@ export const DepartmentEdit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Can action="departmentsManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save', 'Save')}
                 </Button>
               </Can>
             </Sheet.Footer>

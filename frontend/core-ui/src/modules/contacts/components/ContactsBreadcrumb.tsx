@@ -47,21 +47,21 @@ export const ContactsBreadcrumb = () => {
               asChild
               onClick={() => setCursor('')}
             >
-              <Link to="/contacts/customers">{t('customers')}</Link>
+              <Link to="/contacts/customers">{t('customers', 'Customers')}</Link>
             </ToggleGroup.Item>
             <ToggleGroup.Item
               value="/contacts/companies"
               asChild
               onClick={() => setCursor('')}
             >
-              <Link to="/contacts/companies">{t('companies')}</Link>
+              <Link to="/contacts/companies">{t('companies', 'Companies')}</Link>
             </ToggleGroup.Item>
             <ToggleGroup.Item
               value="/contacts/leads"
               asChild
               onClick={() => setCursor('')}
             >
-              <Link to="/contacts/leads">{t('leads')}</Link>
+              <Link to="/contacts/leads">{t('leads', 'Leads')}</Link>
             </ToggleGroup.Item>
             <ToggleGroup.Item
               value={`${ContactsPath.Index}${ContactsPath.ClientPortalUsers}`}
@@ -69,7 +69,7 @@ export const ContactsBreadcrumb = () => {
               onClick={handleClientPortalUsersClick}
             >
               <Link to={`${ContactsPath.Index}${ContactsPath.ClientPortalUsers}`}>
-                Client Portal Users
+                {t('clientPortalUser._', 'Client Portal Users')}
               </Link>
             </ToggleGroup.Item>
             {/* <ToggleGroup.Item

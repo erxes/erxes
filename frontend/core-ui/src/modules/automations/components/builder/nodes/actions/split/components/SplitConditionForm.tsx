@@ -1,6 +1,7 @@
 import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   SegmentForm,
   SegmentFormMode,
@@ -53,6 +54,7 @@ const SplitConditionFormFooter = ({
   callback: (contentId: string) => void;
   onDirtyChange?: (isDirty: boolean) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { form } = useSegment();
   const { handleSave } = useSegmentActions({ callback });
   const { handleValidationErrors } = useFormValidationErrorHandler({
@@ -84,14 +86,14 @@ const SplitConditionFormFooter = ({
             <IconAlertCircle className="size-4 shrink-0 text-warning" />
             <span className="font-medium text-warning">
               {segmentId
-                ? 'Unsaved condition changes'
-                : 'Condition is not saved'}
+                ? t('unsaved-condition-changes', 'Unsaved condition changes')
+                : t('condition-is-not-saved', 'Condition is not saved')}
             </span>
           </>
         ) : (
           <>
             <IconCircleCheck className="size-4 shrink-0 text-success" />
-            <span className="text-muted-foreground">Condition saved</span>
+            <span className="text-muted-foreground">{t('condition-saved', 'Condition saved')}</span>
           </>
         )}
       </div>
@@ -100,7 +102,7 @@ const SplitConditionFormFooter = ({
         variant={shouldSaveCondition ? 'default' : 'secondary'}
         onClick={form.handleSubmit(handleSave, handleValidationErrors)}
       >
-        {shouldSaveCondition ? 'Save condition' : 'Saved'}
+        {shouldSaveCondition ? t('save-condition', 'Save condition') : t('saved', 'Saved')}
       </Button>
     </div>
   );

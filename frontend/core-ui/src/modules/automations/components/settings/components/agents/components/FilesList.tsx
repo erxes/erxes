@@ -13,6 +13,7 @@ import {
   TAiAgentContextFile,
 } from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { Badge, Button, cn, Tooltip } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface FileGridProps {
   files: TAiAgentContextFile[];
@@ -29,6 +30,7 @@ export function FileGrid({
   onFileReindex,
   reindexingFileId,
 }: FileGridProps) {
+  const { t } = useTranslation('automations');
   const getFileIcon = (file: TAiAgentContextFile) => {
     const name = file.name.toLowerCase();
     const type = file.type || '';
@@ -106,7 +108,7 @@ export function FileGrid({
                   <span>{formatContextFileSize(file.size)}</span>
                   {formatContextFileUploadedAt(file.uploadedAt) && (
                     <span>
-                      Added {formatContextFileUploadedAt(file.uploadedAt)}
+                      {t('file-added', 'Added')} {formatContextFileUploadedAt(file.uploadedAt)}
                     </span>
                   )}
                   {getContextFileVersionCount(file) > 0 && (
@@ -165,7 +167,7 @@ export function FileGrid({
                       />
                     </Button>
                   </Tooltip.Trigger>
-                  <Tooltip.Content>Reindex knowledge</Tooltip.Content>
+                  <Tooltip.Content>{t('reindex-knowledge', 'Reindex knowledge')}</Tooltip.Content>
                 </Tooltip>
               )}
               <Button

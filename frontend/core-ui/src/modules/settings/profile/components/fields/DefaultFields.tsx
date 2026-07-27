@@ -10,35 +10,35 @@ const DefaultFields = () => {
   return (
     <div className="grid grid-cols-2 gap-6 mt-0.5">
       <div className="flex flex-col gap-2">
-        <Form.Label className="text-xs">{t('username')}</Form.Label>
+        <Form.Label className="text-xs">{t('username', 'Username')}</Form.Label>
         <FormField
           name={'username' as keyof FormType}
           element="input"
           attributes={{
             type: 'text',
-            placeholder: t('username-placeholder'),
+            placeholder: t('username-placeholder', 'Enter Username'),
           }}
         />
       </div>
       <div className="flex flex-col gap-2 col-start-1">
-        <Form.Label className="text-xs">{t('firstname')}</Form.Label>
+        <Form.Label className="text-xs">{t('firstname', 'Firstname')}</Form.Label>
         <FormField
           name={'details.firstName' as keyof FormType}
           element="input"
           attributes={{
             type: 'text',
-            placeholder: t('firstname-placeholder'),
+            placeholder: t('firstname-placeholder', 'Enter First Name'),
           }}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Form.Label className="text-xs">{t('lastname')}</Form.Label>
+        <Form.Label className="text-xs">{t('lastname', 'Lastname')}</Form.Label>
         <FormField
           name={'details.lastName' as keyof FormType}
           element="input"
           attributes={{
             type: 'text',
-            placeholder: t('lastname-placeholder'),
+            placeholder: t('lastname-placeholder', 'Enter Last Name'),
           }}
         />
       </div>

@@ -24,7 +24,7 @@ export const AutomationHistories = () => {
         <AutomationHistoriesRecordTableFilter />
         <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
           {totalCount
-            ? t('records-found', { count: totalCount })
+            ? t('records-found', '{{count}} records found', { count: totalCount })
             : loading && <Skeleton className="w-20 h-4 inline-block mt-1.5" />}
         </div>
         <Button variant="ghost" disabled={loading} onClick={() => refetch()}>
@@ -55,7 +55,7 @@ export const AutomationHistories = () => {
                     <td colSpan={6} className="py-10 text-center">
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
                         <IconArchive className="w-8 h-8 mb-2" />
-                        <Label>{t('no-results')}</Label>
+                        <Label>{t('no-results', 'No results')}</Label>
                       </div>
                     </td>
                   </tr>

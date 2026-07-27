@@ -10,6 +10,7 @@ import {
   IconXboxXFilled,
 } from '@tabler/icons-react';
 import { Badge } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { BROADCAST_NOTIFICATION_STATISTIC } from '../../constants';
 
 const EMAIL_DETAIL_STATISTIC = {
@@ -28,7 +29,7 @@ const EMAIL_DETAIL_STATISTIC = {
   delivery: {
     title: 'Delivered',
     description:
-      'The email was successfully accepted by the recipient’s incoming mail server.',
+      "The email was successfully accepted by the recipient's incoming mail server.",
     icon: IconMailCheck,
   },
   open: {
@@ -52,7 +53,7 @@ const EMAIL_DETAIL_STATISTIC = {
   bounce: {
     title: 'Bounce',
     description:
-      'The recipient’s mail server permanently rejected the message delivery attempt.',
+      'The recipient\'s mail server permanently rejected the message delivery attempt.',
     icon: IconBounceRightFilled,
   },
   renderingfailure: {
@@ -86,6 +87,7 @@ const buildNotificationStats = (message: any) => {
 };
 
 export const BroadcastTabStatisticContent = ({ message }: { message: any }) => {
+  const { t } = useTranslation('broadcasts');
   const { stats, runCount, lastRunAt, method } = message || {};
   const isNotification = method === 'notification';
 
@@ -101,18 +103,18 @@ export const BroadcastTabStatisticContent = ({ message }: { message: any }) => {
     <div className="w-full px-8 py-5 space-y-5">
       <div className="space-x-8">
         <span className="text-muted-foreground inline-flex gap-2">
-          This campaign has run:
+          {t('detail-stat.campaign-run', 'This campaign has run:')}
           <strong className="text-primary">{runCount}</strong>
         </span>
         <span className="text-muted-foreground inline-flex gap-2">
-          Last run at:
+          {t('detail-stat.last-run-at', 'Last run at:')}
           <strong className="text-primary">
             {lastRunAt
               ? new Date(lastRunAt).toLocaleString('en-US', {
                   dateStyle: 'medium',
                   timeStyle: 'short',
                 })
-              : 'Never'}
+              : t('never', 'Never')}
           </strong>
         </span>
       </div>

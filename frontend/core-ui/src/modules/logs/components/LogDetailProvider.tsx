@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLogDetail } from '@/logs/hooks/useLogDetail';
 import { ILogDoc } from '@/logs/types';
 import { LogLoading } from '@/logs/components/LogLoading';
@@ -18,6 +19,7 @@ interface LogDetailContextType {
 const LogDetailContext = createContext<LogDetailContextType | null>(null);
 
 export function LogDetailProvider({ logId, children }: LogDetailProviderProps) {
+  const { t } = useTranslation('common');
   const { detail, loading, error } = useLogDetail(logId);
 
   if (loading) {
@@ -31,11 +33,10 @@ export function LogDetailProvider({ logId, children }: LogDetailProviderProps) {
           <IconFileX className="text-accent-foreground size-12" stroke={1.5} />
         </div>
         <div className="text-lg font-medium mt-5 text-foreground">
-          No log detail found
+          {t('logs.no-log-detail-found', 'No log detail found')}
         </div>
         <div className="text-muted-foreground mt-2 text-sm text-center max-w-sm">
-          The log detail you're looking for doesn't exist or may have been
-          removed.
+          {t('logs.no-log-detail-description', "The log detail you're looking for doesn't exist or may have been removed.")}
         </div>
       </div>
     );

@@ -13,11 +13,13 @@ import {
 import { IconPlus, IconShield } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { generateAutomationElementId } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const IncomingWebhookPayloadSchemaGenerator = ({
   value,
   onChange,
 }: PayloadSchemaGeneratorProps) => {
+  const { t } = useTranslation('automations');
   const properties = (value || []) as TIncomingWebhookJSONPropertySchema[];
   const previewJson = JSON.stringify(
     generateSchemaPreview(properties),
@@ -28,14 +30,14 @@ export const IncomingWebhookPayloadSchemaGenerator = ({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="font-medium">Payload Schema Validation</h3>
-        <p className="text-sm">Define required properties and data types.</p>
+        <h3 className="font-medium">{t('payload-schema-validation', 'Payload Schema Validation')}</h3>
+        <p className="text-sm">{t('payload-schema-validation-description', 'Define required properties and data types.')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2 space-y-4 p-4 border rounded-lg">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium text-sm">Required Properties</h4>
+            <h4 className="font-medium text-sm">{t('required-properties', 'Required Properties')}</h4>
             <Button
               variant="outline"
               size="sm"
@@ -54,7 +56,7 @@ export const IncomingWebhookPayloadSchemaGenerator = ({
               }
             >
               <IconPlus className="mr-1" />
-              Add Root Property
+              {t('add-root-property', 'Add Root Property')}
             </Button>
           </div>
 
@@ -84,8 +86,8 @@ export const IncomingWebhookPayloadSchemaGenerator = ({
           <div className="flex items-start gap-2">
             <IconShield className="h-4 w-4 mt-0.5" />
             <div className="text-sm">
-              <p className="font-medium mb-1">Expected Payload Structure</p>
-              <p className="text-xs">Updates in real-time as you edit.</p>
+              <p className="font-medium mb-1">{t('expected-payload-structure', 'Expected Payload Structure')}</p>
+              <p className="text-xs">{t('updates-in-realtime', 'Updates in real-time as you edit.')}</p>
             </div>
           </div>
           <div className="p-3 rounded text-xs font-mono overflow-x-auto max-h-80 overflow-y-auto border bg-background">

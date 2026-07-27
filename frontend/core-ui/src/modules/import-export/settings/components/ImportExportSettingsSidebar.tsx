@@ -1,18 +1,20 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { ImportExportSettingsPath } from '@/import-export/settings/constants/importExportSettingsPaths';
+import { useTranslation } from 'react-i18next';
 
 export const ImportExportSettingsSidebar = () => {
+  const { t } = useTranslation('import-export');
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             <ImportExportSidebarItem to={ImportExportSettingsPath.Import}>
-              Import
+              {t('import', 'Import')}
             </ImportExportSidebarItem>
             <ImportExportSidebarItem to={ImportExportSettingsPath.Export}>
-              Export
+              {t('export', 'Export')}
             </ImportExportSidebarItem>
           </Sidebar.Menu>
         </Sidebar.GroupContent>

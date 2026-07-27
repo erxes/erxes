@@ -9,6 +9,7 @@ import { TAiAgentContextFile } from '@/automations/components/settings/component
 import { Button, cn, toast, useUpload } from 'erxes-ui';
 import type React from 'react';
 import { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type UploadedContextFile = {
   key: string;
@@ -51,6 +52,7 @@ export function UploadDropzone({
   onFileReindex,
   reindexingFileId,
 }: UploadDropzoneProps) {
+  const { t } = useTranslation('automations');
   const [isDragOver, setIsDragOver] = useState(false);
   const { isLoading, upload } = useUpload();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,7 +86,7 @@ export function UploadDropzone({
           )
         ) {
           toast({
-            title: 'Unsupported file format',
+            title: t('unsupported-file-format', 'Unsupported file format'),
             description: `"${file.name}" must be MD, MARKDOWN, or TXT.`,
             variant: 'destructive',
           });
@@ -93,7 +95,7 @@ export function UploadDropzone({
 
         if (file.size > maxSingleFileBytes) {
           toast({
-            title: 'Context file is too large',
+            title: t('context-file-too-large', 'Context file is too large'),
             description: `"${file.name}" exceeds ${formatBytes(maxSingleFileBytes)}.`,
             variant: 'destructive',
           });
@@ -102,7 +104,7 @@ export function UploadDropzone({
 
         if (files.length + uploaded.length >= maxFiles) {
           toast({
-            title: 'Too many context files',
+            title: t('too-many-context-files', 'Too many context files'),
             description: `You can attach up to ${maxFiles} files.`,
             variant: 'destructive',
           });
@@ -116,7 +118,7 @@ export function UploadDropzone({
 
         if (nextTotalBytes > maxTotalContextBytes) {
           toast({
-            title: 'Combined context is too large',
+            title: t('combined-context-too-large', 'Combined context is too large'),
             description: `Keep total context under ${formatBytes(maxTotalContextBytes)}.`,
             variant: 'destructive',
           });
@@ -254,7 +256,7 @@ export function UploadDropzone({
             )}
           </div>
           <div className="space-y-1">
-            <h3 className="text-lg font-semibold">Upload Context Files</h3>
+            <h3 className="text-lg font-semibold">{t('upload-context-files', 'Upload Context Files')}</h3>
             <p className="text-sm text-muted-foreground">
               Drag markdown or text files here, or click to browse
             </p>
@@ -273,7 +275,7 @@ export function UploadDropzone({
             ) : (
               <IconPlus className="size-4" />
             )}
-            {isLoading ? 'Uploading...' : 'Choose Files'}
+            {isLoading ? t('uploading', 'Uploading...') : t('choose-files', 'Choose Files')}
           </Button>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Supported formats: MD, MARKDOWN, TXT
@@ -307,8 +309,8 @@ export function UploadDropzone({
               )}
               <span>
                 {isLoading
-                  ? 'Uploading files...'
-                  : 'Drop more files or click to add'}
+                  ? t('uploading-files', 'Uploading files...')
+                  : t('drop-more-files', 'Drop more files or click to add')}
               </span>
             </div>
           )}

@@ -1,8 +1,10 @@
 import { IconBroadcast } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 export const BroadcastBreadcrumb = () => {
+  const { t } = useTranslation('broadcasts');
   return (
     <>
       <Breadcrumb>
@@ -11,7 +13,7 @@ export const BroadcastBreadcrumb = () => {
             <Button variant="ghost" asChild>
               <Link to="/broadcasts">
                 <IconBroadcast />
-                Broadcast
+                {t('broadcast', 'Broadcast')}
               </Link>
             </Button>
           </Breadcrumb.Item>

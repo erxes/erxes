@@ -2,6 +2,7 @@ import { TAiAgentForm } from '@/automations/components/settings/components/agent
 import { Button, Form, Input } from 'erxes-ui';
 import { useState } from 'react';
 import { FieldPath, useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const AiAgentSecretField = ({
   name,
@@ -16,6 +17,7 @@ export const AiAgentSecretField = ({
   description: string;
   existingSecretMask?: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { control, setValue } = useFormContext<TAiAgentForm>();
   const [isReplacingSecret, setIsReplacingSecret] = useState(false);
   const hasStoredSecret = !!existingSecretMask?.trim();
@@ -39,7 +41,7 @@ export const AiAgentSecretField = ({
                 variant="secondary"
                 onClick={() => setIsReplacingSecret(true)}
               >
-                Replace secret
+                {t('replace-secret', 'Replace secret')}
               </Button>
             </div>
           ) : (
@@ -65,7 +67,7 @@ export const AiAgentSecretField = ({
                     setIsReplacingSecret(false);
                   }}
                 >
-                  Keep existing secret
+                  {t('keep-existing-secret', 'Keep existing secret')}
                 </Button>
               ) : null}
             </div>

@@ -1,6 +1,7 @@
 import { FocusSheet, Sheet, Spinner, Button, useQueryState } from 'erxes-ui';
 import { lazy, Suspense, useState } from 'react';
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { SheetNavSidebar } from '../../shared/components/SheetNavSidebar';
 
 const AddCustomerForm = lazy(() =>
@@ -18,9 +19,14 @@ export const AddCustomer = ({
   state?: 'lead' | 'customer';
   onSuccess?: (id: string) => void;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  const { t: tRoot } = useTranslation('contact');
   const [open, setOpen] = useState<boolean>(false);
   const [, setSelectedTab] = useQueryState<string>('tab');
-  const title = state === 'lead' ? 'Create Lead' : 'Create Customer';
+  const title =
+    state === 'lead'
+      ? t('title-lead', 'Create Lead')
+      : t('title-customer', 'Create Customer');
 
   const onClose = () => {
     setOpen(false);
@@ -36,7 +42,7 @@ export const AddCustomer = ({
         {children || (
           <Button variant="outline">
             <IconPlus />
-            Create new customer
+            {t('create-new-customer', 'Create new customer')}
           </Button>
         )}
       </Sheet.Trigger>
@@ -46,7 +52,7 @@ export const AddCustomer = ({
           <FocusSheet.SideBar>
             <SheetNavSidebar
               tabs={['overview', 'properties']}
-              groupLabel="General"
+              groupLabel={tRoot('general', 'General')}
             />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1">

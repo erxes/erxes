@@ -2,6 +2,7 @@ import { IconDownload, IconLoader, IconUpload } from '@tabler/icons-react';
 import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { TNotification } from 'ui-modules';
 import { useImportNotificationData } from '../hooks/useImportNotificationData';
+import { useTranslation } from 'react-i18next';
 
 export const ImportNotificationContent = ({
   createdAt,
@@ -19,6 +20,7 @@ export const ImportNotificationContent = ({
     canDownloadErrorFile,
   } = useImportNotificationData(metadata);
 
+  const { t } = useTranslation('notification');
   const statusView = buildStatus(status);
 
   return (
@@ -44,27 +46,27 @@ export const ImportNotificationContent = ({
           <span className="text-foreground font-semibold">
             {totalRows?.toLocaleString?.() || '—'}
           </span>
-          <span>Rows</span>
+          <span>{t('rows', 'Rows')}</span>
         </div>
         <span>•</span>
         <div className="flex items-center gap-1 text-success">
           <span className="text-success font-semibold">
             {successRows.toLocaleString()}
           </span>
-          <span>Imported</span>
+          <span>{t('imported', 'Imported')}</span>
         </div>
         <span>•</span>
         <div className="flex items-center gap-1 text-destructive">
           <span className="text-destructive font-semibold">
             {errorRows.toLocaleString()}
           </span>
-          <span>Errors</span>
+          <span>{t('errors', 'Errors')}</span>
         </div>
       </div>
 
       {status === 'failed' && (
         <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive inline-flex text-left">
-          {errorMessage || 'An error occurred during import.'}
+          {errorMessage || t('error-occurred-during-import', 'An error occurred during import.')}
         </div>
       )}
 
@@ -76,7 +78,7 @@ export const ImportNotificationContent = ({
             rel="noopener noreferrer"
           >
             <IconDownload className="size-4" />
-            Download Error File
+            {t('download-error-file', 'Download Error File')}
           </a>
         </Button>
       )}

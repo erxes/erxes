@@ -8,8 +8,10 @@ import { useDeviceAuthorize } from '../hooks/useDeviceAuthorize';
 import { DeviceAuthorizeApproved } from './DeviceAuthorizeApproved';
 import { DeviceAuthorizeDenied } from './DeviceAuthorizeDenied';
 import { DeviceAuthorizeScopes } from './DeviceAuthorizeScopes';
+import { useTranslation } from 'react-i18next';
 
 export const DeviceAuthorize = () => {
+  const { t } = useTranslation('auth');
   const currentUser = useAtomValue(currentUserState);
   const {
     userCode,
@@ -60,8 +62,7 @@ export const DeviceAuthorize = () => {
                   ' wants access to your account'}
               </Card.Title>
               <Card.Description className="text-sm leading-6">
-                Signed in as {currentUser?.email}. Review the permissions below
-                and choose what you want to allow.
+                {t('signed-in-as', 'Signed in as')} {currentUser?.email}. {t('review-permissions', 'Review the permissions below and choose what you want to allow.')}
               </Card.Description>
               {details?.client.description ? (
                 <p className="text-sm text-muted-foreground">
@@ -96,7 +97,7 @@ export const DeviceAuthorize = () => {
               disabled={loading || loadingDetails || !details}
               onClick={deny}
             >
-              Cancel
+              {t('cancel', 'Cancel')}
             </Button>
             <Button
               disabled={
@@ -108,8 +109,8 @@ export const DeviceAuthorize = () => {
               onClick={approve}
             >
               {loading
-                ? 'Authorizing...'
-                : `Authorize ${details?.client.name || 'application'}`}
+                ? t('authorizing', 'Authorizing...')
+                : `${t('authorize', 'Authorize')} ${details?.client.name || t('application', 'application')}`}
             </Button>
           </div>
         </Card.Content>

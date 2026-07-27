@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 export function ProductSettingsSidebar() {
   const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
+  const { t: tp } = useTranslation('product');
   const { pathname } = useLocation();
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
@@ -14,7 +15,7 @@ export function ProductSettingsSidebar() {
                 isActive={pathname === '/settings/products'}
                 asChild
               >
-                <Link to="/settings/products">General</Link>
+                <Link to="/settings/products">{tp('general', 'General')}</Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
             <Sidebar.MenuItem>
@@ -22,7 +23,7 @@ export function ProductSettingsSidebar() {
                 isActive={pathname === '/settings/products/uom'}
                 asChild
               >
-                <Link to="/settings/products/uom">Uom</Link>
+                <Link to="/settings/products/uom">{tp('uom', 'UOM')}</Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
             <Sidebar.MenuItem>

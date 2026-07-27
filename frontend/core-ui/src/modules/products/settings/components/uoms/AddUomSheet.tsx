@@ -54,7 +54,7 @@ export const AddUomSheet = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            {t('add-uom')}
+            {t('add-uom', 'Add UOM')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>

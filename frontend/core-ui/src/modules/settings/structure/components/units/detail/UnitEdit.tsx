@@ -9,8 +9,10 @@ import { TUnitForm } from '@/settings/structure/types/unit';
 import { IconUsersGroup } from '@tabler/icons-react';
 import { UnitForm } from '../UnitForm';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const UnitEdit = () => {
+  const { t } = useTranslation('settings');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('unit_id');
@@ -45,16 +47,16 @@ export const UnitEdit = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success', 'Success!'),
           variant: 'success',
-          description: 'Unit updated successfully',
+          description: t('unit.updated-successfully', 'Unit updated successfully'),
         });
         methods.reset();
         setOpen(null);
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -97,11 +99,11 @@ export const UnitEdit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Can action="unitsManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save', 'Save')}
                 </Button>
               </Can>
             </Sheet.Footer>

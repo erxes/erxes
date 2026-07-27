@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { Form, Input, Editor, Select, Checkbox, Label } from 'erxes-ui';
 import { nanoid } from 'nanoid';
@@ -37,6 +38,7 @@ export const ProductCategoryAddMoreFields = ({
   fieldGroups?: { _id: string; name: string }[];
   fields?: { _id: string; name: string; groupId?: string }[];
 }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   const isSimilarityChecked = form.watch('isSimilarity');
   const similarities = form.watch('similarities') || [];
 
@@ -80,7 +82,7 @@ export const ProductCategoryAddMoreFields = ({
     <>
       <div className="flex items-center my-4">
         <div className="flex-1 border-t" />
-        <Form.Label className="mx-2">More Info</Form.Label>
+        <Form.Label className="mx-2">{t('more-info', 'More Info')}</Form.Label>
         <div className="flex-1 border-t" />
       </div>
       <Form.Field
@@ -88,7 +90,7 @@ export const ProductCategoryAddMoreFields = ({
         name="meta"
         render={({ field }) => (
           <Form.Item className="mb-5">
-            <Form.Label>META</Form.Label>
+            <Form.Label>{t('meta', 'META')}</Form.Label>
             <Form.Control>
               <Input {...field} />
             </Form.Control>
@@ -102,7 +104,7 @@ export const ProductCategoryAddMoreFields = ({
         name="scopeBrandIds"
         render={({ field }) => (
           <Form.Item className="flex flex-col mb-5">
-            <Form.Label>BRAND</Form.Label>
+            <Form.Label>{t('brand', 'BRAND')}</Form.Label>
             <Form.Control>
               <SelectBrand
                 value={field.value?.[0] || ''}
@@ -120,7 +122,7 @@ export const ProductCategoryAddMoreFields = ({
         name="description"
         render={({ field }) => (
           <Form.Item className="mb-5">
-            <Form.Label>DESCRIPTION</Form.Label>
+            <Form.Label>{t('description', 'DESCRIPTION')}</Form.Label>
             <Form.Control>
               <Editor
                 initialContent={field.value}
@@ -147,7 +149,7 @@ export const ProductCategoryAddMoreFields = ({
                 />
 
                 <Label htmlFor="isSimilarity" className="cursor-pointer">
-                  Has similarities group
+                  {t('has-similarities-group', 'Has similarities group')}
                 </Label>
               </div>
             </Form.Control>
@@ -161,18 +163,18 @@ export const ProductCategoryAddMoreFields = ({
           {similarities.map((item: any) => (
             <div key={item.id} className="space-y-2">
               <div className="space-y-2">
-                <Label>Title</Label>
+                <Label>{t('title', 'Title')}</Label>
                 <Input
                   value={item.title || ''}
                   onChange={(e) =>
                     updateSimilarityRow(item.id, 'title', e.target.value)
                   }
-                  placeholder="Enter title"
+                  placeholder={t('enter-title', 'Enter title')}
                 />
               </div>
               <div className="flex gap-3">
                 <div className="flex-1 space-y-2">
-                  <Label>Field group</Label>
+                  <Label>{t('field-group', 'Field group')}</Label>
                   <Select
                     value={item.groupId || ''}
                     onValueChange={(val) =>
@@ -181,7 +183,7 @@ export const ProductCategoryAddMoreFields = ({
                   >
                     <Form.Control>
                       <Select.Trigger>
-                        <Select.Value placeholder="Field group" />
+                        <Select.Value placeholder={t('field-group', 'Field group')} />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
@@ -195,7 +197,7 @@ export const ProductCategoryAddMoreFields = ({
                 </div>
 
                 <div className="flex-1 space-y-2">
-                  <Label>Field</Label>
+                  <Label>{t('field', 'Field')}</Label>
                   <Select
                     value={item.fieldId || ''}
                     onValueChange={(val) =>
@@ -205,7 +207,7 @@ export const ProductCategoryAddMoreFields = ({
                   >
                     <Form.Control>
                       <Select.Trigger>
-                        <Select.Value placeholder="Field" />
+                        <Select.Value placeholder={t('field', 'Field')} />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
@@ -233,7 +235,7 @@ export const ProductCategoryAddMoreFields = ({
         name="attachment"
         render={() => (
           <Form.Item className="mb-5">
-            <Form.Label>UPLOAD</Form.Label>
+            <Form.Label>{t('upload', 'UPLOAD')}</Form.Label>
             <Form.Control>
               <ProductPrimaryImageUpload
                 value={attachment}
@@ -250,11 +252,11 @@ export const ProductCategoryAddMoreFields = ({
         name="status"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>State</Form.Label>
+            <Form.Label>{t('state', 'State')}</Form.Label>
             <Select onValueChange={field.onChange} value={field.value}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Choose type">
+                  <Select.Value placeholder={t('choose-type', 'Choose type')}>
                     {
                       PRODUCT_CATEGORIES_STATUS.find(
                         (type) => type.value === field.value,

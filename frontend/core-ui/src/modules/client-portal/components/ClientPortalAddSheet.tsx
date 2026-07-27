@@ -9,6 +9,7 @@ import {
   useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconChessKnight, IconPlus } from '@tabler/icons-react';
 import React, { useState } from 'react';
 import {
@@ -24,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateClientPortalSheet = () => {
+  const { t } = useTranslation('client-portal');
   const { toast } = useToast();
   const { clientPortalAdd, loading } = useCreateClientPortal();
   const {
@@ -71,9 +73,9 @@ export const CreateClientPortalSheet = () => {
         variables: data,
         onCompleted: (data) => {
           toast({
-            title: 'Success!',
+            title: t('success', 'Success!'),
             variant: 'success',
-            description: 'Client portal created successfully',
+            description: t('client-portal-created-successfully', 'Client portal created successfully'),
           });
           navigate(`${data.clientPortalAdd._id}`);
         },
@@ -88,7 +90,7 @@ export const CreateClientPortalSheet = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Create client portal
+            {t('create-client-portal', 'Create client portal')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -101,7 +103,7 @@ export const CreateClientPortalSheet = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>Create client portal</Sheet.Title>
+              <Sheet.Title>{t('create-client-portal', 'Create client portal')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -113,9 +115,9 @@ export const CreateClientPortalSheet = () => {
                 onClick={onClose}
                 disabled={loading}
               >
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
-              <Button type="submit">{loading ? <Spinner /> : 'Create'}</Button>
+              <Button type="submit">{loading ? <Spinner /> : t('create', 'Create')}</Button>
             </Sheet.Footer>
           </form>
         </Form>

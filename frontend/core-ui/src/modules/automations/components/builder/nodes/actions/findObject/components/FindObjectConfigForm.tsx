@@ -55,10 +55,10 @@ export const FindObjectConfigForm = ({
           name="objectType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('record-type')}</Form.Label>
+              <Form.Label>{t('record-type', 'Record Type')}</Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-record-type')} />
+                  <Select.Value placeholder={t('select-record-type', 'Select a record type')} />
                 </Select.Trigger>
                 <Select.Content>
                   {findObjectTargetsConst.map((target) => (
@@ -77,10 +77,10 @@ export const FindObjectConfigForm = ({
             name="lookupField"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('lookup-by')}</Form.Label>
+                <Form.Label>{t('lookup-by', 'Lookup By')}</Form.Label>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder={t('select-lookup-field')} />
+                    <Select.Value placeholder={t('select-lookup-field', 'Select a lookup field')} />
                   </Select.Trigger>
                   <Select.Content>
                     {lookupFields.map((lookupField: any) => (
@@ -102,7 +102,7 @@ export const FindObjectConfigForm = ({
             name="value"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('value')}</Form.Label>
+                <Form.Label>{t('value', 'Value')}</Form.Label>
                 <PlaceholderInput
                   propertyType={objectType}
                   isDisabled={!lookupField || !objectType}

@@ -1,14 +1,16 @@
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { Button, cn, PageSubHeader, Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const AUTOMATION_SETTINGS_NAV_ITEMS = [
-  { label: 'Agents', path: AutomationSettingsPath.Agents },
-  { label: 'Email Templates', path: AutomationSettingsPath.EmailTemplates },
-  { label: 'Bots', path: AutomationSettingsPath.Bots },
+  { label: 'agents', path: AutomationSettingsPath.Agents },
+  { label: 'email-templates', path: AutomationSettingsPath.EmailTemplates },
+  { label: 'bots', path: AutomationSettingsPath.Bots },
 ];
 
 export const AutomationSettingsSidebar = () => {
+  const { t } = useTranslation('automations');
   const activePath = useLocation().pathname;
 
   return (
@@ -22,7 +24,7 @@ export const AutomationSettingsSidebar = () => {
                   isActive={activePath.includes(path)}
                   asChild
                 >
-                  <Link to={path}>{label}</Link>
+                  <Link to={path}>{t(label)}</Link>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}
@@ -34,6 +36,7 @@ export const AutomationSettingsSidebar = () => {
 };
 
 export const AutomationSettingsMobileNav = () => {
+  const { t } = useTranslation('automations');
   const activePath = useLocation().pathname;
 
   return (
@@ -48,7 +51,7 @@ export const AutomationSettingsMobileNav = () => {
             activePath.includes(path) && 'bg-primary/10 text-primary',
           )}
         >
-          <Link to={path}>{label}</Link>
+          <Link to={path}>{t(label)}</Link>
         </Button>
       ))}
     </PageSubHeader>

@@ -208,7 +208,7 @@ export const CompanyAddGeneralInformationFields = ({
               <Select onValueChange={field.onChange} value={field.value || ''}>
                 <Form.Control>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select country" />
+                    <Select.Value placeholder={t('company.field.select-country', 'Select country')} />
                   </Select.Trigger>
                 </Form.Control>
                 <Select.Content>

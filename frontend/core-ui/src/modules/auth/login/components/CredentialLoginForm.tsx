@@ -4,10 +4,12 @@ import { useSignInUpForm } from '@/auth/login/hooks/useLoginForm';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const PASSWORD_REVEAL_TIMEOUT = 10000;
 
 export const CredentialLoginForm = () => {
+  const { t } = useTranslation('auth');
   const { form } = useSignInUpForm();
   const { handleCrendentialsLogin } = useLogin();
   const [showPassword, setShowPassword] = useState(false);
@@ -33,13 +35,13 @@ export const CredentialLoginForm = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Label className="font-sans normal-case text-foreground text-sm font-medium leading-none">
-                Email or Username
+                {t('email-or-username', 'Email or Username')}
               </Form.Label>
               <Form.Control>
                 <Input
                   autoFocus
                   type="text"
-                  placeholder="Enter your work email or username"
+                  placeholder={t('enter-your-work-email-or-username', 'Enter your work email or username')}
                   {...field}
                 />
               </Form.Control>
@@ -52,13 +54,13 @@ export const CredentialLoginForm = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Label className="font-sans normal-case text-foreground text-sm font-medium leading-none">
-                Password
+                {t('password', 'Password')}
               </Form.Label>
               <Form.Control>
                 <div className="relative">
                   <Input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
+                    placeholder={t('enter-your-password', 'Enter your password')}
                     className="pr-9"
                     {...field}
                   />
@@ -68,7 +70,7 @@ export const CredentialLoginForm = () => {
                     size="icon"
                     onClick={() => setShowPassword((prev) => !prev)}
                     aria-label={
-                      showPassword ? 'Hide password' : 'Show password'
+                      showPassword ? t('hide-password', 'Hide password') : t('show-password', 'Show password')
                     }
                     className="absolute inset-y-0 right-1 my-auto size-6 rounded-sm p-0 text-accent-foreground/60 hover:text-foreground"
                   >
@@ -85,7 +87,7 @@ export const CredentialLoginForm = () => {
           )}
         />
         <Button type="submit" className="h-8">
-          Sign in
+          {t('sign-in', 'Sign in')}
         </Button>
 
         <Button
@@ -102,7 +104,7 @@ export const CredentialLoginForm = () => {
               }`;
             })()}
           >
-            Forgot password?
+            {t('forgot-password', 'Forgot password?')}
           </Link>
         </Button>
       </form>

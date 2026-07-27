@@ -10,6 +10,7 @@ import {
   TIncomingWebhookJSONPropertyEditorProps,
   TIncomingWebhookJSONPropertySchema,
 } from '@/automations/components/builder/nodes/triggers/webhooks/types/incomingWebhookJsonBuilder';
+import { useTranslation } from 'react-i18next';
 
 export function IncomingWebhookJSONPropertyEditor({
   property,
@@ -19,6 +20,7 @@ export function IncomingWebhookJSONPropertyEditor({
   onAddChild,
   onToggleExpanded,
 }: TIncomingWebhookJSONPropertyEditorProps) {
+  const { t } = useTranslation('automations');
   const hasIndent = depth > 0;
   const isExpandable =
     property.type === 'object' ||
@@ -112,7 +114,7 @@ export function IncomingWebhookJSONPropertyEditor({
                 onUpdate(property.id, 'required', pressed)
               }
             >
-              {property.required ? 'Required' : 'Optional'}
+              {property.required ? t('required', 'Required') : t('optional', 'Optional')}
             </Toggle>
           </div>
         </div>
@@ -207,7 +209,7 @@ export function IncomingWebhookJSONPropertyEditor({
               }}
             >
               <IconPlus className="mr-1" />
-              Add Array Item Property
+              {t('add-array-item-property', 'Add Array Item Property')}
             </Button>
           </div>
         </div>

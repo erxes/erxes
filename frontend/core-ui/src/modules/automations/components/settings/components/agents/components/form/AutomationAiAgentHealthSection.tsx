@@ -8,6 +8,7 @@ import {
   RelativeDateDisplay,
   Skeleton,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type THealthStatus = 'ok' | 'warning' | 'error' | 'skipped';
 
@@ -19,14 +20,6 @@ type TAiAgentHealthResponse = {
     warnings: string[];
     checks?: Record<string, THealthStatus>;
   };
-};
-
-const HEALTH_LABELS: Record<string, string> = {
-  schema: 'Schema',
-  credentials: 'Credentials',
-  files: 'Context Files',
-  endpoint: 'Endpoint',
-  model: 'Model Access',
 };
 
 const isValidDateValue = (value?: string) => {
@@ -68,6 +61,14 @@ export const AutomationAiAgentHealthSection = ({
 }: {
   agentId?: string;
 }) => {
+  const { t } = useTranslation('automations');
+  const HEALTH_LABELS: Record<string, string> = {
+    schema: t('health-schema', 'Schema'),
+    credentials: t('health-credentials', 'Credentials'),
+    files: t('health-context-files', 'Context Files'),
+    endpoint: t('health-endpoint', 'Endpoint'),
+    model: t('health-model-access', 'Model Access'),
+  };
   const { data, loading, refetch } = useQuery<TAiAgentHealthResponse>(
     AUTOMATIONS_AI_AGENT_HEALTH,
     {
@@ -82,7 +83,7 @@ export const AutomationAiAgentHealthSection = ({
   if (!agentId) {
     return (
       <Alert variant="warning">
-        <Alert.Title>Save the agent first</Alert.Title>
+        <Alert.Title>{t('save-the-agent-first', 'Save the agent first')}</Alert.Title>
         <Alert.Description>
           Health checks become available after the agent has been created and an
           ID exists in the workspace.
@@ -96,10 +97,10 @@ export const AutomationAiAgentHealthSection = ({
       <Card className="flex items-start justify-between gap-4 p-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-medium">Provider Health</h3>
+            <h3 className="text-sm font-medium">{t('provider-health', 'Provider Health')}</h3>
             {health ? (
               <Badge variant={health.ready ? 'success' : 'destructive'}>
-                {health.ready ? 'Ready' : 'Needs attention'}
+                {health.ready ? t('ready', 'Ready') : t('needs-attention', 'Needs attention')}
               </Badge>
             ) : null}
           </div>
@@ -124,7 +125,7 @@ export const AutomationAiAgentHealthSection = ({
           onClick={() => refetch()}
           disabled={loading}
         >
-          {loading ? 'Checking...' : 'Run health check'}
+          {loading ? t('checking', 'Checking...') : t('run-health-check', 'Run health check')}
         </Button>
       </Card>
 
@@ -141,8 +142,8 @@ export const AutomationAiAgentHealthSection = ({
           <Alert variant={getSummaryVariant(health)}>
             <Alert.Title>
               {health.ready
-                ? 'This agent is ready for provider calls.'
-                : 'This agent still needs attention before execution.'}
+                ? t('agent-ready-for-calls', 'This agent is ready for provider calls.')
+                : t('agent-needs-attention', 'This agent still needs attention before execution.')}
             </Alert.Title>
             <Alert.Description>
               {(health.errors?.length || 0) > 0
@@ -169,7 +170,7 @@ export const AutomationAiAgentHealthSection = ({
 
           {health.warnings?.length ? (
             <Card className="space-y-3 p-4">
-              <h4 className="text-sm font-medium">Warnings</h4>
+              <h4 className="text-sm font-medium">{t('warnings', 'Warnings')}</h4>
               <div className="space-y-2">
                 {health.warnings.map((warning, index) => (
                   <Alert key={`${warning}-${index}`} variant="warning">
@@ -182,7 +183,7 @@ export const AutomationAiAgentHealthSection = ({
 
           {health.errors?.length ? (
             <Card className="space-y-3 p-4">
-              <h4 className="text-sm font-medium">Errors</h4>
+              <h4 className="text-sm font-medium">{t('errors', 'Errors')}</h4>
               <div className="space-y-2">
                 {health.errors.map((error, index) => (
                   <Alert key={`${error}-${index}`} variant="destructive">

@@ -2,6 +2,7 @@ import { IconCode } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { IncomingWebhookPayloadSchemaGenerator } from '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookPayloadSchemaGenerator';
 import { TIncomingWebhookJSONPropertySchema } from '@/automations/components/builder/nodes/triggers/webhooks/types/incomingWebhookJsonBuilder';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   value?: TIncomingWebhookJSONPropertySchema[];
@@ -9,11 +10,12 @@ interface Props {
 }
 
 export function IncomingWebhookPayloadSchemaSheet({ value, onChange }: Props) {
+  const { t } = useTranslation('automations');
   return (
     <Sheet>
       <Sheet.Trigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <IconCode className="size-4" /> Edit Payload Schema
+          <IconCode className="size-4" /> {t('edit-payload-schema', 'Edit Payload Schema')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0 md:w-[calc(90vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">

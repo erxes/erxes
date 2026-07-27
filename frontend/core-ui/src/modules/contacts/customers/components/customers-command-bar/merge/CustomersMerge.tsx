@@ -7,6 +7,7 @@ import { ChoiceboxGroup, useToast } from 'erxes-ui';
 import { useMergeCustomers } from '@/contacts/customers/hooks/useMergeCustomers';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
+import { useTranslation } from 'react-i18next';
 
 interface MergeProps {
   disabled?: boolean;
@@ -26,6 +27,7 @@ export const CustomersMerge = ({
   customers,
   rows,
 }: MergeProps) => {
+  const { t } = useTranslation('contact');
   const { toast } = useToast();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const { mergeCustomers } = useMergeCustomers();
@@ -37,7 +39,7 @@ export const CustomersMerge = ({
       },
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -48,9 +50,9 @@ export const CustomersMerge = ({
         });
         setSheetOpen(false);
         toast({
-          title: 'Success',
+          title: t('success', 'Success'),
           variant: 'success',
-          description: 'Customers merged successfully',
+          description: t('customer.merge-success', 'Customers merged successfully'),
         });
       },
     });
@@ -342,8 +344,8 @@ export const CustomersMerge = ({
         })}
       </div>
 
-      <div className="flex-[1.2] ml-5 flex flex-col gap-2">
-        <span className="text-sm font-semibold text-primary mb-1">Merge</span>
+      <div className="flex-[1.2] h-full ml-5 flex flex-col gap-2">
+        <span className="text-sm font-semibold text-primary mb-1">{t('merge', 'Merge')}</span>
 
         {value ? (
           <div className="flex flex-col gap-2 ">

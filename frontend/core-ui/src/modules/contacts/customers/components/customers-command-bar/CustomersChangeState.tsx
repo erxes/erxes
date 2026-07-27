@@ -4,11 +4,7 @@ import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { Button, DropdownMenu, RecordTable, useToast } from 'erxes-ui';
 import { ICustomer } from 'ui-modules';
-
-const LIFECYCLE_STATES = [
-  { label: 'Lead', value: 'lead' },
-  { label: 'Customer', value: 'customer' },
-];
+import { useTranslation } from 'react-i18next';
 
 type CustomerWithState = ICustomer & { state?: string };
 
@@ -19,9 +15,15 @@ export const CustomersChangeState = ({
   customerIds: string[];
   rows: Row<CustomerWithState>[];
 }) => {
+  const { t } = useTranslation('contact');
   const { changeCustomerState } = useChangeCustomerState();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
+
+  const LIFECYCLE_STATES = [
+    { label: t('lifecycle-state-lead', 'Lead'), value: 'lead' },
+    { label: t('lifecycle-state-customer', 'Customer'), value: 'customer' },
+  ];
 
   const currentState =
     rows.length === 1 ? rows[0].original.state : undefined;
@@ -34,7 +36,7 @@ export const CustomersChangeState = ({
     await changeCustomerState(customerIds, value, {
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -43,9 +45,9 @@ export const CustomersChangeState = ({
         const label =
           LIFECYCLE_STATES.find((s) => s.value === value)?.label ?? value;
         toast({
-          title: 'Success',
+          title: t('success', 'Success'),
           variant: 'success',
-          description: `State changed to "${label}" successfully`,
+          description: t('state-changed-success', { label }, 'State changed to "{{label}}" successfully'),
         });
       },
     });
@@ -56,7 +58,7 @@ export const CustomersChangeState = ({
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary">
           <IconUserCheck />
-          Change State
+          {t('change-state', 'Change State')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>

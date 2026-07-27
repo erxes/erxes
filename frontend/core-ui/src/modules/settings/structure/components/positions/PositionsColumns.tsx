@@ -17,13 +17,13 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import { PositionsMoreColumn } from './PositionsMoreColumn';
 
-export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
+export const getPositionsColumns = (t: (key: string, fallback: string) => string): ColumnDef<IPositionListItem>[] => [
   PositionsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IPositionListItem>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     cell: ({ cell }) => {
       const { _id, code } = cell.row.original || {};
       const { positionsEdit, loading } = usePositionInlineEdit();
@@ -77,7 +77,7 @@ export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="title" />,
+    header: () => <RecordTable.InlineHead label={t('title', 'Title')} />,
     cell: ({ cell }) => {
       const { _id, code, title } = cell.row.original || {};
       const { positionsEdit, loading } = usePositionInlineEdit();
@@ -126,7 +126,7 @@ export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
   {
     id: 'parentId',
     accessorKey: 'parentId',
-    header: () => <RecordTable.InlineHead label="parent" />,
+    header: () => <RecordTable.InlineHead label={t('parent', 'Parent')} />,
     cell: ({ cell }) => {
       const { _id, code } = cell.row.original || {};
       const { positionsEdit } = usePositionInlineEdit();
@@ -155,7 +155,7 @@ export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
   {
     id: 'userCount',
     accessorKey: 'userCount',
-    header: () => <RecordTable.InlineHead label="team member count" />,
+    header: () => <RecordTable.InlineHead label={t('team-member-count', 'Team member count')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="justify-center">

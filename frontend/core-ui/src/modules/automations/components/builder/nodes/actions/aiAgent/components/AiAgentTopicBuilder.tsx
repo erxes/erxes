@@ -3,8 +3,10 @@ import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Textarea } from 'erxes-ui';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { generateAutomationElementId } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AiAgentTopicBuilder = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -21,7 +23,7 @@ export const AiAgentTopicBuilder = () => {
                 name={`topics.${index}.topicName`}
                 control={control}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Enter topic label" />
+                  <Input {...field} placeholder={t('enter-topic-label', 'Enter topic label')} />
                 )}
               />
               <Button
@@ -41,7 +43,7 @@ export const AiAgentTopicBuilder = () => {
               render={({ field }) => (
                 <Textarea
                   {...field}
-                  placeholder="Explain when this topic should be selected"
+                  placeholder={t('explain-topic-selection', 'Explain when this topic should be selected')}
                 />
               )}
             />
@@ -59,7 +61,7 @@ export const AiAgentTopicBuilder = () => {
           })
         }
       >
-        Add Topic
+        {t('add-topic', 'Add Topic')}
       </Button>
     </>
   );

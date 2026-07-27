@@ -6,8 +6,10 @@ import { UserDateField } from './fields/UserDateField';
 import { useUserDetail } from '../../hooks/useUserDetail';
 import { Label } from 'erxes-ui';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const MemberGeneral = () => {
+  const { t } = useTranslation('settings');
   const { userDetail } = useUserDetail();
   if (!userDetail) return;
 
@@ -17,47 +19,47 @@ export const MemberGeneral = () => {
       <div className="py-8 space-y-6">
         <div className="px-8 font-medium flex gap-5 flex-col">
           <div className="grid grid-cols-2 gap-5 col-span-5">
-            <DataListItem label="Email">
+            <DataListItem label={t('profile.email', 'Email')}>
               <TextFieldUserDetail
                 value={email || ''}
-                placeholder="Add Primary Email"
+                placeholder={t('team-member.add-primary-email', 'Add Primary Email')}
                 field="email"
                 _id={_id}
               />
             </DataListItem>
-            <DataListItem label="Phone">
+            <DataListItem label={t('phone-number', 'Phone')}>
               <PhoneFieldUser _id={_id} details={details} />
             </DataListItem>
-            <DataListItem label="Username">
+            <DataListItem label={t('profile.username', 'Username')}>
               <TextFieldUserDetail
                 value={username || ''}
-                placeholder="Username"
+                placeholder={t('profile.username-placeholder', 'Username')}
                 field="username"
                 _id={_id}
               />
             </DataListItem>
-            <DataListItem label="Short name">
+            <DataListItem label={t('profile.short-name', 'Short name')}>
               <DetailsField
                 value={details?.shortName || ''}
-                placeholder="Short name"
+                placeholder={t('profile.short-name', 'Short name')}
                 field="shortName"
                 _id={_id}
                 details={details}
               />
             </DataListItem>
-            <DataListItem label="Birthday">
+            <DataListItem label={t('team-member.birthday', 'Birthday')}>
               <UserDateField
                 value={details?.birthDate}
-                placeholder="Birth date"
+                placeholder={t('profile.birth-date', 'Birth date')}
                 field="birthDate"
                 _id={_id}
                 details={details}
               />
             </DataListItem>
-            <DataListItem label="Score">
+            <DataListItem label={t('team-member.score', 'Score')}>
               <TextFieldUserDetail
                 value={score ?? ''}
-                placeholder="Add Score"
+                placeholder={t('team-member.add-score', 'Add Score')}
                 field="score"
                 _id={_id}
                 type="number"
@@ -67,7 +69,7 @@ export const MemberGeneral = () => {
 
           <div className="grid grid-cols-2">
             <div className="space-y-2">
-              <Label>Joined date</Label>
+              <Label>{t('team-member.joined-date', 'Joined date')}</Label>
               <UserDateField
                 value={details?.workStartedDate || ''}
                 field="workStartedDate"
@@ -78,7 +80,7 @@ export const MemberGeneral = () => {
             </div>
           </div>
 
-          <DataListItem label="Description">
+          <DataListItem label={t('description', 'Description')}>
             <TextareaField
               _id={_id}
               field="description"

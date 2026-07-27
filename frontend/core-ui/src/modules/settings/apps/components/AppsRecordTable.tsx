@@ -1,14 +1,16 @@
 import { IconArchive } from '@tabler/icons-react';
 import { Label, RecordTable } from 'erxes-ui';
-import { appsSettingsColumns } from './table/AppsSettingsColumns';
+import { getAppsSettingsColumns } from './table/AppsSettingsColumns';
 import { appsMoreColumn } from './table/AppsMoreColumn';
 import { AppsCommandBar } from './AppsCommandBar';
 import { useApps } from '../hooks/useApps';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function AppsRecordTable() {
+  const { t } = useTranslation('settings');
   const { apps, loading, error } = useApps();
-  const columns = useMemo(() => [...appsSettingsColumns, appsMoreColumn], []);
+  const columns = useMemo(() => [...getAppsSettingsColumns(t), appsMoreColumn], [t]);
 
   return (
     <RecordTable.Provider
@@ -28,7 +30,7 @@ export function AppsRecordTable() {
                 <td colSpan={6} className="py-10 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
                     <IconArchive className="w-8 h-8 mb-2" />
-                    <Label>No apps found</Label>
+                    <Label>{t('apps.no-apps', 'No apps found')}</Label>
                   </div>
                 </td>
               </tr>

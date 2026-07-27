@@ -1,8 +1,10 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Empty } from 'erxes-ui';
 import { useExportHistoriesRecordTable } from './ExportHistoriesContext';
+import { useTranslation } from 'react-i18next';
 
 export const ExportHistoriesErrorState = () => {
+  const { t } = useTranslation('import-export');
   const { columnsLength } = useExportHistoriesRecordTable();
 
   return (
@@ -13,9 +15,9 @@ export const ExportHistoriesErrorState = () => {
             <Empty.Media variant="icon">
               <IconAlertCircle className="text-destructive" />
             </Empty.Media>
-            <Empty.Title>Export history couldn&apos;t be loaded</Empty.Title>
+            <Empty.Title>{t('export-history-error', "Export history couldn't be loaded")}</Empty.Title>
             <Empty.Description>
-              Try refreshing this page again in a moment.
+              {t('try-refresh', 'Try refreshing this page again in a moment.')}
             </Empty.Description>
           </Empty.Header>
         </Empty>

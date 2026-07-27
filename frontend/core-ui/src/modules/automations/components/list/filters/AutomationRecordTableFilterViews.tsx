@@ -3,8 +3,10 @@ import { SelectMember, SelectTags, TagsSelect } from 'ui-modules';
 import { AutomationStatusFilter } from './AutomationStatusFilter';
 import { AutomationRecordTableNodeTypeFilter } from './AutomationRecordTableNodeTypeFilter';
 import { AutomationNodeType } from '@/automations/types';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationRecordTableFilterViews = () => {
+  const { t } = useTranslation('automations');
   const [queries, setQueries] = useMultiQueryState<{
     searchValue?: string;
     tagIds?: string[];
@@ -28,7 +30,7 @@ export const AutomationRecordTableFilterViews = () => {
       <Filter.View filterKey="searchValue">
         <Command>
           <Filter.CommandInput
-            placeholder="Search"
+            placeholder={t('search-filter', 'Search')}
             variant="secondary"
             className="bg-background"
             defaultValue={searchValue || ''}

@@ -3,12 +3,14 @@ import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { Can, ICustomer } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CustomerMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<ICustomer, unknown>;
 }) => {
+  const { t } = useTranslation('contact');
   const [searchParams, setSearchParams] = useSearchParams();
   const { _id } = cell.row.original;
 
@@ -29,7 +31,7 @@ export const CustomerMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => setOpen(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
           </Command.List>
         </Command>

@@ -23,6 +23,7 @@ import {
   Tabs,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryDetail = ({
   executionId,
@@ -50,6 +51,7 @@ export const AutomationHistoryDetail = ({
 };
 
 const AutomationHistorySheetHeader = () => {
+  const { t } = useTranslation('automations');
   const { canGoBack, backToParentExecution } = useAutomationHistoryDetail();
 
   return (
@@ -68,11 +70,16 @@ const AutomationHistorySheetHeader = () => {
         <div>
           <div className="flex items-center gap-2">
             <Sheet.Title>
-              {canGoBack ? 'Workflow run' : 'Execution history'}
+              {canGoBack
+                ? t('workflow-run', 'Workflow run')
+                : t('execution-history', 'Execution history')}
             </Sheet.Title>
           </div>
           <Sheet.Description>
-            View the execution log of your automation in table or flow format.
+            {t(
+              'execution-history-description',
+              'View the execution log of your automation in table or flow format.',
+            )}
           </Sheet.Description>
         </div>
       </div>
@@ -98,6 +105,7 @@ export const AutomationHistorySheetContent = ({
 }: {
   isOpen: boolean;
 }) => {
+  const { t } = useTranslation('automations');
   if (!isOpen) {
     return null;
   }
@@ -110,11 +118,11 @@ export const AutomationHistorySheetContent = ({
             <Tabs.List variant="segment">
               <Tabs.Trigger value="table">
                 <IconAutomaticGearbox />
-                View as table
+                {t('view-as-table', 'View as table')}
               </Tabs.Trigger>
               <Tabs.Trigger value="flow">
                 <IconTournament className="scale-x-[-1]" />
-                View as flow
+                {t('view-as-flow', 'View as flow')}
               </Tabs.Trigger>
             </Tabs.List>
             <AutomationHistorySheetResultName />

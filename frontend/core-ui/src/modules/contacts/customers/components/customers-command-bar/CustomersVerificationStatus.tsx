@@ -4,6 +4,7 @@ import { IconShieldCheck } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { ICustomer } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const EMAIL_VALIDATION_STATUSES = [
   { label: 'Valid', value: 'valid' },
@@ -23,6 +24,7 @@ export const CustomersVerificationStatus = ({
   customerIds: string[];
   rows: Row<ICustomer>[];
 }) => {
+  const { t } = useTranslation('contact');
   const { changeVerificationStatus } = useChangeVerificationStatus();
   const { toast } = useToast();
 
@@ -33,7 +35,7 @@ export const CustomersVerificationStatus = ({
     await changeVerificationStatus(customerIds, status, {
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -41,9 +43,9 @@ export const CustomersVerificationStatus = ({
       onCompleted: () => {
         rows.forEach((row) => row.toggleSelected(false));
         toast({
-          title: 'Success',
+          title: t('success', 'Success'),
           variant: 'success',
-          description: 'Verification status updated successfully',
+          description: t('verification-status-updated', 'Verification status updated successfully'),
         });
       },
     });
@@ -54,7 +56,7 @@ export const CustomersVerificationStatus = ({
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary">
           <IconShieldCheck />
-          Verify
+          {t('verify', 'Verify')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>

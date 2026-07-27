@@ -14,12 +14,14 @@ import {
 import { IBranchListItem } from '../../types/branch';
 import { renderingBranchDetailAtom } from '../../states/renderingBranchDetail';
 import { useRemoveBranch } from '../../hooks/useBranchActions';
+import { useTranslation } from 'react-i18next';
 
 export const BranchesMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IBranchListItem, unknown>;
 }) => {
+  const { t } = useTranslation('settings');
   const { _id, title } = cell.row.original;
   const [, setOpenBranch] = useQueryState('branch_id');
   const [, setOpenWorkingHours] = useQueryState('workingHoursId');
@@ -35,7 +37,7 @@ export const BranchesMoreColumnCell = ({
         await handleRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -60,7 +62,7 @@ export const BranchesMoreColumnCell = ({
                   setRenderingBranchDetail(false);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit', 'Edit')}
               </Command.Item>
             </Can>
             <Can action="branchesManage">
@@ -71,7 +73,7 @@ export const BranchesMoreColumnCell = ({
                   setRenderingBranchDetail(false);
                 }}
               >
-                <IconClock /> Working Hours
+                <IconClock /> {t('working-hours', 'Working Hours')}
               </Command.Item>
             </Can>
             <Can action="branchesManage">
@@ -80,7 +82,7 @@ export const BranchesMoreColumnCell = ({
                 onSelect={handleDelete}
                 className="text-destructive"
               >
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete', 'Delete')}
               </Command.Item>
             </Can>
           </Command.List>

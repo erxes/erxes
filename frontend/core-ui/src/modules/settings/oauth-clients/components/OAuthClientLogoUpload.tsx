@@ -3,6 +3,7 @@ import { useRef } from 'react';
 
 import { Button, Spinner, cn, useUpload } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   value?: string;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
+  const { t } = useTranslation('settings');
   const inputRef = useRef<HTMLInputElement>(null);
   const { isLoading, upload } = useUpload();
 
@@ -71,7 +73,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
             onClick={handleClick}
           >
             {isLoading ? <Spinner /> : <IconUpload className="size-4" />}
-            {value ? 'Change' : 'Upload'}
+            {value ? t('change', 'Change') : t('upload', 'Upload')}
           </Button>
 
           {value ? (
@@ -83,7 +85,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
               onClick={handleRemove}
             >
               <IconTrash className="size-4" />
-              Remove
+              {t('remove', 'Remove')}
             </Button>
           ) : null}
         </div>

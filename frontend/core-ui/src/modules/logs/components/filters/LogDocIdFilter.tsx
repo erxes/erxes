@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input, useMultiQueryState } from 'erxes-ui';
 
 export const LogDocIdFilter = () => {
+  const { t } = useTranslation('common');
   const [queries, setQueries] = useMultiQueryState<{
     docId: string;
     docIdOperator: string;
@@ -19,7 +21,7 @@ export const LogDocIdFilter = () => {
         autoFocus
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Paste document ID"
+        placeholder={t('logs.paste-document-id', 'Paste document ID')}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             setQueries({

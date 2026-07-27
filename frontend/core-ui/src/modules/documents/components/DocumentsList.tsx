@@ -1,7 +1,9 @@
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Sidebar, useQueryState, useRemoveQueryStateByKey } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const DocumentsList = ({ documents }: { documents: any }) => {
+  const { t } = useTranslation('documents');
   const [documentId, setDocumentId] = useQueryState('documentId');
 
   const removeQuery = useRemoveQueryStateByKey();
@@ -16,7 +18,7 @@ export const DocumentsList = ({ documents }: { documents: any }) => {
           }}
         >
           <IconArrowLeft />
-          All documents
+          {t('all-documents', 'All documents')}
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -26,7 +28,7 @@ export const DocumentsList = ({ documents }: { documents: any }) => {
                   isActive={_id === documentId}
                   onClick={() => setDocumentId(_id)}
                 >
-                  <span className="truncate">{name || 'Untitled'}</span>
+                  <span className="truncate">{name || t('untitled', 'Untitled')}</span>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

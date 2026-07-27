@@ -4,10 +4,12 @@ import { useSessionTab } from '@/automations/hooks/useSessionTab';
 import { Form, Tabs, Textarea } from 'erxes-ui';
 import { IconBooks, IconMessageCog } from '@tabler/icons-react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const AI_AGENT_CONTEXT_TABS = ['instructions', 'knowledge'];
 
 export const AiAgentContextForm = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentForm>();
   const [activeTab, setActiveTab] = useSessionTab(
     'aiAgentContext',
@@ -24,11 +26,11 @@ export const AiAgentContextForm = () => {
       <Tabs.List variant="segment">
         <Tabs.Trigger value="instructions">
           <IconMessageCog className="size-4" />
-          Instructions
+          {t('instructions', 'Instructions')}
         </Tabs.Trigger>
         <Tabs.Trigger value="knowledge">
           <IconBooks className="size-4" />
-          Knowledge
+          {t('knowledge', 'Knowledge')}
         </Tabs.Trigger>
       </Tabs.List>
 
@@ -38,7 +40,7 @@ export const AiAgentContextForm = () => {
           name="context.systemPrompt"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>System Prompt</Form.Label>
+              <Form.Label>{t('system-prompt', 'System Prompt')}</Form.Label>
               <Form.Control>
                 <Textarea
                   rows={10}

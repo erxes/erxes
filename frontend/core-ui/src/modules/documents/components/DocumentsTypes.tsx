@@ -3,8 +3,10 @@ import { DOCUMENTS_TYPES_SET } from '../constants';
 import { useDocumentsTypes } from '../hooks/useDocumentsTypes';
 import { IDocumentType } from '../types';
 import { IconCube } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const DocumentsTypes = () => {
+  const { t } = useTranslation('documents');
   const [contentType, setQuery] = useQueryState('contentType');
 
   const { documentsTypes } = useDocumentsTypes();
@@ -13,7 +15,7 @@ export const DocumentsTypes = () => {
     <Sidebar collapsible="none" className="w-full border-r bg-muted/20">
       <Sidebar.Group>
         <Sidebar.GroupLabel className="h-12 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Document types
+          {t('document-types', 'Document types')}
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>

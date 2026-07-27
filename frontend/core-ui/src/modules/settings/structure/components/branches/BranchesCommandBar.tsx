@@ -9,8 +9,10 @@ import {
 } from 'erxes-ui';
 import { useRemoveBranch } from '../../hooks/useBranchActions';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const BranchesCommandBar = () => {
+  const { t } = useTranslation('settings');
   const { table } = RecordTable.useRecordTable();
   const { handleRemove } = useRemoveBranch();
   const { confirm } = useConfirm();
@@ -22,7 +24,7 @@ export const BranchesCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t('remove-selected-confirm', 'Are you sure you want to remove the selected?'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -47,7 +49,7 @@ export const BranchesCommandBar = () => {
         <Can action="branchesManage">
           <Button variant="secondary" onClick={onRemove}>
             <IconTrash />
-            Delete
+            {t('delete', 'Delete')}
           </Button>
         </Can>
       </CommandBar.Bar>

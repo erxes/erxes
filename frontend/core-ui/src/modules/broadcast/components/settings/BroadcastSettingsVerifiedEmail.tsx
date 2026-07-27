@@ -13,10 +13,12 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import validator from 'validator';
 import { BroadcastMemberInline } from '../BroadcastMemberInline';
 
 export const BroadcastSettingsVerifiedEmail = () => {
+  const { t } = useTranslation('broadcasts', { keyPrefix: 'verified-email' });
   const [open, setOpen] = useState(false);
 
   const [search, setSearch] = useState('');
@@ -40,8 +42,8 @@ export const BroadcastSettingsVerifiedEmail = () => {
   const handleAdd = (email: string) => {
     if (!validator.isEmail(email)) {
       return toast({
-        title: 'Invalid email',
-        description: 'Please enter a valid email',
+        title: t('invalid', 'Invalid email'),
+        description: t('invalid-description', 'Please enter a valid email'),
         variant: 'destructive',
       });
     }
@@ -49,9 +51,8 @@ export const BroadcastSettingsVerifiedEmail = () => {
     addBroadcastMember(email, {
       onCompleted: () => {
         toast({
-          title: 'Email added successfully',
-          description:
-            'Your email has been added! Please check your inbox for confirmation',
+          title: t('added', 'Email added successfully'),
+          description: t('added-description', 'Your email has been added! Please check your inbox for confirmation'),
           variant: 'success',
         });
 
@@ -64,7 +65,7 @@ export const BroadcastSettingsVerifiedEmail = () => {
     if (!email) return;
 
     confirm({
-      message: `Are you sure you want to remove this email?`,
+      message: t('remove-confirm', 'Are you sure you want to remove this email?'),
     }).then(() => {
       removeBroadcastMember(email);
     });
@@ -95,7 +96,7 @@ export const BroadcastSettingsVerifiedEmail = () => {
               ))
             ) : (
               <span className="text-muted-foreground font-medium">
-                No verified emails
+                {t('no-emails', 'No verified emails')}
               </span>
             )}
           </div>
@@ -105,7 +106,7 @@ export const BroadcastSettingsVerifiedEmail = () => {
       <Combobox.Content className="p-0 min-w-[312px]" align="start">
         <Command>
           <Command.Input
-            placeholder="Search or add email"
+            placeholder={t('search-add', 'Search or add email')}
             value={search}
             onValueChange={setSearch}
           />
@@ -129,11 +130,11 @@ export const BroadcastSettingsVerifiedEmail = () => {
                     }}
                   >
                     <IconShieldFilled />
-                    Verify email: "{search}"
+                    {t('verify', 'Verify email: "{{email}}"', { email: search })}
                   </Button>
                 ) : (
                   <div className='py-5 px-3 text-center'>
-                    No verified emails found. You can add by typing an email address.
+                    {t('no-emails-found', 'No verified emails found. You can add by typing an email address.')}
                   </div>
                 )}
               </Command.Empty>

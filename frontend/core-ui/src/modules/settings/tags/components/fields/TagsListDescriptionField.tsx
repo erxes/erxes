@@ -9,6 +9,7 @@ import {
 import { TagsListCell } from '@/settings/tags/components/TagsListCell';
 import { useTagEdit } from 'ui-modules';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+import { useTranslation } from 'react-i18next';
 
 export const TagsListDescriptionField = ({
   description,
@@ -17,6 +18,7 @@ export const TagsListDescriptionField = ({
   description: string;
   id?: string;
 }) => {
+  const { t } = useTranslation('settings');
   const [isOpen, setIsOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [descriptionState, setDescriptionState] = useState(description);
@@ -81,7 +83,7 @@ export const TagsListDescriptionField = ({
               />
             ) : (
               <p className="text-xs font-medium text-accent-foreground invisible group-hover:visible">
-                Add tag description...
+                {t('tags.add-tag-description', 'Add tag description...')}
               </p>
             )}
           </Badge>
@@ -96,7 +98,7 @@ export const TagsListDescriptionField = ({
             ref={textareaRef}
             onChange={(e) => setDescriptionState(e.target.value)}
             value={descriptionState}
-            placeholder="Add tag description..."
+            placeholder={t('tags.add-tag-description', 'Add tag description...')}
             className="focus-visible:ring-0 focus-visible:shadow-none resize-none text-xs! font-medium min-h-0 px-2 py-[calc((24px-var(--text-xs--line-height))/2)] overflow-hidden "
             maxLength={255}
             onClick={(e) => e.stopPropagation()}
