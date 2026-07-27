@@ -44,13 +44,11 @@ export const TasksBoard = () => {
   const setTaskSortMap = useSetAtom(taskSortMapState);
   const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
 
-
   useEffect(() => {
     setTasks([]);
     setAllTasksMap({});
     setTaskSortMap({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamId]);
+  }, [teamId, setAllTasksMap, setTaskSortMap, setTasks]);
 
   const { statuses, loading } = useGetStatusByTeam({
     variables: {
@@ -170,6 +168,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
       status: column.id,
     },
   });
+  const isInitialLoading = loading && !tasks;
   const setAllTasksMap = useSetAtom(allTasksMapState);
   const [taskSortMap, setTaskSortMap] = useAtom(taskSortMapState);
 
@@ -229,7 +228,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
           <StatusInlineIcon statusType={column.type} />
           {column.name}
           <span className="text-accent-foreground font-medium pl-1">
-            {loading ? (
+            {isInitialLoading ? (
               <Skeleton className="size-4 rounded" />
             ) : (
               taskCountByBoard[column.id] || 0
@@ -239,7 +238,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
         <TaskCreateSheetTrigger status={column.id} />
       </Board.Header>
       <Board.Cards id={column.id} items={boardCards.map((task) => task.id)}>
-        {loading ? (
+        {isInitialLoading ? (
           <SkeletonArray
             className="p-24 w-full rounded shadow-xs opacity-80"
             count={10}

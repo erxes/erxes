@@ -44,6 +44,31 @@ const isVisitedPageTab = (value: unknown): value is IVisitedPageTab =>
   'pathname' in value &&
   typeof value.pathname === 'string';
 
+const normalizeVisitedPageSearch = (search: unknown) => {
+  if (typeof search !== 'string' || search.length === 0) {
+    return undefined;
+  }
+
+  return search.startsWith('?') ? search : `?${search}`;
+};
+
+const createVisitedPageTab = (
+  pathname: string,
+  search?: unknown,
+): IVisitedPageTab => {
+  const normalizedSearch = normalizeVisitedPageSearch(search);
+
+  return {
+    pathname: normalizeVisitedPagePathname(pathname),
+    ...(normalizedSearch && { search: normalizedSearch }),
+  };
+};
+
+export const getVisitedPageTabLocation = ({
+  pathname,
+  search,
+}: IVisitedPageTab) => `${pathname}${search ?? ''}`;
+
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
   if (!Array.isArray(value)) {
@@ -57,14 +82,15 @@ export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
       return tabs;
     }
 
-    const pathname = normalizeVisitedPagePathname(tab.pathname);
+    const normalizedTab = createVisitedPageTab(tab.pathname, tab.search);
+    const { pathname } = normalizedTab;
 
     if (!shouldTrackVisitedPage(pathname) || seenPathnames.has(pathname)) {
       return tabs;
     }
 
     seenPathnames.add(pathname);
-    tabs.push({ pathname });
+    tabs.push(normalizedTab);
 
     return tabs;
   }, []);
@@ -172,18 +198,26 @@ export const getVisitedPageTabTitle = (
 ) => (pluginLabel ? `${pluginLabel} | ${pageLabel}` : pageLabel);
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
-export const addVisitedPageTab = (tabs: unknown, pathname: string) => {
+export const addVisitedPageTab = (
+  tabs: unknown,
+  pathname: string,
+  search?: string,
+) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
-  const normalizedPathname = normalizeVisitedPagePathname(pathname);
+  const nextTab = createVisitedPageTab(pathname, search);
+  const { pathname: normalizedPathname } = nextTab;
 
-  if (
-    !shouldTrackVisitedPage(normalizedPathname) ||
-    normalizedTabs.some((tab) => tab.pathname === normalizedPathname)
-  ) {
+  if (!shouldTrackVisitedPage(normalizedPathname)) {
     return normalizedTabs;
   }
 
-  return [...normalizedTabs, { pathname: normalizedPathname }];
+  if (normalizedTabs.some((tab) => tab.pathname === normalizedPathname)) {
+    return normalizedTabs.map((tab) =>
+      tab.pathname === normalizedPathname ? nextTab : tab,
+    );
+  }
+
+  return [...normalizedTabs, nextTab];
 };
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
@@ -200,9 +234,11 @@ export const visitVisitedPageTab = (
   tabs: unknown,
   pathname: string,
   replacedPathname?: string,
+  search?: string,
 ) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
-  const normalizedPathname = normalizeVisitedPagePathname(pathname);
+  const nextTab = createVisitedPageTab(pathname, search);
+  const { pathname: normalizedPathname } = nextTab;
 
   if (!shouldTrackVisitedPage(normalizedPathname)) {
     return normalizedTabs;
@@ -226,16 +262,18 @@ export const visitVisitedPageTab = (
       );
 
       if (destinationAlreadyOpen) {
-        return normalizedTabs.filter((_, index) => index !== replacedTabIndex);
+        return normalizedTabs
+          .filter((_, index) => index !== replacedTabIndex)
+          .map((tab) => (tab.pathname === normalizedPathname ? nextTab : tab));
       }
 
       return normalizedTabs.map((tab, index) =>
-        index === replacedTabIndex ? { pathname: normalizedPathname } : tab,
+        index === replacedTabIndex ? nextTab : tab,
       );
     }
   }
 
-  return addVisitedPageTab(normalizedTabs, normalizedPathname);
+  return addVisitedPageTab(normalizedTabs, normalizedPathname, search);
 };
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
@@ -285,11 +323,7 @@ export const getVisitedPageTabCloseDestination = (
     return null;
   }
 
-  return (
-    normalizedTabs[tabIndex - 1]?.pathname ??
-    normalizedTabs[tabIndex + 1]?.pathname ??
-    null
-  );
+  return normalizedTabs[tabIndex - 1] ?? normalizedTabs[tabIndex + 1] ?? null;
 };
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.

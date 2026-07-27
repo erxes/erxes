@@ -1,5 +1,6 @@
 export interface IVisitedPageTab {
   pathname: string;
+  search?: string;
 }
 
 export interface IVisitedPageNavigationModule {

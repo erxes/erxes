@@ -2,6 +2,7 @@ import { visitedPageTabsState } from '@/navigation/states/visitedPageTabsState';
 import { AppPath } from '@/types/paths/AppPath';
 import {
   getVisitedPageTabCloseDestination,
+  getVisitedPageTabLocation,
   moveVisitedPageTab,
   normalizeVisitedPagePathname,
   removeVisitedPageTab,
@@ -16,7 +17,7 @@ const DEFAULT_VISITED_PAGE_PATH = `/${AppPath.MyInbox}`;
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export const useVisitedPageTabs = () => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const navigationType = useNavigationType();
   const navigate = useNavigate();
   const [tabs, setTabs] = useAtom(visitedPageTabsState);
@@ -33,16 +34,27 @@ export const useVisitedPageTabs = () => {
       navigationType === 'REPLACE' ? previousPathname.current : undefined;
 
     setTabs((currentTabs) =>
-      visitVisitedPageTab(currentTabs, activePathname, replacedPathname),
+      visitVisitedPageTab(
+        currentTabs,
+        activePathname,
+        replacedPathname,
+        search,
+      ),
     );
     previousPathname.current = activePathname;
-  }, [activePathname, navigationType, setTabs]);
+  }, [activePathname, navigationType, search, setTabs]);
 
   const openVisitedPageTab = useCallback(
     (tabPathname: string) => {
-      navigate(tabPathname);
+      const destinationTab = tabs.find((tab) => tab.pathname === tabPathname);
+
+      navigate(
+        destinationTab
+          ? getVisitedPageTabLocation(destinationTab)
+          : tabPathname,
+      );
     },
-    [navigate],
+    [navigate, tabs],
   );
 
   const closeVisitedPageTab = useCallback(
@@ -53,9 +65,14 @@ export const useVisitedPageTabs = () => {
       );
 
       if (tabPathname === activePathname) {
-        navigate(closeDestination ?? DEFAULT_VISITED_PAGE_PATH, {
-          replace: true,
-        });
+        navigate(
+          closeDestination
+            ? getVisitedPageTabLocation(closeDestination)
+            : DEFAULT_VISITED_PAGE_PATH,
+          {
+            replace: true,
+          },
+        );
         return;
       }
 
