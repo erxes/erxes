@@ -208,11 +208,7 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
       )}
       {priority && <SelectPriority.FilterBar />}
       {labelIds && (
-        <SelectLabels.FilterBar
-          filterKey="labelIds"
-          mode="multiple"
-          label={t('by-label')}
-        />
+        <SelectLabels.FilterBar filterKey="labelIds" mode="multiple" />
       )}
       {productId && (
         <SelectProduct.FilterBar
