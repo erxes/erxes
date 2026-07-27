@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ACTIVITY_LOGS } from '../graphql/queries';
 import { TActivityLog } from '../types';
 import { ACTIVITY_LOG_INSERTED } from '../graphql/subscriptions';
@@ -125,7 +125,6 @@ export const useActivityLogs = (
 
   const inFlightCursorRef = useRef<string | null>(null);
   const fetchedCursorsRef = useRef<Set<string>>(new Set());
-  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     if (!targetId) {
@@ -243,7 +242,6 @@ export const useActivityLogs = (
     }
 
     inFlightCursorRef.current = cursor;
-    setLoadingMore(true);
 
     void fetchMore({
       variables: {
@@ -282,7 +280,6 @@ export const useActivityLogs = (
         if (inFlightCursorRef.current === cursor) {
           inFlightCursorRef.current = null;
         }
-        setLoadingMore(false);
       });
   };
 
@@ -291,7 +288,6 @@ export const useActivityLogs = (
     totalCount: data?.activityLogs.totalCount || 0,
     pageInfo,
     loading,
-    loadingMore,
     error,
     refetch,
     handleFetchMore,

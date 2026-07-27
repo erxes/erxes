@@ -8,7 +8,6 @@ import {
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
-  ScrollArea,
   SelectOperationContent,
   SelectTree,
   SelectTriggerOperation,
@@ -32,10 +31,15 @@ import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
 import { TagBadge } from './TagBadge';
 
 const getTagIds = (value?: string[] | string) => {
-  if (!value) return [];
+  if (!value) {
+    return [];
+  }
 
   return Array.isArray(value) ? value : [value];
 };
+
+const isTagSelected = (value: string[] | string | undefined, tagId: string) =>
+  getTagIds(value).includes(tagId);
 
 const cacheSelectedTag = (
   tag: ITag | undefined,
@@ -70,7 +74,7 @@ export const SelectTagsProvider = ({
     if (!tag) return;
 
     const isSingleMode = mode === 'single';
-    const multipleValue = (value as string[]) || [];
+    const multipleValue = Array.isArray(value) ? value : value ? [value] : [];
     const isSelected = !isSingleMode && multipleValue.includes(tag._id);
 
     const newSelectedTagIds = isSingleMode
@@ -349,8 +353,8 @@ export const SelectTagsItem = ({
 }: {
   tag: ITag & { hasChildren: boolean };
 }) => {
-  const { onSelect, selectedTags } = useSelectTagsContext();
-  const isSelected = (selectedTags || []).some((t) => t._id === tag._id);
+  const { onSelect, value } = useSelectTagsContext();
+  const isSelected = isTagSelected(value, tag._id);
 
   return (
     <Command.Item onSelect={() => onSelect(tag)}>
@@ -778,9 +782,7 @@ export const SelectTagsFilterView = ({
   filterKey: string;
   tagType?: string;
 }) => {
-  const [query, setQuery] = useQueryState<string[] | string | undefined>(
-    filterKey,
-  );
+  const [query, setQuery] = useQueryState<string[] | string>(filterKey);
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -790,7 +792,7 @@ export const SelectTagsFilterView = ({
         tagType={tagType}
         value={query || []}
         onValueChange={(value) => {
-          setQuery(value as any);
+          setQuery(Array.isArray(value) && value.length === 0 ? null : value);
           resetFilterState();
         }}
       >
@@ -806,7 +808,6 @@ export const SelectTagsFilterBar = ({
   label,
   variant,
   scope,
-  targetId,
   initialValue,
   onValueChange,
   tagType,
@@ -816,7 +817,6 @@ export const SelectTagsFilterBar = ({
   label: string;
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
-  targetId?: string;
   initialValue?: string[];
   tagType?: string;
   onValueChange?: (value: string[] | string) => void;
@@ -824,7 +824,7 @@ export const SelectTagsFilterBar = ({
   const isCardVariant = variant === 'card';
 
   const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
-  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
+  const [urlQuery, setUrlQuery] = useQueryState<string[] | string>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -846,9 +846,9 @@ export const SelectTagsFilterBar = ({
 
     if (value && value.length > 0) {
       if (isCardVariant) {
-        setLocalQuery(value as string[]);
+        setLocalQuery(Array.isArray(value) ? value : [value]);
       } else {
-        setUrlQuery(value as string[]);
+        setUrlQuery(value);
       }
     } else {
       if (isCardVariant) {
