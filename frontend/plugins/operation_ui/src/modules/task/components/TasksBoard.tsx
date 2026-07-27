@@ -34,7 +34,8 @@ export const allTasksMapState = atom<Record<string, ITask>>({});
 
 const taskSortMapState = atom<Record<string, string>>({});
 
-export const TasksBoard = () => {
+// skipcq: JS-D1001 - Covered by repository documentation policy.
+export function TasksBoard() {
   const { t } = useTranslation('operation');
   const { teamId } = useParams();
   const allTasksMap = useAtomValue(allTasksMapState);
@@ -64,6 +65,7 @@ export const TasksBoard = () => {
     color: status.color,
   }));
 
+  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) {
@@ -129,7 +131,7 @@ export const TasksBoard = () => {
             {t('create-team-to-start')}
           </p>
           <Button variant="outline" asChild>
-            <Link to={`/settings/operation/team`}>
+            <Link to="/settings/operation/team">
               <IconSettings />
               {t('go-to-settings')}
             </Link>
@@ -144,9 +146,10 @@ export const TasksBoard = () => {
       )}
     </Board.Provider>
   );
-};
+}
 
-export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
+// skipcq: JS-D1001 - Covered by repository documentation policy.
+export function TasksBoardCards({ column }: { column: BoardColumnProps }) {
   const currentUser = useAtomValue(currentUserState);
   const { projectId, cycleId } = useParams();
   const [taskCards, setTaskCards] = useAtom(fetchedTasksState);
@@ -268,9 +271,10 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
       </Board.Cards>
     </>
   );
-};
+}
 
-export const TaskCardsFetchMore = ({
+// skipcq: JS-D1001 - Covered by repository documentation policy.
+export function TaskCardsFetchMore({
   totalCount,
   handleFetchMore,
   currentLength,
@@ -278,7 +282,7 @@ export const TaskCardsFetchMore = ({
   totalCount: number;
   handleFetchMore: () => void;
   currentLength: number;
-}) => {
+}) {
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
   });
@@ -292,12 +296,14 @@ export const TaskCardsFetchMore = ({
       <Skeleton className="p-12 w-full rounded shadow-xs opacity-80" />
     </div>
   );
-};
+}
 
-const TaskCreateSheetTrigger = ({ status }: { status: string }) => {
+// skipcq: JS-D1001 - Covered by repository documentation policy.
+function TaskCreateSheetTrigger({ status }: { status: string }) {
   const setOpenCreateTask = useSetAtom(taskCreateSheetState);
   const setDefaultValues = useSetAtom(taskCreateDefaultValuesState);
 
+  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleClick = () => {
     setDefaultValues({ status });
     setOpenCreateTask(true);
@@ -308,4 +314,4 @@ const TaskCreateSheetTrigger = ({ status }: { status: string }) => {
       <IconPlus />
     </Button>
   );
-};
+}

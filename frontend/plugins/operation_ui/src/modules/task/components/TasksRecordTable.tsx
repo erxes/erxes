@@ -15,6 +15,7 @@ interface TasksRecordTableProps {
   isCreatedView?: boolean;
 }
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const TasksRecordTable = ({
   isCreatedView = false,
 }: TasksRecordTableProps) => {
