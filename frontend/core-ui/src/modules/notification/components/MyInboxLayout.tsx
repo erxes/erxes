@@ -1,7 +1,5 @@
-import { navigationPanelViewState } from '@/navigation/states/navigationPanelState';
 import { MyInboxHeader } from '@/notification/components/MyInboxHeader';
 import { Resizable, useIsMobile } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 
 type Props = {
@@ -16,7 +14,6 @@ export const MyInboxLayout = ({
 }: Props) => {
   const isMobile = useIsMobile();
   const { id } = useParams();
-  const panelView = useAtomValue(navigationPanelViewState);
 
   if (isMobile) {
     return (
@@ -29,14 +26,6 @@ export const MyInboxLayout = ({
         ) : (
           <Notifications />
         )}
-      </div>
-    );
-  }
-
-  if (panelView === 'favorites') {
-    return (
-      <div className="flex min-w-0 flex-1 overflow-hidden">
-        <NotificationContent />
       </div>
     );
   }

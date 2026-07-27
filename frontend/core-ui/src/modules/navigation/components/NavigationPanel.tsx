@@ -1,11 +1,7 @@
 import { NavigationPluginPanelContent } from '@/navigation/components/NavigationPlugins';
-import { SidebarNavigationFavorites } from '@/navigation/components/SidebarNavigationFavorites';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
-import {
-  navigationPanelOpenState,
-  navigationPanelViewState,
-} from '@/navigation/states/navigationPanelState';
+import { navigationPanelOpenState } from '@/navigation/states/navigationPanelState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
@@ -14,7 +10,7 @@ import {
   IconLayoutSidebarLeftExpand,
 } from '@tabler/icons-react';
 import { Button, cn, ScrollArea, Sidebar } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
@@ -23,16 +19,12 @@ export const NavigationPanel = () => {
   const activities = useNavigationActivities();
   const navigationGroups = usePluginsNavigationGroups();
   const [panelOpen, setPanelOpen] = useAtom(navigationPanelOpenState);
-  const panelView = useAtomValue(navigationPanelViewState);
   const { pathname } = useLocation();
   const { isMobile } = Sidebar.useSidebar();
   const { t: navigationT } = useTranslation('common', {
     keyPrefix: 'navigation',
   });
   const { t: organizationT } = useTranslation('organization');
-  const { t: sidebarT } = useTranslation('common', {
-    keyPrefix: 'sidebar',
-  });
   const isSettings = pathname.includes(`/${AppPath.Settings}`);
   const activity = findNavigationActivityByPath(activities, pathname);
   const navigationGroup =
@@ -40,16 +32,11 @@ export const NavigationPanel = () => {
   const hasActivityPanel = Boolean(
     navigationGroup?.contents.length || navigationGroup?.subGroups.length,
   );
-  const isFavorites = panelView === 'favorites';
-  const shouldShowPanel = isSettings || isFavorites || hasActivityPanel;
+  const shouldShowPanel = isSettings || hasActivityPanel;
   let title = activity?.label;
 
   if (isSettings) {
     title = organizationT('settings');
-  }
-
-  if (isFavorites) {
-    title = sidebarT('favorites');
   }
 
   const toggleLabel = navigationT(
@@ -65,14 +52,6 @@ export const NavigationPanel = () => {
 
   if (isSettings) {
     panelContent = <SettingsSidebar hideExit />;
-  }
-
-  if (isFavorites) {
-    panelContent = (
-      <ScrollArea className="min-h-0 flex-1">
-        <SidebarNavigationFavorites />
-      </ScrollArea>
-    );
   }
 
   if (!shouldShowPanel) {

@@ -6,6 +6,7 @@
     "close-tab": "Close {{page}} tab",
     "next-tab": "Next tab",
     "previous-tab": "Previous tab",
+    "close-current-tab": "Close current tab",
     "close-all-tabs": "Close all tabs",
     "tab-shortcuts": "Tab shortcuts",
     "toggle-panel": "Toggle navigation panel",

@@ -1,7 +1,4 @@
-import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-
-export type NavigationPanelView = 'activity' | 'favorites';
 
 export const navigationSidebarOpenState = atomWithStorage<boolean>(
   'navigation:panel-open',
@@ -11,8 +8,6 @@ export const navigationSidebarOpenState = atomWithStorage<boolean>(
     getOnInit: true,
   },
 );
-
-export const navigationPanelViewState = atom<NavigationPanelView>('activity');
 
 export const navigationPanelOpenState = atomWithStorage<boolean>(
   'navigation:plugin-panel-open',

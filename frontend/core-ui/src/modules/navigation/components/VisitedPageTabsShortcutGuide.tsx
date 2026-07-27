@@ -1,37 +1,37 @@
-import { IconQuestionMark } from '@tabler/icons-react';
+import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
+import { IconKeyboard } from '@tabler/icons-react';
 import { Button, HoverCard, Kbd } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 const ShortcutKeys = ({
-  altKey,
-  primaryKey,
+  modifierKeys,
   shortcutKey,
 }: {
-  altKey: string;
-  primaryKey: string;
+  modifierKeys: string[];
   shortcutKey: string;
 }) => (
-  <div className="flex items-center gap-1">
-    <Kbd variant="foreground">{primaryKey}</Kbd>
-    <span className="text-xs text-muted-foreground">+</span>
-    <Kbd variant="foreground">{altKey}</Kbd>
-    <span className="text-xs text-muted-foreground">+</span>
-    <Kbd variant="foreground">{shortcutKey}</Kbd>
+  <div className="flex shrink-0 items-center gap-1">
+    {[...modifierKeys, shortcutKey].map((key) => (
+      <Kbd
+        className="min-w-6 justify-center border bg-background px-1.5 shadow-xs"
+        key={key}
+        variant="foreground"
+      >
+        {key}
+      </Kbd>
+    ))}
   </div>
 );
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export const VisitedPageTabsShortcutGuide = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-  const isMac =
-    typeof navigator !== 'undefined' &&
-    /Mac|iPod|iPhone|iPad/.test(navigator.platform);
-  const primaryKey = isMac ? '⌘' : 'Ctrl';
-  const altKey = isMac ? '⌥' : 'Alt';
+  const modifierKeys = isMacPlatform() ? ['⌘', '⌥'] : ['Ctrl', 'Alt'];
   const shortcuts = [
     { label: t('next-tab'), shortcutKey: ']' },
     { label: t('previous-tab'), shortcutKey: '[' },
+    { label: t('close-current-tab'), shortcutKey: 'W' },
     { label: t('close-all-tabs'), shortcutKey: 'X' },
   ];
 
@@ -40,26 +40,29 @@ export const VisitedPageTabsShortcutGuide = () => {
       <HoverCard.Trigger asChild>
         <Button
           aria-label={t('tab-shortcuts')}
-          className="size-7 shrink-0 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+          className="size-8 shrink-0 rounded-md border bg-background text-muted-foreground shadow-xs hover:bg-accent hover:text-foreground"
           size="icon"
           type="button"
           variant="ghost"
         >
-          <IconQuestionMark className="size-4" />
+          <IconKeyboard className="size-4" />
         </Button>
       </HoverCard.Trigger>
-      <HoverCard.Content align="end" className="w-72 p-3" side="bottom">
-        <div className="mb-2 text-sm font-semibold">{t('tab-shortcuts')}</div>
-        <div className="space-y-2">
+      <HoverCard.Content align="end" className="w-80 p-2" side="bottom">
+        <div className="px-2 py-1.5 text-sm font-semibold">
+          {t('tab-shortcuts')}
+        </div>
+        <div className="rounded-md border bg-muted/30 p-1">
           {shortcuts.map(({ label, shortcutKey }) => (
             <div
-              className="flex items-center justify-between gap-4"
+              className="flex min-h-9 items-center justify-between gap-4 rounded px-2 hover:bg-background"
               key={shortcutKey}
             >
-              <span className="text-xs text-muted-foreground">{label}</span>
+              <span className="text-xs font-medium text-foreground">
+                {label}
+              </span>
               <ShortcutKeys
-                altKey={altKey}
-                primaryKey={primaryKey}
+                modifierKeys={modifierKeys}
                 shortcutKey={shortcutKey}
               />
             </div>

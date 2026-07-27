@@ -1,17 +1,27 @@
-import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
 import { IconX } from '@tabler/icons-react';
 import { useToggleFavorite } from 'ui-modules';
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
-export function SidebarNavigationFavorites() {
+export function SidebarNavigationFavorites({
+  expanded,
+}: {
+  expanded: boolean;
+}) {
   const favorites = useFavorites();
 
   return (
-    <section className="px-2 py-1">
-      <Sidebar.Menu>
+    <section className="w-full">
+      <Sidebar.Menu className={cn('gap-0.5', !expanded && 'items-center')}>
         {favorites.map((item) => {
-          return <SidebarNavigationFavoritesItem key={item.path} {...item} />;
+          return (
+            <SidebarNavigationFavoritesItem
+              key={item.path}
+              {...item}
+              expanded={expanded}
+            />
+          );
         })}
       </Sidebar.Menu>
     </section>
@@ -24,11 +34,13 @@ export function SidebarNavigationFavoritesItem({
   breadcrumb,
   icon,
   path,
+  expanded,
 }: {
   name: string;
   breadcrumb: string[];
   icon?: React.ElementType;
   path: string;
+  expanded: boolean;
 }) {
   const Icon = icon;
   const pathWithoutUi = path.replace('_ui', '');
@@ -48,21 +60,30 @@ export function SidebarNavigationFavoritesItem({
       name={name}
       icon={Icon}
       path={pathWithoutUi}
-      className="h-7 px-2 text-[13px]"
+      className={cn(
+        'h-10 rounded-md text-[13px]',
+        expanded
+          ? 'w-full justify-start px-2'
+          : 'mx-auto w-10 justify-center px-0',
+      )}
       label={
-        <span className="min-w-0 flex-1 truncate text-muted-foreground">
-          {sidebarLabel}
-        </span>
+        expanded ? (
+          <span className="min-w-0 flex-1 truncate">{sidebarLabel}</span>
+        ) : (
+          <span className="sr-only">{sidebarLabel}</span>
+        )
       }
       action={
-        <Sidebar.MenuAction
-          aria-label={name}
-          className="size-4! text-muted-foreground hover:text-foreground"
-          onClick={handleRemove}
-          showOnHover
-        >
-          <IconX className="size-3!" />
-        </Sidebar.MenuAction>
+        expanded ? (
+          <Sidebar.MenuAction
+            aria-label={name}
+            className="size-4! text-muted-foreground hover:text-foreground"
+            onClick={handleRemove}
+            showOnHover
+          >
+            <IconX className="size-3!" />
+          </Sidebar.MenuAction>
+        ) : undefined
       }
       tooltipVisibility="always"
       tooltip={{

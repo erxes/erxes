@@ -1,4 +1,8 @@
-export type TVisitedPageTabShortcut = 'close-all' | 'next' | 'previous';
+export type TVisitedPageTabShortcut =
+  | 'close-all'
+  | 'close-current'
+  | 'next'
+  | 'previous';
 
 interface IVisitedPageTabShortcutEvent {
   altKey: boolean;
@@ -9,6 +13,11 @@ interface IVisitedPageTabShortcutEvent {
 }
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
+export const isMacPlatform = () =>
+  typeof navigator !== 'undefined' &&
+  /Macintosh|Mac OS X|iPod|iPhone|iPad/i.test(navigator.userAgent);
+
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const getVisitedPageTabShortcut = ({
   altKey,
   code,
@@ -16,9 +25,11 @@ export const getVisitedPageTabShortcut = ({
   metaKey,
   shiftKey,
 }: IVisitedPageTabShortcutEvent): TVisitedPageTabShortcut | null => {
-  const hasOnePrimaryModifier = metaKey !== ctrlKey;
+  const hasPlatformPrimaryModifier = isMacPlatform()
+    ? metaKey && !ctrlKey
+    : ctrlKey && !metaKey;
 
-  if (!altKey || shiftKey || !hasOnePrimaryModifier) {
+  if (!altKey || shiftKey || !hasPlatformPrimaryModifier) {
     return null;
   }
 
@@ -32,6 +43,10 @@ export const getVisitedPageTabShortcut = ({
 
   if (code === 'KeyX') {
     return 'close-all';
+  }
+
+  if (code === 'KeyW') {
+    return 'close-current';
   }
 
   return null;

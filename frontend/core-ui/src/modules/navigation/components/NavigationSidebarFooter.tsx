@@ -2,11 +2,10 @@ import { useAuth } from '@/auth/hooks/useAuth';
 import { SelectLanguages } from '@/navigation/components/SelectLanguages';
 import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { User } from '@/navigation/components/User';
-import { navigationPanelViewState } from '@/navigation/states/navigationPanelState';
 import { AppPath } from '@/types/paths/AppPath';
 import { IconSettings } from '@tabler/icons-react';
 import { Avatar, Button, cn, DropdownMenu, readImage } from 'erxes-ui';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
@@ -20,7 +19,6 @@ export const NavigationSidebarFooter = ({
   isSettings: boolean;
 }) => {
   const currentUser = useAtomValue(currentUserState);
-  const setPanelView = useSetAtom(navigationPanelViewState);
   const { handleLogout } = useAuth();
   const { t: organizationT } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
@@ -49,7 +47,6 @@ export const NavigationSidebarFooter = ({
       >
         <Link
           aria-label={organizationT('settings')}
-          onClick={() => setPanelView('activity')}
           to={`/${AppPath.Settings}`}
         >
           <IconSettings

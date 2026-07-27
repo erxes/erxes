@@ -6,6 +6,7 @@
     "close-tab": "{{page}} табыг хаах",
     "next-tab": "Дараагийн таб",
     "previous-tab": "Өмнөх таб",
+    "close-current-tab": "Одоогийн табыг хаах",
     "close-all-tabs": "Бүх табыг хаах",
     "tab-shortcuts": "Табын товчлолууд",
     "toggle-panel": "Навигацийн самбарыг нээх эсвэл хаах",

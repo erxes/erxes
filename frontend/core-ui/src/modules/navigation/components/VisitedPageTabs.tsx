@@ -10,6 +10,7 @@ import {
 } from '@/navigation/utils/visitedPageTabs';
 import {
   getVisitedPageTabShortcut,
+  isMacPlatform,
   isVisitedPageTabShortcutTargetEditable,
 } from '@/navigation/utils/visitedPageTabShortcuts';
 import {
@@ -42,7 +43,9 @@ import { useTranslation } from 'react-i18next';
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 const SortableVisitedPageTab = ({
   canClose,
+  closeAriaShortcut,
   closeLabel,
+  closeShortcutLabel,
   icon: Icon,
   isActive,
   label,
@@ -50,7 +53,9 @@ const SortableVisitedPageTab = ({
   pathname,
 }: {
   canClose: boolean;
+  closeAriaShortcut: string;
   closeLabel: string;
+  closeShortcutLabel: string;
   icon: ElementType;
   isActive: boolean;
   label: string;
@@ -116,13 +121,15 @@ const SortableVisitedPageTab = ({
       {canClose && (
         <Button
           aria-label={closeLabel}
-          aria-keyshortcuts={isActive ? 'Alt+W' : undefined}
+          aria-keyshortcuts={isActive ? closeAriaShortcut : undefined}
           className="mr-1 size-5 shrink-0 rounded opacity-0 transition-[background-color,opacity] hover:bg-accent group-hover/tab:opacity-100 group-focus-within/tab:opacity-100 data-[active=true]:opacity-100"
           data-active={isActive}
           onClick={onClose}
           onPointerDown={(event) => event.stopPropagation()}
           size="icon"
-          title={isActive ? `${closeLabel} (Alt+W)` : closeLabel}
+          title={
+            isActive ? `${closeLabel} (${closeShortcutLabel})` : closeLabel
+          }
           type="button"
           variant="ghost"
         >
@@ -167,6 +174,9 @@ export const VisitedPageTabs = () => {
     details: t('navigation.details'),
     myInbox: t('my-inbox'),
   };
+  const isMac = isMacPlatform();
+  const closeAriaShortcut = isMac ? 'Meta+Alt+W' : 'Control+Alt+W';
+  const closeShortcutLabel = isMac ? '⌘ ⌥ W' : 'Ctrl Alt W';
 
   // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -181,17 +191,6 @@ export const VisitedPageTabs = () => {
 
     reorderVisitedPageTab(active.id, over.id);
   };
-
-  const handleCloseActiveTabShortcut = useCallback(
-    (event: KeyboardEvent) => {
-      event.preventDefault();
-
-      if (!event.repeat && tabs.length > 1) {
-        closeVisitedPageTab(activePathname);
-      }
-    },
-    [activePathname, closeVisitedPageTab, tabs.length],
-  );
 
   useEffect(() => {
     // skipcq: JS-D1001 - Covered by repository documentation policy.
@@ -214,6 +213,14 @@ export const VisitedPageTabs = () => {
           return;
         }
 
+        if (tabShortcut === 'close-current') {
+          if (tabs.length > 1) {
+            closeVisitedPageTab(activePathname);
+          }
+
+          return;
+        }
+
         const destinationPathname = getAdjacentVisitedPageTabPathname(
           tabs,
           activePathname,
@@ -224,16 +231,6 @@ export const VisitedPageTabs = () => {
           openVisitedPageTab(destinationPathname);
         }
 
-        return;
-      }
-
-      if (
-        event.altKey &&
-        !event.metaKey &&
-        !event.ctrlKey &&
-        event.code === 'KeyW'
-      ) {
-        handleCloseActiveTabShortcut(event);
         return;
       }
 
@@ -253,7 +250,7 @@ export const VisitedPageTabs = () => {
   }, [
     activePathname,
     closeAllVisitedPageTabs,
-    handleCloseActiveTabShortcut,
+    closeVisitedPageTab,
     openVisitedPageTab,
     tabs,
     toggleSidebar,
@@ -329,7 +326,9 @@ export const VisitedPageTabs = () => {
                         <SortableVisitedPageTab
                           key={tab.pathname}
                           canClose={tabs.length > 1}
+                          closeAriaShortcut={closeAriaShortcut}
                           closeLabel={closeLabel}
+                          closeShortcutLabel={closeShortcutLabel}
                           icon={Icon}
                           isActive={isActive}
                           label={label}

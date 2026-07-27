@@ -1,8 +1,7 @@
 import { OrgLogoIcon } from '@/auth/components/Logo';
-import { navigationPanelViewState } from '@/navigation/states/navigationPanelState';
 import { AppPath } from '@/types/paths/AppPath';
 import { Button, Sidebar } from 'erxes-ui';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { currentOrganizationState } from 'ui-modules';
@@ -10,7 +9,6 @@ import { currentOrganizationState } from 'ui-modules';
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationRailLogo = ({ expanded }: { expanded: boolean }) => {
   const organization = useAtomValue(currentOrganizationState);
-  const setPanelView = useSetAtom(navigationPanelViewState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const companyName =
     organization?.orgShortName || organization?.name || 'erxes';
@@ -23,11 +21,7 @@ export const NavigationRailLogo = ({ expanded }: { expanded: boolean }) => {
           className="h-10 min-w-0 flex-1 justify-start px-2 text-base font-semibold"
           variant="ghost"
         >
-          <Link
-            aria-label={companyName}
-            onClick={() => setPanelView('activity')}
-            to={AppPath.Index}
-          >
+          <Link aria-label={companyName} to={AppPath.Index}>
             <span className="flex size-5 shrink-0 items-center justify-center [&>img]:size-5! [&>svg]:size-5!">
               <OrgLogoIcon className="text-primary" />
             </span>

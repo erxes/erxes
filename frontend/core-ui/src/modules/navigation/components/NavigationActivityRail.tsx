@@ -3,9 +3,10 @@ import { NavigationCorePanelContent } from '@/navigation/components/NavigationCo
 import { NavigationPluginPanelContent } from '@/navigation/components/NavigationPlugins';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
+import { SidebarNavigationFavorites } from '@/navigation/components/SidebarNavigationFavorites';
 import { NotificationCount } from '@/notification/components/MyInboxNavigationItem';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { IconApps, IconInbox, IconSearch, IconStar } from '@tabler/icons-react';
+import { IconApps, IconInbox, IconSearch } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -198,26 +199,22 @@ const NavigationActivityHover = ({
 export const NavigationActivityRail = ({
   activities,
   activeActivityId,
-  isFavoritesActive,
   isInboxActive,
   isActivityPinned,
   isSettings,
   onActivityPinnedChange,
   onSearch,
-  onSelectFavorites,
   onSelectInbox,
   onSelectActivity,
   visibleActivities,
 }: {
   activities: INavigationActivity[];
   activeActivityId: string | null;
-  isFavoritesActive: boolean;
   isInboxActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSearch: () => void;
-  onSelectFavorites: () => void;
   onSelectInbox: () => void;
   onSelectActivity: (activity: INavigationActivity) => void;
   visibleActivities: INavigationActivity[];
@@ -247,15 +244,6 @@ export const NavigationActivityRail = ({
     modules: [],
     defaultPath: 'my-inbox',
   };
-  const favoritesActivity: INavigationActivity = {
-    id: 'navigation:favorites',
-    label: sidebarT('favorites'),
-    icon: IconStar,
-    kind: 'core',
-    modules: [],
-    defaultPath: '',
-  };
-
   return (
     <aside
       className={cn(
@@ -284,26 +272,35 @@ export const NavigationActivityRail = ({
           <span className="truncate text-[13px] font-medium">{t('go-to')}</span>
         )}
       </Button>
-      <NavigationActivityButton
-        activity={inboxActivity}
-        active={isInboxActive}
-        expanded={expanded}
-        indicator={<NotificationCount />}
-        onSelect={onSelectInbox}
-      />
-      <NavigationActivityButton
-        activity={favoritesActivity}
-        active={isFavoritesActive}
-        expanded={expanded}
-        onSelect={onSelectFavorites}
-      />
-      <Separator className={cn('my-1', expanded ? 'w-full' : 'w-8')} />
       <div
         className={cn(
           'flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden',
           expanded ? 'items-stretch' : 'items-center',
         )}
       >
+        {expanded && (
+          <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
+            {sidebarT('favorites')}
+          </Sidebar.GroupLabel>
+        )}
+        <NavigationActivityButton
+          activity={inboxActivity}
+          active={isInboxActive}
+          expanded={expanded}
+          indicator={<NotificationCount />}
+          onSelect={onSelectInbox}
+        />
+        <SidebarNavigationFavorites expanded={expanded} />
+        {!expanded && <Separator className="my-1 w-8" />}
+        {expanded && visibleActivities[0] && (
+          <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
+            {t(
+              visibleActivities[0].kind === 'plugin'
+                ? 'plugins'
+                : 'core-modules',
+            )}
+          </Sidebar.GroupLabel>
+        )}
         {visibleActivities.map((activity, index) => {
           const active = !isSettings && activity.id === activeActivityId;
           const startsCoreSection =
@@ -312,11 +309,14 @@ export const NavigationActivityRail = ({
 
           return (
             <Fragment key={activity.id}>
-              {startsCoreSection && (
-                <Separator
-                  className={cn('my-1', expanded ? 'w-full' : 'w-8')}
-                />
-              )}
+              {startsCoreSection &&
+                (expanded ? (
+                  <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
+                    {t('core-modules')}
+                  </Sidebar.GroupLabel>
+                ) : (
+                  <Separator className="my-1 w-8" />
+                ))}
               {!hoverEnabled ? (
                 <NavigationActivityButton
                   activity={activity}

@@ -3,14 +3,10 @@ import { NavigationActivityRail } from '@/navigation/components/NavigationActivi
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
-import {
-  navigationPanelOpenState,
-  navigationPanelViewState,
-} from '@/navigation/states/navigationPanelState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { AppPath } from '@/types/paths/AppPath';
 import { activePluginState, Sidebar } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -20,27 +16,19 @@ export const MainNavigationBar = () => {
   const { isActivityPinned, setActivityPinned, visibleActivities } =
     usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
-  const [panelView, setPanelView] = useAtom(navigationPanelViewState);
-  const setPanelOpen = useSetAtom(navigationPanelOpenState);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { isMobile } = Sidebar.useSidebar();
   const isSettings = pathname.includes(`/${AppPath.Settings}`);
-  const isFavoritesActive = panelView === 'favorites';
   const isInboxActive =
-    !isFavoritesActive &&
-    (pathname === `/${AppPath.MyInbox}` ||
-      pathname.startsWith(`/${AppPath.MyInbox}/`));
+    pathname === `/${AppPath.MyInbox}` ||
+    pathname.startsWith(`/${AppPath.MyInbox}/`);
   const routeActivity = findNavigationActivityByPath(activities, pathname);
   const activeActivity =
     routeActivity ||
     activities.find((activity) => activity.id === activeActivityId) ||
     activities[0];
-
-  useEffect(() => {
-    setPanelView('activity');
-  }, [pathname, setPanelView]);
 
   useEffect(() => {
     if (isSettings) {
@@ -87,25 +75,12 @@ export const MainNavigationBar = () => {
 
   // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleSelectActivity = (activity: (typeof activities)[number]) => {
-    setPanelView('activity');
     navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
   };
 
   /** Opens the Inbox activity. */
   const handleSelectInbox = () => {
-    setPanelView('activity');
     navigate(`/${AppPath.MyInbox}`);
-  };
-
-  /** Toggles the Favorites navigation panel. */
-  const handleSelectFavorites = () => {
-    if (isFavoritesActive) {
-      setPanelView('activity');
-      return;
-    }
-
-    setPanelView('favorites');
-    setPanelOpen(true);
   };
 
   return (
@@ -113,18 +88,12 @@ export const MainNavigationBar = () => {
       <div className="flex h-full min-w-0">
         <NavigationActivityRail
           activities={activities}
-          activeActivityId={
-            isInboxActive || isFavoritesActive
-              ? null
-              : activeActivity?.id || null
-          }
-          isFavoritesActive={isFavoritesActive}
+          activeActivityId={isInboxActive ? null : activeActivity?.id || null}
           isInboxActive={isInboxActive}
           isActivityPinned={isActivityPinned}
-          isSettings={isSettings && !isFavoritesActive}
+          isSettings={isSettings}
           onActivityPinnedChange={setActivityPinned}
           onSearch={() => setPaletteOpen(true)}
-          onSelectFavorites={handleSelectFavorites}
           onSelectInbox={handleSelectInbox}
           onSelectActivity={handleSelectActivity}
           visibleActivities={visibleActivities}
