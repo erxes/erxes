@@ -32,8 +32,10 @@ const NavigationSectionHeading = ({
   <div className="relative h-6 w-full shrink-0">
     <div
       className={cn(
-        'absolute inset-0 flex items-center px-2 font-mono text-[10px] font-semibold uppercase text-accent-foreground transition-opacity duration-200 ease-linear motion-reduce:transition-none',
-        expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
+        'absolute inset-0 flex items-center overflow-hidden whitespace-nowrap px-2 font-mono text-[10px] font-semibold uppercase text-accent-foreground transition-opacity duration-100 ease-linear motion-reduce:transition-none',
+        expanded
+          ? 'delay-100 opacity-100'
+          : 'pointer-events-none delay-0 opacity-0',
       )}
     >
       {label}
@@ -41,10 +43,10 @@ const NavigationSectionHeading = ({
     <div
       aria-hidden
       className={cn(
-        'absolute inset-0 flex items-center justify-center transition-[opacity,transform] duration-200 ease-linear motion-reduce:transition-none',
+        'absolute inset-y-0 left-0 flex w-10 items-center justify-center transition-[opacity,transform] duration-100 ease-linear motion-reduce:transition-none',
         expanded
-          ? 'pointer-events-none scale-x-75 opacity-0'
-          : 'scale-x-100 opacity-100',
+          ? 'pointer-events-none delay-0 scale-x-75 opacity-0'
+          : 'delay-100 scale-x-100 opacity-100',
       )}
     >
       <Separator className="w-8" />
