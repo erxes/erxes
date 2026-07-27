@@ -36,8 +36,11 @@ export const ProductNameCell = ({
   hasDuplicateProduct: boolean;
 }) => {
   const product = cell.row.original.product;
+  // A product may have no name yet (freshly added row), so the accessor can
+  // return undefined; keep the draft a string to stay controlled.
+  const getCellName = () => (cell.getValue() as string | undefined) ?? '';
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState(cell.getValue() as string);
+  const [name, setName] = useState(getCellName);
   const singleClickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -64,7 +67,7 @@ export const ProductNameCell = ({
   const onSave = () => {
     clearSingleClickTimeout();
     const trimmedName = name.trim();
-    if (trimmedName && trimmedName !== cell.getValue() && product) {
+    if (trimmedName && trimmedName !== getCellName() && product) {
       updateRecord(cell.row.original, {
         product: { ...product, name: trimmedName },
       });
@@ -74,7 +77,7 @@ export const ProductNameCell = ({
 
   const cancelEdit = () => {
     cancelledRef.current = true;
-    setName(cell.getValue() as string);
+    setName(getCellName());
     setOpen(false);
   };
 
@@ -90,7 +93,7 @@ export const ProductNameCell = ({
       singleClickTimeoutRef.current = null;
       // Re-seed the draft: the product may have been replaced or renamed
       // since this cell's state was initialized.
-      setName(cell.getValue() as string);
+      setName(getCellName());
       setOpen(true);
     }, SINGLE_CLICK_DELAY_MS);
   };
@@ -146,7 +149,7 @@ export const ProductNameCell = ({
       <RecordTableInlineCell.Content
         onEscapeKeyDown={() => {
           cancelledRef.current = true;
-          setName(cell.getValue() as string);
+          setName(getCellName());
         }}
       >
         <Input
