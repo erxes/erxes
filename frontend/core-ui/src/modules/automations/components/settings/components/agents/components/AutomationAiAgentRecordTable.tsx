@@ -45,7 +45,7 @@ export const AutomationAiAgentRecordTable = ({
         className="h-full min-w-0"
       >
         <RecordTable.Scroll>
-          <RecordTable className="w-full">
+          <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>
               {loading && <RecordTable.RowSkeleton rows={8} />}

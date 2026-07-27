@@ -36,7 +36,7 @@ export const AutomationsRecordTableContent = ({
         dataLength={list.length}
         sessionKey="automations_cursor"
       >
-        <RecordTable className="w-full">
+        <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton

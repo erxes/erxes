@@ -18,7 +18,7 @@ export const AutomationBotsRecordTable = () => {
         className="h-full"
       >
         <RecordTable.Scroll>
-          <RecordTable className="w-full">
+          <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>
               {loading && <RecordTable.RowSkeleton rows={10} />}

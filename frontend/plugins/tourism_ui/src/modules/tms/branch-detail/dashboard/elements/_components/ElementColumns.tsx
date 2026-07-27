@@ -26,8 +26,8 @@ export const elementColumns = (
   t: (key: string) => string = (k) => k,
 ): ColumnDef<IElement>[] => {
   return [
-    RecordTable.checkboxColumn as ColumnDef<IElement>,
     elementMoreColumn(branchId, branchLanguages, mainLanguage),
+    RecordTable.checkboxColumn as ColumnDef<IElement>,
     {
       id: 'name',
       accessorKey: 'name',
