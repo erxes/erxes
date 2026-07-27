@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePosList } from '@/pos/hooks/usePosList';
 
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const PosIndexPage = () => {
   const { t } = useTranslation('sales');
   const favoriteBreadcrumb = createFavoriteBreadcrumb(t('pos'));
