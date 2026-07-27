@@ -1,8 +1,9 @@
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { IconPrinter } from '@tabler/icons-react';
-import { Button, Combobox, Command, DropdownMenu, toast } from 'erxes-ui';
+import { Combobox, Command, DropdownMenu, toast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PrintDocument } from 'ui-modules';
 import {
   DOCUMENTS_QUERY,
   PROCESS_DOCUMENT,
@@ -44,6 +45,8 @@ type DealPrintDocumentProps = {
   variant?: 'button' | 'submenu';
 };
 
+type DealPrintDocumentSubmenuProps = Omit<DealPrintDocumentProps, 'variant'>;
+
 const printHtml = (printWindow: Window, html: string, title: string) => {
   const printUrl = URL.createObjectURL(
     new Blob([html], { type: 'text/html;charset=utf-8' }),
@@ -63,11 +66,10 @@ const printHtml = (printWindow: Window, html: string, title: string) => {
   printWindow.location.replace(printUrl);
 };
 
-export const DealPrintDocument = ({
+const DealPrintDocumentSubmenu = ({
   deals,
   disabled = false,
-  variant = 'button',
-}: DealPrintDocumentProps) => {
+}: DealPrintDocumentSubmenuProps) => {
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
@@ -136,10 +138,7 @@ export const DealPrintDocument = ({
 
   const menuContent = (
     <Command>
-      <Command.Input
-        placeholder={t('search-document')}
-        focusOnMount
-      />
+      <Command.Input placeholder={t('search-document')} focusOnMount />
       <Command.List>
         <Combobox.Empty loading={loading} error={error} />
         {documents.map((document) => (
@@ -159,41 +158,33 @@ export const DealPrintDocument = ({
     </Command>
   );
 
+  return (
+    <DropdownMenu.Sub open={open} onOpenChange={setOpen}>
+      <DropdownMenu.SubTrigger disabled={disabled || processing}>
+        <IconPrinter />
+        {t('print-document')}
+      </DropdownMenu.SubTrigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.SubContent className="w-72 overflow-hidden p-0">
+          {menuContent}
+        </DropdownMenu.SubContent>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Sub>
+  );
+};
+
+export const DealPrintDocument = ({
+  deals,
+  disabled = false,
+  variant = 'button',
+}: DealPrintDocumentProps) => {
   if (variant === 'submenu') {
-    return (
-      <DropdownMenu.Sub open={open} onOpenChange={setOpen}>
-        <DropdownMenu.SubTrigger disabled={disabled || processing}>
-          <IconPrinter />
-          {t('print-document')}
-        </DropdownMenu.SubTrigger>
-        <DropdownMenu.Portal>
-          <DropdownMenu.SubContent className="w-72 overflow-hidden p-0">
-            {menuContent}
-          </DropdownMenu.SubContent>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Sub>
-    );
+    return <DealPrintDocumentSubmenu deals={deals} disabled={disabled} />;
   }
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-7 gap-1.5 px-2"
-          disabled={disabled || processing}
-        >
-          <IconPrinter />
-          {t('print-document')}
-        </Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content
-        align="start"
-        className="w-72 overflow-hidden p-0"
-      >
-        {menuContent}
-      </DropdownMenu.Content>
-    </DropdownMenu>
+    <fieldset className="contents" disabled={disabled}>
+      <PrintDocument items={deals} contentType={DEAL_DOCUMENT_CONTENT_TYPE} />
+    </fieldset>
   );
 };
