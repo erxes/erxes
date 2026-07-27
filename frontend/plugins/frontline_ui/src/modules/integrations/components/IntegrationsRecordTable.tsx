@@ -131,7 +131,15 @@ const IntegrationsCommandBar = () => {
 
       let refreshFailed = false;
       try {
-        await client.refetchQueries({ include: ['Integrations'] });
+        // Integrations is read with errorPolicy: 'all', so the refetch resolves
+        // even when the server returns GraphQL errors — a settled promise is
+        // not proof that the table now holds fresh data.
+        const results = await client.refetchQueries({
+          include: ['Integrations'],
+        });
+        refreshFailed = results.some(
+          (result) => result.error || result.errors?.length,
+        );
       } catch {
         refreshFailed = true;
       }
