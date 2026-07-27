@@ -105,5 +105,7 @@ export const ScoreMoreColumnCell = ({
 export const scoreMoreColumn = {
   id: 'more',
   cell: ScoreMoreColumnCell,
-  size: 20,
+  size: 33,
+  minSize: 33,
+  maxSize: 33,
 };

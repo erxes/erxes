@@ -1,8 +1,12 @@
 {
   "// --- Buttons ---": "",
   "edit": "Засах",
+  "action": "Үйлдэл",
   "copy": "Хуулах",
   "print-document": "Баримт хэвлэх",
+  "search-document": "Баримт хайх...",
+  "print-document-failed": "Баримтыг хэвлэхэд бэлтгэж чадсангүй",
+  "print-popup-blocked": "Хэвлэх цонхыг нээхийн тулд pop-up зөвшөөрнө үү",
   "remove": "Устгах",
   "delete": "Устгах",
   "save": "Хадгалах",
@@ -47,6 +51,9 @@
   "watch-mixed": "Хянах (Холимог)",
   "show-archived-items": "Архивласан хэлцлүүдийг харуулах",
   "show-active-items": "Идэвхтэй хэлцлүүдийг харах",
+  "previous": "Өмнөх",
+  "next": "Дараах",
+  "close": "Хаах",
   "select-color": "Өнгө сонгох",
   "back": "Буцах",
   "change": "Буцаалт",
@@ -166,6 +173,8 @@
   "tags": "Тагнууд",
   "branches": "Салбарууд",
   "departments": "Хэлтсүүд",
+  "broker-type": "Зуучлагчийн төрөл",
+  "broker": "Зуучлагч",
   "description": "Тайлбар",
   "category": "Ангилал",
   "categories": "Ангилалууд",
@@ -809,5 +818,9 @@
   "select-payments-to-use": "Ашиглах төлбөрийн аргуудыг сонгоно уу",
   "service": "Үйлчилгээ",
   "to-stage": "Очих үе шат",
-  "to-status": "Очих төлөв"
+  "to-status": "Очих төлөв",
+  "leave-a-note": "Тэмдэглэл бичих...",
+  "send": "Илгээх",
+  "note-added": "Тэмдэглэл нэмэгдлээ",
+  "view-more-activities": "Бусад үйл ажиллагааг харах"
 }

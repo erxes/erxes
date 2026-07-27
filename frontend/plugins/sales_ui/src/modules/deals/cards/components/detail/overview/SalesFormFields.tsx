@@ -1,19 +1,29 @@
 import { useRef, useCallback } from 'react';
-import { Label, Editor, Select } from 'erxes-ui';
-import {
-  SelectBranches,
-  SelectCompany,
-  SelectCustomer,
-  SelectDepartments,
-  SelectMember,
-  SelectTags,
-} from 'ui-modules';
+import { Editor, Separator } from 'erxes-ui';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import {
+  DealAssigneeChip,
+  DealBranchesChip,
+  DealBrokerTypeChip,
+  DealCompanyChip,
+  DealCustomerChip,
+  DealDepartmentsChip,
+  DealTagsChip,
+} from '@/deals/components/deal-selects/DealDetailChips';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
 import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
+import { AttachmentUploader } from './attachments/AttachmentUploader';
+import { Attachments } from './attachments/Attachments';
+import { DealsActions } from '@/deals/actionBar/components/DealsActions';
+import {
+  areIdListsEqual,
+  rejectOnMutationError,
+  useOptimisticField,
+} from '@/deals/components/deal-selects/hooks/useOptimisticField';
 
 const ARRAY_KEYS = new Set([
   'assignedUserIds',
@@ -22,51 +32,38 @@ const ARRAY_KEYS = new Set([
   'departmentIds',
 ]);
 
-const FormField = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) => (
-  <div className="space-y-2">
-    <Label>{label}</Label>
-    {children}
-  </div>
-);
+type BrokerType = NonNullable<IDeal['brokerType']> | '';
+
+interface BrokerSelection {
+  id: string;
+  type: BrokerType;
+}
+
+const normalizeMultiValue = (value: string | string[]) =>
+  Array.isArray(value) ? value : [value];
+
+const normalizeSingleValue = (value: string | string[]) =>
+  Array.isArray(value) ? value[0] || '' : value;
+
+const normalizeBrokerType = (value: string): BrokerType => {
+  if (value === 'customer' || value === 'company' || value === 'user') {
+    return value;
+  }
+
+  return '';
+};
+
+const areBrokerSelectionsEqual = (
+  left: BrokerSelection,
+  right: BrokerSelection,
+) => left.id === right.id && left.type === right.type;
 
 export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
   const descriptionRef = useRef<string | undefined>(undefined);
+  const lastSavedDescriptionRef = useRef<string | undefined>(deal.description);
 
   const { t } = useTranslation('sales');
-
-  const handleChange = useCallback(
-    (key: string, value: string | string[] | undefined | null) => {
-      if (value == null) return;
-      editDeals({
-        variables: {
-          _id: deal._id,
-          [key]: ARRAY_KEYS.has(key) && !Array.isArray(value) ? [value] : value,
-        },
-      });
-    },
-    [deal._id, editDeals],
-  );
-
-  const handleBrokerTypeChange = useCallback(
-    (type: string) => {
-      editDeals({
-        variables: {
-          _id: deal._id,
-          brokerType: type || null,
-          brokerId: null,
-        },
-      });
-    },
-    [deal._id, editDeals],
-  );
-
   const {
     startDate,
     closeDate,
@@ -81,152 +78,193 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
     brokerId,
   } = deal;
 
+  const handleChange = useCallback(
+    (key: string, value: string | string[]) => {
+      return editDeals({
+        variables: {
+          _id: deal._id,
+          [key]: ARRAY_KEYS.has(key) && !Array.isArray(value) ? [value] : value,
+        },
+      });
+    },
+    [deal._id, editDeals],
+  );
+
+  const optimisticAssignedUsers = useOptimisticField({
+    value: assignedUserIds || [],
+    resetKey: _id,
+    isEqual: areIdListsEqual,
+    onCommit: (value) =>
+      rejectOnMutationError(handleChange('assignedUserIds', value)),
+  });
+  const optimisticTags = useOptimisticField({
+    value: tagIds || [],
+    resetKey: _id,
+    isEqual: areIdListsEqual,
+    onCommit: (value) => rejectOnMutationError(handleChange('tagIds', value)),
+  });
+  const optimisticBranches = useOptimisticField({
+    value: branchIds || [],
+    resetKey: _id,
+    isEqual: areIdListsEqual,
+    onCommit: (value) =>
+      rejectOnMutationError(handleChange('branchIds', value)),
+  });
+  const optimisticDepartments = useOptimisticField({
+    value: departmentIds || [],
+    resetKey: _id,
+    isEqual: areIdListsEqual,
+    onCommit: (value) =>
+      rejectOnMutationError(handleChange('departmentIds', value)),
+  });
+  const optimisticBroker = useOptimisticField<BrokerSelection>({
+    value: {
+      id: brokerId || '',
+      type: brokerType || '',
+    },
+    resetKey: _id,
+    isEqual: areBrokerSelectionsEqual,
+    onCommit: (value) =>
+      rejectOnMutationError(
+        editDeals({
+          variables: {
+            _id: deal._id,
+            brokerType: value.type || null,
+            brokerId: value.id || null,
+          },
+        }),
+      ),
+  });
+
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 py-4">
-        <FormField label={t('due-date')}>
-          <div className="flex items-center">
-            <DateSelectDeal
-              value={startDate}
-              id={_id}
-              type="startDate"
-              variant="button"
-            />
-            <span className="mx-2">{t('date-range-to')}</span>
-            <DateSelectDeal
-              value={closeDate}
-              id={_id}
-              type="closeDate"
-              variant="button"
-            />
-          </div>
-        </FormField>
-        <FormField label={t('assigned-to')}>
-          <SelectMember
-            value={assignedUserIds}
-            onValueChange={(value) => handleChange('assignedUserIds', value)}
-            className="text-foreground"
-            mode="multiple"
-          />
-        </FormField>
-        <FormField label={t('label')}>
-          <div className="flex flex-wrap items-center gap-1">
-            <SelectLabels.FilterBar
-              filterKey=""
-              mode="multiple"
-              label={t('by-label')}
-              variant="card"
-              targetId={_id}
-              initialValue={labels?.map((label) => label._id || '') || []}
-            />
-            {labels?.map((label) => (
-              <div
-                key={label._id}
-                className="inline-block py-1 pl-2 pr-2 ml-1 text-sm font-medium text-white rounded"
-                style={{ backgroundColor: label.colorCode }}
-              >
-                {label.name}
-              </div>
-            ))}
-          </div>
-        </FormField>
-        <FormField label={t('priority')}>
-          <div>
-            <SelectDealPriority
-              dealId={_id}
-              value={priority || ''}
-              variant="card"
-            />
-          </div>
-        </FormField>
-        <FormField label={t('tags')}>
-          <SelectTags
-            tagType="sales:deal"
-            mode="multiple"
-            value={tagIds}
-            onValueChange={(value) => handleChange('tagIds', value)}
-          />
-        </FormField>
-        <FormField label={t('branches')}>
-          <SelectBranches.ComboboxItem
-            value={branchIds}
-            onValueChange={(value) => handleChange('branchIds', value)}
-            mode="multiple"
-          />
-        </FormField>
-        <FormField label={t('departments')}>
-          <SelectDepartments.ComboboxItem
-            mode="multiple"
-            value={departmentIds}
-            onValueChange={(value) => handleChange('departmentIds', value)}
-          />
-        </FormField>
-        <FormField label={t('broker-type')}>
-          <Select
-            value={brokerType || '_none'}
-            onValueChange={(v) =>
-              handleBrokerTypeChange(v === '_none' ? '' : v)
+      <div className="flex flex-wrap items-center gap-2">
+        <SelectDealStage deal={deal} />
+        <SelectDealPriority
+          dealId={_id}
+          value={priority || ''}
+          variant="detail"
+        />
+        <DealAssigneeChip
+          value={optimisticAssignedUsers.value}
+          onValueChange={(value) =>
+            optimisticAssignedUsers.setValue(normalizeMultiValue(value))
+          }
+          placeholder={t('assigned-to')}
+        />
+        <DateSelectDeal
+          value={startDate}
+          id={_id}
+          type="startDate"
+          variant="detail"
+          placeholder={t('start-date')}
+        />
+        <DateSelectDeal
+          value={closeDate}
+          id={_id}
+          type="closeDate"
+          variant="detail"
+          placeholder={t('close-date')}
+        />
+        <SelectLabels.FilterBar
+          filterKey=""
+          mode="multiple"
+          variant="detail"
+          targetId={_id}
+          initialValue={labels?.map((label) => label._id || '') || []}
+        />
+        <DealTagsChip
+          value={optimisticTags.value}
+          onValueChange={(value) =>
+            optimisticTags.setValue(normalizeMultiValue(value))
+          }
+        />
+        <DealBranchesChip
+          value={optimisticBranches.value}
+          onValueChange={(value) =>
+            optimisticBranches.setValue(normalizeMultiValue(value))
+          }
+        />
+        <DealDepartmentsChip
+          value={optimisticDepartments.value}
+          onValueChange={(value) =>
+            optimisticDepartments.setValue(normalizeMultiValue(value))
+          }
+        />
+        <DealBrokerTypeChip
+          value={optimisticBroker.value.type || '_none'}
+          options={[
+            { value: '_none', label: t('none') },
+            { value: 'customer', label: t('customer') },
+            { value: 'company', label: t('company') },
+            { value: 'user', label: t('user') },
+          ]}
+          onValueChange={(value) =>
+            optimisticBroker.setValue({
+              id: '',
+              type: normalizeBrokerType(value),
+            })
+          }
+        />
+        {optimisticBroker.value.type === 'customer' && (
+          <DealCustomerChip
+            value={optimisticBroker.value.id}
+            onValueChange={(value) =>
+              optimisticBroker.setValue({
+                ...optimisticBroker.value,
+                id: normalizeSingleValue(value),
+              })
             }
-          >
-            <Select.Trigger>
-              <Select.Value placeholder={t('none')} />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="_none">{t('none')}</Select.Item>
-              <Select.Item value="customer">{t('customer')}</Select.Item>
-              <Select.Item value="company">{t('company')}</Select.Item>
-              <Select.Item value="user">{t('user')}</Select.Item>
-            </Select.Content>
-          </Select>
-        </FormField>
-        {brokerType && (
-          <FormField label={t('broker')}>
-            {brokerType === 'customer' && (
-              <SelectCustomer
-                mode="single"
-                value={brokerId || ''}
-                onValueChange={(value) => {
-                  if (value) handleChange('brokerId', value as string);
-                }}
-              />
-            )}
-            {brokerType === 'company' && (
-              <SelectCompany
-                mode="single"
-                value={brokerId || ''}
-                onValueChange={(value) => {
-                  if (value) handleChange('brokerId', value as string);
-                }}
-              />
-            )}
-            {brokerType === 'user' && (
-              <SelectMember
-                mode="single"
-                value={brokerId || ''}
-                onValueChange={(value) => {
-                  if (value) handleChange('brokerId', value as string);
-                }}
-              />
-            )}
-          </FormField>
+          />
         )}
+        {optimisticBroker.value.type === 'company' && (
+          <DealCompanyChip
+            value={optimisticBroker.value.id}
+            onValueChange={(value) =>
+              optimisticBroker.setValue({
+                ...optimisticBroker.value,
+                id: normalizeSingleValue(value),
+              })
+            }
+          />
+        )}
+        {optimisticBroker.value.type === 'user' && (
+          <DealAssigneeChip
+            mode="single"
+            value={optimisticBroker.value.id}
+            onValueChange={(value) =>
+              optimisticBroker.setValue({
+                ...optimisticBroker.value,
+                id: normalizeSingleValue(value),
+              })
+            }
+          />
+        )}
+        <DealsActions deals={[deal]} variant="inline" />
       </div>
+      <div className="flex">
+        <AttachmentUploader />
+      </div>
+      <Attachments />
+      <Separator className="mt-4" />
       <div
-        className="space-y-2"
+        className="min-h-56 overflow-y-auto"
         onBlur={(e) => {
           if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-          if (descriptionRef.current !== undefined) {
-            handleChange('description', descriptionRef.current);
+          const next = descriptionRef.current;
+          if (next === undefined || next === lastSavedDescriptionRef.current) {
+            return;
           }
+          lastSavedDescriptionRef.current = next;
+          handleChange('description', next);
         }}
       >
-        <Label>{t('description')}</Label>
         <Editor
           initialContent={deal.description || ''}
           onChange={(content) => {
             descriptionRef.current = content;
           }}
-          className="overflow-y-auto h-28"
+          className="min-h-full h-auto shadow-none"
         />
       </div>
     </>

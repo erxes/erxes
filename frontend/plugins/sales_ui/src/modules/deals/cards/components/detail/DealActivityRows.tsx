@@ -1,12 +1,11 @@
 import { ReactNode } from 'react';
-import { Badge } from 'erxes-ui';
+import { Badge, BlockEditorReadOnly, parseBlocks } from 'erxes-ui';
 import {
   ActivityLogCustomActivity,
   ActivityLogs,
   MembersInline,
   TActivityLog,
 } from 'ui-modules';
-import { DescriptionChangedActivityRow } from './overview/activity/DescriptionChangedActivityRow';
 import { useTranslation } from 'react-i18next';
 
 const Sentence = ({ children }: { children: ReactNode }) => (
@@ -118,6 +117,33 @@ const DealWatchRow = ({ activity }: { activity: TActivityLog }) => {
         {isWatching ? 'started watching deal' : 'stopped watching deal'}
       </span>
     </Sentence>
+  );
+};
+
+const DescriptionChangedActivityRow = ({
+  activity,
+}: {
+  activity: TActivityLog;
+}) => {
+  const { action, changes } = activity;
+  const content = changes?.current as string | undefined;
+
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">{action.description}</span>
+      </Sentence>
+      {content && (
+        <div className="border rounded-lg px-4 py-3 mt-1">
+          {parseBlocks(content) ? (
+            <BlockEditorReadOnly content={content} />
+          ) : (
+            <p className="text-sm">{content}</p>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 

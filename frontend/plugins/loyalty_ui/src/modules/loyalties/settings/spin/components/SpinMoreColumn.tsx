@@ -101,5 +101,5 @@ export const SpinMoreColumnCell = ({
 export const spinMoreColumn = {
   id: 'more',
   cell: SpinMoreColumnCell,
-  size: 25,
+  size: 33,
 };
