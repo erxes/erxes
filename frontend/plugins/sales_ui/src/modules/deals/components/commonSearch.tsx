@@ -1,14 +1,10 @@
-import { Input, Popover } from 'erxes-ui';
+import { Input, Popover, Skeleton } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useInView } from 'react-intersection-observer';
 
 import { IDeal } from '@/deals/types/deals';
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconLoader2,
-  IconSearch,
-} from '@tabler/icons-react';
+import { IconLoader2, IconSearch } from '@tabler/icons-react';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
@@ -24,14 +20,11 @@ export const CommonDealSearch = () => {
   const [focused, setFocused] = useState(false);
   const [debouncedSearch] = useDebounce(search.trim(), 350);
 
-  const {
-    deals,
-    loading,
-    pageIndex,
-    pageInfo,
-    goToNextPage,
-    goToPreviousPage,
-  } = useDealSearch(debouncedSearch);
+  const { deals, loading, loadingMore, totalCount, pageInfo, loadMore } =
+    useDealSearch(debouncedSearch);
+  const { ref: loadMoreRef } = useInView({
+    onChange: (inView) => inView && loadMore(),
+  });
 
   const showDropdown = focused && debouncedSearch.length >= 2;
   const hasDeals = deals.length > 0;
@@ -106,47 +99,17 @@ export const CommonDealSearch = () => {
               </span>
             </button>
           ))}
+
+          {pageInfo?.hasNextPage && deals.length < totalCount && (
+            <div ref={loadMoreRef} className="px-3 py-2">
+              {loadingMore && <Skeleton className="h-8 w-full" />}
+            </div>
+          )}
         </div>
 
         {hasDeals && (
-          <div className="flex items-center justify-between border-t px-3 py-2">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>Page {pageIndex + 1}</span>
-
-              {loading && <IconLoader2 className="size-3 animate-spin" />}
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                aria-label="Previous search results"
-                disabled={
-                  !pageInfo?.hasPreviousPage ||
-                  !pageInfo?.startCursor ||
-                  loading
-                }
-                className="rounded p-1.5 hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  goToPreviousPage();
-                }}
-              >
-                <IconChevronLeft className="size-4" />
-              </button>
-
-              <button
-                type="button"
-                aria-label="Next search results"
-                disabled={!pageInfo?.hasNextPage || loading}
-                className="rounded p-1.5 hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  goToNextPage();
-                }}
-              >
-                <IconChevronRight className="size-4" />
-              </button>
-            </div>
+          <div className="border-t px-3 py-2 text-xs text-muted-foreground">
+            {deals.length} / {totalCount}
           </div>
         )}
       </Popover.Content>
