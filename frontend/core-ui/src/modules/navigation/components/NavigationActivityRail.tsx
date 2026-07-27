@@ -76,7 +76,7 @@ const NavigationActivityButton = ({
     <Button
       aria-label={activity.label}
       className={cn(
-        'relative h-10 rounded-md [&>svg]:size-4!',
+        'relative h-10 shrink-0 rounded-md [&>svg]:size-4!',
         expanded
           ? 'w-full justify-start gap-2 px-2'
           : 'w-10 justify-center px-0',
@@ -172,7 +172,7 @@ const NavigationActivityHover = ({
     >
       <HoverCard.Trigger asChild>
         <div
-          className="flex"
+          className="flex shrink-0"
           onBlur={scheduleClose}
           onFocus={keepOpen}
           onPointerEnter={keepOpen}
@@ -278,10 +278,12 @@ export const NavigationActivityRail = ({
           expanded ? 'items-stretch' : 'items-center',
         )}
       >
-        {expanded && (
+        {expanded ? (
           <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
             {sidebarT('favorites')}
           </Sidebar.GroupLabel>
+        ) : (
+          <div aria-hidden className="h-6 shrink-0" />
         )}
         <NavigationActivityButton
           activity={inboxActivity}
@@ -291,16 +293,23 @@ export const NavigationActivityRail = ({
           onSelect={onSelectInbox}
         />
         <SidebarNavigationFavorites expanded={expanded} />
-        {!expanded && <Separator className="my-1 w-8" />}
-        {expanded && visibleActivities[0] && (
-          <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
-            {t(
-              visibleActivities[0].kind === 'plugin'
-                ? 'plugins'
-                : 'core-modules',
-            )}
-          </Sidebar.GroupLabel>
-        )}
+        {visibleActivities[0] &&
+          (expanded ? (
+            <Sidebar.GroupLabel className="h-6 px-2 text-[10px]">
+              {t(
+                visibleActivities[0].kind === 'plugin'
+                  ? 'plugins'
+                  : 'core-modules',
+              )}
+            </Sidebar.GroupLabel>
+          ) : (
+            <div
+              aria-hidden
+              className="flex h-6 shrink-0 items-center justify-center"
+            >
+              <Separator className="w-8" />
+            </div>
+          ))}
         {visibleActivities.map((activity, index) => {
           const active = !isSettings && activity.id === activeActivityId;
           const startsCoreSection =
@@ -315,7 +324,12 @@ export const NavigationActivityRail = ({
                     {t('core-modules')}
                   </Sidebar.GroupLabel>
                 ) : (
-                  <Separator className="my-1 w-8" />
+                  <div
+                    aria-hidden
+                    className="flex h-6 shrink-0 items-center justify-center"
+                  >
+                    <Separator className="w-8" />
+                  </div>
                 ))}
               {!hoverEnabled ? (
                 <NavigationActivityButton

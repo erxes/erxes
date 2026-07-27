@@ -60,19 +60,26 @@ export const NavigationPanel = () => {
 
   return (
     <aside
+      data-state={panelOpen ? 'expanded' : 'collapsed'}
       className={cn(
-        'flex h-full shrink-0 flex-col border-r bg-sidebar transition-[width] duration-200 ease-linear',
+        'peer z-20 flex shrink-0 flex-col bg-sidebar transition-[width] duration-200 ease-linear',
         panelOpen && isMobile && 'min-w-0 flex-1',
-        panelOpen && !isMobile && 'w-64',
-        !panelOpen && 'w-10',
+        panelOpen && !isMobile && 'h-full w-64 border-r',
+        !panelOpen && isMobile && 'h-full w-10 border-r',
+        !panelOpen && !isMobile && 'absolute top-0 left-0 h-13 w-10 border-r',
       )}
     >
       <header
         className={cn(
-          'flex h-14 shrink-0 items-center gap-2',
+          'flex h-13 shrink-0 items-center gap-2',
           panelOpen ? 'px-2' : 'justify-center px-1',
         )}
       >
+        {panelOpen && (
+          <span className="min-w-0 flex-1 truncate px-1 text-[13px] font-semibold">
+            {title}
+          </span>
+        )}
         <Button
           aria-label={toggleLabel}
           className="size-8 shrink-0"
@@ -87,11 +94,6 @@ export const NavigationPanel = () => {
             <IconLayoutSidebarLeftExpand />
           )}
         </Button>
-        {panelOpen && (
-          <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">
-            {title}
-          </span>
-        )}
       </header>
       {panelOpen && panelContent}
     </aside>

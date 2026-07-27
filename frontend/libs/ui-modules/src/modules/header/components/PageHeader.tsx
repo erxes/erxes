@@ -16,6 +16,7 @@ export const PageHeaderRoot = React.forwardRef<
         className={cn(
           'flex items-center justify-between h-13 px-3 box-border shrink-0 bg-sidebar overflow-auto styled-scroll',
           className,
+          'pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem))]',
         )}
       >
         {children}

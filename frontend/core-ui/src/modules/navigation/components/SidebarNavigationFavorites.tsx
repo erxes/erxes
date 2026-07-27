@@ -1,7 +1,5 @@
 import { cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
-import { IconX } from '@tabler/icons-react';
-import { useToggleFavorite } from 'ui-modules';
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SidebarNavigationFavorites({
@@ -12,7 +10,7 @@ export function SidebarNavigationFavorites({
   const favorites = useFavorites();
 
   return (
-    <section className="w-full">
+    <section className="w-full shrink-0">
       <Sidebar.Menu className={cn('gap-0.5', !expanded && 'items-center')}>
         {favorites.map((item) => {
           return (
@@ -44,16 +42,8 @@ export function SidebarNavigationFavoritesItem({
 }) {
   const Icon = icon;
   const pathWithoutUi = path.replace('_ui', '');
-  const { toggleFavorite } = useToggleFavorite({ path, breadcrumb });
   const sidebarLabel =
     breadcrumb.length > 1 ? breadcrumb.slice(1).join(' / ') : name;
-
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
-  const handleRemove = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    await toggleFavorite();
-  };
 
   return (
     <NavigationMenuLinkItem
@@ -72,18 +62,6 @@ export function SidebarNavigationFavoritesItem({
         ) : (
           <span className="sr-only">{sidebarLabel}</span>
         )
-      }
-      action={
-        expanded ? (
-          <Sidebar.MenuAction
-            aria-label={name}
-            className="size-4! text-muted-foreground hover:text-foreground"
-            onClick={handleRemove}
-            showOnHover
-          >
-            <IconX className="size-3!" />
-          </Sidebar.MenuAction>
-        ) : undefined
       }
       tooltipVisibility="always"
       tooltip={{

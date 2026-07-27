@@ -13,9 +13,9 @@ const NavigationWorkspace = () => {
 
   return (
     <Sidebar.Inset className="h-svh grow-0 shrink basis-full overflow-hidden pt-12 shadow-sidebar-inset">
-      <div className="flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1">
         {!isMobile && <NavigationPanel />}
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem]">
           <FloatingWidgets />
           <Outlet />
         </div>
