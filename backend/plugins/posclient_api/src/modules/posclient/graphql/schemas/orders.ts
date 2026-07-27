@@ -230,6 +230,8 @@ export const mutations = `
   cpOrderChangeSaleStatus(_id: String!, saleStatus: String): Order
   cpOrdersCancel(_id: String!): JSON
   cpOrdersAddPayment(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: [PaidAmountInput] ): Order
+  cpOrdersSettlePayment(_id: String!, billType: String!, registerNumber: String): PosPutResponse
+
 `;
 
 export const queries = `

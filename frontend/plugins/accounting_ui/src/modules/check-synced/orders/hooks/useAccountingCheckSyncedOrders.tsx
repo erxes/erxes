@@ -1,12 +1,3 @@
-import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
-import {
-  parseDateRangeFromString,
-  useMultiQueryState,
-  useToast,
-} from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { atom, useAtom, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
 import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_MUTATION,
   ACCOUNTING_CHECK_SYNCED_ORDERS_QUERY,
@@ -24,6 +15,23 @@ import {
   accountingCheckSyncedOrdersStatusCountsAtom,
   accountingCheckSyncedOrdersTotalCountAtom,
 } from '../states';
+import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import {
+  chunkIds,
+  getSyncStatus,
+  useAccountingCheckSyncedAction,
+  useSyncSelectedIds,
+  useSyncToggle,
+} from '~/modules/check-synced/constants/shared';
+import {
+  parseDateRangeFromString,
+  useMultiQueryState,
+  useToast,
+} from 'erxes-ui';
+import { useEffect, useMemo } from 'react';
+
+import { useTranslation } from 'react-i18next';
 
 const ACCOUNTING_SYNC_ORDERS_BATCH_SIZE = 1;
 const ACCOUNTING_CHECK_SYNCED_ORDERS_PER_PAGE = 50;
@@ -35,26 +43,6 @@ const checkedOrdersAtom = atom<
 >({});
 
 const toSyncOrderIdsAtom = atom<Record<string, boolean>>({});
-
-type CheckOrdersOptions = {
-  silent?: boolean;
-  keepToSyncIds?: boolean;
-  statusById?: Record<string, AccountingCheckSyncedStatus>;
-};
-
-const getOrderStatus = (
-  order?: Partial<AccountingCheckSyncedOrder>,
-): AccountingCheckSyncedStatus => order?.syncStatus || 'skipped';
-
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
-};
 
 export const useAccountingCheckSyncedOrdersVariables = (
   variables?: QueryHookOptions<AccountingOrdersQueryResult>['variables'],
@@ -128,129 +116,26 @@ export const useAccountingCheckSyncedOrders = (
       (data?.posOrders || []).map((order) => ({
         ...order,
         ...checkedOrders[order._id],
-        syncStatus: getOrderStatus(checkedOrders[order._id]),
+        syncStatus: getSyncStatus(checkedOrders[order._id]),
       })),
     [checkedOrders, data?.posOrders],
   );
   const totalCount = data?.posOrdersTotalCount || 0;
 
-  const syncSelectedOrderIds = useMemo(
-    () =>
-      Object.entries(toSyncOrderIds)
-        .filter(([, selected]) => selected)
-        .map(([id]) => id),
-    [toSyncOrderIds],
-  );
+  const { setToSync: setOrderToSync, setAllToSync: setAllOrdersToSync } =
+    useSyncToggle(setToSyncOrderIds);
 
-  const setOrderToSync = useCallback(
-    (id: string, checked: boolean) => {
-      setToSyncOrderIds((current) => {
-        const next = { ...current };
+  const syncSelectedOrderIds = useSyncSelectedIds(toSyncOrderIds);
 
-        if (checked) {
-          next[id] = true;
-        } else {
-          delete next[id];
-        }
-
-        return next;
-      });
-    },
-    [setToSyncOrderIds],
-  );
-
-  const setAllOrdersToSync = useCallback(
-    (ids: string[], checked: boolean) => {
-      setToSyncOrderIds((current) => {
-        const next = { ...current };
-
-        for (const id of ids) {
-          if (checked) {
-            next[id] = true;
-          } else {
-            delete next[id];
-          }
-        }
-
-        return next;
-      });
-    },
-    [setToSyncOrderIds],
-  );
-
-  const checkOrders = async (
-    ids: string[],
-    checkOptions?: CheckOrdersOptions,
-  ) => {
-    if (!ids.length) {
-      if (!checkOptions?.silent) {
-        toast({
-          title: t('warning'),
-          description: t('no-orders-selected'),
-          variant: 'destructive',
-        });
-      }
-      return;
-    }
-
-    const response = await accountingCheckSynced({
-      variables: { ids, contentType: 'sales:order' },
-      onError: (error) => {
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
+  const checkOrders =
+    useAccountingCheckSyncedAction<AccountingCheckSyncedOrder>({
+      contentType: 'sales:order',
+      setCheckedItems: setCheckedOrders,
+      setToSyncIds: setToSyncOrderIds,
+      checkSyncedMutation: accountingCheckSynced,
+      warningMsg: 'no-orders-selected',
+      successMsg: 'orders-checked',
     });
-
-    const checked = response.data?.accountingCheckSynced || [];
-
-    setCheckedOrders((current) => {
-      const next = { ...current };
-
-      for (const item of checked) {
-        const syncStatus =
-          checkOptions?.statusById?.[item._id] ||
-          (item.isSynced ? 'synced' : 'checked');
-
-        next[item._id] = {
-          isSynced: item.isSynced,
-          syncStatus,
-          syncedDate: item.syncedDate,
-          syncedBillNumber: item.syncedBillNumber,
-          syncedCustomer: item.syncedCustomer,
-        };
-      }
-
-      return next;
-    });
-
-    setToSyncOrderIds((current) => {
-      const next = { ...current };
-
-      for (const item of checked) {
-        if (checkOptions?.keepToSyncIds) {
-          continue;
-        }
-
-        if (item.isSynced) {
-          delete next[item._id];
-        } else {
-          next[item._id] = true;
-        }
-      }
-
-      return next;
-    });
-
-    if (!checkOptions?.silent) {
-      toast({
-        title: t('success'),
-        description: t('orders-checked', { count: checked.length }),
-      });
-    }
-  };
 
   const syncOrders = async (ids: string[]) => {
     if (!variables.ruleId) {
@@ -263,7 +148,7 @@ export const useAccountingCheckSyncedOrders = (
     }
 
     const syncableIds = ids.filter(
-      (id) => getOrderStatus(checkedOrders[id]) !== 'skipped',
+      (id) => getSyncStatus(checkedOrders[id]) !== 'skipped',
     );
 
     if (!syncableIds.length) {
@@ -387,10 +272,17 @@ export const useAccountingCheckSyncedOrders = (
       }
 
       setToSyncOrderIds((current) => {
-        const next = { ...current };
+        const idsToRemove = new Set([
+          ...skippedIds,
+          ...errorIds,
+          ...successIds,
+        ]);
+        const next: Record<string, boolean> = {};
 
-        for (const id of [...skippedIds, ...errorIds, ...successIds]) {
-          delete next[id];
+        for (const [key, value] of Object.entries(current)) {
+          if (!idsToRemove.has(key)) {
+            next[key] = value;
+          }
         }
 
         return next;
@@ -415,9 +307,14 @@ export const useAccountingCheckSyncedOrders = (
   }, [data?.posOrdersTotalCount, setTotalCount]);
 
   useEffect(() => {
+    setCheckedOrders({});
+    setToSyncOrderIds({});
+  }, [variables.ruleId, setCheckedOrders, setToSyncOrderIds]);
+
+  useEffect(() => {
     const counts = orders.reduce<AccountingCheckSyncedOrdersStatusCounts>(
       (acc, order) => {
-        const status = getOrderStatus(order);
+        const status = getSyncStatus(order);
 
         acc[status] += 1;
 
