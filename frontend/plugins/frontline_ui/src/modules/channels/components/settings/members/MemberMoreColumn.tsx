@@ -56,5 +56,5 @@ export const MemberMoreColumnCell = ({ cell }: { cell: Cell<any, any> }) => {
 export const MemberMoreColumn = {
   id: 'more',
   cell: MemberMoreColumnCell,
-  size: 5,
+  size: 33,
 };

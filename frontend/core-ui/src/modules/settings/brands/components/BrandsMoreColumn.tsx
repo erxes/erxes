@@ -71,5 +71,5 @@ export const BrandsMoreColumnCell = ({
 export const brandsMoreColumn = {
   id: 'more',
   cell: BrandsMoreColumnCell,
-  size: 25,
+  size: 33,
 };

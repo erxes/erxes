@@ -64,7 +64,7 @@ export const organizationConfigQueries = {
   ) {
     return models.Configs.findOne({ code });
   },
-  
+
   async configsFileUploadInfo(
     _parent: undefined,
     _args: undefined,

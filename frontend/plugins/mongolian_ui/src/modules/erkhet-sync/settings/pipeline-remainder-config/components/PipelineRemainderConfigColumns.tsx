@@ -31,7 +31,7 @@ export const buildRemainderConfigColumns = (
         )}
       />
     ),
-    size: 25,
+    size: 33,
   },
   checkboxColumn as ColumnDef<TRemainderConfigRow>,
   {

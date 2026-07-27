@@ -134,6 +134,10 @@ export function useMoveDealStage(options?: MutationHookOptions) {
       },
     })
       .then((result) => {
+        if (result.errors) {
+          throw result.errors;
+        }
+
         onCompleted?.();
         return result;
       })
@@ -143,7 +147,8 @@ export function useMoveDealStage(options?: MutationHookOptions) {
         // subscription update in the meantime isn't clobbered.
         if (boardState) {
           const sourceStageId = deal.stageId || '';
-          const originalStageItems = boardState.columnItems[sourceStageId] || [];
+          const originalStageItems =
+            boardState.columnItems[sourceStageId] || [];
           const originalIndex = originalStageItems.indexOf(deal._id);
 
           setBoardState((prev: DealsBoardState | null) => {

@@ -101,5 +101,5 @@ export const DonationMoreColumnCell = ({
 export const donationMoreColumn = {
   id: 'more',
   cell: DonationMoreColumnCell,
-  size: 25,
+  size: 33,
 };
