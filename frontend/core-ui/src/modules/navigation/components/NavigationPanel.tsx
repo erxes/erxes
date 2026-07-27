@@ -42,14 +42,38 @@ export const NavigationPanel = () => {
   );
   const isFavorites = panelView === 'favorites';
   const shouldShowPanel = isSettings || isFavorites || hasActivityPanel;
-  const title = isFavorites
-    ? sidebarT('favorites')
-    : isSettings
-      ? organizationT('settings')
-      : activity?.label;
+  let title = activity?.label;
+
+  if (isSettings) {
+    title = organizationT('settings');
+  }
+
+  if (isFavorites) {
+    title = sidebarT('favorites');
+  }
+
   const toggleLabel = navigationT(
     panelOpen ? 'collapse-plugin-navigation' : 'expand-plugin-navigation',
   );
+  let panelContent = (
+    <ScrollArea className="min-h-0 flex-1">
+      {activity?.kind === 'plugin' && (
+        <NavigationPluginPanelContent activityId={activity.id} />
+      )}
+    </ScrollArea>
+  );
+
+  if (isSettings) {
+    panelContent = <SettingsSidebar hideExit />;
+  }
+
+  if (isFavorites) {
+    panelContent = (
+      <ScrollArea className="min-h-0 flex-1">
+        <SidebarNavigationFavorites />
+      </ScrollArea>
+    );
+  }
 
   if (!shouldShowPanel) {
     return null;
@@ -90,20 +114,7 @@ export const NavigationPanel = () => {
           </span>
         )}
       </header>
-      {panelOpen &&
-        (isFavorites ? (
-          <ScrollArea className="min-h-0 flex-1">
-            <SidebarNavigationFavorites />
-          </ScrollArea>
-        ) : isSettings ? (
-          <SettingsSidebar hideExit />
-        ) : (
-          <ScrollArea className="min-h-0 flex-1">
-            {activity?.kind === 'plugin' && (
-              <NavigationPluginPanelContent activityId={activity.id} />
-            )}
-          </ScrollArea>
-        ))}
+      {panelOpen && panelContent}
     </aside>
   );
 };
