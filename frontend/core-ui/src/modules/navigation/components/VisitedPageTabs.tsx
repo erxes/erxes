@@ -199,7 +199,7 @@ const VisitedPageTabsContent = ({
 export const VisitedPageTabs = () => {
   const { i18n, t } = useTranslation('common');
   const activities = useNavigationActivities();
-  const modules = usePluginsModules();
+  const modules = usePluginsModules() ?? [];
   const {
     activePathname,
     closeAllVisitedPageTabs,
