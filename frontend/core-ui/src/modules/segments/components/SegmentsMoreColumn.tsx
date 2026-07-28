@@ -82,5 +82,5 @@ export const SegmentMoreColumnCell = ({
 export const segmentMoreColumn = {
   id: 'more',
   cell: SegmentMoreColumnCell,
-  size: 5,
+  size: 33,
 };

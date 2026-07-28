@@ -1,20 +1,25 @@
-import { Button, Dialog, Spinner, readImage } from 'erxes-ui';
+import { Button, Dialog, Spinner, cn, readImage } from 'erxes-ui';
 import {
   IconChevronLeft,
   IconChevronRight,
   IconX,
   IconZoomIn,
 } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { IAttachment } from '@/deals/types/attachments';
 import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
 
-const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
+export const MediaAttachments = ({
+  attachments,
+}: {
+  attachments: IAttachment[];
+}) => {
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { loading } = useDealsContext();
   const { handleRemoveImage, removingUrl } = useAttachmentContext();
@@ -45,86 +50,112 @@ const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
   }, [open, attachments.length]);
 
   return (
-    <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-gray-500 pb-4">
-        {t('media-attachments')}
-      </h4>
-      <div className="relative">
-        <div className="overflow-x-auto flex gap-4">
-          {attachments.map((attachment, index) => (
+    <div className="relative px-8">
+      <div
+        ref={scrollContainerRef}
+        className="flex gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {attachments.map((attachment, index) => {
+          const isRemoving = loading && removingUrl === attachment.url;
+
+          return (
             <div
-              className="group relative w-36 h-36 rounded-lg border border-gray-200 shadow-md shrink-0 cursor-zoom-in"
               key={attachment.url}
+              className="group relative size-36 shrink-0 cursor-zoom-in overflow-hidden rounded-lg border border-border bg-muted shadow-md"
               onClick={() => {
                 setCurrentIndex(index);
                 setOpen(true);
               }}
             >
               <img
-                className="w-full h-full object-cover"
+                className="size-full object-cover"
                 src={readImage(attachment.url)}
                 alt={attachment.name}
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                {loading && removingUrl === attachment.url ? (
+              <div
+                className={cn(
+                  'absolute inset-0 flex items-center justify-center bg-background/30 transition-opacity',
+                  isRemoving
+                    ? 'opacity-100'
+                    : 'opacity-0 group-hover:opacity-100',
+                )}
+              >
+                {isRemoving ? (
                   <Spinner />
                 ) : (
-                  <IconZoomIn size={28} className="text-white" />
+                  <IconZoomIn size={28} className="text-primary-foreground" />
                 )}
               </div>
 
               <Button
+                type="button"
                 variant="ghost"
-                onClick={(e) => {
-                  handleRemoveImage(e, attachment);
-                }}
-                className="absolute top-0 right-[-10px] bg-red-400 hover:bg-red-600 text-white rounded-full p-1 w-6 h-6 shadow-md z-10"
+                size="icon"
+                onClick={(e) => handleRemoveImage(e, attachment)}
+                className="absolute -right-0.5 top-0.5 z-10 size-6 rounded-full bg-destructive text-background shadow-md hover:bg-destructive/80 hover:text-background"
                 aria-label={t('remove-image', { name: attachment.name })}
               >
                 <IconX size={12} />
               </Button>
             </div>
-          ))}
-        </div>
-        <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 hidden lg:block">
-          <button
-            className="bg-white p-1 rounded-full shadow"
-            onClick={() => {
-              document.querySelector('.scrollable-media')?.scrollBy({
-                left: -150,
+          );
+        })}
+      </div>
+
+      {attachments.length > 1 && (
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute -left-4 top-1/2 hidden size-8 -translate-y-1/2 rounded-full bg-background shadow hover:bg-background lg:inline-flex"
+            onClick={() =>
+              scrollContainerRef.current?.scrollBy({
+                left: -160,
                 behavior: 'smooth',
-              });
-            }}
+              })
+            }
+            aria-label={t('previous')}
           >
             <IconChevronLeft size={20} />
-          </button>
-        </div>
-
-        <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 hidden lg:block">
-          <button
-            className="bg-white p-1 rounded-full shadow"
-            onClick={() => {
-              document.querySelector('.scrollable-media')?.scrollBy({
-                left: 150,
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute -right-4 top-1/2 hidden size-8 -translate-y-1/2 rounded-full bg-background shadow hover:bg-background lg:inline-flex"
+            onClick={() =>
+              scrollContainerRef.current?.scrollBy({
+                left: 160,
                 behavior: 'smooth',
-              });
-            }}
+              })
+            }
+            aria-label={t('next')}
           >
             <IconChevronRight size={20} />
-          </button>
-        </div>
+          </Button>
+        </>
+      )}
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <Dialog.Content className="bg-transparent max-w-fit shadow-none border-0">
-            <button
-              className="absolute top-4 right-4 bg-white p-1 rounded-full z-50"
-              onClick={() => setOpen(false)}
-            >
-              <IconX size={20} />
-            </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog.Content className="max-w-fit border-0 bg-transparent shadow-none">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-4 top-4 z-50 size-8 rounded-full bg-background hover:bg-background"
+            onClick={() => setOpen(false)}
+            aria-label={t('close')}
+          >
+            <IconX size={20} />
+          </Button>
 
-            <button
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-1 rounded-full z-50"
+          {attachments.length > 1 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute left-4 top-1/2 z-50 size-8 -translate-y-1/2 rounded-full bg-background hover:bg-background"
               onClick={() =>
                 setCurrentIndex(
                   currentIndex === 0
@@ -132,29 +163,36 @@ const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
                     : currentIndex - 1,
                 )
               }
+              aria-label={t('previous')}
             >
               <IconChevronLeft size={24} />
-            </button>
+            </Button>
+          )}
 
+          {currentAttachment && (
             <img
               src={readImage(currentAttachment.url)}
               alt={currentAttachment.name}
-              className="max-w-[90vw] max-h-[90vh] object-contain rounded shadow-lg"
+              className="max-h-[90vh] max-w-[90vw] rounded object-contain shadow-lg"
             />
+          )}
 
-            <button
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-1 rounded-full z-50"
+          {attachments.length > 1 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-1/2 z-50 size-8 -translate-y-1/2 rounded-full bg-background hover:bg-background"
               onClick={() =>
                 setCurrentIndex((currentIndex + 1) % attachments.length)
               }
+              aria-label={t('next')}
             >
               <IconChevronRight size={24} />
-            </button>
-          </Dialog.Content>
-        </Dialog>
-      </div>
+            </Button>
+          )}
+        </Dialog.Content>
+      </Dialog>
     </div>
   );
 };
-
-export default MediaAttachments;
