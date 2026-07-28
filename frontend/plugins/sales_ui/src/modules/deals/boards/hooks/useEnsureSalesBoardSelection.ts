@@ -30,6 +30,14 @@ export const useEnsureSalesBoardSelection = () => {
       pipelines[0];
     const selectedPipelineId = selectedPipeline?._id || null;
 
+    localStorage.setItem(CURRENT_BOARD_STORAGE_KEY, selectedBoard._id);
+
+    if (selectedPipelineId) {
+      localStorage.setItem(CURRENT_PIPELINE_STORAGE_KEY, selectedPipelineId);
+    } else {
+      localStorage.removeItem(CURRENT_PIPELINE_STORAGE_KEY);
+    }
+
     if (boardId === selectedBoard._id && pipelineId === selectedPipelineId) {
       return;
     }
@@ -50,12 +58,5 @@ export const useEnsureSalesBoardSelection = () => {
       },
       { replace: true },
     );
-    localStorage.setItem(CURRENT_BOARD_STORAGE_KEY, selectedBoard._id);
-
-    if (selectedPipelineId) {
-      localStorage.setItem(CURRENT_PIPELINE_STORAGE_KEY, selectedPipelineId);
-    } else {
-      localStorage.removeItem(CURRENT_PIPELINE_STORAGE_KEY);
-    }
   }, [boardId, boards, pipelineId, setSearchParams]);
 };

@@ -65,6 +65,9 @@ export const useVisitedPageTabs = () => {
       );
 
       if (tabPathname === activePathname) {
+        setTabs((currentTabs) =>
+          removeVisitedPageTab(currentTabs, tabPathname),
+        );
         navigate(
           closeDestination
             ? getVisitedPageTabLocation(closeDestination)

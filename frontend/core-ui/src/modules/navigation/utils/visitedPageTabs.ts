@@ -113,8 +113,17 @@ const isMatchingModulePath = (pathname: string, modulePath: string) =>
   pathname === modulePath || pathname.startsWith(`${modulePath}/`);
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
+const safeDecodeURIComponent = (value: string) => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 const toTitleCase = (value: string) =>
-  decodeURIComponent(value)
+  safeDecodeURIComponent(value)
     .split(/[-_]/)
     .filter(Boolean)
     .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)

@@ -74,7 +74,7 @@ export function SidebarNavigationFavoritesItem({
           'max-w-80 border bg-background px-3 py-2 text-foreground shadow-md',
         children: (
           <div className="flex items-start gap-2">
-            {Boolean(Icon) && <Icon className="mt-0.5 size-4 shrink-0" />}
+            {Icon && <Icon className="mt-0.5 size-4 shrink-0" />}
             <div className="min-w-0">
               <div className="font-medium">{breadcrumb[0]}</div>
               {breadcrumb.length > 1 && (

@@ -44,19 +44,33 @@ export const doesNavigationActivityMatchPath = (
 };
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
+const getLongestMatchingPathLength = (
+  activity: INavigationActivity,
+  normalizedPathname: string,
+) =>
+  Math.max(
+    ...getNavigationActivityPaths(activity)
+      .filter(
+        (path) =>
+          normalizedPathname === path ||
+          normalizedPathname.startsWith(`${path}/`),
+      )
+      .map((path) => path.length),
+    0,
+  );
+
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const findNavigationActivityByPath = (
   activities: INavigationActivity[],
   pathname: string,
-) =>
-  activities
-    .filter((activity) => doesNavigationActivityMatchPath(activity, pathname))
-    .sort((left, right) => {
-      // skipcq: JS-D1001 - Covered by repository documentation policy.
-      const longestPath = (activity: INavigationActivity) =>
-        Math.max(
-          ...getNavigationActivityPaths(activity).map((path) => path.length),
-          0,
-        );
+) => {
+  const normalizedPathname = normalizePath(pathname);
 
-      return longestPath(right) - longestPath(left);
-    })[0];
+  return activities
+    .filter((activity) => doesNavigationActivityMatchPath(activity, pathname))
+    .sort(
+      (left, right) =>
+        getLongestMatchingPathLength(right, normalizedPathname) -
+        getLongestMatchingPathLength(left, normalizedPathname),
+    )[0];
+};

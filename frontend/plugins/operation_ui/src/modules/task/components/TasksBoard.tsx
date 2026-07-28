@@ -49,7 +49,8 @@ export function TasksBoard() {
     setTasks([]);
     setAllTasksMap({});
     setTaskSortMap({});
-  }, [teamId, setAllTasksMap, setTaskSortMap, setTasks]);
+    setTaskCountByBoard({});
+  }, [teamId, setAllTasksMap, setTaskCountByBoard, setTaskSortMap, setTasks]);
 
   const { statuses, loading } = useGetStatusByTeam({
     variables: {
