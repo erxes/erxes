@@ -1,5 +1,3 @@
-// backend/plugins/sales_api/src/modules/sales/reports/reportUtils.ts
-
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import dayjs from 'dayjs';
 

@@ -4,6 +4,7 @@ import { buildDateFilter, buildDateGroup, getRelatedIds } from './reportUtils';
 import { IModels } from '../../../connectionResolvers';
 import { PROBABILITY_CLOSED, PROBABILITY_OPEN } from './reportConfig';
 import { IDealReportFilter } from '@/sales/reports/@types/reportFilters';
+import { buildUserAggregationResult } from './reportHelpers';
 
 const buildFullMatch = (filters: IDealReportFilter): Record<string, any> => {
   const dateField = filters.dateRangeType || 'createdAt';
@@ -368,26 +369,14 @@ export const dealAverageAmountByRep = async (
     { $sort: { averageAmount: -1 } },
   ];
   const result = await models.Deals.aggregate(pipeline);
-  if (!result.length) {
-    return { labels: [], datasets: [{ data: [] }] };
-  }
-  const userIds = result.map((r) => r._id);
-  const users = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'users',
-    action: 'find',
-    input: { query: { _id: { $in: userIds } } },
-    defaultValue: [],
-  });
-  const userMap = new Map(
-    users.map((u: any) => [u._id, u.details?.fullName || u.email]),
-  );
-  return {
-    labels: userIds.map((id) => userMap.get(id) || id),
-    datasets: [{ data: result.map((r) => r.averageAmount) }],
-  };
-};
+
+return buildUserAggregationResult({
+  result,
+  subdomain,
+  valueField: 'averageAmount',
+});
+
+}
 
 /**
  * 6. Leaderboard of closed deals amount by rep
@@ -419,25 +408,12 @@ export const dealLeaderBoardAmountClosedByRep = async (
     { $sort: { totalAmount: -1 } },
   ];
   const result = await models.Deals.aggregate(pipeline);
-  if (!result.length) {
-    return { labels: [], datasets: [{ data: [] }] };
-  }
-  const userIds = result.map((r) => r._id);
-  const users = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'users',
-    action: 'find',
-    input: { query: { _id: { $in: userIds } } },
-    defaultValue: [],
-  });
-  const userMap = new Map(
-    users.map((u: any) => [u._id, u.details?.fullName || u.email]),
-  );
-  return {
-    labels: userIds.map((id) => userMap.get(id) || id),
-    datasets: [{ data: result.map((r) => r.totalAmount) }],
-  };
+
+return buildUserAggregationResult({
+  result,
+  subdomain,
+  valueField: 'totalAmount',
+});
 };
 
 /**
@@ -461,25 +437,12 @@ export const dealsClosedLostByRep = async (
     { $sort: { count: -1 } },
   ];
   const result = await models.Deals.aggregate(pipeline);
-  if (!result.length) {
-    return { labels: [], datasets: [{ data: [] }] };
-  }
-  const userIds = result.map((r) => r._id);
-  const users = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'users',
-    action: 'find',
-    input: { query: { _id: { $in: userIds } } },
-    defaultValue: [],
-  });
-  const userMap = new Map(
-    users.map((u: any) => [u._id, u.details?.fullName || u.email]),
-  );
-  return {
-    labels: userIds.map((id) => userMap.get(id) || id),
-    datasets: [{ data: result.map((r) => r.count) }],
-  };
+
+return buildUserAggregationResult({
+  result,
+  subdomain,
+  valueField: 'count',
+});
 };
 
 /**
