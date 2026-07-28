@@ -1,14 +1,16 @@
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   DISCORD_BOT_CHANNELS,
   DISCORD_BOTS,
+  DISCORD_CHANNEL_MEMBERS,
   DISCORD_CONNECTED_SERVERS,
   DISCORD_CONVERSATION_CHANNEL,
   DISCORD_CONVERSATION_CHANNELS,
   DISCORD_CONVERSATION_PARTICIPANTS,
   DISCORD_GUILD_CHANNELS,
   DISCORD_GUILDS,
+  DISCORD_NAME_PRESETS,
   DISCORD_SERVERS,
   DISCORD_TAKEN_CHANNELS,
   DISCORD_VALIDATE_TOKEN,
@@ -20,6 +22,7 @@ export type DiscordTokenValidation = {
   botUsername?: string;
   applicationId?: string;
   hasMessageContentIntent?: boolean;
+  hasServerMembersIntent?: boolean;
   error?: string;
 };
 
@@ -109,6 +112,19 @@ export const useDiscordTakenChannels = (channelId?: string) => {
   return { takenChannelIds: data?.discordTakenChannels ?? [], loading };
 };
 
+export const useDiscordNamePresets = (channelId?: string) => {
+  const { data, loading, refetch } = useQuery<{ discordNamePresets: string[] }>(
+    DISCORD_NAME_PRESETS,
+    {
+      variables: { channelId: channelId as string },
+      skip: !channelId,
+      fetchPolicy: 'cache-and-network',
+    },
+  );
+
+  return { namePresets: data?.discordNamePresets ?? [], loading, refetch };
+};
+
 export const useDiscordBotChannels = (botId: string, skip: boolean) => {
   const { data, loading } = useQuery<{ discordBotChannels: DiscordChannel[] }>(
     DISCORD_BOT_CHANNELS,
@@ -146,25 +162,28 @@ export const useDiscordConversationChannel = (
   conversationId: string,
   skip: boolean,
 ) => {
-  const { data } = useQuery<{
+  const { data, loading } = useQuery<{
     discordConversationChannel: DiscordConversationChannel | null;
   }>(DISCORD_CONVERSATION_CHANNEL, {
     variables: { conversationId },
     skip,
   });
 
-  return data?.discordConversationChannel ?? undefined;
+  return {
+    channel: data?.discordConversationChannel ?? undefined,
+    loading: loading && !skip,
+  };
 };
 
 export const useDiscordConversationChannels = (conversationIds: string[]) => {
-  const { data } = useQuery<{
+  const { data, loading } = useQuery<{
     discordConversationChannels: DiscordConversationChannel[];
   }>(DISCORD_CONVERSATION_CHANNELS, {
     variables: { conversationIds },
     skip: conversationIds.length === 0,
   });
 
-  return useMemo(() => {
+  const channelMap = useMemo(() => {
     const map = new Map<string, DiscordConversationChannel>();
     for (const item of data?.discordConversationChannels ?? []) {
       if (item.conversationId) {
@@ -173,6 +192,8 @@ export const useDiscordConversationChannels = (conversationIds: string[]) => {
     }
     return map;
   }, [data]);
+
+  return { channelMap, loading };
 };
 
 export type DiscordParticipant = {
@@ -194,4 +215,85 @@ export const useDiscordConversationParticipants = (
   });
 
   return data?.discordConversationParticipants ?? [];
+};
+
+export type DiscordMemberStatus = 'OK' | 'FORBIDDEN' | 'TRUNCATED' | 'ERROR';
+
+export type DiscordChannelMembersResult = {
+  members: DiscordParticipant[];
+  status: DiscordMemberStatus;
+  truncated: boolean;
+};
+
+const findCachedPrefix = (
+  cache: Map<string, DiscordChannelMembersResult>,
+  query: string,
+): DiscordChannelMembersResult | null => {
+  for (let length = query.length; length > 0; length--) {
+    const entry = cache.get(query.slice(0, length));
+
+    if (entry && !entry.truncated) {
+      return entry;
+    }
+  }
+
+  return null;
+};
+
+export const useDiscordChannelMemberSearch = (
+  conversationId: string,
+  skip: boolean,
+) => {
+  const [fetchMembers] = useLazyQuery<{
+    discordChannelMembers: DiscordChannelMembersResult;
+  }>(DISCORD_CHANNEL_MEMBERS, { fetchPolicy: 'network-only' });
+
+  const cacheRef = useRef(new Map<string, DiscordChannelMembersResult>());
+  const [status, setStatus] = useState<DiscordMemberStatus>('OK');
+
+  useEffect(() => {
+    cacheRef.current.clear();
+    setStatus('OK');
+  }, [conversationId]);
+
+  const search = useCallback(
+    async (rawQuery: string): Promise<DiscordParticipant[]> => {
+      const query = rawQuery.trim();
+
+      if (skip || !query) {
+        return [];
+      }
+
+      const lowered = query.toLowerCase();
+      let result = findCachedPrefix(cacheRef.current, lowered);
+
+      if (!result) {
+        const previous = cacheRef.current.get(lowered.slice(0, 1));
+        const probe = previous?.truncated ? query : query.slice(0, 1);
+
+        const { data } = await fetchMembers({
+          variables: { conversationId, query: probe },
+        });
+
+        result = data?.discordChannelMembers ?? {
+          members: [],
+          status: 'ERROR',
+          truncated: false,
+        };
+
+        cacheRef.current.set(probe.toLowerCase(), result);
+      }
+
+      const resolved = result;
+
+      setStatus((prev) => (prev === resolved.status ? prev : resolved.status));
+
+      return resolved.members.filter((member) =>
+        (member.name || '').toLowerCase().includes(lowered),
+      );
+    },
+    [conversationId, fetchMembers, skip],
+  );
+
+  return { search, status };
 };

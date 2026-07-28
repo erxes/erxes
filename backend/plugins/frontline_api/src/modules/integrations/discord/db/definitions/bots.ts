@@ -14,6 +14,7 @@ const healthSchema = new Schema(
     lastVerifiedAt: { type: Date },
     lastError: { type: String },
     backfillPending: { type: Boolean },
+    missingIntents: { type: [String], default: undefined },
   },
   { _id: false },
 );

@@ -8,9 +8,12 @@ import {
 import {
   Alert,
   Button,
+  Combobox,
+  Command,
   Form,
   Input,
   MultipleSelector,
+  Popover,
   Select,
   Sheet,
   Spinner,
@@ -33,6 +36,7 @@ import {
   useDiscordConnectedServers,
   useDiscordGuildChannels,
   useDiscordGuilds,
+  useDiscordNamePresets,
   useDiscordTakenChannels,
   useDiscordValidateToken,
 } from '../hooks/useDiscordSetup';
@@ -54,6 +58,80 @@ const STEP_DETAILS = [
     description: 'Choose the channels and name this integration before saving.',
   },
 ];
+
+const NAME_PLACEHOLDER = 'e.g. Enterprise Support';
+
+const IntegrationNamePicker = ({
+  value,
+  onChange,
+  presets,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  presets: string[];
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const query = value.trim().toLowerCase();
+  const matches = query
+    ? presets.filter((preset) => preset.toLowerCase().includes(query))
+    : presets;
+  const exactMatch = presets.some((preset) => preset.toLowerCase() === query);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Form.Control>
+        <Combobox.Trigger className="w-full shadow-xs">
+          <Combobox.Value value={value} placeholder={NAME_PLACEHOLDER} />
+        </Combobox.Trigger>
+      </Form.Control>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.Input
+            value={value}
+            onValueChange={onChange}
+            placeholder="Type a new name or reuse an existing one"
+            focusOnMount
+          />
+          <Command.List>
+            {value.trim() && !exactMatch && (
+              <Command.Item
+                value={`use:${value.trim()}`}
+                onSelect={() => setOpen(false)}
+                className="font-medium"
+              >
+                <IconPlus />
+                Use “{value.trim()}”
+              </Command.Item>
+            )}
+            {matches.length > 0 && (
+              <Command.Group heading="Reuse a previous name">
+                {matches.map((preset) => (
+                  <Command.Item
+                    key={preset}
+                    value={preset}
+                    onSelect={() => {
+                      onChange(preset);
+                      setOpen(false);
+                    }}
+                  >
+                    <span className="flex-auto truncate">{preset}</span>
+                    <Combobox.Check checked={value.trim() === preset} />
+                  </Command.Item>
+                ))}
+              </Command.Group>
+            )}
+            {!value.trim() && presets.length === 0 && (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                No saved names yet.
+              </p>
+            )}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
 
 // skipcq: JS-R1005
 export const DiscordIntegrationDetail = () => {
@@ -93,6 +171,8 @@ export const DiscordIntegrationDetail = () => {
   const { connectedServers } = useDiscordConnectedServers(inboxChannelId);
   const { takenChannelIds: takenChannelIdList } =
     useDiscordTakenChannels(inboxChannelId);
+  const { namePresets, refetch: refetchNamePresets } =
+    useDiscordNamePresets(inboxChannelId);
 
   const takenChannelIds = useMemo(
     () => new Set(takenChannelIdList),
@@ -179,10 +259,10 @@ export const DiscordIntegrationDetail = () => {
         });
       }
 
+      void refetchNamePresets();
       setOpen(false);
       reset();
     } catch {
-      // error toast is surfaced by useIntegrationAdd
     }
   };
 
@@ -484,9 +564,20 @@ export const DiscordIntegrationDetail = () => {
                         render={({ field }) => (
                           <Form.Item>
                             <Form.Label>Integration name</Form.Label>
-                            <Form.Control>
-                              <Input {...field} />
-                            </Form.Control>
+                            {namePresets.length > 0 ? (
+                              <IntegrationNamePicker
+                                value={field.value}
+                                onChange={field.onChange}
+                                presets={namePresets}
+                              />
+                            ) : (
+                              <Form.Control>
+                                <Input
+                                  {...field}
+                                  placeholder={NAME_PLACEHOLDER}
+                                />
+                              </Form.Control>
+                            )}
                             <Form.Description>
                               Used as a prefix; each integration is named “
                               {'{name}'} - #channel”.

@@ -18,17 +18,14 @@ import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageE
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
+import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
 import { IconBrain, IconFile, IconSparkles } from '@tabler/icons-react';
 
-// erxes runs on Vite, not Next.js, so next/image (JS-W1015) doesn't apply here.
 const Img = (props: JSX.IntrinsicElements['img']) => (
   // skipcq: JS-W1015
   <img {...props} />
 );
 
-// The text bubble's background/spacing depends on who sent it (own/internal
-// note/bot) and whether an author/bot label already sits above it. Split out
-// of the component's JSX so this branching isn't counted against it.
 const getMessageBubbleClassName = ({
   userId,
   internal,
@@ -56,13 +53,12 @@ const getMessageBubbleClassName = ({
   );
 
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
-// poll / embed / author / bot labels); flattening them reads clearer than
-// splitting into helpers that each re-derive the same message fields.
 export const MessageItem = () => {
   const { previousMessage, nextMessage, ...message } =
     useConversationMessageContext();
   const {
     _id,
+    conversationId,
     userId,
     customerId,
     content,
@@ -82,9 +78,6 @@ export const MessageItem = () => {
   const poll = extraData?.poll;
   const embeds = extraData?.embeds;
 
-  // A structured bot reply (e.g. quick-reply/ticket-form driven) carries its
-  // readable text separately from its raw `content`; extract it for display,
-  // skipping non-text parts. Falls back to plain `content` otherwise.
   const botText = isBotMessage && botData?.length
     ? (botData as Array<{ type?: string; text?: string; content?: string }>)
         .filter((item) => item?.type !== 'quickReplies' && item?.type !== 'ticketForm')
@@ -102,24 +95,19 @@ export const MessageItem = () => {
       </MessageWrapper>
     );
 
-  // In a group conversation, label each customer's message cluster with its
-  // author so multiple senders are distinguishable.
   const showAuthorName = Boolean(
     isGroupConversation && !userId && customerId && separatePrevious,
   );
 
-  // Label an automation/AI reply so it reads as a bot answer, not a human one.
   const showBotName = Boolean(fromBot) && separatePrevious;
 
-  // A text bubble carries its own timestamp; an attachment-only message (empty
-  // content) renders just the file, so it needs the timestamp added separately.
-  const hasTextBubble = Boolean(displayContent) && displayContent !== HAS_ATTACHMENT;
+  const isDeleted = Boolean(extraData?.discordDeletedAt);
 
-  // Nothing to render — no text, attachments, poll, or embeds. This happens for
-  // system messages that slip through (e.g. a Discord member-join "just landed"
-  // message stored before ingest-time filtering existed): skip it entirely so it
-  // doesn't leave an empty bubble + author label in the thread.
+  const hasTextBubble =
+    !isDeleted && Boolean(displayContent) && displayContent !== HAS_ATTACHMENT;
+
   const hasRenderableContent =
+    isDeleted ||
     hasTextBubble ||
     Boolean(attachments?.length) ||
     Boolean(poll) ||
@@ -144,43 +132,82 @@ export const MessageItem = () => {
       )}
       {/* skipcq: JS-0357 */}
       <MessageWrapper>
-        <div className={cn('max-w-[428px]')} key={_id}>
-        {hasTextBubble ? (
-          <Button
-            variant="secondary"
-            className={getMessageBubbleClassName({
-              userId,
-              internal,
-              fromBot,
-              isBotMessage,
-              separatePrevious,
-              showAuthorName,
-              showBotName,
-            })}
-            asChild
-          >
-            <div>
-              <MessageContent content={displayContent} internal={internal} />
+        <div
+          className={cn(
+            'min-w-0 max-w-[428px]',
+            extraData?.discordMessageId && 'group relative',
+          )}
+          key={_id}
+        >
+          {extraData?.discordMessageId && !isDeleted && (
+            <div
+              className={cn(
+                'absolute bottom-0 z-10',
+                userId ? 'right-full mr-1' : 'left-full ml-1',
+              )}
+            >
+              <DiscordMessageActions
+                conversationId={conversationId || ''}
+                messageId={extraData.discordMessageId}
+                content={displayContent}
+                isOwnMessage={Boolean(userId) || Boolean(fromBot)}
+              />
+            </div>
+          )}
+          {isDeleted && (
+            <div
+              className={cn(
+                'mt-2 rounded-md border border-dashed px-3 py-2 text-sm italic text-muted-foreground',
+                separatePrevious &&
+                  (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
+              )}
+            >
+              Message deleted on Discord
               {separateNext && (
-                <div className="text-muted-foreground mt-1">
+                <div className="mt-1 text-xs not-italic">
                   <RelativeDateDisplay value={createdAt}>
                     <RelativeDateDisplay.Value value={createdAt} />
                   </RelativeDateDisplay>
                 </div>
               )}
             </div>
-          </Button>
-        ) : (
-          <div className={cn(separatePrevious ? 'mt-2' : 'mt-8')} />
-        )}
+          )}
+          {hasTextBubble ? (
+            <Button
+              variant="secondary"
+              className={getMessageBubbleClassName({
+                userId,
+                internal,
+                fromBot,
+                isBotMessage,
+                separatePrevious,
+                showAuthorName,
+                showBotName,
+              })}
+              asChild
+            >
+              <div>
+                <MessageContent content={displayContent} internal={internal} />
+                {separateNext && (
+                  <div className="text-muted-foreground mt-1">
+                    <RelativeDateDisplay value={createdAt}>
+                      <RelativeDateDisplay.Value value={createdAt} />
+                    </RelativeDateDisplay>
+                  </div>
+                )}
+              </div>
+            </Button>
+          ) : (
+            !isDeleted && (
+              <div className={cn(separatePrevious ? 'mt-2' : 'mt-8')} />
+            )
+          )}
           {/* skipcq: JS-0357 */}
-          <Attachments attachments={attachments} />
-          {poll && <MessagePoll poll={poll} />}
-          <MessageEmbeds embeds={embeds} />
-          {/* Attachment/poll/embed-only messages have no text bubble to host the
-              timestamp, so show it under the content for the cluster's last
-              message. */}
-          {!hasTextBubble &&
+          {!isDeleted && <Attachments attachments={attachments} />}
+          {!isDeleted && poll && <MessagePoll poll={poll} />}
+          {!isDeleted && <MessageEmbeds embeds={embeds} />}
+          {!isDeleted &&
+            !hasTextBubble &&
             separateNext &&
             (Boolean(attachments?.length) ||
               Boolean(poll) ||
@@ -212,21 +239,8 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
     isGroupConversation,
     isBotMessage,
   } = useConversationMessageContext();
-  // In a group conversation (Discord channel), there's no "our side" vs
-  // "their side" — every sender, including the bot, is just another poster
-  // in a shared channel and should render left-aligned like everyone else.
   const isOutgoing = !!userId || (isBotMessage && !isGroupConversation);
   const { customer } = useAtomValue(activeConversationState) || {};
-  // Resolve the avatar from the message's own customerId by passing `undefined`,
-  // which lets the provider fetch by id. We only short-circuit with the
-  // conversation's pre-loaded `customer` when it is actually this message's
-  // author (saves a fetch in a single-customer inbox). The id guard is required
-  // for Discord, where the conversation-level `customer` is not the author of
-  // every message: passing it unconditionally pins every avatar/name to that one
-  // customer (the provider ignores the per-id fetch once `customers` is set), so
-  // messages render the wrong sender until `activeConversationState` is cleared
-  // by a refresh. Never pass `[]`: that is treated as an already-resolved empty
-  // set, so the avatar silently disappears.
   const inlineCustomers =
     !isGroupConversation && customer && customer._id === customerId
       ? [customer]
@@ -237,9 +251,6 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
         'flex items-end w-full gap-3',
         isOutgoing ? 'justify-end' : 'justify-start',
         !separateNext && !isBotMessage && 'px-11',
-        // Reserve the avatar column (size-8 + gap-3 = pl-11) for a customer's
-        // non-last messages, which don't render an avatar, so every message in
-        // a cluster lines up with the avatar'd one instead of jumping left.
         !separateNext && Boolean(customerId) && 'pl-11',
         !customerId && 'pl-11',
         !isOutgoing && 'pr-11',
@@ -254,8 +265,6 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
           <CustomersInline.Avatar size="xl" />
         </CustomersInline.Provider>
       )}
-      {/* AI/automation replies have no customer or user; give them their own
-          bot avatar so they don't borrow a customer's identity. */}
       {Boolean(fromBot) && !customerId && separateNext && (
         <Avatar size="xl">
           <Avatar.Fallback className="bg-primary/10 text-primary">
@@ -284,8 +293,6 @@ const Attachments = ({ attachments }: { attachments?: IAttachment[] }) => {
     return null;
   }
 
-  // A lone attachment renders at its natural width/aspect ratio; multiples
-  // collapse into a uniform thumbnail grid.
   const single = attachments.length === 1;
 
   return (
@@ -345,9 +352,6 @@ const Attachment = ({
           type="button"
           className={cn(
             'overflow-hidden rounded bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
-            // Single image: hug the picture so it shows at its natural aspect
-            // ratio (no crop), capped to the bubble width. Multiple: square
-            // thumbnail cell in the grid.
             single ? 'w-fit max-w-full' : 'w-full aspect-square',
           )}
         >
