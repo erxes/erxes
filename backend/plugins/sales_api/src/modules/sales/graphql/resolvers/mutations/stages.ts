@@ -1,4 +1,5 @@
 import { IOrderInput } from 'erxes-api-shared/core-types';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IStageDocument } from '~/modules/sales/@types';
 import { bulkUpdateOrders } from '~/modules/sales/utils';
@@ -25,7 +26,26 @@ export const stageMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('stagesEdit');
-    return await models.Stages.updateStage(_id, doc);
+
+    const oldStage = await models.Stages.getStage(_id);
+    const updated = await models.Stages.updateStage(_id, doc);
+
+    // Archiving a stage takes a column off every open board, so tell the other
+    // sessions rather than leaving them on a pipeline that no longer matches.
+    if (doc.status && doc.status !== oldStage.status) {
+      await graphqlPubsub.publish(
+        `salesPipelinesChanged:${updated.pipelineId}`,
+        {
+          salesPipelinesChanged: {
+            _id: updated.pipelineId,
+            action: 'stageStatusChanged',
+            data: { stageId: updated._id, status: updated.status },
+          },
+        },
+      );
+    }
+
+    return updated;
   },
 
   /**

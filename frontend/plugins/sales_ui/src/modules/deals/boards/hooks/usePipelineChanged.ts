@@ -6,7 +6,7 @@ import {
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
 import { IDeal } from '@/deals/types/deals';
-import { useSubscription } from '@apollo/client';
+import { useApolloClient, useSubscription } from '@apollo/client';
 
 interface ISalesPipelinesChangedPayload {
   salesPipelinesChanged: {
@@ -18,6 +18,8 @@ interface ISalesPipelinesChangedPayload {
       aboveItemId?: string;
       destinationStageId: string;
       oldStageId?: string;
+      stageId?: string;
+      status?: string;
     };
   };
 }
@@ -25,6 +27,7 @@ interface ISalesPipelinesChangedPayload {
 export const usePipelineChanged = (pipelineId?: string) => {
   const [, setBoardState] = useDealsBoard();
   const [, setAllDealsMap] = useAllDealsMap();
+  const client = useApolloClient();
 
   useSubscription<ISalesPipelinesChangedPayload>(PIPELINE_CHANGED, {
     variables: { _id: pipelineId },
@@ -39,8 +42,16 @@ export const usePipelineChanged = (pipelineId?: string) => {
         return;
       }
 
+      // A stage was archived or restored, so the set of columns changed.
+      // Re-read the stages the board is built from; the column disappears or
+      // comes back without a page reload.
+      if (action === 'stageStatusChanged') {
+        client.refetchQueries({ include: ['SalesStages'] });
+        return;
+      }
+
       if (action !== 'orderUpdated') return;
-      
+
       const { item, aboveItemId, destinationStageId, oldStageId } = changeData;
 
       if (!item?._id || !destinationStageId) return;
