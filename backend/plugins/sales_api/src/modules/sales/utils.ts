@@ -605,6 +605,30 @@ export const generateProducts = async (
     defaultValue: [],
   });
 
+  const fieldIds = Array.from(
+    new Set(
+      allProducts.flatMap((product) =>
+        Object.keys(product.propertiesData || {}),
+      ),
+    ),
+  );
+  const fields: Array<{ _id: string; text?: string }> = fieldIds.length
+    ? await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'fields',
+        action: 'find',
+        input: {
+          query: {
+            _id: { $in: fieldIds },
+          },
+        },
+        defaultValue: [],
+      })
+    : [];
+  const fieldsById = new Map(fields.map((field) => [field._id, field]));
+
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
@@ -619,28 +643,12 @@ export const generateProducts = async (
 
     const properties: any = {};
 
-    const fieldIds: string[] = Object.keys(propertiesData || {});
-
-    const fields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'find',
-      input: {
-        query: {
-          _id: { $in: fieldIds },
-        },
-      },
-      defaultValue: [],
-    });
-
-    for (const fieldId of fieldIds || []) {
-      const field = fields.find((f) => f._id === fieldId);
+    for (const fieldId of Object.keys(propertiesData || {})) {
+      const field = fieldsById.get(fieldId);
 
       if (field) {
         properties[fieldId] = {
-          text: field.text,
+          text: field.text || '',
           data: propertiesData[fieldId],
         };
       }

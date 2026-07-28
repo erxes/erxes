@@ -679,6 +679,7 @@
   "sort-alphabetically": "Цагаан толгойн дарааллаар",
   "showing-of": "{{current}}-г {{total}}-аас харуулж байна",
   "please-select-document": "Баримт сонгоно уу",
+  "please-select-at-least-one-deal": "Дор хаяж нэг хэлцэл сонгоно уу",
   "an-error-occurred": "Алдаа гарлаа",
   "public": "Нийтийн",
   "private": "Хувийн",
