@@ -80,7 +80,10 @@ export const DealsBoard = () => {
     useColumnPagination(PAGE_SIZE);
 
   const queryVariables = useMemo(
-    () => getDealsQueryVariables(searchParams),
+    () =>
+      getDealsQueryVariables(searchParams, {
+        includeArchivedMode: false,
+      }),
     [searchParams],
   );
 
@@ -238,8 +241,7 @@ export const DealsBoard = () => {
         });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setBoardState, setAllDealsMap],
+    [changeDeals, setBoardState, setAllDealsMap, updateStagesOrder],
   );
 
   const columnPaginationState = useMemo((): Record<

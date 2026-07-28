@@ -51,6 +51,7 @@ const queryParams = `
   stageChangedStartDate: Date
   stageChangedEndDate: Date
   noSkipArchive: Boolean
+  archivedOnly: Boolean
   tagIds: [String]
   number: String
   branchIds: [String]

@@ -71,6 +71,7 @@ export const generateFilter = async (
     stageChangedStartDate,
     stageChangedEndDate,
     noSkipArchive,
+    archivedOnly,
     number,
     branchIds,
     departmentIds,
@@ -88,12 +89,17 @@ export const generateFilter = async (
     closeDateEndDate,
     source,
   } = params;
-  Object.assign(
-    filter,
-    noSkipArchive
-      ? {}
-      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
-  );
+  if (archivedOnly) {
+    Object.assign(filter, {
+      status: SALES_STATUSES.ARCHIVED,
+      parentId: undefined,
+    });
+  } else if (!noSkipArchive) {
+    Object.assign(filter, {
+      status: { $ne: SALES_STATUSES.ARCHIVED },
+      parentId: undefined,
+    });
+  }
 
   let filterIds: string[] = [];
 
@@ -369,7 +375,6 @@ export const generateFilter = async (
   if (tagIds) {
     filter.tagIds = { $in: tagIds };
   }
-
 
   if (pipelineId && !forClientPortal) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
@@ -683,7 +688,7 @@ const fetchDeals = async (
   const { search, noSkipArchive } = args;
 
   if (noSkipArchive && search) {
-    args.orderBy = { status: 1, ...args.orderBy }
+    args.orderBy = { status: 1, ...args.orderBy };
   }
 
   const filter = await generateFilter(

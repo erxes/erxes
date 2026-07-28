@@ -9,7 +9,7 @@ import {
 } from 'erxes-ui';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
@@ -25,6 +25,11 @@ interface IDealChanged {
     deal: IDeal;
   };
 }
+
+const withResolvedFieldsOnly = (deal: IDeal): Partial<IDeal> =>
+  Object.fromEntries(
+    Object.entries(deal).filter(([, value]) => value !== null),
+  ) as Partial<IDeal>;
 
 export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
@@ -54,24 +59,28 @@ export const useDeals = (
 
   const { list: deals, pageInfo, totalCount } = data?.deals || {};
 
-  const subscriptionVars = useMemo(
-    () => ({
-      pipelineId: lastPipelineId,
-      userId: currentUser?._id,
-      filter: options?.variables,
-    }),
-    [lastPipelineId, currentUser?._id, options?.variables],
-  );
+  const filterVariables = options?.variables;
+  const subscriptionKey = JSON.stringify({
+    pipelineId: lastPipelineId,
+    userId: currentUser?._id,
+    filter: filterVariables ?? {},
+  });
+  const filterVariablesRef = useRef(filterVariables);
+  filterVariablesRef.current = filterVariables;
 
-  // Whether this query is one of the lists that shows archived deals.
-  const dropsArchived = !options?.variables?.noSkipArchive;
+  const dropsArchived =
+    !filterVariables?.noSkipArchive && !filterVariables?.archivedOnly;
 
   useEffect(() => {
-    if (!currentUser?._id) return;
+    if (!currentUser?._id || !lastPipelineId) return;
 
     const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
-      variables: subscriptionVars,
+      variables: {
+        pipelineId: lastPipelineId,
+        userId: currentUser._id,
+        filter: filterVariablesRef.current,
+      },
 
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
@@ -79,14 +88,13 @@ export const useDeals = (
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
         const currentList = prev.deals.list;
+        const changedDeal = deal ? withResolvedFieldsOnly(deal) : {};
 
-        // A list that excludes archived deals must drop one the moment it is
-        // archived, whichever action the server derived. The server compares
-        // the deal against this subscription's filter to label the event, so a
-        // filter mismatch would otherwise leave an archived card on the board.
         const isArchived = deal?.status === 'archived';
         const resolvedAction =
-          dropsArchived && isArchived && action !== 'remove' ? 'remove' : action;
+          dropsArchived && isArchived && action !== 'remove'
+            ? 'remove'
+            : action;
 
         let updatedList = currentList;
         let added = false;
@@ -97,7 +105,7 @@ export const useDeals = (
             (item: IDeal) => item._id === deal._id,
           );
           if (!exists) {
-            const merged = [...currentList, deal];
+            const merged = [...currentList, changedDeal as IDeal];
             merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
             updatedList = merged;
             added = true;
@@ -106,7 +114,7 @@ export const useDeals = (
 
         if (resolvedAction === 'edit') {
           updatedList = currentList.map((item: IDeal) =>
-            item._id === deal._id ? { ...item, ...deal } : item,
+            item._id === deal._id ? { ...item, ...changedDeal } : item,
           );
           updatedList.sort(
             (a: IDeal, b: IDeal) => (a.order ?? 0) - (b.order ?? 0),
@@ -139,7 +147,13 @@ export const useDeals = (
     });
 
     return unsubscribe;
-  }, [currentUser?._id, dropsArchived, subscribeToMore, subscriptionVars]);
+  }, [
+    currentUser?._id,
+    dropsArchived,
+    lastPipelineId,
+    subscribeToMore,
+    subscriptionKey,
+  ]);
 
   const handleFetchMore = ({
     direction,
