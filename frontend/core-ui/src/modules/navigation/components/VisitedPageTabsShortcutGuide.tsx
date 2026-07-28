@@ -4,7 +4,6 @@ import { Button, HoverCard, Kbd } from 'erxes-ui';
 import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const VisitedPageTabsShortcutGuide = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const modifierKeys = isMacPlatform() ? ['⌘', '⌥'] : ['Ctrl', 'Alt'];

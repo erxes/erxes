@@ -7,7 +7,6 @@ import { Sidebar, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { Outlet } from 'react-router';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationWorkspace = () => {
   const { isMobile } = Sidebar.useSidebar();
 
@@ -24,7 +23,6 @@ const NavigationWorkspace = () => {
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useAtom(navigationSidebarOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');

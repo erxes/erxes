@@ -31,7 +31,6 @@ type CollapseState = 'expanded' | 'compact' | 'collapsed';
 
 const COLLAPSE_ORDER: CollapseState[] = ['expanded', 'compact', 'collapsed'];
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const nextCollapseState = (prev: CollapseState): CollapseState =>
   COLLAPSE_ORDER[(COLLAPSE_ORDER.indexOf(prev) + 1) % COLLAPSE_ORDER.length];
 
@@ -48,12 +47,10 @@ type ISidebarContext = {
 
 const SidebarContext = React.createContext<ISidebarContext | null>(null);
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 function useOptionalSidebar() {
   return React.useContext(SidebarContext);
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 function useSidebar() {
   const context = useOptionalSidebar();
   if (!context) {

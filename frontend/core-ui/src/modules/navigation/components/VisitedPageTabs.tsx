@@ -40,7 +40,6 @@ import type { ElementType } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const SortableVisitedPageTab = ({
   canClose,
   closeAriaShortcut,
@@ -140,7 +139,6 @@ const SortableVisitedPageTab = ({
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const VisitedPageTabs = () => {
   const { i18n, t } = useTranslation('common');
   const activities = useNavigationActivities();
@@ -178,7 +176,6 @@ export const VisitedPageTabs = () => {
   const closeAriaShortcut = isMac ? 'Meta+Alt+W' : 'Control+Alt+W';
   const closeShortcutLabel = isMac ? '⌘ ⌥ W' : 'Ctrl Alt W';
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (
       !over ||
@@ -193,7 +190,6 @@ export const VisitedPageTabs = () => {
   };
 
   useEffect(() => {
-    // skipcq: JS-D1001 - Covered by repository documentation policy.
     const handleTabShortcut = (
       event: KeyboardEvent,
       tabShortcut: NonNullable<ReturnType<typeof getVisitedPageTabShortcut>>,
@@ -228,7 +224,6 @@ export const VisitedPageTabs = () => {
       }
     };
 
-    // skipcq: JS-D1001 - Covered by repository documentation policy.
     const handleKeyboardShortcut = (event: KeyboardEvent) => {
       if (isVisitedPageTabShortcutTargetEditable(event.target)) {
         return;

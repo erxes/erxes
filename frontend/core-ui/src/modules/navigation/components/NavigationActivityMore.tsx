@@ -5,7 +5,6 @@ import { Button, cn, Popover, ScrollArea, Separator } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationActivityMoreGroup = ({
   activities,
   isActivityPinned,
@@ -60,7 +59,6 @@ const NavigationActivityMoreGroup = ({
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationActivityMore = ({
   activities,
   expanded,
@@ -87,7 +85,6 @@ export const NavigationActivityMore = ({
     return null;
   }
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const selectActivity = (activity: INavigationActivity) => {
     onSelect(activity);
     setOpen(false);

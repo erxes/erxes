@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationSidebarFooter = ({
   expanded,
   isSettings,

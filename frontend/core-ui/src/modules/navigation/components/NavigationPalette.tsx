@@ -7,7 +7,6 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationPalette = ({
   open,
   onOpenChange,
@@ -22,7 +21,6 @@ export const NavigationPalette = ({
   const navigate = useNavigate();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const openActivity = (activityId: string, path: string) => {
     setActiveActivityId(activityId);
     navigate(`/${path.replace(/^\/+/, '')}`);

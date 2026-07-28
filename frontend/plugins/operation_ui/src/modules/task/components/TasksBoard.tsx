@@ -34,7 +34,6 @@ export const allTasksMapState = atom<Record<string, ITask>>({});
 
 const taskSortMapState = atom<Record<string, string>>({});
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function TasksBoard() {
   const { t } = useTranslation('operation');
   const { teamId } = useParams();
@@ -66,7 +65,6 @@ export function TasksBoard() {
     color: status.color,
   }));
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) {
@@ -149,7 +147,6 @@ export function TasksBoard() {
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function TasksBoardCards({
   column,
 }: Readonly<{ column: BoardColumnProps }>) {
@@ -276,7 +273,6 @@ export function TasksBoardCards({
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function TaskCardsFetchMore({
   totalCount,
   handleFetchMore,
@@ -301,12 +297,10 @@ export function TaskCardsFetchMore({
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 function TaskCreateSheetTrigger({ status }: Readonly<{ status: string }>) {
   const setOpenCreateTask = useSetAtom(taskCreateSheetState);
   const setDefaultValues = useSetAtom(taskCreateDefaultValuesState);
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleClick = () => {
     setDefaultValues({ status });
     setOpenCreateTask(true);

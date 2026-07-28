@@ -11,7 +11,6 @@ import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationPanel = () => {
   const activities = useNavigationActivities();
   const navigationGroups = usePluginsNavigationGroups();

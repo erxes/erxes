@@ -3,7 +3,6 @@ import { IconPin, IconPinFilled } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationActivityPinButton = ({
   activity,
   className,

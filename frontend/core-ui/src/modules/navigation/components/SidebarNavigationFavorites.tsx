@@ -1,7 +1,6 @@
 import { cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SidebarNavigationFavorites({
   expanded,
 }: Readonly<{
@@ -26,7 +25,6 @@ export function SidebarNavigationFavorites({
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SidebarNavigationFavoritesItem({
   name,
   breadcrumb,

@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { currentOrganizationState } from 'ui-modules';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationRailLogo = ({ expanded }: { expanded: boolean }) => {
   const organization = useAtomValue(currentOrganizationState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });

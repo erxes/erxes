@@ -5,7 +5,6 @@ import { Button, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const MyInboxHeader = () => {
   const { t } = useTranslation('common');
   return (

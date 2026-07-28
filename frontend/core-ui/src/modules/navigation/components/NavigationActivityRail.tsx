@@ -22,7 +22,6 @@ import { useTranslation } from 'react-i18next';
 
 const HOVER_PREVIEW_HANDOFF_DELAY = 60;
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationSectionHeading = ({
   expanded,
   label,
@@ -55,7 +54,6 @@ const NavigationSectionHeading = ({
   </div>
 );
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationActivityPeek = ({
   activity,
   pinned,
@@ -99,7 +97,6 @@ const NavigationActivityPeek = ({
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationActivityButton = ({
   activity,
   active,
@@ -168,7 +165,6 @@ const NavigationActivityButton = ({
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationActivityHover = ({
   activity,
   active,
@@ -219,7 +215,6 @@ const NavigationActivityHover = ({
 
   useEffect(() => clearCloseTimeout, [clearCloseTimeout]);
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleSelect = () => {
     clearCloseTimeout();
     onClose();
@@ -266,7 +261,6 @@ const NavigationActivityHover = ({
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationActivityRail = ({
   activities,
   activeActivityId,

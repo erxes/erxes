@@ -1,7 +1,6 @@
 import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
 import { Sidebar } from 'erxes-ui';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationPluginPanelContent = ({
   activityId,
 }: {

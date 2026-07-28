@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const usePluginsModules = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
   const { isLoaded, hasPluginPermission, isWildcard } = usePermissionCheck();
@@ -51,7 +50,6 @@ export interface NavigationGroupResult {
 
 type NavigationGroups = Record<string, NavigationGroupResult>;
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const usePluginsNavigationGroups = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
   const { isLoaded, hasPluginPermission, isWildcard } = usePermissionCheck();

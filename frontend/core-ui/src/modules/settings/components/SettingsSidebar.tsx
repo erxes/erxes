@@ -25,7 +25,6 @@ const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SettingsSidebar({
   hideExit = false,
 }: Readonly<{ hideExit?: boolean }>) {
@@ -39,7 +38,6 @@ export function SettingsSidebar({
   const CORE_MODULES = GET_CORE_MODULES(t, version);
   const sidebar = useMemo(() => GET_SETTINGS_PATH_DATA(version, t), [t]);
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const filterByPermission = (items: typeof sidebar.nav) => {
     if (!isLoaded || isWildcard) return items;
     return items.filter((item) => {
@@ -122,7 +120,6 @@ export function SettingsSidebar({
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SettingsNavigationGroup({
   name,
   children,
@@ -142,12 +139,10 @@ export function SettingsNavigationGroup({
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SettingsExitButton() {
   const navigate = useNavigate();
   const pageHistory = usePageTrackerStore((state) => state.pageHistory);
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleExitSettings = () =>
     navigate(
       [...pageHistory].reverse().find((page) => !page.includes('settings')) ||

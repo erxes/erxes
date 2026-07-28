@@ -1,4 +1,3 @@
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const resolvePinnedNavigationActivityIds = (
   storedActivityIds: string[] | null,
   availableActivityIds: string[],
@@ -14,13 +13,11 @@ export const resolvePinnedNavigationActivityIds = (
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const resolveVisibleNavigationActivityIds = (
   pinnedActivityIds: string[],
   availableActivityIds: string[],
 ) => (pinnedActivityIds.length > 0 ? pinnedActivityIds : availableActivityIds);
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const updatePinnedNavigationActivityIds = ({
   activityId,
   availableActivityIds,
