@@ -194,6 +194,41 @@ export const VisitedPageTabs = () => {
 
   useEffect(() => {
     // skipcq: JS-D1001 - Covered by repository documentation policy.
+    const handleTabShortcut = (
+      event: KeyboardEvent,
+      tabShortcut: NonNullable<ReturnType<typeof getVisitedPageTabShortcut>>,
+    ) => {
+      event.preventDefault();
+
+      if (event.repeat) {
+        return;
+      }
+
+      if (tabShortcut === 'close-all') {
+        closeAllVisitedPageTabs();
+        return;
+      }
+
+      if (tabShortcut === 'close-current') {
+        if (tabs.length > 1) {
+          closeVisitedPageTab(activePathname);
+        }
+
+        return;
+      }
+
+      const destinationPathname = getAdjacentVisitedPageTabPathname(
+        tabs,
+        activePathname,
+        tabShortcut,
+      );
+
+      if (destinationPathname) {
+        openVisitedPageTab(destinationPathname);
+      }
+    };
+
+    // skipcq: JS-D1001 - Covered by repository documentation policy.
     const handleKeyboardShortcut = (event: KeyboardEvent) => {
       if (isVisitedPageTabShortcutTargetEditable(event.target)) {
         return;
@@ -202,35 +237,7 @@ export const VisitedPageTabs = () => {
       const tabShortcut = getVisitedPageTabShortcut(event);
 
       if (tabShortcut) {
-        event.preventDefault();
-
-        if (event.repeat) {
-          return;
-        }
-
-        if (tabShortcut === 'close-all') {
-          closeAllVisitedPageTabs();
-          return;
-        }
-
-        if (tabShortcut === 'close-current') {
-          if (tabs.length > 1) {
-            closeVisitedPageTab(activePathname);
-          }
-
-          return;
-        }
-
-        const destinationPathname = getAdjacentVisitedPageTabPathname(
-          tabs,
-          activePathname,
-          tabShortcut,
-        );
-
-        if (destinationPathname) {
-          openVisitedPageTab(destinationPathname);
-        }
-
+        handleTabShortcut(event, tabShortcut);
         return;
       }
 

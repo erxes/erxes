@@ -4,9 +4,9 @@ import { useFavorites } from '../hooks/useFavorites';
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SidebarNavigationFavorites({
   expanded,
-}: {
+}: Readonly<{
   expanded: boolean;
-}) {
+}>) {
   const favorites = useFavorites();
 
   return (
@@ -33,13 +33,13 @@ export function SidebarNavigationFavoritesItem({
   icon,
   path,
   expanded,
-}: {
+}: Readonly<{
   name: string;
   breadcrumb: string[];
   icon?: React.ElementType;
   path: string;
   expanded: boolean;
-}) {
+}>) {
   const Icon = icon;
   const pathWithoutUi = path.replace('_ui', '');
   const sidebarLabel =

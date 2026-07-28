@@ -149,7 +149,9 @@ export function TasksBoard() {
 }
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
-export function TasksBoardCards({ column }: { column: BoardColumnProps }) {
+export function TasksBoardCards({
+  column,
+}: Readonly<{ column: BoardColumnProps }>) {
   const currentUser = useAtomValue(currentUserState);
   const { projectId, cycleId } = useParams();
   const [taskCards, setTaskCards] = useAtom(fetchedTasksState);
@@ -206,13 +208,10 @@ export function TasksBoardCards({ column }: { column: BoardColumnProps }) {
         ];
       });
       setAllTasksMap((prev) => {
-        const newTasks = tasks.reduce(
-          (acc, task) => {
-            acc[task._id] = task;
-            return acc;
-          },
-          {} as Record<string, ITask>,
-        );
+        const newTasks = tasks.reduce((acc, task) => {
+          acc[task._id] = task;
+          return acc;
+        }, {} as Record<string, ITask>);
         return { ...prev, ...newTasks };
       });
     }
@@ -278,11 +277,11 @@ export function TaskCardsFetchMore({
   totalCount,
   handleFetchMore,
   currentLength,
-}: {
+}: Readonly<{
   totalCount: number;
   handleFetchMore: () => void;
   currentLength: number;
-}) {
+}>) {
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
   });
@@ -299,7 +298,7 @@ export function TaskCardsFetchMore({
 }
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
-function TaskCreateSheetTrigger({ status }: { status: string }) {
+function TaskCreateSheetTrigger({ status }: Readonly<{ status: string }>) {
   const setOpenCreateTask = useSetAtom(taskCreateSheetState);
   const setDefaultValues = useSetAtom(taskCreateDefaultValuesState);
 

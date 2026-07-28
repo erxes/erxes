@@ -32,7 +32,7 @@ export const PageHeaderStart = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ children, className, ...props }, ref) => {
-  const { isMobile } = Sidebar.useSidebar();
+  const sidebar = Sidebar.useOptionalSidebar();
 
   return (
     <div
@@ -40,7 +40,7 @@ export const PageHeaderStart = React.forwardRef<
       className={cn('flex items-center gap-2 flex-none pr-8', className)}
       {...props}
     >
-      {isMobile && (
+      {sidebar?.isMobile && (
         <>
           <Sidebar.Trigger />
           <Separator.Inline />

@@ -49,8 +49,13 @@ type ISidebarContext = {
 const SidebarContext = React.createContext<ISidebarContext | null>(null);
 
 // skipcq: JS-D1001 - Covered by repository documentation policy.
+function useOptionalSidebar() {
+  return React.useContext(SidebarContext);
+}
+
+// skipcq: JS-D1001 - Covered by repository documentation policy.
 function useSidebar() {
-  const context = React.useContext(SidebarContext);
+  const context = useOptionalSidebar();
   if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.');
   }
@@ -846,5 +851,6 @@ export const Sidebar = Object.assign(SidebarRoot, {
   Rail: SidebarRail,
   Separator: SidebarSeparator,
   Trigger: SidebarTrigger,
+  useOptionalSidebar,
   useSidebar,
 });
