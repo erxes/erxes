@@ -5,7 +5,7 @@ import { navigationPanelOpenState } from '@/navigation/states/navigationPanelSta
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
 import { Button, cn, ScrollArea, Sidebar } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -86,7 +86,7 @@ export const NavigationPanel = () => {
           title={toggleLabel}
           variant="ghost"
         >
-          {panelOpen ? <IconChevronLeft /> : <IconChevronRight />}
+          {panelOpen ? <IconChevronsLeft /> : <IconChevronsRight />}
         </Button>
       </header>
       {panelOpen && panelContent}

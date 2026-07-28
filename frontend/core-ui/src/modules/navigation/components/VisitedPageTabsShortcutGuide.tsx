@@ -27,35 +27,37 @@ export const VisitedPageTabsShortcutGuide = () => {
           <IconKeyboard className="size-4" />
         </Button>
       </HoverCard.Trigger>
-      <HoverCard.Content align="end" className="w-72 p-1" side="bottom">
-        <div className="px-2 py-1.5 text-xs font-medium text-accent-foreground">
+      <HoverCard.Content align="end" className="w-80 p-0" side="bottom">
+        <div className="border-b px-3 py-2 text-xs font-medium text-muted-foreground">
           {t('tab-shortcuts')}
         </div>
-        <div className="-mx-1 my-1 h-px bg-muted" />
-        {shortcuts.map(({ label, shortcutKey }) => (
-          <div
-            className="grid h-9 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-sm px-2 text-sm font-medium"
-            key={shortcutKey}
-          >
-            <span className="whitespace-nowrap">{label}</span>
-            <Kbd className="h-6 gap-1.5 border-primary/25 bg-primary/10 px-2 font-mono text-foreground opacity-100 shadow-none">
-              {[...modifierKeys, shortcutKey].map((key, index) => (
-                <Fragment key={`${shortcutKey}-${key}`}>
-                  {index > 0 && (
-                    <span className="text-muted-foreground">+</span>
-                  )}
-                  <span
-                    className={
-                      index === modifierKeys.length ? 'text-primary' : undefined
-                    }
-                  >
-                    {key}
-                  </span>
-                </Fragment>
-              ))}
-            </Kbd>
-          </div>
-        ))}
+        <div className="py-1">
+          {shortcuts.map(({ label, shortcutKey }) => (
+            <div
+              className="flex min-h-9 items-center justify-between gap-6 px-3 py-1.5"
+              key={shortcutKey}
+            >
+              <span className="text-[13px] text-foreground">{label}</span>
+              <span className="flex shrink-0 items-center gap-1">
+                {[...modifierKeys, shortcutKey].map((key, index) => (
+                  <Fragment key={`${shortcutKey}-${key}`}>
+                    {index > 0 && (
+                      <span className="text-[10px] text-muted-foreground">
+                        +
+                      </span>
+                    )}
+                    <Kbd
+                      className="h-5 min-w-5 rounded border-border bg-muted px-1.5 font-mono text-[11px] font-medium text-foreground opacity-100 shadow-xs"
+                      variant="foreground"
+                    >
+                      {key}
+                    </Kbd>
+                  </Fragment>
+                ))}
+              </span>
+            </div>
+          ))}
+        </div>
       </HoverCard.Content>
     </HoverCard>
   );
