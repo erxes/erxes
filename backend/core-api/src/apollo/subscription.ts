@@ -5,6 +5,7 @@ export default {
             notificationRead(userId: String): JSON
             notificationArchived(userId: String): JSON
             activityLogInserted(userId: String, targetId: String): ActivityLog
+            userStatusChanged(_id: String!): User
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -60,6 +61,11 @@ export default {
             `activityLogInserted:${subdomain}:${userId}`,
           );
         },
+      },
+      userStatusChanged: {
+        resolve: (payload) => payload.userStatusChanged,
+        subscribe: (_, { _id }, { subdomain }) =>
+          graphqlPubsub.asyncIterator(`userStatusChanged:${subdomain}:${_id}`),
       },
     };
   },

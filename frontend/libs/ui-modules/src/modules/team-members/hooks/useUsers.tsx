@@ -1,13 +1,16 @@
+import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
   mergeCursorData,
   validateFetchMore,
 } from 'erxes-ui';
-import { GET_ASSIGNED_MEMBER, GET_USERS } from '../graphql/queries/userQueries';
-import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
 
-import { IUser } from '../types/TeamMembers';
+import {
+  GET_ASSIGNED_MEMBER,
+  GET_USERS,
+} from 'ui-modules/modules/team-members/graphql/queries/userQueries';
+import { IUser } from 'ui-modules/modules/team-members/types/TeamMembers';
 
 const USERS_LIMIT = 30;
 
@@ -63,7 +66,13 @@ export const useUsers = (
 
 export const useAssignedMember = (options?: OperationVariables) => {
   const { data, loading, error } = useQuery(GET_ASSIGNED_MEMBER, options);
-  return { details: data?.userDetail?.details, loading, error };
+  const userDetail = data?.userDetail;
+
+  return {
+    details: userDetail?.isActive === false ? undefined : userDetail?.details,
+    loading,
+    error,
+  };
 };
 
 export interface IUserInlineData {

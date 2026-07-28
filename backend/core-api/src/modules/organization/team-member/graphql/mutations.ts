@@ -11,6 +11,7 @@ import {
   getPlugin,
   getPlugins,
   getSaasOrganizationDetail,
+  graphqlPubsub,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
@@ -245,7 +246,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersSetActiveStatus(
     _parent: undefined,
     { _id }: { _id: string },
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('teamMembersRemove');
 
@@ -255,13 +256,17 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
 
     const updatedUser = await models.Users.setUserActiveOrInactive(_id);
 
+    await graphqlPubsub.publish(`userStatusChanged:${subdomain}:${_id}`, {
+      userStatusChanged: updatedUser,
+    });
+
     return updatedUser;
   },
 
   async usersSetActiveStatusBatch(
     _parent: undefined,
     { _ids }: { _ids: string[] },
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('teamMembersRemove');
 
@@ -275,7 +280,11 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       const targetUser = await models.Users.findOne({ _id });
 
       if (targetUser && targetUser.isActive !== false) {
-        await models.Users.setUserActiveOrInactive(_id);
+        const updatedUser = await models.Users.setUserActiveOrInactive(_id);
+
+        await graphqlPubsub.publish(`userStatusChanged:${subdomain}:${_id}`, {
+          userStatusChanged: updatedUser,
+        });
       }
     }
 
