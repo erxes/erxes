@@ -16,12 +16,21 @@ import {
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
 import { useManageRelations } from 'ui-modules';
-import type { IProductData } from 'ui-modules';
-import { DealCardDetails } from './DealsBoardCardDetails';
+import {
+  type DealCardDetailItem,
+  DealCardDetails,
+  DealCardProducts,
+  DealCardRelationDetails,
+} from './DealsBoardCardDetails';
 import { useTranslation } from 'react-i18next';
 
 interface DealsBoardCardProps {
   deal: IDeal;
+}
+
+interface DealProductReference {
+  _id: string;
+  name?: string;
 }
 
 const normalizeSelectedIds = (value?: string | string[]) => {
@@ -32,14 +41,49 @@ const normalizeSelectedIds = (value?: string | string[]) => {
   return Array.isArray(value) ? value : [value];
 };
 
+const normalizeCustomProperty = (
+  property: unknown,
+  index: number,
+): DealCardDetailItem | null => {
+  if (typeof property !== 'object' || property === null) {
+    return null;
+  }
+
+  const name = Reflect.get(property, 'name');
+
+  if (typeof name !== 'string' || !name.trim()) {
+    return null;
+  }
+
+  const id = Reflect.get(property, '_id');
+  const colorCode = Reflect.get(property, 'colorCode');
+
+  return {
+    _id: typeof id === 'string' ? id : `custom-property-${index}`,
+    name: name.trim(),
+    colorCode: typeof colorCode === 'string' ? colorCode : undefined,
+  };
+};
+
 const CardDetails = ({ deal }: { deal: IDeal }) => {
   const { t } = useTranslation('sales');
-  const { companies, customers, tags, customProperties } = deal;
+  const {
+    branches,
+    companies,
+    customers,
+    departments,
+    tags,
+    customProperties,
+  } = deal;
 
-  const productMap = new Map(deal.products?.map((p) => [p._id, p]));
+  const productMap = new Map(
+    deal.products?.map((product: DealProductReference) => [
+      product._id,
+      product,
+    ]),
+  );
 
   const filterProducts = (tickUsed: boolean) => {
-    const seen = new Set<string>();
     return (
       deal.productsData
         ?.filter((p) => p.tickUsed === tickUsed)
@@ -48,100 +92,91 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
           if (!product) return null;
 
           return {
-            _id: product._id,
-            product: product.product,
-            name: product.name,
-            quantity: p.quantity,
-            uom: p.uom,
-            unitPrice: p.unitPrice,
+            _id: p._id,
+            name: product.name || t('unknown-product'),
+            quantity: p.quantity || 0,
+            unitPrice: p.unitPrice || 0,
+            amount:
+              typeof p.amount === 'number'
+                ? p.amount
+                : (p.unitPrice || 0) * (p.quantity || 0),
+            currency: p.currency,
           };
         })
-        .filter((p): p is NonNullable<typeof p> => {
-          if (!p) return false;
-          if (seen.has(p._id)) return false;
-          seen.add(p._id);
-          return true;
-        }) || []
+        .filter((p): p is NonNullable<typeof p> => Boolean(p)) || []
     );
   };
 
   const dealProducts = filterProducts(true);
   const excludedProducts = filterProducts(false);
-
-  const computeTotals = (items: IProductData[]) => {
-    const totals: Record<string, number> = {};
-    items.forEach((p) => {
-      const currency = p.currency || '';
-      totals[currency] = (totals[currency] || 0) + (p.amount || 0);
-    });
-    return totals;
-  };
-
-  const usedTotals = computeTotals(
-    deal.productsData?.filter((p) => p.tickUsed !== false) || [],
-  );
-  const unusedTotals = computeTotals(
-    deal.productsData?.filter((p) => p.tickUsed === false) || [],
-  );
-
   const hasProducts = dealProducts.length > 0 || excludedProducts.length > 0;
+  const customerItems = (customers || []).map((customer) => ({
+    _id: customer._id,
+    name:
+      [customer.firstName, customer.middleName, customer.lastName]
+        .filter(Boolean)
+        .join(' ') ||
+      customer.primaryEmail ||
+      customer.primaryPhone ||
+      t('unknown'),
+    avatar: customer.avatar,
+  }));
+  const companyItems = (companies || []).map((company) => ({
+    _id: company._id,
+    name:
+      company.primaryName ||
+      company.primaryEmail ||
+      company.primaryPhone ||
+      t('unknown'),
+    avatar: company.avatar,
+  }));
+  const departmentItems = (departments || []).map((department) => ({
+    _id: department._id,
+    name: department.title || t('unknown'),
+  }));
+  const branchItems = (branches || []).map((branch) => ({
+    _id: branch._id,
+    name: branch.title || t('unknown'),
+  }));
+  const customPropertyItems = Array.isArray(customProperties)
+    ? customProperties
+        .map((property, index) => normalizeCustomProperty(property, index))
+        .filter((item): item is DealCardDetailItem => Boolean(item))
+    : [];
 
   if (
     !hasProducts &&
+    !branches?.length &&
     !companies?.length &&
     !customers?.length &&
+    !departments?.length &&
     !tags?.length &&
-    !customProperties?.length
+    !customPropertyItems.length
   ) {
     return null;
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-3 pt-0">
-      <DealCardDetails items={companies} color="#EA475D" separated />
-      <DealCardDetails items={customers} color="#F7CE53" separated />
-      <DealCardDetails items={dealProducts} color="#63D2D6" separated />
-      <DealCardDetails items={excludedProducts} color="#b49cf1" separated />
-      <DealCardDetails items={tags || []} color="#FF6600" separated />
-      <DealCardDetails
-        items={customProperties || []}
-        color="#FF9900"
-        separated
+    <div className="flex flex-col gap-1 p-3 pt-0">
+      <DealCardProducts
+        items={dealProducts}
+        label={t('products')}
+        totalLabel={t('total')}
       />
-      {hasProducts && (
-        <div className="flex flex-col gap-0.5 pt-0.5">
-          {Object.entries(usedTotals).map(([currency, total]) => (
-            <div
-              key={currency}
-              className="flex justify-between text-xs font-semibold"
-            >
-              <span className="text-muted-foreground">{t('total')}</span>
-              <span>
-                {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                {currency && (
-                  <span className="text-muted-foreground ml-1 text-[10px]">
-                    {currency}
-                  </span>
-                )}
-              </span>
-            </div>
-          ))}
-          {Object.entries(unusedTotals).map(([currency, total]) => (
-            <div
-              key={currency}
-              className="flex justify-between text-xs opacity-60"
-            >
-              <span className="text-muted-foreground">{t('unused')}</span>
-              <span>
-                {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                {currency && (
-                  <span className="text-muted-foreground ml-1 text-[10px]">
-                    {currency}
-                  </span>
-                )}
-              </span>
-            </div>
-          ))}
+      <DealCardProducts
+        items={excludedProducts}
+        label={t('exclude-products')}
+        totalLabel={t('total')}
+        muted
+      />
+      <DealCardRelationDetails items={customerItems} type="customer" />
+      <DealCardRelationDetails items={companyItems} type="company" />
+      <DealCardRelationDetails items={departmentItems} type="department" />
+      <DealCardRelationDetails items={branchItems} type="branch" />
+      {Boolean(tags?.length || customPropertyItems.length) && (
+        <div className="mt-1 flex flex-col gap-1">
+          <DealCardDetails items={tags || []} color="#FF6600" />
+          <DealCardDetails items={customPropertyItems} color="#FF9900" />
         </div>
       )}
     </div>
@@ -265,9 +300,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCustomerFilterBar
             filterKey=""
             mode="multiple"
-            label={t('by-customer')}
             variant="card"
-            targetId={_id}
             initialValue={
               currentCustomers?.map((customer) => customer._id || '') || []
             }
