@@ -153,7 +153,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
 }: DealsBoardCardProps) {
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
-  const [searchParams] = useQueryState<string>('archivedOnly');
   const { editDeals } = useDealsEdit();
   const { manageRelations } = useManageRelations();
   const [currentCustomers, setCurrentCustomers] = useState(
@@ -176,7 +175,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     createdAt,
     closeDate,
     labels,
-    status,
     stage,
     tagIds,
   } = deal;
@@ -184,15 +182,8 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     setSalesItemId(_id);
     setActiveDealAtom(_id);
   };
-  const archivedOnly = searchParams === 'true';
-  const isArchived = status === 'archived';
-  const showArchivedBadge = archivedOnly || isArchived;
-
   return (
-    <div
-      className={showArchivedBadge ? 'relative overflow-hidden' : ''}
-      onClick={() => onCardClick()}
-    >
+    <div onClick={() => onCardClick()}>
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
           placeholder={t('start-date')}
@@ -335,14 +326,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
         createdAt={createdAt}
         assignedUsers={assignedUsers || []}
         id={_id}
-      />{' '}
-      {showArchivedBadge && (
-        <div className="pointer-events-none select-none absolute bottom-6 -right-10 -rotate-45 w-40">
-          <span className="block w-full text-center px-8 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 border-t border-b border-yellow-200 ">
-            {t('archived')}
-          </span>
-        </div>
-      )}
+      />
     </div>
   );
 });

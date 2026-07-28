@@ -84,7 +84,6 @@ export const DealsBoard = () => {
     [searchParams],
   );
 
-  const archivedOnly = searchParams.get('archivedOnly') === 'true';
   const queryVariablesKey = useMemo(
     () => JSON.stringify(queryVariables),
     [queryVariables],
@@ -102,10 +101,6 @@ export const DealsBoard = () => {
   useEffect(() => {
     resetColumnsRef.current = columns;
   }, [columnIdsKey, columns]);
-
-  useEffect(() => {
-    setBoardState(null);
-  }, [archivedOnly, setBoardState]);
 
   useEffect(() => {
     const resetColumns = resetColumnsRef.current;

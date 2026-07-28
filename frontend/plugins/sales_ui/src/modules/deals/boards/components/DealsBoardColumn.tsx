@@ -12,7 +12,6 @@ import { DealsBoardColumnProps } from '@/deals/types/boards';
 import { EnumCursorDirection, isUndefinedOrNull } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
-import { useSearchParams } from 'react-router-dom';
 import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
 
 export function DealsBoardColumn({
@@ -92,16 +91,12 @@ export function DealsBoardColumn({
     setColumnLoading((prev) => ({ ...prev, [column._id]: loading }));
   }, [loading, column._id, setColumnLoading]);
 
-  const [searchParams] = useSearchParams();
-  const archivedOnly = searchParams.get('archivedOnly') === 'true';
-
-  const filteredDeals = useMemo(() => {
-    return (deals || []).filter((deal) => {
-      return archivedOnly
-        ? deal.status === 'archived'
-        : deal.status !== 'archived';
-    });
-  }, [deals, archivedOnly]);
+  // Archived deals never belong on the board — they are reachable from the
+  // list view only.
+  const filteredDeals = useMemo(
+    () => (deals || []).filter((deal) => deal.status !== 'archived'),
+    [deals],
+  );
 
   useEffect(() => {
     if (isDragging) return;
@@ -163,10 +158,18 @@ export function DealsBoardColumn({
         newColumnItems[column._id] = [...new Set(newIds)];
       } else {
         const existingIds = prev.columnItems[column._id] ?? [];
+        const freshIds = new Set(newIds);
 
         const filteredExisting = existingIds.filter((id) => {
           const item = newItems[id] || prev.items[id];
-          return item?.columnId === column._id;
+          if (item?.columnId !== column._id) return false;
+
+          // A card whose own move is still in flight is not in the query
+          // result yet, so it has to be kept. Anything else that dropped out
+          // of the result was archived or removed and must go with it —
+          // keeping it here is what left archived cards on the board when a
+          // drag happened to still be settling.
+          return freshIds.has(id) || Boolean(localMoves[id]);
         });
 
         const existingSet = new Set(filteredExisting);
