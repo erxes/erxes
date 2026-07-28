@@ -54,6 +54,44 @@ const withResolvedFieldsOnly = (deal: IDeal) =>
     {},
   );
 
+const sortByOrder = (deals: IDeal[]) =>
+  [...deals].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+const applyDealChange = (
+  currentList: IDeal[],
+  action: string,
+  deal: IDeal,
+): { list: IDeal[]; countDelta: number } => {
+  if (action === 'add') {
+    const exists = currentList.some((item) => item._id === deal._id);
+
+    return exists
+      ? { list: currentList, countDelta: 0 }
+      : { list: sortByOrder([...currentList, deal]), countDelta: 1 };
+  }
+
+  if (action === 'edit') {
+    const changedDeal = withResolvedFieldsOnly(deal);
+
+    return {
+      list: sortByOrder(
+        currentList.map((item) =>
+          item._id === deal._id ? { ...item, ...changedDeal } : item,
+        ),
+      ),
+      countDelta: 0,
+    };
+  }
+
+  if (action === 'remove') {
+    const list = currentList.filter((item) => item._id !== deal._id);
+
+    return { list, countDelta: list.length - currentList.length };
+  }
+
+  return { list: currentList, countDelta: 0 };
+};
+
 export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
   pipelineId?: string,
@@ -106,68 +144,33 @@ export const useDeals = (
       },
 
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
-        if (!prev.deals?.list) return prev;
+        if (!prev?.deals?.list || !subscriptionData.data) return prev;
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
-        const currentList = prev.deals.list;
-        const changedDeal = deal ? withResolvedFieldsOnly(deal) : {};
 
-        const isArchived = deal?.status === 'archived';
+        if (!deal) return prev;
+
+        const isArchived = deal.status === 'archived';
         const resolvedAction =
           dropsArchived && isArchived && action !== 'remove'
             ? 'remove'
             : action;
 
-        let updatedList = currentList;
-        let added = false;
-        let removed = false;
+        const { list, countDelta } = applyDealChange(
+          prev.deals.list,
+          resolvedAction,
+          deal,
+        );
 
-        if (resolvedAction === 'add') {
-          if (!deal) return prev;
-
-          const exists = currentList.some(
-            (item: IDeal) => item._id === deal._id,
-          );
-          if (!exists) {
-            const merged = [...currentList, deal];
-            merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-            updatedList = merged;
-            added = true;
-          }
-        }
-
-        if (resolvedAction === 'edit') {
-          if (!deal) return prev;
-
-          updatedList = currentList.map((item: IDeal) =>
-            item._id === deal._id ? { ...item, ...changedDeal } : item,
-          );
-          updatedList.sort(
-            (a: IDeal, b: IDeal) => (a.order ?? 0) - (b.order ?? 0),
-          );
-        }
-
-        if (resolvedAction === 'remove') {
-          removed = currentList.some((item: IDeal) => item._id === deal?._id);
-          updatedList = currentList.filter(
-            (item: IDeal) => item._id !== deal?._id,
-          );
-        }
-        let nextTotalCount = prev.deals.totalCount;
-        if (added) {
-          nextTotalCount = prev.deals.totalCount + 1;
-        } else if (removed) {
-          nextTotalCount = prev.deals.totalCount - 1;
-        }
+        if (list === prev.deals.list) return prev;
 
         return {
           ...prev,
           deals: {
             ...prev.deals,
-            list: updatedList,
+            list,
             pageInfo: prev.deals.pageInfo,
-            totalCount: nextTotalCount,
+            totalCount: prev.deals.totalCount + countDelta,
           },
         };
       },
