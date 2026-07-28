@@ -175,7 +175,7 @@ export const ProductsList = ({
 
         affectedProductData.forEach((productData) => {
           pendingProductPatchesRef.current[productData._id] = {
-            ...(pendingProductPatchesRef.current[productData._id] || {}),
+            ...pendingProductPatchesRef.current[productData._id],
             ...patch,
           };
         });

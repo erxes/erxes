@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { onLocalChangeAtom } from '../productTableAtom';
 import { useAtomValue } from 'jotai';
+import { useRef } from 'react';
 import { useDealsEditProductData } from './mutations/useDealsEditProductData';
 import { IProductData } from 'ui-modules';
 import { PRODUCTS_EDIT } from 'ui-modules/modules/products/graphql/mutations/productMutations';
@@ -31,6 +32,7 @@ export const useUpdateProductRecord = () => {
   const onLocalChange = useAtomValue(onLocalChangeAtom);
   const { toast } = useToast();
   const { t } = useTranslation('sales');
+  const latestNameEditRef = useRef<Record<string, number>>({});
 
   const updateRecord = (
     product: IProductData,
@@ -78,6 +80,9 @@ export const useUpdateProductRecord = () => {
     const productId = productData.productId || product._id;
     const nextProduct = { ...product, _id: productId, name };
 
+    const operationId = (latestNameEditRef.current[productId] || 0) + 1;
+    latestNameEditRef.current[productId] = operationId;
+
     if (onLocalChange && productData._id) {
       onLocalChange(
         productData._id,
@@ -107,7 +112,9 @@ export const useUpdateProductRecord = () => {
         ...DEAL_TOAST_OPTIONS,
       });
     } catch (error) {
-      if (onLocalChange && productData._id) {
+      const isLatestEdit = latestNameEditRef.current[productId] === operationId;
+
+      if (isLatestEdit && onLocalChange && productData._id) {
         onLocalChange(
           productData._id,
           { product },
