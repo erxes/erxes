@@ -1,4 +1,3 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
@@ -8,35 +7,31 @@ import {
   useQueryState,
   validateFetchMore,
 } from 'erxes-ui';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { currentUserState } from 'ui-modules';
 
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
+import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
+import { IDeal } from '@/deals/types/deals';
+import { currentUserState } from 'ui-modules';
 import { dealTotalCountAtom } from '@/deals/states/dealsTotalCountState';
 import { dealsViewAtom } from '@/deals/states/dealsViewState';
-import { IDeal } from '@/deals/types/deals';
 
 interface IDealChanged {
   salesDealListChanged: {
     action: string;
-    deal?: IDeal | null;
+    deal: IDeal;
   };
 }
-
-const withResolvedFieldsOnly = (deal: IDeal): Partial<IDeal> =>
-  Object.fromEntries(
-    Object.entries(deal).filter(([, value]) => value !== null),
-  ) as Partial<IDeal>;
 
 export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
   pipelineId?: string,
 ) => {
   const { t } = useTranslation('sales');
-  const { data, loading, fetchMore, refetch, subscribeToMore } = useQuery<
+  const { data, loading, fetchMore, subscribeToMore } = useQuery<
     ICursorListResponse<IDeal>
   >(GET_DEALS, {
     ...options,
@@ -59,27 +54,21 @@ export const useDeals = (
 
   const { list: deals, pageInfo, totalCount } = data?.deals || {};
 
-  const filterVariables = options?.variables;
-
-  const subscriptionKey = JSON.stringify({
-    pipelineId: lastPipelineId,
-    userId: currentUser?._id,
-    filter: filterVariables ?? {},
-  });
-
-  const filterVariablesRef = useRef(filterVariables);
-  filterVariablesRef.current = filterVariables;
+  const subscriptionVars = useMemo(
+    () => ({
+      pipelineId: lastPipelineId,
+      userId: currentUser?._id,
+      filter: options?.variables,
+    }),
+    [lastPipelineId, currentUser?._id, options?.variables],
+  );
 
   useEffect(() => {
-    if (!currentUser?._id || !lastPipelineId) return;
+    if (!currentUser?._id) return;
 
     const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
-      variables: {
-        pipelineId: lastPipelineId,
-        userId: currentUser._id,
-        filter: filterVariablesRef.current,
-      },
+      variables: subscriptionVars,
 
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
@@ -87,27 +76,26 @@ export const useDeals = (
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
         const currentList = prev.deals.list;
-        const changedDeal = deal ? withResolvedFieldsOnly(deal) : {};
 
         let updatedList = currentList;
+        let added = false;
         let removed = false;
 
         if (action === 'add') {
-          if (!deal) return prev;
-
           const exists = currentList.some(
             (item: IDeal) => item._id === deal._id,
           );
           if (!exists) {
-            void refetch();
+            const merged = [...currentList, deal];
+            merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            updatedList = merged;
+            added = true;
           }
         }
 
         if (action === 'edit') {
-          if (!deal) return prev;
-
           updatedList = currentList.map((item: IDeal) =>
-            item._id === deal._id ? { ...item, ...changedDeal } : item,
+            item._id === deal._id ? { ...item, ...deal } : item,
           );
           updatedList.sort(
             (a: IDeal, b: IDeal) => (a.order ?? 0) - (b.order ?? 0),
@@ -121,7 +109,9 @@ export const useDeals = (
           );
         }
         let nextTotalCount = prev.deals.totalCount;
-        if (removed) {
+        if (added) {
+          nextTotalCount = prev.deals.totalCount + 1;
+        } else if (removed) {
           nextTotalCount = prev.deals.totalCount - 1;
         }
 
@@ -138,13 +128,7 @@ export const useDeals = (
     });
 
     return unsubscribe;
-  }, [
-    currentUser?._id,
-    lastPipelineId,
-    refetch,
-    subscribeToMore,
-    subscriptionKey,
-  ]);
+  }, [currentUser?._id, subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
     direction,
