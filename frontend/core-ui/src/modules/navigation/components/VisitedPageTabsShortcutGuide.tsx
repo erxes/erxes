@@ -27,14 +27,14 @@ export const VisitedPageTabsShortcutGuide = () => {
           <IconKeyboard className="size-4" />
         </Button>
       </HoverCard.Trigger>
-      <HoverCard.Content align="end" className="w-80 p-0" side="bottom">
+      <HoverCard.Content align="end" className="w-72 p-0" side="bottom">
         <div className="border-b px-3 py-2 text-xs font-medium text-muted-foreground">
           {t('tab-shortcuts')}
         </div>
         <div className="py-1">
           {shortcuts.map(({ label, shortcutKey }) => (
             <div
-              className="flex min-h-9 items-center justify-between gap-6 px-3 py-1.5"
+              className="grid min-h-9 grid-cols-[8.5rem_auto] items-center gap-2 px-3 py-1.5"
               key={shortcutKey}
             >
               <span className="text-[13px] text-foreground">{label}</span>
