@@ -22,17 +22,15 @@ export const DealsRecordTable = () => {
 
   const archivedOnly = searchParams.get('archivedOnly') === 'true';
   const queryVariables = getDealsQueryVariables(searchParams);
-
-  const { deals, loading, handleFetchMore } = useDeals({
+  const { deals, loading, handleFetchMore, pageInfo } = useDeals({
     skip: !pipelineId,
     variables: {
-      boardId: searchParams.get('boardId'),
       pipelineId,
       stageId: searchParams.get('stageId'),
       ...queryVariables,
     },
   });
-
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const filteredDeals = deals?.filter((deal) => {
     return archivedOnly
       ? deal.status === 'archived'
@@ -52,7 +50,11 @@ export const DealsRecordTable = () => {
         stickyColumns={['more', 'checkbox', 'name']}
         tableId="sales_deals_record_table"
       >
-        <RecordTable.CursorProvider dataLength={deals?.length}>
+        <RecordTable.CursorProvider
+          dataLength={deals?.length}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+        >
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>
