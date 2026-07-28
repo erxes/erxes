@@ -20,7 +20,6 @@ export const PosIndexPage = () => {
   }, [loading, posList, navigate]);
 
   return (
-    /* skipcq: JS-0415 - The nesting follows the shared PageHeader primitives. */
     <div className="flex flex-col h-full">
       <PageHeader>
         <PageHeader.Start>

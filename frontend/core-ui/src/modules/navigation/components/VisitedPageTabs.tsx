@@ -36,7 +36,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { IconApps, IconFile, IconX } from '@tabler/icons-react';
 import { Button, cn, ScrollArea, Sidebar, Tabs } from 'erxes-ui';
-import type { ElementType } from 'react';
+import type { ComponentProps, ElementType, ReactNode } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -50,7 +50,7 @@ const SortableVisitedPageTab = ({
   label,
   onClose,
   pathname,
-}: {
+}: Readonly<{
   canClose: boolean;
   closeAriaShortcut: string;
   closeLabel: string;
@@ -60,7 +60,7 @@ const SortableVisitedPageTab = ({
   label: string;
   onClose: () => void;
   pathname: string;
-}) => {
+}>) => {
   const tabRef = useRef<HTMLDivElement | null>(null);
   const {
     attributes,
@@ -138,6 +138,63 @@ const SortableVisitedPageTab = ({
     </div>
   );
 };
+
+const VisitedPageTabsList = ({
+  children,
+  items,
+}: Readonly<{
+  children: ReactNode;
+  items: string[];
+}>) => (
+  <ScrollArea.Root className="group/tabs-scroll h-10 w-full" type="auto">
+    <ScrollArea.Viewport className="h-10 w-full">
+      <Tabs.List
+        variant="segment"
+        className="flex h-10 w-max min-w-full items-center justify-start gap-1 rounded-none bg-transparent px-0 group-has-data-[state=visible]/tabs-scroll:pb-1"
+      >
+        <SortableContext items={items} strategy={horizontalListSortingStrategy}>
+          {children}
+        </SortableContext>
+      </Tabs.List>
+    </ScrollArea.Viewport>
+    <ScrollArea.Bar
+      className="z-10 h-1.5 border-0 bg-transparent p-0 opacity-60 transition-opacity group-hover/tabs-scroll:opacity-100 hover:opacity-100"
+      orientation="horizontal"
+    />
+  </ScrollArea.Root>
+);
+
+const VisitedPageTabsContent = ({
+  activePathname,
+  children,
+  items,
+  onDragEnd,
+  onValueChange,
+  sensors,
+}: Readonly<{
+  activePathname: string;
+  children: ReactNode;
+  items: string[];
+  onDragEnd: (event: DragEndEvent) => void;
+  onValueChange: (pathname: string) => void;
+  sensors: ComponentProps<typeof DndContext>['sensors'];
+}>) => (
+  <DndContext
+    autoScroll={false}
+    collisionDetection={closestCenter}
+    modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
+    onDragEnd={onDragEnd}
+    sensors={sensors}
+  >
+    <Tabs
+      value={activePathname}
+      onValueChange={onValueChange}
+      className="min-w-0 flex-1 overflow-hidden"
+    >
+      <VisitedPageTabsList items={items}>{children}</VisitedPageTabsList>
+    </Tabs>
+  </DndContext>
+);
 
 export const VisitedPageTabs = () => {
   const { i18n, t } = useTranslation('common');
@@ -258,97 +315,58 @@ export const VisitedPageTabs = () => {
     toggleSidebar,
   ]);
 
+  const tabPathnames = tabs.map((tab) => tab.pathname);
+  const tabItems = tabs.map((tab) => {
+    const pageLabel = getVisitedPageTabLabel(tab.pathname, modules, labels);
+    const activity = findNavigationActivityByPath(activities, tab.pathname);
+    const Icon = activity ? activity.icon || IconApps : IconFile;
+    const translatedPageLabel =
+      activity?.kind === 'plugin'
+        ? i18n.t(pageLabel.toLowerCase().replace(/\s+/g, '-'), {
+            ns: activity.id,
+            defaultValue: pageLabel,
+          })
+        : pageLabel;
+    const label = getVisitedPageTabTitle(
+      translatedPageLabel,
+      activity?.kind === 'plugin' ? activity.label : undefined,
+    );
+    const isActive = tab.pathname === activePathname;
+    const closeLabel = t('navigation.close-tab', {
+      page: label,
+    });
+
+    return (
+      <SortableVisitedPageTab
+        key={tab.pathname}
+        canClose={tabs.length > 1}
+        closeAriaShortcut={closeAriaShortcut}
+        closeLabel={closeLabel}
+        closeShortcutLabel={closeShortcutLabel}
+        icon={Icon}
+        isActive={isActive}
+        label={label}
+        onClose={() => closeVisitedPageTab(tab.pathname)}
+        pathname={tab.pathname}
+      />
+    );
+  });
+
   return (
-    /* skipcq: JS-0415 - The nesting follows the DnD, tabs, and scroll primitives. */
     <nav
       aria-label={t('navigation.visited-pages')}
       className="fixed inset-x-0 top-0 z-40 flex h-10 items-center gap-1.5 border-b bg-muted px-2"
     >
       <div className="flex min-w-0 flex-1 items-center overflow-hidden">
-        <DndContext
-          autoScroll={false}
-          collisionDetection={closestCenter}
-          modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
+        <VisitedPageTabsContent
+          activePathname={activePathname}
+          items={tabPathnames}
           onDragEnd={handleDragEnd}
+          onValueChange={openVisitedPageTab}
           sensors={sensors}
         >
-          <Tabs
-            value={activePathname}
-            onValueChange={openVisitedPageTab}
-            className="min-w-0 flex-1 overflow-hidden"
-          >
-            <ScrollArea.Root
-              className="group/tabs-scroll h-10 w-full"
-              type="auto"
-            >
-              <ScrollArea.Viewport className="h-10 w-full">
-                <Tabs.List
-                  variant="segment"
-                  className="flex h-10 w-max min-w-full items-center justify-start gap-1 rounded-none bg-transparent px-0 group-has-data-[state=visible]/tabs-scroll:pb-1"
-                >
-                  <SortableContext
-                    items={tabs.map((tab) => tab.pathname)}
-                    strategy={horizontalListSortingStrategy}
-                  >
-                    {tabs.map((tab) => {
-                      const pageLabel = getVisitedPageTabLabel(
-                        tab.pathname,
-                        modules,
-                        labels,
-                      );
-                      const activity = findNavigationActivityByPath(
-                        activities,
-                        tab.pathname,
-                      );
-                      const Icon = activity
-                        ? activity.icon || IconApps
-                        : IconFile;
-                      const translatedPageLabel =
-                        activity?.kind === 'plugin'
-                          ? i18n.t(
-                              pageLabel.toLowerCase().replace(/\s+/g, '-'),
-                              {
-                                ns: activity.id,
-                                defaultValue: pageLabel,
-                              },
-                            )
-                          : pageLabel;
-                      const label = getVisitedPageTabTitle(
-                        translatedPageLabel,
-                        activity?.kind === 'plugin'
-                          ? activity.label
-                          : undefined,
-                      );
-                      const isActive = tab.pathname === activePathname;
-                      const closeLabel = t('navigation.close-tab', {
-                        page: label,
-                      });
-
-                      return (
-                        <SortableVisitedPageTab
-                          key={tab.pathname}
-                          canClose={tabs.length > 1}
-                          closeAriaShortcut={closeAriaShortcut}
-                          closeLabel={closeLabel}
-                          closeShortcutLabel={closeShortcutLabel}
-                          icon={Icon}
-                          isActive={isActive}
-                          label={label}
-                          onClose={() => closeVisitedPageTab(tab.pathname)}
-                          pathname={tab.pathname}
-                        />
-                      );
-                    })}
-                  </SortableContext>
-                </Tabs.List>
-              </ScrollArea.Viewport>
-              <ScrollArea.Bar
-                className="z-10 h-1.5 border-0 bg-transparent p-0 opacity-60 transition-opacity group-hover/tabs-scroll:opacity-100 hover:opacity-100"
-                orientation="horizontal"
-              />
-            </ScrollArea.Root>
-          </Tabs>
-        </DndContext>
+          {tabItems}
+        </VisitedPageTabsContent>
       </div>
       <VisitedPageTabsShortcutGuide />
     </nav>

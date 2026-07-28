@@ -56,7 +56,6 @@ export const TasksRecordTable = ({
   const team = teams?.find((team) => team._id === teamId);
 
   return (
-    /* skipcq: JS-0415 - The nesting follows the RecordTable provider primitives. */
     <div className="flex flex-col overflow-hidden h-full">
       <RecordTable.Provider
         columns={tasksColumns(teams, team, t)}

@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 export const MyInboxHeader = () => {
   const { t } = useTranslation('common');
   return (
-    /* skipcq: JS-0415 - The nesting keeps the Inbox controls and divider together. */
     <>
       <div className="flex flex-col h-13 shrink-0 bg-sidebar w-full">
         <div className="flex gap-2 px-3 flex-auto items-center">
