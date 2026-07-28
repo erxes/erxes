@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 export const useWorkhoursForm = () => {
   const form = useForm<IWorkhoursForm>({
     mode: 'onBlur',
-    defaultValues: workingHours,
+    defaultValues: { ...workingHours, holidays: [] },
     resolver: zodResolver(WORKING_HOURS_SCHEMA),
   });
   return { form };

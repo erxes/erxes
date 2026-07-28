@@ -1,74 +1,67 @@
-import React, { useState } from 'react';
-import { Button } from 'erxes-ui/components/button';
-import { Card } from 'erxes-ui/components/card';
-import { Dialog } from 'erxes-ui/components/dialog';
+import { useState } from 'react';
+import { useQuery } from '@apollo/client';
+import { REACT_APP_API_URL } from 'erxes-ui';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
-import { useQuery } from '@apollo/client';
+import GatewayCard from '../GatewayCard';
 import { configs } from './configs/graphql/queries';
-import { REACT_APP_API_URL } from 'erxes-ui';
 import ConfigFormContainer from './configs/containers/Form';
 
 const TDB_PAYMENT = PAYMENT_KINDS[PaymentKind.TDB];
 
+type TdbConfig = {
+  _id: string;
+  name: string;
+  username: string;
+  testMode: boolean;
+};
+
+type TdbConfigsQueryResponse = {
+  tdbConfigs: TdbConfig[];
+};
+
 const TdbCard = () => {
   const [open, setOpen] = useState(false);
-  const { data, refetch } = useQuery(configs);
-  const logoUrl = `${REACT_APP_API_URL}/pl:payment/static/images/payments/tdb.png`;
+
+  const { data, loading, error, refetch } =
+    useQuery<TdbConfigsQueryResponse>(configs);
+
+  const configsList = data?.tdbConfigs ?? [];
+  const config = configsList[0];
+  const hasConfig = configsList.length > 0;
+
   const handleClose = () => setOpen(false);
 
   return (
-    <>
-      <Card className="p-4 space-y-3">
-        {/* same as before */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src={logoUrl}
-              alt="TDB"
-              className="h-10 w-10 rounded-md object-contain"
-            />
-            <div>
-              <p className="font-semibold">{TDB_PAYMENT.name}</p>
-              <p className="text-xs text-muted-foreground">(Accepts MNT)</p>
-            </div>
-          </div>
-          <Button variant="link" size="sm" onClick={() => setOpen(true)}>
-            + Add
-          </Button>
+    <GatewayCard
+      logo={`${REACT_APP_API_URL}/pl:payment/static/images/payments/tdb.png`}
+      title={TDB_PAYMENT.name}
+      description={TDB_PAYMENT.description}
+      loading={loading}
+      error={!!error}
+      hasConfig={hasConfig}
+      open={open}
+      onOpenChange={setOpen}
+      connectedContent={
+        <div className="grid grid-cols-[120px_1fr] gap-y-1 text-sm">
+          <span className="text-muted-foreground">Name</span>
+          <span>{config?.name}</span>
+
+          <span className="text-muted-foreground">Merchant</span>
+          <span>{config?.username}</span>
+
+          <span className="text-muted-foreground">Environment</span>
+          <span>{config?.testMode ? 'Test' : 'Production'}</span>
         </div>
-        <p className="text-sm text-muted-foreground">
-          {TDB_PAYMENT.description}
-        </p>
-
-        {/* Optionally display existing configs */}
-        {data?.tdbConfigs?.map((cfg: any) => (
-          <div
-            key={cfg._id}
-            className="flex justify-between items-center text-sm"
-          >
-            <span>{cfg.name}</span>
-            <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
-              Edit
-            </Button>
-          </div>
-        ))}
-      </Card>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Content className="sm:max-w-lg">
-          <Dialog.Header>
-            <Dialog.Title>Add {TDB_PAYMENT.name}</Dialog.Title>
-          </Dialog.Header>
-
-          <ConfigFormContainer
-            configId={undefined} // pass id if editing
-            closeModal={handleClose}
-            refetchList={refetch}
-          />
-        </Dialog.Content>
-      </Dialog>
-    </>
+      }
+      form={
+        <ConfigFormContainer
+          configId={config?._id}
+          closeModal={handleClose}
+          refetchList={refetch}
+        />
+      }
+    />
   );
 };
 

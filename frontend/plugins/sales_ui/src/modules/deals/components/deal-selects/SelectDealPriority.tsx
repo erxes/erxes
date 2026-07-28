@@ -1,5 +1,9 @@
 import { SelectPriority } from '@/deals/components/deal-selects/SelectPriority';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import {
+  rejectOnMutationError,
+  useOptimisticField,
+} from '@/deals/components/deal-selects/hooks/useOptimisticField';
 
 export enum SelectTriggerVariant {
   TABLE = 'table',
@@ -34,21 +38,25 @@ export const SelectDealPriority = ({
   variant: `${SelectTriggerVariant}`;
 }) => {
   const { editDeals } = useDealsEdit();
-
-  const onChange = (value: number) => {
-    editDeals({
-      variables: {
-        _id: dealId,
-        priority: getPriorityString(value),
-      },
-    });
-  };
+  const priority = useOptimisticField({
+    value: PRIORITY_MAP[value] ?? 0,
+    resetKey: dealId,
+    onCommit: (nextValue) =>
+      rejectOnMutationError(
+        editDeals({
+          variables: {
+            _id: dealId,
+            priority: getPriorityString(nextValue),
+          },
+        }),
+      ),
+  });
 
   return (
     <SelectPriority
       variant={variant}
-      value={PRIORITY_MAP[value] ?? 0}
-      onValueChange={onChange}
+      value={priority.value}
+      onValueChange={priority.setValue}
     />
   );
 };

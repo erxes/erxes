@@ -69,7 +69,7 @@ export const removeIntegration = async (
       );
     }
 
-    integrationRemoveBy = { igPageId: integration.instagramPageIds?.[0] };
+    integrationRemoveBy = { igPageId: integration.instagramPageId };
 
     const conversationIds =
       await models.InstagramConversations.find(selector).distinct('_id');
@@ -197,8 +197,8 @@ export const repairIntegrations = async (
       method: 'POST',
       body: JSON.stringify({
         domain,
-        instagramPageId: integration.instagramPageIds?.[0],
-        igPageId: integration.instagramPageIds?.[0],
+        instagramPageId: integration.instagramPageId,
+        igPageId: integration.instagramPageId,
       }),
       headers: { 'Content-Type': 'application/json' },
     });

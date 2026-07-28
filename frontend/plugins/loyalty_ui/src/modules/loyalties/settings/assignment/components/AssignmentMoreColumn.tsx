@@ -101,5 +101,5 @@ export const AssignmentMoreColumnCell = ({
 export const assignmentMoreColumn = {
   id: 'more',
   cell: AssignmentMoreColumnCell,
-  size: 25,
+  size: 33,
 };

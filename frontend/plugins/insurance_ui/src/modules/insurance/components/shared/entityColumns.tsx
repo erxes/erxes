@@ -19,7 +19,7 @@ type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
 // Generic more column factory
 export const createEntityMoreColumn = <T,>(
   MoreComponent: React.ComponentType<{ cell: any }>,
-  size: number = 26,
+  size: number = 33,
 ): ColumnDef<T> => ({
   id: 'more',
   accessorKey: 'more',

@@ -487,8 +487,8 @@ router.post(
           const response = await uploadFile(
             `${domain}/gateway`,
             {
-              path: finalPath,
-              originalname: latestInfo.fileName,
+              filepath: finalPath,
+              originalFilename: latestInfo.fileName,
               mimetype: file.mimetype,
               type: file.mimetype,
               size: latestInfo.fileSize,

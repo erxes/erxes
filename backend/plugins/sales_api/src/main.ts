@@ -144,6 +144,7 @@ startPlugin({
 
         if (
           [
+            'sales:pos.orders',
             'sales:order',
             'sales:posOrder',
             'sales:posOrders',

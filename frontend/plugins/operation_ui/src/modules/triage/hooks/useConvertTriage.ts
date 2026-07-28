@@ -5,15 +5,14 @@ import { CONVERT_TRIAGE_TO_TASK } from '../graphql/mutations/convertTriage';
 
 import { GET_TRIAGES } from '@/triage/graphql/queries/getTriages';
 
-import { useSetAtom } from 'jotai';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { GET_TRIAGE } from '@/triage/graphql/queries/getTriage';
 
 export const useConvertTriage = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
 
-  const setActiveTask = useSetAtom(taskDetailSheetState);
+  const [, setActiveTask] = useTaskDetailSheet();
 
   const [convertTriageToTaskMutation, { loading, error }] = useMutation(
     CONVERT_TRIAGE_TO_TASK,

@@ -1,11 +1,48 @@
-export const PAPER_SIZES = {
-  A4: { width: 210, height: 297, label: 'A4 (210 × 297 mm)', margin: 15 },
-  A3: { width: 297, height: 420, label: 'A3 (297 × 420 mm)', margin: 15 },
-  A5: { width: 148, height: 210, label: 'A5 (148 × 210 mm)', margin: 15 },
-  ROLL_80: { width: 80, height: 297, label: '80 mm roll', margin: 2 },
-  ROLL_58: { width: 58, height: 297, label: '58 mm roll', margin: 2 },
-  MM_40x30: { width: 40, height: 30, label: '40 × 30 mm', margin: 1 },
-  MM_40x60: { width: 40, height: 60, label: '40 × 60 mm', margin: 1 },
-  MM_58x40: { width: 58, height: 40, label: '58 × 40 mm', margin: 1 },
-  MM_60x40: { width: 60, height: 40, label: '60 × 40 mm', margin: 1 },
+export const PAPER_TYPES = {
+  SHEET: 'sheet',
+  ROLL: 'roll',
+} as const;
+
+export type PaperType = (typeof PAPER_TYPES)[keyof typeof PAPER_TYPES];
+
+export const PAPER_SIZES: Record<
+  string,
+  {
+    width: number;
+    height: number;
+    label: string;
+    margin: number;
+    type: PaperType;
+  }
+> = {
+  A4: {
+    width: 210,
+    height: 297,
+    label: 'A4 (210 × 297 mm)',
+    margin: 15,
+    type: PAPER_TYPES.SHEET,
+  },
+  A3: {
+    width: 297,
+    height: 420,
+    label: 'A3 (297 × 420 mm)',
+    margin: 15,
+    type: PAPER_TYPES.SHEET,
+  },
+  A5: {
+    width: 148,
+    height: 210,
+    label: 'A5 (148 × 210 mm)',
+    margin: 15,
+    type: PAPER_TYPES.SHEET,
+  },
+  ROLL: {
+    width: 80,
+    height: 0,
+    label: 'Roll / label',
+    margin: 0,
+    type: PAPER_TYPES.ROLL,
+  },
 };
+
+export const PX_PER_MM = 96 / 25.4;

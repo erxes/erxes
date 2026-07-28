@@ -69,7 +69,7 @@ export const RecordTableProvider = forwardRef<
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
     const {
-      prefs: { columnOrder, columnSizing, columnVisibility },
+      prefs: { columnOrder, columnPinning, columnSizing, columnVisibility },
       savePrefs,
     } = useTablePreferences(tableId);
     const [colOrder, setColumnOrder] = useState<ColumnOrderState>(
@@ -82,11 +82,13 @@ export const RecordTableProvider = forwardRef<
       columnSizing || {},
     );
     const [colPinning, setColPinning] = useState<ColumnPinningState>(
-      () => ({ left: stickyColumns ?? [] }),
+      () => columnPinning || { left: stickyColumns ?? [] },
     );
     useEffect(() => {
-      setColPinning((prev) => ({ ...prev, left: stickyColumns ?? [] }));
-    }, [stickyColumns]);
+      if (!columnPinning) {
+        setColPinning((prev) => ({ ...prev, left: stickyColumns ?? [] }));
+      }
+    }, [columnPinning, stickyColumns]);
     const table = useReactTable({
       data,
       columns,
@@ -118,6 +120,10 @@ export const RecordTableProvider = forwardRef<
     useEffect(() => {
       savePrefs({ columnOrder: colOrder });
     }, [colOrder, savePrefs]);
+
+    useEffect(() => {
+      savePrefs({ columnPinning: colPinning });
+    }, [colPinning, savePrefs]);
 
     useEffect(() => {
       savePrefs({ columnVisibility: colVisibility });

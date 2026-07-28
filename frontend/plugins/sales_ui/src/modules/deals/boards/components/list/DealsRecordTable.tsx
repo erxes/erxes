@@ -49,7 +49,8 @@ export const DealsRecordTable = () => {
         columns={columns}
         data={filteredDeals || (loading ? [{}] : [])}
         className="m-3 h-full"
-        stickyColumns={['checkbox', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
+        tableId="sales_deals_record_table"
       >
         <RecordTable.CursorProvider dataLength={deals?.length}>
           <RecordTable>

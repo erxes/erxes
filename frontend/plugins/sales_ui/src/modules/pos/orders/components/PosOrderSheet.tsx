@@ -6,6 +6,7 @@ import {
   IconTag,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Button,
   Form,
@@ -24,7 +25,7 @@ import { usePosOrderChangePayments } from '../detail/hooks/usePosOrderChangePaym
 import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
 import { PosOrderForm } from '../detail/PosOrderForm';
-import { TPosOrderFormData } from '../types/posOrderType';
+import { TPosOrderFormData, TPosOrderItem } from '../types/posOrderType';
 
 const POS_ORDER_TRANSACTIONS = gql`
   query PosOrderTransactions($contentType: String!, $contentId: String!) {
@@ -52,18 +53,14 @@ type PosOrderTransaction = {
   number?: string;
 };
 
-const itemColumns: ColumnDef<any>[] = [
+const itemColumns: (t: TFunction) => ColumnDef<TPosOrderItem>[] = (t) => [
   {
     id: 'productName',
     accessorKey: 'productName',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />
+    ),
     cell: ({ cell }) => {
-      const { t } = useTranslation('sales');
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip
@@ -77,10 +74,7 @@ const itemColumns: ColumnDef<any>[] = [
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('count')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('count')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-center">
         <TextOverflowTooltip
@@ -93,10 +87,9 @@ const itemColumns: ColumnDef<any>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-right">
         <TextOverflowTooltip
@@ -121,10 +114,7 @@ const itemColumns: ColumnDef<any>[] = [
 
       return count * unitPrice;
     },
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('amount')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('amount')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-right font-medium">
         <TextOverflowTooltip
@@ -161,6 +151,7 @@ export const PosOrderSheet = () => {
   );
 
   const { t } = useTranslation('sales');
+  const orderItemColumns = React.useMemo(() => itemColumns(t), [t]);
   const { toast } = useToast();
   const { posOrder, loading, refetch } = usePosOrderQuery(
     posOrderId || undefined,
@@ -196,15 +187,12 @@ export const PosOrderSheet = () => {
     if (!posOrder?.paidAmounts || !Array.isArray(posOrder.paidAmounts))
       return {};
 
-    return posOrder.paidAmounts.reduce(
-      (acc: Record<string, number>, item: any) => {
-        if (item?.type) {
-          acc[item.type] = Number(item.amount) || 0;
-        }
-        return acc;
-      },
-      {},
-    );
+    return posOrder.paidAmounts.reduce((acc: Record<string, number>, item) => {
+      if (item?.type) {
+        acc[item.type] = (acc[item.type] || 0) + (Number(item.amount) || 0);
+      }
+      return acc;
+    }, {});
   }, [posOrder?.paidAmounts]);
 
   const paymentSummary = React.useMemo(() => {
@@ -234,8 +222,8 @@ export const PosOrderSheet = () => {
           return;
         }
 
-        const cashAmount = Number((data as any)?.cashAmount) || 0;
-        const mobileAmount = Number((data as any)?.mobileAmount) || 0;
+        const cashAmount = Number(data.cashAmount) || 0;
+        const mobileAmount = Number(data.mobileAmount) || 0;
 
         const paidAmounts = Object.entries(data)
           .filter(([key]) => !['cashAmount', 'mobileAmount'].includes(key))
@@ -296,6 +284,7 @@ export const PosOrderSheet = () => {
       posOrderChangePayments,
       refetch,
       toast,
+      t,
       updatePosOrderId,
     ],
   );
@@ -412,7 +401,7 @@ export const PosOrderSheet = () => {
                   {posOrder?.items?.length && (
                     <div className="rounded-md overflow-hidden">
                       <RecordTable.Provider
-                        columns={itemColumns}
+                        columns={orderItemColumns}
                         data={posOrder.items}
                         className="w-full"
                       >
