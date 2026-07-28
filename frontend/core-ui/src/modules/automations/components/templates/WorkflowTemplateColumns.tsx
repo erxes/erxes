@@ -75,9 +75,9 @@ export const getWorkflowTemplateColumns = ({
         </DropdownMenu>
       );
     },
-    size: 34,
-    maxSize: 34,
-    minSize: 34,
+    size: 33,
+    maxSize: 33,
+    minSize: 33,
   },
   {
     id: 'name',

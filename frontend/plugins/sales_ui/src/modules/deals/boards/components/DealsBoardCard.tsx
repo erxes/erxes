@@ -240,7 +240,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectLabels.FilterBar
             filterKey=""
             mode="multiple"
-            label={t('by-label')}
             variant="card"
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
@@ -251,7 +250,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             mode="multiple"
             label={t('by-tag')}
             variant="card"
-            targetId={_id}
             tagType="sales:deal"
             initialValue={tagIds || []}
             onValueChange={(value) => {

@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { GET_FAVORITES } from '@/navigation/graphql/queries/getFavorites';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
+import { getFavoriteLabels } from '@/navigation/utils/getFavoriteLabels';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { IconComponent } from 'erxes-ui';
@@ -22,6 +23,7 @@ interface Favorite {
 
 interface FavoriteModule {
   name: string;
+  breadcrumb: string[];
   icon?: ElementType;
   path: string;
 }
@@ -181,9 +183,18 @@ export function useFavorites(): FavoriteModule[] {
       return acc;
     }
 
+    const { breadcrumb, name } = getFavoriteLabels(
+      favorite.breadcrumb,
+      favorite.path,
+    );
+
     acc.push({
-      name: favorite.breadcrumb?.join(' / ') || favorite.path,
-      icon: resolveFavoriteIcon(favorite.icon) || allowedPaths.get(allowedPath) || IconStar,
+      name,
+      breadcrumb,
+      icon:
+        resolveFavoriteIcon(favorite.icon) ||
+        allowedPaths.get(allowedPath) ||
+        IconStar,
       path: favorite.path,
     });
 

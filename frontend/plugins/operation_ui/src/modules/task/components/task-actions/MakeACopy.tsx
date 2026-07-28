@@ -3,7 +3,7 @@ import {
   taskCreateDefaultValuesState,
   taskCreateSheetState,
 } from '@/task/states/taskCreateSheetState';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { ITask, TAddTask } from '@/task/types';
 import { IconCopy } from '@tabler/icons-react';
 import { Command, useToast } from 'erxes-ui';
@@ -18,7 +18,7 @@ type MakeACopyTriggerProps = {
 const useMakeACopy = () => {
   const setTaskCreateSheet = useSetAtom(taskCreateSheetState);
   const setTaskCreateDefaultValues = useSetAtom(taskCreateDefaultValuesState);
-  const setTaskDetailSheet = useSetAtom(taskDetailSheetState);
+  const [, setTaskDetailSheet] = useTaskDetailSheet();
   const navigate = useNavigate();
   const location = useLocation();
 

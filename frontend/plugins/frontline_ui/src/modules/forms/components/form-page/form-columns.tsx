@@ -181,7 +181,7 @@ export const FormsMoreColumnCell = ({
 
 export const MoreColumn: ColumnDef<IForm> = {
   id: 'more',
-  size: 30,
+  size: 33,
   cell: FormsMoreColumnCell,
 };
 

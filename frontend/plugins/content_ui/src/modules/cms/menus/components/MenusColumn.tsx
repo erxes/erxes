@@ -138,7 +138,7 @@ export const useMenusColumns = (
       cell: ({ row }) => (
         <MoreCell row={row} onEdit={onEdit} refetch={refetch} />
       ),
-      size: 40,
+      size: 33,
     },
     RecordTable.checkboxColumn as ColumnDef<MenuItem>,
     {
