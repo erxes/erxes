@@ -1,5 +1,5 @@
 import { IOrderInput } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   IPipeline,
@@ -127,10 +127,25 @@ export const pipelineMutations = {
    */
   async salesPipelinesArchive(
     _root,
-    { _id, status }: { _id: string; status: string },
-    { models }: IContext,
+    { _id }: { _id: string },
+    { models, user }: IContext,
   ) {
-    return await models.Pipelines.archivePipeline(_id, status);
+    await models.Pipelines.archivePipeline(_id, user._id);
+
+    const pipeline = await models.Pipelines.getPipeline(_id);
+
+    await graphqlPubsub.publish('salesPipelineListChanged', {
+      salesPipelineListChanged: {
+        _id,
+        action: 'statusChanged',
+        data: {
+          boardId: pipeline.boardId,
+          status: pipeline.status,
+        },
+      },
+    });
+
+    return true;
   },
 
   /**

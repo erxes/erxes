@@ -501,6 +501,10 @@ export const checkItemPermByUser = async (
   return deal;
 };
 
+type GetItemListOptions = {
+  formatter?: Record<string, 'date' | 'number' | 'boolean'>;
+};
+
 export const getItemList = async (
   models: IModels,
   subdomain: string,
@@ -508,6 +512,7 @@ export const getItemList = async (
   args: IDealQueryParams,
   user: IUserDocument,
   getExtraFields?: (item: any) => { [key: string]: any },
+  options?: GetItemListOptions,
 ) => {
   const { orderBy } = args;
   if (!orderBy || !Object.keys(orderBy)) {
@@ -518,6 +523,7 @@ export const getItemList = async (
     model: models.Deals,
     params: args,
     query: filter,
+    formatter: options?.formatter,
   });
 
   const updatedList: any[] = [];

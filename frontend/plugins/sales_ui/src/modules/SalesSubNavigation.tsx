@@ -1,3 +1,4 @@
+import { IconDotsVertical, IconLink, IconSettings } from '@tabler/icons-react';
 import {
   Button,
   Collapsible,
@@ -10,14 +11,13 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
-import { IconDotsVertical, IconLink, IconSettings } from '@tabler/icons-react';
+import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
-import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
-import { useEffect, useMemo } from 'react';
 import { usePipelines } from '@/deals/boards/hooks/usePipelines';
-import { useTranslation } from 'react-i18next';
+import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 
 function LoadingSkeleton() {
   return (
@@ -100,8 +100,11 @@ const Pipelines = () => {
 
   const currentBoardPipelines = useMemo(
     () =>
-      pipelines?.filter((pipeline) => pipeline.boardId === selectedBoardId) ||
-      [],
+      pipelines?.filter(
+        (pipeline) =>
+          pipeline.boardId === selectedBoardId &&
+          pipeline.status !== 'archived',
+      ) || [],
     [pipelines, selectedBoardId],
   );
   const hasStalePipelines =
@@ -215,7 +218,7 @@ const ActionsMenu = () => {
       <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
         <DropdownMenu.Item
           className="cursor-pointer"
-          onSelect={(e) => {
+          onSelect={() => {
             navigate(`/settings/deals`);
           }}
         >
@@ -223,7 +226,7 @@ const ActionsMenu = () => {
           {t('manage-board-pipelines')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
-          onSelect={(e) => {
+          onSelect={() => {
             handleCopyLink();
           }}
           className="cursor-pointer"

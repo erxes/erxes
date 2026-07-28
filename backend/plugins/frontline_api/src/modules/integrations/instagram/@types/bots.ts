@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface IInstagramPersistentMenus {
-  _id: number;
+  _id: string;
   text: string;
   type: string;
   link?: string;
