@@ -243,15 +243,18 @@ export const dealMutations: Record<string, Resolver> = {
     const stage = await models.Stages.findOne({ _id: stageId }).lean();
     const pipelineId = stage?.pipelineId;
 
-    items.forEach(async (item) => {
-      await graphqlPubsub.publish('salesDealListChanged', {
-        salesDealListChanged: {
-          pipelineIds: [pipelineId],
-          deal: item,
-          oldDeal: { ...item, status: SALES_STATUSES.ARCHIVED },
-        },
+    // `deal` is the state subscribers should converge on and `oldDeal` the one
+    // they are holding. Subscribers derive add/remove/edit by matching both
+    // against their filter, so swapping these makes a board treat an archived
+    // card as newly added instead of removing it.
+    for (const item of items) {
+      await subscriptionWrapper(models, {
+        action: 'update',
+        deal: { ...item, status: SALES_STATUSES.ARCHIVED } as IDealDocument,
+        oldDeal: item as IDealDocument,
+        pipelineId,
       });
-    });
+    }
 
     return 'ok';
   },

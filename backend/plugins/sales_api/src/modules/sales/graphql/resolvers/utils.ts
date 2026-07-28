@@ -445,18 +445,25 @@ export const changeItemStatus = async (
   const aboveItemId = aboveItems[0]?._id || '';
 
   // maybe, recovered order includes to oldOrders
+  const recoveredOrder = await getNewOrder({
+    collection: models.Deals,
+    stageId: item.stageId,
+    aboveItemId,
+  });
+
   await models.Deals.updateOne(
     {
       _id: item._id,
     },
     {
-      order: await getNewOrder({
-        collection: models.Deals,
-        stageId: item.stageId,
-        aboveItemId,
-      }),
+      order: recoveredOrder,
     },
   );
+
+  // The caller publishes this same item afterwards and boards insert the card
+  // by order, so it has to carry the order that was just persisted — otherwise
+  // a restored card lands wherever its archived-era order used to be.
+  item.order = recoveredOrder;
 
   // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
   //   salesPipelinesChanged: {

@@ -1,7 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 
 import { DEALS_ARCHIVE } from '@/deals/graphql/mutations/DealsMutations';
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -33,7 +32,11 @@ export function useDealsArchive(options?: MutationHookOptions) {
   const archiveDeals = (stageId: string) =>
     archiveDealsBase({
       variables: { stageId },
-      refetchQueries: [{ query: GET_DEALS, variables: { stageId } }],
+      // Board columns query Deals with stageId *and* pipelineId plus the
+      // active filters, so refetching one exact { stageId } variable set
+      // matched no live query and the board had nothing to fall back on when
+      // a subscription event was missed. Refetch by operation name instead.
+      refetchQueries: ['Deals'],
     });
 
   return {

@@ -63,6 +63,9 @@ export const useDeals = (
     [lastPipelineId, currentUser?._id, options?.variables],
   );
 
+  // Whether this query is one of the lists that shows archived deals.
+  const dropsArchived = !options?.variables?.noSkipArchive;
+
   useEffect(() => {
     if (!currentUser?._id) return;
 
@@ -77,11 +80,19 @@ export const useDeals = (
         const { action, deal } = subscriptionData.data.salesDealListChanged;
         const currentList = prev.deals.list;
 
+        // A list that excludes archived deals must drop one the moment it is
+        // archived, whichever action the server derived. The server compares
+        // the deal against this subscription's filter to label the event, so a
+        // filter mismatch would otherwise leave an archived card on the board.
+        const isArchived = deal?.status === 'archived';
+        const resolvedAction =
+          dropsArchived && isArchived && action !== 'remove' ? 'remove' : action;
+
         let updatedList = currentList;
         let added = false;
         let removed = false;
 
-        if (action === 'add') {
+        if (resolvedAction === 'add') {
           const exists = currentList.some(
             (item: IDeal) => item._id === deal._id,
           );
@@ -93,7 +104,7 @@ export const useDeals = (
           }
         }
 
-        if (action === 'edit') {
+        if (resolvedAction === 'edit') {
           updatedList = currentList.map((item: IDeal) =>
             item._id === deal._id ? { ...item, ...deal } : item,
           );
@@ -102,7 +113,7 @@ export const useDeals = (
           );
         }
 
-        if (action === 'remove') {
+        if (resolvedAction === 'remove') {
           removed = currentList.some((item: IDeal) => item._id === deal?._id);
           updatedList = currentList.filter(
             (item: IDeal) => item._id !== deal?._id,
@@ -128,7 +139,7 @@ export const useDeals = (
     });
 
     return unsubscribe;
-  }, [currentUser?._id, subscribeToMore, subscriptionVars]);
+  }, [currentUser?._id, dropsArchived, subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
     direction,
