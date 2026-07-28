@@ -222,7 +222,7 @@ const SelectMemberContent = () => {
             .filter(
               (user) =>
                 !inactiveMemberIds.includes(user._id) &&
-                !memberIds.find((memberId) => memberId === user._id),
+                !memberIds.some((memberId) => memberId === user._id),
             )
             .map((user) => (
               <SelectMemberCommandItem key={user._id} user={user} />
