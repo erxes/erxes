@@ -22,10 +22,11 @@ import { dealsViewAtom } from '@/deals/states/dealsViewState';
 interface IDealChanged {
   salesDealListChanged: {
     action: string;
-    deal: IDeal;
+    deal?: IDeal | null;
   };
 }
 
+// Subscriptions skip computed resolvers, so their nulls must not overwrite the cache.
 const withResolvedFieldsOnly = (deal: IDeal) =>
   Object.entries(deal).reduce<Partial<IDeal>>(
     (fields, [key, value]) =>
@@ -90,7 +91,7 @@ export const useDeals = (
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
         const currentList = prev.deals.list;
-        const changedDeal = withResolvedFieldsOnly(deal);
+        const changedDeal = deal ? withResolvedFieldsOnly(deal) : {};
 
         const isArchived = deal?.status === 'archived';
         const resolvedAction =
@@ -103,6 +104,8 @@ export const useDeals = (
         let removed = false;
 
         if (resolvedAction === 'add') {
+          if (!deal) return prev;
+
           const exists = currentList.some(
             (item: IDeal) => item._id === deal._id,
           );
@@ -115,6 +118,8 @@ export const useDeals = (
         }
 
         if (resolvedAction === 'edit') {
+          if (!deal) return prev;
+
           updatedList = currentList.map((item: IDeal) =>
             item._id === deal._id ? { ...item, ...changedDeal } : item,
           );

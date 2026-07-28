@@ -8,20 +8,30 @@ import {
 import { IDeal } from '@/deals/types/deals';
 import { useApolloClient, useSubscription } from '@apollo/client';
 
-interface ISalesPipelinesChangedPayload {
-  salesPipelinesChanged: {
-    _id: string;
-    processId?: string;
-    action: string;
-    data: {
-      item: IDeal;
-      aboveItemId?: string;
-      destinationStageId: string;
-      oldStageId?: string;
-      stageId?: string;
-      status?: string;
+type ISalesPipelinesChange =
+  | {
+      _id: string;
+      processId?: string;
+      action: 'orderUpdated';
+      data: {
+        item: IDeal;
+        aboveItemId?: string;
+        destinationStageId: string;
+        oldStageId?: string;
+      };
+    }
+  | {
+      _id: string;
+      processId?: string;
+      action: 'stageStatusChanged';
+      data: {
+        stageId: string;
+        status: string;
+      };
     };
-  };
+
+interface ISalesPipelinesChangedPayload {
+  salesPipelinesChanged: ISalesPipelinesChange;
 }
 
 export const usePipelineChanged = (pipelineId?: string) => {
@@ -36,20 +46,18 @@ export const usePipelineChanged = (pipelineId?: string) => {
       const payload = result.data?.salesPipelinesChanged;
       if (!payload?.data) return;
 
-      const { processId, action, data: changeData } = payload;
+      const { processId } = payload;
 
       if (processId && processId === localStorage.getItem('processId')) {
         return;
       }
 
-      if (action === 'stageStatusChanged') {
+      if (payload.action === 'stageStatusChanged') {
         void client.refetchQueries({ include: ['SalesStages'] });
         return;
       }
 
-      if (action !== 'orderUpdated') return;
-
-      const { item, aboveItemId, destinationStageId, oldStageId } = changeData;
+      const { item, aboveItemId, destinationStageId, oldStageId } = payload.data;
 
       if (!item?._id || !destinationStageId) return;
 
