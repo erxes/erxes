@@ -30,11 +30,19 @@ export const useFields = ({
     const relationType =
       type === 'relation' ? field.type?.replace('relation:', '') : undefined;
 
-    const logics = Object.fromEntries(
-      Object.entries(field.logics || {}).filter(([key]) => key !== 'multiple'),
-    );
+    const isLogicRules = Array.isArray(field.logics);
 
-    const multiple = field.logics?.multiple;
+    const logics = isLogicRules
+      ? field.logics
+      : Object.fromEntries(
+          Object.entries(field.logics || {}).filter(
+            ([key]) => key !== 'multiple',
+          ),
+        );
+
+    const multiple = isLogicRules
+      ? undefined
+      : (field.logics as { multiple?: boolean } | undefined)?.multiple;
 
     return {
       ...field,
@@ -47,6 +55,7 @@ export const useFields = ({
 
   return {
     fields: fields,
+    totalCount: data?.fields?.totalCount || 0,
     loading,
     refetch,
   };

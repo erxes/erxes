@@ -16,7 +16,8 @@ import {
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
 import { useManageRelations } from 'ui-modules';
-import type { IProductData } from 'ui-modules';
+import type { IField, IProductData } from 'ui-modules';
+import { useFields } from 'ui-modules';
 import { DealCardDetails } from './DealsBoardCardDetails';
 import { useTranslation } from 'react-i18next';
 
@@ -32,9 +33,53 @@ const normalizeSelectedIds = (value?: string | string[]) => {
   return Array.isArray(value) ? value : [value];
 };
 
+const hasFieldValue = (value: unknown) => {
+  if (value === null || value === undefined || value === '') return false;
+  if (Array.isArray(value) && value.length === 0) return false;
+  return true;
+};
+
+const formatFieldValue = (field: IField, value: unknown): string => {
+  if (Array.isArray(value)) {
+    if (field.options?.length) {
+      return value
+        .map(
+          (v) => field.options?.find((option) => option.value === v)?.label ?? String(v),
+        )
+        .join(', ');
+    }
+    return value.join(', ');
+  }
+  if (field.options?.length) {
+    return (
+      field.options.find((option) => option.value === value)?.label ??
+      String(value)
+    );
+  }
+  if (field.type === 'boolean' || field.type === 'check') {
+    return value ? 'Yes' : 'No';
+  }
+  if (field.type === 'date') {
+    const date = new Date(value as string);
+    return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
+  }
+  return String(value);
+};
+
 const CardDetails = ({ deal }: { deal: IDeal }) => {
   const { t } = useTranslation('sales');
   const { companies, customers, tags, customProperties } = deal;
+  const { fields: dealFields } = useFields({ contentType: 'sales:deal' });
+
+  const cardPropertyItems = (dealFields || [])
+    .filter(
+      (field) =>
+        field.isVisibleInCard && hasFieldValue(deal.propertiesData?.[field._id]),
+    )
+    .map((field) => ({
+      _id: field._id,
+      name: `${field.name}: ${formatFieldValue(field, deal.propertiesData?.[field._id])}`,
+    }));
 
   const productMap = new Map(deal.products?.map((p) => [p._id, p]));
 
@@ -91,7 +136,8 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
     !companies?.length &&
     !customers?.length &&
     !tags?.length &&
-    !customProperties?.length
+    !customProperties?.length &&
+    !cardPropertyItems.length
   ) {
     return null;
   }
@@ -108,6 +154,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
         color="#FF9900"
         separated
       />
+      <DealCardDetails items={cardPropertyItems} color="#0EA5E9" separated />
       {hasProducts && (
         <div className="flex flex-col gap-0.5 pt-0.5">
           {Object.entries(usedTotals).map(([currency, total]) => (

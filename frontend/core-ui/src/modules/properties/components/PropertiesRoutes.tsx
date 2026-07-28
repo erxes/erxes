@@ -51,8 +51,9 @@ export const PropertiesSettingsRoutes = () => {
             <PageContainer>
               <PropertiesHeader />
               <PropertiesLayout>
+                <PropertiesSettingsPage />
                 <Routes>
-                  <Route index element={<PropertiesSettingsPage />} />
+                  <Route path="/add" element={<AddPropertyFieldPage />} />
                   <Route
                     path="/:groupId/add"
                     element={<AddPropertyFieldPage />}

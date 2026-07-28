@@ -8,6 +8,7 @@ export const salesFormSchema = z.object({
   customerIds: z.array(z.string()).optional(),
   labelIds: z.array(z.string()).optional(),
   tagIds: z.array(z.string()).optional(),
+  propertiesData: z.record(z.unknown()).optional(),
 });
 
 export type SalesFormType = z.infer<typeof salesFormSchema>;

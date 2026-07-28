@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { useFields } from '../hooks/useFields';
 import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
+import { isFieldVisibleByLogic } from '../propertyUtils';
 import { Field, FieldMultiple } from './Field';
 import { useNavigate } from 'react-router-dom';
 
@@ -131,9 +132,13 @@ export const FieldsInGroup = ({
     return <Spinner containerClassName="py-6" />;
   }
 
+  const visibleFields = fields
+    .filter((field) => field.isVisible !== false)
+    .filter((field) => isFieldVisibleByLogic(field, propertiesData));
+
   return (
     <div className="grid grid-cols-2 gap-4">
-      {fields.map((field) => (
+      {visibleFields.map((field) => (
         <Field
           key={field._id}
           field={field}
@@ -174,6 +179,10 @@ export const MultipleFieldsInGroup = ({
     return <Spinner containerClassName="py-6" />;
   }
 
+  const visibleFields = fields
+    .filter((field) => field.isVisible !== false)
+    .filter((field) => isFieldVisibleByLogic(field, propertiesData));
+
   const handleAddProperty = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
@@ -207,7 +216,7 @@ export const MultipleFieldsInGroup = ({
         <div className="flex flex-col gap-4">
           {properties.map((property: any, index: number) => (
             <div className="grid grid-cols-2 gap-4">
-              {fields.map((field) => (
+              {visibleFields.map((field) => (
                 <FieldMultiple
                   key={field._id}
                   group={group}

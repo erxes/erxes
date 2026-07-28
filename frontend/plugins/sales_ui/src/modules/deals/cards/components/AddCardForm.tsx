@@ -1,10 +1,26 @@
-import { Button, Editor, Form, Input, ScrollArea, Sheet } from 'erxes-ui';
+import {
+  Button,
+  Editor,
+  Form,
+  Input,
+  ScrollArea,
+  Sheet,
+  Spinner,
+} from 'erxes-ui';
 import { SalesFormType, salesFormSchema } from '@/deals/constants/formSchema';
-import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
+import {
+  isFieldVisibleByLogic,
+  PropertyFormField,
+  SelectCompany,
+  SelectCustomer,
+  SelectMember,
+  useFields,
+} from 'ui-modules';
 
 import { SelectLabels } from '../../components/common/filters/SelectLabel';
 import WorkflowFields from './WorkflowFields';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -28,14 +44,33 @@ export function AddCardForm({
       customerIds: [],
       labelIds: [],
       tagIds: [],
+      propertiesData: {},
     },
   });
   const { addDeals, loading } = useDealsAdd();
 
-  const onSubmit = (data: SalesFormType) => {
+  const updateCustomFieldValue = useCallback(
+    (fieldId: string, value: unknown) => {
+      const current = form.getValues('propertiesData') || {};
+      form.setValue('propertiesData', { ...current, [fieldId]: value });
+    },
+    [form],
+  );
+
+  const onSubmit = ({ propertiesData, ...rest }: SalesFormType) => {
+    const cleanPropertiesData =
+      propertiesData && Object.keys(propertiesData).length > 0
+        ? Object.fromEntries(
+            Object.entries(propertiesData).filter(
+              ([, v]) => v !== undefined && v !== null && v !== '',
+            ),
+          )
+        : undefined;
+
     addDeals({
       variables: {
-        ...data,
+        ...rest,
+        propertiesData: cleanPropertiesData,
       },
       onCompleted: (data) => {
         form.reset();
@@ -44,6 +79,8 @@ export function AddCardForm({
       },
     });
   };
+
+  const propertiesData = form.watch('propertiesData') || {};
 
   const { t } = useTranslation('sales');
 
@@ -166,6 +203,10 @@ export function AddCardForm({
                   )}
                 />
               </div>
+              <DealPropertiesSection
+                propertiesData={propertiesData}
+                onFieldChange={updateCustomFieldValue}
+              />
             </div>
           </ScrollArea>
         </Sheet.Content>
@@ -190,5 +231,41 @@ export function AddCardForm({
         </Sheet.Footer>
       </form>
     </Form>
+  );
+}
+
+function DealPropertiesSection({
+  propertiesData,
+  onFieldChange,
+}: Readonly<{
+  propertiesData: Record<string, unknown>;
+  onFieldChange: (fieldId: string, value: unknown) => void;
+}>) {
+  const { fields, loading } = useFields({ contentType: 'sales:deal' });
+
+  const visibleFields = fields
+    .filter((field) => field.isVisibleToCreate)
+    .filter((field) => isFieldVisibleByLogic(field, propertiesData));
+
+  if (loading) {
+    return <Spinner containerClassName="py-6" />;
+  }
+
+  if (visibleFields.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      {visibleFields.map((field) => (
+        <PropertyFormField
+          key={field._id}
+          field={field}
+          value={propertiesData[field._id]}
+          idPrefix="deal_add_form"
+          onFieldChange={onFieldChange}
+        />
+      ))}
+    </div>
   );
 }

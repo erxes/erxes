@@ -34,7 +34,10 @@ export const PropertyGroupForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(submitHandler)}
+        onSubmit={(e) => {
+          e.stopPropagation();
+          form.handleSubmit(submitHandler)(e);
+        }}
         className=" flex flex-col gap-0 w-full h-full"
       >
         <Sheet.Header>

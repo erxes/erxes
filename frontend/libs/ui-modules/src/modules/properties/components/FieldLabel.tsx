@@ -17,7 +17,10 @@ export const FieldLabel = ({
   }
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>{field.name}</Label>
+      <Label htmlFor={id}>
+        {field.name}
+        {field.isRequired && <span className="text-destructive"> *</span>}
+      </Label>
       {children}
     </div>
   );
