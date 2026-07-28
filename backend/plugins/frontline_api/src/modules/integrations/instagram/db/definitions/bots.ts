@@ -2,7 +2,7 @@ import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
 const persistentMenuSchema = new Schema({
-  _id: { type: Number },
+  _id: { type: String },
   text: { type: String },
   type: { type: String },
   link: { type: String, optional: true },

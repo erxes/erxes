@@ -1,8 +1,12 @@
 {
   "// --- Buttons ---": "",
   "edit": "Edit",
+  "action": "Actions",
   "copy": "Copy",
   "print-document": "Print Document",
+  "search-document": "Search document...",
+  "print-document-failed": "Unable to prepare this document for printing",
+  "print-popup-blocked": "Allow pop-ups to open the print preview",
   "remove": "Remove",
   "delete": "Delete",
   "save": "Save",
@@ -47,6 +51,9 @@
   "watch-mixed": "Watch (Mixed)",
   "show-archived-items": "Show archived items",
   "show-active-items": "Show active items",
+  "previous": "Previous",
+  "next": "Next",
+  "close": "Close",
   "select-color": "Select a Color",
   "back": "Back",
   "change": "Change",
@@ -166,6 +173,8 @@
   "tags": "Tags",
   "branches": "Branches",
   "departments": "Departments",
+  "broker-type": "Broker type",
+  "broker": "Broker",
   "description": "Description",
   "category": "Category",
   "categories": "Categories",
@@ -811,5 +820,9 @@
   "checklist-name": "Checklist name",
   "checklist-items": "Checklist items",
   "add-item": "Add item",
-  "dept": "Dept."
+  "dept": "Dept.",
+  "leave-a-note": "Leave a note...",
+  "send": "Send",
+  "note-added": "Note added successfully",
+  "view-more-activities": "View more activities"
 }

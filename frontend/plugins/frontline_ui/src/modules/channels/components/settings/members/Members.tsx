@@ -30,7 +30,7 @@ export function Members() {
         >
           <RecordTableTree id="members" ordered>
             <RecordTable.Scroll>
-              <RecordTable className="w-full">
+              <RecordTable>
                 <RecordTable.Header />
                 <RecordTable.Body>
                   <RecordTable.RowList Row={RecordTableTree.Row} />

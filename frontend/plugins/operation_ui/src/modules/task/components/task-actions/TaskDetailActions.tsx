@@ -15,8 +15,7 @@ import { CopyTaskTrigger, CopyTaskCommandBarItem } from './CopyTask';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRemoveTask } from '@/task/hooks/useRemoveTask';
-import { useSetAtom } from 'jotai';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 
 export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
   const { t } = useTranslation('operation');
@@ -26,7 +25,7 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
   const { teamId } = useParams();
   const { removeTask } = useRemoveTask();
   const navigate = useNavigate();
-  const setActiveTask = useSetAtom(taskDetailSheetState);
+  const [, setActiveTask] = useTaskDetailSheet();
 
   return (
     <Popover

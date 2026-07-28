@@ -26,11 +26,15 @@ export const IgPostTrigger = ({ erxesApiId }: { erxesApiId: string }) => {
           <IconBrowserShare />
           {loading ? (
             <Skeleton className="h-4 w-16" />
-          ) : (
+          ) : sanitized ? (
             <span
               className="flex-auto max-w-32 truncate"
               dangerouslySetInnerHTML={{ __html: sanitized }}
             />
+          ) : (
+            <span className="flex-auto max-w-32 truncate">
+              {t('view-post')}
+            </span>
           )}
         </Button>
       </Popover.Trigger>

@@ -13,9 +13,77 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
+  INSTAGRAM_BOTS_LIST,
+  INSTAGRAM_BOTS_TOTAL_COUNT,
+} from '@/integrations/instagram/graphql/queries/instagramBots';
+import {
   REMOVE_INSTAGRAM_BOT,
   REPAIR_INSTAGRAM_BOT,
 } from '~/widgets/automations/modules/instagram/components/bots/graphql/automationBotsMutations';
+
+const INSTAGRAM_BOTS_REFETCH_QUERIES = [
+  { query: INSTAGRAM_BOTS_LIST },
+  { query: INSTAGRAM_BOTS_TOTAL_COUNT },
+];
+
+const BotActionsCell = ({ _id }: { _id?: string }) => {
+  const { t } = useTranslation('frontline');
+  const [, setInstagramBotId] = useQueryState('instagramBotId');
+
+  const [repairBot, { loading: loadingRepair }] = useMutation(
+    REPAIR_INSTAGRAM_BOT,
+    {
+      variables: { _id },
+      onCompleted: () => toast({ title: t('repaired-successfully') }),
+      onError: (error) =>
+        toast({
+          title: t('something-went-wrong'),
+          description: error.message,
+          variant: 'destructive',
+        }),
+    },
+  );
+
+  const [removeBot, { loading: loadingRemove }] = useMutation(
+    REMOVE_INSTAGRAM_BOT,
+    {
+      variables: { _id },
+      refetchQueries: INSTAGRAM_BOTS_REFETCH_QUERIES,
+      awaitRefetchQueries: true,
+      onCompleted: () => toast({ title: t('removed-successfully') }),
+      onError: (error) =>
+        toast({
+          title: t('something-went-wrong'),
+          description: error.message,
+          variant: 'destructive',
+        }),
+    },
+  );
+
+  return (
+    <div className="flex items-center justify-center gap-1 [&>button]:px-2">
+      <Button variant="ghost" onClick={() => setInstagramBotId(_id ?? null)}>
+        <IconEdit />
+      </Button>
+
+      <Button
+        disabled={loadingRepair}
+        variant="ghost"
+        onClick={() => repairBot()}
+      >
+        {loadingRepair ? <Spinner /> : <IconRefresh />}
+      </Button>
+
+      <Button
+        disabled={loadingRemove}
+        variant="ghost"
+        onClick={() => removeBot()}
+      >
+        {loadingRemove ? <Spinner /> : <IconX />}
+      </Button>
+    </div>
+  );
+};
 
 export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
   {
@@ -62,61 +130,6 @@ export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
   {
     id: 'action-group',
     header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ cell }) => {
-      const { t } = useTranslation('frontline');
-      const { _id } = cell.row.original || {};
-      const [_, setInstagramBotId] = useQueryState('instagramBotId');
-      const [repairBot, { loading: loadingRepair }] = useMutation(
-        REPAIR_INSTAGRAM_BOT,
-        {
-          variables: { _id },
-          onCompleted: () => toast({ title: t('repaired-successfully') }),
-          onError: (error) =>
-            toast({
-              title: t('something-went-wrong'),
-              description: error.message,
-              variant: 'destructive',
-            }),
-        },
-      );
-
-      const [removeBot, { loading: loadingRemove }] = useMutation(
-        REMOVE_INSTAGRAM_BOT,
-        {
-          variables: { _id },
-          onCompleted: () => toast({ title: t('removed-successfully') }),
-          onError: (error) =>
-            toast({
-              title: t('something-went-wrong'),
-              description: error.message,
-              variant: 'destructive',
-            }),
-        },
-      );
-
-      return (
-        <div className="flex items-center justify-center gap-1 [&>button]:px-2">
-          <Button variant="ghost" onClick={() => setInstagramBotId(_id)}>
-            <IconEdit />
-          </Button>
-
-          <Button
-            disabled={loadingRepair}
-            variant="ghost"
-            onClick={() => repairBot()}
-          >
-            {loadingRepair ? <Spinner /> : <IconRefresh />}
-          </Button>
-
-          <Button
-            disabled={loadingRemove}
-            variant="ghost"
-            onClick={() => removeBot()}
-          >
-            {loadingRemove ? <Spinner /> : <IconX />}
-          </Button>
-        </div>
-      );
-    },
+    cell: ({ cell }) => <BotActionsCell _id={cell.row.original?._id} />,
   },
 ];

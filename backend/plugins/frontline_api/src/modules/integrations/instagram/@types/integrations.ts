@@ -6,7 +6,7 @@ export interface IInstagramIntegration {
   emailScope?: string;
   erxesApiId: string;
   facebookPageId?: string;
-  instagramPageIds?: string[];
+  instagramPageId?: string;
   facebookPageTokensMap?: { [key: string]: string };
   email: string;
   expiration?: string;

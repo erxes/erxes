@@ -5,12 +5,11 @@ import { SelectProject } from '@/task/components/task-selects/SelectProjectTask'
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { ITask } from '@/task/types';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { Button, Card, Separator } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -36,7 +35,7 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
     status,
     createdAt,
   } = task || {};
-  const [activeTask, setActiveTask] = useAtom(taskDetailSheetState);
+  const [activeTask, setActiveTask] = useTaskDetailSheet();
 
   return (
     <>
