@@ -21,6 +21,7 @@ export const GET_USERS = gql`
       list {
         _id
         email
+        isActive
         details {
           avatar
           fullName

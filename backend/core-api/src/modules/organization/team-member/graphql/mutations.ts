@@ -23,6 +23,19 @@ export interface IUsersEdit extends IUser {
   _id: string;
 }
 
+const publishUserStatusChanged = (
+  subdomain: string,
+  userId: string,
+  updatedUser: IUser,
+) => {
+  const payload = { userStatusChanged: updatedUser };
+
+  return Promise.all([
+    graphqlPubsub.publish(`userStatusChanged:${subdomain}:${userId}`, payload),
+    graphqlPubsub.publish(`userStatusChanged:${subdomain}`, payload),
+  ]);
+};
+
 const validatePermissionGroupIds = async (
   models: IModels,
   permissionGroupIds: string[],
@@ -256,9 +269,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
 
     const updatedUser = await models.Users.setUserActiveOrInactive(_id);
 
-    await graphqlPubsub.publish(`userStatusChanged:${subdomain}:${_id}`, {
-      userStatusChanged: updatedUser,
-    });
+    await publishUserStatusChanged(subdomain, _id, updatedUser);
 
     return updatedUser;
   },
@@ -282,9 +293,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       if (targetUser && targetUser.isActive !== false) {
         const updatedUser = await models.Users.setUserActiveOrInactive(_id);
 
-        await graphqlPubsub.publish(`userStatusChanged:${subdomain}:${_id}`, {
-          userStatusChanged: updatedUser,
-        });
+        await publishUserStatusChanged(subdomain, _id, updatedUser);
       }
     }
 

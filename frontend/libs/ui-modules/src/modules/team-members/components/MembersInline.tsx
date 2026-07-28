@@ -138,22 +138,27 @@ const MemberInlineEffectComponent = ({
     skip,
     fetchPolicy: 'cache-and-network',
   });
-  useSubscription(USER_STATUS_CHANGED, {
+  const { data: statusChangedData } = useSubscription<{
+    userStatusChanged?: IUser;
+  }>(USER_STATUS_CHANGED, {
     variables: { _id: memberId },
     skip,
   });
+  const statusChangedUser = statusChangedData?.userStatusChanged;
+  const resolvedUser =
+    statusChangedUser?._id === memberId ? statusChangedUser : userDetail;
 
   useEffect(() => {
     if (!updateMembers) return;
 
-    if (userDetail?.isActive === false) {
+    if (resolvedUser?.isActive === false) {
       onActiveChange(memberId, false);
       updateMembers((prev) => prev.filter(({ _id }) => _id !== memberId));
-    } else if (userDetail) {
+    } else if (resolvedUser) {
       onActiveChange(memberId, true);
       updateMembers((prev) => {
         if (prev.some((m) => m._id === memberId)) return prev;
-        return [...prev, { ...userDetail, _id: memberId }];
+        return [...prev, { ...resolvedUser, _id: memberId }];
       });
     }
     if (currentUser?._id === memberId) {
@@ -163,7 +168,7 @@ const MemberInlineEffectComponent = ({
         return [currentUser, ...prev];
       });
     }
-  }, [userDetail, currentUser, memberId, onActiveChange, updateMembers]);
+  }, [resolvedUser, currentUser, memberId, onActiveChange, updateMembers]);
 
   return null;
 };

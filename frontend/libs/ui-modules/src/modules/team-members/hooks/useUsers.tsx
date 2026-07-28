@@ -20,6 +20,7 @@ export const useUsers = (
   const { data, loading, fetchMore, error } = useQuery<
     ICursorListResponse<IUser>
   >(GET_USERS, {
+    fetchPolicy: 'cache-and-network',
     ...options,
     variables: {
       limit: USERS_LIMIT,
@@ -55,7 +56,7 @@ export const useUsers = (
   };
 
   return {
-    users: list,
+    users: list.filter(({ isActive }) => isActive !== false),
     loading,
     handleFetchMore,
     error,
