@@ -8,14 +8,16 @@ import {
 } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { useProductGroupRowsRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
+import { useTranslation } from 'react-i18next';
 
 export const ProductGroupRowsCommandbar = () => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ProductGroupRowsDelete />
@@ -25,16 +27,17 @@ export const ProductGroupRowsCommandbar = () => {
 };
 
 export const ProductGroupRowsDelete = () => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeProductGroup, loading } = useProductGroupRowsRemove();
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete these product groups?',
+      message: t('delete-product-groups-confirm'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       const productGroupIds = table
@@ -45,7 +48,7 @@ export const ProductGroupRowsDelete = () => {
         variables: { ids: productGroupIds },
         onError: (error: Error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -53,8 +56,8 @@ export const ProductGroupRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Success',
-            description: 'Product groups deleted successfully',
+            title: t('success'),
+            description: t('product-groups-deleted-successfully'),
           });
         },
       });
@@ -64,7 +67,7 @@ export const ProductGroupRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

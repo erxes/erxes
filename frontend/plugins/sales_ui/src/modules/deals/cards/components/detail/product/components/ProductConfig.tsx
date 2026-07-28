@@ -1,30 +1,17 @@
-import {
-  OtherPayments,
-  Payments,
-  SelectCategory,
-  SelectProduct,
-  Token,
-} from 'ui-modules';
+import { SelectCategory, SelectProduct } from 'ui-modules';
 
 import { Form } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
-
-interface ProductConfigFormValues {
-  numberSize?: string;
-  isCheckDate?: boolean;
-  isCheckUser?: boolean;
-  isCheckDepartment?: boolean;
-  initialCategoryIds?: string[];
-  excludeCategoryIds?: string[];
-  excludeProductIds?: string[];
-  erxesAppToken?: string;
-}
+import { OtherPaymentsField, PaymentIdsField } from '@/payments';
+import type { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import type { TPipelineForm } from '@/deals/types/pipelines';
 
 interface ProductConfigProps {
-  form: UseFormReturn<ProductConfigFormValues>;
+  form: UseFormReturn<TPipelineForm>;
 }
 
-const ProductConfig = ({ form }: ProductConfigProps) => {
+export const ProductConfig = ({ form }: ProductConfigProps) => {
+  const { t } = useTranslation('sales');
   const { control } = form;
 
   return (
@@ -32,7 +19,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            Initial Product Categories
+            {t('initial-product-categories')}
           </h3>
         </div>
         <Form.Field
@@ -41,14 +28,10 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
           render={({ field }) => {
             return (
               <SelectCategory
-                selected={field.value?.[0] || ''}
-                onSelect={(id) => {
-                  const current = field.value || [];
-                  const updated = current.includes(id as string)
-                    ? current.filter((i: string) => i !== id)
-                    : [...current, id];
-                  field.onChange(updated);
-                }}
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={field.onChange}
+                placeholder={t('select-initial-product-categories')}
               />
             );
           }}
@@ -57,7 +40,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            Pipeline Exclude Products
+            {t('pipeline-exclude-products')}
           </h3>
         </div>
         <div className="space-y-6">
@@ -67,17 +50,13 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label className="text-sm font-medium">
-                  Exclude Categories
+                  {t('exclude-categories')}
                 </Form.Label>
                 <SelectCategory
-                  selected={field.value?.[0] || ''}
-                  onSelect={(id) => {
-                    const current = field.value || [];
-                    const updated = current.includes(id as string)
-                      ? current.filter((i: string) => i !== id)
-                      : [...current, id];
-                    field.onChange(updated);
-                  }}
+                  mode="multiple"
+                  value={field.value || []}
+                  onValueChange={field.onChange}
+                  placeholder={t('select-categories-to-exclude')}
                 />
               </Form.Item>
             )}
@@ -88,13 +67,13 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label className="text-sm font-medium">
-                  Exclude Products
+                  {t('exclude-products')}
                 </Form.Label>
                 <SelectProduct
                   mode="multiple"
-                  value={field.value || ([] as string[])}
+                  value={field.value || []}
                   onValueChange={field.onChange}
-                  placeholder="Select products to exclude"
+                  placeholder={t('select-products-to-exclude')}
                 />
               </Form.Item>
             )}
@@ -104,17 +83,14 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            Other Configuration
+            {t('other-configuration')}
           </h3>
         </div>
         <div className="space-y-6">
-          <Payments control={form.control} />
-          <Token control={form.control} />
-          <OtherPayments control={form.control} />
+          <PaymentIdsField control={form.control} />
+          <OtherPaymentsField control={form.control} />
         </div>
       </div>
     </div>
   );
 };
-
-export default ProductConfig;

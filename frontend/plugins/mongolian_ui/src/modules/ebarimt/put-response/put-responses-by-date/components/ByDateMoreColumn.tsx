@@ -1,33 +1,24 @@
 import { Cell } from '@tanstack/react-table';
-import { useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
-import { RecordTable } from 'erxes-ui';
+import { Popover, RecordTable } from 'erxes-ui';
+import { PrintDocument } from 'ui-modules';
 import { IByDate } from '~/modules/ebarimt/put-response/put-responses-by-date/types/ByDateType';
-import { renderingByDateDetailAtom } from '~/modules/ebarimt/put-response/put-responses-by-date/states/ByDateDetailStates';
 
 export const ByDateMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IByDate, unknown>;
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const setRenderingByDateDetail = useSetAtom(renderingByDateDetailAtom);
-  const { _id } = cell.row.original;
-
-  const setOpen = (byDateId: string) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('by_date_id', byDateId);
-    setSearchParams(newSearchParams);
-  };
+  const row = cell.row.original;
 
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setOpen(_id);
-        setRenderingByDateDetail(false);
-      }}
-    />
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Popover.Content className="p-0 w-auto" align="start">
+        <PrintDocument items={[row]} contentType="core:byDate" />
+      </Popover.Content>
+    </Popover>
   );
 };
 

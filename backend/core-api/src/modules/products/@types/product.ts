@@ -21,6 +21,7 @@ export interface IProductParams extends IListParams, ICursorPaginateParams {
   segment?: string;
   segmentData?: string;
   groupedSimilarity?: string;
+  similarity?: boolean;
   image?: string;
   branchId: string;
   departmentId: string;
@@ -32,4 +33,5 @@ export interface IProductParams extends IListParams, ICursorPaginateParams {
   maxDiscountValue: number;
   minDiscountPercent: number;
   maxDiscountPercent: number;
+  discountConditions?: Record<string, unknown>;
 }

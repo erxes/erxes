@@ -1,5 +1,6 @@
 import { executeCoreActions } from './executeCoreActions';
 import { executeCreateAction } from './actions/executeCreateAction';
+import { notifyParentExecution } from './startWorkflowExecution';
 import { markExecActionStarted } from './executionActionMetrics';
 import { handleExecutionActionResponse } from './handleExecutionActionResponse';
 import { handleExecutionError } from './handleExecutionError';
@@ -14,8 +15,6 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { getPlugins } from 'erxes-api-shared/utils';
 import { ACTION_METHODS, ERROR_MESSAGES, EXECUTION_STATUS } from '../constants';
-
-const SPLIT_ACTION_TYPE = 'split';
 
 /**
  * Determines the target type for an action based on its configuration
@@ -56,6 +55,7 @@ export const executeActions = async (
   if (!currentActionId) {
     execution.status = AUTOMATION_EXECUTION_STATUS.COMPLETE;
     await execution.save();
+    notifyParentExecution(subdomain, execution, 'complete');
 
     return EXECUTION_STATUS.FINISHED;
   }
@@ -63,6 +63,12 @@ export const executeActions = async (
   if (!action) {
     execution.status = AUTOMATION_EXECUTION_STATUS.MISSID;
     await execution.save();
+    notifyParentExecution(
+      subdomain,
+      execution,
+      'error',
+      `Missed action: ${currentActionId}`,
+    );
 
     return EXECUTION_STATUS.MISSED_ACTION;
   }
@@ -82,13 +88,12 @@ export const executeActions = async (
 
   const targetType = getTargetType(action, actionsMap, triggerType);
 
+  const isCoreAction = Object.values(AUTOMATION_CORE_ACTIONS).find(
+    (value) => actionType === value,
+  );
+
   try {
-    if (
-      actionType === SPLIT_ACTION_TYPE ||
-      Object.values(AUTOMATION_CORE_ACTIONS).find(
-        (value) => actionType === value,
-      )
-    ) {
+    if (isCoreAction) {
       const coreActionResponse = await executeCoreActions(
         triggerType,
         targetType,
@@ -112,7 +117,7 @@ export const executeActions = async (
       }
       actionResponse = coreActionResponse.actionResponse;
     } else {
-      const [serviceName, _module, _collection, method] = splitType(actionType);
+      const [serviceName, , , method] = splitType(actionType);
       const isRemoteAction = (await getPlugins()).includes(serviceName);
 
       if (!isRemoteAction) {
@@ -140,6 +145,7 @@ export const executeActions = async (
     }
   } catch (e) {
     await handleExecutionError(e, actionType, execution, execAction);
+    notifyParentExecution(subdomain, execution, 'error', e.message);
     return EXECUTION_STATUS.ERROR;
   }
 

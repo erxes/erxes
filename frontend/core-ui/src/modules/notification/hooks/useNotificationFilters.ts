@@ -14,6 +14,7 @@ export const useNotificationFilters = () => {
     notificationCreatedAt: createdAt,
     notificationOrderBy: orderBy,
     notificationFromUserId: fromUserId,
+    notificationModule: module,
   } = useNonNullMultiQueryState<{
     notificationStatus: TNotificationStatus;
     notificationPriority: TNotificationPriority;
@@ -21,6 +22,7 @@ export const useNotificationFilters = () => {
     notificationCreatedAt: string;
     notificationOrderBy: TNotificationOrderBy;
     notificationFromUserId: string;
+    notificationModule: string;
   }>([
     'notificationStatus',
     'notificationType',
@@ -28,6 +30,7 @@ export const useNotificationFilters = () => {
     'notificationCreatedAt',
     'notificationOrderBy',
     'notificationFromUserId',
+    'notificationModule',
   ]);
 
   const orderByFilter = () => {
@@ -49,5 +52,6 @@ export const useNotificationFilters = () => {
     endDate: parseDateRangeFromString(createdAt)?.to,
     ...(Object.keys(orderByValue).length > 0 && { orderBy: orderByValue }),
     fromUserId,
+    module,
   };
 };

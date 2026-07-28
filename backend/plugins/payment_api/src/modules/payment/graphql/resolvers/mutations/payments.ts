@@ -38,7 +38,10 @@ async function handleQPaySetup(input: any) {
 
   // Fallback for missing name (for company registration)
   if (isCompany && !input.config.name) {
-    input.config.name = input.config.companyName || input.config.businessName || "Default Contact";
+    input.config.name =
+      input.config.companyName ||
+      input.config.businessName ||
+      'Default Contact';
   }
 
   const response = isCompany
@@ -46,7 +49,9 @@ async function handleQPaySetup(input: any) {
     : await api.createCustomer(input.config);
 
   if (!response?.id) {
-    throw new Error(`QPay did not return merchant id: ${JSON.stringify(response)}`);
+    throw new Error(
+      `QPay did not return merchant id: ${JSON.stringify(response)}`,
+    );
   }
 
   input.config.merchantId = response.id;
@@ -109,10 +114,7 @@ const mutations = {
 
     const payment = await models.PaymentMethods.createPayment(input);
 
-    // Authorize first (multi-tenant safe)
     await authorizePayment(payment, models, subdomain);
-
-    // Register webhook only after successful authorization
     await registerWebhookIfNeeded(input, payment, domain, models);
 
     return payment;

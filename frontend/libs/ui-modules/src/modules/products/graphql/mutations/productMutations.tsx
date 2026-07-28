@@ -11,10 +11,13 @@ export const PRODUCTS_ADD = gql`
     $variants: JSON
     $barcodeDescription: String
     $unitPrice: Float
+    $duration: Float
+    $durationType: ProductDurationType
     $code: String
     $propertiesData: JSON
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
+    $videos: [AttachmentInput]
     $pdfAttachment: PdfAttachmentInput
     $vendorId: String
     $scopeBrandIds: [String]
@@ -32,10 +35,13 @@ export const PRODUCTS_ADD = gql`
       variants: $variants
       barcodeDescription: $barcodeDescription
       unitPrice: $unitPrice
+      duration: $duration
+      durationType: $durationType
       code: $code
       propertiesData: $propertiesData
       attachment: $attachment
       attachmentMore: $attachmentMore
+      videos: $videos
       pdfAttachment: $pdfAttachment
       vendorId: $vendorId
       scopeBrandIds: $scopeBrandIds
@@ -57,6 +63,8 @@ export const PRODUCTS_ADD = gql`
       shortName
       uom
       unitPrice
+      duration
+      durationType
       type
       vendor {
         _id
@@ -88,6 +96,7 @@ export const PRODUCTS_EDIT = gql`
     $scopeBrandIds: [String]
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
+    $videos: [AttachmentInput]
   ) {
     productsEdit(
       _id: $_id
@@ -109,6 +118,7 @@ export const PRODUCTS_EDIT = gql`
       scopeBrandIds: $scopeBrandIds
       attachment: $attachment
       attachmentMore: $attachmentMore
+      videos: $videos
     ) {
       _id
     }

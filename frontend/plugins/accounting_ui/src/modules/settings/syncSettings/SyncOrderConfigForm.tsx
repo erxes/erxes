@@ -1,31 +1,30 @@
-import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { JournalEnum } from '@/settings/account/types/Account';
-import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
-import { SelectVat } from '@/settings/vat/components/SelectVatRow';
-import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
-import { useQuery } from '@apollo/client';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  Form,
-  Input,
-  isEnabled,
-  Select,
-  Spinner,
-} from 'erxes-ui';
-import { useEffect, useMemo } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
-import { z } from 'zod';
+import { Form, Select, isEnabled } from 'erxes-ui';
 import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
-import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
+import {
+  SyncConfigAccountsSection,
+  SyncConfigFormFooter,
+  SyncConfigGeneralFields,
+  SyncConfigPaymentsSection,
+  SyncConfigReturnTypeField,
+  SyncConfigVatCtaxSection,
+  TPaymentType,
+  normalizeSyncConfigData,
+} from './SyncConfigFormSections';
+import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
 
-const configFormSchema = z.object({
+import { SyncSettingSection } from './SyncSettingSection';
+import { TR_STATUSES } from '@/transactions/types/constants';
+import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
+
+export const syncOrderConfigFormSchema = z.object({
   title: z.string(),
   posId: z.string(),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
   trStatus: z.string().optional(),
+  returnType: z.enum(['fullTr', 'onlySale', 'delete']),
   saleAccountId: z.string(),
   saleOutAccountId: z.string(),
   saleCostAccountId: z.string(),
@@ -50,15 +49,7 @@ const configFormSchema = z.object({
   }),
 });
 
-type ConfigFormValues = z.infer<typeof configFormSchema>;
-
-const normalizeRuleIds = (value?: string | string[]) => {
-  if (!value) {
-    return [];
-  }
-
-  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
-};
+type ConfigFormValues = z.infer<typeof syncOrderConfigFormSchema>;
 
 export const SyncOrderConfigForm = ({
   form,
@@ -66,20 +57,16 @@ export const SyncOrderConfigForm = ({
   loading,
 }: {
   form: UseFormReturn<ConfigFormValues>;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
 }) => {
-  const posId = useWatch({
-    control: form.control,
-    name: `posId`,
-  });
+  const { t } = useTranslation('accounting');
+  const posId = useWatch({ control: form.control, name: 'posId' });
 
   const { data: posList, loading: posListLoading } = useQuery(POS_LIST, {});
   const posOptions: { value: string; label: string }[] = useMemo(() => {
-    if (posListLoading) {
-      return [];
-    }
-    return posList?.posList?.map((p: { name: any; _id: any }) => ({
+    if (posListLoading) return [];
+    return posList?.posList?.map((p: { name: string; _id: string }) => ({
       label: p.name,
       value: p._id,
     }));
@@ -92,385 +79,77 @@ export const SyncOrderConfigForm = ({
   });
 
   useEffect(() => {
-    if (posId) {
-      posRefetch({ _id: posId });
-    }
+    if (posId) posRefetch({ _id: posId });
   }, [posId, posRefetch]);
 
   useEffect(() => {
-    if (!form.getValues('trStatus')) {
+    if (!form.getValues('trStatus'))
       form.setValue('trStatus', TR_STATUSES.COMPLETE);
-    }
+  }, [form]);
+
+  useEffect(() => {
+    if (!form.getValues('returnType')) form.setValue('returnType', 'fullTr');
   }, [form]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: any[] = posDetailData?.posDetail?.paymentTypes || [];
+  const paymentTypes: TPaymentType[] =
+    posDetailData?.posDetail?.paymentTypes || [];
   const mongolianEnabled = isEnabled('mongolian');
 
   const handleSubmit = (data: ConfigFormValues) =>
-    onSubmit({
-      ...data,
-      vatRowId: data.hasVat ? data.vatRowId : '',
-      reverseVatRules:
-        mongolianEnabled && data.hasVat
-          ? normalizeRuleIds(data.reverseVatRules)
-          : [],
-      ctaxRowId: data.hasCtax ? data.ctaxRowId : '',
-      reverseCtaxRules:
-        !mongolianEnabled || data.hasCtax
-          ? []
-          : normalizeRuleIds(data.reverseCtaxRules),
-    });
+    onSubmit(normalizeSyncConfigData(data, mongolianEnabled));
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="grid gap-3 xl:grid-cols-3 py-3"
+        className="flex flex-col flex-1 min-h-0 bg-background"
       >
-        <Form.Field
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Гарчиг</Form.Label>
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="dateRule"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Огнооны дүрэм</Form.Label>
-              <Form.Control>
-                <Select {...field} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value="alwaysNow">Үргэлж одоо</Select.Item>
-                    <Select.Item value="syncedDateOrNow">
-                      Sync огноо эсвэл одоо
-                    </Select.Item>
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="trStatus"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Гүйлгээний төлөв</Form.Label>
-              <Form.Control>
-                <Select {...field} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {TR_STATUS_OPTIONS.map((status) => (
-                      <Select.Item key={status.value} value={status.value}>
-                        {status.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="posId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>POS</Form.Label>
-              <Form.Control>
-                <Select
-                  defaultValue={field.value}
-                  onValueChange={(value) => field.onChange(value)}
-                >
-                  <Form.Control>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select pos" />
-                    </Select.Trigger>
-                  </Form.Control>
-                  <Select.Content>
-                    {posOptions.map((opt) => (
-                      <Select.Item key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="saleAccountId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Борлуулалтын данс</Form.Label>
-              <Form.Control>
-                <SelectAccount.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="saleOutAccountId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Борлуулалтын зарлагын данс</Form.Label>
-              <Form.Control>
-                <SelectAccount.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="saleCostAccountId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Борлуулалтын өртгийн данс</Form.Label>
-              <Form.Control>
-                <SelectAccount.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="branchId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Салбар</Form.Label>
-              <Form.Control>
-                <SelectBranches.FormItem
-                  mode="single"
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="departmentId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Хэлтэс</Form.Label>
-              <Form.Control>
-                <SelectDepartments.FormItem
-                  mode="single"
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="defaultPayment.accountId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Төлбөрийн үндсэн данс</Form.Label>
-              <Form.Control>
-                <SelectAccount.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultFilter={{
-                    journals: [
-                      JournalEnum.BANK,
-                      JournalEnum.CASH,
-                      JournalEnum.DEBT,
-                    ],
-                    currency: 'MNT',
-                  }}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="defaultNegPayment.accountId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Сөрөг төлбөрийн үндсэн данс</Form.Label>
-              <Form.Control>
-                <SelectAccount.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultFilter={{
-                    journals: [
-                      JournalEnum.BANK,
-                      JournalEnum.CASH,
-                      JournalEnum.DEBT,
-                    ],
-                    currency: 'MNT',
-                  }}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        {[
-          {
-            type: 'cash',
-            title: 'cash',
-          },
-          {
-            type: 'mobile',
-            title: 'mobile',
-          },
-          ...paymentTypes,
-        ].map((ptype) => (
-          <Form.Field
-            key={`${posId}-${ptype.type}`}
-            control={form.control}
-            name={`payments.${ptype.type}.accountId`}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{ptype.title}</Form.Label>
-                <Form.Control>
-                  <SelectAccount.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    defaultFilter={{
-                      journals: [
-                        JournalEnum.BANK,
-                        JournalEnum.CASH,
-                        JournalEnum.DEBT,
-                      ],
-                      currency: 'MNT',
-                    }}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-        ))}
-        <Form.Field
-          control={form.control}
-          name="hasVat"
-          render={({ field }) => (
-            <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
-              <Form.Label>НӨАТ-тэй</Form.Label>
-              <Form.Control>
-                <Checkbox
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        {useWatch({
-          control: form.control,
-          name: `hasVat`,
-        }) && (
-          <>
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
+          <SyncSettingSection title={t('general')}>
+            <SyncConfigGeneralFields control={form.control} />
+            <SyncConfigReturnTypeField control={form.control} />
+          </SyncSettingSection>
+
+          <SyncSettingSection title="POS">
             <Form.Field
               control={form.control}
-              name="vatRowId"
+              name="posId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>НӨАТ-ын мөр</Form.Label>
+                  <Form.Label>POS</Form.Label>
                   <Form.Control>
-                    <SelectVat
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                    />
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder={t('select-pos')} />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {posOptions.map((opt) => (
+                          <Select.Item key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                   </Form.Control>
                 </Form.Item>
               )}
             />
-            <FormSelectEbarimtProductRule
-              name="reverseVatRules"
-              label="НӨАТ-с хасах барааны дүрэм"
-              kind="vat"
-              control={form.control}
-            />
-          </>
-        )}
-        <Form.Field
-          control={form.control}
-          name="hasCtax"
-          render={({ field }) => (
-            <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
-              <Form.Label>НХАТ-тэй</Form.Label>
-              <Form.Control>
-                <Checkbox
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        {useWatch({
-          control: form.control,
-          name: `hasCtax`,
-        }) ? (
-          <Form.Field
+          </SyncSettingSection>
+
+          <SyncConfigAccountsSection control={form.control} />
+          <SyncConfigPaymentsSection
             control={form.control}
-            name="ctaxRowId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>НХАТ-ын мөр</Form.Label>
-                <Form.Control>
-                  <SelectCtax
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
+            paymentTypes={paymentTypes}
+            paymentKey={posId || ''}
+            currency="MNT"
           />
-        ) : (
-          <FormSelectEbarimtProductRule
-            name="reverseCtaxRules"
-            label="НХАТ-тай онцгой барааны дүрэм"
-            kind="ctax"
-            control={form.control}
-          />
-        )}
-        <Dialog.Footer className="col-span-3 mt-3 gap-2">
-          <Dialog.Close asChild>
-            <Button variant="outline" size="lg">
-              Болих
-            </Button>
-          </Dialog.Close>
-          <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Хадгалах'}
-          </Button>
-        </Dialog.Footer>
+          <SyncConfigVatCtaxSection control={form.control} />
+        </div>
+        <SyncConfigFormFooter loading={loading} />
       </form>
     </Form>
   );
 };
+
+export { SyncSettingSection } from './SyncSettingSection';

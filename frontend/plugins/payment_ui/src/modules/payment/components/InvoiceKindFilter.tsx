@@ -1,8 +1,10 @@
 import { IconCheck, IconChevronLeft } from '@tabler/icons-react';
 import { Command, useFilterContext, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 
 export const InvoiceKindFilter = () => {
+  const { t } = useTranslation('payment');
   const [queries, setQueries] = useMultiQueryState<{ kind?: string }>(['kind']);
   const { kind } = queries;
   const { setView } = useFilterContext();
@@ -16,7 +18,7 @@ export const InvoiceKindFilter = () => {
           onSelect={() => setView('root')}
         >
           <IconChevronLeft className="w-3 h-3" />
-          Back
+          {t('back')}
         </Command.Item>
         <Command.Separator />
         {Object.entries(PAYMENT_KINDS).map(([value, config]) => (

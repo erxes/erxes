@@ -13,6 +13,8 @@ import { ILottery } from '@/loyalties/lotteries/types/lottery';
 import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
 import { CompaniesInline } from 'ui-modules/modules/contacts/components/CompaniesInline';
 import { LotteryEditSheet } from './LotteryEditSheet';
+import { lotteryMoreColumn } from './LotteryMoreColumn';
+import { TFunction } from 'i18next';
 
 const CreatedAtCell = ({ lottery }: { lottery: ILottery }) => {
   const dateValid = lottery.createdAt && isValid(new Date(lottery.createdAt));
@@ -76,11 +78,16 @@ const OwnerCell = ({
   );
 };
 
-export const firstLotteryColumns: ColumnDef<ILottery>[] = [
+export const firstLotteryColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<ILottery>[] => [
+  lotteryMoreColumn,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Number" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('number')} />
+    ),
     cell: ({ row }) => <NumberCell lottery={row.original} />,
     size: 300,
   },
@@ -88,7 +95,7 @@ export const firstLotteryColumns: ColumnDef<ILottery>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Created At" />
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
     ),
     size: 100,
     cell: ({ row }) => <CreatedAtCell lottery={row.original} />,
@@ -96,21 +103,27 @@ export const firstLotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Type" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <span className="capitalize">{cell.getValue() as string}</span>
-      </RecordTableInlineCell>
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
     ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <span className="capitalize">{t(cell.getValue() as string)}</span>
+        </RecordTableInlineCell>
+      );
+    },
     size: 130,
   },
 ];
 
-export const secondLotteryColumns: ColumnDef<ILottery>[] = [
+export const secondLotteryColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<ILottery>[] => [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -121,17 +134,21 @@ export const secondLotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Status" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <Badge variant="default">{cell.getValue() as string}</Badge>
-      </RecordTableInlineCell>
-    ),
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
+        </RecordTableInlineCell>
+      );
+    },
     size: 60,
   },
 ];
 
-export const lotteryColumns: ColumnDef<ILottery>[] = [
-  ...firstLotteryColumns,
-  ...secondLotteryColumns,
+export const lotteryColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<ILottery>[] => [
+  ...firstLotteryColumns(t),
+  ...secondLotteryColumns(t),
 ];

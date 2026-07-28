@@ -10,6 +10,7 @@ export const CALL_INTEGRATION_FORM_SCHEMA = z.object({
     })
     .min(1),
   websocketServer: z.string().min(1),
+  brandId: z.string().min(1, 'Brand is required'),
   queues: z.string().optional(),
   srcTrunk: z.string().optional(),
   dstTrunk: z.string().optional(),

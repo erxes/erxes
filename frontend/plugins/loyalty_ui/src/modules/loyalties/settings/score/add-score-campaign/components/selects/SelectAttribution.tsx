@@ -15,6 +15,7 @@ import {
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUsers } from 'ui-modules/modules';
 import { currentUserState } from 'ui-modules/states';
 import { useDebounce } from 'use-debounce';
@@ -105,12 +106,13 @@ const SelectAttributionValue = ({
   placeholder?: string;
   size?: AvatarProps['size'];
 }) => {
+  const { t } = useTranslation('loyalty');
   const { attributionIds, members } = useSelectAttributionContext();
 
   if (attributionIds.length === 0) {
     return (
       <div className="text-muted-foreground">
-        {placeholder || 'Select attribution...'}
+        {placeholder || t('select-attribution')}
       </div>
     );
   }
@@ -126,7 +128,7 @@ const SelectAttributionValue = ({
           {attribution.details?.fullName ||
             attribution.username ||
             attribution.email ||
-            'Unknown'}
+            t('unknown')}
         </div>
       ))}
     </div>
@@ -138,6 +140,7 @@ const SelectAttributionCommandItem = ({
 }: {
   attribution: IAttribution;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { onSelect, attributionIds } = useSelectAttributionContext();
 
   return (
@@ -150,7 +153,7 @@ const SelectAttributionCommandItem = ({
       <Combobox.Check checked={attributionIds.includes(attribution._id)} />
       <div className="ml-2">
         <div className="font-medium">
-          {attribution.details?.fullName || attribution.username || 'Unknown'}
+          {attribution.details?.fullName || attribution.username || t('unknown')}
         </div>
         {attribution.email && (
           <div className="text-sm text-muted-foreground">
@@ -240,10 +243,11 @@ export const SelectAttributionFilterItem = ({
   value?: string;
   label?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value={value || 'assignedTo'}>
       <IconUser />
-      {label || 'Assigned To'}
+      {label || t('assigned-to')}
     </Filter.Item>
   );
 };
@@ -292,6 +296,7 @@ export const SelectAttributionFilterBar = ({
   mode?: 'single' | 'multiple';
   label?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const [assignedTo, setAssignedTo] = useQueryState<string[] | string>(
     queryKey || 'assignedTo',
   );
@@ -305,7 +310,7 @@ export const SelectAttributionFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'assignedTo'}>
       <Filter.BarName>
         <IconUser />
-        {label ? label : !iconOnly && 'Assigned To' || ''}
+        {label ? label : !iconOnly && t('assigned-to') || ''}
       </Filter.BarName>
       <SelectAttributionProvider
         mode={mode}
@@ -434,6 +439,7 @@ export const SelectAttributionDetail = ({
   size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState(false);
   return (
     <SelectAttributionProvider
@@ -452,7 +458,7 @@ export const SelectAttributionDetail = ({
             </Button>
           ) : (
             <Combobox.TriggerBase className="font-medium">
-              Add Owner <IconPlus />
+              {t('add-owner')} <IconPlus />
             </Combobox.TriggerBase>
           )}
         </Popover.Trigger>

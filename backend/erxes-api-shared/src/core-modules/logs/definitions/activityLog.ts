@@ -14,6 +14,7 @@ export type TActivityLog<
 > = {
   createdAt: Date;
   activityType: string;
+  sourcePlugin?: string;
   actorType: string;
   actor: TActor;
   targetType: string;
@@ -53,6 +54,7 @@ const activityActionSchema = new Schema(
 export const activityLogsSchema = new Schema({
   createdAt: { type: Date, required: true, default: Date.now },
   activityType: { type: String, required: true },
+  sourcePlugin: { type: String },
   actorType: { type: String, required: true },
   actor: { type: Object, required: true },
   targetId: { type: String, required: true, index: true },

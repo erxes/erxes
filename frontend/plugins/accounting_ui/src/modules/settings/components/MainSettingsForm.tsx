@@ -1,4 +1,4 @@
-import { Button, Checkbox, Collapsible, Form } from 'erxes-ui';
+import { Button, Checkbox, Collapsible, Form, Spinner } from 'erxes-ui';
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import {
   mainSettingsSchema,
@@ -22,7 +22,7 @@ const DEFAULT_VALUES: TMainSettings = {
 
 export const MainSettingsForm = () => {
   const { configs, loading } = useMainConfigs();
-  const { updateConfigs } = useMainUpdateConfigs();
+  const { updateConfigs, loading: saving } = useMainUpdateConfigs();
   const form = useForm<TMainSettings>({
     resolver: zodResolver(mainSettingsSchema),
     defaultValues: {
@@ -83,9 +83,9 @@ export const MainSettingsForm = () => {
           <Button
             className="justify-self-end flex-none"
             type="submit"
-            disabled={loading}
+            disabled={loading || saving}
           >
-            Хадгалах
+            {saving ? <Spinner /> : 'Хадгалах'}
           </Button>
         </div>
       </form>

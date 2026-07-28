@@ -1,4 +1,5 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   activeIndex: number | null;
@@ -15,6 +16,7 @@ const ConfigFooter: React.FC<Props> = ({
   onSave,
   onDelete,
 }) => {
+  const { t } = useTranslation('mongolian');
   return (
     <div className="flex items-center justify-between py-6 border-t">
       {activeIndex !== null && (
@@ -24,7 +26,7 @@ const ConfigFooter: React.FC<Props> = ({
           disabled={loading}
           className="text-xs"
         >
-          Delete Config
+          {t('delete-config')}
         </Button>
       )}
       <div className="flex gap-3 ml-auto">
@@ -34,10 +36,10 @@ const ConfigFooter: React.FC<Props> = ({
           disabled={loading}
           className="text-xs"
         >
-          Clear
+          {t('clear')}
         </Button>
         <Button onClick={onSave} disabled={loading} className="text-xs">
-          {loading ? 'Saving...' : 'Save Config'}
+          {loading ? t('saving') : t('save-config')}
         </Button>
       </div>
     </div>

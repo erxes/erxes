@@ -77,6 +77,12 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
     }
   };
 
+  // Module-federation container names cannot contain dashes — Nx builds
+  // "erxes-agent_ui" as global `erxes_agent_ui` — so the runtime remote name
+  // must use underscores while the CDN path keeps the plugin's real name.
+  const remoteName = (pluginName: string): string =>
+    `${pluginName.replace(/-/g, '_')}_ui`;
+
   if (VERSION === 'saas') {
     const remotes: { name: string; entry: string }[] = [];
     const subdomain = getSubdomain(_req);
@@ -99,7 +105,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
         if (enabledPluginsArray.includes(pluginName)) {
           const version = await getPluginVersion(pluginName);
           remotes.push({
-            name: `${pluginName}_ui`,
+            name: remoteName(pluginName),
             entry: `https://plugins.erxes.io/${version}/${pluginName}_ui/remoteEntry.js`,
           });
         }
@@ -124,7 +130,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       for (const plugin of ENABLED_PLUGINS.split(',')) {
         const version = await getPluginVersion(plugin);
         remotes.push({
-          name: `${plugin}_ui`,
+          name: remoteName(plugin),
           entry: `https://plugins.erxes.io/${version}/${plugin}_ui/remoteEntry.js`,
         });
       }

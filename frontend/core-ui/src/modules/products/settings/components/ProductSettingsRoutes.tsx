@@ -32,6 +32,12 @@ const ProductsSimilarityGroupPage = lazy(() =>
   })),
 );
 
+const ProductsSimilaritiesPage = lazy(() =>
+  import('~/pages/products/ProductsSimilaritiesPage').then((module) => ({
+    default: module.ProductsSimilaritiesPage,
+  })),
+);
+
 const ProductsBundleConditionPage = lazy(() =>
   import('~/pages/products/ProductsBundleConditionPage').then((module) => ({
     default: module.ProductsBundleConditionPage,
@@ -68,6 +74,7 @@ export const ProductsSettingRoutes = () => {
           path="similarity-group"
           element={<ProductsSimilarityGroupPage />}
         />
+        <Route path="similarities" element={<ProductsSimilaritiesPage />} />
         <Route
           path="bundle-condition"
           element={<ProductsBundleConditionPage />}

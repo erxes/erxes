@@ -260,7 +260,7 @@ export const loadPosUserClass = (models) => {
       const user = await models.PosUsers.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${email}$`, 'i') } },
-          // { username: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { username: { $regex: new RegExp(`^${email}$`, 'i') } },
         ],
         isActive: true,
         tokens: { $in: [config.token] },

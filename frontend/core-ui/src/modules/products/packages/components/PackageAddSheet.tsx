@@ -15,9 +15,11 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import {
   ProductPrimaryImageUpload,
+  TagsSelect,
   type ProductAttachmentItem,
 } from 'ui-modules';
 import { IPackageProduct, PACKAGE_STATUSES } from '../types/Package';
@@ -32,12 +34,14 @@ const schema = z.object({
   products: z
     .array(z.object({ productId: z.string(), quantity: z.number().min(1) }))
     .min(1, 'At least one product is required'),
+  tagIds: z.array(z.string()).optional(),
   status: z.enum(PACKAGE_STATUSES).default('active'),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 export const PackageAddSheet = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const [open, setOpen] = useState(false);
   const { addPackage, loading: saving } = useAddPackage();
   const pricing = usePricing();
@@ -49,6 +53,7 @@ export const PackageAddSheet = () => {
       description: '',
       coverImage: '',
       products: [],
+      tagIds: [],
       status: 'active',
     },
   });
@@ -69,17 +74,18 @@ export const PackageAddSheet = () => {
           description: values.description || undefined,
           coverImage: values.coverImage || undefined,
           products: values.products,
+          tagIds: values.tagIds?.length ? values.tagIds : undefined,
           price: pricing.price ? Number(pricing.price) : undefined,
           percent: pricing.percent ? Number(pricing.percent) : undefined,
           status: values.status,
         },
       });
-      toast({ variant: 'success', title: 'Package created' });
+      toast({ variant: 'success', title: t('package-created', 'Package created') });
       handleClose();
     } catch (e: any) {
       toast({
         variant: 'destructive',
-        title: 'Failed to create package',
+        title: t('create-failed', 'Failed to create package'),
         description: e?.message,
       });
     }
@@ -90,7 +96,7 @@ export const PackageAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          New package
+          {t('new-package', 'New package')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0 sm:max-w-5xl">
@@ -101,14 +107,14 @@ export const PackageAddSheet = () => {
           >
             <Sheet.Header className="flex gap-2">
               <IconPackage />
-              <Sheet.Title>New package</Sheet.Title>
+              <Sheet.Title>{t('new-package', 'New package')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
 
             <Sheet.Content className="flex flex-auto p-0 overflow-hidden">
               <ScrollArea className="border-r w-2/5 h-full shrink-0">
                 <div className="flex flex-col gap-4 p-5">
-                  <InfoCard title="Basic information">
+                  <InfoCard title={t('basic-information', 'Basic information')}>
                     <InfoCard.Content>
                       <div className="grid grid-cols-2 gap-4">
                         <Form.Field
@@ -116,7 +122,7 @@ export const PackageAddSheet = () => {
                           name="name"
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>Name</Form.Label>
+                              <Form.Label>{t('name', 'Name')}</Form.Label>
                               <Form.Control>
                                 <Input {...field} />
                               </Form.Control>
@@ -129,7 +135,7 @@ export const PackageAddSheet = () => {
                           name="status"
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>Status</Form.Label>
+                              <Form.Label>{t('status', 'Status')}</Form.Label>
                               <Select value={field.value} onValueChange={field.onChange}>
                                 <Form.Control>
                                   <Select.Trigger className="h-8">
@@ -153,10 +159,30 @@ export const PackageAddSheet = () => {
                           name="description"
                           render={({ field }) => (
                             <Form.Item className="col-span-2">
-                              <Form.Label>Description</Form.Label>
+                              <Form.Label>{t('description', 'Description')}</Form.Label>
                               <Form.Control>
                                 <Textarea className="min-h-20" rows={4} {...field} />
                               </Form.Control>
+                              <Form.Message />
+                            </Form.Item>
+                          )}
+                        />
+                        <Form.Field
+                          control={form.control}
+                          name="tagIds"
+                          render={({ field }) => (
+                            <Form.Item className="col-span-2">
+                              <Form.Label>{t('tags', 'Tags')}</Form.Label>
+                              <TagsSelect.FormItem
+                                type="core:product"
+                                mode="multiple"
+                                value={field.value || []}
+                                onValueChange={(value) =>
+                                  field.onChange(
+                                    Array.isArray(value) ? value : value ? [value] : [],
+                                  )
+                                }
+                              />
                               <Form.Message />
                             </Form.Item>
                           )}
@@ -165,7 +191,7 @@ export const PackageAddSheet = () => {
                     </InfoCard.Content>
                   </InfoCard>
 
-                  <InfoCard title="Cover image">
+                  <InfoCard title={t('cover-image', 'Cover image')}>
                     <InfoCard.Content>
                       <Form.Field
                         control={form.control}
@@ -189,12 +215,12 @@ export const PackageAddSheet = () => {
                     </InfoCard.Content>
                   </InfoCard>
 
-                  <InfoCard title="Pricing">
+                  <InfoCard title={t('pricing', 'Pricing')}>
                     <InfoCard.Content>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Price</span>
+                            <span className="text-sm font-medium">{t('price', 'Price')}</span>
                             {pricing.displayTotal && (
                               <span className="text-xs text-muted-foreground tabular-nums line-through">
                                 {pricing.displayTotal}
@@ -210,7 +236,7 @@ export const PackageAddSheet = () => {
                           </CurrencyField>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <span className="text-sm font-medium">Percent</span>
+                          <span className="text-sm font-medium">{t('percent', 'Percent')}</span>
                           <Input
                             type="number"
                             min={0}
@@ -251,11 +277,11 @@ export const PackageAddSheet = () => {
 
             <Sheet.Footer className="flex-none">
               <Button type="button" variant="outline" onClick={handleClose} disabled={saving}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving && <Spinner containerClassName="flex-none" />}
-                Create
+                {t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

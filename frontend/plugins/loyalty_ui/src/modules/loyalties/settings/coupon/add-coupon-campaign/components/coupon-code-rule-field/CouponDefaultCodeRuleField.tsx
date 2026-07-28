@@ -1,6 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CouponFormValues } from '../../../constants/couponFormSchema';
 import { CHARACTER_SET_OPTIONS } from '../../constants/characterSets';
 
@@ -11,6 +12,7 @@ interface CouponDefaultCodeRuleFieldProps {
 export const CouponDefaultCodeRuleField: React.FC<
   CouponDefaultCodeRuleFieldProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
@@ -19,11 +21,11 @@ export const CouponDefaultCodeRuleField: React.FC<
           name="codeLength"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Code Length</Form.Label>
+              <Form.Label>{t('code-length')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter code length"
+                  placeholder={t('enter-code-length')}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -37,11 +39,11 @@ export const CouponDefaultCodeRuleField: React.FC<
           name="prefixUppercase"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Prefix Uppercase</Form.Label>
+              <Form.Label>{t('prefix-uppercase')}</Form.Label>
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder="Enter prefix uppercase"
+                  placeholder={t('enter-prefix-uppercase')}
                   {...field}
                   onChange={(e) => field.onChange(e.target.value)}
                 />
@@ -57,11 +59,11 @@ export const CouponDefaultCodeRuleField: React.FC<
           name="numberOfCodes"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Number of Codes</Form.Label>
+              <Form.Label>{t('number-of-codes')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter number of codes"
+                  placeholder={t('enter-number-of-codes')}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -75,11 +77,11 @@ export const CouponDefaultCodeRuleField: React.FC<
           name="postfixUppercase"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Postfix Uppercase</Form.Label>
+              <Form.Label>{t('postfix-uppercase')}</Form.Label>
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder="Enter postfix uppercase"
+                  placeholder={t('enter-postfix-uppercase')}
                   {...field}
                   onChange={(e) => field.onChange(e.target.value)}
                 />
@@ -95,11 +97,11 @@ export const CouponDefaultCodeRuleField: React.FC<
           name="characterSet"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Character Set</Form.Label>
+              <Form.Label>{t('character-set')}</Form.Label>
               <Form.Control>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger className="w-full">
-                    <Select.Value placeholder="Select character set" />
+                    <Select.Value placeholder={t('select-character-set')} />
                   </Select.Trigger>
 
                   <Select.Content>
@@ -120,11 +122,11 @@ export const CouponDefaultCodeRuleField: React.FC<
           name="usageLimit"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Usage Limit</Form.Label>
+              <Form.Label>{t('usage-limit')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter usage limit"
+                  placeholder={t('enter-usage-limit')}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -141,11 +143,11 @@ export const CouponDefaultCodeRuleField: React.FC<
           name="pattern"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Pattern</Form.Label>
+              <Form.Label>{t('pattern')}</Form.Label>
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder="Enter pattern"
+                  placeholder={t('enter-pattern')}
                   {...field}
                   onChange={(e) => field.onChange(e.target.value)}
                 />
@@ -159,11 +161,11 @@ export const CouponDefaultCodeRuleField: React.FC<
           name="redemptionLimitPerUser"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Redemption Limit Per User</Form.Label>
+              <Form.Label>{t('redemption-limit-per-user')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter redemption limit per user"
+                  placeholder={t('enter-redemption-limit-per-user')}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />

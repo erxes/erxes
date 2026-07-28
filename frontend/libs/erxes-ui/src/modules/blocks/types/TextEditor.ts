@@ -1,4 +1,4 @@
-import {
+import type {
   DefaultReactSuggestionItem,
   SuggestionMenuProps,
 } from '@blocknote/react';
@@ -12,6 +12,9 @@ export interface BlockEditorProps {
   onBlur?: () => void;
   onPaste?: (event: ClipboardEvent) => void;
   onChange?: () => void;
+  additionalSlashMenuItems?:
+    | DefaultReactSuggestionItem[]
+    | ((editor: IBlockEditor) => DefaultReactSuggestionItem[]);
   readonly?: boolean;
   children?: React.ReactNode;
   className?: string;

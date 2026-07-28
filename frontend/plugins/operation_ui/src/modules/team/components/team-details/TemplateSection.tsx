@@ -1,8 +1,10 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { ITeam } from '@/team/types';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const TemplateSection = ({ team }: { team: ITeam }) => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
 
   return (
@@ -12,7 +14,7 @@ export const TemplateSection = ({ team }: { team: ITeam }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>Templates</p>
+          <p>{t('templates')}</p>
 
           <div className="flex items-center gap-2">
             <IconChevronRight className="w-4 h-4" />

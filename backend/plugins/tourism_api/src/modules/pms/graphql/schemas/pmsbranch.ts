@@ -15,8 +15,16 @@ const commonFields = `
   permissionConfig: JSON
   uiOptions: JSON
   pipelineConfig: JSON
-  extraProductCategories: JSON
-  roomCategories: JSON
+  extraProductCategories: [String]
+  excludeExtraProductCategoryIds: [String]
+  excludeExtraProductIds: [String]
+  roomCategories: [String]
+  excludeRoomCategoryIds: [String]
+  excludeRoomIds: [String]
+  hasAppointment: Boolean
+  appointmentCategories: [String]
+  excludeAppointmentCategoryIds: [String]
+  excludeAppointmentIds: [String]
   websiteReservationLock: Boolean
   time: String
   discount: JSON

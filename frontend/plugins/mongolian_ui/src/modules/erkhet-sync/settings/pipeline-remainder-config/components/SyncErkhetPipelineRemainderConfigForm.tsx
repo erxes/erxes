@@ -1,6 +1,7 @@
 import { Button, Form, Input } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { SelectPipeline } from './selects/SelectPipeline';
@@ -21,6 +22,7 @@ const defaultValues = {
 };
 
 const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
+  const { t } = useTranslation('mongolian');
   const form = useForm({
     resolver: zodResolver(addPipelineRemainderConfigSchema),
     defaultValues: {
@@ -44,9 +46,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="flex justify-between items-center">
-            <h1 className="text-lg font-semibold">Борлуулалт</h1>
+            <h1 className="text-lg font-semibold">{t('sales-label')}</h1>
             <Button type="button" onClick={onNewConfig}>
-              New Config
+              {t('new-config')}
             </Button>
           </div>
 
@@ -55,9 +57,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Title</Form.Label>
+                <Form.Label>{t('title')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder="Title" />
+                  <Input {...field} placeholder={t('title')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -70,7 +72,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
               name="boardId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Destination Stage Board</Form.Label>
+                  <Form.Label>{t('destination-stage-board')}</Form.Label>
                   <SelectSalesBoard
                     value={field.value}
                     onValueChange={(value) => {
@@ -89,7 +91,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Pipeline</Form.Label>
+                  <Form.Label>{t('pipeline')}</Form.Label>
                   <SelectPipeline
                     value={field.value}
                     onValueChange={(value) => {
@@ -109,7 +111,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
               name="stageId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Stage</Form.Label>
+                  <Form.Label>{t('stage')}</Form.Label>
                   <SelectStage
                     id="stageId"
                     variant="form"
@@ -128,9 +130,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Account</Form.Label>
+                <Form.Label>{t('account')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder="User Email" />
+                  <Input {...field} placeholder={t('user-email')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -141,9 +143,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Location</Form.Label>
+                <Form.Label>{t('location')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder="Return Type" />
+                  <Input {...field} placeholder={t('return-type')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -151,7 +153,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
           />
           <div className="flex justify-end">
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
+              {loading ? t('saving') : t('save')}
             </Button>
           </div>
         </form>
@@ -169,6 +171,7 @@ const NewConfigForm = ({
   onSubmit: (data: any) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const form = useForm({
     resolver: zodResolver(addPipelineRemainderConfigSchema),
     defaultValues,
@@ -184,16 +187,16 @@ const NewConfigForm = ({
           className="w-full mx-auto max-w-2xl flex flex-col gap-6 px-9 py-5"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <h1 className="text-lg font-semibold">Борлуулалт</h1>
+          <h1 className="text-lg font-semibold">{t('sales-label')}</h1>
 
           <Form.Field
             name="title"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Title</Form.Label>
+                <Form.Label>{t('title')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder="Title" />
+                  <Input {...field} placeholder={t('title')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -206,7 +209,7 @@ const NewConfigForm = ({
               name="boardId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Destination Stage Board</Form.Label>
+                  <Form.Label>{t('destination-stage-board')}</Form.Label>
                   <SelectSalesBoard
                     value={field.value}
                     onValueChange={(value) => {
@@ -225,7 +228,7 @@ const NewConfigForm = ({
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Pipeline</Form.Label>
+                  <Form.Label>{t('pipeline')}</Form.Label>
                   <SelectPipeline
                     value={field.value}
                     onValueChange={(value) => {
@@ -245,7 +248,7 @@ const NewConfigForm = ({
               name="stageId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Stage</Form.Label>
+                  <Form.Label>{t('stage')}</Form.Label>
                   <SelectStage
                     id="stageId"
                     variant="form"
@@ -263,9 +266,9 @@ const NewConfigForm = ({
               name="account"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Account</Form.Label>
+                  <Form.Label>{t('account')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Account" />
+                    <Input {...field} placeholder={t('account')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -276,9 +279,9 @@ const NewConfigForm = ({
               name="location"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Location</Form.Label>
+                  <Form.Label>{t('location')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Location" />
+                    <Input {...field} placeholder={t('location')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -288,10 +291,10 @@ const NewConfigForm = ({
 
           <div className="flex justify-end gap-2 mt-6">
             <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
+              {loading ? t('saving') : t('save')}
             </Button>
           </div>
         </form>
@@ -301,6 +304,7 @@ const NewConfigForm = ({
 };
 
 export const SyncErkhetPipelineRemainderConfigForm = () => {
+  const { t } = useTranslation('mongolian');
   const [showNewConfig, setShowNewConfig] = useState(false);
   const { createPipelineRemainderConfig, loading: createLoading } =
     useCreatePipelineRemainderConfig();
@@ -348,7 +352,7 @@ export const SyncErkhetPipelineRemainderConfigForm = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t('loading')}</div>;
   }
 
   return (

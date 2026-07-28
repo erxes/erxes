@@ -9,6 +9,9 @@ export interface IOrder {
   number: string;
   customerId?: string;
   customerType?: string;
+  brokerId?: string;
+  brokerType?: string;
+  brokerName?: string;
   cashAmount?: number;
   mobileAmount?: number;
   paidAmounts?: any;

@@ -1,5 +1,6 @@
 import { Form, Input, ScrollArea, Editor, Button } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CREATE_RESPONSE_FORM_SCHEMA,
@@ -30,6 +31,7 @@ export const CreateResponseForm = ({
   onSubmit,
   loading,
 }: CreateResponseFormProps) => {
+  const { t } = useTranslation('frontline');
   const schema =
     type === 'create'
       ? CREATE_RESPONSE_FORM_SCHEMA
@@ -57,7 +59,7 @@ export const CreateResponseForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name-label')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -70,7 +72,7 @@ export const CreateResponseForm = ({
               name="content"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Content</Form.Label>
+                  <Form.Label>{t('content-label')}</Form.Label>
                   <ScrollArea className="border rounded-md p-2 h-[400px] overflow-y-auto">
                     <Editor
                       initialContent={field.value}
@@ -87,7 +89,7 @@ export const CreateResponseForm = ({
 
           <span className="flex justify-end">
             <Button type="submit" disabled={!form.formState.isDirty || loading}>
-              {type === 'create' ? 'Create' : 'Update'}
+              {type === 'create' ? t('create') : t('update')}
             </Button>
           </span>
         </div>

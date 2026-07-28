@@ -4,9 +4,11 @@ import {
 } from '@/automations/components/builder/sidebar/states/automationNodeLibrary';
 import {
   AUTOMATION_NODE_TYPE_LIST_PROERTY,
+  CANVAS_FIT_VIEW_OPTIONS,
   CONNECTION_PROPERTY_NAME_MAP,
 } from '@/automations/constants';
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
@@ -32,7 +34,7 @@ type TSelectableNode = Extract<
 >;
 
 type TAutomationNodesLibraryMap = Record<
-  AutomationNodeLibraryType,
+  AutomationNodeLibraryType | AutomationNodeType.Workflow,
   {
     title: string;
     description: string;
@@ -48,9 +50,13 @@ export const useAutomationNodeLibrarySidebar = () => {
     queryParams,
     setQueryParams,
     setAwaitingToConnectNodeId,
+    reactFlowInstance,
   } = useAutomation();
+  const workflowEditScope = useWorkflowEditScope();
+  // Workflows contain only actions, so their library defaults there
   const activeNodeTab =
-    queryParams?.activeNodeTab ?? AutomationNodeType.Trigger;
+    queryParams?.activeNodeTab ??
+    (workflowEditScope ? AutomationNodeType.Action : AutomationNodeType.Trigger);
   const { setAutomationBuilderFormValue } = useAutomationFormController();
   const { triggers, actions, workflows, getList } = useAutomationNodes();
   const { getNodes, getNode, addNodes, setNodes } =
@@ -89,7 +95,7 @@ export const useAutomationNodeLibrarySidebar = () => {
     event.dataTransfer.effectAllowed = 'move';
   };
 
-  const getClickPosition = (nodeType: TSelectableNode['nodeType']) => {
+  const getClickPosition = (nodeType: AutomationNodeType) => {
     if (awaitingToConnectNodeId) {
       const [, awaitingNodeId] = splitAwaitingConnectionId(
         awaitingToConnectNodeId,
@@ -160,6 +166,11 @@ export const useAutomationNodeLibrarySidebar = () => {
     setAutomationBuilderFormValue(listFieldName, [...list, newNode]);
     addNodes(generatedNode);
 
+    reactFlowInstance?.fitView({
+      nodes: [generatedNode],
+      ...CANVAS_FIT_VIEW_OPTIONS,
+    });
+
     if (awaitingToConnectNodeId) {
       onAwaitingNodeConnection(awaitingToConnectNodeId, id, generatedNode);
       setAwaitingToConnectNodeId('');
@@ -180,6 +191,11 @@ export const useAutomationNodeLibrarySidebar = () => {
       description: 'trigger-type-description',
       list: triggersConst,
     },
+    [AutomationNodeType.Workflow]: {
+      title: 'choose-workflow',
+      description: 'workflow-description',
+      list: [],
+    },
   };
   const activeTab = awaitingToConnectNodeId
     ? AutomationNodeType.Action
@@ -190,6 +206,7 @@ export const useAutomationNodeLibrarySidebar = () => {
     AutomationNodesLibraryMap[AutomationNodeType.Trigger];
   return {
     activeNodeTab: activeTab,
+    queryParams,
     setQueryParams,
     loading,
     triggersConst,

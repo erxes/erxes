@@ -1,10 +1,12 @@
 import { Document, Schema } from 'mongoose';
 import { schemaWrapper } from 'erxes-api-shared/utils';
 
+type TPersistentMenuType = 'button' | 'link' | 'human_handoff' | 'back_button';
+
 interface IPersistentMenus {
   _id: string;
   text: string;
-  type: string;
+  type: TPersistentMenuType;
   link?: string;
 }
 
@@ -26,6 +28,9 @@ export interface IFacebookBot {
   status: string;
   persistentMenus: IPersistentMenus[];
   greetText?: string;
+  handoffMessage?: string;
+  automationActiveMessage?: string;
+  handoffPauseMinutes?: number;
   tag?: string;
   isEnabledBackBtn?: boolean;
   backButtonText?: string;
@@ -43,7 +48,10 @@ export interface IFacebookBotDocument extends IFacebookBot, Document {
 const persistentMenuSchema = new Schema({
   _id: { type: String },
   text: { type: String },
-  type: { type: String },
+  type: {
+    type: String,
+    enum: ['button', 'link', 'human_handoff', 'back_button'],
+  },
   link: { type: String, optional: true },
 });
 
@@ -73,6 +81,9 @@ export const facebookBotSchema = schemaWrapper(
     token: { type: String },
     persistentMenus: { type: [persistentMenuSchema] },
     greetText: { type: String, optional: true },
+    handoffMessage: { type: String, optional: true },
+    automationActiveMessage: { type: String, optional: true },
+    handoffPauseMinutes: { type: Number, default: 10 },
     tag: { type: String, optional: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

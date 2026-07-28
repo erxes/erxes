@@ -1,4 +1,15 @@
-export const DISTRICTS = [
+interface ISubBranchDistrict {
+  subBranchCode: string;
+  subBranchName: string;
+}
+
+interface IBranchDistrict {
+  branchCode: string;
+  branchName: string;
+  subBranches: ISubBranchDistrict[];
+}
+
+export const DISTRICTS: IBranchDistrict[] = [
   {
     branchCode: '10',
     branchName: 'Өвөрхангай',
@@ -686,3 +697,24 @@ export const DISTRICTS = [
     ],
   },
 ];
+
+export const getDistrictSelectionFromCode = (districtCode: string) => {
+  const branch = DISTRICTS.find(
+    ({ branchCode }) => branchCode === districtCode.slice(0, 2),
+  );
+
+  if (!branch) {
+    return { branchCode: '', subBranchCode: '' };
+  }
+
+  const subBranch = branch.subBranches.find(
+    ({ subBranchCode }) =>
+      districtCode.length === 4 &&
+      `${branch.branchCode}${subBranchCode}` === districtCode,
+  );
+
+  return {
+    branchCode: branch.branchCode,
+    subBranchCode: subBranch?.subBranchCode || '',
+  };
+};

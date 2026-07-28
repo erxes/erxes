@@ -1,9 +1,88 @@
-import { IProductDocument } from 'erxes-api-shared/core-types';
+import { IProductDocument, IUom } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { PRODUCT_SIMILARITY_STATUSES } from '@/products/constants';
 import { IContext } from '~/connectionResolvers';
 import { IProductParams } from '~/modules/products/@types';
 
+type DiscountConditions = Record<string, unknown>;
+type ProductDiscount = {
+  planId: string;
+  discount: number;
+  discountPercent: number;
+  prefixes: string[];
+  conditions: DiscountConditions;
+};
+
 const inventoryKey = (id?: string) => id || '_';
+
+const compactDiscountConditions = (conditions: DiscountConditions = {}) =>
+  Object.entries(conditions).reduce<DiscountConditions>(
+    (result, [key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return result;
+      }
+
+      result[key] = value;
+      return result;
+    },
+    {},
+  );
+
+const getDiscountConditions = (
+  params: Partial<IProductParams> = {},
+): DiscountConditions =>
+  compactDiscountConditions({
+    ...params.discountConditions,
+    branchId: params.branchId,
+    departmentId: params.departmentId,
+    pipelineId: params.pipelineId,
+  });
+
+const isRangeCondition = (
+  value: unknown,
+): value is { start?: string | number; end?: string | number } =>
+  !!value && typeof value === 'object' && !Array.isArray(value);
+
+const conditionMatches = (expected: unknown, actual: unknown) => {
+  if (actual === undefined || actual === null) {
+    return false;
+  }
+
+  if (Array.isArray(expected)) {
+    return expected.includes(actual as never);
+  }
+
+  if (isRangeCondition(expected)) {
+    const { start, end } = expected;
+    const actualValue = actual as string | number;
+
+    if (start !== undefined && actualValue < start) {
+      return false;
+    }
+
+    if (end !== undefined && actualValue > end) {
+      return false;
+    }
+
+    return true;
+  }
+
+  if (typeof expected === 'number' && typeof actual === 'number') {
+    return actual >= expected;
+  }
+
+  return expected === actual;
+};
+
+const getDiscount = (discounts: unknown, conditions: DiscountConditions) => {
+  return ((Array.isArray(discounts) ? discounts : []) as ProductDiscount[])
+    .filter((discount) =>
+      (discount.prefixes || []).every((prefix) =>
+        conditionMatches(discount.conditions?.[prefix], conditions[prefix]),
+      ),
+    )
+    .sort((a, b) => b.discount - a.discount)[0];
+};
 
 export default {
   __resolveReference: async (
@@ -65,7 +144,9 @@ export default {
       });
 
       branchIds = pipeline?.branchIds?.length ? pipeline?.branchIds : ['_'];
-      departmentIds = pipeline?.departmentIds?.length ? pipeline?.departmentIds : ['_'];
+      departmentIds = pipeline?.departmentIds?.length
+        ? pipeline?.departmentIds
+        : ['_'];
     }
 
     const result = { remainder: 0, cost: 0, soonIn: 0, soonOut: 0 };
@@ -97,9 +178,53 @@ export default {
     return result;
   },
 
-  discount: async (product: IProductDocument, args: IProductParams) => {
-    if (args.branchId && args.departmentId) {
-      return product.discounts?.[args.branchId]?.[args.departmentId];
+  discount: async (
+    product: IProductDocument,
+    args: IProductParams,
+    _context: IContext,
+    info: any,
+  ) => {
+    return getDiscount(
+      product.discounts,
+      getDiscountConditions({
+        ...info?.variableValues,
+        ...args,
+      }),
+    );
+  },
+
+  similarity: async (
+    product: IProductDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    if (!product.similarityId) {
+      return null;
     }
+
+    return models.ProductSimilarities.findOne({
+      _id: product.similarityId,
+      status: { $ne: PRODUCT_SIMILARITY_STATUSES.DELETED },
+    }).lean();
+  },
+
+  uom: async (
+    product: IProductDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    if (!product.uom) {
+      return null;
+    }
+
+    const uom = await models.Uoms.findOne({
+      $or: [{ _id: product.uom }, { name: product.uom }, { code: product.uom }],
+    }).lean();
+
+    if (!uom) {
+      return null;
+    }
+
+    return uom?.name || uom?.code || '';
   },
 };

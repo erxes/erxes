@@ -1,6 +1,7 @@
 import { useGetConversationSourceProgress } from '@/inbox/conversations/conversation-detail/hooks/useProgressConversationSource';
 import { HoverCard, Button } from 'erxes-ui';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import {
   IconPhone,
   IconBrandMessenger,
@@ -20,6 +21,7 @@ const ALL_STATUSES = ['new', 'open', 'closed', 'resolved'] as const;
 type ProgressStatus = (typeof ALL_STATUSES)[number];
 
 export const ProgressSource = ({ customerId }: { customerId?: string }) => {
+  const { t } = useTranslation('frontline');
   const { conversationSourceProgress } = useGetConversationSourceProgress({
     variables: { customerId },
     skip: !customerId,
@@ -44,7 +46,7 @@ export const ProgressSource = ({ customerId }: { customerId?: string }) => {
   if (Object.keys(sourceStats).length === 0) {
     return (
       <div className="p-4 text-center text-sm text-muted-foreground">
-        No conversation source data available
+        {t('no-conversation-source-data')}
       </div>
     );
   }
@@ -92,7 +94,7 @@ export const ProgressSource = ({ customerId }: { customerId?: string }) => {
                       outerRadius={10}
                       data={[
                         {
-                          name: 'Progress',
+                          name: t('progress'),
                           value: percentage,
                           fill: 'var(--primary)',
                         },
@@ -145,7 +147,7 @@ export const ProgressSource = ({ customerId }: { customerId?: string }) => {
                     </div>
                   ))}
                   <div className="flex justify-between text-sm font-medium">
-                    <span>Total</span>
+                    <span>{t('total')}</span>
                     <span>{total}</span>
                   </div>
                 </div>

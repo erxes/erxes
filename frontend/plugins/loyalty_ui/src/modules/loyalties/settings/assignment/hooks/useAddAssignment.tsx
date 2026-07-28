@@ -1,5 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ASSIGNMENTS_CURSOR_SESSION_KEY } from '../constants/assignmentsCursorSessionKey';
 import { CREATE_ASSIGNMENT_CAMPAIGN } from '../graphql/mutations/AssignmentMutations';
 import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
@@ -22,6 +23,7 @@ export interface AddAssignmentVariables {
 }
 
 export const useAddAssignment = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
   const { cursor } = useRecordTableCursor({
     sessionKey: ASSIGNMENTS_CURSOR_SESSION_KEY,
@@ -83,15 +85,15 @@ export const useAddAssignment = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Assignment campaign created successfully',
+          title: t('success'),
+          description: t('assignment-campaign-created'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

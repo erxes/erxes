@@ -1,35 +1,24 @@
 import { Cell } from '@tanstack/react-table';
-import { useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
-import { RecordTable } from 'erxes-ui';
+import { Popover, RecordTable } from 'erxes-ui';
+import { PrintDocument } from 'ui-modules';
 import { IDuplicated } from '~/modules/ebarimt/put-response/put-responses-duplicated/types/DuplicatedType';
-import { renderingDuplicatedDetailAtom } from '~/modules/ebarimt/put-response/put-responses-duplicated/states/DuplicatedDetailStates';
 
 export const DuplicatedMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IDuplicated, unknown>;
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const setRenderingDuplicatedDetail = useSetAtom(
-    renderingDuplicatedDetailAtom,
-  );
-  const { _id } = cell.row.original;
-
-  const setOpen = (duplicatedId: string) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('duplicated_id', duplicatedId);
-    setSearchParams(newSearchParams);
-  };
+  const row = cell.row.original;
 
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setOpen(_id);
-        setRenderingDuplicatedDetail(false);
-      }}
-    />
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Popover.Content className="p-0 w-auto" align="start">
+        <PrintDocument items={[row]} contentType="core:duplicated" />
+      </Popover.Content>
+    </Popover>
   );
 };
 

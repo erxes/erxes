@@ -1,5 +1,6 @@
 import { IconSquareKey, IconTrash } from '@tabler/icons-react';
 import { Badge, Button, Input, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { DIRECT_MESSAGE_OPERATOR_TYPES } from '../../constants/messageTriggerOptions';
 import { useDirectMessageConditionCard } from '../../hooks/useDirectMessageConditionCard';
 import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
@@ -18,6 +19,7 @@ export const DirectMessageConditionCard = ({
   ) => void;
   onRemove: () => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const {
     hasKeywords,
     handleKeyPress,
@@ -47,7 +49,7 @@ export const DirectMessageConditionCard = ({
           onValueChange={(value) => onChange('operator', value)}
         >
           <Select.Trigger>
-            <Select.Value placeholder="Select..." />
+            <Select.Value placeholder={t('select')} />
           </Select.Trigger>
           <Select.Content>
             {DIRECT_MESSAGE_OPERATOR_TYPES.map(({ label, value }) => (
@@ -58,12 +60,12 @@ export const DirectMessageConditionCard = ({
           </Select.Content>
         </Select>
 
-        <Input placeholder="+ add keyword" onKeyDown={handleKeyPress} />
+        <Input placeholder={t('add-keyword')} onKeyDown={handleKeyPress} />
 
         {!hasKeywords ? (
           <div className="flex flex-col items-center text-muted-foreground">
             <IconSquareKey />
-            <span className="text-xs">There is no keywords configured</span>
+            <span className="text-xs">{t('no-keywords-configured')}</span>
           </div>
         ) : (
           <div className="flex flex-wrap gap-4 py-4">

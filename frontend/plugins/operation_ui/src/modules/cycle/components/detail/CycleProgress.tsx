@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGetCycleProgress } from '@/cycle/hooks/useGetCycleProgress';
 import { IProjectProgressByMember } from '@/project/types';
 import { IconCircleFilled } from '@tabler/icons-react';
@@ -37,6 +38,7 @@ export const CycleProgress = ({
   isCompleted: boolean;
   statistics: any;
 }) => {
+  const { t } = useTranslation('operation');
   const [assignee] = useQueryState<string>('assignee');
 
   const { cycleProgress } = useGetCycleProgress({
@@ -63,14 +65,14 @@ export const CycleProgress = ({
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="total" />
-          <p className="text-xs font-medium text-muted-foreground">Total:</p>
+          <p className="text-xs font-medium text-muted-foreground">{t('total-colon')}</p>
         </span>
         <p className="text-xs font-medium">{progress?.totalScope || 0}</p>
       </span>
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="started" />
-          <p className="text-xs font-medium text-muted-foreground">Started:</p>
+          <p className="text-xs font-medium text-muted-foreground">{t('started-colon')}</p>
         </span>
         <p className="text-xs font-medium">
           {progress?.totalStartedScope || 0}
@@ -80,7 +82,7 @@ export const CycleProgress = ({
         <span className="flex items-center gap-2">
           <ProgressDot status="completed" />
           <p className="text-xs font-medium text-muted-foreground">
-            Completed:
+            {t('completed-colon')}
           </p>
         </span>
         <p className="text-xs font-medium">

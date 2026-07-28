@@ -1,20 +1,31 @@
+import { DocumentAttributesSidebar } from '@/documents/components/DocumentAttributesSidebar';
 import { DocumentEditorSkeleton } from '@/documents/components/DocumentEditorSkeleton';
 import { useDocument } from '@/documents/hooks/useDocument';
 import { useDocumentAttributes } from '@/documents/hooks/useDocumentAttributes';
-import { BlockEditor, cn, IBlockEditor, useBlockEditor } from 'erxes-ui';
+import {
+  ATTRIBUTE_DND_MIME,
+  insertAttributeAtPoint,
+} from '@/documents/utils/attributeDnd';
+import { IconFileText, IconLayoutSidebarRightExpand } from '@tabler/icons-react';
+import { Button, BlockEditor, cn, IBlockEditor, useBlockEditor } from 'erxes-ui';
 
-import { ChangeEvent, KeyboardEvent, useEffect, useRef } from 'react';
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { AttributeInEditor } from 'ui-modules';
 
 const EditorController = ({
   editor,
   onChange,
+  attributes,
+  loading,
 }: {
   editor: IBlockEditor;
   onChange: (value: string) => void;
+  attributes: any[];
+  loading: boolean;
 }) => {
-  const { attributes, loading } = useDocumentAttributes();
+  const dropRef = useRef<HTMLDivElement>(null);
+  const [isDropTarget, setIsDropTarget] = useState(false);
 
   useEffect(() => {
     const unsubscribe = editor.onChange((editor: IBlockEditor) => {
@@ -24,21 +35,85 @@ const EditorController = ({
     return unsubscribe;
   }, [editor, onChange]);
 
+  useEffect(() => {
+    const node = dropRef.current;
+
+    if (!node) return;
+
+    const isAttributeDrag = (e: DragEvent) =>
+      !!e.dataTransfer?.types.includes(ATTRIBUTE_DND_MIME);
+
+    const handleDragOver = (e: DragEvent) => {
+      if (!isAttributeDrag(e)) return;
+
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+      setIsDropTarget(true);
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      if (node.contains(e.relatedTarget as Node)) return;
+      setIsDropTarget(false);
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      if (!isAttributeDrag(e)) return;
+
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      setIsDropTarget(false);
+
+      const raw = e.dataTransfer?.getData(ATTRIBUTE_DND_MIME);
+
+      if (!raw) return;
+
+      try {
+        const attribute = JSON.parse(raw);
+        insertAttributeAtPoint(editor, attribute, e.clientX, e.clientY);
+      } catch {
+        return;
+      }
+    };
+
+    node.addEventListener('dragover', handleDragOver, true);
+    node.addEventListener('dragleave', handleDragLeave, true);
+    node.addEventListener('drop', handleDrop, true);
+
+    return () => {
+      node.removeEventListener('dragover', handleDragOver, true);
+      node.removeEventListener('dragleave', handleDragLeave, true);
+      node.removeEventListener('drop', handleDrop, true);
+    };
+  }, [editor]);
+
   return (
-    <BlockEditor
-      editor={editor}
-      className={cn('flex-1 w-full overflow-y-auto')}
+    <div
+      ref={dropRef}
+      className={cn(
+        'flex min-h-0 flex-1 flex-col transition-colors',
+        isDropTarget && 'bg-primary/5 ring-2 ring-inset ring-primary/40',
+      )}
     >
-      <AttributeInEditor
+      <BlockEditor
         editor={editor}
-        attributes={attributes}
-        loading={loading}
-      />
-    </BlockEditor>
+        className={cn('w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16')}
+      >
+        <AttributeInEditor
+          editor={editor}
+          attributes={attributes}
+          loading={loading}
+        />
+      </BlockEditor>
+    </div>
   );
 };
 
-const DocumentContentEditor = ({ editor, document }: any) => {
+const DocumentContentEditor = ({
+  editor,
+  document,
+  attributes,
+  attributesLoading,
+}: any) => {
   const { control } = useFormContext();
 
   useEffect(() => {
@@ -50,7 +125,11 @@ const DocumentContentEditor = ({ editor, document }: any) => {
       try {
         blocks = JSON.parse(document.content);
       } catch (_error) {
-        blocks = await editor.tryParseHTMLToBlocks(document.content);
+        try {
+          blocks = await editor.tryParseHTMLToBlocks(document.content);
+        } catch (_htmlError) {
+          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+        }
       }
 
       editor.replaceBlocks(editor.document, blocks);
@@ -65,7 +144,12 @@ const DocumentContentEditor = ({ editor, document }: any) => {
       control={control}
       rules={{ required: 'Content is required' }}
       render={({ field }) => (
-        <EditorController editor={editor} onChange={field.onChange} />
+        <EditorController
+          editor={editor}
+          onChange={field.onChange}
+          attributes={attributes}
+          loading={attributesLoading}
+        />
       )}
     />
   );
@@ -124,16 +208,21 @@ const DocumentTitleEditor = ({
       onChange={handleChange}
       onKeyDown={handleKeyDown}
       placeholder="Untitled"
-      className="flex-none px-9 py-4 w-full font-bold text-[2.25rem] leading-10 bg-transparent border-none outline-hidden focus:outline-hidden focus:ring-0 resize-none overflow-hidden"
+      className="w-full min-w-0 flex-1 resize-none overflow-hidden border-none bg-transparent px-8 pb-3 pt-10 text-[2.25rem] font-bold leading-tight tracking-tight outline-hidden placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-0"
     />
   );
 };
 
 export const DocumentEditor = () => {
-  const { document, loading } = useDocument();
+  const { document, documentId, loading } = useDocument();
   const editor = useBlockEditor({});
+  const { attributes, loading: attributesLoading } = useDocumentAttributes();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { control } = useFormContext();
+
+  const isCreating = !documentId;
+  const hasAttributes = attributes.length > 0;
 
   const handleEnterPress = () => {
     if (!editor) return;
@@ -145,31 +234,64 @@ export const DocumentEditor = () => {
     return <DocumentEditorSkeleton />;
   }
 
-  if (!document) {
+  if (!document && !isCreating) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">No document found</div>
+      <div className="flex h-full items-center justify-center bg-muted/40">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <IconFileText className="size-10 text-muted-foreground/60" />
+          <p className="font-medium text-foreground">No document found</p>
+          <p className="max-w-xs text-sm text-muted-foreground">
+            This document may have been deleted. Pick another from the list to
+            keep editing.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="flex flex-col w-full mx-auto">
-        <Controller
-          name="name"
-          control={control}
-          rules={{ required: 'Title is required' }}
-          render={({ field }) => (
-            <DocumentTitleEditor
-              value={field.value}
-              onChange={field.onChange}
-              onEnterPress={handleEnterPress}
-            />
+    <div className="flex h-full w-full overflow-hidden bg-background">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="flex flex-none items-start gap-2 overflow-hidden">
+          <Controller
+            name="name"
+            control={control}
+            rules={{ required: 'Title is required' }}
+            render={({ field }) => (
+              <DocumentTitleEditor
+                value={field.value}
+                onChange={field.onChange}
+                onEnterPress={handleEnterPress}
+              />
+            )}
+          />
+          {hasAttributes && !sidebarOpen && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mr-5 mt-10 shrink-0 gap-1.5"
+              onClick={() => setSidebarOpen(true)}
+            >
+              Attributes
+              <IconLayoutSidebarRightExpand className="size-4" />
+            </Button>
           )}
+        </div>
+        <DocumentContentEditor
+          editor={editor}
+          document={document}
+          attributes={attributes}
+          attributesLoading={attributesLoading}
         />
-        <DocumentContentEditor editor={editor} document={document} />
       </div>
+      {hasAttributes && sidebarOpen && (
+        <DocumentAttributesSidebar
+          editor={editor}
+          attributes={attributes}
+          loading={attributesLoading}
+          onClose={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 };

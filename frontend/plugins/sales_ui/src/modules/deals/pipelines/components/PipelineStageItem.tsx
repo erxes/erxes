@@ -11,19 +11,33 @@ import {
   IconTrashX,
 } from '@tabler/icons-react';
 
-import { Controller } from 'react-hook-form';
+import { Controller, type Control } from 'react-hook-form';
 import { IStage } from '@/deals/types/stages';
 import { SelectMember, SelectDepartments } from 'ui-modules';
 import { SortableItemProps } from '@/deals/components/common/Item';
+import { useTranslation } from 'react-i18next';
+import type { TPipelineForm } from '@/deals/types/pipelines';
+
 import { useState } from 'react';
 
-interface Props extends SortableItemProps {
-  stage: IStage;
-  control: any;
+type TPipelineStageForm = Omit<TPipelineForm, 'stages'> & {
+  stages?: Array<
+    NonNullable<TPipelineForm['stages']>[number] & { defaultTick?: boolean }
+  >;
+};
+
+interface Props extends Omit<SortableItemProps, 'index'> {
+  index: number;
+  stage: Partial<IStage> & {
+    _id: string;
+    name: string;
+    probability: string;
+  };
+  control: Control<TPipelineStageForm>;
   onRemoveStage: () => void;
 }
 
-const showTooltip = (icon: any, text: string) => {
+const showTooltip = (icon: React.ReactNode, text: string) => {
   return (
     <Tooltip.Provider>
       <Tooltip>
@@ -36,7 +50,7 @@ const showTooltip = (icon: any, text: string) => {
   );
 };
 
-const PipelineStageItem = (props: Props) => {
+export const PipelineStageItem = (props: Props) => {
   const {
     dragging,
     dragOverlay,
@@ -57,6 +71,7 @@ const PipelineStageItem = (props: Props) => {
   } = props;
 
   const [showExtraFields, setShowExtraFields] = useState(false);
+  const { t } = useTranslation('sales');
 
   return (
     <div
@@ -92,7 +107,7 @@ const PipelineStageItem = (props: Props) => {
       <div
         className={`
           relative flex grow items-center
-          px-5 py-[18px] bg-white rounded
+          px-5 py-[18px] bg-background rounded
           shadow-md list-none select-none
           text-gray-800 font-normal text-base
           whitespace-nowrap
@@ -114,96 +129,120 @@ const PipelineStageItem = (props: Props) => {
         <div className="flex flex-1 items-start justify-between gap-3">
           <div className="flex-1">
             <div className="flex flex-wrap gap-3 justify-between">
-              <Form.Item className="flex-1">
-                <Form.Label>Stage Name</Form.Label>
-                <Form.Control>
-                  <Controller
-                    name={`stages.${index}.name`}
-                    control={control}
-                    defaultValue={stage?.name || ''}
-                    render={({ field }) => (
+              <Form.Field
+                name={`stages.${index}.name`}
+                control={control}
+                defaultValue={stage?.name || ''}
+                render={({ field }) => (
+                  <Form.Item className="flex-1">
+                    <Form.Label>{t('stage-name')}</Form.Label>
+                    <Form.Control>
                       <Input
                         {...field}
                         type="text"
-                        placeholder="Enter stage name"
+                        placeholder={t('enter-stage-name')}
                       />
-                    )}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-              <Form.Item className="flex-1">
-                <Form.Label>Probability</Form.Label>
-                <Controller
-                  name={`stages.${index}.probability`}
-                  control={control}
-                  defaultValue={stage?.probability || ''}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger className={'text-muted-foreground h-8'}>
-                        {field.value || 'Select probability'}
-                      </Select.Trigger>
-                      <Select.Content>
-                        {PROBABILITY_DEAL.map((option) => (
-                          <Select.Item key={option} value={option}>
-                            {option}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  )}
-                />
-              </Form.Item>
-              <Form.Item className="flex-1">
-                <Form.Label>Status</Form.Label>
-                <Controller
-                  name={`stages.${index}.status`}
-                  control={control}
-                  defaultValue={stage?.status || ''}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger className="text-muted-foreground h-8">
-                        {field.value || 'Select status'}
-                      </Select.Trigger>
-                      <Select.Content>
-                        {BOARD_STATUSES_OPTIONS.map((option) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  )}
-                />
-              </Form.Item>
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name={`stages.${index}.probability`}
+                control={control}
+                defaultValue={stage?.probability || ''}
+                render={({ field }) => (
+                  <Form.Item className="flex-1">
+                    <Form.Label>{t('probability')}</Form.Label>
+                    <Form.Control>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger className="text-muted-foreground h-8">
+                          {field.value || t('select-probability')}
+                        </Select.Trigger>
+                        <Select.Content>
+                          {PROBABILITY_DEAL.map((option) => (
+                            <Select.Item key={option} value={option}>
+                              {option}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name={`stages.${index}.status`}
+                control={control}
+                defaultValue={stage?.status || ''}
+                render={({ field }) => (
+                  <Form.Item className="flex-1">
+                    <Form.Label>{t('status')}</Form.Label>
+                    <Form.Control>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger className="text-muted-foreground h-8">
+                          {field.value || t('select-status')}
+                        </Select.Trigger>
+                        <Select.Content>
+                          {BOARD_STATUSES_OPTIONS.map((option) => (
+                            <Select.Item
+                              key={option.value}
+                              value={option.value}
+                            >
+                              {option.label}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
-              <Form.Item className="flex-1">
-                <Form.Label>Visibility</Form.Label>
-                <Controller
-                  name={`stages.${index}.visibility`}
-                  control={control}
-                  defaultValue={stage?.visibility || ''}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger className="text-muted-foreground h-8">
-                        {field.value || 'Select visibility'}
-                      </Select.Trigger>
-                      <Select.Content>
-                        {VISIBILITIES.map((option) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  )}
-                />
-              </Form.Item>
+              <Form.Field
+                name={`stages.${index}.visibility`}
+                control={control}
+                defaultValue={stage?.visibility || ''}
+                render={({ field }) => (
+                  <Form.Item className="flex-1">
+                    <Form.Label>{t('visibility')}</Form.Label>
+                    <Form.Control>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger className="text-muted-foreground h-8">
+                          {field.value || t('select-visibility')}
+                        </Select.Trigger>
+                        <Select.Content>
+                          {VISIBILITIES.map((option) => (
+                            <Select.Item
+                              key={option.value}
+                              value={option.value}
+                            >
+                              {option.label}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </div>
             {showExtraFields && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
                 <Form.Item>
-                  <Form.Label>Code</Form.Label>
+                  <Form.Label>{t('code')}</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.code`}
@@ -212,7 +251,7 @@ const PipelineStageItem = (props: Props) => {
                       render={({ field }) => (
                         <Input
                           {...field}
-                          placeholder="Enter code"
+                          placeholder={t('enter-code')}
                           className="input"
                         />
                       )}
@@ -222,7 +261,7 @@ const PipelineStageItem = (props: Props) => {
                 </Form.Item>
 
                 <Form.Item>
-                  <Form.Label>Age</Form.Label>
+                  <Form.Label>{t('age')}</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.age`}
@@ -231,7 +270,7 @@ const PipelineStageItem = (props: Props) => {
                       render={({ field }) => (
                         <Input
                           {...field}
-                          placeholder="Enter age"
+                          placeholder={t('enter-age')}
                           className="input"
                           type="number"
                           onChange={(e) => {
@@ -249,7 +288,7 @@ const PipelineStageItem = (props: Props) => {
                 </Form.Item>
 
                 <Form.Item>
-                  <Form.Label>Can move members</Form.Label>
+                  <Form.Label>{t('can-move-members')}</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.canMoveMemberIds`}
@@ -268,7 +307,7 @@ const PipelineStageItem = (props: Props) => {
                 </Form.Item>
 
                 <Form.Item>
-                  <Form.Label>Can edit members</Form.Label>
+                  <Form.Label>{t('can-edit-members')}</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.canEditMemberIds`}
@@ -287,7 +326,7 @@ const PipelineStageItem = (props: Props) => {
                 </Form.Item>
 
                 <Form.Item className="col-span-2">
-                  <Form.Label>Members</Form.Label>
+                  <Form.Label>{t('members')}</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.memberIds`}
@@ -305,7 +344,7 @@ const PipelineStageItem = (props: Props) => {
                 </Form.Item>
 
                 <Form.Item className="col-span-2">
-                  <Form.Label>Departments</Form.Label>
+                  <Form.Label>{t('departments')}</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.departmentIds`}
@@ -338,7 +377,7 @@ const PipelineStageItem = (props: Props) => {
                     />
                   </Form.Control>
                   <Label htmlFor={`defaultTick-${index}`}>
-                    Select products by default
+                    {t('select-products-by-default')}
                   </Label>
                 </Form.Item>
               </div>
@@ -347,24 +386,27 @@ const PipelineStageItem = (props: Props) => {
           <div className="flex self-start mt-6 gap-1">
             <div
               className={`
-              flex items-center gap-1 text-xs text-purple-500 cursor-pointer
-              p-2 rounded bg-purple-50 hover:bg-purple-100 transition-colors duration-150
+              flex items-center gap-1 text-xs text-primary cursor-pointer
+              p-2 rounded bg-primary/10 hover:bg-primary/20 transition-colors duration-150
               select-none
             `}
               onClick={() => setShowExtraFields(!showExtraFields)}
             >
               {showExtraFields
-                ? showTooltip(<IconChevronUp size={16} />, 'Hide extra fields')
+                ? showTooltip(
+                    <IconChevronUp size={16} />,
+                    t('hide-extra-fields'),
+                  )
                 : showTooltip(
                     <IconChevronDown size={16} />,
-                    'Show extra fields',
+                    t('show-extra-fields'),
                   )}
             </div>
 
             <div
               className={`
-              flex items-center gap-1 text-xs text-red-500 cursor-pointer
-              p-2 rounded bg-red-50 hover:bg-red-100 transition-colors duration-150
+              flex items-center gap-1 text-xs text-destructive cursor-pointer
+              p-2 rounded bg-destructive/10 hover:bg-destructive/20 transition-colors duration-150
               select-none
             `}
               onClick={onRemoveStage}
@@ -377,5 +419,3 @@ const PipelineStageItem = (props: Props) => {
     </div>
   );
 };
-
-export default PipelineStageItem;

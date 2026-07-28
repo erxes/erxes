@@ -9,7 +9,7 @@ export const channelQueries = {
 
   getMyChannels: async (
     _parent: undefined,
-    _params: undefined,
+    { name }: { name?: string },
     { models, user }: IContext,
   ) => {
     if (!user?._id) throw new Error('Unauthorized');
@@ -18,7 +18,8 @@ export const channelQueries = {
       memberId: userId,
     }).distinct('channelId');
 
-    return models.Channels.find({ _id: { $in: channelIds } });
+    const nameFilter = name ? { name: { $regex: name, $options: 'i' } } : {};
+    return models.Channels.find({ _id: { $in: channelIds }, ...nameFilter });
   },
 
   getChannels: async (
@@ -31,7 +32,10 @@ export const channelQueries = {
       : {};
 
     if (params.channelIds && params.channelIds.length > 0) {
-      return models.Channels.find({ _id: { $in: params.channelIds }, ...nameFilter });
+      return models.Channels.find({
+        _id: { $in: params.channelIds },
+        ...nameFilter,
+      });
     }
 
     if (params.integrationId) {
@@ -42,7 +46,7 @@ export const channelQueries = {
     }
 
     // System owners and users with showAllChannels permission see every channel.
-    if (user?.isOwner || await canGroup(subdomain, 'showAllChannels', user)) {
+    if (user?.isOwner || (await canGroup(subdomain, 'showAllChannels', user))) {
       return models.Channels.find(nameFilter);
     }
 

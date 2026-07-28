@@ -98,6 +98,58 @@ export const loadCustomerClass = (
   subdomain: string,
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
+  const updateCustomerMergeReferences = async (
+    oldCustomerIds: string[],
+    newCustomerId: string,
+  ) => {
+    await models.CPUser.updateMany(
+      { erxesCustomerId: { $in: oldCustomerIds } },
+      { $set: { erxesCustomerId: newCustomerId } },
+    );
+
+    await models.FormSubmissions.updateMany(
+      { customerId: { $in: oldCustomerIds } },
+      { $set: { customerId: newCustomerId } },
+    );
+
+    await models.DeliveryReports.updateMany(
+      { customerId: { $in: oldCustomerIds } },
+      { $set: { customerId: newCustomerId } },
+    );
+
+    await models.EngageMessages.changeCustomer(newCustomerId, oldCustomerIds);
+
+    await models.Relations.updateMany(
+      {
+        entities: {
+          $elemMatch: {
+            contentType: 'core:customer',
+            contentId: { $in: oldCustomerIds },
+          },
+        },
+      },
+      {
+        $set: {
+          'entities.$[entity].contentId': newCustomerId,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'entity.contentType': 'core:customer',
+            'entity.contentId': { $in: oldCustomerIds },
+          },
+        ],
+      },
+    );
+
+    await models.Conformities.changeConformity({
+      type: 'customer',
+      newTypeId: newCustomerId,
+      oldTypeIds: oldCustomerIds,
+    });
+  };
+
   class Customer {
     public static getCustomerName(customer: ICustomer) {
       if (customer.firstName || customer.lastName) {
@@ -260,6 +312,11 @@ export const loadCustomerClass = (
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
+      // Snapshot before deletion so the removal is revertable (point-in-time).
+      const prevDocuments = await models.Customers.find({
+        _id: { $in: customerIds },
+      }).lean();
+
       const response = await models.Customers.deleteMany({
         _id: { $in: customerIds },
       });
@@ -267,6 +324,7 @@ export const loadCustomerClass = (
       sendDbEventLog({
         action: 'deleteMany',
         docIds: customerIds,
+        prevDocuments,
       });
       return response;
     }
@@ -355,11 +413,7 @@ export const loadCustomerClass = (
         user,
       );
 
-      await models.Conformities.changeConformity({
-        type: 'customer',
-        newTypeId: customer._id,
-        oldTypeIds: customerIds,
-      });
+      await updateCustomerMergeReferences(customerIds, customer._id);
 
       return customer;
     }

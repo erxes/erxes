@@ -6,6 +6,7 @@ import {
 } from '@/automations/types';
 import { checkValidOptionalConnect } from '@/automations/utils/automationBuilderUtils/connectionUtils';
 import { Connection, Edge, getOutgoers, Node } from '@xyflow/react';
+import type { IAutomationsActionConfigConstants } from 'ui-modules';
 
 export const generateConnectInfo = (
   params: Connection,
@@ -26,13 +27,13 @@ export const generateConnectInfo = (
 
   if (sourceHandle) {
     if (sourceHandle.includes(params?.source)) {
-      const [_sourceId, optionalConnectId] = sourceHandle.split('-');
+      const [, optionalConnectId] = sourceHandle.split('-');
       info.optionalConnectId = optionalConnectId;
       info.connectType = 'optional';
     }
   }
   if (targetHandle?.includes('workflow')) {
-    const [_, automationId, actionId] = targetHandle.split('-');
+    const [, automationId, actionId] = targetHandle.split('-');
     info.automationId = automationId;
     info.actionId = actionId;
     info.connectType = 'workflow';
@@ -41,18 +42,55 @@ export const generateConnectInfo = (
   return info;
 };
 
+const canUseMultiTriggerAction = ({
+  actionsConst,
+  nodes,
+  source,
+  target,
+}: {
+  actionsConst: IAutomationsActionConfigConstants[];
+  nodes: Node<NodeData>[];
+  source: Node<NodeData>;
+  target: Node<NodeData>;
+}) => {
+  if (
+    source.data.nodeType !== AutomationNodeType.Trigger ||
+    target.data.nodeType !== AutomationNodeType.Action
+  ) {
+    return false;
+  }
+
+  const allowedTriggerTypes =
+    actionsConst.find((action) => action.type === target.data.type)
+      ?.allowedMultiTriggerTypes || [];
+
+  if (!allowedTriggerTypes.includes(source.data.type)) {
+    return false;
+  }
+
+  const connectedTriggers = nodes.filter(
+    ({ data, id }) =>
+      id !== source.id &&
+      data.nodeType === AutomationNodeType.Trigger &&
+      data.actionId === target.id,
+  );
+
+  return connectedTriggers.every(({ data }) =>
+    allowedTriggerTypes.includes(data.type),
+  );
+};
+
 export const checkIsValidConnect = ({
   nodes,
   edges,
   connection,
-  triggersConst,
   actionsConst,
 }: {
   nodes: Node<NodeData>[];
   connection: Connection;
   edges: Edge[];
   triggersConst: any[];
-  actionsConst: any[];
+  actionsConst: IAutomationsActionConfigConstants[];
 }) => {
   const target = nodes.find((node) => node.id === connection.target);
   const source = nodes.find((node) => node.id === connection.source);
@@ -76,7 +114,13 @@ export const checkIsValidConnect = ({
   const connectionInfo = generateConnectInfo(connection, source, target);
 
   if (connectionInfo.connectType === 'optional') {
-    if (!checkValidOptionalConnect(source, target)) {
+    if (
+      !checkValidOptionalConnect(
+        source,
+        target,
+        connectionInfo.optionalConnectId,
+      )
+    ) {
       return false;
     }
   }
@@ -84,7 +128,7 @@ export const checkIsValidConnect = ({
   if (source.data.type === 'if') {
     const [sourceHandleType] = (connection.sourceHandle || '').split('-');
 
-    if (!!source.data?.config[sourceHandleType]) {
+    if (source.data?.config[sourceHandleType]) {
       return false;
     }
   }
@@ -101,12 +145,28 @@ export const checkIsValidConnect = ({
         data.actionId === targetId,
     ) as Node<NodeData> | undefined;
 
-    if (existingTrigger) return false;
+    if (
+      existingTrigger &&
+      !canUseMultiTriggerAction({
+        actionsConst,
+        nodes,
+        source,
+        target,
+      })
+    ) {
+      return false;
+    }
   }
 
-  if (source.data.nodeType !== AutomationNodeType.Workflow) {
+  // "Source already connected" only applies to the standard handle: optional
+  // connects have their own slot per optionalConnectId, so an occupied
+  // nextActionId must not block them.
+  if (
+    source.data.nodeType !== AutomationNodeType.Workflow &&
+    connectionInfo.connectType !== 'optional'
+  ) {
     const fieldName = CONNECTION_PROPERTY_NAME_MAP[source.data.nodeType];
-    if (!!source.data[fieldName]) {
+    if (source.data[fieldName]) {
       return false;
     }
   }

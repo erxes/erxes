@@ -2,6 +2,7 @@ import { IconSettings2 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props<T extends object> {
   configs: T[];
@@ -15,30 +16,33 @@ export const ErkhetConfigRecordTable = <T extends object>({
   columns,
   emptyDescription,
   commandBar,
-}: Props<T>) => (
-  <RecordTable.Provider
-    columns={columns}
-    data={configs}
-    className="m-3"
-    tableOptions={{ enableRowSelection: true } as any}
-  >
-    <RecordTable>
-      <RecordTable.Header />
-      <RecordTable.Body>
-        <RecordTable.RowList />
-      </RecordTable.Body>
-    </RecordTable>
-    {configs.length === 0 && (
-      <div className="flex items-center justify-center py-20">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <IconSettings2 size={48} className="text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-900">
-            No configs yet
-          </h3>
-          <p className="text-sm text-gray-500">{emptyDescription}</p>
+}: Props<T>) => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <RecordTable.Provider
+      columns={columns}
+      data={configs}
+      className="m-3"
+      tableOptions={{ enableRowSelection: true } as any}
+    >
+      <RecordTable>
+        <RecordTable.Header />
+        <RecordTable.Body>
+          <RecordTable.RowList />
+        </RecordTable.Body>
+      </RecordTable>
+      {configs.length === 0 && (
+        <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <IconSettings2 size={48} className="text-gray-400" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              {t('no-configs-yet')}
+            </h3>
+            <p className="text-sm text-gray-500">{emptyDescription}</p>
+          </div>
         </div>
-      </div>
-    )}
-    {commandBar}
-  </RecordTable.Provider>
-);
+      )}
+      {commandBar}
+    </RecordTable.Provider>
+  );
+};

@@ -6,8 +6,10 @@ import { useEMIntegrationDetail } from '@/integrations/erxes-messenger/hooks/use
 import { useEffect, useRef, useState } from 'react';
 import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupSetAtom';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { useTranslation } from 'react-i18next';
 
 export const EditErxesMessengerSheet = () => {
+  const { t } = useTranslation('frontline');
   const [idToEdit, setOpen] = useAtom(erxesMessengerSetupEditSheetOpenAtom);
   const { integrationDetail, loading } = useEMIntegrationDetail({
     id: idToEdit,
@@ -49,7 +51,7 @@ export const EditErxesMessengerSheet = () => {
 
   return (
     <Sheet open={!!idToEdit} onOpenChange={() => setOpen(false)}>
-      <EMSetup title="Edit Erxes Messenger" loading={loading || !isPopulated} />
+      <EMSetup title={t('edit-erxes-messenger')} loading={loading || !isPopulated} />
     </Sheet>
   );
 };

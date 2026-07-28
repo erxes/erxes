@@ -6,9 +6,12 @@ import { z } from 'zod';
 import { generateFacebookFields } from '@/integrations/facebook/fieldUtils';
 import { IModels } from './connectionResolvers';
 import { conversationTrpcRouter } from './modules/inbox/trpc/conversation';
+import { formTrpcRouter } from './modules/form/trpc/form';
+import { relationTrpcRouter } from './modules/inbox/trpc/relation';
 import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
 import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
+import { generateTicketFields } from './modules/ticket/meta/fields/fieldUtils';
 
 export type FrontlineTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -18,7 +21,9 @@ export const appRouter = t.mergeRouters(
   integrationTrpcRouter,
   inboxTrpcRouter,
   conversationTrpcRouter,
+  formTrpcRouter,
   ticketTrpcRouter,
+  relationTrpcRouter,
   t.router({
     fields: t.router({
       getFieldList: t.procedure
@@ -36,6 +41,9 @@ export const appRouter = t.mergeRouters(
           const { moduleType } = input;
           if (moduleType === 'facebook') {
             return await generateFacebookFields(models, subdomain, input);
+          }
+          if (moduleType === 'tickets') {
+            return await generateTicketFields({ subdomain, data: input });
           }
 
           return [];

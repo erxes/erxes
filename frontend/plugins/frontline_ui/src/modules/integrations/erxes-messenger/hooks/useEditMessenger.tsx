@@ -7,11 +7,13 @@ import {
 } from '../graphql/mutations/createEmMessengerMutations';
 import { toast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emConfigSchema';
 import { erxesMessengerSetupValuesAtom } from '@/integrations/erxes-messenger/states/EMStateValues';
 
 export const useEditMessenger = () => {
+  const { t } = useTranslation('frontline');
   const client = useApolloClient();
 
   const [editMessengerMutation, { loading: editLoading }] = useMutation(
@@ -53,7 +55,7 @@ export const useEditMessenger = () => {
             },
           }).catch((e) =>
             toast({
-              title: 'Failed to save configs',
+              title: t('failed-to-save-configs'),
               description: e.message,
               variant: 'destructive',
             }),
@@ -67,7 +69,7 @@ export const useEditMessenger = () => {
             },
           }).catch((e) =>
             toast({
-              title: 'Failed to save appearance',
+              title: t('failed-to-save-appearance'),
               description: e.message,
               variant: 'destructive',
             }),
@@ -83,7 +85,7 @@ export const useEditMessenger = () => {
               },
             }).catch((e) =>
               toast({
-                title: 'Failed to save ticket config',
+                title: t('failed-to-save-ticket-config'),
                 description: e.message,
                 variant: 'destructive',
               }),
@@ -101,7 +103,7 @@ export const useEditMessenger = () => {
       },
       onError(e) {
         toast({
-          title: 'Failed to edit messenger',
+          title: t('failed-to-edit-messenger'),
           description: e.message,
           variant: 'destructive',
         });

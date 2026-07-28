@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Control,
   UseFormHandleSubmit,
@@ -36,6 +37,7 @@ export const ReplyMessageProvider = ({
   form: UseFormReturn<TMessageActionForm>;
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const { control, watch, setValue, setError, handleSubmit } = form;
 
   const messages = watch('messages') || [];
@@ -43,7 +45,7 @@ export const ReplyMessageProvider = ({
   const addMessage = (type: MessageActionTypeNames) => {
     if (messages.length === 5) {
       return setError('messages', {
-        message: 'You can only add up to 5 messages per action',
+        message: t('max-five-messages'),
       });
     }
 

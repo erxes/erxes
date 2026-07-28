@@ -80,7 +80,7 @@ export const types = `
   type Deal @key(fields: "_id") {
     _id: String!
 
-    name: String!
+    name: String
     order: Float
     createdAt: Date
     hasNotified: Boolean
@@ -110,6 +110,7 @@ export const types = `
     assignedUsers: [User]
     stage: SalesStage
     labels: [SalesPipelineLabel]
+    pipelineId: String
     pipeline: SalesPipeline
     createdUser: User
     propertiesData: JSON
@@ -130,8 +131,12 @@ export const types = `
 
     products: [Product]
     productsData: JSON
+    mobileAmount: Float
+    mobileAmounts: JSON
     paymentsData: JSON
     extraData: JSON
+    brokerType: String
+    brokerId: String
 
     cursor: String
   }
@@ -220,8 +225,12 @@ const mutationParams = `
   departmentIds: [String],
 
   paymentsData: JSON,
+  mobileAmount: Float,
+  mobileAmounts: JSON,
   productsData: JSON,
   extraData: JSON,
+  brokerType: String,
+  brokerId: String,
 `;
 
 export const mutations = `
@@ -238,6 +247,7 @@ export const mutations = `
 
   cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
   cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
+  cpDealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
   cpDealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   cpDealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
 `;

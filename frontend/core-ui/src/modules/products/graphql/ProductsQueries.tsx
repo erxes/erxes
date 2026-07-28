@@ -8,6 +8,7 @@ import {
 const productsMain = gql`
   query ProductsMain(
     $type: String
+    $status: String
     $categoryIds: [String]
     $searchValue: String
     $vendorId: String
@@ -21,6 +22,7 @@ const productsMain = gql`
   ) {
     productsMain(
       type: $type
+      status: $status
       categoryIds: $categoryIds
       searchValue: $searchValue
       vendorId: $vendorId

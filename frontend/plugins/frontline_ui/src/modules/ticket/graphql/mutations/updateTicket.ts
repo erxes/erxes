@@ -38,6 +38,27 @@ export const UPDATE_TICKET_MUTATION = gql`
       attachments: $attachments
     ) {
       _id
+      name
+      description
+      statusId
+      priority
+      labelIds
+      tagIds
+      assigneeId
+      startDate
+      targetDate
+      channelId
+      pipelineId
+      isSubscribed
+      state
+      propertiesData
+      attachments {
+        name
+        url
+        size
+        type
+        duration
+      }
     }
   }
 `;

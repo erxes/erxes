@@ -1,4 +1,5 @@
 import { CALL_QUEUE_INITIAL_LIST } from '@/integrations/call/graphql/queries/callConfigQueries';
+import { ICallQueueRealtimeSnapshot } from '@/integrations/call/types/callTypes';
 import { useQuery } from '@apollo/client';
 
 export const useCallQueueInitialList = ({
@@ -25,7 +26,7 @@ export const useCallQueueInitialList = ({
   });
 
   const { callQueueInitialList } = data || {};
-  const jsonQueue = callQueueInitialList
+  const jsonQueue: Partial<ICallQueueRealtimeSnapshot> = callQueueInitialList
     ? JSON.parse(callQueueInitialList)
     : {};
   return { callQueueInitialList: jsonQueue, loading };

@@ -1,6 +1,7 @@
 import { Button, useToast, useConfirm } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useDeletePricing } from '@/pricing/hooks/useDeletePricing';
 
 interface PricingDeleteProps {
@@ -8,15 +9,11 @@ interface PricingDeleteProps {
   onDeleteSuccess?: () => void;
 }
 
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error
-    ? error.message
-    : 'Failed to delete pricing. Please try again.';
-
 export const PricingDelete = ({
   pricingIds,
   onDeleteSuccess,
 }: PricingDeleteProps) => {
+  const { t } = useTranslation('loyalty');
   const { deletePricing, loading } = useDeletePricing();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -38,7 +35,7 @@ export const PricingDelete = ({
     }
 
     confirm({
-      message: `Are you sure you want to delete the ${pricingCount} selected pricing item(s)?`,
+      message: t('delete-pricing-confirm', { count: pricingCount }),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -49,16 +46,17 @@ export const PricingDelete = ({
         }
 
         toast({
-          title: 'Success',
-          description: 'Selected pricing item(s) deleted successfully.',
+          title: t('success'),
+          description: t('pricing-deleted', { count: pricingCount }),
           variant: 'success',
         });
 
         navigate('/settings/loyalty/pricing');
       } catch (error: unknown) {
         toast({
-          title: 'Error',
-          description: getErrorMessage(error),
+          title: t('error'),
+          description:
+            error instanceof Error ? error.message : t('pricing-delete-failed'),
           variant: 'destructive',
         });
       }
@@ -73,7 +71,7 @@ export const PricingDelete = ({
       disabled={loading}
     >
       <IconTrash className="w-4 h-4 mr-2" />
-      {loading ? 'Deleting...' : 'Delete'}
+      {loading ? t('deleting') : t('delete')}
     </Button>
   );
 };

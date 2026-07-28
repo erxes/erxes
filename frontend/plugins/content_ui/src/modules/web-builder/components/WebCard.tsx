@@ -7,6 +7,7 @@ import {
 import { Button } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { webDrawerState } from '../states/webBuilderState';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
@@ -19,6 +20,7 @@ interface WebCardProps {
 }
 
 export const WebCard = ({ web, index }: WebCardProps) => {
+  const { t } = useTranslation('content');
   const setDrawer = useSetAtom(webDrawerState);
   const { removeWeb } = useRemoveWeb();
   const { confirm } = useConfirm();
@@ -39,12 +41,12 @@ export const WebCard = ({ web, index }: WebCardProps) => {
 
   const handleDelete = () =>
     confirm({
-      message: `Are you sure you want to delete "${web.name}"?`,
+      message: t('confirm-delete-web', { name: web.name }),
     }).then(() => removeWeb(web._id));
 
   return (
-    <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
-      <div className={`aspect-video relative overflow-hidden bg-gray-100`}>
+    <div className="bg-card h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+      <div className={`aspect-video relative overflow-hidden bg-muted`}>
         {thumbnailUrl ? (
           <>
             <img
@@ -71,15 +73,15 @@ export const WebCard = ({ web, index }: WebCardProps) => {
       </div>
 
       <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+        <h3 className="font-semibold text-foreground mb-1 line-clamp-1">
           {web.name}
         </h3>
-        <p className="text-sm text-gray-500 mb-4 line-clamp-2 min-h-[2.5rem]">
-          {web.description || 'No description'}
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-10">
+          {web.description || t('no-description')}
         </p>
 
         <div className="flex items-center justify-between">
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-muted-foreground">
             {web.templateType && (
               <span className="capitalize">{web.templateType}</span>
             )}
@@ -90,16 +92,16 @@ export const WebCard = ({ web, index }: WebCardProps) => {
               onClick={() =>
                 window.open(buildUrl, '_blank', 'noopener,noreferrer')
               }
-              title="Build"
+              title={t('build')}
             >
               <IconHammer className="w-3.5 h-3.5 mr-1" />
-              Build
+              {t('build')}
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleEdit}
-              title="Edit"
+              title={t('edit')}
             >
               <IconEdit className="w-3.5 h-3.5" />
             </Button>
@@ -107,7 +109,7 @@ export const WebCard = ({ web, index }: WebCardProps) => {
               variant="ghost"
               size="icon"
               onClick={handleDelete}
-              title="Delete"
+              title={t('delete')}
               className="text-destructive hover:text-destructive"
             >
               <IconTrash className="w-3.5 h-3.5" />

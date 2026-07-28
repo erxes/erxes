@@ -15,6 +15,7 @@ interface IAddFacebookConversationBotMessage {
   botData: TBotData[];
   mid: string;
   conversationErxesApiId: string;
+  source?: Record<string, unknown>;
 }
 
 const hasMeaningfulHtml = (value = '') => {
@@ -100,7 +101,8 @@ const extractBotMessageContent = (botData: TBotData[] = []) => {
   return parts.filter(Boolean).join('');
 };
 
-export interface IFacebookConversationMessageModel extends Model<IFacebookConversationMessageDocument> {
+export interface IFacebookConversationMessageModel
+  extends Model<IFacebookConversationMessageDocument> {
   getMessage(_id: string): Promise<IFacebookConversationMessageDocument>;
   createMessage(
     doc: IFacebookConversationMessage,
@@ -191,9 +193,16 @@ export const loadFacebookConversationMessageClass = (models: IModels) => {
         botData,
         mid,
         conversationErxesApiId,
+        source,
       }: IAddFacebookConversationBotMessage,
     ) {
       const content = extractBotMessageContent(botData);
+      const messageSource = source
+        ? {
+            ...source,
+            targetConversationId: conversationErxesApiId,
+          }
+        : undefined;
 
       const conversationMessage =
         await models.FacebookConversationMessages.addMessage({
@@ -204,6 +213,7 @@ export const loadFacebookConversationMessageClass = (models: IModels) => {
           botId,
           botData,
           fromBot: true,
+          source: messageSource,
         });
 
       pConversationClientMessageInserted(subdomain, {

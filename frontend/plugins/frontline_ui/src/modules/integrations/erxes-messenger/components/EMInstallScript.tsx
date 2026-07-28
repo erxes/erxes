@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCopy, IconCheck, IconCode } from '@tabler/icons-react';
 import { useState } from 'react';
 import { Badge, Button, Dialog, toast } from 'erxes-ui';
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export function EMInstallScript({ integrationId }: Props) {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -40,8 +42,8 @@ export function EMInstallScript({ integrationId }: Props) {
       })
       .catch(() => {
         toast({
-          title: 'Failed to copy script',
-          description: 'Please try again',
+          title: t('failed-to-copy-script'),
+          description: t('please-try-again'),
           variant: 'destructive',
         });
       });
@@ -52,19 +54,18 @@ export function EMInstallScript({ integrationId }: Props) {
       <div
         className="flex items-center gap-2 w-full cursor-pointer"
         onClick={() => setDialogOpen(true)}
-        title="View installation script"
+        title={t('view-installation-script')}
       >
         <IconCode size={16} />
-        Install Script
+        {t('install-script')}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <Dialog.Content className="max-w-2xl">
           <Dialog.Header>
-            <Dialog.Title>Installation Script</Dialog.Title>
+            <Dialog.Title>{t('installation-script')}</Dialog.Title>
             <Dialog.Description>
-              Copy and paste this script into your website's HTML, just before
-              the closing {'</body>'} tag.
+              {t('installation-script-description')}
             </Dialog.Description>
           </Dialog.Header>
 
@@ -82,38 +83,38 @@ export function EMInstallScript({ integrationId }: Props) {
                 {copied ? (
                   <>
                     <IconCheck className="w-4 h-4 mr-2" />
-                    Copied!
+                    {t('copied')}
                   </>
                 ) : (
                   <>
                     <IconCopy className="w-4 h-4 mr-2" />
-                    Copy
+                    {t('copy')}
                   </>
                 )}
               </Button>
             </div>
 
             <Badge variant="info" className="block w-full h-auto p-3">
-              <h4 className="font-medium text-sm mb-2">Installation Steps:</h4>
+              <h4 className="font-medium text-sm mb-2">{t('installation-steps')}</h4>
               <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
-                <li>Copy the script above</li>
-                <li>Paste it into your website's HTML</li>
-                <li>Place it just before the closing {'</body>'} tag</li>
-                <li>The messenger widget will appear on your site</li>
+                <li>{t('installation-step-1')}</li>
+                <li>{t('installation-step-2')}</li>
+                <li>{t('installation-step-3')}</li>
+                <li>{t('installation-step-4')}</li>
               </ol>
             </Badge>
           </div>
 
           <Dialog.Footer>
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>
-              Close
+              {t('close')}
             </Button>
             <Button>
               <Link
                 target="_blank"
                 to={`/settings/frontline/channels/erxes-messenger-preview?inPreview=true&integrationId=${integrationId}`}
               >
-                Preview
+                {t('preview')}
               </Link>
             </Button>
           </Dialog.Footer>

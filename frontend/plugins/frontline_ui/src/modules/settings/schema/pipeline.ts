@@ -3,6 +3,9 @@ import { z } from 'zod';
 const PIPELINE_FORM_BASE_SCHEMA = z.object({
   name: z.string(),
   description: z.string().optional(),
+  numberConfig: z.string().optional(),
+  numberSize: z.string().optional(),
+  nameConfig: z.string().optional(),
 });
 
 export const CREATE_PIPELINE_FORM_SCHEMA = PIPELINE_FORM_BASE_SCHEMA.extend({

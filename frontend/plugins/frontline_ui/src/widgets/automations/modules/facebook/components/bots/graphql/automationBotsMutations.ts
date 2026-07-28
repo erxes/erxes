@@ -16,6 +16,9 @@ const FACEBOOK_BOT_MUTATION_FIELDS = `
     link
   }
   greetText
+  handoffMessage
+  automationActiveMessage
+  handoffPauseMinutes
   tag
   isEnabledBackBtn
   backButtonText
@@ -34,6 +37,9 @@ const FACEBOOK_BOT_PARAMS = `
   $pageId: String,
   $persistentMenus: [BotPersistentMenuInput],
   $greetText: String,
+  $handoffMessage: String,
+  $automationActiveMessage: String,
+  $handoffPauseMinutes: Int,
   $tag: String,
   $isEnabledBackBtn:Boolean,
   $backButtonText:String
@@ -44,7 +50,10 @@ const FACEBOOK_BOT_PARAMS_DEF = `
   accountId: $accountId,
   pageId: $pageId,
   persistentMenus: $persistentMenus,
-  greetText: $greetText
+  greetText: $greetText,
+  handoffMessage: $handoffMessage,
+  automationActiveMessage: $automationActiveMessage,
+  handoffPauseMinutes: $handoffPauseMinutes,
   tag: $tag
   isEnabledBackBtn: $isEnabledBackBtn,
   backButtonText:$backButtonText

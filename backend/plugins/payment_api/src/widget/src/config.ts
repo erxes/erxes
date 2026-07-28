@@ -1,12 +1,15 @@
 // src/config.ts
 declare global {
-    interface Window {
-      WIDGET_CONFIG?: {
-        API_URL: string;
-      };
-    }
+  interface Window {
+    WIDGET_CONFIG?: {
+      API_URL: string;
+    };
   }
-  
-  export const API_URL =
-    window.WIDGET_CONFIG?.API_URL || "http://localhost:4000";
-  
+}
+
+const fromWidget = window.WIDGET_CONFIG?.API_URL;
+
+export const API_URL =
+  fromWidget && fromWidget !== 'undefined'
+    ? fromWidget
+    : `${window.location.origin}/pl:payment`;

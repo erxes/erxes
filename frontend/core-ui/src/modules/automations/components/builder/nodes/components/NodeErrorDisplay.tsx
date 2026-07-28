@@ -23,30 +23,32 @@ export const NodeErrorDisplay = ({
     <div className={cn('relative', className)}>
       {/* Error indicator */}
       <div
-        className="flex items-center gap-1 p-2 bg-red-50 border border-red-200 rounded text-red-700 cursor-pointer hover:bg-red-100 transition-colors"
+        className="flex items-center gap-1 p-2 bg-destructive/5 border border-destructive/20 rounded text-destructive cursor-pointer hover:bg-destructive/10 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
         title={error}
       >
         <IconAlertCircle className="size-3" />
         <span className="text-xs font-medium">{t('configuration-error')}</span>
-        <span className="text-xs text-red-500 ml-auto">
+        <span className="text-xs text-destructive ml-auto">
           {isExpanded ? '−' : '+'}
         </span>
       </div>
 
       {/* Expanded error message */}
       {isExpanded && (
-        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
+        <div className="mt-2 p-2 bg-destructive/5 border border-destructive/20 rounded">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1">
-              <p className="text-xs text-red-700 leading-relaxed">{error}</p>
+              <p className="text-xs text-destructive leading-relaxed">
+                {error}
+              </p>
             </div>
             <div className="flex items-center gap-1">
               {onClearError && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 hover:bg-red-200"
+                  className="h-6 w-6 p-0 hover:bg-destructive/20"
                   onClick={() => onClearError(nodeId)}
                 >
                   <IconX className="size-3" />
@@ -73,7 +75,7 @@ export const NodeErrorIndicator = ({
       className={cn('flex items-center justify-center', className)}
       title={error}
     >
-      <IconAlertCircle className="size-4 text-red-500" />
+      <IconAlertCircle className="size-4 text-destructive" />
     </div>
   );
 };

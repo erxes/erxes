@@ -86,8 +86,9 @@ const FileUpload = () => {
                   : { label: mime, value: mime };
               });
             } else {
-              const selectedMimeTypes = JSON.stringify(config.value || '')
+              const selectedMimeTypes = String(config.value || '')
                 .split(',')
+                .map((mime: string) => mime.replace(/[\\"]/g, '').trim())
                 .filter(Boolean)
                 .map((mime: string) => {
                   const found = FILE_MIME_TYPES.find(

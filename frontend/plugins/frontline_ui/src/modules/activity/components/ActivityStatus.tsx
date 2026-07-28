@@ -8,6 +8,7 @@ import { ITicket } from '@/ticket/types';
 import { Badge } from 'erxes-ui';
 import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { ITicketStatusChoice } from '@/status/types';
+import { useTranslation } from 'react-i18next';
 
 const isTicket = (content: ITicket): content is ITicket => {
   return 'pipelineId' in content;
@@ -18,6 +19,7 @@ export const ActivityStatus = ({
 }: {
   metadata: IActivity['metadata'];
 }) => {
+  const { t } = useTranslation('frontline');
   const { previousValue, newValue } = metadata;
   const contentDetail = useActivityListContext();
 
@@ -58,9 +60,9 @@ export const ActivityStatus = ({
 
   return (
     <div className="flex items-center gap-1">
-      changed status
+      {t('changed-status')}
       {renderStatusBadge(previousValue)}
-      to
+      {t('to')}
       {renderStatusBadge(newValue)}
     </div>
   );

@@ -1,6 +1,7 @@
 import { IFacebookBotHealth } from '@/integrations/facebook/types/FacebookBot';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Badge, Popover, RecordTableInlineCell } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotHealthCell';
 
 export const FacebookBotHealthCell = ({
@@ -8,6 +9,7 @@ export const FacebookBotHealthCell = ({
 }: {
   health?: IFacebookBotHealth;
 }) => {
+  const { t } = useTranslation('frontline');
   const { statusLabel, statusVariant, showDetails, detailItems } =
     useFacebookBotHealthCell(health);
 
@@ -27,9 +29,9 @@ export const FacebookBotHealthCell = ({
             </Popover.Trigger>
             <Popover.Content align="end" className="w-80 space-y-3">
               <div className="space-y-1">
-                <div className="text-sm font-medium">Bot health</div>
+                <div className="text-sm font-medium">{t('bot-health')}</div>
                 <div className="text-xs text-muted-foreground">
-                  Current verification details
+                  {t('current-verification-details')}
                 </div>
               </div>
 

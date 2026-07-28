@@ -20,8 +20,11 @@ import {
 } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { useFormMutate } from '../hooks/useFormMutate';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const FormConfirmation = () => {
+  const { t } = useTranslation('frontline');
   const form = useForm<z.infer<typeof FORM_CONFIRMATION_SCHEMA>>({
     resolver: zodResolver(FORM_CONFIRMATION_SCHEMA),
     defaultValues: {
@@ -38,8 +41,8 @@ export const FormConfirmation = () => {
 
   return (
     <FormMutateLayout
-      title="Confirmation"
-      description="Confirmation settings"
+      title={t('confirmation-label')}
+      description={t('confirmation-settings')}
       form={form}
       onSubmit={onSubmit}
       isLoading={loading}
@@ -50,7 +53,7 @@ export const FormConfirmation = () => {
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title-label')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -62,7 +65,7 @@ export const FormConfirmation = () => {
           name="description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -74,7 +77,7 @@ export const FormConfirmation = () => {
           name="image"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Image</Form.Label>
+              <Form.Label>{t('image-label')}</Form.Label>
               <Form.Control>
                 <FormConfirmationImage
                   value={field.value}
@@ -106,6 +109,14 @@ export const FormConfirmationImage = ({
       onValueChange(addedFiles[0]);
     },
   });
+
+  useEffect(() => {
+    const hasValidFiles =
+      props.files.length > 0 && props.files.every((f) => f.errors.length === 0);
+    if (hasValidFiles && !props.loading) {
+      props.onUpload();
+    }
+  }, [props.files]);
 
   return value ? (
     <div className="relative p-2 border border-dashed rounded-md aspect-video">

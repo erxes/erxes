@@ -8,6 +8,7 @@ import { imapFormSheetAtom } from '../states/imapStates';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { IntegrationType } from '@/types/Integration';
 import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
 
 /* ── Schema ─────────────────────────────────────────────────────────── */
@@ -86,31 +87,35 @@ export const ImapFormField = ({
 );
 
 
-const GmailConfigHelper = () => (
-  <Alert className="mb-4">
-    <IconInfoCircle className="h-4 w-4" />
-    <Alert.Title className="font-medium">Gmail Configuration</Alert.Title>
-    <Alert.Description className="mt-2 text-sm space-y-1">
-      <p><strong>Host:</strong> {GMAIL_CONFIG.host}</p>
-      <p><strong>SMTP Host:</strong> {GMAIL_CONFIG.smtpHost}</p>
-      <p><strong>SMTP Port:</strong> {GMAIL_CONFIG.smtpPort}</p>
-      <p>
-        <strong>Password:</strong>
-        <a
-          href={GMAIL_CONFIG.appPasswordGuide}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-1 text-blue-600 hover:underline"
-        >
-          Create an app password
-        </a>
-      </p>
-    </Alert.Description>
-  </Alert>
-);
+const GmailConfigHelper = () => {
+  const { t } = useTranslation('frontline');
+  return (
+    <Alert className="mb-4">
+      <IconInfoCircle className="h-4 w-4" />
+      <Alert.Title className="font-medium">{t('gmail-configuration')}</Alert.Title>
+      <Alert.Description className="mt-2 text-sm space-y-1">
+        <p><strong>{t('host')}:</strong> {GMAIL_CONFIG.host}</p>
+        <p><strong>{t('smtp-host')}:</strong> {GMAIL_CONFIG.smtpHost}</p>
+        <p><strong>{t('smtp-port')}:</strong> {GMAIL_CONFIG.smtpPort}</p>
+        <p>
+          <strong>{t('password')}:</strong>
+          <a
+            href={GMAIL_CONFIG.appPasswordGuide}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 text-blue-600 hover:underline"
+          >
+            {t('create-an-app-password')}
+          </a>
+        </p>
+      </Alert.Description>
+    </Alert>
+  );
+};
 
 
 export const ImapIntegrationFormSheet = () => {
+  const { t } = useTranslation('frontline');
   const [isOpen, setIsOpen] = useAtom(imapFormSheetAtom);
   const { id } = useParams();
 
@@ -159,13 +164,13 @@ export const ImapIntegrationFormSheet = () => {
         <Dialog.Trigger asChild>
           <Button>
             <IconPlus />
-            Add IMAP Integration
+            {t('add-imap-integration')}
           </Button>
         </Dialog.Trigger>
 
         <Dialog.Content className="p-0 gap-0 max-w-md max-h-[90vh] flex flex-col overflow-hidden">
           <Dialog.Header className="flex-row items-center justify-between space-y-0 px-5 h-14 border-b flex-none">
-            <Dialog.Title>Add IMAP Integration</Dialog.Title>
+            <Dialog.Title>{t('add-imap-integration')}</Dialog.Title>
             <Dialog.Close asChild>
               <Button variant="secondary" size="icon" className="ml-auto">
                 <IconX />
@@ -192,18 +197,18 @@ export const ImapIntegrationFormSheet = () => {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        Brand <span className="text-destructive">*</span>
+                        {t('brand')} <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <SelectBrand
                           value={field.value}
                           onValueChange={field.onChange}
-                          placeholder="Select a brand"
+                          placeholder={t('select-a-brand')}
                           className="w-full h-10 rounded-lg border bg-background"
                         />
                       </Form.Control>
                       <Form.Description>
-                        Choose the brand for this integration
+                        {t('choose-brand-description')}
                       </Form.Description>
                       <Form.Message />
                     </Form.Item>
@@ -220,11 +225,11 @@ export const ImapIntegrationFormSheet = () => {
                 variant="ghost"
                 disabled={loading}
               >
-                Cancel
+                {t('cancel')}
               </Button>
             </Dialog.Close>
             <Button type="submit" form="imap-form" disabled={loading}>
-              {loading ? 'Saving…' : 'Save'}
+              {loading ? t('saving') : t('save')}
             </Button>
           </div>
         </Dialog.Content>

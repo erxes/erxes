@@ -75,6 +75,7 @@ export const automationDropHandler = ({
   event,
   reactFlowInstance,
   getNodes,
+  flowDirection,
 }: AutomationDropHandlerParams): {
   newNodeId?: string;
   generatedNode?: any;
@@ -110,6 +111,7 @@ export const automationDropHandler = ({
     nodes,
     { nodeIndex },
     getNodes(),
+    flowDirection,
   );
 
   return {

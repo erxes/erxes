@@ -10,9 +10,9 @@ import { IFacebookBotDocument, facebookBotSchema } from '../definitions/bots';
 
 type TBotPersistentMenuInput = {
   _id: string;
-  type: string;
+  type: 'button' | 'link' | 'human_handoff' | 'back_button';
   text: string;
-  link: string;
+  link?: string;
 };
 
 export type TCreateBotInputDoc = {
@@ -21,6 +21,9 @@ export type TCreateBotInputDoc = {
   pageId: string;
   persistentMenus: TBotPersistentMenuInput[];
   greetText: string;
+  handoffMessage?: string;
+  automationActiveMessage?: string;
+  handoffPauseMinutes?: number;
   tag: string;
   isEnabledBackBtn: Boolean;
   backButtonText: string;
@@ -520,7 +523,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       botId: string;
       persistentMenus?: Array<{
         _id: string;
-        type: string;
+        type: 'button' | 'link' | 'human_handoff' | 'back_button';
         text: string;
         link?: string;
       }>;
@@ -535,34 +538,56 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         },
       ];
 
+      let hasBackButtonMenu = false;
+
       for (const { _id, type, text, link } of persistentMenus || []) {
-        if (!text) {
+        const title = type === 'back_button' ? text || 'Back' : text;
+
+        if (!title) {
           continue;
         }
 
         if (type === 'link' && link) {
           expectedMenus.push({
             type: 'web_url',
-            title: text,
+            title,
             url: link,
+          });
+          continue;
+        }
+
+        if (type === 'back_button') {
+          hasBackButtonMenu = true;
+
+          expectedMenus.push({
+            type: 'postback',
+            title,
+            payload: JSON.stringify({
+              botId,
+              isBackBtn: true,
+              persistentMenuId: _id,
+              persistentMenuType: type,
+            }),
+            isBackButton: true,
           });
           continue;
         }
 
         expectedMenus.push({
           type: 'postback',
-          title: text,
+          title,
           payload: JSON.stringify({
             botId,
             persistentMenuId: _id,
+            persistentMenuType: type,
           }),
         });
       }
 
-      if (Boolean(isEnabledBackBtn)) {
+      if (Boolean(isEnabledBackBtn) && !hasBackButtonMenu) {
         expectedMenus.push({
           type: 'postback',
-          title: backButtonText || 'Back',
+          title: 'Back',
           isBackButton: true,
         });
       }
@@ -1111,32 +1136,50 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
     }) {
       const generatedPersistentMenus: TMessengerProfileRequestAction[] = [];
 
+      let hasBackButtonMenu = false;
+
       for (const { _id, type, text, link } of persistentMenus || []) {
-        if (text) {
+        const title = type === 'back_button' ? text || 'Back' : text;
+
+        if (title) {
           if (type === 'link' && link) {
             generatedPersistentMenus.push({
               type: 'web_url',
-              title: text,
+              title,
               url: link,
               webview_height_ratio: 'full',
+            });
+          } else if (type === 'back_button') {
+            hasBackButtonMenu = true;
+
+            generatedPersistentMenus.push({
+              type: 'postback',
+              title,
+              payload: JSON.stringify({
+                botId,
+                isBackBtn: true,
+                persistentMenuId: _id,
+                persistentMenuType: type,
+              }),
             });
           } else {
             generatedPersistentMenus.push({
               type: 'postback',
-              title: text,
+              title,
               payload: JSON.stringify({
                 botId,
                 persistentMenuId: _id,
+                persistentMenuType: type,
               }),
             });
           }
         }
       }
 
-      if (Boolean(isEnabledBackBtn)) {
+      if (Boolean(isEnabledBackBtn) && !hasBackButtonMenu) {
         generatedPersistentMenus.push({
           type: 'postback',
-          title: backButtonText || 'Back',
+          title: 'Back',
           payload: JSON.stringify({
             botId,
             isBackBtn: true,

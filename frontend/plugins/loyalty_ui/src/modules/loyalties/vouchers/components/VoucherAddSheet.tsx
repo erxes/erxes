@@ -2,6 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useAddVoucher } from '../hooks/useAddVoucher';
 import { SelectCustomer, SelectTags } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
@@ -21,6 +22,7 @@ interface VoucherAddFormValues {
 }
 
 export const VoucherAddSheet = () => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState(false);
   const { voucherAdd, loading } = useAddVoucher();
 
@@ -62,12 +64,12 @@ export const VoucherAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Voucher
+          {t('add-voucher')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>Add Voucher</Sheet.Title>
+          <Sheet.Title>{t('add-voucher')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -79,14 +81,14 @@ export const VoucherAddSheet = () => {
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: 'Campaign is required' }}
+                rules={{ required: t('campaign-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Voucher Campaign *</Form.Label>
+                    <Form.Label>{t('voucher-campaign-label')}</Form.Label>
                     <SelectVoucherCampaign
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select campaign..."
+                      placeholder={t('select-campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -98,7 +100,7 @@ export const VoucherAddSheet = () => {
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner Type</Form.Label>
+                    <Form.Label>{t('owner-type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -112,11 +114,11 @@ export const VoucherAddSheet = () => {
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">Customer</Select.Item>
-                          <Select.Item value="company">Company</Select.Item>
-                          <Select.Item value="user">Team Members</Select.Item>
+                          <Select.Item value="customer">{t('customer')}</Select.Item>
+                          <Select.Item value="company">{t('company')}</Select.Item>
+                          <Select.Item value="user">{t('team-members')}</Select.Item>
                           <Select.Item value="cpUser">
-                            Client Portal User
+                            {t('cp-user')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -132,7 +134,7 @@ export const VoucherAddSheet = () => {
                   name="tagIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Tag</Form.Label>
+                      <Form.Label>{t('tag')}</Form.Label>
                       <Form.Control>
                         <SelectTags
                           tagType="core:customer"
@@ -155,11 +157,11 @@ export const VoucherAddSheet = () => {
                 name="ownerIds"
                 rules={{
                   validate: (v) =>
-                    v.length > 0 || 'At least one owner is required',
+                    v.length > 0 || t('owner-required-one'),
                 }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner *</Form.Label>
+                    <Form.Label>{t('owner-label')}</Form.Label>
                     <Form.Control>
                       {ownerType === 'company' ? (
                         <SelectCompany
@@ -190,10 +192,10 @@ export const VoucherAddSheet = () => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Creating...' : 'Save'}
+                  {loading ? t('creating') : t('save')}
                 </Button>
               </div>
             </form>

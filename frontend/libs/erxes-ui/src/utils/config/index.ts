@@ -53,11 +53,24 @@ const hideCoreModules = () => {
   );
 };
 
+const sentryDsn = () => {
+  return window.env?.REACT_APP_SENTRY_DSN ?? process.env.REACT_APP_SENTRY_DSN;
+};
+
+const sentryEnvironment = () => {
+  return (
+    window.env?.REACT_APP_SENTRY_ENVIRONMENT ??
+    process.env.REACT_APP_SENTRY_ENVIRONMENT
+  );
+};
+
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const REACT_APP_API_URL = getApi();
 const REACT_APP_IMAGE_CDN_URL = cdnUrl();
 const REACT_APP_GOOGLE_MAP_API_KEY = googleMapApiKey();
 const REACT_APP_HIDE_CORE_MODULES = hideCoreModules();
+const REACT_APP_SENTRY_DSN = sentryDsn();
+const REACT_APP_SENTRY_ENVIRONMENT = sentryEnvironment();
 
 export {
   NODE_ENV,
@@ -65,4 +78,6 @@ export {
   REACT_APP_IMAGE_CDN_URL,
   REACT_APP_GOOGLE_MAP_API_KEY,
   REACT_APP_HIDE_CORE_MODULES,
+  REACT_APP_SENTRY_DSN,
+  REACT_APP_SENTRY_ENVIRONMENT,
 };

@@ -1,5 +1,6 @@
 import { useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 import { useCreateBranch } from '@/tms/hooks/CreateBranch';
 import { useBranchEdit } from '@/tms/hooks/BranchEdit';
@@ -30,15 +31,16 @@ export function useBranchSubmit({
   onOpenChange,
   onSuccess,
 }: UseBranchSubmitParams) {
+  const { t } = useTranslation('tourism');
   const { toast } = useToast();
   const { createBranch, loading: createLoading } = useCreateBranch();
 
   const { editBranch, loading: editLoading } = useBranchEdit({
     onError: (error: unknown) => {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error occurred';
+        error instanceof Error ? error.message : t('unknown-error-occurred');
       toast({
-        title: 'Error',
+        title: t('error'),
         description: errorMessage,
         variant: 'destructive',
       });
@@ -55,7 +57,7 @@ export function useBranchSubmit({
         await refetch();
       } catch (error) {
         toast({
-          title: 'Warning',
+          title: t('warning'),
           description: error instanceof Error ? error.message : String(error),
           variant: 'destructive',
         });
@@ -100,8 +102,8 @@ export function useBranchSubmit({
       },
       onCompleted: async () => {
         toast({
-          title: 'Success',
-          description: 'Branch updated successfully',
+          title: t('success'),
+          description: t('branch-updated-successfully'),
         });
         onOpenChange?.(false);
         onSuccess?.();
@@ -115,17 +117,17 @@ export function useBranchSubmit({
       variables,
       onError: (error: unknown) => {
         const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error occurred';
+          error instanceof Error ? error.message : t('unknown-error-occurred');
         toast({
-          title: 'Error',
+          title: t('error'),
           description: errorMessage,
           variant: 'destructive',
         });
       },
       onCompleted: async () => {
         toast({
-          title: 'Success',
-          description: 'Branch created successfully',
+          title: t('success'),
+          description: t('branch-created-successfully'),
         });
         resetForm();
         form.reset(DEFAULT_TMS_FORM);

@@ -5,6 +5,7 @@ import {
   PopoverScoped,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePipelines, IPipeline } from '@/pricing/hooks/usePipelines';
 
 // SelectPipeline Context
@@ -77,18 +78,19 @@ const SelectPipelineProvider = ({
 
 // SelectPipeline Value Display
 const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('loyalty');
   const { value, pipelines, loading } = useSelectPipelineContext();
 
   if (loading) {
     return (
-      <span className="text-accent-foreground/80">Loading pipelines...</span>
+      <span className="text-accent-foreground/80">{t('loading-pipelines')}</span>
     );
   }
 
   if (!pipelines || pipelines.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -100,7 +102,7 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedPipeline) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -133,12 +135,13 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 
 // SelectPipeline Content
 const SelectPipelineContent = () => {
+  const { t } = useTranslation('loyalty');
   const { pipelines, boardId, loading } = useSelectPipelineContext();
   const emptyMessage = loading
-    ? 'Loading pipelines...'
+    ? t('loading-pipelines')
     : boardId
-    ? 'No pipelines found'
-    : 'Board not selected';
+    ? t('no-pipelines-found')
+    : t('board-not-selected');
   return (
     <Command>
       <Command.List>

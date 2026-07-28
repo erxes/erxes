@@ -12,6 +12,7 @@ import { StorePayAPI } from '~/apis/storepay/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import { WechatPayAPI } from '~/apis/wechatpay/api';
 import { TokiAPI } from './toki/api';
+import { TDBAPI } from './tdb/api';
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { extractErrorMessage } from '~/utils/extractErrorMessage';
@@ -73,6 +74,9 @@ class ErxesPayment {
       case 'toki':
         this.api = new TokiAPI(payment.config, this.domain);
         break;
+      case 'tdb':
+        this.api = new TDBAPI(payment.config, this.domain);
+        break;
       default:
         this.api = null;
         break;
@@ -92,30 +96,41 @@ class ErxesPayment {
   }
 
   async createInvoice(transaction: ITransactionDocument) {
-    if (!this.api?.createInvoice) {
-      return {
-        error: `Payment kind "${this.payment.kind}" does not support createInvoice`,
-      };
-    }
-
-    const details = transaction.details || {};
-
-    const invoiceAmount = details.monpayCoupon
-      ? Math.max(transaction.amount - details.monpayCoupon, 0)
-      : transaction.amount;
-
-    // clone transaction safely instead of mutating
-    const invoicePayload = {
-      ...transaction,
-      amount: invoiceAmount,
+  if (!this.api?.createInvoice) {
+    return {
+      error: `Payment kind "${this.payment.kind}" does not support createInvoice`,
     };
-
-    try {
-      return await this.api.createInvoice(invoicePayload, this.payment);
-    } catch (e: any) {
-      return { error: extractErrorMessage(e) };
-    }
   }
+
+  const details = transaction.details || {};
+
+  const invoiceAmount = details.monpayCoupon
+    ? Math.max(transaction.amount - details.monpayCoupon, 0)
+    : transaction.amount;
+
+  const invoicePayload = {
+    ...transaction,
+    _id: transaction._id,
+    amount: invoiceAmount,
+  };
+
+  // 🔽 ADD THIS
+  console.log('[PAYMENT] About to call createInvoice', {
+    transactionId: transaction._id,
+    paymentKind: this.payment.kind,
+  });
+
+  try {
+    const response = await this.api.createInvoice(invoicePayload, this.payment);
+
+    // 🔽 ADD THIS
+    console.log('[PAYMENT] createInvoice returned', response);
+
+    return response;
+  } catch (e: any) {
+    return { error: extractErrorMessage(e) };
+  }
+}
 
   async checkInvoice(invoice: ITransactionDocument) {
     if (!this.api?.checkInvoice) {

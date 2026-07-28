@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CallContacts } from '@/integrations/call/components/CallContacts';
 import { CallHistory } from '@/integrations/call/components/CallHistory';
 import { CallNumberInput } from '@/integrations/call/components/CallNumberInput';
@@ -10,6 +11,7 @@ import {
   callConfigAtom,
   sipStateAtom,
 } from '@/integrations/call/states/sipStates';
+import { SipStatusEnum } from '@/integrations/call/types/sipTypes';
 import {
   IconAddressBook,
   IconDialpadFilled,
@@ -19,6 +21,7 @@ import { Button, Tabs } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 
 export const CallTabs = ({ keypad }: { keypad: React.ReactNode }) => {
+  const { t } = useTranslation('frontline');
   const [callUi, setCallUi] = useAtom(callUiAtom);
 
   return (
@@ -33,15 +36,15 @@ export const CallTabs = ({ keypad }: { keypad: React.ReactNode }) => {
       <Tabs.List className="grid grid-cols-3 p-1 border-t border-b-0">
         <CallTabsTrigger value="history">
           <IconHistory />
-          Call history
+          {t('call-history')}
         </CallTabsTrigger>
         <CallTabsTrigger value="keypad">
           <IconDialpadFilled />
-          Call
+          {t('call')}
         </CallTabsTrigger>
         <CallTabsTrigger value="address-book">
           <IconAddressBook />
-          Contact
+          {t('contact')}
         </CallTabsTrigger>
       </Tabs.List>
     </Tabs>
@@ -78,13 +81,18 @@ export const Dialpad = ({ addCustomer }: { addCustomer: any }) => {
 };
 
 export const CallButton = ({ addCustomer }: { addCustomer: any }) => {
+  const { t } = useTranslation('frontline');
   const { startCall } = useSip();
   const sipState = useAtomValue(sipStateAtom);
   const [callConfig] = useAtom(callConfigAtom);
   const phoneNumber = useAtomValue(callNumberState);
 
+  const canCall =
+    sipState.sipStatus === SipStatusEnum.CONNECTED ||
+    sipState.sipStatus === SipStatusEnum.REGISTERED;
+
   const call = () => {
-    if (phoneNumber && phoneNumber.length > 0) {
+    if (phoneNumber && phoneNumber.length > 0 && canCall) {
       addCustomer(callConfig?.inboxId || '', phoneNumber, sipState.groupName);
       startCall(phoneNumber);
     }
@@ -93,10 +101,10 @@ export const CallButton = ({ addCustomer }: { addCustomer: any }) => {
   return (
     <Button
       className="my-3 w-full"
-      disabled={!phoneNumber?.length}
+      disabled={!phoneNumber?.length || !canCall}
       onClick={call}
     >
-      Call
+      {t('call')}
     </Button>
   );
 };

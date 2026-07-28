@@ -42,6 +42,7 @@ interface NavigationGroupResult {
   contents: any[];
   subGroups: any[];
   name: string;
+  i18n?: boolean;
 }
 
 type NavigationGroups = Record<string, NavigationGroupResult>;
@@ -85,6 +86,7 @@ export const usePluginsNavigationGroups = () => {
           icon: plugin.navigationGroup?.icon || existingGroup.icon,
           contents: updatedContents,
           subGroups: updatedSubGroups,
+          i18n: plugin.i18n || existingGroup.i18n,
         };
 
         return acc;

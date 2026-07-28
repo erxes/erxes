@@ -106,6 +106,13 @@ export const LogDetailJsonPanel = ({
 }) => {
   const normalized = normalizeJsonSource(src);
 
+  // react-json-view has no auto theming; its keys render near-black, which is
+  // unreadable on dark mode. Pick a dark base16 theme when the app is in dark
+  // mode (the `dark` class is toggled on <html> by ThemeEffect).
+  const isDark =
+    typeof document !== 'undefined' &&
+    document.documentElement.classList.contains('dark');
+
   return (
     <LogDetailPanel
       title={title}
@@ -119,6 +126,8 @@ export const LogDetailJsonPanel = ({
           name={false}
           displayDataTypes={false}
           enableClipboard={false}
+          theme={isDark ? 'twilight' : 'rjv-default'}
+          style={{ backgroundColor: 'transparent', fontSize: 12 }}
         />
       ) : (
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>

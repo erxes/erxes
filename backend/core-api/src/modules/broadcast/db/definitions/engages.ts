@@ -19,6 +19,7 @@ export const engageMessageSchema = new Schema(
     targetCount: { type: Number, label: 'Target count' },
 
     title: { type: String, label: 'Title', required: true },
+    cpId: { type: String, label: 'Client portal ID' },
     fromUserId: { type: String, label: 'From user', required: true },
 
     method: {

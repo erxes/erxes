@@ -3,6 +3,7 @@ import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
 import { IconSquareToggle } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, DropdownMenu, Spinner, toast, useConfirm } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const FormStatusToggle = ({
   formIds,
@@ -11,13 +12,14 @@ export const FormStatusToggle = ({
   formIds: string[];
   rows: Row<any>[];
 }) => {
+  const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
 
   const { toggleStatus, loading } = useFormToggleStatus();
 
   const handleToggleStatus = (formIds: string[], status?: string) => {
     confirm({
-      message: `Are you sure you want to change selected form${formIds.length === 1 ? '' : 's'} status?`,
+      message: t('confirm-change-forms-status', { count: formIds.length }),
     }).then(async () => {
       try {
         await toggleStatus({
@@ -31,13 +33,13 @@ export const FormStatusToggle = ({
           row.toggleSelected(false);
         });
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: `${formIds.length} Form${formIds.length === 1 ? '' : 's'} status changed successfully`,
+          description: t('forms-status-changed', { count: formIds.length }),
         });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -53,15 +55,15 @@ export const FormStatusToggle = ({
           disabled={loading}
         >
           {loading ? <Spinner /> : <IconSquareToggle />}
-          Status
+          {t('status')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content sideOffset={15} align='end'>
         <DropdownMenu.Item onClick={() => handleToggleStatus(formIds, 'archived')}>
-          Archive
+          {t('archive')}
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={() => handleToggleStatus(formIds, 'active')}>
-          Activate
+          {t('activate')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

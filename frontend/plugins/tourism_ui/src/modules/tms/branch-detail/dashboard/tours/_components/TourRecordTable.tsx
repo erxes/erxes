@@ -1,6 +1,7 @@
 import { IconMapRoute } from '@tabler/icons-react';
 import { RecordTable, Sheet } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { TourCreateSheet } from './TourCreateSheet';
@@ -29,6 +30,7 @@ export const TourRecordTable = ({
     'fixed' | 'flexible' | undefined
   >(undefined);
 
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -64,8 +66,8 @@ export const TourRecordTable = ({
     }
   }, []);
   const columns = useMemo(
-    () => TourColumns(categories || [], handleEdit, handleDuplicate),
-    [categories, handleDuplicate, handleEdit],
+    () => TourColumns(categories || [], handleEdit, handleDuplicate, t),
+    [categories, handleDuplicate, handleEdit, t],
   );
 
   if (!loading && (totalCount ?? 0) === 0) {
@@ -164,14 +166,15 @@ function EmptyStateRow({
   branchLanguages?: string[];
   mainLanguage?: string;
 }) {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconMapRoute size={64} stroke={1.5} className="text-muted-foreground" />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No tour yet
+        {t('no-tours-yet')}
       </h2>
       <p className="max-w-sm text-sm text-muted-foreground">
-        Create your first tour to get started.
+        {t('no-tours-yet-desc')}
       </p>
       <TourCreateSheet
         branchId={branchId}

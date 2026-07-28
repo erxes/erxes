@@ -8,9 +8,11 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useRemoveAmenities } from '../hooks/useRemoveAmenities';
 
 export const AmenityCommandBar = () => {
+  const { t } = useTranslation('tourism');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'delete' };
@@ -22,21 +24,21 @@ export const AmenityCommandBar = () => {
 
   const onRemove = () => {
     confirm({
-      message: `Are you sure you want to delete the ${selectedCount} selected amenities?`,
+      message: t('confirm-delete-amenities', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       removeAmenities({ variables: { ids: amenityIds } })
         .then(() => {
           table.resetRowSelection();
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Amenities deleted successfully',
+            description: t('amenities-deleted-successfully'),
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -47,7 +49,7 @@ export const AmenityCommandBar = () => {
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedCount} selected</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         <Button
           variant="secondary"
@@ -55,7 +57,7 @@ export const AmenityCommandBar = () => {
           onClick={onRemove}
         >
           <IconTrash />
-          Delete
+          {t('delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

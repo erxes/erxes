@@ -89,9 +89,9 @@ export const getConfigPostData = async (
     const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
     for (const company of companies) {
       if (re.test(company.code)) {
-          billType = 3;
-          customerCode = company.code;
-          continue;
+        billType = 3;
+        customerCode = company.code;
+        continue;
       }
     }
   }
@@ -204,7 +204,7 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'departments',
       action: 'find',
-      input: { _id: { $in: departmentIds } },
+      input: { query: { _id: { $in: departmentIds } } },
       defaultValue: [],
     });
     for (const department of departments) {
@@ -255,8 +255,8 @@ export const getConfigPostData = async (
     const configure = {
       ...config,
       prepay: 'preAmount',
-      cash: 'cashAmount',
-      bank: 'mobileAmount',
+      cash: config.cash || 'cashAmount',
+      bank: config.bank || 'mobileAmount',
       pos: 'cardAmount',
       wallet: 'debtAmount',
       barter: 'debtBarterAmount',

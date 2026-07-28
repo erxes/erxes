@@ -5,6 +5,7 @@ import { cpInboxQueries } from '@/inbox/graphql/resolvers/queries/clientPortal';
 import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
 import callQueries from '@/integrations/call/graphql/resolvers/queries';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
+import { discordQueries } from '@/integrations/discord/graphql/resolvers/queries';
 import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
 import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
@@ -21,6 +22,7 @@ export const queries = {
   ...integrationQueries,
   ...cpInboxQueries,
   ...facebookQueries,
+  ...discordQueries,
   ...instagramQueries,
   ...callQueries,
   ...imapQueries,

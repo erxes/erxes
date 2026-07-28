@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import {
   IconChartHistogram,
   IconTrendingUp,
   IconTrendingDown,
   IconCoins,
   IconCaretRightFilled,
+  IconRefresh,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
@@ -18,6 +20,7 @@ import {
 } from 'erxes-ui';
 import { SCORE_LOG_STATISTICS_QUERY } from '../graphql/queries';
 import { ScoreStats, useScoreStatistics } from '../hooks/useScoreStatistics';
+import { useRepairOwnerScore } from '../hooks/useRepairOwnerScore';
 
 const ScoreStatCards = ({
   stats,
@@ -26,6 +29,7 @@ const ScoreStatCards = ({
   stats: ScoreStats;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('loyalty');
   if (loading) return <Spinner containerClassName="py-10" />;
 
   const earned = stats.totalPointEarned ?? 0;
@@ -38,24 +42,24 @@ const ScoreStatCards = ({
       <div className="flex flex-col gap-2">
         <StatCard
           icon={<IconTrendingUp className="size-4 text-green-500" />}
-          label="Total Earned"
+          label={t('total-point-earned')}
           value={Number(earned).toLocaleString()}
         />
         <StatCard
           icon={<IconCoins className="size-4 text-blue-500" />}
-          label="Points Balance"
+          label={t('points-balance')}
           value={Number(balance).toLocaleString()}
         />
         <StatCard
           icon={<IconTrendingDown className="size-4 text-red-400" />}
-          label="Total Redeemed"
+          label={t('total-point-redeemed')}
           value={Number(redeemed).toLocaleString()}
         />
       </div>
       <Separator />
       <div className="flex flex-col gap-2">
         <SecondaryRow
-          label="Redemption Rate"
+          label={t('redemption-rates')}
           value={
             redemptionRate == null
               ? '—'
@@ -63,16 +67,16 @@ const ScoreStatCards = ({
           }
         />
         <SecondaryRow
-          label="Active Loyalty Members"
+          label={t('active-loyalty-members')}
           value={stats.activeLoyaltyMembers ?? '—'}
         />
         <SecondaryRow
-          label="Monthly Active Users"
+          label={t('monthly-active-users')}
           value={stats.monthlyActiveUsers ?? '—'}
         />
         {stats.mostRedeemedProductCategory && (
           <SecondaryRow
-            label="Top Redeemed Category"
+            label={t('top-redeemed-product-catalog')}
             value={stats.mostRedeemedProductCategory}
           />
         )}
@@ -82,6 +86,7 @@ const ScoreStatCards = ({
 };
 
 const ScoreSummaryPanelContent = () => {
+  const { t } = useTranslation('loyalty');
   const { stats, loading } = useScoreStatistics();
 
   return (
@@ -94,7 +99,7 @@ const ScoreSummaryPanelContent = () => {
             size="sm"
           >
             <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-            Summary
+            {t('summary')}
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content>
@@ -106,18 +111,19 @@ const ScoreSummaryPanelContent = () => {
 };
 
 export const ScoreSummaryPanel = () => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState('');
 
   return (
     <SideMenu value={open} onValueChange={setOpen}>
       <SideMenu.Content value="score-summary" className="data-[state=active]:w-96">
-        <SideMenu.Header Icon={IconChartHistogram} label="Score Summary" />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('score-summary')} />
         {open === 'score-summary' && <ScoreSummaryPanelContent />}
       </SideMenu.Content>
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="score-summary"
-          label="Score Summary"
+          label={t('score-summary')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>
@@ -132,6 +138,7 @@ export const ScoreSummaryWidget = ({
   ownerId?: string;
   ownerType?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { data, loading } = useQuery(SCORE_LOG_STATISTICS_QUERY, {
     fetchPolicy: 'cache-and-network',
     variables: { ownerId, ownerType },
@@ -139,11 +146,32 @@ export const ScoreSummaryWidget = ({
   });
   const stats = (data?.scoreLogStatistics || {}) as ScoreStats;
 
+  const { repairOwnerScore, loading: repairing } = useRepairOwnerScore();
+
+  const handleRepair = () => {
+    if (!ownerId || !ownerType) return;
+    repairOwnerScore({ ownerId, ownerType });
+  };
+
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background">
         <IconChartHistogram className="size-4 text-muted-foreground" />
-        <span className="font-medium text-primary">Score Summary</span>
+        <span className="font-medium text-primary">{t('score-summary')}</span>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="ml-auto"
+          onClick={handleRepair}
+          disabled={!ownerId || !ownerType || repairing}
+        >
+          {repairing ? (
+            <Spinner size="sm" />
+          ) : (
+            <IconRefresh className="size-4" />
+          )}
+          {t('repair')}
+        </Button>
       </div>
       <Separator />
       <ScrollArea className="flex-auto">

@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
-import { createGenerateModels } from 'erxes-api-shared/utils';
+import {
+  createGenerateModels,
+  ScopedEventHandlers,
+} from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
@@ -96,6 +99,11 @@ import {
   ICallQueueStatisticsModel,
   loadCallQueueClass,
 } from '@/integrations/call/db/models/QueueStatistics';
+import {
+  ICallSessionModel,
+  loadCallSessionClass,
+} from '@/integrations/call/db/models/CallSessions';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 import { ICallOperatorDocuments } from '@/integrations/call/@types/operators';
 import { ICallConfigDocument } from '@/integrations/call/@types/config';
@@ -107,6 +115,28 @@ import {
   IFacebookBotModel,
   loadFacebookBotClass,
 } from '@/integrations/facebook/db/models/Bots';
+
+// Discord integration models
+import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
+import { IDiscordCustomerDocument } from '@/integrations/discord/@types/customers';
+import { IDiscordConversationDocument } from '@/integrations/discord/@types/conversations';
+import { IDiscordConversationMessageDocument } from '@/integrations/discord/@types/conversationMessages';
+import {
+  IDiscordBotModel,
+  loadDiscordBotClass,
+} from '@/integrations/discord/db/models/Bots';
+import {
+  IDiscordCustomerModel,
+  loadDiscordCustomerClass,
+} from '@/integrations/discord/db/models/Customers';
+import {
+  IDiscordConversationModel,
+  loadDiscordConversationClass,
+} from '@/integrations/discord/db/models/Conversations';
+import {
+  IDiscordConversationMessageModel,
+  loadDiscordConversationMessageClass,
+} from '@/integrations/discord/db/models/ConversationMessages';
 
 import {
   ICustomerImapDocument,
@@ -291,8 +321,16 @@ export interface IModels {
   CallOperators: ICallOperatorModel;
   CallCdrs: ICallCdrModel;
   CallQueueStatistics: ICallQueueStatisticsModel;
+  CallSessions: ICallSessionModel;
 
   FacebookBots: IFacebookBotModel;
+
+  // discord
+  DiscordBots: IDiscordBotModel;
+  DiscordCustomers: IDiscordCustomerModel;
+  DiscordConversations: IDiscordConversationModel;
+  DiscordConversationMessages: IDiscordConversationMessageModel;
+
   //imap
   ImapCustomers: ICustomerImapModel;
   ImapIntegrations: IIntegrationImapModel;
@@ -321,7 +359,6 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
-
 }
 
 export interface IContext extends IMainContext {
@@ -334,8 +371,11 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+
+  const frontlineEventHandlers = eventHandlers('frontline');
 
   //response templates
   models.ResponseTemplates = db.model<
@@ -355,7 +395,7 @@ export const loadClasses = (
 
   models.Ticket = db.model<ITicketDocument, ITicketModel>(
     'frontline_tickets',
-    loadTicketClass(models),
+    loadTicketClass(models, frontlineEventHandlers('tickets', 'tickets')),
   );
   models.Activity = db.model<IActivityDocument, IActivityModel>(
     'frontline_ticket_activities',
@@ -528,10 +568,34 @@ export const loadClasses = (
     ICallQueueStatisticsModel
   >('calls_queue_statistics', loadCallQueueClass());
 
+  models.CallSessions = db.model<ICallSessionDocument, ICallSessionModel>(
+    'calls_sessions',
+    loadCallSessionClass(models),
+  );
+
   models.FacebookBots = db.model<IFacebookBotDocument, IFacebookBotModel>(
     'facebook_messengers_bots',
     loadFacebookBotClass(models, subdomain),
   );
+
+  // discord models
+  models.DiscordBots = db.model<IDiscordBotDocument, IDiscordBotModel>(
+    'discord_bots',
+    loadDiscordBotClass(models),
+  );
+  models.DiscordCustomers = db.model<
+    IDiscordCustomerDocument,
+    IDiscordCustomerModel
+  >('customers_discord', loadDiscordCustomerClass(models));
+  models.DiscordConversations = db.model<
+    IDiscordConversationDocument,
+    IDiscordConversationModel
+  >('conversations_discord', loadDiscordConversationClass(models));
+  models.DiscordConversationMessages = db.model<
+    IDiscordConversationMessageDocument,
+    IDiscordConversationMessageModel
+  >('conversation_messages_discord', loadDiscordConversationMessageClass(models));
+
   //imap models
   models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
     'imap_customers',

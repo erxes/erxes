@@ -10,6 +10,7 @@ mutation WidgetsInsertMessage(
   $contentType: String
   $message: String
   $attachments: [AttachmentInput]
+  $payload: String
 ) {
   widgetsInsertMessage(
     integrationId: $integrationId
@@ -19,6 +20,7 @@ mutation WidgetsInsertMessage(
     contentType: $contentType
     message: $message
     attachments: $attachments
+    payload: $payload
   ) {
     ${MESSAGE_FIELDS}
   }
@@ -126,10 +128,23 @@ const EDIT_CUSTOMER = gql`
   }
 `;
 
+const WIDGET_CHANGE_OPERATOR_STATUS_MUTATION = gql`
+  mutation WidgetChangeOperatorStatus(
+    $conversationId: String!
+    $operatorStatus: String!
+  ) {
+    widgetChangeOperatorStatus(
+      conversationId: $conversationId
+      operatorStatus: $operatorStatus
+    )
+  }
+`;
+
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   READ_CONVERSATION_MESSAGES_MUTATION,
   SAVE_BROWSER_INFO,
   connect,
   EDIT_CUSTOMER,
+  WIDGET_CHANGE_OPERATOR_STATUS_MUTATION,
 };

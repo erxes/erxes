@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
 export const stageProbalityTriggerConfigFormSchema = z.object({
-  probability: z.string(),
+  probability: z.string().optional(),
   stageId: z.string().optional(),
+  fromStageId: z.string().optional(),
+  toStageId: z.string().optional(),
   pipelineId: z.string().optional(),
   boardId: z.string().optional(),
 });

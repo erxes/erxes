@@ -1,4 +1,12 @@
-import { classifyError, isExpectedError, extractMessage, sentryExpectedErrorFilter } from './errorClassifier';
+import {
+  classifyError,
+  isExpectedError,
+  extractMessage,
+  sentryExpectedErrorFilter,
+  ExpectedError,
+  createExpectedError,
+  EXPECTED_ERROR_NAME,
+} from './errorClassifier';
 
 describe('errorClassifier', () => {
   describe('classifyError', () => {
@@ -15,6 +23,25 @@ describe('errorClassifier', () => {
       expect(result.category).toBe(category);
       expect(result.isExpected).toBe(isExpected);
       expect(result.statusCode).toBe(statusCode);
+    });
+
+    // Regression: real prod Sentry noise that previously leaked through because
+    // the messages don't contain "is required"/"are required"/etc.
+    test.each([
+      ['Login required'],
+      ['Permission required'],
+      ['OAuth scope required'],
+      ['Client portal required'],
+      ['Client portal user required'],
+      ['You do not have permission to manage this identifier'],
+      ['Access denied: You do not have access to this private pipeline'],
+      ['This operation is only allowed in saas version.'],
+      ['Start date must be before end date'],
+    ])('should classify auth/business noise "%s" as EXPECTED', (msg) => {
+      const result = classifyError(new Error(msg));
+      expect(result.category).toBe('EXPECTED');
+      expect(result.isExpected).toBe(true);
+      expect(result.statusCode).toBe(200);
     });
 
     it('should classify "MongoNetworkError" as SYSTEM', () => {
@@ -51,6 +78,37 @@ describe('errorClassifier', () => {
       const error = new Error('Validation failed') as any;
       error.code = 'VALIDATION_ERROR';
       const result = classifyError(error);
+      expect(result.category).toBe('EXPECTED');
+    });
+  });
+
+  describe('ExpectedError (explicit marker)', () => {
+    it('is always EXPECTED regardless of message wording', () => {
+      // A message that matches NONE of the regex patterns must still be expected.
+      const result = classifyError(new ExpectedError('totally novel wording xyz'));
+      expect(result.category).toBe('EXPECTED');
+      expect(result.isExpected).toBe(true);
+      expect(result.statusCode).toBe(200);
+    });
+
+    it('beats SYSTEM patterns when explicitly marked', () => {
+      // Even a message containing a SYSTEM keyword stays EXPECTED when the
+      // thrower has declared intent via ExpectedError.
+      const result = classifyError(new ExpectedError('TypeError-looking message'));
+      expect(result.category).toBe('EXPECTED');
+    });
+
+    it('createExpectedError produces an ExpectedError', () => {
+      const err = createExpectedError('Login required', 'UNAUTHORIZED');
+      expect(err).toBeInstanceOf(ExpectedError);
+      expect(err.name).toBe(EXPECTED_ERROR_NAME);
+      expect(err.code).toBe('UNAUTHORIZED');
+      expect(err.isExpected).toBe(true);
+      expect(classifyError(err).category).toBe('EXPECTED');
+    });
+
+    it('honours a plain object with isExpected === true', () => {
+      const result = classifyError({ message: 'whatever', isExpected: true });
       expect(result.category).toBe('EXPECTED');
     });
   });
@@ -152,6 +210,22 @@ describe('errorClassifier', () => {
     it('should return event when no exception', () => {
       const event = {};
       expect(sentryExpectedErrorFilter(event as any)).toBe(event as any);
+    });
+
+    it('should drop events by ExpectedError type even if message is unmatched', () => {
+      const event = {
+        exception: {
+          values: [{ type: EXPECTED_ERROR_NAME, value: 'novel wording xyz' }],
+        },
+      };
+      expect(sentryExpectedErrorFilter(event as any)).toBeNull();
+    });
+
+    it('should drop "Login required" (regression)', () => {
+      const event = {
+        exception: { values: [{ type: 'Error', value: 'Login required' }] },
+      };
+      expect(sentryExpectedErrorFilter(event as any)).toBeNull();
     });
   });
 });

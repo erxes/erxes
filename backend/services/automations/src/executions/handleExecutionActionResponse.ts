@@ -14,5 +14,8 @@ export const handleExecutionActionResponse = async (
   finalizeExecAction(execAction, status);
   execAction.createdAt = execAction.createdAt || (new Date() as any);
   execution.actions = [...(execution.actions || []), execAction];
-  execution = await execution.save();
+  execution = await execution.save().catch((err) => {
+    console.error('Error saving execution action response', err);
+    throw err;
+  });
 };

@@ -5,12 +5,14 @@ import { IPos } from '@/pos/types/pos';
 import { IconPhotoCirclePlus } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { PosEmptyState } from '@/pos/components/PosEmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface PosCardProps {
   pos: IPos;
 }
 
 const PosCard: React.FC<PosCardProps> = ({ pos }) => {
+  const { t } = useTranslation('sales');
   const coverImage = pos?.logo || pos?.uiOptions?.logo;
 
   return (
@@ -35,10 +37,10 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
         <div className="flex flex-col gap-3 px-4 py-2 min-h-0">
           <div className="flex justify-between">
             <h3 className="text-lg font-medium truncate">
-              {pos.name || 'No name'}
+              {pos.name || t('no-name')}
             </h3>
             <Badge variant={pos.isOnline ? 'success' : 'secondary'}>
-              {pos.isOnline ? 'Online' : 'Offline'}
+              {pos.isOnline ? t('online') : t('offline')}
             </Badge>
           </div>
 

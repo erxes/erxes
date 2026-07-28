@@ -1,9 +1,11 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { UPDATE_ASSIGNMENT_CAMPAIGN } from '../graphql/mutations/assignmentEditStatusMutations';
 import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 
 export function useAssignmentStatusEdit() {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
   const [editAssignment, { loading, error }] = useMutation(
@@ -27,15 +29,15 @@ export function useAssignmentStatusEdit() {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Assignment status updated successfully',
+          title: t('success'),
+          description: t('assignment-status-updated'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

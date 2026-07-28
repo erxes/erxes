@@ -4,6 +4,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { IProduct } from '@/pos/pos-by-items/types/PosByItemType';
 import { POS_BY_ITEMS_QUERY } from '@/pos/pos-by-items/graphql/queries';
@@ -14,7 +15,6 @@ import { useSetAtom } from 'jotai';
 const POS_PER_PAGE = 30;
 
 interface UsePosByItemsListOptions {
-  posId?: string;
   [key: string]: unknown;
 }
 
@@ -34,7 +34,8 @@ interface UsePosByItemsListReturn {
 export const usePosByItemsVariables = (
   options: UsePosByItemsListOptions = {},
 ) => {
-  const { posId, ...otherOptions } = options;
+  const { posId: posIdFromUrl } = useParams();
+  const { ...otherOptions } = options;
 
   const [
     {
@@ -81,13 +82,9 @@ export const usePosByItemsVariables = (
   return {
     perPage: POS_PER_PAGE,
     page: 1,
-    posId: posId !== undefined ? posId : pos || undefined,
-    search: (() => {
-      const searchParts = [];
-      if (searchValue) searchParts.push(searchValue);
-      if (number) searchParts.push(number);
-      return searchParts.length > 0 ? searchParts.join(' ') : undefined;
-    })(),
+    posId: posIdFromUrl || pos || undefined,
+    search: number || undefined,
+    searchValue: searchValue || undefined,
     customerId: customerIdValue,
     userId: user || undefined,
     categoryId: category && category !== 'all' ? category : undefined,
@@ -152,7 +149,6 @@ export const usePosByItemsList = (
   }, [posByItemsList.length, fetchMore, data?.posProducts, variables]);
 
   useEffect(() => {
-    if (!totalCount) return;
     setPosByItemsTotalCount(totalCount);
   }, [totalCount, setPosByItemsTotalCount]);
 

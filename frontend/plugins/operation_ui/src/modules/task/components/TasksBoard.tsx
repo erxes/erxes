@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGetStatusByTeam } from '@/task/hooks/useGetStatusByTeam';
 import { useTasks } from '@/task/hooks/useGetTasks';
 import { ITask } from '@/task/types';
@@ -31,10 +32,25 @@ import { StatusInlineIcon } from '@/operation/components/StatusInline';
 const fetchedTasksState = atom<BoardItemProps[]>([]);
 export const allTasksMapState = atom<Record<string, ITask>>({});
 
+const taskSortMapState = atom<Record<string, string>>({});
+
 export const TasksBoard = () => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams();
   const allTasksMap = useAtomValue(allTasksMapState);
   const { updateTask } = useUpdateTask();
+  const [tasks, setTasks] = useAtom(fetchedTasksState);
+  const setAllTasksMap = useSetAtom(allTasksMapState);
+  const setTaskSortMap = useSetAtom(taskSortMapState);
+  const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
+
+
+  useEffect(() => {
+    setTasks([]);
+    setAllTasksMap({});
+    setTaskSortMap({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamId]);
 
   const { statuses, loading } = useGetStatusByTeam({
     variables: {
@@ -49,9 +65,6 @@ export const TasksBoard = () => {
     type: status.type.toString(),
     color: status.color,
   }));
-
-  const [tasks, setTasks] = useAtom(fetchedTasksState);
-  const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -74,18 +87,23 @@ export const TasksBoard = () => {
         status: overColumn,
       },
     });
+    const newSort = new Date().toISOString();
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id === activeItem?._id) {
           return {
             ...task,
             column: overColumn,
-            sort: new Date().toISOString(),
+            sort: newSort,
           };
         }
         return task;
       }),
     );
+
+    if (activeItem?._id) {
+      setTaskSortMap((prev) => ({ ...prev, [activeItem._id]: newSort }));
+    }
     setTaskCountByBoard((prev) => ({
       ...prev,
       [activeItem?.status]: prev[activeItem?.status] - 1 || 0,
@@ -107,15 +125,15 @@ export const TasksBoard = () => {
             className="text-muted-foreground"
           />
           <h2 className="text-lg font-semibold text-muted-foreground">
-            No team yet
+            {t('no-team-yet')}
           </h2>
           <p className="text-md text-muted-foreground mb-4">
-            Create a team to start organizing your board.
+            {t('create-team-to-start')}
           </p>
           <Button variant="outline" asChild>
             <Link to={`/settings/operation/team`}>
               <IconSettings />
-              Go to settings
+              {t('go-to-settings')}
             </Link>
           </Button>
         </div>
@@ -153,6 +171,22 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
     },
   });
   const setAllTasksMap = useSetAtom(allTasksMapState);
+  const [taskSortMap, setTaskSortMap] = useAtom(taskSortMapState);
+
+  useEffect(() => {
+    if (!tasks) return;
+    const unseen = tasks.filter((task) => !(task._id in taskSortMap));
+    if (unseen.length === 0) return;
+    setTaskSortMap((prev) => {
+      const next = { ...prev };
+      unseen.forEach((task) => {
+        if (!(task._id in next)) {
+          next[task._id] = task.updatedAt;
+        }
+      });
+      return next;
+    });
+  }, [tasks, taskSortMap, setTaskSortMap]);
 
   useEffect(() => {
     if (tasks) {
@@ -165,7 +199,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
           ...tasks.map((task) => ({
             id: task._id,
             column: task.status,
-            sort: task.updatedAt,
+            sort: taskSortMap[task._id] ?? task.updatedAt,
           })),
         ];
       });
@@ -177,7 +211,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
         return { ...prev, ...newTasks };
       });
     }
-  }, [tasks, setTaskCards, setAllTasksMap, column.id]);
+  }, [tasks, taskSortMap, setTaskCards, setAllTasksMap, column.id]);
 
   useEffect(() => {
     if (totalCount) {

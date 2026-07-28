@@ -38,7 +38,9 @@ const StatusHeader = () => {
 
 const CreatedAtHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />;
+  return (
+    <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />
+  );
 };
 
 export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
@@ -53,7 +55,9 @@ export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
     id: 'title',
     accessorKey: 'title',
     header: TitleHeader,
-    cell: AutomationHistoryResultName,
+    cell: ({ cell }) => (
+      <AutomationHistoryResultName executionDetail={cell.row.original} />
+    ),
   },
   {
     id: 'description',

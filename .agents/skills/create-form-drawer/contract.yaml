@@ -55,10 +55,10 @@ postconditions:
     when: "tests_touched"
     required: false
   - description: "Deliverables verified"
-    command: ".agents/evals/check-deliverables.sh {plugin_name}_ui {entity_name}"
+    command: ".agents/scripts/check-deliverables.sh {plugin_name}_ui {entity_name}"
     required: true
   - description: "Rules compliance verified"
-    command: ".agents/evals/check-rules.sh frontend/plugins/{plugin_name}_ui/src/modules/{entity_name}"
+    command: ".agents/scripts/check-rules.sh frontend/plugins/{plugin_name}_ui/src/modules/{entity_name}"
     required: true
 
 composes_with:

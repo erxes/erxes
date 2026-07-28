@@ -29,7 +29,10 @@ export const loadStatusClass = (models: IModels) => {
       teamId: string,
       type: number,
     ): Promise<IStatusDocument[]> {
-      const query = { teamId } as any;
+      const query: Record<string, any> = {
+        teamId,
+        _id: { $exists: true, $ne: null, $type: 'objectId' },
+      };
 
       if (type) {
         query.type = type;

@@ -1,9 +1,10 @@
 export const SCORE_ACTION = {
   ADD: 'add',
   SUBTRACT: 'subtract',
-  SET: 'set',
   REFUND: 'refund',
-  ALL: ['add', 'subtract', 'set', 'refund'],
+  SET: 'set',
+  RETURN: 'return',
+  ALL: ['add', 'subtract', 'set', 'refund', 'return'],
 };
 
 export const SCORE_CAMPAIGN_STATUSES = {

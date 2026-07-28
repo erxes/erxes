@@ -43,7 +43,13 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
+import { AreaGradient } from '../chart/AreaGradient';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface ConversationResolvedProps {
   title: string;
@@ -124,17 +130,19 @@ export const ResolvedLineChart = memo(function ResolvedLineChart({
         data={chartData}
         margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
       >
+        <defs>
+          <AreaGradient id="fl-resolved-primary" color="var(--primary)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <Area
           type="monotone"
           dataKey="count"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.2}
+          fill="url(#fl-resolved-primary)"
           strokeWidth={2}
           name="Count"
-          dot={{ fill: 'var(--primary)' }}
-          activeDot={{ r: 6 }}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <XAxis
           dataKey="date"
@@ -366,6 +374,11 @@ export const resolvedTableColumns: ColumnDef<ResolvedTableData>[] = [
   },
 ];
 
+const RESOLVED_EXPORT_COLUMNS = [
+  { key: 'date' as const, header: 'Date' },
+  { key: 'count' as const, header: 'Count' },
+];
+
 export const ConversationResolved = ({
   title,
   colSpan = 6,
@@ -373,16 +386,10 @@ export const ConversationResolved = ({
 }: ConversationResolvedProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [dateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
   const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
@@ -407,9 +414,30 @@ export const ConversationResolved = ({
     notifyOnNetworkStatusChange: true,
   });
 
-  const chartData = useMemo(() => {
-    return reports?.reportConversationResolvedDate || [];
-  }, [reports]);
+  const allData = useMemo(
+    () => reports?.reportConversationResolvedDate || [],
+    [reports],
+  );
+  const {
+    pagedData: chartData,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allData);
+
+  const filterEl = (
+    <>
+      <ReportFilter cardId={id} />
+      <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton
+        data={allData}
+        columns={RESOLVED_EXPORT_COLUMNS}
+        filename="conversation-resolved"
+      />
+    </>
+  );
 
   if (loading) {
     return (
@@ -420,14 +448,7 @@ export const ConversationResolved = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header
-          filter={
-            <>
-              <ReportFilter cardId={id} />
-              <SelectChartType value={chartType} onValueChange={setChartType} />
-            </>
-          }
-        />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Skeleton />
         </FrontlineCard.Content>
@@ -466,25 +487,25 @@ export const ConversationResolved = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header
-        filter={
-          <>
-            <ReportFilter cardId={id} />
-            <SelectChartType value={chartType} onValueChange={setChartType} />
-          </>
-        }
-      />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
             {
               'p-4': chartType !== ResponsesChartType.Table,
             },
-            'w-full',
+            'size-full flex-1 flex-col flex',
           )}
         >
           {renderChart()}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );

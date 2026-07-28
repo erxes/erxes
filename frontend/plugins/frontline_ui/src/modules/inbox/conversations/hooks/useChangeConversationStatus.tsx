@@ -1,8 +1,10 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { CONVERSATION_CHANGE_STATUS } from '../graphql/mutations/conversationChangeStatus';
+import { useTranslation } from 'react-i18next';
 
 export const useChangeConversationStatus = () => {
+  const { t } = useTranslation('frontline');
   const [changeConversationStatus, { loading }] = useMutation(
     CONVERSATION_CHANGE_STATUS,
   );
@@ -26,7 +28,7 @@ export const useChangeConversationStatus = () => {
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

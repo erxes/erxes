@@ -15,7 +15,6 @@ export interface IPos {
   serviceCharge?: number;
   serviceChargeApplicableProductId?: string;
   paymentTypes?: any[];
-  erxesAppToken: string;
   isOnline?: boolean;
   onServer?: boolean;
   branchId?: string;

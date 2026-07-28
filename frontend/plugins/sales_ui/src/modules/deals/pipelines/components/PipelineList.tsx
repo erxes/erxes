@@ -4,6 +4,7 @@ import { IPipeline } from '@/deals/types/pipelines';
 import { Link } from 'react-router-dom';
 import { PipelineListLoading } from '@/deals/components/loading/PipelineListLoading';
 import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
+import { useTranslation } from 'react-i18next';
 
 export const PipelineList = ({
   boardId,
@@ -23,11 +24,12 @@ export const PipelineList = ({
   }
 
   const pipelines = boardDetail?.pipelines || ([] as IPipeline[]);
+  const { t } = useTranslation('sales');
 
   return (
     <>
       <Accordion.Trigger className="text-gray-400 text-sm">
-        Pipelines ({pipelines?.length || 0})
+        {t('pipelines')} ({pipelines?.length || 0})
       </Accordion.Trigger>
       <Accordion.Content className="content">
         <Sidebar.Menu className="px-2">

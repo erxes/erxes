@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
 import {
@@ -26,6 +27,7 @@ export const ElementMoreColumn = ({
   mainLanguage,
   ...props
 }: ElementMoreCellProps) => {
+  const { t } = useTranslation('tourism');
   const element = props.row.original;
   const [editOpen, setEditOpen] = useState(false);
   const { confirm } = useConfirm();
@@ -38,20 +40,20 @@ export const ElementMoreColumn = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this element?',
+      message: t('confirm-delete-element'),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removeElements([element._id])
         .then(() => {
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Element deleted successfully',
+            description: t('element-deleted-successfully'),
           });
         })
         .catch((e: any) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -70,7 +72,7 @@ export const ElementMoreColumn = ({
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit')}
               </Command.Item>
               <ElementDuplicate element={element} branchId={branchId}>
                 {({ onClick, disabled }) => (
@@ -80,13 +82,13 @@ export const ElementMoreColumn = ({
                     disabled={disabled}
                   >
                     <IconCopy className="w-4 h-4" />
-                    Duplicate
+                    {t('duplicate')}
                   </Command.Item>
                 )}
               </ElementDuplicate>
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete')}
               </Command.Item>
             </Command.List>
           </Command>

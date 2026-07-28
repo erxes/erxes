@@ -3,32 +3,48 @@ import type {
   IPricingPlan,
   IPricingPlanDocument,
 } from '../../../@types/pricingPlan';
+import { recalculatePublicPricingPlanDiscounts } from '../../../utils/publicDiscounts';
 
 export const pricingPlanMutations = {
   pricingPlanAdd: async (
-    _root: any,
+    _root: unknown,
     { doc }: { doc: IPricingPlan },
-    { models, user, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) => {
     await checkPermission('pricingPlanCreate');
-    return models.PricingPlans.createPlan(doc, user._id);
+    const plan = await models.PricingPlans.createPlan(doc, user._id);
+    await recalculatePublicPricingPlanDiscounts({ models, subdomain });
+    return plan;
   },
 
   pricingPlanEdit: async (
-    _root: any,
+    _root: unknown,
     { doc }: { doc: IPricingPlanDocument },
-    { models, user, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) => {
     await checkPermission('pricingPlanUpdate');
-    return models.PricingPlans.updatePlan(doc._id, doc, user._id);
+    const plan = await models.PricingPlans.updatePlan(doc._id, doc, user._id);
+    await recalculatePublicPricingPlanDiscounts({ models, subdomain });
+    return plan;
   },
 
   pricingPlanRemove: async (
-    _root: any,
+    _root: unknown,
     { id }: { id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('pricingPlanRemove');
-    return models.PricingPlans.removePlan(id);
+    const plan = await models.PricingPlans.removePlan(id);
+    await recalculatePublicPricingPlanDiscounts({ models, subdomain });
+    return plan;
+  },
+
+  pricingPlansRecalculatePublicDiscounts: async (
+    _root: unknown,
+    _params: Record<string, never>,
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('pricingPlanUpdate');
+    return recalculatePublicPricingPlanDiscounts({ models, subdomain });
   },
 };

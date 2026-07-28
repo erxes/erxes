@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { couponTotalCountAtom } from '../states/useCouponCounts';
 
 export const CouponTotalCount = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('loyalty');
   const totalCount = useAtomValue(couponTotalCountAtom);
 
   return (

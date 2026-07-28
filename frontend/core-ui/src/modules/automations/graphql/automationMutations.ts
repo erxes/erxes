@@ -1,4 +1,8 @@
 import { gql } from '@apollo/client';
+import {
+  AUTOMATION_ACTION_FIELDS,
+  AUTOMATION_TRIGGER_FIELDS,
+} from './graphqlConstants';
 
 export const AUTOMATION_REMOVE = gql`
   mutation AutomationsRemove($ids: [String]) {
@@ -11,6 +15,8 @@ export const AUTOMATION_EDIT = gql`
     $id: String
     $name: String
     $status: String
+    $edgeType: String
+    $flowDirection: String
     $triggers: [TriggerInput]
     $actions: [ActionInput]
     $workflows: [WorkflowInput]
@@ -19,6 +25,52 @@ export const AUTOMATION_EDIT = gql`
       _id: $id
       name: $name
       status: $status
+      edgeType: $edgeType
+      flowDirection: $flowDirection
+      triggers: $triggers
+      actions: $actions
+      workflows: $workflows
+    ) {
+      _id
+      name
+      status
+      edgeType
+      flowDirection
+      updatedAt
+      updatedBy
+      triggers {
+        ${AUTOMATION_TRIGGER_FIELDS}
+      }
+      actions {
+        ${AUTOMATION_ACTION_FIELDS}
+      }
+      workflows {
+        id
+        automationId
+        name
+        description
+        config
+        position
+      }
+    }
+  }
+`;
+
+export const AUTOMATION_CREATE = gql`
+  mutation AutomationsAdd(
+    $name: String
+    $status: String
+    $edgeType: String
+    $flowDirection: String
+    $triggers: [TriggerInput]
+    $actions: [ActionInput]
+    $workflows: [WorkflowInput]
+  ) {
+    automationsAdd(
+      name: $name
+      status: $status
+      edgeType: $edgeType
+      flowDirection: $flowDirection
       triggers: $triggers
       actions: $actions
       workflows: $workflows
@@ -30,24 +82,50 @@ export const AUTOMATION_EDIT = gql`
   }
 `;
 
-export const AUTOMATION_CREATE = gql`
-  mutation AutomationsAdd(
-    $name: String
-    $status: String
-    $triggers: [TriggerInput]
-    $actions: [ActionInput]
-    $workflows: [WorkflowInput]
+export const AUTOMATION_WORKFLOW_TEMPLATE_ADD = gql`
+  mutation AutomationWorkflowTemplatesAdd(
+    $name: String!
+    $description: String
+    $entryActionId: String
+    $actions: JSON
+    $inputs: JSON
   ) {
-    automationsAdd(
+    automationWorkflowTemplatesAdd(
       name: $name
-      status: $status
-      triggers: $triggers
+      description: $description
+      entryActionId: $entryActionId
       actions: $actions
-      workflows: $workflows
+      inputs: $inputs
     ) {
       _id
-      name
-      status
     }
+  }
+`;
+
+export const AUTOMATION_WORKFLOW_TEMPLATE_EDIT = gql`
+  mutation AutomationWorkflowTemplatesEdit(
+    $_id: String!
+    $name: String
+    $description: String
+    $entryActionId: String
+    $actions: JSON
+    $inputs: JSON
+  ) {
+    automationWorkflowTemplatesEdit(
+      _id: $_id
+      name: $name
+      description: $description
+      entryActionId: $entryActionId
+      actions: $actions
+      inputs: $inputs
+    ) {
+      _id
+    }
+  }
+`;
+
+export const AUTOMATION_WORKFLOW_TEMPLATE_REMOVE = gql`
+  mutation AutomationWorkflowTemplatesRemove($_id: String!) {
+    automationWorkflowTemplatesRemove(_id: $_id)
   }
 `;

@@ -1,5 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const POS_ORDER_ERKHET_CONFIG_CODE = 'posOrderErkhetConfig';
 
@@ -21,6 +22,7 @@ const POS_LIST = gql`
       name
       token
       beginNumber
+      paymentIds
       paymentTypes
     }
   }
@@ -71,9 +73,16 @@ export type TPosOrderErkhetConfig = {
   beginNumber?: string;
   hasVat: boolean;
   hasCitytax: boolean;
-  reverseVatRules?: string | string[];
-  reverseCtaxRules?: string | string[];
+  reverseVatRules?: string[];
+  reverseCtaxRules?: string[];
+  useRemainder?: boolean;
+  accounts?: string;
+  locations?: string;
+  account?: string;
+  location?: string;
   defaultPay: string;
+  cashAmount?: string;
+  mobileAmount?: string;
   [key: string]: any;
 };
 
@@ -82,7 +91,8 @@ export type TPos = {
   name: string;
   token: string;
   beginNumber?: string;
-  paymentTypes?: { type: string; title?: string }[];
+  paymentIds?: string[];
+  paymentTypes?: { type: string; title?: string; formField?: string }[];
 };
 
 const parseConfigValue = (value: any) =>
@@ -99,9 +109,6 @@ const toArrayValue = (value?: string | string[]) => {
     .filter(Boolean);
 };
 
-const toFormValue = (value?: string | string[]) =>
-  Array.isArray(value) ? value.join(',') : value || '';
-
 const readConfig = (config: any): TPosOrderErkhetConfig => {
   const value = parseConfigValue(config.value);
 
@@ -109,24 +116,41 @@ const readConfig = (config: any): TPosOrderErkhetConfig => {
     _id: config._id,
     subId: config.subId,
     ...value,
-    reverseVatRules: toFormValue(value.reverseVatRules),
-    reverseCtaxRules: toFormValue(value.reverseCtaxRules),
+    reverseVatRules: toArrayValue(value.reverseVatRules),
+    reverseCtaxRules: toArrayValue(value.reverseCtaxRules),
+    accounts: value.accounts || value.account || '',
+    locations: value.locations || value.location || '',
+    cashAmount: value.cashAmount || value.cash || 'cashAmount',
+    mobileAmount: value.mobileAmount || value.bank || 'mobileAmount',
   };
 };
 
 const writeConfig = (data: TPosOrderErkhetConfig) => {
-  const { _id, subId, reverseVatRules, reverseCtaxRules, ...value } = data;
+  const {
+    _id,
+    subId,
+    reverseVatRules,
+    reverseCtaxRules,
+    accounts,
+    locations,
+    ...value
+  } = data;
 
   return {
     ...value,
     isSyncErkhet: true,
-    reverseVatRules: toArrayValue(reverseVatRules),
-    reverseCtaxRules: toArrayValue(reverseCtaxRules),
+    accounts,
+    locations,
+    account: accounts,
+    location: locations,
+    reverseVatRules: value.hasVat ? toArrayValue(reverseVatRules) : [],
+    reverseCtaxRules: value.hasCitytax ? [] : toArrayValue(reverseCtaxRules),
   };
 };
 
 export const usePosOrderErkhetConfigs = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const { data, loading, refetch } = useQuery(MN_CONFIGS, {
     variables: { code: POS_ORDER_ERKHET_CONFIG_CODE },
@@ -142,7 +166,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -153,7 +177,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -164,7 +188,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -172,7 +196,34 @@ export const usePosOrderErkhetConfigs = () => {
   );
 
   const configs = (data?.mnConfigs || []).map(readConfig);
-  const poss: TPos[] = posData?.posList || [];
+  const poss: TPos[] = (posData?.posList || []).map((pos: TPos) => {
+    const posPaymentTypes = pos.paymentTypes || [];
+    const otherPaymentTypes = posPaymentTypes.filter(
+      (paymentType) =>
+        !['cashAmount', 'mobileAmount'].includes(paymentType.type),
+    );
+
+    return {
+      ...pos,
+      paymentTypes: [
+        {
+          type: 'cashAmount',
+          title: 'Бэлнээр',
+          formField: 'cashAmount',
+        },
+        ...((pos.paymentIds || []).length
+          ? [
+              {
+                type: 'mobileAmount',
+                title: 'Цахимаар',
+                formField: 'mobileAmount',
+              },
+            ]
+          : []),
+        ...otherPaymentTypes,
+      ],
+    };
+  });
 
   const saveConfig = async (data: TPosOrderErkhetConfig) => {
     const value = writeConfig(data);
@@ -181,7 +232,10 @@ export const usePosOrderErkhetConfigs = () => {
       await updateConfig({
         variables: { id: data._id, subId: value.posId, value },
       });
-      toast({ title: 'Success', description: 'Config updated successfully' });
+      toast({
+        title: t('success'),
+        description: t('config-updated-successfully'),
+      });
     } else {
       await createConfig({
         variables: {
@@ -190,7 +244,10 @@ export const usePosOrderErkhetConfigs = () => {
           value,
         },
       });
-      toast({ title: 'Success', description: 'Config created successfully' });
+      toast({
+        title: t('success'),
+        description: t('config-created-successfully'),
+      });
     }
 
     await refetch();
@@ -199,13 +256,19 @@ export const usePosOrderErkhetConfigs = () => {
   const deleteConfig = async (id: string) => {
     await removeConfig({ variables: { id } });
     await refetch();
-    toast({ title: 'Success', description: 'Config deleted successfully' });
+    toast({
+      title: t('success'),
+      description: t('config-deleted-successfully'),
+    });
   };
 
   const deleteManyConfigs = async (ids: string[]) => {
     await Promise.all(ids.map((id) => removeConfig({ variables: { id } })));
     await refetch();
-    toast({ title: 'Success', description: `${ids.length} config(s) deleted` });
+    toast({
+      title: t('success'),
+      description: t('configs-deleted', { count: ids.length }),
+    });
   };
 
   return {

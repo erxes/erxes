@@ -9,12 +9,12 @@ import {
   Select,
   DatePicker,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   useVendors,
   useCustomers,
-  useInsuranceProducts,
   useInsuranceTypes,
   useCreateInsuranceContract,
 } from '~/modules/insurance/hooks';
@@ -26,9 +26,13 @@ import {
 } from '~/modules/insurance/components';
 
 export const CarInsurancePage = () => {
+  const { t } = useTranslation('insurance');
   const navigate = useNavigate();
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('car-insurance'),
+  );
   const { insuranceTypes } = useInsuranceTypes();
-  const { insuranceProducts } = useInsuranceProducts();
   const { vendors } = useVendors();
   const { customers } = useCustomers();
   const { createInsuranceContract, loading: creating } =
@@ -187,7 +191,7 @@ export const CarInsurancePage = () => {
         navigate('/insurance/contracts');
       }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Failed to create contract');
+      setError(err.message || t('failed-to-create-contract'));
     }
   };
 
@@ -201,7 +205,7 @@ export const CarInsurancePage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/products">
                     <IconCar />
-                    Insurance
+                    {t('insurance')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -209,13 +213,16 @@ export const CarInsurancePage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconCar />
-                  Car Insurance
+                  {t('car-insurance')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
       </PageHeader>
 
@@ -228,9 +235,11 @@ export const CarInsurancePage = () => {
                   <IconCar className="text-blue-600" size={32} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">Vehicle Insurance</h2>
+                  <h2 className="text-2xl font-bold">
+                    {t('vehicle-insurance')}
+                  </h2>
                   <p className="text-muted-foreground">
-                    Create a vehicle insurance contract
+                    {t('create-vehicle-insurance-contract')}
                   </p>
                 </div>
               </div>
@@ -253,7 +262,7 @@ export const CarInsurancePage = () => {
                 {/* Product Selection */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Insurance Product *
+                    {t('insurance-product-required')}
                   </label>
                   <Select
                     value={formData.productId}
@@ -266,8 +275,8 @@ export const CarInsurancePage = () => {
                       <Select.Value
                         placeholder={
                           formData.vendorId
-                            ? 'Select'
-                            : 'Please select a company first'
+                            ? t('select')
+                            : t('please-select-company-first')
                         }
                       />
                     </Select.Trigger>
@@ -280,14 +289,14 @@ export const CarInsurancePage = () => {
                         ))
                       ) : (
                         <div className="p-2 text-sm text-muted-foreground">
-                          No products found
+                          {t('no-products-found')}
                         </div>
                       )}
                     </Select.Content>
                   </Select>
                   {!formData.vendorId && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Products will appear after selecting an insurance company
+                      {t('products-will-appear')}
                     </p>
                   )}
                 </div>
@@ -299,14 +308,14 @@ export const CarInsurancePage = () => {
                   <div>
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                       <IconCar size={20} />
-                      Vehicle Information
+                      {t('vehicle-information')}
                     </h3>
 
                     <div className="grid grid-cols-2 gap-4">
                       {/* Assessed Value Field - Always show first */}
                       <div>
                         <label className="block text-sm font-medium mb-2">
-                          Vehicle Value ($) *
+                          {t('vehicle-value-required')}
                         </label>
                         <Input
                           type="number"
@@ -319,7 +328,7 @@ export const CarInsurancePage = () => {
                             })
                           }
                           min={0}
-                          placeholder="Enter vehicle value"
+                          placeholder={t('enter-vehicle-value')}
                           required
                         />
                       </div>
@@ -342,7 +351,7 @@ export const CarInsurancePage = () => {
                                 }
                               >
                                 <Select.Trigger>
-                                  <Select.Value placeholder="Select" />
+                                  <Select.Value placeholder={t('select')} />
                                 </Select.Trigger>
                                 <Select.Content>
                                   {attr.options.map((option: any) => (
@@ -401,26 +410,30 @@ export const CarInsurancePage = () => {
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
                       <IconCurrencyTugrik size={18} />
-                      Premium Calculation
+                      {t('premium-calculation')}
                     </h4>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-blue-700">Assessed Value:</span>
+                        <span className="text-blue-700">
+                          {t('assessed-value')}:
+                        </span>
                         <span className="font-medium">
                           {insuredObject.assessedValue?.toLocaleString()} ₮
                         </span>
                       </div>
                       {durationInMonths > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-blue-700">Duration:</span>
+                          <span className="text-blue-700">
+                            {t('duration')}:
+                          </span>
                           <span className="font-medium">
-                            {durationInMonths} months
+                            {durationInMonths} {t('months')}
                           </span>
                         </div>
                       )}
                       <div className="flex justify-between">
                         <span className="text-blue-700">
-                          Rate ({selectedProduct?.name}):
+                          {t('rate')} ({selectedProduct?.name}):
                         </span>
                         <span className="font-medium">
                           {productPercentage}%
@@ -434,7 +447,7 @@ export const CarInsurancePage = () => {
                       <Separator className="my-2" />
                       <div className="flex justify-between text-base">
                         <span className="text-blue-800 font-semibold">
-                          Total Premium:
+                          {t('total-premium')}:
                         </span>
                         <span className="font-bold text-blue-900">
                           {calculatedPremium.toLocaleString()} ₮
@@ -450,13 +463,13 @@ export const CarInsurancePage = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <IconCalendar size={20} />
-                    Insurance Period
+                    {t('insurance-period')}
                   </h3>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Start Date *
+                        {t('start-date-required')}
                       </label>
                       <DatePicker
                         value={formData.startDate}
@@ -473,7 +486,7 @@ export const CarInsurancePage = () => {
 
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Duration *
+                        {t('duration-required')}
                       </label>
                       {selectedProduct?.pricingConfig?.percentageByDuration ? (
                         <Select
@@ -494,7 +507,7 @@ export const CarInsurancePage = () => {
                           }}
                         >
                           <Select.Trigger>
-                            <Select.Value placeholder="Select duration" />
+                            <Select.Value placeholder={t('select-duration')} />
                           </Select.Trigger>
                           <Select.Content>
                             {Object.keys(
@@ -509,7 +522,7 @@ export const CarInsurancePage = () => {
                                   .percentageByDuration[duration];
                               return (
                                 <Select.Item key={duration} value={duration}>
-                                  {months} months ({percentage}%)
+                                  {months} {t('months')} ({percentage}%)
                                 </Select.Item>
                               );
                             })}
@@ -528,7 +541,7 @@ export const CarInsurancePage = () => {
                         !selectedProduct.pricingConfig
                           ?.percentageByDuration && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            End Date
+                            {t('end-date')}
                           </p>
                         )}
                     </div>

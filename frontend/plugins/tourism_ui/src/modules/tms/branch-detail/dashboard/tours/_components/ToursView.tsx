@@ -11,6 +11,7 @@ import {
   IconTable,
 } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TourCalendar } from './TourCalendar';
 import { TourGroupList } from './TourGroupList';
 import { TourRecordTable } from './TourRecordTable';
@@ -20,6 +21,7 @@ interface ToursViewControlProps {
 }
 
 export const ToursViewControl = ({ className }: ToursViewControlProps) => {
+  const { t } = useTranslation('tourism');
   const [view, setView] = useQueryState<string | undefined>('view');
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,7 +30,7 @@ export const ToursViewControl = ({ className }: ToursViewControlProps) => {
       <Popover.Trigger asChild>
         <Button variant="ghost" className={className}>
           <IconAdjustmentsHorizontal />
-          View
+          {t('view')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -49,7 +51,7 @@ export const ToursViewControl = ({ className }: ToursViewControlProps) => {
               className="flex-col gap-0 h-11"
             >
               <IconTable className="size-5!" />
-              <span className="text-xs font-normal">Table</span>
+              <span className="text-xs font-normal">{t('table-view')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="calendar" asChild>
@@ -59,7 +61,7 @@ export const ToursViewControl = ({ className }: ToursViewControlProps) => {
               className="flex-col gap-0 h-11"
             >
               <IconCalendarMonth className="size-5!" />
-              <span className="text-xs font-normal">Calendar</span>
+              <span className="text-xs font-normal">{t('calendar')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

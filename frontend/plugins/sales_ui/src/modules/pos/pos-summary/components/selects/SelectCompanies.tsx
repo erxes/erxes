@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { IconBuilding } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { POS_COMPANIES_QUERY } from '../../graphql/queries/posCompaniesQuery';
 import { useQuery } from '@apollo/client';
 import {
@@ -126,13 +127,14 @@ const SelectCompaniesValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value, companies } = useSelectCompaniesContext();
   const selectedCompany = companies?.find((company) => company._id === value);
 
   if (!selectedCompany) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select company'}
+        {placeholder || t('select-company')}
       </span>
     );
   }
@@ -167,15 +169,16 @@ const SelectCompaniesCommandItem = ({ company }: { company: ICompany }) => {
 };
 
 const SelectCompaniesContent = () => {
+  const { t } = useTranslation('sales');
   const { companies, loading } = useSelectCompaniesContext();
 
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search companies" />
+        <Command.Input placeholder={t('search-companies')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading companies...</span>
+            <span className="text-muted-foreground">{t('loading-companies')}</span>
           </div>
         </Command.List>
       </Command>
@@ -184,9 +187,9 @@ const SelectCompaniesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search companies" />
+      <Command.Input placeholder={t('search-companies')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No companies found</span>
+        <span className="text-muted-foreground">{t('no-companies-found')}</span>
       </Command.Empty>
       <Command.List>
         {companies?.map((company) => (
@@ -198,10 +201,11 @@ const SelectCompaniesContent = () => {
 };
 
 export const SelectCompaniesFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="companies">
       <IconBuilding />
-      Companies
+      {t('companies')}
     </Filter.Item>
   );
 };
@@ -256,11 +260,12 @@ export const SelectCompaniesFilterBar = ({
   );
   const [open, setOpen] = useState(false);
 
+  const { t } = useTranslation('sales');
   return (
     <Filter.BarItem queryKey={'companies'}>
       <Filter.BarName>
         <IconBuilding />
-        Companies
+        {t('companies')}
       </Filter.BarName>
       <SelectCompaniesProvider
         mode={mode}

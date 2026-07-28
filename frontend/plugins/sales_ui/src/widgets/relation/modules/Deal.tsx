@@ -7,6 +7,7 @@ import ChooseDealSheet from '@/deals/components/ChooseDealSheet';
 import { DealWidget } from './DealWidget';
 import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const Deal = ({
   contentId,
@@ -19,6 +20,7 @@ export const Deal = ({
   customerId?: string;
   companyId?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { ownEntities, loading: loadingRelations } = useRelations({
     variables: {
       contentId,
@@ -72,10 +74,10 @@ export const Deal = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconCaretLeftRight />
         </div>
-        <span className="text-sm">No deals to display at the moment.</span>
+        <span className="text-sm">{t('no-deals-to-display')}</span>
         <Button variant="secondary" onClick={handleDealOpen}>
           <IconPlus />
-          Add a deal
+          {t('add-a-deal')}
         </Button>
         <AddDealSheet onComplete={onComplete} showWorkflowFields={true} />
         <ChooseDealSheet onComplete={onComplete} showText={true} />
@@ -86,7 +88,7 @@ export const Deal = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">Deals</span>
+        <span className="font-medium text-primary">{t('deals')}</span>
         <div className="flex gap-2 items-center">
           <Button variant="secondary" onClick={handleDealOpen}>
             <IconPlus />

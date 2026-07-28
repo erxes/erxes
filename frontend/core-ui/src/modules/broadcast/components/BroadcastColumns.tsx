@@ -36,13 +36,9 @@ export const broadcastColumns: ColumnDef<any>[] = [
     cell: ({ cell }) => {
       const [_, setMessageId] = useQueryState('messageId');
 
-      const { _id, method } = cell.row.original || {};
+      const { _id } = cell.row.original || {};
 
       const handleClick = () => {
-        if (method !== 'email') {
-          return;
-        }
-
         setMessageId(_id);
       };
 

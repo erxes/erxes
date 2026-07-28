@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Combobox,
   Command,
@@ -127,6 +128,7 @@ const TagsSelectProvider = ({
         tagGroups,
         type,
         targetIds,
+        options,
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
@@ -360,9 +362,57 @@ const TagsSelectedList = ({
     mode,
     targetIds,
     type,
+    value,
+    loading,
+    options,
+    tags,
   } = useTagsSelectContext();
   const { giveTags } = useGiveTags();
-  if (!selectedTags || selectedTags.length === 0) return null;
+
+  const selectedIds = useMemo(() => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    return value ? [value] : [];
+  }, [value]);
+
+  const missingIds = useMemo(() => {
+    if (loading) return [];
+    // an id resolving to a known tag but absent from the local selection is a
+    // pending removal, not an unknown id — don't render it
+    return selectedIds.filter(
+      (id) =>
+        !selectedTags.some((tag) => tag._id === id) &&
+        !tags?.some((tag) => tag._id === id),
+    );
+  }, [loading, selectedIds, selectedTags, tags]);
+
+  const removeId = (id: string) => {
+    if (mode === 'single') {
+      setSelectedTags([]);
+      (onValueChange as (value: string | undefined) => void)?.(undefined);
+      if (targetIds) {
+        giveTags({
+          variables: { type, targetIds, tagIds: [] },
+          ...options?.([]),
+        });
+      }
+      return;
+    }
+    const newIds = selectedIds.filter((selectedId) => selectedId !== id);
+    setSelectedTags(selectedTags.filter((tag) => tag._id !== id));
+    (onValueChange as (value: string[]) => void)?.(newIds);
+    if (targetIds) {
+      giveTags({
+        variables: { type, targetIds, tagIds: newIds },
+        ...options?.(newIds),
+      });
+    }
+  };
+
+  if ((!selectedTags || selectedTags.length === 0) && missingIds.length === 0) {
+    return null;
+  }
 
   return (
     <>
@@ -395,6 +445,7 @@ const TagsSelectedList = ({
                     targetIds,
                     tagIds: [],
                   },
+                  ...options?.([]),
                 });
               }
             } else {
@@ -410,6 +461,7 @@ const TagsSelectedList = ({
                     targetIds,
                     tagIds: newTags.map((t) => t._id),
                   },
+                  ...options?.(newTags.map((t) => t._id)),
                 });
               }
             }
@@ -417,6 +469,23 @@ const TagsSelectedList = ({
           {...props}
         />
       ))}
+      {missingIds.map((id) =>
+        renderAsPlainText ? (
+          <span key={id} className="font-mono text-xs truncate">
+            {id}
+          </span>
+        ) : (
+          <Badge
+            key={id}
+            variant="secondary"
+            className="font-mono"
+            title={`Unknown id: ${id}`}
+            onClose={() => removeId(id)}
+          >
+            <span className="max-w-24 truncate">{id}</span>
+          </Badge>
+        ),
+      )}
     </>
   );
 };

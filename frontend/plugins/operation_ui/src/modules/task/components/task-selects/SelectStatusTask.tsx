@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   cn,
   Combobox,
@@ -86,13 +87,14 @@ const SelectStatusValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('operation');
   const { value, statuses } = useSelectStatusContext();
   const selectedStatus = statuses?.find((status) => status.value === value);
 
   if (!selectedStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status'}
+        {placeholder || t('select-status')}
       </span>
     );
   }
@@ -131,11 +133,12 @@ const SelectStatusCommandItem = ({ status }: { status: ITaskStatus }) => {
 };
 
 const SelectStatusContent = () => {
+  const { t } = useTranslation('operation');
   const { statuses } = useSelectStatusContext();
   return (
     <Command>
-      <Command.Input placeholder="Search status" />
-      <Command.Empty>No status found</Command.Empty>
+      <Command.Input placeholder={t('search-status')} />
+      <Command.Empty>{t('no-status-found')}</Command.Empty>
       <Command.List>
         {statuses?.map((status) => (
           <SelectStatusCommandItem key={status.value} status={status} />
@@ -219,6 +222,7 @@ export const SelectStatusTaskFilterBar = ({
   teamId?: string;
   scope?: string;
 }) => {
+  const { t } = useTranslation('operation');
   const [status, setStatus] = useQueryState<string>(
     teamId ? 'status' : 'statusType',
   );
@@ -235,7 +239,7 @@ export const SelectStatusTaskFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <Filter.BarButton filterKey={teamId ? 'status' : 'statusType'}>
-          <SelectStatusValue placeholder="Status" />
+          <SelectStatusValue placeholder={t('status')} />
         </Filter.BarButton>
         <Combobox.Content>
           <SelectStatusContent />

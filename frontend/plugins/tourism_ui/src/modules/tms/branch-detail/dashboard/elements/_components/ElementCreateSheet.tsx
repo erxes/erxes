@@ -1,6 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -41,6 +42,7 @@ export const ElementCreateSheet = ({
   onOpenChange,
   showTrigger = true,
 }: ElementCreateSheetProps) => {
+  const { t } = useTranslation('tourism');
   const [internalOpen, setInternalOpen] = useState(false);
   const sheetOpen = typeof open === 'boolean' ? open : internalOpen;
 
@@ -99,9 +101,8 @@ export const ElementCreateSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: 'Error',
-        description:
-          'Please enter values for the main language before creating.',
+        title: t('error'),
+        description: t('enter-main-lang-before-creating'),
         variant: 'destructive',
       });
       setSelectedLang(resolvedPrimaryLanguage);
@@ -111,8 +112,8 @@ export const ElementCreateSheet = ({
   const handleSubmit = async (values: ElementCreateFormType) => {
     if (!branchId) {
       toast({
-        title: 'Error',
-        description: 'Branch is required to create an element',
+        title: t('error'),
+        description: t('branch-required'),
         variant: 'destructive',
       });
       return;
@@ -134,7 +135,7 @@ export const ElementCreateSheet = ({
         },
       });
 
-      toast({ title: 'Success', description: 'Element created successfully' });
+      toast({ title: t('success'), description: t('element-created-successfully') });
       form.reset({
         name: '',
         note: '',
@@ -150,7 +151,7 @@ export const ElementCreateSheet = ({
       toast({
         title: 'Error',
         description:
-          error instanceof Error ? error.message : 'Failed to create element',
+          error instanceof Error ? error.message : t('failed-to-create-element'),
         variant: 'destructive',
       });
     }
@@ -162,7 +163,7 @@ export const ElementCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button type="button">
             <IconPlus />
-            Create element
+            {t('create-element')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -177,7 +178,7 @@ export const ElementCreateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Create element</Sheet.Title>
+              <Sheet.Title>{t('create-element')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -229,10 +230,10 @@ export const ElementCreateSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Creating...' : 'Create'}
+                {loading ? t('creating') : t('create')}
               </Button>
             </Sheet.Footer>
           </form>

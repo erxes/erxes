@@ -34,13 +34,13 @@ export const getValueAsString = async (
     return getEnv({ name: envKey, defaultValue });
   }
 
-  const entry = await models.Configs.getConfig(name);
+  const value = await models.Configs.getConfigValue(name, defaultValue);
 
-  if (entry.value) {
-    return entry.value.toString();
+  if (value) {
+    return value.toString();
   }
 
-  return entry.value;
+  return value;
 };
 
 export const loadConfigClass = (

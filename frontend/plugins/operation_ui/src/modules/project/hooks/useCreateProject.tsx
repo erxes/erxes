@@ -2,8 +2,10 @@ import { PROJECTS_CURSOR_SESSION_KEY } from '@/project/constants/ProjectSessionK
 import { CREATE_PROJECT_MUTATION } from '@/project/graphql/mutation/createProject';
 import { useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useCreateProject = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const { setCursor } = useRecordTableCursor({
     sessionKey: PROJECTS_CURSOR_SESSION_KEY,
@@ -19,15 +21,15 @@ export const useCreateProject = () => {
       ],
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Project created successfully',
+          title: t('success'),
+          description: t('project-created-successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });

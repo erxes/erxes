@@ -6,6 +6,7 @@ import {
   Separator,
 } from 'erxes-ui';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { CommonDealSearch } from '@/deals/components/commonSearch';
@@ -17,9 +18,14 @@ import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
 
 export const SalesIndexPage = () => {
+  const { t } = useTranslation('sales');
   const [searchParams] = useSearchParams();
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
+  const settingsSearchParams = new URLSearchParams();
+
+  if (boardId) settingsSearchParams.set('activeBoardId', boardId);
+  if (pipelineId) settingsSearchParams.set('pipelineId', pipelineId);
 
   return (
     <div className="flex h-full overflow-hidden w-full">
@@ -32,7 +38,7 @@ export const SalesIndexPage = () => {
                   <Button variant="ghost" asChild>
                     <Link to="/sales/deal">
                       <IconSandbox />
-                      Sales Pipeline
+                      {t('sales-pipeline')}
                     </Link>
                   </Button>
                 </Breadcrumb.Item>
@@ -46,9 +52,11 @@ export const SalesIndexPage = () => {
           <PageHeader.End>
             <CommonDealSearch />
             <Button variant="ghost" asChild>
-              <Link to={`/settings/sales/deals?activeBoardId=${boardId}`}>
+              <Link
+                to={`/settings/sales/deals?${settingsSearchParams.toString()}`}
+              >
                 <IconSettings />
-                Go To Settings
+                {t('go-to-settings')}
               </Link>
             </Button>
           </PageHeader.End>

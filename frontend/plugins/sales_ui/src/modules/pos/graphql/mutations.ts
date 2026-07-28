@@ -7,7 +7,6 @@ const commonFields = `
   $orderPassword: String
   $scopeBrandIds: [String]
   $pdomain: String
-  $erxesAppToken: String
   $serviceCharge: Float
   $serviceChargeApplicableProductId: String
   $productDetails: [String]
@@ -46,7 +45,6 @@ const commonVariables = `
   orderPassword: $orderPassword,
   scopeBrandIds: $scopeBrandIds,
   pdomain: $pdomain,
-  erxesAppToken: $erxesAppToken,
   serviceCharge: $serviceCharge,
   serviceChargeApplicableProductId: $serviceChargeApplicableProductId,
   productDetails: $productDetails,

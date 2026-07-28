@@ -6,6 +6,7 @@ import { IconChevronLeft } from '@tabler/icons-react';
 import { Button, getPluginAssetsUrl } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const ErxesMessengerDetail = lazy(() =>
   import('@/integrations/erxes-messenger/components/ErxesMessengerDetail').then(
@@ -47,7 +48,16 @@ const InstagramIntegrationDetail = lazy(() =>
   ),
 );
 
+const DiscordIntegrationDetail = lazy(() =>
+  import('@/integrations/discord/components/DiscordIntegrationDetail').then(
+    (module) => ({
+      default: module.DiscordIntegrationDetail,
+    }),
+  ),
+);
+
 export const IntegrationDetailPage = () => {
+  const { t } = useTranslation('frontline');
   const { integrationType, id } = useParams<{
     integrationType: string;
     id: string;
@@ -58,7 +68,7 @@ export const IntegrationDetailPage = () => {
     INTEGRATIONS[integrationType as keyof typeof INTEGRATIONS];
 
   return (
-    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden">
+    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden flex-1 min-h-0">
       <div>
         <Button
           variant="ghost"
@@ -72,7 +82,7 @@ export const IntegrationDetailPage = () => {
           }}
         >
           <IconChevronLeft />
-          Integrations
+          {t('integrations')}
         </Button>
       </div>
       <div className="flex gap-2">
@@ -105,8 +115,13 @@ export const IntegrationDetailPage = () => {
         {integrationType === IntegrationType.INSTAGRAM_POST && (
           <InstagramIntegrationDetail isPost />
         )}
+        {integrationType === IntegrationType.DISCORD_MESSENGER && (
+          <DiscordIntegrationDetail />
+        )}
       </Suspense>
-      <IntegrationsRecordTable />
+      <div className="flex-1 min-h-0 flex flex-col">
+        <IntegrationsRecordTable />
+      </div>
     </div>
   );
 };

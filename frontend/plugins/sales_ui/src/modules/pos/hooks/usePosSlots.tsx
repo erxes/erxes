@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { useUpdatePosSlots } from './useSlotAdd';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CustomNode } from '../slot/types';
 import { queries } from '../graphql';
 
@@ -23,6 +24,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
   const [nodes, setNodes] = useState<CustomNode[]>([]);
   const { updatePosSlots, loading: saving } = useUpdatePosSlots();
   const { toast } = useToast();
+  const { t } = useTranslation('sales');
 
   const { data, loading, error, refetch } = useQuery(queries.posSlots, {
     variables: { posId },
@@ -110,8 +112,8 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
         });
 
         toast({
-          title: 'Slots saved successfully',
-          description: `Saved ${slotsData.length} slots to the database`,
+          title: t('slots-saved'),
+          description: t('slots-saved-description', { count: slotsData.length }),
         });
 
         await refetch();
@@ -119,8 +121,8 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
       } catch (error) {
         console.error('Failed to save slots:', error);
         toast({
-          title: 'Failed to save slots',
-          description: 'Please try again later',
+          title: t('slots-save-failed'),
+          description: t('please-try-again-later'),
           variant: 'destructive',
         });
         return false;

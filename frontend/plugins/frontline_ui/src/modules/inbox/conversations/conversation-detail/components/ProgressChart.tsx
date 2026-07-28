@@ -3,12 +3,14 @@ import { CartesianGrid, XAxis, YAxis, AreaChart, Area } from 'recharts';
 import { useConversationProgressChart } from '@/inbox/conversations/conversation-detail/hooks/useConversationProgressChart';
 import { CONVERSATION_STATUS_COLORS } from '@/inbox/conversations/conversation-detail/constants/conversationStatusColors';
 import { format, parseISO, endOfDay, subDays, isAfter } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 interface IProgressChartProps {
   customerId?: string;
 }
 
 export const ProgressChart = ({ customerId }: IProgressChartProps) => {
+  const { t } = useTranslation('frontline');
   const { conversationProgressChart } = useConversationProgressChart({
     variables: { customerId },
     skip: !customerId,
@@ -20,9 +22,9 @@ export const ProgressChart = ({ customerId }: IProgressChartProps) => {
   const statusColors = CONVERSATION_STATUS_COLORS;
 
   const chartConfig = {
-    new: { label: 'New', color: statusColors.new },
-    open: { label: 'Open', color: statusColors.open },
-    closed: { label: 'Closed', color: statusColors.closed },
+    new: { label: t('new-label'), color: statusColors.new },
+    open: { label: t('open-label'), color: statusColors.open },
+    closed: { label: t('closed-label'), color: statusColors.closed },
   };
 
   const todayEnd = endOfDay(new Date());

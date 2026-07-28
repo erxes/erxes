@@ -1,5 +1,6 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Form, ScrollArea, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
@@ -210,6 +211,7 @@ export function PageDrawer({
   clientPortalId,
   onFormReady,
 }: PageFormProps) {
+  const { t } = useTranslation('content');
   const isEditing = Boolean(page);
   const [hasPermissionError, setHasPermissionError] = useState(false);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
@@ -241,6 +243,15 @@ export function PageDrawer({
     defaultLanguage,
     resetKey: clientPortalId,
   });
+
+  // Mirror the active language into the shared atom (one-way). The header
+  // language tabs read this atom for their active state, so this keeps the tab
+  // highlight in lockstep with the language the form is actually showing.
+  useEffect(() => {
+    if (selectedLanguage) {
+      setCmsLanguage(selectedLanguage);
+    }
+  }, [selectedLanguage, setCmsLanguage]);
 
   // Create dynamic validation schema with custom fields
   const createValidationSchema = useCallback((fieldGroups: FieldGroup[]) => {
@@ -440,7 +451,15 @@ export function PageDrawer({
 
   // When page data loads, the form-reset effect above overwrites translatable
   // fields with default-lang data.  Re-apply for the current non-default lang.
-  const appliedForPageRef = useRef<IPage | null>(null);
+  // The guard tracks page, language AND translations: opening directly in a
+  // remembered non-default language runs this before translations have loaded,
+  // so it must re-apply once they arrive — otherwise the content stays empty
+  // until the user toggles languages.
+  const appliedForPageRef = useRef<{
+    page: IPage | null;
+    language: string;
+    translations: Record<string, TranslationData>;
+  } | null>(null);
   useEffect(() => {
     if (
       !selectedLanguage ||
@@ -450,26 +469,42 @@ export function PageDrawer({
       return;
     }
     if (isEditing && !page) return;
-    if (appliedForPageRef.current === (page ?? null)) return;
+
+    const curPage = page ?? null;
+    const applied = appliedForPageRef.current;
+
+    if (
+      applied !== null &&
+      applied.page === curPage &&
+      applied.language === selectedLanguage &&
+      applied.translations === translations
+    ) {
+      return;
+    }
 
     applyTranslationToForm(selectedLanguage);
-    appliedForPageRef.current = page ?? null;
+    appliedForPageRef.current = {
+      page: curPage,
+      language: selectedLanguage,
+      translations,
+    };
   }, [
     selectedLanguage,
     defaultLanguage,
     applyTranslationToForm,
     isEditing,
     page,
+    translations,
   ]);
 
   const onCompleted = () => {
     onClose();
     form.reset();
     toast({
-      title: 'Success',
+      title: t('success'),
       description: isEditing
-        ? 'Page updated successfully.'
-        : 'Page created successfully.',
+        ? t('page-updated-successfully')
+        : t('page-created-successfully'),
       variant: 'default',
       duration: 3000,
     });
@@ -485,16 +520,15 @@ export function PageDrawer({
     if (permissionError) {
       setHasPermissionError(true);
       toast({
-        title: 'Permission Required',
-        description:
-          'You do not have permission to perform this action. Please contact your administrator.',
+        title: t('permission-required'),
+        description: t('permission-required-desc'),
         variant: 'destructive',
         duration: 8000,
       });
     } else {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to save page. Please try again.',
+        title: t('error'),
+        description: error.message || t('failed-to-save-page'),
         variant: 'destructive',
         duration: 5000,
       });
@@ -557,9 +591,8 @@ export function PageDrawer({
 
     if (!main) {
       toast({
-        title: 'Validation Error',
-        description:
-          'Please fill in the default language fields before creating a page in another language.',
+        title: t('validation-error'),
+        description: t('page-fill-default-lang-first'),
         variant: 'destructive',
         duration: 5000,
       });
@@ -628,7 +661,6 @@ export function PageDrawer({
   const onLanguageChange = useCallback(
     (lang: string) => {
       isSwitchingLanguageRef.current = true;
-      setCmsLanguage(lang);
 
       const curPage = pageRef.current;
       const curDefaultLanguage = defaultLanguageRef.current;
@@ -672,7 +704,7 @@ export function PageDrawer({
         isSwitchingLanguageRef.current = false;
       });
     },
-    [form, setCmsLanguage],
+    [form],
   );
 
   const handleEditorChange = useCallback(
@@ -709,11 +741,10 @@ export function PageDrawer({
                 <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-medium text-red-800">
-                    Permission Required
+                    {t('permission-required')}
                   </p>
                   <p className="text-red-700 mt-1">
-                    You need permission to create or edit pages. Please contact
-                    your administrator to grant this permission.
+                    {t('page-permission-required-desc')}
                   </p>
                 </div>
               </div>
@@ -732,6 +763,7 @@ export function PageDrawer({
               {fieldGroups.length > 0 && (
                 <PageCustomFieldsSection
                   fieldGroups={fieldGroups}
+                  websiteId={clientPortalId}
                   form={form}
                 />
               )}

@@ -58,14 +58,16 @@ export const CompaniesCommandBar = () => {
             />
           </>
         </Can>
-        <Separator.Inline />
-        <Export
-          pluginName="core"
-          moduleName="contacts"
-          collectionName="companies"
-          buttonVariant="secondary"
-          ids={companyIds}
-        />
+        <Can action="companiesExportManage">
+          <Separator.Inline />
+          <Export
+            pluginName="core"
+            moduleName="contacts"
+            collectionName="companies"
+            buttonVariant="secondary"
+            ids={companyIds}
+          />
+        </Can>
         {/* <CompaniesMerge
           companies={table
             .getFilteredSelectedRowModel()

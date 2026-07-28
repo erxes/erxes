@@ -6,13 +6,15 @@ import { useParams } from 'react-router-dom';
 import { PipelinesSection } from '@/channels/components/settings/channel-details/PipelinesSection';
 import { ResponseSection } from '@/channels/components/settings/channel-details/ResponseSection';
 import { FormsSection } from './FormsSection';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelDetails = () => {
+  const { t } = useTranslation('frontline');
   const { id } = useParams();
   const { channel, loading } = useGetChannel({ variables: { id } });
 
   if (loading) return null;
-  if (!channel) return <div>Not found</div>;
+  if (!channel) return <div>{t('not-found')}</div>;
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16 pb-16 flex flex-col gap-4">

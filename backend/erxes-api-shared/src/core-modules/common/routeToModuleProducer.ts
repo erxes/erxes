@@ -9,6 +9,10 @@ import {
 import { TSegmentProducersInput } from '../segments/zodSchemas';
 import { TImportExportProducersInput } from '../import-export/zodSchemas';
 import { TImportExportProducers } from '../import-export';
+import {
+  TRecordReferenceProducers,
+  TRecordReferenceProducersInput,
+} from './references/types';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -24,6 +28,9 @@ type TModuleProducerInputMap = {
   };
   importExport: {
     [K in TImportExportProducers]: TImportExportProducersInput[K];
+  };
+  references: {
+    [K in TRecordReferenceProducers]: TRecordReferenceProducersInput[K];
   };
 };
 

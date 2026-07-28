@@ -1,4 +1,6 @@
 import { AutomationNodesType, AutomationNodeType } from '@/automations/types';
+import { AUTOMATION_EDGE_TYPE_VALUES } from '@/automations/constants/edgeTypes';
+import { AUTOMATION_FLOW_DIRECTION_VALUES } from '@/automations/constants/flowDirection';
 import { z } from 'zod';
 
 export const automationNodePositionSchema = z
@@ -71,16 +73,21 @@ const automationActionSchema = z.object({
 const automationWorkflowSchema = z.object({
   id: z.string(),
   automationId: z.string(),
+  templateId: z.string().optional(),
   nextActionId: z.string().optional(),
   name: z.string(),
   description: z.string(),
   config: z.record(z.any()),
+  actions: z.array(automationActionSchema).optional(),
+  icon: z.any(),
   position: automationNodePositionSchema,
 });
 
 export const automationBuilderFormSchema = z.object({
   name: z.string(),
   status: z.string(z.enum(['active', 'draft'])).default('draft'),
+  edgeType: z.enum(AUTOMATION_EDGE_TYPE_VALUES).default('default'),
+  flowDirection: z.enum(AUTOMATION_FLOW_DIRECTION_VALUES).default('horizontal'),
   triggers: z.array(automationTriggerSchema, {
     message: 'A trigger is required to save this automation.',
   }),

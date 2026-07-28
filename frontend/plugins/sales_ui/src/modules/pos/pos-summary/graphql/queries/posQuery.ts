@@ -16,7 +16,6 @@ export const posCommonFields = `
   pdomain
   createdAt
   token
-  erxesAppToken
   adminIds
   cashierIds
   paymentIds

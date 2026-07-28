@@ -22,6 +22,7 @@ const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
   [SettingsWorkspacePath.OAuthClients]: 'apps',
   [SettingsWorkspacePath.Permissions]: 'permissions',
+  [SettingsWorkspacePath.ApprovalRequests]: 'approval',
 };
 
 export function SettingsSidebar() {

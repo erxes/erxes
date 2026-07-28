@@ -10,9 +10,11 @@ export const DocumentsTypes = () => {
   const { documentsTypes } = useDocumentsTypes();
 
   return (
-    <Sidebar collapsible="none" className="w-full">
+    <Sidebar collapsible="none" className="w-full border-r bg-muted/20">
       <Sidebar.Group>
-        <Sidebar.GroupLabel className="py-5">Document types</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel className="h-12 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Document types
+        </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {documentsTypes.map(

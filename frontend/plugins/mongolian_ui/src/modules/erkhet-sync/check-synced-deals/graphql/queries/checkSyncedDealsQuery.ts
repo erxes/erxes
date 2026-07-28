@@ -10,6 +10,8 @@ export const checkSyncedDealsQuery = gql`
     $stageChangedEndDate: Date
     $startDate: String
     $endDate: String
+    $createdStartDate: Date
+    $createdEndDate: Date
     $noSkipArchive: Boolean
     $productIds: [String]
     $search: String
@@ -23,6 +25,8 @@ export const checkSyncedDealsQuery = gql`
       stageChangedEndDate: $stageChangedEndDate
       startDate: $startDate
       endDate: $endDate
+      createdStartDate: $createdStartDate
+      createdEndDate: $createdEndDate
       noSkipArchive: $noSkipArchive
       productIds: $productIds
       search: $search

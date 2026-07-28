@@ -39,15 +39,17 @@ const SelectCustomerProvider = ({
   hideAvatar,
 }: SelectCustomerProviderProps) => {
   const [customers, setCustomers] = useState<ICustomer[]>([]);
-  const customerIds = useMemo(() => {
+  const customerIds = customers.map((c) => c._id);
+
+  const valueIds = useMemo(() => {
     return !value ? [] : Array.isArray(value) ? value : [value];
   }, [value]);
 
   const { customers: fetchedCustomers } = useCustomers({
     variables: {
-      ids: customerIds,
+      ids: valueIds,
     },
-    skip: customerIds.length === 0,
+    skip: valueIds.length === 0,
   });
 
   useEffect(() => {
@@ -58,7 +60,7 @@ const SelectCustomerProvider = ({
     ) {
       setCustomers(fetchedCustomers);
     }
-  }, [fetchedCustomers, customerIds, customers.length]);
+  }, [fetchedCustomers, customers.length]);
 
   const onSelect = (customer: ICustomer) => {
     if (!customer) return;
@@ -70,14 +72,14 @@ const SelectCustomerProvider = ({
     const newSelectedCustomerIds = isSingleMode
       ? [customer._id]
       : isSelected
-      ? multipleValue.filter((t) => t !== customer._id)
-      : [...multipleValue, customer._id];
+        ? multipleValue.filter((t) => t !== customer._id)
+        : [...multipleValue, customer._id];
 
     const newSelectedCustomers = isSingleMode
       ? [customer]
       : isSelected
-      ? customers.filter((t) => t._id !== customer._id)
-      : [...customers, customer];
+        ? customers.filter((t) => t._id !== customer._id)
+        : [...customers, customer];
 
     setCustomers(newSelectedCustomers);
     onValueChange?.(isSingleMode ? customer._id : newSelectedCustomerIds);
@@ -349,10 +351,8 @@ export const SelectCustomerFilterView = ({
 export const SelectCustomerFilterBar = ({
   mode = 'multiple',
   filterKey,
-  label,
   variant,
   scope,
-  targetId,
   initialValue,
   value,
   onValueChange,
@@ -360,10 +360,8 @@ export const SelectCustomerFilterBar = ({
 }: {
   mode?: 'single' | 'multiple';
   filterKey: string;
-  label: string;
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
-  targetId?: string;
   initialValue?: string[];
   value?: string[];
   hideAvatar?: boolean;

@@ -55,12 +55,12 @@ export const loadInvoiceClass = (models: IModels) => {
           description: invoice.description,
         });
 
-        const api = new ErxesPayment(payment);
+        const api = new ErxesPayment(payment, subdomain);
 
         try {
-          const reponse = await api.createInvoice(transaction.toObject());
-          transaction.response = reponse;
-          await invoice.save();
+          const response = await api.createInvoice(transaction.toObject());
+          transaction.response = response;
+          await transaction.save();
 
           return invoice;
         } catch (e) {

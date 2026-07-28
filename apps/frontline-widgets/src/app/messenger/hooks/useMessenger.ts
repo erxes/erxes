@@ -6,6 +6,7 @@ import {
   conversationIdAtom,
 } from '../states';
 import { TabType } from '../types';
+import { postMessage } from '@libs/utils';
 
 export function useMessenger() {
   const [activeTab] = useAtom(messengerTabAtom);
@@ -18,17 +19,11 @@ export function useMessenger() {
   };
 
   function resetExpand() {
-    const frame = window.parent.document.querySelector(
-      '.erxes-messenger-frame',
-    );
-    frame?.classList.replace('erxes-messenger-expand', 'erxes-messenger-shown');
+    postMessage('fromMessenger', 'collapseMessenger');
   }
 
   function expandWindow() {
-    const frame = window.parent.document.querySelector(
-      '.erxes-messenger-frame',
-    );
-    frame?.classList.replace('erxes-messenger-shown', 'erxes-messenger-expand');
+    postMessage('fromMessenger', 'expandMessenger');
   }
 
   function closeWindow() {

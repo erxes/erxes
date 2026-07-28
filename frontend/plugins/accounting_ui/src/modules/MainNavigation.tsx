@@ -3,6 +3,7 @@ import {
   IconCrane,
   IconListCheck,
   IconListDetails,
+  IconRefreshAlert,
   IconSquareLetterJ,
 } from '@tabler/icons-react';
 import { cn, NavigationMenuLinkItem, Sidebar, useQueryState } from 'erxes-ui';
@@ -77,6 +78,12 @@ export const MainNavigation = () => {
         name="Тайлан"
         icon={IconClipboardTextFilled}
         path="journal-reports"
+        pathPrefix="accounting"
+      />
+      <NavigationMenuLinkItem
+        name="Мэдээ таталт"
+        icon={IconRefreshAlert}
+        path="check-sync"
         pathPrefix="accounting"
       />
     </>

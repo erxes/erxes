@@ -11,6 +11,7 @@ export interface IPackage {
   description?: string;
   coverImage?: string;
   products: IPackageProduct[];
+  tagIds?: string[];
   price?: number;
   percent?: number;
   status?: string;
@@ -26,4 +27,5 @@ export interface IPackageParams extends ICursorPaginateParams {
   searchValue?: string;
   status?: string;
   ids?: string[];
+  tagIds?: string[];
 }

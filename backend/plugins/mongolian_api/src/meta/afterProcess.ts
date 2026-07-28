@@ -7,12 +7,22 @@ import {
 } from '~/modules/erkhet/afterMutations';
 import { syncPosOrderToErkhet } from '~/modules/erkhet/afterMutPosOrder';
 import { afterMutationHandlers as productPlacesAfterMutation } from '~/modules/productPlaces/afterMutations';
+import { afterMutationHandlers as msdynamicAfterMutation } from '~/modules/msdynamic/afterMutation';
 
+// Existing mutation name lists
 const ebarimtMutationNames = ['dealsChange', 'dealsEdit', 'dealsAdd'];
 const erkhetMutationNames = ['dealsChange', 'dealsEdit', 'dealsAdd'];
-
-// You can reuse same mutation names because productPlaces
 const productPlacesMutationNames = ['dealsChange', 'dealsEdit'];
+
+// MSDynamic mutation names – using a Set for O(1) lookups
+const msdynamicMutationNames = new Set([
+  'dealsAdd',      // sales:deal create
+  'dealsEdit',     // sales:deal update
+  'dealsChange',   // sales:deal update (stage change)
+  'customersAdd',  // core:customer create
+  'companiesAdd',  // core:company create
+  // 'posOrdersSync', // uncomment if you have a mutation that syncs pos orders
+]);
 
 const allRules: IAfterProcessRule[] = [
   {
@@ -22,6 +32,7 @@ const allRules: IAfterProcessRule[] = [
         ...ebarimtMutationNames,
         ...erkhetMutationNames,
         ...productPlacesMutationNames,
+        ...Array.from(msdynamicMutationNames), // spread Set as array
       ]),
     ],
   },
@@ -53,6 +64,7 @@ export const afterProcess: AfterProcessConfigs = {
     const { itemId, destinationStageId, sourceStageId } = args || {};
     const models = await generateModels(ctx.subdomain);
 
+    // ---- Ebarimt ----
     if (ebarimtMutationNames.includes(mutationName)) {
       const { stageId } = result || {};
       const sessionCode = Array.isArray(requestData?.sessioncode)
@@ -79,7 +91,7 @@ export const afterProcess: AfterProcessConfigs = {
       }
     }
 
-    // SYNC ERKHET
+    // ---- Erkhet ----
     if (erkhetMutationNames.includes(mutationName)) {
       try {
         const currentStageId = result?.stageId || destinationStageId;
@@ -99,10 +111,7 @@ export const afterProcess: AfterProcessConfigs = {
             action: isCreate ? 'create' : 'update',
             object: isCreate
               ? result
-              : {
-                  _id: itemId,
-                  stageId: sourceStageId,
-                },
+              : { _id: itemId, stageId: sourceStageId },
             updatedDocument: result,
             user: { _id: userId },
           });
@@ -112,20 +121,61 @@ export const afterProcess: AfterProcessConfigs = {
       }
     }
 
-    // PRODUCT PLACES
+    // ---- Product Places ----
     if (productPlacesMutationNames.includes(mutationName)) {
       try {
         await productPlacesAfterMutation(ctx.subdomain, {
           type: 'sales:deal',
           action: 'update',
           updatedDocument: result,
-          object: {
-            stageId: sourceStageId,
-          },
+          object: { stageId: sourceStageId },
           user: userId,
         });
       } catch (error) {
         console.error('Product places afterMutation failed:', error);
+      }
+    }
+
+    // ---- MSDynamic ----
+    if (msdynamicMutationNames.has(mutationName)) {
+      try {
+        let type = '';
+        let action = '';
+
+        if (mutationName.startsWith('deals')) {
+          type = 'sales:deal';
+          action = mutationName === 'dealsAdd' ? 'create' : 'update';
+        } else if (mutationName.startsWith('customers')) {
+          type = 'core:customer';
+          action = mutationName.endsWith('Add') ? 'create' : 'update';
+        } else if (mutationName.startsWith('companies')) {
+          type = 'core:company';
+          action = mutationName.endsWith('Add') ? 'create' : 'update';
+        } else if (mutationName.startsWith('posOrders')) {
+          type = 'pos:order';
+          action = 'synced';
+        }
+
+        if (type && action) {
+          // For updates, pass the old object with sourceStageId
+          let objectParam = result; // default for create
+          if (
+            action === 'update' &&
+            (mutationName === 'dealsEdit' || mutationName === 'dealsChange')
+          ) {
+            objectParam = { _id: itemId, stageId: sourceStageId };
+          }
+
+          await msdynamicAfterMutation(ctx.subdomain, {
+            type,
+            action,
+            user: { _id: userId },
+            object: objectParam,
+            updatedDocument: result,
+          });
+        }
+      } catch (error) {
+        console.error('MSDynamic afterMutation failed:', error);
       }
     }
   },

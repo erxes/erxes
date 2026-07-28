@@ -1,6 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
 import { IconX, IconHeadphones } from '@tabler/icons-react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AudioUploaderProps {
   value?: string | null;
@@ -8,6 +9,7 @@ interface AudioUploaderProps {
 }
 
 export const AudioUploader = ({ value, onChange }: AudioUploaderProps) => {
+  const { t } = useTranslation('content');
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['audio/*'],
     maxFiles: 1,
@@ -53,7 +55,7 @@ export const AudioUploader = ({ value, onChange }: AudioUploaderProps) => {
           </div>
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded">
-              <div className="text-sm text-gray-500">Uploading...</div>
+              <div className="text-sm text-gray-500">{t('uploading')}</div>
             </div>
           )}
         </div>
@@ -68,7 +70,7 @@ export const AudioUploader = ({ value, onChange }: AudioUploaderProps) => {
             disabled={uploadProps.loading}
             type="button"
           >
-            {uploadProps.loading ? 'Uploading...' : 'Upload Audio'}
+            {uploadProps.loading ? t('uploading') : t('upload-audio')}
           </Button>
         </div>
       )}

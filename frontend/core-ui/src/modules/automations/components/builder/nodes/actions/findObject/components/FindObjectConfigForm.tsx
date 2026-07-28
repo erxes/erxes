@@ -11,6 +11,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import {
   PlaceholderInput,
   TAutomationActionProps,
+  TPlaceholderInputSuggestion,
   useFormValidationErrorHandler,
 } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
@@ -107,7 +108,7 @@ export const FindObjectConfigForm = ({
                   isDisabled={!lookupField || !objectType}
                   value={field.value ?? ''}
                   onChange={field.onChange}
-                  disabled={{ attribute: true }}
+                  disabled={[TPlaceholderInputSuggestion.Attribute]}
                 />
                 <Form.Message />
               </Form.Item>

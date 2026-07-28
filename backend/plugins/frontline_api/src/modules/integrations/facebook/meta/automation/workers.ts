@@ -6,18 +6,12 @@ import {
   actionCreateMessage,
   checkMessageTrigger,
 } from '@/integrations/facebook/meta/automation/messages';
+import { ICheckTriggerData } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import {
-  ICheckTriggerData,
-  IReplacePlaceholdersData,
-} from '@/integrations/facebook/meta/automation/types/automationTypes';
-import {
-  replacePlaceHolders,
   TAiContext,
-  setProperty,
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
 
 const toISOString = (value?: Date | string) => {
   if (!value) {
@@ -43,23 +37,6 @@ const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
   return 'customer' as const;
 };
 
-const getItems = async (
-  subdomain: string,
-  module: string,
-  execution: any,
-  targetType: string,
-) => {
-  const { target } = execution;
-  if (module === targetType) {
-    return [target];
-  }
-  return [];
-};
-
-const getRelatedValue = async () => {
-  return false;
-};
-
 export const facebookAutomationWorkers = {
   receiveActions: async (
     {
@@ -83,20 +60,6 @@ export const facebookAutomationWorkers = {
       default:
         return { result: null };
     }
-  },
-  replacePlaceHolders: async (
-    data: IReplacePlaceholdersData,
-    { models, subdomain },
-  ) => {
-    const { target, config, relatedValueProps } = data;
-
-    return await replacePlaceHolders<IModels>({
-      models,
-      subdomain,
-      customResolver: { resolver: getRelatedValue, props: relatedValueProps },
-      actionData: config,
-      target,
-    });
   },
   checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {
     const { collectionType } = data;
@@ -171,32 +134,5 @@ export const facebookAutomationWorkers = {
     }));
 
     return context;
-  },
-
-  setProperties: async (
-    {
-      action,
-      execution,
-      targetType,
-    }: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
-    { models, subdomain },
-  ) => {
-    const { module, rules } = action.config;
-    const relatedItems = await getItems(
-      subdomain,
-      module,
-      execution,
-      targetType,
-    );
-    return await setProperty({
-      models,
-      subdomain,
-      getRelatedValue,
-      module,
-      rules,
-      execution,
-      relatedItems,
-      targetType,
-    });
   },
 };

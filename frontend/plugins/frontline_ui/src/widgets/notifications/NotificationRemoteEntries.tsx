@@ -1,6 +1,7 @@
 import { Button } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { FallbackProps } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 import { NotificationContent } from './system/NotficationContent';
 import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
 import { TicketDetails } from '../../modules/ticket/components/ticket-detail/TicketDetails';
@@ -26,15 +27,16 @@ type GenericErrorFallbackProps = FallbackProps & {
 export const GenericErrorFallback = ({
   resetErrorBoundary,
   error,
-  title = 'Sorry, something went wrong',
+  title,
 }: GenericErrorFallbackProps) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
       <div className="rounded-lg bg-background p-8 shadow-lg">
-        <h1 className="mb-4 text-2xl font-bold text-foreground">{title}</h1>
+        <h1 className="mb-4 text-2xl font-bold text-foreground">{title ?? t('sorry-something-went-wrong')}</h1>
         <p className="mb-6 text-accent-foreground">{error?.message}</p>
         <Button onClick={resetErrorBoundary} variant="secondary">
-          Try Again
+          {t('try-again')}
         </Button>
       </div>
     </div>
@@ -42,6 +44,7 @@ export const GenericErrorFallback = ({
 };
 
 const NotificationRemoteEntries = (props: TNotification) => {
+  const { t } = useTranslation('frontline');
   const { contentTypeId, contentType } = props;
   const [_, moduleName, type] = (contentType || '')
     .replace(':', '.')
@@ -54,7 +57,7 @@ const NotificationRemoteEntries = (props: TNotification) => {
     return (
       <Suspense
         fallback={
-          <div className="flex items-center justify-center p-4">Loading...</div>
+          <div className="flex items-center justify-center p-4">{t('loading')}</div>
         }
       >
         <NotificationContent.facebookBotHealth {...props} />
@@ -67,7 +70,7 @@ const NotificationRemoteEntries = (props: TNotification) => {
       NotificationContent[type as keyof typeof NotificationContent];
 
     if (!NotificationComponent) {
-      return <div>No notification component found</div>;
+      return <div>{t('no-notification-component')}</div>;
     }
 
     return <NotificationComponent {...props} />;
@@ -95,6 +98,7 @@ const NotificationRemoteEntries = (props: TNotification) => {
 };
 
 const NotificationContentUnavailable = () => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
       <div className="flex max-w-sm flex-col items-center text-center">
@@ -102,10 +106,10 @@ const NotificationContentUnavailable = () => {
           <IconInfoCircle className="size-5" />
         </div>
         <h3 className="text-base font-medium text-foreground">
-          Notification content unavailable
+          {t('notification-content-unavailable')}
         </h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          This notification does not have a linked detail view yet.
+          {t('notification-no-detail-view')}
         </p>
       </div>
     </div>

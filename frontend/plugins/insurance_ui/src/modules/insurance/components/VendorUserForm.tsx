@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Dialog, Button, Input, Label } from 'erxes-ui';
 import {
@@ -21,6 +22,7 @@ export const VendorUserForm = ({
   user,
   onSuccess,
 }: VendorUserFormProps) => {
+  const { t } = useTranslation('insurance');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -97,26 +99,26 @@ export const VendorUserForm = ({
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
           <Dialog.Title>
-            {user ? 'Edit Vendor User' : 'Create Vendor User'}
+            {user ? t('edit-vendor-user') : t('create-vendor-user')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t('name')}</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder="Enter name (optional)"
+              placeholder={t('enter-name-optional')}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">
-              Email <span className="text-red-500">*</span>
+              {t('email')} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="email"
@@ -125,13 +127,13 @@ export const VendorUserForm = ({
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              placeholder="Enter email"
+              placeholder={t('enter-email')}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">{t('phone')}</Label>
             <Input
               id="phone"
               type="tel"
@@ -139,13 +141,13 @@ export const VendorUserForm = ({
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              placeholder="Enter phone (optional)"
+              placeholder={t('enter-phone-optional')}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">
-              Password {!user && <span className="text-red-500">*</span>}
+              {t('password')} {!user && <span className="text-red-500">*</span>}
             </Label>
             <Input
               id="password"
@@ -155,14 +157,14 @@ export const VendorUserForm = ({
                 setFormData({ ...formData, password: e.target.value })
               }
               placeholder={
-                user ? 'Leave empty to keep current' : 'Enter password'
+                user ? t('leave-empty-to-keep-current') : t('enter-password')
               }
               required={!user}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">{t('role')}</Label>
             <select
               id="role"
               value={formData.role}
@@ -171,8 +173,8 @@ export const VendorUserForm = ({
               }
               className="w-full px-3 py-2 border rounded-md"
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="user">{t('user')}</option>
+              <option value="admin">{t('admin')}</option>
             </select>
           </div>
 
@@ -183,10 +185,10 @@ export const VendorUserForm = ({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : user ? 'Update' : 'Create'}
+              {loading ? t('saving') : user ? t('update') : t('create')}
             </Button>
           </Dialog.Footer>
         </form>

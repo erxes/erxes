@@ -9,6 +9,7 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 import { customTypeMoreColumn } from './CustomTypesMoreColumn';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconLayout, IconCalendar, IconArticle } from '@tabler/icons-react';
 import { ICustomPostType } from '../types/customTypeTypes';
 import { useEditCustomType } from '../hooks/useEditCustomType';
@@ -18,6 +19,7 @@ export const createCustomTypesColumns = (
   onEdit?: (customType: any) => void,
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
+  const { t } = useTranslation('content');
   const { editType } = useEditCustomType(onRefetch);
 
   return [
@@ -26,7 +28,7 @@ export const createCustomTypesColumns = (
     {
       id: 'name',
       header: () => (
-        <RecordTable.InlineHead icon={IconLayout} label="Type Name" />
+        <RecordTable.InlineHead icon={IconLayout} label={t('type-name')} />
       ),
       accessorKey: 'label',
       cell: ({ cell }) => {
@@ -74,7 +76,9 @@ export const createCustomTypesColumns = (
             }}
           >
             <RecordTableInlineCell.Trigger>
-              <span>{cell.getValue() as string}</span>
+              <span className="leading-normal">
+                {cell.getValue() as string}
+              </span>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
               <Input
@@ -94,19 +98,22 @@ export const createCustomTypesColumns = (
     {
       id: 'description',
       header: () => (
-        <RecordTable.InlineHead icon={IconArticle} label="Description" />
+        <RecordTable.InlineHead icon={IconArticle} label={t('description')} />
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip
+            value={cell.getValue() as string}
+            className="leading-normal"
+          />
         </RecordTableInlineCell>
       ),
     },
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('created')} />
       ),
       accessorKey: 'createdAt',
       size: 120,

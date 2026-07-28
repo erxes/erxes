@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import React, { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconTicket } from '@tabler/icons-react';
 import { ILotteryCampaign } from '../../types/lotteryCampaignType';
 import {
@@ -118,6 +119,7 @@ const SelectLotteryCampaignCommandItem = ({
   lotteryCampaign: ILotteryCampaign;
 }) => {
   const { onSelect, lotteryCampaignId } = useSelectLotteryCampaignContext();
+  const { t } = useTranslation('loyalty');
 
   return (
     <Command.Item
@@ -127,7 +129,7 @@ const SelectLotteryCampaignCommandItem = ({
       <LotteryCampaignInline
         lotteryCampaigns={[lotteryCampaign]}
         lotteryCampaignId={lotteryCampaign._id}
-        placeholder="Unnamed campaign"
+        placeholder={t('unnamed-campaign')}
       />
       <Combobox.Check
         checked={lotteryCampaignId.includes(lotteryCampaign._id)}
@@ -137,6 +139,7 @@ const SelectLotteryCampaignCommandItem = ({
 };
 
 const SelectLotteryCampaignContent = () => {
+  const { t } = useTranslation('loyalty');
   const [search, setSearch] = React.useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { lotteryCampaigns: selectedLotteryCampaigns } =
@@ -158,7 +161,7 @@ const SelectLotteryCampaignContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder="Search lottery campaigns..."
+        placeholder={t('search-lottery-campaigns')}
         className="h-9"
       />
       <Command.List>
@@ -196,12 +199,15 @@ const SelectLotteryCampaignContent = () => {
   );
 };
 
-export const SelectLotteryCampaignFilterItem = () => (
-  <Filter.Item value="lotteryCampaign">
-    <IconTicket />
-    Lottery Campaign
-  </Filter.Item>
-);
+export const SelectLotteryCampaignFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="lotteryCampaign">
+      <IconTicket />
+      {t('lottery-campaign')}
+    </Filter.Item>
+  );
+};
 
 export const SelectLotteryCampaignFilterView = ({
   onValueChange,
@@ -245,6 +251,7 @@ export const SelectLotteryCampaignFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [lotteryCampaign, setLotteryCampaign] = useQueryState<
     string | string[]
   >(queryKey || 'lotteryCampaign');
@@ -254,7 +261,7 @@ export const SelectLotteryCampaignFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'lotteryCampaign'}>
       <Filter.BarName>
         <IconTicket />
-        {!iconOnly && 'Lottery Campaign'}
+        {!iconOnly && t('lottery-campaign')}
       </Filter.BarName>
 
       <SelectLotteryCampaignProvider

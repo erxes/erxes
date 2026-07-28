@@ -18,7 +18,10 @@ const commonBotMutationParams = `
   accountId:String,
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
-  greetText:String
+  greetText:String,
+  handoffMessage:String,
+  automationActiveMessage:String,
+  handoffPauseMinutes:Int,
   tag:String,
   isEnabledBackBtn:Boolean,
   backButtonText:String
@@ -64,6 +67,8 @@ export const types = `
     attachments: [Attachment]
     fromBot: Boolean
     botData: JSON
+    source: JSON
+    relatedMessage: JSON
     customerId: String
     userId: String
     createdAt: Date
@@ -134,6 +139,9 @@ export const types = `
     persistentMenus:[BotPersistentMenuType]
     profileUrl:String
     greetText:String
+    handoffMessage:String
+    automationActiveMessage:String
+    handoffPauseMinutes:Int
     tag:String
     isEnabledBackBtn:Boolean
     backButtonText:String

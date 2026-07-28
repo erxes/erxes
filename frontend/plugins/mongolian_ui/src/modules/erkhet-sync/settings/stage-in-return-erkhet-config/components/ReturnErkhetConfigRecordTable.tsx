@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TReturnErkhetConfig } from '../types';
 import { TReturnErkhetConfigRow } from '../hooks/useReturnErkhetConfigs';
 import { buildReturnErkhetConfigColumns } from './ReturnErkhetConfigColumns';
@@ -18,11 +19,14 @@ export const ReturnErkhetConfigRecordTable = ({
   onDelete,
   onDeleteMany,
   editLoading,
-}: Props) => (
-  <ErkhetConfigRecordTable
-    configs={configs}
-    columns={buildReturnErkhetConfigColumns(onEdit, onDelete, editLoading)}
-    emptyDescription="Create your first return erkhet config using the button above."
-    commandBar={<ReturnErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
-  />
-);
+}: Props) => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <ErkhetConfigRecordTable
+      configs={configs}
+      columns={buildReturnErkhetConfigColumns(onEdit, onDelete, editLoading)}
+      emptyDescription={t('create-first-return-erkhet-config')}
+      commandBar={<ReturnErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+    />
+  );
+};

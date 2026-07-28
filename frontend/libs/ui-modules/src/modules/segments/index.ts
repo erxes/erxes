@@ -1,6 +1,7 @@
 export * from './graphql/mutations';
 export * from './graphql/queries';
 export * from './hooks/useGetFieldsProperties';
+export * from './hooks/useAutomationSetPropertyTargets';
 export * from './types';
 export * from './components/form/SegmentForm';
 export * from './components/FieldWithError';

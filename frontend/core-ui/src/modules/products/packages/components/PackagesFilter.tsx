@@ -7,6 +7,8 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconCheck, IconTag } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { SelectTags } from 'ui-modules';
 import { PACKAGE_STATUSES } from '../types/Package';
 
 const STATUS_OPTIONS = PACKAGE_STATUSES.map((s) => ({
@@ -43,6 +45,7 @@ function StatusFilterView() {
 }
 
 function StatusFilterBar() {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const [status, setStatus] = useQueryState<string>('status');
 
   if (!status) return null;
@@ -51,14 +54,14 @@ function StatusFilterBar() {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconTag />
-        Status
+        {t('status', 'Status')}
       </Filter.BarName>
       <Select
         value={status}
         onValueChange={(value) => setStatus(value || null)}
       >
         <Filter.BarButton filterKey="status">
-          <Select.Value placeholder="Select status" />
+          <Select.Value placeholder={t('select-status', 'Select status')} />
         </Filter.BarButton>
         <Select.Content>
           {STATUS_OPTIONS.map((option) => (
@@ -69,6 +72,22 @@ function StatusFilterBar() {
         </Select.Content>
       </Select>
     </Filter.BarItem>
+  );
+}
+
+function TagsFilterBar() {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
+  const [tags] = useQueryState<string[]>('tags');
+
+  if (!tags?.length) return null;
+
+  return (
+    <SelectTags.FilterBar
+      mode="multiple"
+      filterKey="tags"
+      label={t('tags', 'Tags')}
+      tagType="core:product"
+    />
   );
 }
 
@@ -84,12 +103,14 @@ export const PackagesFilter = () => {
         </Filter.Dialog>
         <Filter.SearchValueBarItem />
         <StatusFilterBar />
+        <TagsFilterBar />
       </Filter.Bar>
     </Filter>
   );
 };
 
 export const PackagesFilterPopover = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   return (
     <>
       <Filter.Popover>
@@ -97,17 +118,23 @@ export const PackagesFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
                 <Filter.Item value="status">
                   <IconTag />
-                  Status
+                  {t('status', 'Status')}
                 </Filter.Item>
+                <SelectTags.FilterItem value="tags" label={t('tags', 'Tags')} />
               </Command.List>
             </Command>
           </Filter.View>
           <StatusFilterView />
+          <SelectTags.FilterView
+            mode="multiple"
+            filterKey="tags"
+            tagType="core:product"
+          />
         </Combobox.Content>
       </Filter.Popover>
     </>

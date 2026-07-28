@@ -68,8 +68,11 @@ export const ErxesMessengerPreview = () => {
               variant="secondary"
               className="size-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/80 [&>svg]:size-5 shadow-md"
             >
-              {appearance?.logo ? (
-                <img src={readImage(appearance?.logo)} alt="em-logo" />
+              {appearance?.launcherLogo ? (
+                <img
+                  src={readImage(appearance?.launcherLogo)}
+                  alt="em-launcher-logo"
+                />
               ) : (
                 <ErxesLogoIcon />
               )}

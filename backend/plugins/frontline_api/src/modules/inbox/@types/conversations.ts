@@ -5,6 +5,25 @@ import {
   IListParams,
 } from 'erxes-api-shared/core-types';
 
+export type TAutomatedReplyControlStatus =
+  | 'active'
+  | 'handoff_requested'
+  | 'human_active';
+
+export type TAutomatedReplyControlReason =
+  | 'customer_requested'
+  | 'operator_reply'
+  | 'manual'
+  | 'timeout_expired';
+
+export type TAutomatedReplyControl = {
+  status: TAutomatedReplyControlStatus;
+  pausedUntil?: Date;
+  reason?: TAutomatedReplyControlReason;
+  updatedAt?: Date;
+  updatedBy?: string;
+};
+
 export interface IConversation {
   skillId?: string;
   operatorStatus?: string;
@@ -37,6 +56,7 @@ export interface IConversation {
   customFieldsData?: ICustomField[];
   isBot?: boolean;
   botId?: string;
+  automatedReplyControl?: TAutomatedReplyControl;
 }
 
 // Conversation schema

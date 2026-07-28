@@ -29,8 +29,10 @@ import {
   formSetupGeneralAtom,
   formSetupStepAtom,
 } from '../states/formSetupStates';
+import { useTranslation } from 'react-i18next';
 
 export const FormPreview = () => {
+  const { t } = useTranslation('frontline');
   const formContent = useAtomValue(formSetupContentAtom);
   const formGeneral = useAtomValue(formSetupGeneralAtom);
   const formConfirmation = useAtomValue(formSetupConfirmationAtom);
@@ -48,7 +50,7 @@ export const FormPreview = () => {
       <div className="p-5">
         <InfoCard title={formGeneral.title}>
           <InfoCard.Content>
-            <p className="text-muted-foreground">No fields to preview</p>
+            <p className="text-muted-foreground">{t('no-fields-to-preview')}</p>
           </InfoCard.Content>
         </InfoCard>
       </div>
@@ -177,6 +179,7 @@ export const FormPreviewContent = ({
   stepsLength: number;
   setActiveStep: (step: number) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,
@@ -190,8 +193,8 @@ export const FormPreviewContent = ({
         onSubmit={form.handleSubmit((values) => {
           if (stepsLength === step) {
             toast({
-              title: 'Form submitted',
-              description: 'Form submitted successfully',
+              title: t('form-submitted'),
+              description: t('form-submitted-successfully'),
               variant: 'success',
             });
             return;
@@ -471,7 +474,7 @@ export const FormPreviewContent = ({
                                   variant={'outline'}
                                   size="sm"
                                 >
-                                  {erxesField.placeholder || 'Upload file'}
+                                  {erxesField.placeholder || t('upload-file')}
                                 </Upload.Button>
                               </Upload.Root>
                             </Form.Control>
@@ -517,10 +520,10 @@ export const FormPreviewContent = ({
                 onClick={() => setActiveStep(step - 1)}
                 disabled={step === 1}
               >
-                Previous
+                {t('previous')}
               </Button>
               <Button type="submit">
-                {stepsLength > step ? 'Next' : formGeneral.buttonText || 'Send'}
+                {stepsLength > step ? t('next') : formGeneral.buttonText || 'Send'}
               </Button>
             </div>
           ) : (

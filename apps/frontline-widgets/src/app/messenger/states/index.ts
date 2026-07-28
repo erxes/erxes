@@ -56,6 +56,9 @@ export const uiOptionsAtom = atom<IWidgetUiOptions>({
   },
   logo: '',
   navigationVariant: 'pill',
+  launcherLogo: '',
+  backgroundColor: '#17171b',
+  heroStyleVariant: 'aurora',
 });
 
 export const ticketConfigAtom = atom<ITicketConfig | null>(null);
@@ -68,6 +71,7 @@ export const headerItemsAtom = atom<IHeaderItem[]>(HEADER_ITEMS);
 
 export const conversationIdAtom = atom<string | null>(null);
 export const integrationIdAtom = atom<string | null>(null);
+export const operatorStatusAtom = atom<'bot' | 'operator' | null>(null);
 
 export const messengerDataAtom = atom<IMessengerData | null>(null);
 
@@ -99,5 +103,7 @@ export const ticketProgressAtom = atom<ITicketCheckProgress | null>(null);
 export const userTicketCreatedNumberAtom = atom<string | null>(null);
 
 export const unreadNotificationCountAtom = atom<number>(0);
+
+export const isBotTypingAtom = atom<boolean>(false);
 
 export const notificationsAtom = atom<INotificationItem[]>([]);

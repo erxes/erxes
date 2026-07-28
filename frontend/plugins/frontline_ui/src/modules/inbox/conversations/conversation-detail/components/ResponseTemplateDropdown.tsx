@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { Popover } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
+import { useTranslation } from 'react-i18next';
 
 interface TemplateSuggestion {
   _id: string;
@@ -23,7 +24,9 @@ export const ResponseTemplateDropdown = ({
   selectedIndex,
   availableChannels = [],
   onSelect,
-}: ResponseTemplateDropdownProps) => (
+}: ResponseTemplateDropdownProps) => {
+  const { t } = useTranslation('frontline');
+  return (
   <Popover open>
     <Popover.Anchor asChild>
       <span className="sr-only" />
@@ -36,7 +39,7 @@ export const ResponseTemplateDropdown = ({
       className="p-0 min-w-lg overflow-hidden"
     >
       <div className="sticky top-0 bg-background/90 backdrop-blur-sm z-10 border-b border-border px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-        Response Templates
+        {t('response-templates')}
       </div>
 
       {suggestions.map((suggestion, index) => {
@@ -69,7 +72,7 @@ export const ResponseTemplateDropdown = ({
                   </span>
                   {suggestion.channelId && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent text-accent-foreground">
-                      {channelName || 'Channel'}
+                      {channelName || t('channel-label')}
                     </span>
                   )}
                 </div>
@@ -79,7 +82,7 @@ export const ResponseTemplateDropdown = ({
                 {suggestion.updatedAt &&
                   !isNaN(new Date(suggestion.updatedAt).getTime()) && (
                     <div className="mt-1.5 text-xs text-muted-foreground">
-                      Updated{' '}
+                      {t('updated')}{' '}
                       {formatDistanceToNow(new Date(suggestion.updatedAt), {
                         addSuffix: true,
                       })}
@@ -96,13 +99,14 @@ export const ResponseTemplateDropdown = ({
 
       <div className="sticky bottom-0 bg-linear-to-t from-primary/10 to-background border-t border-border px-4 py-2">
         <div className="text-xs text-center text-muted-foreground">
-          Press{' '}
+          {t('press')}{' '}
           <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">
             Enter
           </kbd>{' '}
-          to select
+          {t('to-select')}
         </div>
       </div>
     </Popover.Content>
   </Popover>
-);
+  );
+};

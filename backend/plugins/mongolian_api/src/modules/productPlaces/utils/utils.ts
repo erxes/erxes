@@ -111,7 +111,7 @@ export const getChildTags = async (subdomain: string, tagIds: string[]) => {
       subdomain,
       pluginName: 'core',
       module: 'tags',
-      action: 'tagWithChilds',
+      action: 'findWithChild',
       input: {
         query: { _id: { $in: tagIds } },
         fields: { _id: 1 },

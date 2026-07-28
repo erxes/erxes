@@ -60,7 +60,7 @@ const Permissions = lazy(() =>
   })),
 );
 
-const AccountingSettings = () => {
+const AccountingSubSettings = () => {
   return (
     <Filter id="accounting-settings">
       <div className="flex flex-col flex-auto overflow-hidden">
@@ -79,7 +79,7 @@ const AccountingSettings = () => {
             }
           >
             <Routes>
-              <Route path="/" element={<AccountingMainConfig />} />
+              <Route path="" element={<AccountingMainConfig />} />
               <Route path="/accounts" element={<Accounts />} />
               <Route
                 path="/account-categories"
@@ -99,6 +99,14 @@ const AccountingSettings = () => {
         </div>
       </div>
     </Filter>
+  );
+};
+
+const AccountingSettings = () => {
+  return (
+    <Routes>
+      <Route path="/*" element={<AccountingSubSettings />} />
+    </Routes>
   );
 };
 

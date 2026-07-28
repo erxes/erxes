@@ -4,8 +4,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import EBarimtSettings from '@/ebarimt/settings/components/EBarimtSettings';
 import ProductPlacesSettings from '@/productplaces/components/ProductPlacesSettings';
 import ErkhetSettings from '@/erkhet-sync/settings/components/ErkhetSettings';
-import MsdynamicSettingsPage from '~/pages/msdynamic/MsdynamicSettingsPage';
 import ExchangeRatesPage from '@/exchangeRates/Main';
+import MsdynamicSettingsPage from '~/pages/msdynamic/MsdynamicSettingsPage';
 
 const MongolianSettings = () => {
   return (

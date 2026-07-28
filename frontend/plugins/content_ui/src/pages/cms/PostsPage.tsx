@@ -3,9 +3,10 @@ import { PostsRecordTable } from '~/modules/cms/posts/components/PostsRecordTabl
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
 import { Posts } from '~/modules/cms/posts/types/postsType';
+import { buildCurrentPostsReturnPath } from '~/modules/cms/posts/utils/postsNavigation';
 
 interface PostsPageContentProps {
   clientPortalId: string;
@@ -40,10 +41,19 @@ export const PostsIndexPage = ({
   clientPortalId: string;
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { websiteId } = useParams();
 
   const handleEditPost = (post: Posts) => {
-    navigate(`/content/cms/${websiteId}/posts/detail/${post._id}`);
+    navigate(`/content/cms/${websiteId}/posts/detail/${post._id}`, {
+      state: {
+        returnTo: buildCurrentPostsReturnPath(
+          location.pathname,
+          location.search,
+          post._id,
+        ),
+      },
+    });
   };
 
   return (

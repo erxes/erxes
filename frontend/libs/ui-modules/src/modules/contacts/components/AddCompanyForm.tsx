@@ -77,10 +77,11 @@ export function AddCompanyForm({
   });
 
   function onSubmit(data: FormValues) {
-    const { phone, industry, ...rest } = data;
+    const { phone, industry, code, ...rest } = data;
     companiesAdd({
       variables: {
         ...rest,
+        code: code?.trim(),
         primaryPhone: phone,
         industry: industry?.map((i) => i.value),
       },
@@ -300,10 +301,7 @@ export function AddCompanyForm({
                       </Form.Control>
                       <Select.Content>
                         {CountryPhoneCodes.map((country) => (
-                          <Select.Item
-                            key={country.code}
-                            value={country.name}
-                          >
+                          <Select.Item key={country.code} value={country.name}>
                             <span className="mr-2">{country.flag}</span>
                             {country.name}
                           </Select.Item>
@@ -331,13 +329,11 @@ export function AddCompanyForm({
                         </Select.Trigger>
                       </Form.Control>
                       <Select.Content>
-                        {COMPANY_BUSINESS_TYPES.filter(Boolean).map(
-                          (type) => (
-                            <Select.Item key={type} value={type}>
-                              {type}
-                            </Select.Item>
-                          ),
-                        )}
+                        {COMPANY_BUSINESS_TYPES.filter(Boolean).map((type) => (
+                          <Select.Item key={type} value={type}>
+                            {type}
+                          </Select.Item>
+                        ))}
                       </Select.Content>
                     </Select>
                     <Form.Message />

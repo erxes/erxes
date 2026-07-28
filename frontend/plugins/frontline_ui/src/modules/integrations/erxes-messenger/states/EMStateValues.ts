@@ -39,14 +39,16 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       messengerData: {
         notifyCustomer: settings?.notifyCustomer ?? false,
         botEndpointUrl: '',
-        botShowInitialMessage: false,
+        botShowInitialMessage: config?.botSetup?.botShowInitialMessage ?? false,
         botCheck: config?.botSetup?.botCheck ?? false,
         botGreetMessage: config?.botSetup?.greetingMessage ?? '',
+        automationId: config?.botSetup?.automationId ?? '',
         persistentMenus:
           config?.botSetup?.persistentMenu?.map((item) => ({
             text: item.text,
             type: item.type,
             link: item.link,
+            contentType: item.contentType,
           })) ?? [],
         availabilityMethod: hours?.availabilityMethod || 'manual',
         isOnline: hours?.isOnline ?? false,
@@ -92,6 +94,9 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
           appearance?.primary?.foreground || DEFAULT_COLORS.FOREGROUND,
       },
       logo: appearance?.logo || '',
+      launcherLogo: appearance?.launcherLogo || '',
+      backgroundColor: appearance?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
+      heroStyleVariant: appearance?.heroStyleVariant || 'glossy',
       navigationVariant: appearance?.navigationVariant || 'pill',
     },
   });

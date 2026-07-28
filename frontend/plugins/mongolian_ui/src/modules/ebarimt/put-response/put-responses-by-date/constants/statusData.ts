@@ -1,5 +1,5 @@
 export const STATUS_DATA = [
-  { value: 'all', label: 'All' },
-  { value: 'SUCCESS', label: 'Success' },
-  { value: 'ERROR', label: 'Error' },
+  { value: 'all', label: 'all' },
+  { value: 'SUCCESS', label: 'success' },
+  { value: 'ERROR', label: 'error' },
 ];

@@ -23,7 +23,8 @@ export interface ICondition {
   subSegmentId?: string;
   subSegmentForPreview?: ISegment;
 
-  config?: any;
+  config?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
 }
 
 export interface IConditionDocument extends ICondition, Document {}
@@ -42,7 +43,7 @@ export interface ISegment {
 
   scopeBrandIds?: string[];
 
-  config?: any;
+  config?: Record<string, unknown>;
 }
 
 export interface ISegmentDocument extends ISegment, Document {
@@ -103,6 +104,11 @@ export const conditionSchema = new Schema(
     subSegmentId: { type: String, optional: true },
 
     config: {
+      type: Object,
+      optional: true,
+    },
+
+    meta: {
       type: Object,
       optional: true,
     },

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
 import { Sheet, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -16,6 +17,7 @@ import { ExchangeRateSheetContent } from './ExchangeRateSheetContent';
 const FORM_ID = 'edit-exchange-rate-form';
 
 export const EditExchangeRate = () => {
+  const { t } = useTranslation('mongolian');
   const [openId, setOpenId] = useQueryState<string>(EXCHANGE_RATE_ID_QUERY_KEY);
   const [detail, setDetail] = useAtom(exchangeRateDetailAtom);
 
@@ -59,7 +61,7 @@ export const EditExchangeRate = () => {
   return (
     <Sheet open={!!openId} onOpenChange={(value) => !value && close()}>
       <ExchangeRateSheetContent
-        title="Edit Exchange Rate"
+        title={t('edit-exchange-rate')}
         formId={FORM_ID}
         form={form}
         loading={loading}

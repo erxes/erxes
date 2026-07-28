@@ -22,6 +22,7 @@ import {
   IconCircleDashedCheck,
   IconCircleDashedX,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const parseChecks = (value: unknown): string[] => {
   if (!value) return [];
@@ -44,6 +45,7 @@ const SubmissionFieldDisplay = ({
   item: ISubmissionItem;
   value: unknown;
 }) => {
+  const { t } = useTranslation('frontline');
   const { formFieldType } = item;
 
   if (formFieldType === 'core:customer:avatar') {
@@ -99,12 +101,12 @@ const SubmissionFieldDisplay = ({
     return String(value) === 'true' ? (
       <Badge variant="success">
         <IconCircleDashedCheck size={16} />
-        Yes
+        {t('yes')}
       </Badge>
     ) : (
       <Badge variant="destructive">
         <IconCircleDashedX size={16} />
-        No
+        {t('no')}
       </Badge>
     );
   }
@@ -132,6 +134,7 @@ const SubmissionFieldDisplay = ({
 };
 
 export const SubmissionDetails = () => {
+  const { t } = useTranslation('frontline');
   const [submissionId, setSubmissionId] = useQueryState<string>('submissionId');
   const { submissionDetails, loading } = useGetFormSubmissionDetails({
     variables: { _id: submissionId },
@@ -179,7 +182,7 @@ export const SubmissionDetails = () => {
                 ))}
                 {!fields.length && (
                   <p className="text-center text-muted-foreground py-8 text-sm">
-                    No submission data
+                    {t('no-submission-data')}
                   </p>
                 )}
               </form>
@@ -188,7 +191,7 @@ export const SubmissionDetails = () => {
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant="secondary" onClick={() => setSubmissionId(null)}>
-            Close
+            {t('close')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

@@ -17,11 +17,6 @@ const CallStatisticsIndexPage = lazy(() =>
     default: module.CallIndexPage,
   })),
 );
-const CallStatisticsDetailPage = lazy(() =>
-  import('~/pages/CallStatisticsDetailPage').then((module) => ({
-    default: module.CallDetailPage,
-  })),
-);
 
 const Inbox = lazy(() =>
   import('~/pages/InboxIndexPage').then((module) => ({
@@ -95,7 +90,9 @@ const IntegrationsMain = () => {
         <Route path="/calls/statistics" element={<CallStatisticsIndexPage />} />
         <Route
           path="/calls/statistics/:id"
-          element={<CallStatisticsDetailPage />}
+          element={
+            <CallDashboardDetailPage backPath="/frontline/calls/statistics" />
+          }
         />
         <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
         <Route path="/reports/*" element={<Report />} />

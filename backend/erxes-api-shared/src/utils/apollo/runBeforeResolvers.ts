@@ -1,9 +1,58 @@
 import { getPlugin, getPlugins } from '../service-discovery';
 import { sendCoreModuleProducer } from '../trpc/sendCoreModuleProducer';
+import { createExpectedError } from '../errorClassifier';
 import {
+  BeforeResolverBlockedResult,
   BeforeResolversConfig,
+  BeforeResolverOkResult,
   TBeforeResolversProducers,
+  BeforeResolverResolvedResult,
 } from './beforeResolvers';
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+const isBlockedResult = (
+  result: unknown,
+): result is BeforeResolverBlockedResult =>
+  isRecord(result) &&
+  result.status === 'blocked' &&
+  typeof result.code === 'string' &&
+  typeof result.message === 'string';
+
+const isResolvedResult = (
+  result: unknown,
+): result is BeforeResolverResolvedResult =>
+  isRecord(result) && result.status === 'resolved' && 'data' in result;
+
+
+const isOkResult = (result: unknown): result is BeforeResolverOkResult =>
+  isRecord(result) && result.status === 'ok';
+
+const mergeBeforeResolverArgs = (
+  args: Record<string, unknown>,
+  result: unknown,
+): Record<string, unknown> => {
+  if (isOkResult(result)) {
+    return isRecord(result.args) ? { ...args, ...result.args } : args;
+  }
+
+  if (isRecord(result)) {
+    return { ...args, ...result };
+  }
+
+  return args;
+};
+
+export type BeforeResolverCheckBlockedResult = BeforeResolverBlockedResult & {
+  pluginName: string;
+};
+
+export type BeforeResolverCheckResult = {
+  available: boolean;
+  args: Record<string, unknown>;
+  blocked: BeforeResolverCheckBlockedResult[];
+};
 
 const pluginHandlesResolver = (
   config: BeforeResolversConfig | undefined,
@@ -22,15 +71,19 @@ const pluginHandlesResolver = (
   return false;
 };
 
+export type BeforeResolverRunResult =
+  | { resolved: false; args: Record<string, unknown> }
+  | { resolved: true; data: unknown };
+
 export const runBeforeResolvers = async (
   resolverName: string,
-  args: any,
+  args: Record<string, unknown>,
   context: {
     subdomain: string;
-    user?: any;
+    user?: unknown;
     headers?: Record<string, string | string[] | undefined>;
   },
-): Promise<any> => {
+): Promise<BeforeResolverRunResult> => {
   const pluginNames = await getPlugins();
 
   let mergedArgs = args;
@@ -44,7 +97,25 @@ export const runBeforeResolvers = async (
       continue;
     }
 
-    const result = await sendCoreModuleProducer({
+    const blockResult: unknown = await sendCoreModuleProducer({
+      subdomain: context.subdomain,
+      pluginName,
+      moduleName: 'beforeResolvers',
+      producerName: TBeforeResolversProducers.BLOCKER,
+      method: 'query',
+      input: {
+        resolver: resolverName,
+        args: mergedArgs,
+        user: context.user,
+        headers: context.headers,
+      },
+    });
+
+    if (isBlockedResult(blockResult)) {
+      throw createExpectedError(blockResult.message, blockResult.code);
+    }
+
+    const result: unknown = await sendCoreModuleProducer({
       subdomain: context.subdomain,
       pluginName,
       moduleName: 'beforeResolvers',
@@ -57,10 +128,87 @@ export const runBeforeResolvers = async (
       },
     });
 
-    if (result && typeof result === 'object') {
-      mergedArgs = { ...mergedArgs, ...result };
+    if (isBlockedResult(result)) {
+      throw createExpectedError(result.message, result.code);
     }
+
+    if (isResolvedResult(result)) {
+      return { resolved: true, data: result.data };
+    }
+
+    mergedArgs = mergeBeforeResolverArgs(mergedArgs, result);
   }
 
-  return mergedArgs;
+  return { resolved: false, args: mergedArgs };
+};
+
+export const checkBeforeResolvers = async (
+  resolverName: string,
+  args: Record<string, unknown>,
+  context: {
+    subdomain: string;
+    user?: unknown;
+    headers?: Record<string, string | string[] | undefined>;
+  },
+): Promise<BeforeResolverCheckResult> => {
+  const pluginNames = await getPlugins();
+
+  let mergedArgs = args;
+  const blocked: BeforeResolverCheckBlockedResult[] = [];
+
+  for (const pluginName of pluginNames) {
+    const plugin = await getPlugin(pluginName);
+    const config: BeforeResolversConfig | undefined =
+      plugin?.config?.meta?.beforeResolvers;
+
+    if (!pluginHandlesResolver(config, resolverName)) {
+      continue;
+    }
+
+    const blockResult: unknown = await sendCoreModuleProducer({
+      subdomain: context.subdomain,
+      pluginName,
+      moduleName: 'beforeResolvers',
+      producerName: TBeforeResolversProducers.BLOCKER,
+      method: 'query',
+      input: {
+        resolver: resolverName,
+        args: mergedArgs,
+        user: context.user,
+        headers: context.headers,
+      },
+    });
+
+    if (isBlockedResult(blockResult)) {
+      blocked.push({ ...blockResult, pluginName });
+      continue;
+    }
+
+    const result: unknown = await sendCoreModuleProducer({
+      subdomain: context.subdomain,
+      pluginName,
+      moduleName: 'beforeResolvers',
+      producerName: TBeforeResolversProducers.CHECK,
+      method: 'query',
+      input: {
+        resolver: resolverName,
+        args: mergedArgs,
+        user: context.user,
+        headers: context.headers,
+      },
+    });
+
+    if (isBlockedResult(result)) {
+      blocked.push({ ...result, pluginName });
+      continue;
+    }
+
+    mergedArgs = mergeBeforeResolverArgs(mergedArgs, result);
+  }
+
+  return {
+    available: blocked.length === 0,
+    args: mergedArgs,
+    blocked,
+  };
 };

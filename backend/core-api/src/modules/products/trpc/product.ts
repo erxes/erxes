@@ -2,13 +2,25 @@ import { initTRPC } from '@trpc/server';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { similaritiesTrpcRouter } from '@/products/trpc/similarity';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 const inventoryKey = (id?: string) => id || '_';
 
+const discountValueSchema = z.object({
+  planId: z.string(),
+  discount: z.number(),
+  discountPercent: z.number(),
+  prefixes: z.array(z.string()),
+  conditions: z.record(z.any()),
+});
+
+const discountsSchema = z.array(discountValueSchema);
+
 export const productsTrpcRouter = t.router({
   products: t.router({
+    similarities: similaritiesTrpcRouter,
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const {
         query: rawQuery,
@@ -100,7 +112,7 @@ export const productsTrpcRouter = t.router({
         const { query, doc } = input;
         const { models } = ctx;
 
-        return models.Products.updateMany(query, doc);
+        return models.Products.updateProducts(query, doc);
       }),
 
     removeProducts: t.procedure
@@ -146,7 +158,6 @@ export const productsTrpcRouter = t.router({
         return models.ProductRules.find({ _id: { $in: _ids } }).lean();
       }),
     }),
-
 
     setInventories: t.procedure
       .input(
@@ -255,6 +266,44 @@ export const productsTrpcRouter = t.router({
                 },
               },
               upsert: true,
+            },
+          })),
+        );
+      }),
+
+    replaceDiscounts: t.procedure
+      .input(
+        z.object({
+          productsInfo: z.array(
+            z.object({
+              productId: z.string(),
+              discounts: discountsSchema,
+            }),
+          ),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { productsInfo } = input;
+
+        await models.Products.updateMany(
+          { discounts: { $exists: true } },
+          { $unset: { discounts: 1 } },
+        );
+
+        if (!productsInfo.length) {
+          return;
+        }
+
+        await models.Products.bulkWrite(
+          productsInfo.map((info) => ({
+            updateOne: {
+              filter: { _id: info.productId },
+              update: {
+                $set: {
+                  discounts: info.discounts,
+                },
+              },
             },
           })),
         );

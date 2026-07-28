@@ -22,35 +22,57 @@ export const FbBotFormProvider = ({
   children: ReactNode;
   facebookMessengerBot?: IFacebookBot;
 }) => {
-  const defaultValues = useMemo<DefaultValues<TFacebookBotForm>>(
-    () => ({
+  const defaultValues = useMemo<DefaultValues<TFacebookBotForm>>(() => {
+    const persistentMenus = facebookMessengerBot?.persistentMenus?.length
+      ? facebookMessengerBot.persistentMenus.map(
+          ({ _id, text, type, link }) => ({
+            _id: _id || generateAutomationElementId(),
+            text: type === 'back_button' ? text || 'Back' : text || '',
+            type: type || 'button',
+            link: link || '',
+          }),
+        )
+      : [
+          {
+            _id: generateAutomationElementId(),
+            text: 'Persistent Menu 1',
+            type: 'button' as const,
+            link: '',
+          },
+        ];
+
+    if (
+      facebookMessengerBot?.isEnabledBackBtn &&
+      !persistentMenus.some((menu) => menu.type === 'back_button')
+    ) {
+      persistentMenus.push({
+        _id: generateAutomationElementId(),
+        text: 'Back',
+        type: 'back_button',
+        link: '',
+      });
+    }
+
+    return {
       name: facebookMessengerBot?.name || '',
-      persistentMenus: facebookMessengerBot?.persistentMenus?.length
-        ? facebookMessengerBot.persistentMenus.map(
-            ({ _id, text, type, link }) => ({
-              _id: _id || generateAutomationElementId(),
-              text: text || '',
-              type: (type || 'button') as 'button' | 'link',
-              link: link || '',
-            }),
-          )
-        : [
-            {
-              _id: generateAutomationElementId(),
-              text: 'Persistent Menu 1',
-              type: 'button',
-              link: '',
-            },
-          ],
+      persistentMenus,
       tag: facebookMessengerBot?.tag || 'CONFIRMED_EVENT_UPDATE',
       greetText: facebookMessengerBot?.greetText || '',
-      isEnabledBackBtn: facebookMessengerBot?.isEnabledBackBtn || false,
-      backButtonText: facebookMessengerBot?.backButtonText || '',
+      handoffMessage:
+        facebookMessengerBot?.handoffMessage ||
+        'A teammate will take over shortly. Automated replies are paused.',
+      automationActiveMessage:
+        facebookMessengerBot?.automationActiveMessage ||
+        'Automated replies are active again.',
+      handoffPauseMinutes: facebookMessengerBot?.handoffPauseMinutes || 10,
+      isEnabledBackBtn: persistentMenus.some(
+        (menu) => menu.type === 'back_button',
+      ),
+      backButtonText: '',
       accountId: facebookMessengerBot?.accountId || '',
       pageId: facebookMessengerBot?.pageId || '',
-    }),
-    [facebookMessengerBot],
-  );
+    };
+  }, [facebookMessengerBot]);
 
   const form = useForm<TFacebookBotForm>({
     resolver: zodResolver(facebookBotFormSchema),

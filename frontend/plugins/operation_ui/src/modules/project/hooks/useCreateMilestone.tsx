@@ -3,8 +3,10 @@ import { CREATE_MILESTONE_MUTATION } from '@/project/graphql/mutation/createMile
 import { GET_PROJECT_PROGRESS_BY_MILESTONE } from '@/project/graphql/queries/getProjectProgressByMilestone';
 import { useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useCreateMilestone = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const { setCursor } = useRecordTableCursor({
     sessionKey: PROJECTS_CURSOR_SESSION_KEY,
@@ -15,15 +17,15 @@ export const useCreateMilestone = () => {
     {
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Milestone created successfully',
+          title: t('success'),
+          description: t('milestone-created-successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });

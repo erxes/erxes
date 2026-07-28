@@ -1,7 +1,10 @@
+import { useTranslation } from 'react-i18next';
+
 const Settings = () => {
+  const { t } = useTranslation('tourism');
   return (
     <div>
-      <h1 className="justify-center text-center">Tms Settings</h1>
+      <h1 className="justify-center text-center">{t('tms-settings')}</h1>
     </div>
   );
 };

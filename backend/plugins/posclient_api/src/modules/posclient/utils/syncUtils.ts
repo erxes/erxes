@@ -6,6 +6,20 @@ import {
   PRODUCT_STATUSES,
 } from '~/modules/posclient/db/definitions/constants';
 
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const isString = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0;
+
+const stringArray = (value: unknown) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(isString);
+};
+
 //uncomplete
 // import bsn
 export const getServerAddress = async (
@@ -14,8 +28,7 @@ export const getServerAddress = async (
 ) => {
   const { SERVER_DOMAIN } = process.env;
   if (SERVER_DOMAIN) {
-    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${serviceName || 'sales'
-      }`;
+    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${serviceName || 'sales'}`;
   }
   //uncomplete
   const posService = { address: '' }; //await getService(serviceName || 'pos');
@@ -69,13 +82,13 @@ export const preImportProducts = async (
   let importProductIds: string[] = [];
   const importProductCatIds: string[] = [];
   const oldAllProducts = await models.Products.find(
-    { tokens: { $in: [token] } },
+    { tokens: { $in: [token] }, external: { $ne: true } },
     { _id: 1, tokens: 1 },
   ).lean();
 
   const oldProductIds = (oldAllProducts || []).map((p) => p._id);
   const oldAllProductCats = await models.ProductCategories.find(
-    { tokens: { $in: [token] } },
+    { tokens: { $in: [token] }, external: { $ne: true } },
     { _id: 1, tokens: 1 },
   ).lean();
 
@@ -110,7 +123,10 @@ export const preImportProducts = async (
   );
 
   const deleteProductIds = await models.Products.find(
-    { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
+    {
+      _id: { $in: removeProductIds },
+      $or: [{ tokens: { $exists: false } }, { tokens: [] }],
+    },
     { _id: 1 },
   ).lean();
   await models.Products.removeProducts(
@@ -118,7 +134,10 @@ export const preImportProducts = async (
   );
 
   const deleteCategoryIds = await models.ProductCategories.find(
-    { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
+    {
+      _id: { $in: removeCategoryIds },
+      $or: [{ tokens: { $exists: false } }, { tokens: [] }],
+    },
     { _id: 1 },
   ).lean();
 
@@ -161,7 +180,7 @@ export const importProducts = async (
         await models.ProductCategories.updateOne(
           { _id: categoryDoc._id },
           {
-            $set: { ...categoryDoc },
+            $set: { ...categoryDoc, external: false },
             $addToSet: { tokens: token },
           },
           { upsert: true },
@@ -177,21 +196,24 @@ export const importProducts = async (
       }[] = [];
 
       for (const product of products) {
-        const { _id, ...productDoc } = product;
+        const { _id, createdAt, ...productDoc } = product;
         bulkOps.push({
           updateOne: {
             filter: { _id },
             update: {
               $set: {
                 ...productDoc,
+                ...(createdAt ? { createdAt: new Date(createdAt) } : {}),
                 [`prices.${token}`]: product.unitPrice,
                 [`taxRules.${token}`]: product.taxRule || null,
                 uom: product.uom || 'ш',
+                discounts: product.discounts || [],
                 attachment: attachmentUrlChanger(product.attachment),
                 attachmentMore: (product.attachmentMore || []).map((a) =>
                   attachmentUrlChanger(a),
                 ),
                 [`isCheckRems.${token}`]: product.isCheckRem,
+                external: false,
                 sameDefault: product.sameDefault || null,
                 sameMasks: product.sameMasks || null,
               },
@@ -271,6 +293,7 @@ export const extractConfig = async (subdomain, doc) => {
     orderPassword: doc.orderPassword,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
+    erkhetConfig: doc.erkhetConfig,
     kitchenScreen: doc.kitchenScreen,
     waitingScreen: doc.waitingScreen,
     catProdMappings: doc.catProdMappings,
@@ -281,7 +304,6 @@ export const extractConfig = async (subdomain, doc) => {
     deliveryConfig: doc.deliveryConfig,
     cardsConfig: doc.cardsConfig,
     posId: doc._id,
-    erxesAppToken: doc.erxesAppToken,
     isOnline: doc.isOnline,
     onServer: doc.onServer,
     branchId: doc.branchId,
@@ -310,7 +332,7 @@ export const validateConfig = (config: IConfig) => {
 
 // receive product data through message broker
 export const receiveProduct = async (models: IModels, data) => {
-  const { token, action = '', object = {}, updatedDocument } = data;
+  const { token, action = '', object = {}, updatedDocument, external } = data;
 
   await models.Configs.getConfig({ token });
 
@@ -344,25 +366,142 @@ export const receiveProduct = async (models: IModels, data) => {
         [`prices.${token}`]: info.unitPrice,
         [`isCheckRems.${token}`]: info.isCheckRem,
         [`taxRules.${token}`]: info.taxRule || null,
+        discounts: info.discounts || [],
         tokens,
+        external: !!external,
         sameDefault: info.sameDefault || null,
         sameMasks: info.sameMasks || null,
       },
       { upsert: true },
     );
   }
+};
 
-  if (action === 'delete') {
-    if (!product || product.status === PRODUCT_STATUSES.DELETED) {
-      return;
-    }
-    // check usage
-    return models.Products.removeProducts([object._id]);
+export const receiveProductsRemove = async (models: IModels, data) => {
+  const { token, productIds } = data;
+
+  await models.Configs.getConfig({ token });
+
+  const productIdsToRemoveFromToken = stringArray(productIds);
+
+  if (!productIdsToRemoveFromToken.length) {
+    return;
+  }
+
+  await models.Products.updateMany(
+    { _id: { $in: productIdsToRemoveFromToken }, tokens: { $in: [token] } },
+    { $pull: { tokens: token } },
+  );
+
+  const productsWithoutTokens = await models.Products.find(
+    {
+      _id: { $in: productIdsToRemoveFromToken },
+      $or: [{ tokens: { $exists: false } }, { tokens: { $size: 0 } }],
+    },
+    { _id: 1 },
+  ).lean();
+
+  const productIdsToRemove = productsWithoutTokens.map(({ _id }) => _id);
+
+  if (productIdsToRemove.length) {
+    return models.Products.removeProducts(productIdsToRemove);
+  }
+};
+
+const getProductCategoryChildIds = async (
+  models: IModels,
+  categoryId: string,
+) => {
+  const category = await models.ProductCategories.findOne({
+    _id: categoryId,
+  }).lean();
+
+  if (!category?.order) {
+    return [categoryId];
+  }
+
+  const categories = await models.ProductCategories.find(
+    {
+      order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
+    },
+    { _id: 1 },
+  ).lean();
+
+  return categories.map(({ _id }) => _id);
+};
+
+const removeProductCategoryToken = async (
+  models: IModels,
+  token: string,
+  categoryId: string,
+) => {
+  const categoryIds = await getProductCategoryChildIds(models, categoryId);
+
+  await models.ProductCategories.updateMany(
+    { _id: { $in: categoryIds }, tokens: { $in: [token] } },
+    { $pull: { tokens: token } },
+  );
+
+  await models.Products.updateMany(
+    { categoryId: { $in: categoryIds }, tokens: { $in: [token] } },
+    { $pull: { tokens: token } },
+  );
+
+  const productsWithoutTokens = await models.Products.find(
+    {
+      categoryId: { $in: categoryIds },
+      $or: [{ tokens: { $exists: false } }, { tokens: { $size: 0 } }],
+    },
+    { _id: 1 },
+  ).lean();
+
+  const productIdsToRemove = productsWithoutTokens.map(({ _id }) => _id);
+
+  if (productIdsToRemove.length) {
+    await models.Products.removeProducts(productIdsToRemove);
+  }
+
+  await models.ProductCategories.deleteMany({
+    _id: { $in: categoryIds },
+    $or: [{ tokens: { $exists: false } }, { tokens: { $size: 0 } }],
+  });
+};
+
+const updateChildCategoryOrders = async (
+  models: IModels,
+  categoryId: string,
+  prevOrder?: string,
+  currentOrder?: string,
+) => {
+  if (!prevOrder || !currentOrder || prevOrder === currentOrder) {
+    return;
+  }
+
+  const childCategories = await models.ProductCategories.find({
+    _id: { $ne: categoryId },
+    order: { $regex: new RegExp(`^${escapeRegExp(prevOrder)}`) },
+  }).lean();
+
+  for (const childCategory of childCategories) {
+    await models.ProductCategories.updateOne(
+      { _id: childCategory._id },
+      {
+        $set: {
+          order: childCategory.order.replace(prevOrder, currentOrder),
+        },
+      },
+    );
   }
 };
 
 export const receiveProductCategory = async (models: IModels, data) => {
-  const { token, action = '', object = {}, updatedDocument = {} } = data;
+  const {
+    token,
+    action = '',
+    object = {},
+    updatedDocument = {},
+    external,
+  } = data;
 
   await models.Configs.getConfig({ token });
 
@@ -378,19 +517,26 @@ export const receiveProductCategory = async (models: IModels, data) => {
       tokens.push(token);
     }
     const info = action === 'update' ? updatedDocument : object;
+    await updateChildCategoryOrders(
+      models,
+      object._id,
+      category?.order,
+      info.order,
+    );
+
     return await models.ProductCategories.updateOne(
       { _id: object._id },
-      { ...info, tokens },
+      { ...info, tokens, external: !!external },
       { upsert: true },
     );
   }
 
   if (action === 'delete') {
-    if (category?.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
+    if (!category || category.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
       return;
     }
 
-    await models.ProductCategories.removeProductCategory(category._id);
+    await removeProductCategoryToken(models, token, category._id);
   }
 };
 
@@ -473,38 +619,19 @@ export const receivePosConfig = async (
   return models.Configs.findOne({ _id: config._id }).lean();
 };
 
-export const preRemovePos = async (models: IModels, id: string, token: string) => {
+export const preRemovePos = async (
+  models: IModels,
+  id: string,
+  token: string,
+) => {
   const config = await models.Configs.findOne({
-    _id: id, token,
+    _id: id,
+    token,
   }).lean();
 
   if (!config) {
-    return
+    return;
   }
 
-  const { adminIds, cashierIds } = config;
-
-  await models.PosUsers.updateMany(
-    { _id: { $in: [...adminIds, ...cashierIds] }, tokens: { $in: [token] } },
-    { $pull: { tokens: { $in: [token] } } },
-  );
-  await models.PosUsers.deleteMany({ tokens: { $size: 0 } });
-  await models.Covers.deleteMany({ posToken: token });
-  await models.PosSlots.deleteMany({ posToken: token });
-  await models.ProductCategories.updateMany(
-    { tokens: { $in: [token] } },
-    { $pull: { tokens: { $in: [token] } } },
-  );
-  await models.ProductCategories.deleteMany({ tokens: { $size: 0 } });
-  await models.Products.updateMany(
-    { tokens: { $in: [token] } },
-    { $pull: { tokens: { $in: [token] } } },
-  );
-  await models.Products.deleteMany({ tokens: { $size: 0 } });
-  await models.PutResponses.deleteMany({ posId: id });
-
-  const orderItems = await models.Orders.find({ posToken: token }, { _id: 1 });
-  await models.OrderItems.deleteMany({ orderId: { $in: orderItems.map(o => o._id) } });
-  await models.Orders.deleteMany({ posToken: token });
-
-}
+  await models.Configs.removeConfig(id);
+};

@@ -5,9 +5,30 @@ export type TAiBridgeHealthStatus = 'ok' | 'warning' | 'error' | 'skipped';
 export type TAiBridgeConnection = TAiAgentInput['connection'];
 export type TAiBridgeRuntime = TAiAgentInput['runtime'];
 
+// JSON-schema-ish function definition sent to the provider
+export type TAiBridgeToolDefinition = {
+  name: string;
+  description?: string;
+  parameters: {
+    type: 'object';
+    properties: Record<string, { type: string; description?: string }>;
+    required?: string[];
+  };
+};
+
+export type TAiBridgeToolCall = {
+  id: string;
+  name: string;
+  arguments: Record<string, unknown>;
+};
+
 export type TAiBridgeMessage = {
-  role: 'system' | 'user' | 'assistant';
+  role: 'system' | 'user' | 'assistant' | 'tool';
   content: string;
+  // Set on assistant turns that requested tool calls
+  toolCalls?: TAiBridgeToolCall[];
+  // Set on tool result turns
+  toolCallId?: string;
 };
 
 export type TAiBridgeHealthInput = {
@@ -30,11 +51,14 @@ export type TAiBridgeInvokeInput = {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
+  responseFormat?: 'json' | 'text';
+  tools?: TAiBridgeToolDefinition[];
 };
 
 export type TAiBridgeInvokeResult = {
   text: string;
   raw?: any;
+  toolCalls?: TAiBridgeToolCall[];
   usage?: {
     inputTokens?: number;
     outputTokens?: number;

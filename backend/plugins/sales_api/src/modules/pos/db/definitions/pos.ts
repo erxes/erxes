@@ -55,7 +55,6 @@ export const posSchema = schemaWrapper(
     kitchenScreen: { type: Object, label: 'Kitchen screen config' },
     uiOptions: { type: Object, label: 'UI Options' },
     token: { type: String, label: 'Pos token' },
-    erxesAppToken: { type: String, label: 'Erxes App token' },
     syncInfos: { type: Object, label: 'sync info' },
     catProdMappings: {
       type: [Object],

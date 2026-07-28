@@ -1,5 +1,6 @@
 import { Control } from 'react-hook-form';
 import { Form, Input, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { times } from '@/pms/constants/time.constants';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
@@ -8,6 +9,7 @@ const CheckInCheckOutTime = ({
 }: {
   control: Control<PmsBranchFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <div className="grid grid-cols-2 gap-2">
       <Form.Field
@@ -16,12 +18,12 @@ const CheckInCheckOutTime = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Check in time <span className="text-destructive">*</span>
+              {t('check-in-time')} <span className="text-destructive">*</span>
             </Form.Label>
             <Form.Control>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Choose check in time" />
+                  <Select.Value placeholder={t('choose-check-in-time')} />
                 </Select.Trigger>
                 <Select.Content className="max-h-52">
                   {times.map((time, index) => (
@@ -43,12 +45,12 @@ const CheckInCheckOutTime = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Check in amount <span className="text-destructive">*</span>
+              {t('check-in-amount')} <span className="text-destructive">*</span>
             </Form.Label>
             <Form.Control>
               <Input
                 {...field}
-                placeholder="Check in amount"
+                placeholder={t('check-in-amount')}
                 type="number"
                 min={0}
                 value={field.value ?? ''}
@@ -69,12 +71,12 @@ const CheckInCheckOutTime = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Check out time <span className="text-destructive">*</span>
+              {t('check-out-time')} <span className="text-destructive">*</span>
             </Form.Label>
             <Form.Control>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Choose check in time" />
+                  <Select.Value placeholder={t('choose-check-in-time')} />
                 </Select.Trigger>
                 <Select.Content className="max-h-52">
                   {times.map((time, index) => (
@@ -96,12 +98,12 @@ const CheckInCheckOutTime = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Check out amount <span className="text-destructive">*</span>
+              {t('check-out-amount')} <span className="text-destructive">*</span>
             </Form.Label>
             <Form.Control>
               <Input
                 {...field}
-                placeholder="Check out amount"
+                placeholder={t('check-out-amount')}
                 type="number"
                 min={0}
                 value={field.value ?? ''}

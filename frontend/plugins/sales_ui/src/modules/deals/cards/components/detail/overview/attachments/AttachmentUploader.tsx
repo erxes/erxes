@@ -5,15 +5,32 @@ import { IconPaperclip } from '@tabler/icons-react';
 import { removeTypename } from '@/deals/utils/common';
 import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
+import { useTranslation } from 'react-i18next';
+import { IAttachment } from '@/deals/types/attachments';
 
-const AttachmentUploader = () => {
+const isAttachment = (fileInfo: unknown): fileInfo is IAttachment => {
+  if (!fileInfo || typeof fileInfo !== 'object') return false;
+
+  return (
+    'url' in fileInfo &&
+    typeof fileInfo.url === 'string' &&
+    'name' in fileInfo &&
+    typeof fileInfo.name === 'string' &&
+    'size' in fileInfo &&
+    typeof fileInfo.size === 'number' &&
+    'type' in fileInfo &&
+    typeof fileInfo.type === 'string'
+  );
+};
+
+export const AttachmentUploader = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({
     uploaded: 0,
     total: 0,
   });
 
-  const { addAttachment, attachments } = useAttachmentContext();
+  const { addAttachment, attachments, dealId } = useAttachmentContext();
   const { editDeals } = useDealsContext();
 
   const handleUploadStart = (fileCount: number) => {
@@ -32,8 +49,11 @@ const AttachmentUploader = () => {
     setIsLoading(false);
   };
 
+  const { t } = useTranslation('sales');
+
   useEffect(() => {
     if (
+      dealId &&
       uploadProgress.total > 0 &&
       uploadProgress.uploaded === uploadProgress.total
     ) {
@@ -41,23 +61,23 @@ const AttachmentUploader = () => {
 
       editDeals({
         variables: {
+          _id: dealId,
           attachments: cleanAttachments,
         },
       });
       setIsLoading(false);
+      setUploadProgress({ uploaded: 0, total: 0 });
     }
-  }, [attachments, uploadProgress, editDeals]);
+  }, [attachments, uploadProgress, editDeals, dealId]);
 
   return (
     <Upload.Root
       value={''}
       multiple={true}
-      className={cn('items-center', {
-        'opacity-50': isLoading,
-      })}
+      className="items-center"
       onChange={(fileInfo) => {
-        if ('url' in fileInfo) {
-          addAttachment(fileInfo as any);
+        if (isAttachment(fileInfo)) {
+          addAttachment(fileInfo);
         }
       }}
     >
@@ -69,26 +89,27 @@ const AttachmentUploader = () => {
       />
       <Upload.Button
         size="sm"
-        variant="ghost"
+        variant="secondary"
         type="button"
-        className={cn('flex items-center gap-1 cursor-pointer text-sm', {
-          'opacity-50': isLoading,
-        })}
+        disabled={isLoading}
+        className={cn(
+          'h-7 gap-1.5 rounded-md px-2.5 text-sm font-medium text-muted-foreground',
+          'hover:text-foreground',
+          isLoading && 'opacity-70',
+        )}
       >
         {isLoading ? (
           <>
-            <Spinner />
+            <Spinner size="sm" />
             <span>
               {uploadProgress.uploaded}/{uploadProgress.total}
             </span>
           </>
         ) : (
-          <IconPaperclip size={16} />
+          <IconPaperclip size={14} />
         )}
-        Add attachments
+        {t('add-attachments')}
       </Upload.Button>
     </Upload.Root>
   );
 };
-
-export default AttachmentUploader;

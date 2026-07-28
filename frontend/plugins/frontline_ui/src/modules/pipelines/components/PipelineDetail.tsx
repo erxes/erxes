@@ -7,12 +7,15 @@ import { UPDATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
 import { Form, Button, Skeleton, Spinner } from 'erxes-ui';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TUpdatePipelineForm } from '@/pipelines/types';
 import { PipelineConfigs } from './configs/components/PipelineConfigs';
 import { TicketStatusesButton } from '@/status/components/TicketStatusesButton';
 import { PipelinePermissions } from '@/pipelines/components/permissions/components/PipelinePermissions';
+import PipelineConfig from './PipelineConfig';
 
 export const PipelineDetail = () => {
+  const { t } = useTranslation('frontline');
   const { pipelineId } = useParams<{
     pipelineId: string;
   }>();
@@ -30,6 +33,9 @@ export const PipelineDetail = () => {
       name: pipeline?.name || '',
       description: pipeline?.description || '',
       _id: pipelineId || '',
+      numberConfig: pipeline?.numberConfig || '',
+      numberSize: pipeline?.numberSize || '',
+      nameConfig: pipeline?.nameConfig || '',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pipeline]);
@@ -54,8 +60,9 @@ export const PipelineDetail = () => {
               <Form {...form}>
                 <div className="flex flex-col gap-2 ">
                   <CreatePipelineForm form={form} />
+                  <PipelineConfig form={form} />
                   <span className="flex justify-end">
-                    <Button type="submit">Update</Button>
+                    <Button type="submit">{t('update')}</Button>
                   </span>
                 </div>
               </Form>

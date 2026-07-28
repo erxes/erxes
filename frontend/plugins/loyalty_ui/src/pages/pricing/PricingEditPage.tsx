@@ -4,10 +4,12 @@ import { usePricing } from '@/pricing/hooks/usePricing';
 import { IPricing } from '@/pricing/types';
 import { IconCoins } from '@tabler/icons-react';
 import { Breadcrumb, Button, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 
 export const PricingEditPage = () => {
+  const { t } = useTranslation('loyalty');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { pricing, loading } = usePricing();
@@ -32,7 +34,7 @@ export const PricingEditPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/settings/loyalty/pricing">
                     <IconCoins />
-                    Pricing
+                    {t('pricing')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -43,8 +45,8 @@ export const PricingEditPage = () => {
                     <Select.Value
                       placeholder={
                         loading
-                          ? 'Loading...'
-                          : currentPricing?.name || 'Select Pricing'
+                          ? t('loading')
+                          : currentPricing?.name || t('select-pricing')
                       }
                     />
                   </Select.Trigger>

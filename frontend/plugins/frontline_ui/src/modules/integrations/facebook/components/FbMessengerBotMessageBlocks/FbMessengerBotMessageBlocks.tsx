@@ -11,18 +11,34 @@ export const FbMessengerBotMessageBlocks = ({
   className,
   internal,
   userId,
+  isFocused,
 }: {
   botData?: TBotData[];
   className?: string;
   internal?: boolean;
   userId?: string;
+  isFocused?: boolean;
 }) => {
   if (!botData?.length) {
     return null;
   }
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div
+      className={cn(
+        'space-y-3 transition-[background-color,border-color,box-shadow]',
+        isFocused && 'rounded-2xl ',
+        className,
+      )}
+      style={
+        isFocused
+          ? {
+              boxShadow:
+                '0 0 0 1px color-mix(in oklab, var(--color-primary) 10%, transparent), 0 0 18px color-mix(in oklab, var(--color-primary) 20%, transparent)',
+            }
+          : undefined
+      }
+    >
       {botData.map((item, index) => {
         if (item.type === 'text') {
           return (

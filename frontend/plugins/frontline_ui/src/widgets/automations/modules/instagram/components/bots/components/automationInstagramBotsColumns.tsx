@@ -11,6 +11,7 @@ import {
   toast,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   REMOVE_INSTAGRAM_BOT,
   REPAIR_INSTAGRAM_BOT,
@@ -62,16 +63,17 @@ export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
     id: 'action-group',
     header: () => <RecordTable.InlineHead label="Actions" />,
     cell: ({ cell }) => {
+      const { t } = useTranslation('frontline');
       const { _id } = cell.row.original || {};
       const [_, setInstagramBotId] = useQueryState('instagramBotId');
       const [repairBot, { loading: loadingRepair }] = useMutation(
         REPAIR_INSTAGRAM_BOT,
         {
           variables: { _id },
-          onCompleted: () => toast({ title: 'Repaired successfully' }),
+          onCompleted: () => toast({ title: t('repaired-successfully') }),
           onError: (error) =>
             toast({
-              title: 'Something went wrong',
+              title: t('something-went-wrong'),
               description: error.message,
               variant: 'destructive',
             }),
@@ -82,10 +84,10 @@ export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
         REMOVE_INSTAGRAM_BOT,
         {
           variables: { _id },
-          onCompleted: () => toast({ title: 'Removed successfully' }),
+          onCompleted: () => toast({ title: t('removed-successfully') }),
           onError: (error) =>
             toast({
-              title: 'Something went wrong',
+              title: t('something-went-wrong'),
               description: error.message,
               variant: 'destructive',
             }),

@@ -26,6 +26,22 @@ import {
   SelectBranchCreateContainer,
 } from './CreateBranchForm';
 
+const cacheSelectedBranch = (
+  branch: IBranch | undefined,
+  selectedBranchIds: string[],
+  setSelectedBranches: React.Dispatch<React.SetStateAction<IBranch[]>>,
+) => {
+  if (!branch || !selectedBranchIds.includes(branch._id)) return;
+
+  setSelectedBranches((previousBranches) => {
+    if (previousBranches.some(({ _id }) => _id === branch._id)) {
+      return previousBranches;
+    }
+
+    return [...previousBranches, branch];
+  });
+};
+
 export const SelectBranchesProvider = ({
   children,
   value,
@@ -46,14 +62,14 @@ export const SelectBranchesProvider = ({
     const newSelectedBranchIds = isSingleMode
       ? [branch._id]
       : isSelected
-        ? multipleValue.filter((p) => p !== branch._id)
-        : [...multipleValue, branch._id];
+      ? multipleValue.filter((p) => p !== branch._id)
+      : [...multipleValue, branch._id];
 
     const newSelectedBranches = isSingleMode
       ? [branch]
       : isSelected
-        ? selectedBranches.filter((p) => p._id !== branch._id)
-        : [...selectedBranches, branch];
+      ? selectedBranches.filter((p) => p._id !== branch._id)
+      : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
     onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
@@ -84,7 +100,7 @@ export const SelectBranchesCommand = ({
 }) => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedBranches, branchIds } = useSelectBranchesContext();
+  const { branchIds } = useSelectBranchesContext();
   const [noBranchesSearchValue, setNoBranchesSearchValue] =
     useState<string>('');
 
@@ -115,7 +131,7 @@ export const SelectBranchesCommand = ({
         focusOnMount
       />
       <Command.List>
-        {selectedBranches?.length > 0 && (
+        {(branchIds?.length ?? 0) > 0 && (
           <>
             <div className="flex flex-wrap justify-start p-2 gap-2">
               <BranchesList />
@@ -201,6 +217,7 @@ export const SelectBranchesItem = ({
 export const BranchesList = ({
   placeholder,
   renderAsPlainText,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof BranchBadge>, 'onClose'> & {
   placeholder?: string;
@@ -223,16 +240,17 @@ export const BranchesList = ({
           branchId={branchId}
           branch={selectedBranches.find((b) => b._id === branchId)}
           renderAsPlainText={renderAsPlainText}
+          showMissingId
           variant={'secondary'}
-          onCompleted={(branch) => {
-            if (!branch) return;
-            if (selectedBranchIds.includes(branch._id)) {
-              setSelectedBranches([...selectedBranches, branch]);
-            }
-          }}
+          className={cn('min-w-0', className)}
+          onCompleted={(branch) =>
+            cacheSelectedBranch(branch, selectedBranchIds, setSelectedBranches)
+          }
           onClose={() =>
             onSelect?.(
-              selectedBranches.find((p) => p._id === branchId) as IBranch,
+              (selectedBranches.find((p) => p._id === branchId) ?? {
+                _id: branchId,
+              }) as IBranch,
             )
           }
           {...props}
@@ -243,12 +261,12 @@ export const BranchesList = ({
 };
 
 export const SelectBranchesValue = () => {
-  const { selectedBranches, mode } = useSelectBranchesContext();
+  const { branchIds, mode } = useSelectBranchesContext();
 
-  if (selectedBranches?.length > 1 && mode === 'multiple')
+  if (mode === 'multiple' && (branchIds?.length ?? 0) > 1)
     return (
       <span className="text-muted-foreground">
-        {selectedBranches.length} branches selected
+        {branchIds?.length} branches selected
       </span>
     );
 
@@ -312,14 +330,16 @@ const SelectBranchesBadgesView = () => {
         <BranchBadge
           key={bId}
           branchId={bId}
-          onCompleted={(branch) => {
-            if (!branch) return;
-            if (branchIds.includes(branch._id)) {
-              setSelectedBranches([...selectedBranches, branch]);
-            }
-          }}
+          showMissingId
+          onCompleted={(branch) =>
+            cacheSelectedBranch(branch, branchIds || [], setSelectedBranches)
+          }
           onClose={() =>
-            onSelect?.(selectedBranches.find((p) => p._id === bId) as IBranch)
+            onSelect?.(
+              (selectedBranches.find((p) => p._id === bId) ?? {
+                _id: bId,
+              }) as IBranch,
+            )
           }
         />
       ))}

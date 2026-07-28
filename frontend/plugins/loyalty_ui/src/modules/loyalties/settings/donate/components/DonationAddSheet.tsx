@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { DonationTabs } from '../add-donation-campaign/components/DonationTabs';
 import {
   donationFormSchema,
@@ -19,6 +20,7 @@ import {
 import { DonationHotKeyScope } from '../types/DonationHotKeyScope';
 
 export const LoyaltyDonationAddSheet = () => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -66,7 +68,7 @@ export const LoyaltyDonationAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add donation campaign
+          {t('add-donation-campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -77,7 +79,7 @@ export const LoyaltyDonationAddSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Add donation campaign</Sheet.Title>
+          <Sheet.Title>{t('add-donation-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

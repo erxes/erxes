@@ -22,6 +22,22 @@ export interface SubUomItem {
   ratio: number | string;
 }
 
+export interface ProductSimilarityProduct {
+  _id: string;
+  code: string;
+  name?: string;
+  unitPrice?: number;
+  status?: string;
+  propertiesData?: Record<string, string[]>;
+}
+
+export interface ProductSimilarity {
+  _id: string;
+  propertiesData?: Record<string, string[]>;
+  starProductId?: string;
+  products?: ProductSimilarityProduct[];
+}
+
 export interface ProductDetail {
   _id?: string;
   name?: string;
@@ -33,6 +49,7 @@ export interface ProductDetail {
   status?: string;
   attachment?: ProductAttachment;
   attachmentMore?: ProductAttachment[] | ProductAttachment;
+  videos?: ProductAttachment[] | ProductAttachment;
   barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;
@@ -41,9 +58,20 @@ export interface ProductDetail {
   vendorId?: string;
   scopeBrandIds?: string[];
   currency?: string;
+  duration?: number;
+  durationType?:
+    | 'minute'
+    | 'hour'
+    | 'day'
+    | 'week'
+    | 'month'
+    | 'quarter'
+    | 'year';
   variants?: Record<string, unknown>;
   customFieldsData?: Record<string, unknown>;
   propertiesData?: Record<string, unknown>;
+  similarityId?: string;
+  similarity?: ProductSimilarity | null;
 }
 
 export type { ProductFormValues };

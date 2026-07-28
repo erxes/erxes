@@ -1,20 +1,20 @@
 import { Button, useConfirm } from 'erxes-ui';
 
 import { IconTrash } from '@tabler/icons-react';
-import { useRemoveProducts } from '../hooks/useRemoveProduct';
+import { useRemoveProducts } from '../hooks/mutations/useRemoveProduct';
+import { useTranslation } from 'react-i18next';
 
 export const ProductsDelete = ({
   productIds,
   refetch,
-  dealId,
 }: {
   productIds: string[];
   refetch: () => void;
-  dealId: string;
 }) => {
   const { confirm } = useConfirm();
   const { removeProducts } = useRemoveProducts();
   const processId = localStorage.getItem('processId') || '';
+  const { t } = useTranslation('sales');
 
   return (
     <Button
@@ -22,14 +22,11 @@ export const ProductsDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${
-            productIds.length
-          } selected product${productIds.length === 1 ? '' : 's'}?`,
+          message: t('delete-products-confirm', { count: productIds.length }),
         }).then(() => {
           removeProducts({
             variables: {
               dataIds: productIds,
-              dealId,
               processId,
             },
             onCompleted: () => {
@@ -40,7 +37,7 @@ export const ProductsDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

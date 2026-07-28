@@ -51,6 +51,26 @@ export const permissions: IPermissionConfig = {
           description: 'Merge contacts',
           oauthScope: 'contacts:merge',
         },
+        {
+          title: 'Import customers',
+          name: 'customersImportManage',
+          description: 'Import customers',
+        },
+        {
+          title: 'Export customers',
+          name: 'customersExportManage',
+          description: 'Export customers',
+        },
+        {
+          title: 'Import companies',
+          name: 'companiesImportManage',
+          description: 'Import companies',
+        },
+        {
+          title: 'Export companies',
+          name: 'companiesExportManage',
+          description: 'Export companies',
+        },
       ],
     },
     {
@@ -116,6 +136,16 @@ export const permissions: IPermissionConfig = {
           name: 'productRulesManage',
           description: 'Create, edit, delete product rules',
           oauthScope: 'products:manage',
+        },
+        {
+          title: 'Import products',
+          name: 'productsImportManage',
+          description: 'Import products',
+        },
+        {
+          title: 'Export products',
+          name: 'productsExportManage',
+          description: 'Export products',
         },
       ],
     },
@@ -376,6 +406,16 @@ export const permissions: IPermissionConfig = {
           name: 'teamMembersResetPassword',
           description: 'Reset team member password',
         },
+        {
+          title: 'Import team members',
+          name: 'teamMembersImportManage',
+          description: 'Import team members',
+        },
+        {
+          title: 'Export team members',
+          name: 'teamMembersExportManage',
+          description: 'Export team members',
+        },
       ],
     },
     {
@@ -559,6 +599,28 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'approval',
+      description: 'Approval lock management',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'Manage approval locks',
+          name: 'approvalLocksManage',
+          description: 'Create and release approval locks',
+          always: true,
+        },
+        {
+          title: 'Force release approval locks',
+          name: 'approvalLocksForceRelease',
+          description: 'Force release locked resources with a reason',
+        },
+      ],
+    },
+    {
       name: 'automations',
       description: 'Automation management',
       scopeField: null,
@@ -595,6 +657,24 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Delete automations',
           name: 'automationsDelete',
+          description: 'Delete automations',
+          oauthScopes: ['automations:delete', 'automations:manage'],
+        },
+        {
+          title: 'Create automations',
+          name: 'automationsAiAgentAdd',
+          description: 'Create automations',
+          oauthScopes: ['automations:create', 'automations:manage'],
+        },
+        {
+          title: 'Edit ai agent automations',
+          name: 'automationsAiAgentEdit',
+          description: 'Edit automations',
+          oauthScopes: ['automations:update', 'automations:manage'],
+        },
+        {
+          title: 'Delete ai agent automations',
+          name: 'automationsAiAgentRemove',
           description: 'Delete automations',
           oauthScopes: ['automations:delete', 'automations:manage'],
         },
@@ -648,6 +728,10 @@ export const permissions: IPermissionConfig = {
             'contactsUpdate',
             'contactsDelete',
             'contactsMerge',
+            'customersImportManage',
+            'customersExportManage',
+            'companiesImportManage',
+            'companiesExportManage',
           ],
           scope: 'all',
         },
@@ -663,6 +747,8 @@ export const permissions: IPermissionConfig = {
             'productsConfigsManage',
             'uomsManage',
             'productRulesManage',
+            'productsImportManage',
+            'productsExportManage',
           ],
           scope: 'all',
         },
@@ -716,6 +802,8 @@ export const permissions: IPermissionConfig = {
             'teamMembersUpdate',
             'teamMembersRemove',
             'teamMembersResetPassword',
+            'teamMembersImportManage',
+            'teamMembersExportManage',
           ],
           scope: 'all',
         },
@@ -763,11 +851,20 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'approval',
+          actions: ['approvalLocksManage', 'approvalLocksForceRelease'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
           module: 'automations',
           actions: [
             'automationsCreate',
             'automationsUpdate',
             'automationsDelete',
+            'automationsAiAgentAdd',
+            'automationsAiAgentEdit',
+            'automationsAiAgentRemove',
           ],
           scope: 'all',
         },
@@ -938,6 +1035,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'approval',
+          actions: ['approvalLocksManage'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
           module: 'automations',
           actions: ['automationsRead'],
           scope: 'all',
@@ -945,7 +1048,12 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'automations',
-          actions: ['automationsCreate', 'automationsUpdate'],
+          actions: [
+            'automationsCreate',
+            'automationsUpdate',
+            'automationsAiAgentAdd',
+            'automationsAiAgentEdit',
+          ],
           scope: 'own',
         },
         {

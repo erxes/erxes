@@ -11,12 +11,14 @@ import {
   Popover,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { INVOICES_CURSOR_SESSION_KEY } from '~/modules/payment/hooks/use-invoices';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { InvoiceKindFilter } from './InvoiceKindFilter';
 import { InvoiceStatusFilter } from './InvoiceStatusFilter';
 
 export const InvoiceFilterBar = () => {
+  const { t } = useTranslation('payment');
   const [queries] = useMultiQueryState<{ status?: string; kind?: string }>([
     'status',
     'kind',
@@ -34,16 +36,16 @@ export const InvoiceFilterBar = () => {
             <Combobox.Content>
               <Filter.View>
                 <Command>
-                  <Filter.CommandInput placeholder="Filter invoices..." />
+                  <Filter.CommandInput placeholder={t('filter-invoices')} />
                   <Command.List className="p-1">
                     <Filter.SearchValueTrigger />
                     <Filter.Item value="status" active={!!status}>
                       <IconProgressCheck />
-                      Status
+                      {t('status')}
                     </Filter.Item>
                     <Filter.Item value="kind" active={!!kind}>
                       <IconWallet />
-                      Payment kind
+                      {t('kind')}
                     </Filter.Item>
                   </Command.List>
                 </Command>
@@ -59,7 +61,7 @@ export const InvoiceFilterBar = () => {
 
           <Filter.Dialog>
             <Filter.View filterKey="searchValue" inDialog>
-              <Filter.DialogStringView filterKey="searchValue" label="Search" />
+              <Filter.DialogStringView filterKey="searchValue" label={t('search')} />
             </Filter.View>
           </Filter.Dialog>
 
@@ -68,7 +70,7 @@ export const InvoiceFilterBar = () => {
           <Filter.BarItem queryKey="status">
             <Filter.BarName>
               <IconProgressCheck />
-              Status
+              {t('status')}
             </Filter.BarName>
             <Popover>
               <Popover.Trigger asChild>
@@ -83,7 +85,7 @@ export const InvoiceFilterBar = () => {
           <Filter.BarItem queryKey="kind">
             <Filter.BarName>
               <IconWallet />
-              Kind
+              {t('kind')}
             </Filter.BarName>
             <Popover>
               <Popover.Trigger asChild>

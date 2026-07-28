@@ -20,6 +20,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, Card, cn, Input, Popover } from 'erxes-ui';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
 import { TBotMessageButton } from '../states/replyMessageActionForm';
 
@@ -101,6 +102,7 @@ export const FacebookMessageButtonsGenerator = ({
             <FacebookMessageButton
               key={index}
               button={button}
+              index={index}
               handleChangeButton={handleChangeButton}
               onRemovButton={() => onRemovButton(index)}
               ContentBeforeInput={ContentBeforeInput}
@@ -122,11 +124,13 @@ export const FacebookMessageButtonsGenerator = ({
 
 const FacebookMessageButton = ({
   button,
+  index,
   handleChangeButton,
   onRemovButton,
   ContentBeforeInput,
 }: {
   button: { disableRemoveButton?: boolean } & TBotMessageButton;
+  index: number;
   handleChangeButton: (button: TBotMessageButton) => void;
   onRemovButton: () => void;
   ContentBeforeInput?: ({
@@ -140,6 +144,7 @@ const FacebookMessageButton = ({
     handleChangeButton: (button: TBotMessageButton) => void;
   }) => React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: button._id });
 
@@ -153,7 +158,11 @@ const FacebookMessageButton = ({
 
     e.preventDefault();
 
-    handleChangeButton({ ...button, text: value, isEditing: false });
+    handleChangeButton({
+      ...button,
+      text: value || `Button #${index + 1}`,
+      isEditing: false,
+    });
   };
 
   const onChangeButtonText = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,7 +206,7 @@ const FacebookMessageButton = ({
           <Input
             autoFocus
             maxLength={20}
-            placeholder="Enter button text"
+            placeholder={t('enter-button-text')}
             value={button.text || button.link}
             onBlur={onSave}
             onChange={onChangeButtonText}
@@ -217,7 +226,7 @@ const FacebookMessageButton = ({
           </a>
         ) : (
           <span className="font-mono font-medium text-foreground text-sm">
-            {button.text || 'Type a button label'}
+            {button.text}
           </span>
         )}
       </div>
@@ -230,7 +239,7 @@ const FacebookMessageButton = ({
         <Popover.Content>
           <Input
             type="url"
-            placeholder="Enter URL"
+            placeholder={t('enter-url')}
             value={button.link}
             onChange={(e) =>
               handleChangeButton({ ...button, link: e.target.value })
@@ -242,7 +251,7 @@ const FacebookMessageButton = ({
         size="icon"
         variant="destructive"
         disabled={button.disableRemoveButton}
-        aria-label={`Remove button: ${button.text || 'untitled'}`}
+        aria-label={`Remove button: ${button.text}`}
         onClick={onRemovButton}
       >
         <IconX />

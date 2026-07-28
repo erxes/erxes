@@ -1,6 +1,7 @@
 import { TPipelineConfig } from '@/pipelines/types';
 import { Path, useFieldArray, UseFormReturn, useWatch } from 'react-hook-form';
 import { Card, cn, Form, InfoCard, Input, Label, Switch } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { TICKET_FORM_FIELDS } from '../constant';
 import { AnimatePresence } from 'framer-motion';
 import {
@@ -27,6 +28,7 @@ type Props = {
 };
 
 export const TicketBasicFields = ({ form }: Props) => {
+  const { t } = useTranslation('frontline');
   const { control, setValue } = form;
   const formFields = useWatch({
     control,
@@ -77,8 +79,8 @@ export const TicketBasicFields = ({ form }: Props) => {
   return (
     <>
       <InfoCard
-        title="Select Ticket Basic Fields"
-        description="Select the fields from the ticket to show in the pipeline form"
+        title={t('select-ticket-basic-fields')}
+        description={t('select-ticket-basic-fields-description')}
       >
         <InfoCard.Content>
           {TICKET_FORM_FIELDS.map((basicField) => (
@@ -116,9 +118,9 @@ export const TicketBasicFields = ({ form }: Props) => {
       <AnimatePresence mode="popLayout">
         {hasSomeTrue && (
           <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold">Edit Fields</h2>
+            <h2 className="text-lg font-semibold">{t('edit-fields')}</h2>
             <p className="text-sm text-muted-foreground">
-              Design the fields to show in the pipeline form. Drag to reorder.
+              {t('edit-fields-description')}
             </p>
             <DndContext
               sensors={sensors}
@@ -165,6 +167,7 @@ interface SortableFieldCardProps {
 }
 
 function SortableFieldCard({ ticketField, control }: SortableFieldCardProps) {
+  const { t } = useTranslation('frontline');
   const {
     attributes,
     listeners,
@@ -200,7 +203,7 @@ function SortableFieldCard({ ticketField, control }: SortableFieldCardProps) {
           }
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Placeholder attribute</Form.Label>
+              <Form.Label>{t('placeholder-attribute')}</Form.Label>
               <Form.Control>
                 <Input
                   name={field.name}
@@ -218,7 +221,7 @@ function SortableFieldCard({ ticketField, control }: SortableFieldCardProps) {
           name={`formFields.${ticketField.key}.label` as Path<TPipelineConfig>}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Label attribute</Form.Label>
+              <Form.Label>{t('label-attribute')}</Form.Label>
               <Form.Control>
                 <Input
                   name={field.name}

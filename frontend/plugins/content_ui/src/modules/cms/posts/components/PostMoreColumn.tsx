@@ -1,12 +1,19 @@
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconBell, IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import {
-  Button, Combobox,
-  Command, Popover, RecordTable, useConfirm,
-  useToast
+  Button,
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  useConfirm,
+  useToast,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useDuplicatePost } from '../hooks/useDuplicatePost';
 import { useRemovePosts } from '../hooks/useRemovePosts';
+import { useSendPostNotification } from '../hooks/useSendPostNotification';
 import { Posts } from '../types/postsType';
 
 interface PostMoreColumnCellProps {
@@ -22,14 +29,21 @@ export const PostMoreColumnCell = ({
   onDelete,
   onRefetch,
 }: PostMoreColumnCellProps) => {
-  const { _id } = cell.row.original;
+  const { t } = useTranslation('content');
+  const post = cell.row.original;
+  const { _id, status } = post;
+  const isPublished = status === 'published';
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { removePosts, loading } = useRemovePosts();
+  const { removePosts, loading: removing } = useRemovePosts();
+  const { duplicatePost, loading: duplicating } = useDuplicatePost();
+  const { sendPostNotification, loading: sendingNotification } =
+    useSendPostNotification();
+  const loading = removing || duplicating || sendingNotification;
 
+  /** Opens the post in the detail editor (or delegates to onEdit). */
   const handleEdit = () => {
-    const post = cell.row.original;
     if (onEdit) {
       onEdit(post);
     } else {
@@ -37,25 +51,82 @@ export const PostMoreColumnCell = ({
     }
   };
 
+  const handleSendNotification = () => {
+    confirm({
+      message:
+        'Send a notification to all client portal users about this post?',
+    }).then(() => {
+      sendPostNotification(_id)
+        .then((result) => {
+          const recipientCount = result?.recipientCount ?? 0;
+
+          if (recipientCount === 0) {
+            toast({
+              title: t('no-recipients'),
+              description: t('no-client-portal-users-found'),
+              variant: 'warning',
+            });
+            return;
+          }
+
+          toast({
+            title: t('notification-sent'),
+            variant: 'success',
+            description: t('notification-sent-to-users', {
+              count: recipientCount,
+            }),
+          });
+        })
+        .catch((e: Error) => {
+          toast({
+            title: t('error'),
+            description: e.message,
+            variant: 'destructive',
+          });
+        });
+    });
+  };
+
+  /** Duplicates the post as a draft copy and refreshes the list. */
+  const handleDuplicate = () => {
+    duplicatePost(_id)
+      .then(() => {
+        toast({
+          title: t('success'),
+          variant: 'success',
+          description: t('post-duplicated-successfully'),
+        });
+        onRefetch?.();
+      })
+      .catch((e: Error) => {
+        toast({
+          title: t('error'),
+          description: e.message,
+          variant: 'destructive',
+        });
+      });
+  };
+
+  /** Deletes the post after confirmation (or delegates to onDelete). */
   const handleDelete = () => {
     if (onDelete) {
       onDelete(_id);
     } else {
       confirm({
-        message: 'Are you sure you want to delete this post?',
+        message: t('confirm-delete-this-post'),
       }).then(() => {
         removePosts(_id)
           .then(() => {
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Post deleted successfully',
+              description: t('post-deleted-successfully'),
             });
             onRefetch?.();
           })
           .catch((e: Error) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -84,7 +155,33 @@ export const PostMoreColumnCell = ({
                 onClick={handleEdit}
               >
                 <IconEdit className="size-4" />
-                Edit
+                {t('edit')}
+              </Button>
+            </Command.Item>
+            {isPublished && (
+              <Command.Item asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start h-8"
+                  onClick={handleSendNotification}
+                  disabled={loading}
+                >
+                  <IconBell className="size-4" />
+                  {t('send-notification')}
+                </Button>
+              </Command.Item>
+            )}
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start h-8"
+                onClick={handleDuplicate}
+                disabled={loading}
+              >
+                <IconCopy className="size-4" />
+                {t('duplicate')}
               </Button>
             </Command.Item>
             <Command.Item asChild>
@@ -96,7 +193,7 @@ export const PostMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>

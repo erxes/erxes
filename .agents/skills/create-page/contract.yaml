@@ -52,10 +52,10 @@ postconditions:
     command: "pnpm nx build {plugin_name}_ui"
     required: true
   - description: "Deliverables verified"
-    command: ".agents/evals/check-deliverables.sh {plugin_name}_ui {module_name}"
+    command: ".agents/scripts/check-deliverables.sh {plugin_name}_ui {module_name}"
     required: true
   - description: "Rules compliance verified"
-    command: ".agents/evals/check-rules.sh frontend/plugins/{plugin_name}_ui/src/modules/{module_name}"
+    command: ".agents/scripts/check-rules.sh frontend/plugins/{plugin_name}_ui/src/modules/{module_name}"
     required: true
 
 composes_with:

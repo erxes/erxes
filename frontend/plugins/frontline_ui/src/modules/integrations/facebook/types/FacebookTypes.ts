@@ -6,9 +6,25 @@ export interface IFacebookConversationMessage {
   createdAt: string;
   attachments: IAttachment[];
   botData?: TBotData[];
+  source?: IFacebookMessageRelationSource;
+  relatedMessage?: IFacebookMessageRelation;
   customerId?: string;
   userId?: string;
   internal?: boolean;
+}
+
+export interface IFacebookMessageRelationSource {
+  type?: string;
+  conversationId?: string;
+  messageId?: string;
+  commentId?: string;
+  content?: string;
+}
+
+export interface IFacebookMessageRelation {
+  conversationId?: string;
+  messageId?: string;
+  content?: string;
 }
 
 export interface IFacebookBotButton {

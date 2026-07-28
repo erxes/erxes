@@ -278,8 +278,17 @@ import {
   IconPigMoney,
   IconWebhook,
   IconBrandFacebook,
+  IconBrandDiscord,
   IconArrowsSplit,
   IconBrain,
+  IconArrowMerge,
+  IconTrophy,
+  IconMoneybagPlus,
+  IconTagPlus,
+  IconAward,
+  IconTicket,
+  IconShoppingCart,
+  IconShoppingCartPlus,
 } from '@tabler/icons-react';
 
 export const ALL_ICONS = {
@@ -562,6 +571,15 @@ export const ALL_ICONS = {
   IconPigMoney,
   IconWebhook,
   IconBrandFacebook,
+  IconBrandDiscord,
   IconArrowsSplit,
   IconBrain,
+  IconArrowMerge,
+  IconTrophy,
+  IconMoneybagPlus,
+  IconTagPlus,
+  IconAward,
+  IconTicket,
+  IconShoppingCart,
+  IconShoppingCartPlus,
 };

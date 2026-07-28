@@ -1,6 +1,10 @@
 import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { checkUserIds, graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  checkUserIds,
+  graphqlPubsub,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal, IProductData } from '~/modules/sales/@types';
 import {
@@ -15,6 +19,8 @@ import {
   checkAssignedUserFromPData,
   copyPipelineLabels,
   itemMover,
+  publishPipelineOrderUpdated,
+  resolveDealSubscriptionItem,
   subscriptionWrapper,
 } from '../utils';
 import {
@@ -58,7 +64,7 @@ export const addDeal = async ({
       method: 'mutation',
       module: 'fields',
       action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
+      input: { data: extendedDoc.propertiesData },
       defaultValue: {},
     });
   }
@@ -185,7 +191,7 @@ export const editDeal = async ({
       method: 'mutation',
       module: 'fields',
       action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
+      input: { data: extendedDoc.propertiesData },
       defaultValue: {},
     });
   }
@@ -269,10 +275,14 @@ export const changeDeal = async (
     itemId,
     aboveItemId,
     destinationStageId,
+    sourceStageId,
+    processId,
   }: {
     itemId: string;
     aboveItemId?: string;
     destinationStageId: string;
+    sourceStageId?: string;
+    processId?: string;
   },
 ) => {
   const item = await models.Deals.findOne({ _id: itemId });
@@ -282,6 +292,7 @@ export const changeDeal = async (
   }
 
   const stage = await models.Stages.getStage(item.stageId);
+  const destinationStage = await models.Stages.getStage(destinationStageId);
 
   const extendedDoc: IDeal = {
     modifiedBy: userId,
@@ -295,8 +306,6 @@ export const changeDeal = async (
 
   if (item.stageId !== destinationStageId) {
     checkMovePermission(stage, userId);
-
-    const destinationStage = await models.Stages.getStage(destinationStageId);
 
     checkMovePermission(destinationStage, userId);
 
@@ -312,11 +321,32 @@ export const changeDeal = async (
 
   await itemMover(models, userId, item, destinationStageId);
 
+  const resolvedItem = await resolveDealSubscriptionItem(
+    models,
+    subdomain,
+    updatedItem,
+  );
+
+  const pipelineIds = [stage.pipelineId, destinationStage.pipelineId];
+
+  await publishPipelineOrderUpdated({
+    pipelineIds,
+    processId,
+    item: resolvedItem,
+    aboveItemId,
+    destinationStageId,
+    oldStageId: sourceStageId || item.stageId,
+  });
+
   await subscriptionWrapper(models, {
     action: 'update',
     deal: updatedItem,
     oldDeal: item,
     pipelineId: stage.pipelineId,
+    oldPipelineId:
+      stage.pipelineId !== destinationStage.pipelineId
+        ? destinationStage.pipelineId
+        : undefined,
   });
 
   return updatedItem;
@@ -353,7 +383,9 @@ export const createProductsData = async ({
 
   for (const doc of docs) {
     if (doc._id) {
-      const checkDup = (deal.productsData || []).find((pd) => pd._id === doc._id);
+      const checkDup = (deal.productsData || []).find(
+        (pd) => pd._id === doc._id,
+      );
       if (checkDup) {
         throw new Error('Deals productData duplicated');
       }
@@ -362,8 +394,10 @@ export const createProductsData = async ({
 
   // undefined or null then true
   const tickUsed = !(stage.defaultTick === false);
-  const addDocs = (docs || []).map((doc) => ({ ...doc, tickUsed } as IProductData));
-  const productsData: IProductData[] = (deal.productsData || []).concat(addDocs);
+  const addDocs = (docs || []).map((doc) => ({ ...doc, tickUsed }));
+  const productsData: IProductData[] = (deal.productsData || []).concat(
+    addDocs,
+  );
 
   const updatedItem =
     (await models.Deals.findOneAndUpdate(

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { type ApolloError } from '@apollo/client';
 import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
@@ -61,6 +62,7 @@ export const DateSelectProvider = ({
 };
 
 const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('operation');
   const { value } = useDateSelectContext();
 
   if (!value) {
@@ -68,7 +70,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
       <>
         <IconCalendarPlus className="text-accent-foreground" />
         <span className="text-accent-foreground font-medium">
-          {placeholder || 'Select date...'}
+          {placeholder || t('select-date')}
         </span>
       </>
     );
@@ -145,6 +147,7 @@ export const DateSelectTaskRoot = ({
   scope?: string;
   variant?: `${DateSelectVariant}`;
 }) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const { updateTask, loading, error } = useUpdateTask();
 
@@ -173,7 +176,7 @@ export const DateSelectTaskRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
-          <DateSelectValue placeholder="Not specified" />
+          <DateSelectValue placeholder={t('not-specified')} />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
           <DateSelectContent />

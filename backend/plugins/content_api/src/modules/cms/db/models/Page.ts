@@ -51,26 +51,7 @@ export const loadPageClass = (models: IModels) => {
         throw new Error('Page not found');
       }
 
-      if (doc.name && doc.name !== existing.name) {
-        if (!doc.slug) {
-          const baseSlug = slugify(doc.name, { lower: true });
-          doc.slug = await generateUniqueSlug(
-            models.Pages,
-            doc.clientPortalId,
-            'slug',
-            baseSlug,
-          );
-        } else {
-          doc.slug = await generateUniqueSlug(
-            models.Pages,
-            doc.clientPortalId,
-            'slug',
-            doc.slug,
-          );
-        }
-      } else {
-        doc.slug = existing.slug;
-      }
+      doc.slug = existing.slug;
 
       return models.Pages.findOneAndUpdate(
         { _id },

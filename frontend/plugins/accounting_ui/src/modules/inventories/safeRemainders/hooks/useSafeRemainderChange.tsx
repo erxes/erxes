@@ -1,5 +1,6 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import i18n from 'i18next';
 import {
   SAFE_REMAINDER_CANCEL,
   SAFE_REMAINDER_DO_TR,
@@ -16,7 +17,7 @@ const commonOptions = (id: string, options?: any, _queryParams?: any) => {
   return {
     onError: (error: Error) => {
       toast({
-        title: 'Error',
+        title: i18n.t('accounting:error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -24,8 +25,8 @@ const commonOptions = (id: string, options?: any, _queryParams?: any) => {
     },
     onCompleted: (data: any) => {
       toast({
-        title: 'Success',
-        description: 'Inventory safe remainder submited successfully',
+        title: i18n.t('accounting:success'),
+        description: i18n.t('accounting:safe-remainder-submitted'),
       });
       options?.onCompleted?.(data);
     },

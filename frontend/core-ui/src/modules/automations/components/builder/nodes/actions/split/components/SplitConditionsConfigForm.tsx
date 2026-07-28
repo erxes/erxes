@@ -20,7 +20,7 @@ export const SplitConditionsConfigForm = ({
     hasDirtyConditionOptions,
     fields,
     contentType,
-    isCustomTrigger,
+    isOutputVariableCondition,
     outputVariables,
     handleValidationErrors,
     remove,
@@ -104,7 +104,7 @@ export const SplitConditionsConfigForm = ({
                 />
               </div>
               <Collapsible.Content className="min-h-0">
-                {isCustomTrigger ? (
+                {isOutputVariableCondition ? (
                   <SplitConditionByOutputVariables
                     contentType={contentType}
                     optionIndex={index}

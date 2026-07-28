@@ -27,7 +27,6 @@ export const documentTrpcRouter = t.router({
     print: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { _id, replacerIds, config } = input;
       const { models } = ctx;
-
       return await models.Documents.processDocument({
         _id,
         replacerIds,

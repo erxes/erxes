@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { Calendar, Popover, Combobox, Button, Form, cn } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   IconCalendarQuestion,
   IconCalendarTime,
@@ -55,12 +56,13 @@ const PricingDateSelectValue = ({
 }: {
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = usePricingDateSelectContext();
 
   if (!value) {
     return (
       <span className="text-sm text-accent-foreground/80">
-        {placeholder || 'Select date...'}
+        {placeholder || t('select-date')}
       </span>
     );
   }
@@ -80,6 +82,7 @@ const PricingDateSelectFormItemValue = ({
   placeholder?: string;
   type?: 'start' | 'target';
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = usePricingDateSelectContext();
 
   if (!value) {
@@ -90,7 +93,7 @@ const PricingDateSelectFormItemValue = ({
         ) : (
           <IconCalendarQuestion className="size-4" />
         )}
-        {placeholder || 'Select date'}
+        {placeholder || t('select-date')}
       </span>
     );
   }

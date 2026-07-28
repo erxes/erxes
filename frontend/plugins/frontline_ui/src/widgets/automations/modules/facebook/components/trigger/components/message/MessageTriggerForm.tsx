@@ -1,4 +1,5 @@
 import { FormProvider } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Form, Label, cn } from 'erxes-ui';
 import { AutomationTriggerFormProps } from 'ui-modules';
 import { FacebookBotSelector } from '../../../MessengerBotSelector';
@@ -13,6 +14,7 @@ export const MessageTriggerForm = ({
   onSaveTriggerConfig,
   formRef,
 }: AutomationTriggerFormProps<TMessageTriggerForm>) => {
+  const { t } = useTranslation('frontline');
   const { form, botId, activeConditionType, setActiveConditionType } =
     useMessageTriggerForm({
       activeTrigger,
@@ -37,7 +39,7 @@ export const MessageTriggerForm = ({
             )}
           />
 
-          <Label className="ml-4 mt-2">Triggers</Label>
+          <Label className="ml-4 mt-2">{t('triggers')}</Label>
 
           <div
             className={cn('relative flex flex-1 flex-col', { blur: !botId })}

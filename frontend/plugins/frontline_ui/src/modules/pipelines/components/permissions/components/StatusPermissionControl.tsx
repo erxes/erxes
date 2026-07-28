@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { toast, PopoverScoped, Combobox, Select, cn } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import { StatusItem, PermissionState } from '@/pipelines/types';
+import { useTranslation } from 'react-i18next';
 
 type MemberType = 'memberIds' | 'canMoveMemberIds' | 'canEditMemberIds';
 
@@ -54,6 +55,7 @@ export const StatusPermissionControl = ({
   values,
   updateStatus,
 }: StatusPermissionControlProps) => {
+  const { t } = useTranslation('frontline');
   const [isUpdating, setIsUpdating] = useState(false);
   const [memberStates, setMemberStates] = useState<
     Record<MemberType, string[]>
@@ -120,9 +122,9 @@ export const StatusPermissionControl = ({
         }
       } catch (error) {
         toast({
-          title: 'Error',
-          description: `Failed to update visibility: ${
-            error instanceof Error ? error.message : 'Unknown error'
+          title: t('error'),
+          description: `${t('failed-to-update-visibility')}: ${
+            error instanceof Error ? error.message : t('unknown')
           }`,
           variant: 'destructive',
         });
@@ -130,7 +132,7 @@ export const StatusPermissionControl = ({
         setIsUpdating(false);
       }
     },
-    [status.value, updateStatus],
+    [status.value, updateStatus, t],
   );
 
   const handleMemberChange = useCallback(
@@ -150,9 +152,9 @@ export const StatusPermissionControl = ({
         }));
       } catch (error) {
         toast({
-          title: 'Error',
-          description: `Failed to update ${memberType}: ${
-            error instanceof Error ? error.message : 'Unknown error'
+          title: t('error'),
+          description: `${t('failed-to-update-member-permission')}: ${
+            error instanceof Error ? error.message : t('unknown')
           }`,
           variant: 'destructive',
         });
@@ -240,7 +242,7 @@ export const StatusPermissionControl = ({
 
       <PermissionIndicators />
       <div className="space-y-2">
-        <div className="text-sm font-medium">Status Visibility</div>
+        <div className="text-sm font-medium">{t('status-visibility')}</div>
         <Select
           value={visibility}
           onValueChange={handleVisibilityChange}
@@ -250,17 +252,17 @@ export const StatusPermissionControl = ({
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
-            <Select.Item value="public">Public</Select.Item>
-            <Select.Item value="private">Private</Select.Item>
+            <Select.Item value="public">{t('public')}</Select.Item>
+            <Select.Item value="private">{t('private')}</Select.Item>
           </Select.Content>
         </Select>
       </div>
       <div className="mt-4 pt-4 border-t border-border/50">
         <div className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
-          Configure individual status permissions
+          {t('configure-individual-status-permissions')}
           {isUpdating && (
             <span className="ml-2 text-xs text-blue-600 animate-pulse">
-              Updating...
+              {t('updating')}
             </span>
           )}
         </div>

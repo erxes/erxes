@@ -16,6 +16,7 @@ export const POSTS_LIST = gql`
     $searchValue: String
     $status: PostStatus
     $tagIds: [String]
+    $authorId: String
     $sortField: String
     $sortDirection: String
     $language: String
@@ -38,6 +39,7 @@ export const POSTS_LIST = gql`
       searchValue: $searchValue
       status: $status
       tagIds: $tagIds
+      authorId: $authorId
       sortField: $sortField
       sortDirection: $sortDirection
       language: $language
@@ -53,6 +55,7 @@ export const POSTS_LIST = gql`
       }
       posts {
         _id
+        count
         type
         customPostType {
           _id
@@ -65,6 +68,23 @@ export const POSTS_LIST = gql`
         }
         authorKind
         authorId
+        author {
+          ... on User {
+            username
+            email
+            details {
+              fullName
+              shortName
+              avatar
+              firstName
+              lastName
+              middleName
+              __typename
+            }
+            __typename
+          }
+          __typename
+        }
 
         clientPortalId
         title
@@ -79,6 +99,7 @@ export const POSTS_LIST = gql`
         scheduledDate
         publishedDate
         autoArchiveDate
+        viewCount
         reactions
         reactionCounts
         videoUrl

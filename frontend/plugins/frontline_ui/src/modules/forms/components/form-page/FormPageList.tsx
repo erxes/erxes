@@ -6,8 +6,10 @@ import { IForm } from '@/forms/types/formTypes';
 import { FormCommandBar } from './command-bar/form-command-bar';
 import { IconForms, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const FormPageList = () => {
+  const { t } = useTranslation('frontline');
   const [{ channelId, tagId, status, searchValue }] = useMultiQueryState<{
     channelId?: string;
     tagId?: string;
@@ -31,14 +33,14 @@ export const FormPageList = () => {
           <Empty.Media>
             <IconForms />
           </Empty.Media>
-          <Empty.Title>No forms found</Empty.Title>
-          <Empty.Description>Create a form to get started</Empty.Description>
+          <Empty.Title>{t('no-forms-found')}</Empty.Title>
+          <Empty.Description>{t('forms-empty-description')}</Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Button variant={'outline'} asChild>
             <Link to="/settings/frontline/channels">
               <IconSettings />
-              Go to channels
+              {t('go-to-channels')}
             </Link>
           </Button>
         </Empty.Content>

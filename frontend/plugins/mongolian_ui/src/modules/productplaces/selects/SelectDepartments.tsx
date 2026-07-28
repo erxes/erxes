@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const DEPARTMENTS_QUERY = gql`
   query departments(
@@ -101,13 +102,14 @@ export const SelectDepartmentsProvider = ({
 };
 
 const SelectDepartmentsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('mongolian');
   const { value, departments } = useSelectDepartmentsContext();
   const selectedDepartment = departments?.find((d) => d._id === value);
 
   if (!selectedDepartment) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Choose department'}
+        {placeholder || t('choose-department')}
       </span>
     );
   }
@@ -136,13 +138,14 @@ const SelectDepartmentsItem = ({ department }: { department: Department }) => {
 };
 
 const SelectDepartmentsContent = () => {
+  const { t } = useTranslation('mongolian');
   const { departments, loading, error } = useSelectDepartmentsContext();
 
   const renderContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -150,7 +153,7 @@ const SelectDepartmentsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error-colon', { message: error.message })}
         </div>
       );
     }
@@ -162,9 +165,9 @@ const SelectDepartmentsContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search department" />
+      <Command.Input placeholder={t('search-department')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No departments found</span>
+        <span className="text-muted-foreground">{t('no-departments-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

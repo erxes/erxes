@@ -4,8 +4,10 @@ import { Button, ChartContainer, HoverCard } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { ProgressDot } from '@/inbox/conversations/conversation-detail/components/Progress';
+import { useTranslation } from 'react-i18next';
 
 export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
+  const { t } = useTranslation('frontline');
   const { conversationMemberProgress = [] } = useGetConversationMemberProgress({
     variables: { customerId },
     skip: !customerId,
@@ -45,7 +47,7 @@ export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
                 <div className="flex items-center gap-2 w-full">
                   <MembersInline
                     memberIds={[item.assigneeId]}
-                    placeholder="No Assignee"
+                    placeholder={t('no-assignee')}
                   />
 
                   <ChartContainer config={{}} className="aspect-square size-6">
@@ -58,7 +60,7 @@ export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
                       outerRadius={10}
                       data={[
                         {
-                          name: 'Progress',
+                          name: t('progress'),
                           value: progress,
                           fill: 'var(--primary)',
                         },
@@ -90,18 +92,18 @@ export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
               <div className="flex flex-col gap-1 text-muted-foreground">
                 <p className="text-sm flex items-center gap-1">
                   <ProgressDot status="open" />
-                  open:
+                  {t('open-label')}:
                   <span className="text-foreground ml-auto">{item.open}</span>
                 </p>
                 <p className="text-sm flex items-center gap-1">
                   <ProgressDot status="new" />
-                  new:
+                  {t('new-label')}:
                   <span className="text-foreground ml-auto">{item.new}</span>
                 </p>
 
                 <p className="text-sm flex items-center gap-1">
                   <ProgressDot status="closed" />
-                  closed:
+                  {t('closed-label')}:
                   <span className="text-foreground ml-auto">{item.closed}</span>
                 </p>
               </div>

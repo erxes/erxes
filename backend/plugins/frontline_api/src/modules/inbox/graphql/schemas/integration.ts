@@ -114,6 +114,7 @@ export const types = `
     type: String
     text: String
     link: String
+    contentType: String
     isEditing: Boolean
   }
   input MessengerOnlineHoursSchema {
@@ -157,6 +158,7 @@ export const types = `
     botShowInitialMessage: Boolean
     botCheck: Boolean
     botGreetMessage: String
+    automationId: String
     getStarted: Boolean
     persistentMenus: [BotPersistentMenuTypeMessenger]
     availabilityMethod: String
@@ -181,7 +183,10 @@ export const types = `
 
   input MessengerUiOptions {
     logo: String
+    launcherLogo: String
     primary: ColorDefinitionInput
+    backgroundColor: String
+    heroStyleVariant: String
     navigationVariant: String
   }
 
@@ -313,5 +318,5 @@ export const mutations = `
 
   integrationsSaveMessengerTicketData(
     _id: String!,
-    configId: String!): Integration
+    configId: String): Integration
 `;

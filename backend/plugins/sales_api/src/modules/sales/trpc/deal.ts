@@ -13,6 +13,7 @@ import {
   generateAmounts,
   generateProducts,
 } from '~/modules/sales/utils';
+import { replaceDealContent } from '~/modules/sales/documents/dealContent';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -264,6 +265,18 @@ export const dealTrpcRouter = t.router({
         const { subdomain } = ctx;
         return await generateProducts(subdomain, input);
       }),
+
+    replaceContent: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      const { replacerIds, content } = input || {};
+
+      return await replaceDealContent({
+        models,
+        subdomain,
+        replacerIds: replacerIds || [],
+        content,
+      });
+    }),
 
     createCommentActivityLog: t.procedure
       .input(z.any())

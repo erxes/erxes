@@ -1,12 +1,40 @@
-const updateConfigs = `
-  mutation configsUpdate($configsMap: JSON!) {
-    configsUpdate(configsMap: $configsMap)
+const createConfig = `
+  mutation mnConfigsCreate($code: String!, $subId: String, $value: JSON) {
+    mnConfigsCreate(code: $code, subId: $subId, value: $value) {
+      _id
+      code
+      subId
+      value
+    }
+  }
+`;
+
+const updateConfig = `
+  mutation mnConfigsUpdate($id: String!, $subId: String, $value: JSON) {
+    mnConfigsUpdate(_id: $id, subId: $subId, value: $value) {
+      _id
+      code
+      subId
+      value
+    }
+  }
+`;
+
+const removeConfig = `
+  mutation mnConfigsRemove($id: String!) {
+    mnConfigsRemove(_id: $id)
   }
 `;
 
 const toCheckProducts = `
   mutation toCheckMsdProducts($brandId: String) {
     toCheckMsdProducts(brandId: $brandId)
+  }
+`;
+
+const toCheckPrices = `
+  mutation toCheckMsdPrices($brandId: String) {
+    toCheckMsdPrices(brandId: $brandId)
   }
 `;
 
@@ -23,7 +51,7 @@ const toCheckCategories = `
 `;
 
 const toSyncCategories = `
-  mutation toSyncMsdProductCategories($brandId: String, $action: String, $categoryId: String, $categories: [JSON]) {
+  mutation toSyncMsdProductCategories($brandId: String, $action: String!, $categoryId: String, $categories: [JSON!]!) {
     toSyncMsdProductCategories(brandId: $brandId, action: $action, categoryId: $categoryId, categories: $categories)
   }
 `;
@@ -41,14 +69,14 @@ const toSyncCustomers = `
 `;
 
 const toSyncPrices = `
-  mutation toSyncMsdPrices($brandId: String) {
-    toSyncMsdPrices(brandId: $brandId)
+  mutation toSyncMsdPrices($prices: [JSON]) {
+    toSyncMsdPrices(prices: $prices)
   }
 `;
 
 const toCheckMsdSynced = `
-  mutation toCheckMsdSynced($ids: [String], $brandId: String) {
-    toCheckMsdSynced(ids: $ids, brandId: $brandId) {
+  mutation toCheckMsdSynced($ids: [String]) {
+    toCheckMsdSynced(ids: $ids) {
       _id
       isSynced
       syncedDate
@@ -71,8 +99,11 @@ const toSendMsdOrders = `
 `;
 
 export default {
-  updateConfigs,
+  createConfig,
+  updateConfig,
+  removeConfig,
   toCheckProducts,
+  toCheckPrices,
   toSyncProducts,
   toCheckCategories,
   toSyncCategories,

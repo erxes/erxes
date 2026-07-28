@@ -61,7 +61,13 @@ export const checkCommentTrigger = async (subdomain, { target, config }) => {
   const { botId, postId, postType, checkContent, conditions, onlyFirstLevel } =
     config || {};
 
-  if (!target?.recipientId || !target?.postId) {
+  if (
+    !target?.recipientId ||
+    !target?.postId ||
+    !target?.comment_id ||
+    !target?.senderId ||
+    !target?.customerId
+  ) {
     return false;
   }
 
@@ -76,7 +82,7 @@ export const checkCommentTrigger = async (subdomain, { target, config }) => {
   ).lean();
 
   if (!bot) {
-    return;
+    return false;
   }
 
   if (postType === 'specific' && target.postId !== postId) {

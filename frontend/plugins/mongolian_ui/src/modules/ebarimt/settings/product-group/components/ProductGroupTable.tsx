@@ -10,6 +10,7 @@ import {
   Command,
   Spinner,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 import {
   IconEdit,
@@ -30,10 +31,29 @@ import { useMemo } from 'react';
 import { AddProductGroup } from './ProductGroup';
 import { useProductGroupRowsRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
 
+const ProductGroupEmptyState = () => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="flex flex-col items-center text-center">
+        <IconClipboardList size={48} className="text-gray-400 mb-4" />
+        <h3 className="text-lg font-semibold text-gray-900">
+          {t('no-product-group-config-yet')}
+        </h3>
+        <p className="mt-1 text-sm text-gray-500 mb-4">
+          {t('create-first-product-group-config')}
+        </p>
+        <AddProductGroup />
+      </div>
+    </div>
+  );
+};
+
 export const ProductGroupTable = () => {
   const { productGroupRows, loading, handleFetchMore, totalCount, pageInfo } =
     useProductGroupRows();
-  const memoizedColumns = useMemo(() => productGroupsColumns, []);
+  const columns = useProductGroupsColumns();
+  const memoizedColumns = useMemo(() => columns, [columns]);
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -65,18 +85,7 @@ export const ProductGroupTable = () => {
           </div>
         )}
         {!loading && totalCount === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center text-center">
-              <IconClipboardList size={48} className="text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                No Product Group config yet
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 mb-4">
-                Get started by creating your first Product Group config.
-              </p>
-              <AddProductGroup />
-            </div>
-          </div>
+          <ProductGroupEmptyState />
         )}
       </RecordTable.CursorProvider>
       <ProductGroupRowsCommandbar />
@@ -132,6 +141,7 @@ export const ProductGroupRowMoreColumnCell = ({
 }: {
   cell: Cell<IProductGroup, unknown>;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [, setOpen] = useQueryState('product_group_id');
   const setProductGroupDetail = useSetAtom(productGroupDetailAtom);
   const { removeProductGroup } = useProductGroupRowsRemove();
@@ -144,8 +154,8 @@ export const ProductGroupRowMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this product group?',
-      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+      message: t('delete-product-group-confirm'),
+      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
     }).then(() =>
       removeProductGroup({ variables: { ids: [cell.row.original._id] } }),
     );
@@ -160,10 +170,10 @@ export const ProductGroupRowMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -179,59 +189,64 @@ const productGroupRowMoreColumn: ColumnDef<IProductGroup> = {
   size: 33,
 };
 
-export const productGroupsColumns: ColumnDef<IProductGroup>[] = [
-  productGroupRowMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IProductGroup>,
-  {
-    id: 'mainProductId',
-    accessorKey: 'mainProductId',
-    header: () => (
-      <RecordTable.InlineHead icon={IconPackage} label="Main Product" />
-    ),
-    cell: ({ cell }) => <ProductGroupMainProductCell cell={cell} />,
-    size: 250,
-  },
-  {
-    id: 'subProductId',
-    accessorKey: 'subProductId',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Sub Product" />,
-    cell: ({ cell }) => <ProductGroupSubProductCell cell={cell} />,
-    size: 250,
-  },
-  {
-    id: 'sortNum',
-    accessorKey: 'sortNum',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSortAscending} label="Sort Number" />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    id: 'ratio',
-    accessorKey: 'ratio',
-    header: () => (
-      <RecordTable.InlineHead icon={IconPercentage} label="Ratio" />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    id: 'isActive',
-    accessorKey: 'isActive',
-    header: () => (
-      <RecordTable.InlineHead icon={IconToggleLeft} label="Is Active" />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() ? 'Active' : 'Inactive'} />
-      </RecordTableInlineCell>
-    ),
-  },
-];
+export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
+  const { t } = useTranslation('mongolian');
+  return [
+    productGroupRowMoreColumn,
+    RecordTable.checkboxColumn as ColumnDef<IProductGroup>,
+    {
+      id: 'mainProductId',
+      accessorKey: 'mainProductId',
+      header: () => (
+        <RecordTable.InlineHead icon={IconPackage} label={t('main-product')} />
+      ),
+      cell: ({ cell }) => <ProductGroupMainProductCell cell={cell} />,
+      size: 250,
+    },
+    {
+      id: 'subProductId',
+      accessorKey: 'subProductId',
+      header: () => <RecordTable.InlineHead icon={IconTag} label={t('sub-product')} />,
+      cell: ({ cell }) => <ProductGroupSubProductCell cell={cell} />,
+      size: 250,
+    },
+    {
+      id: 'sortNum',
+      accessorKey: 'sortNum',
+      header: () => (
+        <RecordTable.InlineHead icon={IconSortAscending} label={t('sort-number')} />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      id: 'ratio',
+      accessorKey: 'ratio',
+      header: () => (
+        <RecordTable.InlineHead icon={IconPercentage} label={t('ratio')} />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      id: 'isActive',
+      accessorKey: 'isActive',
+      header: () => (
+        <RecordTable.InlineHead icon={IconToggleLeft} label={t('is-active')} />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() ? t('active') : t('inactive')} />
+        </RecordTableInlineCell>
+      ),
+    },
+  ];
+};
+
+export const productGroupsColumns: ColumnDef<IProductGroup>[] = [];

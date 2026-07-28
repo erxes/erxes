@@ -2,16 +2,19 @@ import { RecordTable } from 'erxes-ui';
 import { PosOrdersByCustomerColumns } from '@/pos/pos-orders-by-customer/components/PosOrdersByCustomerColumns';
 import { usePosOrderByCustomerList } from '@/pos/pos-orders-by-customer/hooks/UsePosOrderByCustomer';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 export const PosOrdersByCustomerRecordTable = () => {
+  const { t } = useTranslation('sales');
   const { posOrderByCustomerList, handleFetchMore, loading, pageInfo } =
     usePosOrderByCustomerList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={PosOrdersByCustomerColumns}
+      columns={PosOrdersByCustomerColumns(t)}
       data={posOrderByCustomerList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'type']}
+      tableId="pos_orders_by_customer_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -42,10 +45,10 @@ export const PosOrdersByCustomerRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No pos order by customer yet
+                {t('no-pos-order-by-customer-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first pos order by customer.
+                {t('create-first-pos-order-by-customer')}
               </p>
             </div>
           </div>

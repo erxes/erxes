@@ -9,7 +9,7 @@ export const packageQueries: Record<string, Resolver> = {
     params: IPackageParams,
     { models }: IContext,
   ) {
-    const { searchValue, status, ids } = params;
+    const { searchValue, status, ids, tagIds } = params;
 
     const filter: any = {
       status: { $ne: 'archived' },
@@ -18,6 +18,8 @@ export const packageQueries: Record<string, Resolver> = {
     if (status) filter.status = status;
 
     if (ids?.length) filter._id = { $in: ids };
+
+    if (tagIds?.length) filter.tagIds = { $in: tagIds };
 
     if (searchValue) {
       filter.$or = [

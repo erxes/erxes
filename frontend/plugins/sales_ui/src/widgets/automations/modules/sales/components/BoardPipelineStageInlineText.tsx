@@ -2,12 +2,14 @@ import { Skeleton } from 'erxes-ui';
 import { useBoardPipelineStageInlineText } from '../hooks/useBoardPipelineStageInlineText';
 import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { TSalesActionConfigForm } from '../states/salesActionConfigFormDefinitions';
+import { useTranslation } from 'react-i18next';
 
 export const BoardPipelineStageInlineText = ({
   config,
 }: {
   config?: TSalesActionConfigForm;
 }) => {
+  const { t } = useTranslation('sales');
   const { boardId, pipelineId, stageId } = config || {};
   const { boardName, pipelineName, stageName, loading, error } =
     useBoardPipelineStageInlineText({
@@ -27,8 +29,8 @@ export const BoardPipelineStageInlineText = ({
 
   return (
     <AutomationNodeMetaInfoRow
-      fieldName="Where"
-      content={`Board: ${boardName} - Pipeline: ${pipelineName} - Stage: ${stageName}`}
+      fieldName={t('where')}
+      content={t('board-pipeline-stage-content', { board: boardName, pipeline: pipelineName, stage: stageName })}
     />
   );
 };

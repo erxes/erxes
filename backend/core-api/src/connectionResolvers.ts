@@ -76,10 +76,7 @@ import {
   loadProductsConfigClass,
 } from '@/products/db/models/Configs';
 import { IProductModel, loadProductClass } from '@/products/db/models/Products';
-import {
-  IPackageModel,
-  loadPackageClass,
-} from '@/products/db/models/Packages';
+import { IPackageModel, loadPackageClass } from '@/products/db/models/Packages';
 import {
   IProductRuleModel,
   loadProductRuleClass,
@@ -156,6 +153,11 @@ import {
   IAutomationEmailTemplateModel,
   loadAutomationEmailTemplateClass,
 } from './modules/automations/db/models/AutomationEmailTemplates';
+import {
+  IAutomationWorkflowTemplateDocument,
+  IAutomationWorkflowTemplateModel,
+  loadAutomationWorkflowTemplateClass,
+} from './modules/automations/db/models/AutomationWorkflowTemplates';
 import {
   IAutomationModel,
   loadClass as loadAutomationClass,
@@ -245,13 +247,27 @@ import {
   ISegmentModel,
   loadSegmentClass,
 } from './modules/segments/db/models/Segments';
-
+import { IProductSimilarityDocument } from '@/products/@types/similarity';
+import {
+  IProductSimilarityModel,
+  loadProductSimilarityClass,
+} from '@/products/db/models/Similarities';
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 
 import {
   IPermissionGroupModel,
   loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
+import {
+  IApprovalLockModel,
+  loadApprovalLockClass,
+} from '@/approval/db/models/ApprovalLocks';
+import {
+  IApprovalRequestModel,
+  loadApprovalRequestClass,
+} from '@/approval/db/models/ApprovalRequests';
+import { IApprovalLockDocument } from '@/approval/db/definitions/approvalLocks';
+import { IApprovalRequestDocument } from '@/approval/db/definitions/approvalRequests';
 import {
   ITemplateCategoryModal,
   loadTemplateCategoryClass,
@@ -282,6 +298,7 @@ export interface IModels {
   Packages: IPackageModel;
   ProductCategories: IProductCategoryModel;
   ProductsConfigs: IProductsConfigModel;
+  ProductSimilarities: IProductSimilarityModel;
   Uoms: IUomModel;
   Structures: IStructureModel;
   Departments: IDepartmentModel;
@@ -302,6 +319,7 @@ export interface IModels {
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
   AutomationEmailTemplates: IAutomationEmailTemplateModel;
+  AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   Logs: ILogModel;
   Imports: IImportModel;
   Exports: IExportModel;
@@ -325,6 +343,8 @@ export interface IModels {
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
   PermissionGroups: IPermissionGroupModel;
+  ApprovalLocks: IApprovalLockModel;
+  ApprovalRequests: IApprovalRequestModel;
 
   NotificationSettings: Model<NotificationSettings>;
 
@@ -459,6 +479,18 @@ export const loadClasses = (
     ),
   );
 
+  models.ProductSimilarities = db.model<
+    IProductSimilarityDocument,
+    IProductSimilarityModel
+  >(
+    'product_similarities',
+    loadProductSimilarityClass(
+      models,
+      subdomain,
+      coreEventHandlers('products', 'product_similarities'),
+    ),
+  );
+
   models.Structures = db.model<IStructureDocument, IStructureModel>(
     'structures',
     loadStructureClass(models),
@@ -525,7 +557,7 @@ export const loadClasses = (
 
   models.Relations = db.model<IRelationDocument, IRelationModel>(
     'relations',
-    loadRelationClass(models),
+    loadRelationClass(models, coreEventHandlers('relations', 'relations')),
   );
 
   models.Favorites = db.model<IFavoritesDocument, IFavoritesModel>(
@@ -552,6 +584,14 @@ export const loadClasses = (
     IAutomationEmailTemplateDocument,
     IAutomationEmailTemplateModel
   >('automation_email_templates', loadAutomationEmailTemplateClass(models));
+
+  models.AutomationWorkflowTemplates = db.model<
+    IAutomationWorkflowTemplateDocument,
+    IAutomationWorkflowTemplateModel
+  >(
+    'automation_workflow_templates',
+    loadAutomationWorkflowTemplateClass(models),
+  );
 
   models.Notifications = db.model<
     INotificationDocument,
@@ -658,6 +698,16 @@ export const loadClasses = (
     IPermissionGroupModel
   >('permission_groups', loadPermissionGroupClass(models));
 
+  models.ApprovalLocks = db.model<IApprovalLockDocument, IApprovalLockModel>(
+    'approval_locks',
+    loadApprovalLockClass(models),
+  );
+
+  models.ApprovalRequests = db.model<
+    IApprovalRequestDocument,
+    IApprovalRequestModel
+  >('approval_requests', loadApprovalRequestClass(models));
+
   models.Template = db.model<ITemplateDocument, ITemplateModal>(
     'templates',
     loadTemplateClass(models, subdomain),
@@ -680,7 +730,10 @@ export const loadClasses = (
 
   const db_name = db.name;
 
-  const logDb = db.useDb(`${db_name}_logs`);
+  const logDb = db.useDb(`${db_name}_logs`, {
+    useCache: true,
+    noListener: true,
+  });
 
   models.Logs = logDb.model<ILogDocument, ILogModel>(
     'logs',

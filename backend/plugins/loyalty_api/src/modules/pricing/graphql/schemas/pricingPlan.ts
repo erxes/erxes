@@ -53,7 +53,7 @@ export const types = `
     priceAdjustType: String,
     priceAdjustFactor: Int,
     bonusProduct: String,
-    isPriority: Boolean,
+    priority: String,
 
     applyType: String,
 
@@ -66,6 +66,34 @@ export const types = `
     vendors: [String],
     tags: [String],
     tagsExcluded: [String],
+
+    customerIds: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
+    customerSegmentIds: [String],
+
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    userIds: [String],
+    userPositions: [String],
+    userSegmentIds: [String],
+
+    brokerCustomerIds: [String],
+    brokerCustomerTags: [String],
+    brokerCustomerExcludeTags: [String],
+    brokerCustomerSegmentIds: [String],
+
+    brokerCompanyIds: [String],
+    brokerCompanyTags: [String],
+    brokerCompanyExcludeTags: [String],
+    brokerCompanySegmentIds: [String],
+
+    brokerUserIds: [String],
+    brokerUserPositions: [String],
+    brokerUserSegmentIds: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -99,8 +127,39 @@ export const types = `
     updatedUser: User
 
     productIds: [String]
-  }
 
+   fixedValues: [PricingFixedValue]    
+     
+  }
+     type PricingFixedValue {
+      _id: String
+      pricingPlanId: String
+      productId: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+      createdBy: String
+      updatedBy: String
+      createdAt: Date
+      updatedAt: Date
+    }
+  
+    type PricingFixedValuePageItem {
+      _id: String
+      productId: String
+      productName: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+      status: String
+    }
+
+    type PricingFixedValuePageResult {
+      list: [PricingFixedValuePageItem]
+      totalCount: Int
+    }
   input QuantityRuleInput {
     type: String,
     value: Float,
@@ -155,7 +214,7 @@ export const types = `
     priceAdjustType: String,
     priceAdjustFactor: Int,
     bonusProduct: String,
-    isPriority: Boolean,
+    priority: String,
 
     applyType: String,
 
@@ -168,6 +227,34 @@ export const types = `
     vendors: [String],
     tags: [String],
     tagsExcluded: [String],
+
+    customerIds: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
+    customerSegmentIds: [String],
+
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    userIds: [String],
+    userPositions: [String],
+    userSegmentIds: [String],
+
+    brokerCustomerIds: [String],
+    brokerCustomerTags: [String],
+    brokerCustomerExcludeTags: [String],
+    brokerCustomerSegmentIds: [String],
+
+    brokerCompanyIds: [String],
+    brokerCompanyTags: [String],
+    brokerCompanyExcludeTags: [String],
+    brokerCompanySegmentIds: [String],
+
+    brokerUserIds: [String],
+    brokerUserPositions: [String],
+    brokerUserSegmentIds: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -203,7 +290,7 @@ export const types = `
     priceAdjustType: String,
     priceAdjustFactor: Int,
     bonusProduct: String,
-    isPriority: Boolean,
+    priority: String,
 
     applyType: String,
 
@@ -216,6 +303,34 @@ export const types = `
     vendors: [String],
     tags: [String],
     tagsExcluded: [String],
+
+    customerIds: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
+    customerSegmentIds: [String],
+
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    userIds: [String],
+    userPositions: [String],
+    userSegmentIds: [String],
+
+    brokerCustomerIds: [String],
+    brokerCustomerTags: [String],
+    brokerCustomerExcludeTags: [String],
+    brokerCustomerSegmentIds: [String],
+
+    brokerCompanyIds: [String],
+    brokerCompanyTags: [String],
+    brokerCompanyExcludeTags: [String],
+    brokerCompanySegmentIds: [String],
+
+    brokerUserIds: [String],
+    brokerUserPositions: [String],
+    brokerUserSegmentIds: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -242,6 +357,14 @@ export const types = `
     repeatRules: [RepeatRuleInput],
   }
 
+  input PricingFixedValueInput {
+      productId: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+    }
+
   input PricingCheckProduct {
     itemId: String
     productId: String
@@ -249,11 +372,12 @@ export const types = `
     price: Float
     manufacturedDate: String
   }
+
 `;
 
 const pricingQueryParams = `
   status: String
-  prioritizeRule: String
+  priority: String
   branchId: String
   departmentId: String
   productId: String
@@ -280,6 +404,10 @@ const checkDiscountParams = `
   departmentId: String
   branchId: String
   pipelineId: String
+  customerType: String
+  customerId: String
+  brokerType: String
+  brokerId: String
   products: [PricingCheckProduct]
 `;
 
@@ -287,7 +415,13 @@ export const queries = `
   pricingPlans(${pricingQueryParams}): [PricingPlan]
   cpPricingPlans(${pricingQueryParams}): [PricingPlan]
   pricingPlansCount(${pricingQueryParams}): Int
-  pricingPlanDetail(id: String): PricingPlan
+     pricingPlanDetail(id: String): PricingPlan
+    pricingFixedValuesPage(
+      pricingPlanId: String!
+      page: Int
+      perPage: Int
+      search: String
+    ): PricingFixedValuePageResult
   pricingCheckDiscount(${checkDiscountParams}): JSON
 `;
 
@@ -295,4 +429,10 @@ export const mutations = `
   pricingPlanAdd(doc: PricingPlanAddInput): PricingPlan
   pricingPlanEdit(doc: PricingPlanEditInput): PricingPlan
   pricingPlanRemove(id: String): PricingPlan
+  pricingPlansRecalculatePublicDiscounts: JSON
+
+  pricingFixedValueAdd(pricingPlanId: String!, doc: PricingFixedValueInput!): PricingFixedValue
+  pricingFixedValueEdit(id: String!, doc: PricingFixedValueInput!): PricingFixedValue
+  pricingFixedValueRemove(id: String!): PricingFixedValue
+  pricingFixedValuesBulkEdit(pricingPlanId: String!, productsData: JSON): JSON
 `;

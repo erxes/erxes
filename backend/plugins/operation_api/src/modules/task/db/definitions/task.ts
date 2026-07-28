@@ -1,9 +1,7 @@
-import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
 export const taskSchema = new Schema(
   {
-    _id: mongooseStringRandomId,
     name: { type: String, label: 'Name', required: true },
     description: { type: String, label: 'Description' },
     status: { type: Schema.Types.ObjectId, label: 'Status ID', required: true },

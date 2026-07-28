@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { MembersInline } from 'ui-modules';
 import { IActivity } from '@/activity/types';
 import {
@@ -10,6 +11,7 @@ interface ActivityItemWrapperProps {
 }
 
 export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
+  const { t } = useTranslation('operation');
   const memberIds = activity.createdBy ? [activity.createdBy] : [];
 
   return (
@@ -19,7 +21,7 @@ export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
       id={activity._id}
     >
       {activity.createdBy === 'system' ? (
-        <div className="text-accent-foreground">System</div>
+        <div className="text-accent-foreground">{t('system')}</div>
       ) : (
         <MembersInline.Provider memberIds={memberIds}>
           <MembersInline.Title />

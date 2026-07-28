@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { generateModels } from '~/connectionResolvers';
 import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 import { replaceContent } from '~/modules/documents/utils';
-import { createTransporter, prepareEmailParams } from '../utils';
+import { createTransporter, prepareEmailParams, readFileUrl } from '../utils';
 
 const CHUNK_SIZE = 50; // Send 50 emails at a time
 const CHUNK_DELAY = 2000; // 2 second delay between each chunk
@@ -57,6 +57,7 @@ export const handleEmailProcessor = async (payload) => {
 
           const htmlContent = blocksToHtml(replacedContent, {
             wrapper: { email: true, unsubscribeUrl },
+            resolveImageUrl: (url) => readFileUrl(url, subdomain),
           });
 
           await transporter.sendMail(

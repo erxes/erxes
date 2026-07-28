@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { MONTHS } from '../constants/dateTypes';
+import { parseHalfToken, parseQuarterToken } from './dateTokens';
 
 export const getDisplayValue = (value: string) => {
   if (value === 'today') {
@@ -25,16 +26,14 @@ export const getDisplayValue = (value: string) => {
     return value;
   }
 
-  if (value.includes('quarter')) {
-    const [year] = value.split('-');
-    const quarterNumber = Number.parseInt(value.split('quarter')[1]);
-    return `${year} Q${quarterNumber}`;
+  const quarter = parseQuarterToken(value);
+  if (quarter) {
+    return `${quarter.year} Q${quarter.quarter}`;
   }
 
-  if (value.includes('half')) {
-    const [year] = value.split('-');
-    const halfNumber = Number.parseInt(value.split('half')[1]);
-    return `${year} H${halfNumber}`;
+  const half = parseHalfToken(value);
+  if (half) {
+    return `${half.year} H${half.half}`;
   }
 
   if (/^\d{4}-y$/.test(value)) {

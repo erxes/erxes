@@ -1,10 +1,90 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { pricingPlanSchema } from '../definitions/pricingPlan';
 import {
   IPricingPlan,
   IPricingPlanDocument,
+  PricingPlanPriority,
 } from '@/pricing/@types/pricingPlan';
+import { PRIORITY_TYPES } from '../definitions/constants';
+
+type ParticipantField =
+  | 'customerIds'
+  | 'customerTags'
+  | 'customerExcludeTags'
+  | 'customerSegmentIds'
+  | 'companyIds'
+  | 'companyTags'
+  | 'companyExcludeTags'
+  | 'companySegmentIds'
+  | 'userIds'
+  | 'userPositions'
+  | 'userSegmentIds'
+  | 'brokerCustomerIds'
+  | 'brokerCustomerTags'
+  | 'brokerCustomerExcludeTags'
+  | 'brokerCustomerSegmentIds'
+  | 'brokerCompanyIds'
+  | 'brokerCompanyTags'
+  | 'brokerCompanyExcludeTags'
+  | 'brokerCompanySegmentIds'
+  | 'brokerUserIds'
+  | 'brokerUserPositions'
+  | 'brokerUserSegmentIds';
+
+const participantFields: ParticipantField[] = [
+  'customerIds',
+  'customerTags',
+  'customerExcludeTags',
+  'customerSegmentIds',
+  'companyIds',
+  'companyTags',
+  'companyExcludeTags',
+  'companySegmentIds',
+  'userIds',
+  'userPositions',
+  'userSegmentIds',
+  'brokerCustomerIds',
+  'brokerCustomerTags',
+  'brokerCustomerExcludeTags',
+  'brokerCustomerSegmentIds',
+  'brokerCompanyIds',
+  'brokerCompanyTags',
+  'brokerCompanyExcludeTags',
+  'brokerCompanySegmentIds',
+  'brokerUserIds',
+  'brokerUserPositions',
+  'brokerUserSegmentIds',
+];
+
+const normalizePlanDoc = (
+  doc: Partial<IPricingPlan>,
+  options: { defaultPriority?: boolean } = {},
+): Partial<IPricingPlan> => {
+  const priority: PricingPlanPriority | undefined =
+    doc.priority ??
+    (options.defaultPriority
+      ? (PRIORITY_TYPES.NONE as PricingPlanPriority)
+      : undefined);
+
+  const normalizedDoc: Partial<IPricingPlan> = {
+    ...doc,
+    ...(priority ? { priority } : {}),
+  };
+
+  if (priority === PRIORITY_TYPES.POS_BASE) {
+    const participants = normalizedDoc as Record<
+      ParticipantField,
+      string[] | undefined
+    >;
+
+    for (const field of participantFields) {
+      participants[field] = [];
+    }
+  }
+
+  return normalizedDoc;
+};
 
 export interface IPricingPlanModel extends Model<IPricingPlanDocument> {
   getPricingPlan(id: string): Promise<IPricingPlanDocument>;
@@ -12,7 +92,7 @@ export interface IPricingPlanModel extends Model<IPricingPlanDocument> {
   updatePlan(
     id: string,
     doc: IPricingPlan,
-    userId: string
+    userId: string,
   ): Promise<IPricingPlanDocument>;
   removePlan(id: string): Promise<IPricingPlanDocument>;
 }
@@ -20,8 +100,15 @@ export interface IPricingPlanModel extends Model<IPricingPlanDocument> {
 export const loadPricingPlanClass = (models: IModels) => {
   class PricingPlan {
     public static async getPricingPlan(id) {
-      const plan = await models.PricingPlans.findOne({_id: id}).lean();
-      if(!plan) {
+      // Use raw collection to bypass schema String-cast on _id,
+      // so existing ObjectId documents are found alongside new nanoid ones.
+      const filter: any = { _id: id };
+      if (Types.ObjectId.isValid(id) && id.length === 24) {
+        filter.$or = [{ _id: id }, { _id: new Types.ObjectId(id) }];
+        delete filter._id;
+      }
+      const plan = await models.PricingPlans.collection.findOne(filter);
+      if (!plan) {
         throw new Error('not found pricing plan');
       }
       return plan;
@@ -35,11 +122,11 @@ export const loadPricingPlanClass = (models: IModels) => {
      */
     public static async createPlan(doc: IPricingPlan, userId: string) {
       return models.PricingPlans.create({
-        ...doc,
+        ...normalizePlanDoc(doc, { defaultPriority: true }),
         // createdAt: new Date(),
         createdBy: userId,
         // updatedAt: new Date(),
-        updatedBy: userId
+        updatedBy: userId,
       });
     }
 
@@ -53,24 +140,28 @@ export const loadPricingPlanClass = (models: IModels) => {
     public static async updatePlan(
       id: string,
       doc: IPricingPlan & { _id?: string },
-      userId: string
+      userId: string,
     ) {
-      const result = await models.PricingPlans.findById(id);
-
-      if (!result) {
-        throw new Error(`Can't find plan`);
+      const filter: any = { _id: id };
+      if (Types.ObjectId.isValid(id) && id.length === 24) {
+        filter.$or = [{ _id: id }, { _id: new Types.ObjectId(id) }];
+        delete filter._id;
       }
-      if (doc._id) delete doc._id;
 
-      await models.PricingPlans.findByIdAndUpdate(id, {
+      const result = await models.PricingPlans.collection.findOne(filter);
+      if (!result) throw new Error(`Can't find plan`);
+      if (doc._id) delete doc._id;
+      const normalizedDoc = normalizePlanDoc(doc);
+
+      await models.PricingPlans.collection.updateOne(filter, {
         $set: {
-          ...doc,
+          ...normalizedDoc,
           updatedAt: new Date(),
-          updatedBy: userId
-        }
+          updatedBy: userId,
+        },
       });
 
-      return await models.PricingPlans.findById(id);
+      return models.PricingPlans.collection.findOne(filter);
     }
 
     /**
@@ -81,11 +172,11 @@ export const loadPricingPlanClass = (models: IModels) => {
     public static async removePlan(id: string) {
       const result = await models.PricingPlans.findById(id);
 
-      if (!result) {
-        throw new Error(`Can't find plan`);
-      }
+      if (!result) throw new Error(`Can't find plan`);
 
-      return await models.PricingPlans.findByIdAndDelete(id);
+      await models.PricingFixedValues.removeByPlanId(id);
+
+      return models.PricingPlans.findByIdAndDelete(id);
     }
   }
 

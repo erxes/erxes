@@ -10,10 +10,12 @@ export const RecordTableRowSkeleton = ({
   rows = 1,
   handleInView,
   backward,
+  root,
 }: {
   rows?: number;
   handleInView?: () => void;
   backward?: boolean;
+  root?: Element | null;
 }) => {
   // get column count
   const { table } = useRecordTable();
@@ -23,6 +25,7 @@ export const RecordTableRowSkeleton = ({
     table.getRowModel().rows[0]?.getVisibleCells().length ||
     table.getVisibleLeafColumns().length;
   const { ref } = useInView({
+    root: root ?? null,
     onChange: (inView) => {
       inView && handleInView?.();
     },

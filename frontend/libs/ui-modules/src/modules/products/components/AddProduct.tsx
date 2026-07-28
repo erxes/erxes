@@ -3,6 +3,10 @@ import { Suspense, useState, lazy } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { MutationHookOptions } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
+import { IProductFormValues } from '../types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { EMPTY_PRODUCT_FORM_VALUES, PRODUCT_FORM_SCHEMA } from '../constants/addProductFormSchema';
 
 const AddProductForm = lazy(() =>
   import('./AddProductForm').then((module) => ({
@@ -20,6 +24,11 @@ export const AddProduct = ({
   const [open, setOpen] = useState<boolean>(false);
   const [showMoreInfo, setShowMoreInfo] = useState<boolean>(false);
   const { t } = useTranslation('product', { keyPrefix: 'add' });
+
+  const form = useForm<IProductFormValues>({
+    resolver: zodResolver(PRODUCT_FORM_SCHEMA),
+    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
+  });
 
   return (
     <FocusSheet open={open} onOpenChange={setOpen}>
@@ -49,6 +58,7 @@ export const AddProduct = ({
                   showMoreInfo={showMoreInfo}
                   onShowMoreInfoChange={setShowMoreInfo}
                   options={options}
+                  form={form}
                 />
               )}
             </Suspense>

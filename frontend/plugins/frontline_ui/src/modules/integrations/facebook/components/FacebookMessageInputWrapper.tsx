@@ -2,6 +2,7 @@ import { differenceInHours } from 'date-fns';
 import { useFacebookConversationMessages } from '../hooks/useFacebookConversationMessages';
 import { Alert, Button, Form, ToggleGroup } from 'erxes-ui';
 import { IconExclamationCircle } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { EnumFacebookTag } from '@/integrations/facebook/types/FacebookTypes';
@@ -12,6 +13,7 @@ import { z } from 'zod';
 import { FACEBOOK_MESSAGE_WINDOW_HOURS } from '@/integrations/facebook/constants/FbMessageWindow';
 
 export const FacebookTaggingForm = () => {
+  const { t } = useTranslation('frontline');
   const setExtraInfo = useSetAtom(messageExtraInfoState);
   const form = useForm<z.infer<typeof FACEBOOK_TAG_FORM_SCHEMA>>({
     resolver: zodResolver(FACEBOOK_TAG_FORM_SCHEMA),
@@ -42,15 +44,15 @@ export const FacebookTaggingForm = () => {
                   <ToggleGroup.Item
                     value={EnumFacebookTag.CONFIRMED_EVENT_UPDATE}
                   >
-                    Confirmed event update
+                    {t('confirmed-event-update')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item
                     value={EnumFacebookTag.POST_PURCHASE_UPDATE}
                   >
-                    Post purchase update
+                    {t('post-purchase-update')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value={EnumFacebookTag.ACCOUNT_UPDATE}>
-                    Account update
+                    {t('account-update')}
                   </ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>
@@ -59,7 +61,7 @@ export const FacebookTaggingForm = () => {
           )}
         />
         <Button variant="secondary" type="submit">
-          Submit
+          {t('submit')}
         </Button>
       </form>
     </Form>
@@ -71,6 +73,7 @@ export const FacebookMessageInputWrapper = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const { facebookConversationMessages, loading } =
     useFacebookConversationMessages();
 
@@ -98,11 +101,10 @@ export const FacebookMessageInputWrapper = ({
         <Alert className="">
           <IconExclamationCircle />
           <Alert.Title>
-            Your last interaction with this contact was more than 24 hours ago.
+            {t('fb-24h-window-title')}
           </Alert.Title>
           <Alert.Description>
-            Only Tagged Messages are allowed outside the standard messaging
-            window
+            {t('fb-24h-window-description')}
             <FacebookTaggingForm />
           </Alert.Description>
         </Alert>

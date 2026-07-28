@@ -2,6 +2,7 @@ import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
 import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
 import { IconSquareToggle } from '@tabler/icons-react';
 import { DropdownMenu, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   formId: string;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function FormToggleStatus({ formId, status, setOpen }: Props) {
+  const { t } = useTranslation('frontline');
   const { toggleStatus, loading } = useFormToggleStatus();
 
   const onSelect = () => {
@@ -23,7 +25,7 @@ export function FormToggleStatus({ formId, status, setOpen }: Props) {
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           variant: 'destructive',
           description: error.message,
         });
@@ -34,7 +36,7 @@ export function FormToggleStatus({ formId, status, setOpen }: Props) {
   return (
     <DropdownMenu.Item onSelect={onSelect}>
       <IconSquareToggle />
-      {status === 'active' ? 'Archive' : 'Unarchive'}
+      {status === 'active' ? t('archive') : t('unarchive')}
     </DropdownMenu.Item>
   );
 }

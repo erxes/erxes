@@ -1,4 +1,5 @@
 import { Button, Card, Input, Label } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { PlaceConditionUI } from '../types';
@@ -31,6 +32,7 @@ const emptyForm: PlaceConfigData = {
 };
 
 const PlaceConfig: React.FC = () => {
+  const { t } = useTranslation('mongolian');
   const {
     savedConfigs,
     activeIndex,
@@ -57,7 +59,7 @@ const PlaceConfig: React.FC = () => {
     <div className="w-full flex justify-center overflow-y-auto">
       <div className="w-full max-w-6xl px-6 py-6 space-y-8">
         <ConfigHeader
-          title="Product Places Config"
+          title={t('product-places-config')}
           onNew={reset}
           disabled={loading}
         />
@@ -72,10 +74,10 @@ const PlaceConfig: React.FC = () => {
           <Card.Content className="space-y-6">
             <div className="space-y-2 pt-4">
               <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                Title
+                {t('title')}
               </Label>
               <Input
-                placeholder="Enter configuration title"
+                placeholder={t('enter-configuration-title')}
                 value={formData.title}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, title: e.target.value }))
@@ -86,32 +88,32 @@ const PlaceConfig: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
-                  Select Board
+                  {t('select-board')}
                 </Label>
                 <SelectBoard
                   mode="single"
                   value={formData.boardId}
                   onValueChange={(v) => handleBoardChange(v as string)}
-                  placeholder="Choose board"
+                  placeholder={t('choose-board')}
                 />
               </div>
 
               <div>
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
-                  Select Pipeline
+                  {t('select-pipeline')}
                 </Label>
                 <SelectPipeline
                   mode="single"
                   boardId={formData.boardId}
                   value={formData.pipelineId}
                   onValueChange={(v) => handlePipelineChange(v as string)}
-                  placeholder="Choose pipeline"
+                  placeholder={t('choose-pipeline')}
                 />
               </div>
 
               <div>
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
-                  Select Stage
+                  {t('select-stage')}
                 </Label>
                 <SelectStage
                   mode="single"
@@ -120,7 +122,7 @@ const PlaceConfig: React.FC = () => {
                   onValueChange={(v) =>
                     setFormData((prev) => ({ ...prev, stageId: v as string }))
                   }
-                  placeholder="Choose stage"
+                  placeholder={t('choose-stage')}
                 />
               </div>
             </div>
@@ -129,17 +131,17 @@ const PlaceConfig: React.FC = () => {
 
         <Card>
           <Card.Header>
-            <Card.Title>Conditions ({formData.conditions.length})</Card.Title>
+            <Card.Title>{t('conditions', { count: formData.conditions.length })}</Card.Title>
           </Card.Header>
 
           <Card.Content>
             {formData.conditions.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-muted-foreground gap-4">
                 <p className="text-sm">
-                  No conditions added yet. Click "Add condition" to get started.
+                  {t('no-conditions-yet')}
                 </p>
                 <Button onClick={addCondition} variant="outline" className="text-xs">
-                  <IconPlus /> Add condition
+                  <IconPlus /> {t('add-condition')}
                 </Button>
               </div>
             ) : (

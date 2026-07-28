@@ -20,6 +20,8 @@ const config: ModuleFederationConfig = {
     './loyaltySettings': './src/LoyaltySettings.tsx',
     './loyaltySettingsNavigation': './src/LoyaltySettingsNavigation.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './automationsWidget':
+      './src/widgets/automations/components/AutomationRemoteEntry.tsx',
     './relationWidget': './src/widgets/Widgets.tsx',
   },
 

@@ -7,12 +7,12 @@ export const TICKET_STATUS_TYPES = {
   CANCELLED: 6,
 };
 export const TICKET_STATUS_TYPE_NAMES = {
-  [TICKET_STATUS_TYPES.NEW]: 'New',
-  [TICKET_STATUS_TYPES.OPEN]: 'Open',
-  [TICKET_STATUS_TYPES.IN_PROGRESS]: 'In progress',
-  [TICKET_STATUS_TYPES.RESOLVED]: 'Resolved',
-  [TICKET_STATUS_TYPES.CLOSED]: 'Closed',
-  [TICKET_STATUS_TYPES.CANCELLED]: 'Cancelled',
+  [TICKET_STATUS_TYPES.NEW]: 'new-label',
+  [TICKET_STATUS_TYPES.OPEN]: 'open-label',
+  [TICKET_STATUS_TYPES.IN_PROGRESS]: 'status-type-in-progress',
+  [TICKET_STATUS_TYPES.RESOLVED]: 'resolved',
+  [TICKET_STATUS_TYPES.CLOSED]: 'status-type-closed',
+  [TICKET_STATUS_TYPES.CANCELLED]: 'cancelled',
 };
 
 export const TICKET_DEFAULT_STATUSES = [

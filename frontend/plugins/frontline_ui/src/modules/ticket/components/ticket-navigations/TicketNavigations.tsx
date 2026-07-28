@@ -7,11 +7,12 @@ import {
   NavigationMenuGroup,
   Sidebar,
   Skeleton,
-  TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 function LoadingSkeleton() {
   return (
@@ -28,35 +29,25 @@ interface ChannelItemProps {
 }
 
 function ChannelItem({ channel }: ChannelItemProps) {
-  const [channelId, setChannelId] = useQueryState<string | null>('channelId');
+  const [channelId] = useQueryState<string | null>('channelId');
   const isActive = channelId === channel._id;
   return (
-    <Sidebar.Group className="p-0">
-      <div className="w-full relative group/trigger hover:cursor-pointer">
-        <div className="w-full flex items-center justify-between">
-          <Sidebar.MenuButton
-            isActive={isActive}
-            onClick={() => {
-              setChannelId(channel._id);
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <IconComponent
-                name={channel.icon}
-                className={cn(
-                  'text-accent-foreground shrink-0 size-4',
-                  isActive && 'text-primary',
-                )}
-              />
-              <TextOverflowTooltip
-                className="font-sans font-semibold normal-case flex-1 min-w-0"
-                value={channel.name}
-              />
-            </div>
-          </Sidebar.MenuButton>
-        </div>
-      </div>
-    </Sidebar.Group>
+    <Sidebar.MenuItem>
+      <Sidebar.MenuButton asChild isActive={isActive}>
+        <Link to={`frontline/tickets?channelId=${channel._id}`}>
+          {!!channel.icon && (
+            <IconComponent
+              name={channel.icon}
+              className={cn(
+                'flex-none text-accent-foreground',
+                isActive && 'text-primary',
+              )}
+            />
+          )}
+          <span className="flex-1 min-w-0 truncate">{channel.name}</span>
+        </Link>
+      </Sidebar.MenuButton>
+    </Sidebar.MenuItem>
   );
 }
 
@@ -65,7 +56,17 @@ export function TicketNavigations() {
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
 
   useEffect(() => {
-    !channelId && channels?.[0]?._id && setChannelId(channels[0]._id);
+    if (!channels?.length || !channels[0]?._id) {
+      return;
+    }
+
+    const hasSelectedChannel = channels.some(
+      (channel) => channel._id === channelId,
+    );
+
+    if (!channelId || !hasSelectedChannel) {
+      setChannelId(channels[0]._id);
+    }
   }, [channels, setChannelId, channelId]);
   return (
     <>
@@ -86,6 +87,7 @@ export function TicketNavigations() {
 }
 
 const Pipelines = () => {
+  const { t } = useTranslation('frontline');
   const [channelId] = useQueryState<string | null>('channelId');
   const [pipelineId, setPipelineId] = useQueryState<string | null>(
     'pipelineId',
@@ -96,11 +98,18 @@ const Pipelines = () => {
     },
   });
   useEffect(() => {
-    if (channelId && pipelines) {
-      setPipelineId(pipelines?.[0] ? pipelines?.[0]?._id : null);
+    if (!channelId || !pipelines) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId, pipelines]);
+
+    const hasSelectedPipeline = pipelines.some(
+      (pipeline) => pipeline._id === pipelineId,
+    );
+
+    if (!pipelineId || !hasSelectedPipeline) {
+      setPipelineId(pipelines[0]?._id || null);
+    }
+  }, [channelId, pipelines, pipelineId, setPipelineId]);
   return (
     <Collapsible.Content className="pt-1">
       <Sidebar.GroupContent>
@@ -116,7 +125,9 @@ const Pipelines = () => {
                     setPipelineId(pipeline._id);
                   }}
                 >
-                  <span className="capitalize">{pipeline.name}</span>
+                  <span className="capitalize min-w-0 truncate">
+                    {pipeline.name}
+                  </span>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))
@@ -124,7 +135,7 @@ const Pipelines = () => {
           {!loading && !pipelines?.length && (
             <Sidebar.MenuItem>
               <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">No pipelines</span>
+                <span className="capitalize text-foreground">{t('no-pipelines')}</span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}

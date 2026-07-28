@@ -1,6 +1,10 @@
 import type { IAttachment, IPdfAttachment } from 'erxes-ui';
 
-export type { IUser, ICategory, ITopic } from '../../../../content_ui/src/modules/cms/types';
+export type {
+  IUser,
+  ICategory,
+  ITopic,
+} from '../../../../content_ui/src/modules/cms/types';
 
 export interface IArticleCustomFormField {
   id: string;
@@ -26,7 +30,7 @@ export interface IKnowledgeBaseArticle {
   fileDuration?: number;
   fileName?: string;
   fileType?: string;
-  customForms?: IArticleCustomFormField[];
+  // customForms?: IArticleCustomFormField[];
 }
 
 export interface ArticleFormData {
@@ -45,7 +49,7 @@ export interface ArticleFormData {
   fileDuration?: number;
   fileName?: string;
   fileType?: string;
-  customForms: IArticleCustomFormField[];
+  // customForms: IArticleCustomFormField[];
 }
 
 export type ArticleInput = Omit<

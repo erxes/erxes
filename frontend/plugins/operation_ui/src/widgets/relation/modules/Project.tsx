@@ -6,6 +6,7 @@ import { ScrollArea, Separator, Spinner } from 'erxes-ui';
 import { useCreateMultipleRelations, useRelations } from 'ui-modules';
 import { AddProjectRelation } from './AddProjectRelation';
 import { ProjectWidgetCard } from './ProjectWidgetCard';
+import { useTranslation } from 'react-i18next';
 
 export const Project = ({
   contentId,
@@ -18,6 +19,7 @@ export const Project = ({
   customerId?: string;
   companyId?: string;
 }) => {
+  const { t } = useTranslation('operation');
   const { ownEntities, loading: loadingRelations } = useRelations({
     variables: {
       contentId,
@@ -75,7 +77,7 @@ export const Project = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconClipboard />
         </div>
-        <span className="text-sm">No projects to display at the moment.</span>
+        <span className="text-sm">{t('no-projects-to-display')}</span>
         <AddProjectRelation onSelect={onSelect} label="Add project" />
       </div>
     );
@@ -84,7 +86,7 @@ export const Project = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">Projects</span>
+        <span className="font-medium text-primary">{t('projects')}</span>
         <AddProjectRelation onSelect={onSelect} />
       </div>
       <Separator />

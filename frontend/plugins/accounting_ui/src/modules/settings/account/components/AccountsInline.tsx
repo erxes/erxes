@@ -1,5 +1,6 @@
 import { Combobox, Tooltip, isUndefinedOrNull } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   AccountsInlineContext,
   useAccountsInlineContext,
@@ -24,6 +25,7 @@ export const AccountsInlineProvider = ({
   allowUnassigned?: boolean;
   permissionMode?: 'read' | 'write';
 }) => {
+  const { t } = useTranslation('accounting');
   const [accountsList, setAccountsList] = useState<IAccount[]>(accounts || []);
   const accountIdsKey = accountIds?.join(',') || '';
   const currentAccounts = accounts?.length ? accounts : accountsList;
@@ -38,7 +40,7 @@ export const AccountsInlineProvider = ({
       loading: false,
       accountIds: currentAccountIds,
       placeholder: isUndefinedOrNull(placeholder)
-        ? 'Select Accounts'
+        ? t('select-accounts')
         : placeholder,
       updateAccounts: updateAccounts || setAccountsList,
       allowUnassigned,
@@ -104,6 +106,7 @@ const AccountsInlineEffectComponent = ({
 };
 
 export const AccountsInlineTitle = ({ className }: { className?: string }) => {
+  const { t } = useTranslation('accounting');
   const { accounts, loading, placeholder, allowUnassigned } =
     useAccountsInlineContext();
 
@@ -112,7 +115,7 @@ export const AccountsInlineTitle = ({ className }: { className?: string }) => {
       if (allowUnassigned) {
         return (
           <span className="capitalize text-muted-foreground/80">
-            No assignee
+            {t('no-assignee')}
           </span>
         );
       }

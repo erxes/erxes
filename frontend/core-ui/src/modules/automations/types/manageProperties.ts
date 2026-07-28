@@ -1,4 +1,3 @@
-import { IManagePropertyFieldName } from '@/automations/components/builder/nodes/actions/manageProperties/types/ManagePropertyTypes';
 import { IField as UIModuleField } from 'ui-modules';
 
 /**
@@ -45,6 +44,6 @@ export interface ManagePropertyRuleProps {
   rule: ManagePropertyRule;
   propertyType: string;
   selectedField?: ManagePropertyField;
-  fieldName: IManagePropertyFieldName;
+  fieldName: string;
   index: number;
 }

@@ -8,7 +8,8 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { IInvoice, IInvoiceDocument } from '~/modules/payment/@types/invoices';
+import { IInvoice } from '~/modules/payment/@types/invoices';
+import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
 import * as QRCode from 'qrcode';
 async function sendInvoiceBarcodeEmail(
   subdomain: string,
@@ -155,17 +156,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
   async generateInvoiceUrl(
     _root,
     { input }: { input: IInvoice },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    const domain = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+    if (!input.paymentIds || input.paymentIds.length === 0) {
+      throw new Error('paymentIds is required');
+    }
 
-    const invoice = await models.Invoices.createInvoice({
-      ...input,
-    });
+    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
 
-    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+    return buildInvoiceUrl(subdomain, invoice._id);
   },
 
   async invoiceCreate(
@@ -180,6 +179,20 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       subdomain,
     );
     return invoice;
+  },
+
+  async cpGenerateInvoiceUrl(
+    _root,
+    { input }: { input: IInvoice },
+    { models, subdomain }: IContext,
+  ) {
+    if (!input.paymentIds || input.paymentIds.length === 0) {
+      throw new Error('paymentIds is required');
+    }
+
+    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
+
+    return buildInvoiceUrl(subdomain, invoice._id);
   },
 
   async cpInvoiceCreate(
@@ -287,10 +300,17 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
+      const paymentId = invoice.paymentIds?.[0];
+      const payment = paymentId
+        ? await models.PaymentMethods.findOne({ _id: paymentId }).lean()
+        : null;
+      if (payment?.sendEmailOnPayment !== false && invoice.email) {
+        await models.Invoices.updateOne({ _id }, { sendEmailOnPayment: true });
+        sendInvoiceBarcodeEmail(subdomain, invoice).catch(() => undefined);
+      }
+
       if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
-        );
+        const [moduleName, collectionType] = splitType(invoice.contentType);
 
         // Fire worker message – do not await
         sendWorkerMessage({
@@ -399,13 +419,38 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
+
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     return models.Invoices.updateInvoice(_id, {
       selectedPaymentId: paymentId,
       domain,
     });
+  },
+
+  async cpInvoiceUpdate(
+    _root,
+    {
+      _id,
+      contentType,
+      contentTypeId,
+    }: { _id: string; contentType: string; contentTypeId: string },
+    { models }: IContext,
+  ) {
+    const invoice = await models.Invoices.getInvoice({ _id });
+
+    if (invoice.contentType && invoice.contentTypeId) {
+      throw new Error('Content type and ID already set for this invoice');
+    }
+
+    return models.Invoices.updateOne(
+      { _id },
+      {
+        contentType: contentType || invoice.contentType,
+        contentTypeId: contentTypeId || invoice.contentTypeId,
+      },
+    );
   },
 };
 
@@ -434,5 +479,13 @@ mutations.invoiceScanBarcode.wrapperConfig = {
 };
 
 mutations.cpInvoicesCheck.wrapperConfig = {
+  forClientPortal: true,
+};
+
+mutations.cpGenerateInvoiceUrl.wrapperConfig = {
+  forClientPortal: true,
+};
+
+mutations.cpInvoiceUpdate.wrapperConfig = {
   forClientPortal: true,
 };

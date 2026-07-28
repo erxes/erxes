@@ -20,6 +20,9 @@ import {
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
 import { ConversationItem } from './ConversationItem';
+import { ConversationThreadList } from './ConversationChannelSection';
+import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
+import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
@@ -65,24 +68,36 @@ export const Conversations = () => {
     }
   }, [refetchNewMessages]);
 
-  const { channelId, integrationType, unassigned, status, created, brandId } =
-    useNonNullMultiQueryState<{
-      channelId: string;
-      integrationType: string;
-      unassigned: string;
-      status: string;
-      conversationId: string;
-      created: string;
-      brandId: string;
-    }>([
-      'channelId',
-      'integrationType',
-      'unassigned',
-      'status',
-      'conversationId',
-      'created',
-      'brandId',
-    ]);
+  const {
+    channelId,
+    integrationId,
+    integrationType,
+    unassigned,
+    status,
+    created,
+    brandId,
+    searchValue,
+  } = useNonNullMultiQueryState<{
+    channelId: string;
+    integrationId: string;
+    integrationType: string;
+    unassigned: string;
+    status: string;
+    conversationId: string;
+    created: string;
+    brandId: string;
+    searchValue: string;
+  }>([
+    'channelId',
+    'integrationId',
+    'integrationType',
+    'unassigned',
+    'status',
+    'conversationId',
+    'created',
+    'brandId',
+    'searchValue',
+  ]);
 
   const parsedDate = parseDateRangeFromString(created || '');
 
@@ -91,12 +106,14 @@ export const Conversations = () => {
       variables: {
         limit: CONVERSATIONS_LIMIT,
         channelId,
+        integrationId,
         integrationType: integrationType,
         unassigned,
         status: status || '',
         startDate: parsedDate?.from,
         endDate: parsedDate?.to,
         brandId,
+        searchValue,
         cursorMode: EnumCursorMode.INCLUSIVE,
       },
     });
@@ -104,6 +121,34 @@ export const Conversations = () => {
   const conversationListContextValue = useMemo(
     () => ({ conversations, loading, totalCount }),
     [conversations, loading, totalCount],
+  );
+
+  // Resolve thread/channel metadata for the loaded Discord conversations so the
+  // list can nest threads under their parent channel and show the channel as the
+  // profile in group mode. Only Discord ids are sent, so non-Discord inboxes
+  // never trigger the query.
+  const discordConversationIds = useMemo(
+    () =>
+      (conversations || [])
+        .filter(isDiscordConversation)
+        .map((conversation) => conversation._id),
+    [conversations],
+  );
+  const threadMap = useDiscordConversationChannels(discordConversationIds);
+
+  const renderConversationItem = (conversation: IConversation) => (
+    <ConversationContext.Provider
+      key={conversation._id}
+      value={{ ...conversation, tagIds: conversation.tagIds ?? [] }}
+    >
+      <ConversationItem
+        channelInfo={threadMap.get(conversation._id)}
+        onConversationSelect={() => {
+          setConversationsContainerScroll(containerRef.current?.scrollTop || 0);
+          setRerendered(true);
+        }}
+      />
+    </ConversationContext.Provider>
   );
 
   return (
@@ -116,21 +161,17 @@ export const Conversations = () => {
         </Filter>
         <Separator />
         <div className="h-full w-full overflow-y-auto" ref={containerRef}>
-          {conversations?.map((conversation: IConversation) => (
-            <ConversationContext.Provider
-              key={conversation._id}
-              value={{ ...conversation, tagIds: conversation.tagIds ?? [] }}
-            >
-              <ConversationItem
-                onConversationSelect={() => {
-                  setConversationsContainerScroll(
-                    containerRef.current?.scrollTop || 0,
-                  );
-                  setRerendered(true);
-                }}
-              />
-            </ConversationContext.Provider>
-          ))}
+          {/* The inbox renders a flat conversation list. Per-channel selection
+              lives in the sidebar's "Discord Channels" section (sets
+              `integrationId`); when a channel is selected the list is already
+              server-side isolated to it. Threads still nest under their parent
+              via ConversationThreadList; non-Discord inboxes have an empty
+              threadMap, so everything renders as one flat list. */}
+          <ConversationThreadList
+            conversations={conversations || []}
+            threadMap={threadMap}
+            renderItem={renderConversationItem}
+          />
           {!loading && conversations?.length > 0 && pageInfo?.hasNextPage && (
             <Button
               variant="ghost"

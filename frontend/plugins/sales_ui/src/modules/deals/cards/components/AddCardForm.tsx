@@ -7,6 +7,7 @@ import WorkflowFields from './WorkflowFields';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
 export function AddCardForm({
   onCloseSheet,
@@ -44,6 +45,8 @@ export function AddCardForm({
     });
   };
 
+  const { t } = useTranslation('sales');
+
   return (
     <Form {...form}>
       <form
@@ -51,9 +54,9 @@ export function AddCardForm({
         className="flex flex-col h-full overflow-hidden"
       >
         <Sheet.Header className="p-5">
-          <Sheet.Title>Add deal</Sheet.Title>
+          <Sheet.Title>{t('add-deal')}</Sheet.Title>
           <Sheet.Description className="sr-only">
-            Add a new deal to your stage.
+            {t('add-new-deal-to-stage')}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
@@ -66,7 +69,7 @@ export function AddCardForm({
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>NAME</Form.Label>
+                      <Form.Label>{t('name')}</Form.Label>
                       <Form.Control>
                         <Input {...field} required />
                       </Form.Control>
@@ -79,7 +82,7 @@ export function AddCardForm({
                   name="description"
                   render={({ field }) => (
                     <Form.Item className="mb-5">
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>{t('description')}</Form.Label>
 
                       <Form.Control>
                         <Editor
@@ -102,7 +105,7 @@ export function AddCardForm({
                   name="assignedUserIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Assigned to</Form.Label>
+                      <Form.Label>{t('assigned-to')}</Form.Label>
                       <Form.Control>
                         <SelectMember.FormItem
                           mode="multiple"
@@ -119,7 +122,7 @@ export function AddCardForm({
                   name="labelIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Select label</Form.Label>
+                      <Form.Label>{t('select-label')}</Form.Label>
                       <Form.Control>
                         <SelectLabels.FormItem
                           mode="multiple"
@@ -136,7 +139,7 @@ export function AddCardForm({
                   name="companyIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Select companies</Form.Label>
+                      <Form.Label>{t('select-companies')}</Form.Label>
                       <Form.Control>
                         <SelectCompany
                           mode="multiple"
@@ -153,7 +156,7 @@ export function AddCardForm({
                   name={'customerIds'}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Select customers</Form.Label>
+                      <Form.Label>{t('select-customers')}</Form.Label>
                       <SelectCustomer.FormItem
                         mode="multiple"
                         value={field.value}
@@ -175,14 +178,14 @@ export function AddCardForm({
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={loading}
           >
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('saving') : t('save')}
           </Button>
         </Sheet.Footer>
       </form>

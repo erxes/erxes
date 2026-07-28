@@ -1,10 +1,12 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AGENTS_EDIT_MUTATION } from '../graphql/mutations/mutations';
 import { IAgent } from '../types/agent';
 
 export const useEditAgent = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   // Apollo automatically normalizes by _id, so returning all fields
   // from the mutation is enough to update the cache in-place.
@@ -15,14 +17,14 @@ export const useEditAgent = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Agent updated successfully',
+          title: t('success'),
+          description: t('agent-updated'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

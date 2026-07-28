@@ -11,6 +11,8 @@ import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
   getTickets(
@@ -33,7 +35,10 @@ export interface ITicketModel extends Model<ITicketDocument> {
   removeTicket(_id: string[]): Promise<{ ok: number }>;
 }
 
-export const loadTicketClass = (models: IModels) => {
+export const loadTicketClass = (
+  models: IModels,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Ticket {
     public static async getTicket(_id: string): Promise<ITicketDocument> {
       const ticket = await models.Ticket.findOne({ _id });
@@ -115,6 +120,11 @@ export const loadTicketClass = (models: IModels) => {
         });
       }
 
+      sendDbEventLog({
+        action: 'create',
+        docId: ticket._id,
+        currentDocument: ticket.toObject(),
+      });
       return ticket;
     }
 
@@ -127,7 +137,7 @@ export const loadTicketClass = (models: IModels) => {
       userId: string;
       subdomain: string;
     }) {
-      const { _id, ...rest } = doc;
+      const { _id, propertiesData: incomingPropertiesData, ...rest } = doc;
       const permissionValidator = createPermissionValidator(models);
 
       const ticket = await models.Ticket.findOne({ _id });
@@ -141,20 +151,18 @@ export const loadTicketClass = (models: IModels) => {
         doc.statusId || '',
         userId,
       );
-      if (doc.propertiesData) {
-        const propertiesData = await sendTRPCMessage({
+      if (incomingPropertiesData) {
+        await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'mutation',
           module: 'fields',
           action: 'validateFieldValues',
           input: {
-            data: doc.propertiesData,
+            data: incomingPropertiesData,
           },
-          defaultValue: doc.propertiesData,
+          defaultValue: incomingPropertiesData,
         });
-
-        doc.propertiesData = propertiesData;
       }
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {
@@ -208,9 +216,15 @@ export const loadTicketClass = (models: IModels) => {
           action: 'assignee',
         });
       }
-      const update = {
-        $set: rest,
+      const update: { $set: Record<string, any>; [key: string]: any } = {
+        $set: { ...rest },
       };
+
+      if (incomingPropertiesData) {
+        for (const [key, value] of Object.entries(incomingPropertiesData)) {
+          update.$set[`propertiesData.${key}`] = value;
+        }
+      }
 
       if (doc.isSubscribed !== false) {
         update['$addToSet'] = {
@@ -243,6 +257,14 @@ export const loadTicketClass = (models: IModels) => {
           action: 'updated',
         });
       }
+      if (detail) {
+        sendDbEventLog?.({
+          action: 'update',
+          docId: detail._id,
+          currentDocument: detail.toObject(),
+          prevDocument: ticket.toObject(),
+        });
+      }
       return detail;
     }
 
@@ -250,7 +272,12 @@ export const loadTicketClass = (models: IModels) => {
       const result = await models.Ticket.deleteMany({
         _id: { $in: _ids },
       });
-
+      for (const _id of _ids) {
+        sendDbEventLog?.({
+          action: 'delete',
+          docId: _id,
+        });
+      }
       return { ok: result.deletedCount || 0 };
     }
   }

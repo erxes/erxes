@@ -8,13 +8,14 @@ import AccTrDetail from '@/accounting/graphql/resolvers/customResolvers/accTrDet
 import AdjustInvDetail from '@/accounting/graphql/resolvers/customResolvers/adjustInvDetail';
 import {
   AccountingConfigs as MutationsAccountingConfig,
+  AccountingCheckSynced as MutationsAccountingCheckSynced,
   AccountCategories as MutationsAccountCategory,
   Accounts as MutationsAccount,
   VatRows as MutationsVatRow,
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
   AdjustInventories as MutationsAdjustInventories,
-  AccountPermissions as MutationsAccountPermissions, 
+  AccountPermissions as MutationsAccountPermissions,
 } from '@/accounting/graphql/resolvers/mutations';
 import {
   AccountingConfigs as QueriesAccountingConfig,
@@ -61,6 +62,7 @@ const resolvers: any = {
     ...MutationsAccountCategory,
     ...MutationsAccount,
     ...MutationsAccountingConfig,
+    ...MutationsAccountingCheckSynced,
     ...MutationsVatRow,
     ...MutationsCtaxRow,
     ...MutationsTransactions,

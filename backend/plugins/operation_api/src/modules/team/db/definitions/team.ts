@@ -1,9 +1,7 @@
-import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
 export const teamSchema = new Schema(
   {
-    _id: mongooseStringRandomId,
     icon: { type: String, label: 'Icon' },
     memberIds: { type: [String], label: 'Member IDs' },
     name: { type: String, label: 'Name' },

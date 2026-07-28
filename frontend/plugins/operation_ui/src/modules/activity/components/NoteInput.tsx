@@ -12,9 +12,11 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui';
 import { AssignMemberInEditor } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
-  const editor = useBlockEditor({ placeholder: 'Leave a note...' });
+  const { t } = useTranslation('operation');
+  const editor = useBlockEditor({ placeholder: t('leave-a-note') });
   const { createNote, loading } = useCreateNote();
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -79,7 +81,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
           // disabled={editor?.document?.length === 0}
           onClick={onSend}
         >
-          Send
+          {t('send')}
           <Kbd className="ml-1">
             <IconCommand size={12} />
             <IconCornerDownLeft size={12} />

@@ -9,17 +9,21 @@ export const DateFilterCommand = ({
   selected,
   onSelect,
   focusOnMount,
+  label,
 }: {
   value: string;
   selected: string;
   onSelect: (value: string | null) => void;
   focusOnMount?: boolean;
+  label?: string;
 }) => {
   const { setDialogView, setOpenDialog } = useFilterContext();
+  const displayLabel =
+    label ?? value.charAt(0).toUpperCase() + value.slice(1) + ' date';
   return (
     <Command>
       <Command.Input
-        placeholder={value.charAt(0).toUpperCase() + value.slice(1) + ' date'}
+        placeholder={displayLabel}
         focusOnMount={focusOnMount}
       />
       <Command.List>
@@ -47,7 +51,7 @@ export const DateFilterCommand = ({
             setOpenDialog(true);
           }}
         >
-          Custom {value} date or timeframe
+          {label ? `Custom ${label} range` : `Custom ${value} date or timeframe`}
         </Command.Item>
       </Command.List>
     </Command>

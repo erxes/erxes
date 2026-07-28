@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CouponHotKeyScope } from '../../types/CouponHotKeyScope';
 
@@ -26,6 +27,7 @@ type Props = {
 };
 
 export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -137,7 +139,7 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
         <Sheet.Trigger asChild>
           <Button variant="ghost" size="sm">
             <IconEdit className="h-4 w-4" />
-            Edit
+            {t('edit')}
             <Kbd>E</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -149,7 +151,7 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Edit coupon campaign</Sheet.Title>
+          <Sheet.Title>{t('edit-coupon-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

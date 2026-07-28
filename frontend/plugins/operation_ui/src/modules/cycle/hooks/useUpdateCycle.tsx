@@ -1,7 +1,9 @@
 import { useMutation, MutationHookOptions } from '@apollo/client';
 import { UPDATE_CYCLE } from '../graphql/mutations/updateCycle';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 export const useUpdateCycle = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [_updateCycle, { loading, error }] = useMutation(UPDATE_CYCLE);
 
@@ -39,8 +41,8 @@ export const useUpdateCycle = () => {
       onCompleted: (data) => {
         if (data?.updateCycle && options.showSuccessToast) {
           toast({
-            title: 'Success',
-            description: 'Cycle updated successfully',
+            title: t('success'),
+            description: t('cycle-updated-successfully'),
             variant: 'default',
           });
         }
@@ -48,8 +50,8 @@ export const useUpdateCycle = () => {
       onError: (error) => {
         console.error('Update cycle error:', error);
         toast({
-          title: 'Error',
-          description: error.message || 'Failed to update cycle',
+          title: t('error'),
+          description: error.message || t('failed-to-update-cycle'),
           variant: 'destructive',
         });
       },

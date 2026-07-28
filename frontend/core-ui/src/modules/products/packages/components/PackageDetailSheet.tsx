@@ -1,10 +1,12 @@
-import { IconCheck, IconPackage } from '@tabler/icons-react';
+import { IconCheck, IconPackage, IconTagPlus } from '@tabler/icons-react';
 import {
   Badge,
   Button,
+  Combobox,
   CurrencyField,
   InfoCard,
   Input,
+  Popover,
   ScrollArea,
   Select,
   Sheet,
@@ -14,8 +16,11 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ProductPrimaryImageUpload,
+  SelectTags,
+  TagBadge,
   type ProductAttachmentItem,
 } from 'ui-modules';
 import { usePackageDetail } from '../hooks/usePackageDetail';
@@ -28,7 +33,60 @@ const Label = ({ children }: { children: React.ReactNode }) => (
   <label className="font-medium text-sm">{children}</label>
 );
 
+const PackageTagsField = ({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string[];
+  onChange: (tagIds: string[]) => void;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {value.map((tagId) => (
+        <TagBadge
+          key={tagId}
+          tagId={tagId}
+          variant="secondary"
+          onClose={
+            disabled ? undefined : () => onChange(value.filter((id) => id !== tagId))
+          }
+        />
+      ))}
+      <SelectTags.Provider
+        tagType="core:product"
+        mode="multiple"
+        value={value}
+        onValueChange={(next) =>
+          onChange(Array.isArray(next) ? next : next ? [next] : [])
+        }
+      >
+        <Popover open={open} onOpenChange={disabled ? undefined : setOpen}>
+          <Popover.Trigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={disabled}
+              className="size-7 shadow-xs"
+            >
+              <IconTagPlus className="size-4" />
+            </Button>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectTags.Content />
+          </Combobox.Content>
+        </Popover>
+      </SelectTags.Provider>
+    </div>
+  );
+};
+
 const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => void }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const { changeStatus, loading: savingStatus } = useChangePackageStatus();
   const { editPackage, loading: savingEdits } = useEditPackage(pkg._id);
 
@@ -36,6 +94,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
   const [description, setDescription] = useState(pkg.description || '');
   const [coverImage, setCoverImage] = useState(pkg.coverImage || '');
   const [products, setProducts] = useState<IPackageProduct[]>(pkg.products || []);
+  const [tagIds, setTagIds] = useState<string[]>(pkg.tagIds || []);
   const [status, setStatus] = useState(pkg.status || 'active');
 
   const pricing = usePricing(pkg.price, pkg.percent, pkg.totalPrice);
@@ -47,6 +106,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
     setDescription(pkg.description || '');
     setCoverImage(pkg.coverImage || '');
     setProducts(pkg.products || []);
+    setTagIds(pkg.tagIds || []);
     setStatus(pkg.status || 'active');
     pricing.reset(pkg.price, pkg.percent, pkg.totalPrice);
   }, [pkg._id]);
@@ -57,24 +117,31 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
     coverImage !== (pkg.coverImage || '') ||
     pricing.price !== (pkg.price != null ? String(pkg.price) : '') ||
     pricing.percent !== (pkg.percent != null ? String(pkg.percent) : '') ||
-    JSON.stringify(products) !== JSON.stringify(pkg.products || []);
+    JSON.stringify(products) !== JSON.stringify(pkg.products || []) ||
+    JSON.stringify(tagIds) !== JSON.stringify(pkg.tagIds || []);
 
   const statusDirty = status !== (pkg.status || 'active');
   const dirty = basicDirty || statusDirty;
 
   const handleSave = async () => {
     if (!name.trim()) {
-      toast({ variant: 'destructive', title: 'Name is required' });
+      toast({ variant: 'destructive', title: t('name-required', 'Name is required') });
       return;
     }
     if (!products.length) {
-      toast({ variant: 'destructive', title: 'At least one product is required' });
+      toast({
+        variant: 'destructive',
+        title: t('product-required', 'At least one product is required'),
+      });
       return;
     }
 
     const parsedPrice = pricing.price === '' ? null : Number(pricing.price);
     if (parsedPrice != null && (Number.isNaN(parsedPrice) || parsedPrice < 0)) {
-      toast({ variant: 'destructive', title: 'Price must be a non-negative number' });
+      toast({
+        variant: 'destructive',
+        title: t('price-invalid', 'Price must be a non-negative number'),
+      });
       return;
     }
 
@@ -90,15 +157,16 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
               price: parsedPrice,
               percent: pricing.percent !== '' ? Number(pricing.percent) : undefined,
               products: products.map(({ productId, quantity }) => ({ productId, quantity })),
+              tagIds,
             },
           }),
         statusDirty && changeStatus({ variables: { _id: pkg._id, status } }),
       ].filter(Boolean));
-      toast({ variant: 'success', title: 'Package updated' });
+      toast({ variant: 'success', title: t('package-updated', 'Package updated') });
     } catch (e: any) {
       toast({
         variant: 'destructive',
-        title: 'Failed to update package',
+        title: t('update-failed', 'Failed to update package'),
         description: e?.message,
       });
     }
@@ -109,15 +177,15 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
       <Sheet.Content className="flex flex-auto p-0 overflow-hidden">
         <ScrollArea className="border-r w-2/5 h-full shrink-0">
           <div className="flex flex-col gap-4 p-5">
-            <InfoCard title="Basic information">
+            <InfoCard title={t('basic-information', 'Basic information')}>
               <InfoCard.Content>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <Label>Name</Label>
+                    <Label>{t('name', 'Name')}</Label>
                     <Input value={name} onChange={(e) => setName(e.target.value)} disabled={saving} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label>Status</Label>
+                    <Label>{t('status', 'Status')}</Label>
                     <Select value={status} disabled={saving} onValueChange={setStatus}>
                       <Select.Trigger className="h-8">
                         <Select.Value />
@@ -132,7 +200,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2 col-span-2">
-                    <Label>Description</Label>
+                    <Label>{t('description', 'Description')}</Label>
                     <Textarea
                       className="min-h-20"
                       rows={4}
@@ -141,11 +209,19 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
                       disabled={saving}
                     />
                   </div>
+                  <div className="flex flex-col gap-2 col-span-2">
+                    <Label>{t('tags', 'Tags')}</Label>
+                    <PackageTagsField
+                      value={tagIds}
+                      onChange={setTagIds}
+                      disabled={saving}
+                    />
+                  </div>
                 </div>
               </InfoCard.Content>
             </InfoCard>
 
-            <InfoCard title="Cover image">
+            <InfoCard title={t('cover-image', 'Cover image')}>
               <InfoCard.Content>
                 <ProductPrimaryImageUpload
                   value={coverImage ? { name: coverImage, url: coverImage, type: '', size: 0 } : null}
@@ -154,12 +230,12 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
               </InfoCard.Content>
             </InfoCard>
 
-            <InfoCard title="Pricing">
+            <InfoCard title={t('pricing', 'Pricing')}>
               <InfoCard.Content>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                      <Label>Price</Label>
+                      <Label>{t('price', 'Price')}</Label>
                       {pricing.displayTotal && (
                         <span className="text-xs text-muted-foreground tabular-nums line-through">
                           {pricing.displayTotal}
@@ -176,7 +252,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
                     </CurrencyField>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label>Percent</Label>
+                    <Label>{t('percent', 'Percent')}</Label>
                     <Input
                       type="number"
                       min={0}
@@ -205,14 +281,13 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
       </Sheet.Content>
 
       <Sheet.Footer className="flex-none items-center gap-2">
-        {dirty && <Badge variant="default">Unsaved changes</Badge>}
         <div className="ml-auto flex gap-2">
           <Button type="button" variant="outline" onClick={onClose}>
-            Close
+            {t('close', 'Close')}
           </Button>
           <Button type="button" onClick={handleSave} disabled={!dirty || saving} className="gap-2">
             <IconCheck className="size-4" />
-            Save
+            {t('save', 'Save')}
           </Button>
         </div>
       </Sheet.Footer>
@@ -221,6 +296,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
 };
 
 export const PackageDetailSheet = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const [activePackageId, setActivePackageId] = useQueryState<string>('activePackageId');
   const { package: pkg, loading } = usePackageDetail(activePackageId);
 
@@ -235,7 +311,7 @@ export const PackageDetailSheet = () => {
         <div className="flex flex-col flex-auto overflow-hidden">
           <Sheet.Header className="flex gap-2">
             <IconPackage />
-            <Sheet.Title>{pkg?.name || 'Package detail'}</Sheet.Title>
+            <Sheet.Title>{pkg?.name || t('package-detail', 'Package detail')}</Sheet.Title>
             <Sheet.Close />
           </Sheet.Header>
 
@@ -246,7 +322,7 @@ export const PackageDetailSheet = () => {
               </div>
               <Sheet.Footer className="flex-none">
                 <Button type="button" variant="outline" onClick={handleClose}>
-                  Close
+                  {t('close', 'Close')}
                 </Button>
               </Sheet.Footer>
             </>
@@ -255,11 +331,11 @@ export const PackageDetailSheet = () => {
           ) : (
             <>
               <div className="flex flex-auto justify-center items-center p-6 text-muted-foreground text-sm">
-                Package not found
+                {t('package-not-found', 'Package not found')}
               </div>
               <Sheet.Footer className="flex-none">
                 <Button type="button" variant="outline" onClick={handleClose}>
-                  Close
+                  {t('close', 'Close')}
                 </Button>
               </Sheet.Footer>
             </>

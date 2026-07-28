@@ -1,4 +1,10 @@
 import { BadgeProps } from 'erxes-ui';
+import {
+  IconBellRinging,
+  IconDeviceMobile,
+  IconUserCheck,
+  IconUsers,
+} from '@tabler/icons-react';
 
 export const BROADCAST_MESSAGE_KINDS: Record<string, string> = {
   AUTO: 'auto',
@@ -131,6 +137,33 @@ export const BROADCAST_MESSAGE_METHODS = [
   { value: 'messenger', label: 'Messenger' },
   { value: 'notification', label: 'Notification' },
 ];
+
+export const BROADCAST_NOTIFICATION_STATISTIC = {
+  total: {
+    title: 'Targeted',
+    description:
+      'Customers matched by the selected tag who are eligible for this campaign.',
+    icon: IconUsers,
+  },
+  sent: {
+    title: 'Sent',
+    description:
+      'Client portal users who successfully received the notification.',
+    icon: IconUserCheck,
+  },
+  read: {
+    title: 'Read',
+    description:
+      'Recipients who opened and marked the in-app notification as read.',
+    icon: IconBellRinging,
+  },
+  push: {
+    title: 'Push enabled',
+    description:
+      'Campaign was configured to deliver mobile and web push notifications.',
+    icon: IconDeviceMobile,
+  },
+};
 
 export const BROADCAST_MESSAGE_KIND = [
   { value: 'auto', label: 'Auto' },

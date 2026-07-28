@@ -6,6 +6,7 @@ import { FormProvider } from 'react-hook-form';
 import {
   PlaceholderInput,
   TAutomationActionProps,
+  TPlaceholderInputSuggestion,
   useFormValidationErrorHandler,
 } from 'ui-modules';
 import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
@@ -68,11 +69,11 @@ export const SendEmailConfigForm = ({
                       <PlaceholderInput
                         propertyType={contentType || ''}
                         {...field}
-                        disabled={{ attribute: true }}
-                        enabled={{
-                          attribute: true,
-                          call_user: true,
-                        }}
+                        disabled={[TPlaceholderInputSuggestion.Attribute]}
+                        enabled={[
+                          TPlaceholderInputSuggestion.Attribute,
+                          TPlaceholderInputSuggestion.CallUser,
+                        ]}
                         suggestionsOptions={{
                           call_user: {
                             selectFieldName: 'email',
@@ -112,11 +113,11 @@ export const SendEmailConfigForm = ({
                 <PlaceholderInput
                   propertyType={contentType || ''}
                   {...field}
-                  disabled={{ attribute: true }}
-                  enabled={{
-                    attribute: true,
-                    call_user: true,
-                  }}
+                  disabled={[TPlaceholderInputSuggestion.Attribute]}
+                  enabled={[
+                    TPlaceholderInputSuggestion.Attribute,
+                    TPlaceholderInputSuggestion.CallUser,
+                  ]}
                   suggestionsOptions={{
                     call_user: {
                       selectFieldName: 'email',
@@ -136,11 +137,11 @@ export const SendEmailConfigForm = ({
                   <PlaceholderInput
                     propertyType={contentType || ''}
                     {...field}
-                    disabled={{ attribute: true }}
-                    enabled={{
-                      attribute: true,
-                      call_user: true,
-                    }}
+                    disabled={[TPlaceholderInputSuggestion.Attribute]}
+                    enabled={[
+                      TPlaceholderInputSuggestion.Attribute,
+                      TPlaceholderInputSuggestion.CallUser,
+                    ]}
                     suggestionsOptions={{
                       call_user: {
                         selectFieldName: 'email',
@@ -165,7 +166,7 @@ export const SendEmailConfigForm = ({
               </Form.Label>
               <PlaceholderInput
                 propertyType={contentType || ''}
-                disabled={{ attribute: true }}
+                disabled={[TPlaceholderInputSuggestion.Attribute]}
                 {...field}
               />
             </Form.Item>

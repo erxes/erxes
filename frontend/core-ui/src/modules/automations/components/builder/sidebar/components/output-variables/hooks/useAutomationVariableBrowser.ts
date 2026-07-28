@@ -1,3 +1,4 @@
+import { WORKFLOW_INPUT_NODE_ID } from '@/automations/components/builder/nodes/components/WorkflowInputNode';
 import { AutomationNodeType } from '@/automations/types';
 import { useDeferredValue, useEffect, useState } from 'react';
 import {
@@ -40,7 +41,7 @@ export const useAutomationVariableBrowser = ({
       sourceNodes[0]
     : sourceNode || null;
 
-  const { loading, mergedVariables, mergedPropertySources } =
+  const { loading, mergedVariables, mergedPropertySource } =
     useAutomationNodeOutput(activeSourceNode);
 
   const deferredSearchValue = useDeferredValue(searchValue);
@@ -50,12 +51,16 @@ export const useAutomationVariableBrowser = ({
     activeSourceNode?.nodeType === AutomationNodeType.Trigger;
   const isActiveSourceNodeAction =
     activeSourceNode?.nodeType === AutomationNodeType.Action;
+  const isActiveSourceNodeInput =
+    activeSourceNode?.id === WORKFLOW_INPUT_NODE_ID;
 
-  const scope = isActiveSourceNodeTrigger
-    ? 'trigger'
-    : isActiveSourceNodeAction
-    ? `actions.${activeSourceNode.id}`
-    : '';
+  const scope = isActiveSourceNodeInput
+    ? 'input'
+    : isActiveSourceNodeTrigger
+      ? 'trigger'
+      : isActiveSourceNodeAction
+        ? `actions.${activeSourceNode.id}`
+        : '';
 
   const buildVariablePath = (path: string) =>
     buildAutomationVariablePath(scope, path);
@@ -77,20 +82,14 @@ export const useAutomationVariableBrowser = ({
       token,
     });
 
-  const filteredVariables = !searchQuery
-    ? mergedVariables
-    : mergedVariables.filter((variable) =>
-        `${variable.label} ${variable.key}`.toLowerCase().includes(searchQuery),
-      );
-
   return {
     activeSourceNode,
     buildVariablePath,
     buildVariablePayload,
     buildVariableToken,
-    filteredVariables,
     loading,
-    mergedPropertySources,
+    mergedVariables,
+    mergedPropertySource,
     searchQuery,
     searchValue,
     selectedSourceNodeId,

@@ -22,7 +22,7 @@ export const ComboboxField = ({ erxesField, field }: Props) => {
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.Trigger>
-          <span>{field.value || erxesField.content}</span>
+          <span className='text-foreground'>{field.value || erxesField.content}</span>
         </Combobox.Trigger>
         <Combobox.Content>
           <Command>

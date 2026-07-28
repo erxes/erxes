@@ -4,6 +4,7 @@ import { Popover as PopoverPrimitive } from 'radix-ui';
 import { ICONS } from '../constants';
 import { Button, Command } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface IconPickerProps {
   readonly value?: string;
@@ -11,6 +12,7 @@ interface IconPickerProps {
 }
 
 export function IconPicker({ value, onChange }: IconPickerProps) {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const icon = ICONS.find((icon) => icon.value === value);
   return (
@@ -28,13 +30,13 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               <span className="capitalize">{icon.label}</span>
             </div>
           ) : (
-            <span>Select icon...</span>
+            <span>{t('kb-select-icon')}</span>
           )}
         </Button>
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Content className="w-[250px] p-0 max-h-64 overflow-auto">
         <Command>
-          <Command.Input placeholder="Search icons..." className="h-9" />
+          <Command.Input placeholder={t('kb-search-icons')} className="h-9" />
           <div className="max-h-52 overflow-y-auto">
             <Command.Group>
               {ICONS.map((item) => (

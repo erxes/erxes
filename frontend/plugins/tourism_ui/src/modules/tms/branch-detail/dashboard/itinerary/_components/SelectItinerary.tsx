@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { Combobox, Command, Form, Popover, cn } from 'erxes-ui';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 import { SelectItineraryContext } from '../contexts/SelectItineraryContext';
 import { GET_ITINERARY_DETAIL } from '../graphql/queries';
@@ -57,16 +58,19 @@ const SelectItineraryProvider = ({
 
 // ─── Item label ──────────────────────────────────────────────────────────────
 
-const ItineraryItemLabel = ({ itinerary }: { itinerary: IItinerary }) => (
-  <div className="flex items-center flex-1 min-w-0 gap-2">
-    <span className="truncate">{itinerary.name}</span>
-    {itinerary.duration && (
-      <span className="text-xs text-muted-foreground shrink-0">
-        ({itinerary.duration} days)
-      </span>
-    )}
-  </div>
-);
+const ItineraryItemLabel = ({ itinerary }: { itinerary: IItinerary }) => {
+  const { t } = useTranslation('tourism');
+  return (
+    <div className="flex items-center flex-1 min-w-0 gap-2">
+      <span className="truncate">{itinerary.name}</span>
+      {itinerary.duration && (
+        <span className="text-xs text-muted-foreground shrink-0">
+          ({itinerary.duration} {t('days')})
+        </span>
+      )}
+    </div>
+  );
+};
 
 // ─── Command item ─────────────────────────────────────────────────────────────
 
@@ -87,6 +91,7 @@ const SelectItineraryCommandItem = ({
 // ─── Content ─────────────────────────────────────────────────────────────────
 
 const SelectItineraryContent = () => {
+  const { t } = useTranslation('tourism');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
   const { itineraryId, selectedItinerary, branchId, language } =
@@ -118,7 +123,7 @@ const SelectItineraryContent = () => {
         variant="secondary"
         wrapperClassName="flex-auto"
         focusOnMount
-        placeholder="Search itineraries..."
+        placeholder={t('search-itineraries')}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         {!isInitialLoading && selectedItinerary && (
@@ -148,12 +153,13 @@ const SelectItineraryContent = () => {
 // ─── Value display ────────────────────────────────────────────────────────────
 
 const SelectItineraryValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('tourism');
   const { selectedItinerary } = useSelectItineraryContext();
 
   if (!selectedItinerary) {
     return (
       <span className="text-muted-foreground">
-        {placeholder || 'Select itinerary'}
+        {placeholder || t('select-itinerary')}
       </span>
     );
   }
@@ -163,7 +169,7 @@ const SelectItineraryValue = ({ placeholder }: { placeholder?: string }) => {
       <span className="truncate">{selectedItinerary.name}</span>
       {selectedItinerary.duration && (
         <span className="text-xs text-muted-foreground shrink-0">
-          ({selectedItinerary.duration} days)
+          ({selectedItinerary.duration} {t('days')})
         </span>
       )}
     </div>

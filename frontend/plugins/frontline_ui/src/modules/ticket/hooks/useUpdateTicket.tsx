@@ -1,13 +1,20 @@
 import { useMutation, MutationHookOptions } from '@apollo/client';
 import { UPDATE_TICKET_MUTATION } from '@/ticket/graphql/mutations/updateTicket';
+import { isTicketRemoved } from '@/ticket/states/removedTicketsState';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useUpdateTicket = () => {
+  const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const [_updateTicket, { loading, error }] = useMutation(
     UPDATE_TICKET_MUTATION,
   );
   const updateTicket = (options: MutationHookOptions) => {
+    const ticketId = options.variables?._id as string | undefined;
+    if (isTicketRemoved(ticketId)) {
+      return Promise.resolve({ data: undefined });
+    }
     return _updateTicket({
       ...options,
       onError: (error) => {
@@ -15,7 +22,7 @@ export const useUpdateTicket = () => {
 
         if (!options.onError) {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });

@@ -3,12 +3,14 @@ import { ITicketStatus } from '@/status/types';
 import { UPDATE_TICKET_STATUS } from '@/status/graphql/mutation/updateTicketStatus';
 import { GET_TICKET_STATUS_BY_TYPE } from '@/status/graphql/query/getTicketStatusByType';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface UpdateStatusMutationResponse {
   updateStatus: ITicketStatus;
 }
 
 export const useUpdateTicketStatus = () => {
+  const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const [updateStatus, { loading, error }] =
     useMutation<UpdateStatusMutationResponse>(UPDATE_TICKET_STATUS);
@@ -23,8 +25,8 @@ export const useUpdateTicketStatus = () => {
       },
       onError: (error) => {
         toast({
-          title: 'Error',
-          description: 'Update failed' + error.message,
+          title: t('error'),
+          description: t('update-failed', { message: error.message }),
           variant: 'destructive',
         });
       },

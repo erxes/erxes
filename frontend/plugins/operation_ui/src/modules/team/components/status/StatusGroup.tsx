@@ -47,6 +47,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 const StatusSkeleton = () => {
   return (
@@ -137,6 +138,7 @@ export const Status = ({
 };
 
 const StatusOptionMenu = ({ statusId }: { statusId: string }) => {
+  const { t } = useTranslation('operation');
   const setEditingStatus = useSetAtom(editingStatusState);
   const { toast } = useToast();
   const { deleteStatus } = useDeleteStatus();
@@ -146,12 +148,12 @@ const StatusOptionMenu = ({ statusId }: { statusId: string }) => {
       variables: { id: statusId },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success'),
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -179,7 +181,7 @@ const StatusOptionMenu = ({ statusId }: { statusId: string }) => {
           }}
         >
           <IconEdit />
-          Edit
+          {t('edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -187,7 +189,7 @@ const StatusOptionMenu = ({ statusId }: { statusId: string }) => {
           onClick={handleDeleteStatus}
         >
           <IconTrash />
-          Delete
+          {t('delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -201,6 +203,7 @@ export const StatusForm = ({
   statusType: number;
   editingStatus?: ITeamStatus;
 }) => {
+  const { t } = useTranslation('operation');
   const { addStatus } = useAddStatus();
   const { toast } = useToast();
   const { updateStatus } = useUpdateStatus();
@@ -246,7 +249,7 @@ export const StatusForm = ({
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -313,7 +316,7 @@ export const StatusForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Control>
-                      <Input placeholder="Name" {...field} className="w-full" />
+                      <Input placeholder={t('name')} {...field} className="w-full" />
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -325,7 +328,7 @@ export const StatusForm = ({
                   <Form.Item className="w-full">
                     <Form.Control>
                       <Input
-                        placeholder="Description"
+                        placeholder={t('description')}
                         {...field}
                         className="w-full"
                       />
@@ -335,9 +338,9 @@ export const StatusForm = ({
               />
             </span>
             <Button variant="ghost" onClick={handleCancel}>
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button type="submit">{isEditing ? 'Update' : 'Save'}</Button>
+            <Button type="submit">{isEditing ? t('update') : t('save')}</Button>
           </span>
         </form>
       </Form>
@@ -346,6 +349,7 @@ export const StatusForm = ({
 };
 
 export const StatusGroup = ({ statusType }: { statusType: number }) => {
+  const { t } = useTranslation('operation');
   const { statuses = [], loading } = useStatusesByType({ type: statusType });
   const { updateStatus } = useUpdateStatus();
   const { toast } = useToast();
@@ -377,7 +381,7 @@ export const StatusGroup = ({ statusType }: { statusType: number }) => {
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });

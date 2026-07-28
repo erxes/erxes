@@ -38,6 +38,9 @@ export interface IUser extends IUserInline {
   isActive: boolean;
   isOwner?: boolean;
   positionIds: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  unitId?: string;
 
   links?: object;
   isSubscribed?: string;

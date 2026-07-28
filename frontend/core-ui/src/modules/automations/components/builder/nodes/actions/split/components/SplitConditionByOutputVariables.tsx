@@ -7,6 +7,7 @@ import { TSplitConditionsConfigForm } from '../states/splitConditionsConfigForm'
 
 type TOutputVariable = {
   id?: string;
+  key?: string;
   name: string;
   label?: string;
   type?: string;
@@ -76,12 +77,14 @@ const flattenOutputVariables = (
   parentPath = '',
 ): TOutputVariableField[] => {
   return variables.flatMap((variable) => {
-    if (!variable.name) {
+    const variableName = variable.name || variable.key;
+
+    if (!variableName) {
       return [];
     }
 
-    const path = parentPath ? `${parentPath}.${variable.name}` : variable.name;
-    const label = variable.label || variable.name;
+    const path = parentPath ? `${parentPath}.${variableName}` : variableName;
+    const label = variable.label || variableName;
 
     if (variable.type === 'object') {
       return flattenOutputVariables(variable.children || [], path);
@@ -238,9 +241,14 @@ const OutputVariableConditionRow = ({
   const selectedOperator = operators.find(
     ({ value }) => value === propertyOperator,
   );
-  const shouldRenderValue = !['is', 'ins', 'it', 'if', 'dateis', 'dateins'].includes(
-    selectedOperator?.value || '',
-  );
+  const shouldRenderValue = ![
+    'is',
+    'ins',
+    'it',
+    'if',
+    'dateis',
+    'dateins',
+  ].includes(selectedOperator?.value || '');
 
   return (
     <div className="grid grid-cols-[2fr_1fr_2fr_auto] items-start gap-2">

@@ -1,3 +1,4 @@
+import { ClientPortalUsersCommandBar } from '@/contacts/client-portal-users/components/client-portal-users-command-bar/ClientPortalUsersCommandBar';
 import { clientPortalUserColumns } from '@/contacts/client-portal-users/components/ClientPortalUserColumns';
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { useClientPortalUsers } from '@/contacts/client-portal-users/hooks/useClientPortalUsers';
@@ -33,8 +34,9 @@ export const ClientPortalUsersRecordTable = () => {
     <RecordTable.Provider
       columns={clientPortalUserColumns}
       data={list}
-      stickyColumns={['name']}
+      stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"
+      tableId="client_portal_users_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -55,6 +57,7 @@ export const ClientPortalUsersRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <ClientPortalUsersCommandBar />
     </RecordTable.Provider>
   );
 };

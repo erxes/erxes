@@ -1,5 +1,5 @@
 import { Input, Select } from 'erxes-ui';
-import { PlaceholderInput } from 'ui-modules';
+import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';
 
 interface JSONPropertyEditorProps {
   type: string;
@@ -18,10 +18,8 @@ export function JSONPropertyEditor({
         propertyType="core:automation"
         value={value ?? ''}
         onChange={onApply}
-        disabled={{ attribute: true }}
-        enabled={{
-          attribute: true,
-        }}
+        disabled={[TPlaceholderInputSuggestion.Attribute]}
+        enabled={[TPlaceholderInputSuggestion.Attribute]}
       />
     );
   }

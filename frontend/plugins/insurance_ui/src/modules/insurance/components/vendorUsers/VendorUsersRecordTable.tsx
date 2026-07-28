@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { RecordTable } from 'erxes-ui';
 import { IconUsers } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { createVendorUsersColumns } from './VendorUsersColumns';
 import { useVendorUsers } from '~/modules/insurance/hooks';
 import { VendorUser } from '~/modules/insurance/types';
@@ -13,6 +14,7 @@ interface VendorUsersRecordTableProps {
 }
 
 export const VendorUsersRecordTable = ({ vendorId }: VendorUsersRecordTableProps) => {
+  const { t } = useTranslation('insurance');
   const { vendorUsers, loading, refetch } = useVendorUsers(vendorId);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<VendorUser | undefined>();
@@ -65,11 +67,11 @@ export const VendorUsersRecordTable = ({ vendorId }: VendorUsersRecordTableProps
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No users yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-users-yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
                     {vendorId
-                      ? 'This vendor has no users yet. Add your first user.'
-                      : 'Select a vendor to view users or create new ones.'}
+                      ? t('no-vendor-users-description')
+                      : t('select-vendor-description')}
                   </p>
                 </div>
               </div>

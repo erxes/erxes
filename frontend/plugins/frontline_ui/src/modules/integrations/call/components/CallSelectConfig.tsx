@@ -1,5 +1,6 @@
 import { Button, Dialog, Input, Label, Select } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { ICallConfig } from '@/integrations/call/types/callTypes';
 import { MembersInline } from 'ui-modules';
@@ -12,6 +13,7 @@ export const CallSelectConfig = ({
 }: {
   callUserIntegrations: ICallConfig[];
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useAtom(callSelectConfigDialogAtom);
   const [selectedIntegrationId, setSelectedIntegrationId] = useState(
     callUserIntegrations[0]?._id,
@@ -32,21 +34,21 @@ export const CallSelectConfig = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Content>
         <Dialog.Header>
-          <Dialog.Title>Select a call config</Dialog.Title>
+          <Dialog.Title>{t('select-a-call-config')}</Dialog.Title>
         </Dialog.Header>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Call config</Label>
+            <Label>{t('call-config')}</Label>
             <Select
               value={selectedIntegrationId}
               onValueChange={setSelectedIntegrationId}
             >
               <Select.Trigger>
-                <Select.Value placeholder="Select a call config" />
+                <Select.Value placeholder={t('select-a-call-config')} />
               </Select.Trigger>
               <Select.Content>
                 <Select.Group>
-                  <Select.Label>Call configs</Select.Label>
+                  <Select.Label>{t('call-configs')}</Select.Label>
                   {callUserIntegrations.map((config) => (
                     <Select.Item key={config._id} value={config._id}>
                       {config.phone}
@@ -57,7 +59,7 @@ export const CallSelectConfig = ({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Queues</Label>
+            <Label>{t('queues')}</Label>
             <Input
               value={(selectedIntegration?.queues || []).join(', ')}
               disabled
@@ -67,7 +69,7 @@ export const CallSelectConfig = ({
             />
           </div>
           <div className="space-y-2">
-            <Label>Source trunk</Label>
+            <Label>{t('source-trunk')}</Label>
             <Input
               value={selectedIntegration?.srcTrunk}
               disabled
@@ -77,7 +79,7 @@ export const CallSelectConfig = ({
             />
           </div>{' '}
           <div className="space-y-2">
-            <Label>Destination trunk</Label>
+            <Label>{t('destination-trunk')}</Label>
             <Input
               value={selectedIntegration?.dstTrunk}
               disabled
@@ -87,7 +89,7 @@ export const CallSelectConfig = ({
             />
           </div>
           <div className="space-y-2">
-            <Label>Operators</Label>
+            <Label>{t('operators')}</Label>
             {selectedIntegration?.operators.map((operator) => (
               <div key={operator.userId} className="flex items-center gap-2">
                 <Button
@@ -122,17 +124,17 @@ export const CallSelectConfig = ({
             size="lg"
             className="mr-auto"
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             onClick={() => handleSubmit(false)}
             variant="secondary"
             size="lg"
           >
-            Skip connection
+            {t('skip-connection')}
           </Button>
           <Button onClick={() => handleSubmit(true)} size="lg">
-            Save
+            {t('save')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

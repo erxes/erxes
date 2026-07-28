@@ -6,6 +6,7 @@ import {
   PosInlineContext,
   usePosInlineContext,
 } from '../context/PosInlineContext';
+import { useTranslation } from 'react-i18next';
 
 const PosInlineRoot = (props: PosInlineProps) => {
   return (
@@ -22,6 +23,7 @@ const PosInlineProvider = ({
   placeholder,
   updatePos,
 }: PosInlineProps & { children?: React.ReactNode }) => {
+  const { t } = useTranslation('sales');
   const [_pos, _setPos] = useState<IPos[]>(pos || []);
 
   const contextValue = useMemo(() => {
@@ -29,7 +31,7 @@ const PosInlineProvider = ({
       pos: pos || _pos,
       loading: false,
       posIds: posIds || [],
-      placeholder: isUndefinedOrNull(placeholder) ? 'Select pos' : placeholder,
+      placeholder: isUndefinedOrNull(placeholder) ? t('select-pos') : placeholder,
       updatePos: updatePos || _setPos,
     };
   }, [pos, _pos, posIds, placeholder, updatePos]);

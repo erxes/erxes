@@ -5,6 +5,7 @@ import {
 } from '@tabler/icons-react';
 import { Checkbox, InfoCard, Spinner, cn } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useInView } from 'react-intersection-observer';
 import { IProduct } from 'ui-modules';
 import { useProducts } from 'ui-modules/modules/products/hooks/useProducts';
@@ -147,6 +148,7 @@ export const PackageProductPicker = ({
   onTotalChange?: (total: number) => void;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const { products, loading, handleFetchMore, totalCount } = useProducts({
     variables: {},
   });
@@ -198,18 +200,21 @@ export const PackageProductPicker = ({
 
   return (
     <InfoCard
-      title={`Products (${value.length})`}
+      title={t('products-count', {
+        count: value.length,
+        defaultValue: 'Products ({{count}})',
+      })}
       className="flex-auto overflow-hidden"
     >
       <InfoCard.Content className="p-0 overflow-auto">
         {loading && !products.length ? (
           <div className="flex justify-center items-center gap-2 py-12 text-muted-foreground text-sm">
-            <Spinner /> Loading products…
+            <Spinner /> {t('loading-products', 'Loading products…')}
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col justify-center items-center gap-2 py-12 text-muted-foreground text-sm text-center">
             <IconPackageOff className="opacity-60 size-6" />
-            <span>No products found.</span>
+            <span>{t('no-products-found', 'No products found.')}</span>
           </div>
         ) : (
           <ul className="divide-y">

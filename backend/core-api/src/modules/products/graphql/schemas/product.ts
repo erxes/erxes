@@ -1,6 +1,16 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  enum ProductDurationType {
+    minute
+    hour
+    day
+    week
+    month
+    quarter
+    year
+  }
+
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
@@ -19,15 +29,20 @@ export const types = `
     tagIds: [String]
     attachment: Attachment
     attachmentMore: [Attachment]
+    videos: [Attachment]
     vendorId: String
     scopeBrandIds: [String]
     uom: String
     subUoms: JSON
     currency: String
+    duration: Float
+    durationType: ProductDurationType
 
     category: ProductCategory
     vendor: Company
     hasSimilarity: Boolean
+    similarityId: String
+    similarity: ProductBulkSimilarity
 
     pdfAttachment: PdfAttachment
 
@@ -36,7 +51,12 @@ export const types = `
     discounts: JSON
 
     remainder: JSON
-    discount: JSON
+    discount(
+      branchId: String
+      departmentId: String
+      pipelineId: String
+      discountConditions: JSON
+    ): JSON
   }
 
   type ProductSimilarityGroup {
@@ -75,6 +95,7 @@ const queryParams = `
   segment: String,
   segmentData: String,
   groupedSimilarity: String,
+  similarity: Boolean,
   image: String,
   brand: String,
 
@@ -88,6 +109,7 @@ const queryParams = `
   maxDiscountValue: Float,
   minDiscountPercent: Float,
   maxDiscountPercent: Float,
+  discountConditions: JSON,
 `;
 
 export const queries = `
@@ -133,11 +155,14 @@ export const mutationParams = `
   propertiesData: JSON
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
+  videos: [AttachmentInput],
   vendorId: String,
   scopeBrandIds: [String],
   uom: String,
   subUoms: JSON,
   currency: String
+  duration: Float
+  durationType: ProductDurationType
   pdfAttachment: PdfAttachmentInput
 `;
 

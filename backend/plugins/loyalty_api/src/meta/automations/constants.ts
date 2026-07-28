@@ -3,32 +3,36 @@ import { AutomationConstants } from 'erxes-api-shared/core-modules';
 export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
   triggers: [
     {
-      type: 'loyalties:reward',
+      // type: 'loyalty:reward',
+      moduleName: 'voucher',
+      collectionName: 'reward',
       icon: 'IconAward',
       label: 'Reward',
-      description:
-        'Start with a blank workflow that enrolls and is triggered off reward',
+      description: 'Start this workflow when a loyalty reward event occurs.',
       isCustom: true,
     },
   ],
   actions: [
     {
-      type: 'loyalties:voucher.create',
+      moduleName: 'voucher',
+      collectionName: 'voucher',
       icon: 'IconTagPlus',
-      label: 'Create voucher',
-      description: 'Create voucher',
+      label: 'Issue voucher',
+      description: 'Issue a voucher',
     },
     {
-      type: 'loyalties:score.create',
-      icon: 'IconMoneyBagPlus',
-      label: 'Change Score',
-      description: 'Change Score',
+      moduleName: 'score',
+      collectionName: 'score',
+      icon: 'IconMoneybagPlus',
+      label: 'Adjust score',
+      description: 'Add or subtract loyalty score',
     },
     {
-      type: 'loyalties:spin.create',
+      moduleName: 'spin',
+      collectionName: 'spin',
       icon: 'IconTrophy',
-      label: 'Create Spin',
-      description: 'Create Spin',
+      label: 'Award spin',
+      description: 'Give a spin reward',
     },
   ],
 };

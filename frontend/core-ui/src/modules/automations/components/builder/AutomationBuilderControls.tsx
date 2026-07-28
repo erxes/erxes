@@ -1,24 +1,53 @@
 import {
+  IconArrowDown,
+  IconArrowRight,
   IconBraces,
+  IconCornerDownRight,
+  IconDownload,
   IconFocusCentered,
   IconGridDots,
+  IconLine,
   IconMap,
+  IconMarquee2,
   IconMenu2,
   IconMinus,
   IconPhoto,
   IconPlus,
+  IconRoute,
   IconVectorBezier2,
 } from '@tabler/icons-react';
+import {
+  AUTOMATION_EDGE_TYPES,
+  TAutomationEdgeType,
+} from '@/automations/constants/edgeTypes';
+import {
+  AUTOMATION_FLOW_DIRECTIONS,
+  TAutomationFlowDirection,
+} from '@/automations/constants/flowDirection';
+import {
+  CANVAS_MAX_ZOOM,
+  CANVAS_MIN_ZOOM,
+} from '@/automations/constants';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import {
   Panel,
   getViewportForBounds,
   useOnViewportChange,
   useReactFlow,
 } from '@xyflow/react';
-import { Button, DropdownMenu, Separator, Tooltip, cn } from 'erxes-ui';
+import {
+  Button,
+  DropdownMenu,
+  Popover,
+  Separator,
+  Slider,
+  Tooltip,
+  cn,
+} from 'erxes-ui';
 import { toPng, toSvg } from 'html-to-image';
 import type React from 'react';
 import { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
 const EXPORT_PADDING = 160;
 const MIN_EXPORT_WIDTH = 800;
@@ -27,6 +56,23 @@ const CONTROL_BUTTON_CLASS =
   'size-7 rounded text-accent-foreground hover:bg-accent hover:text-foreground [&>svg]:size-4';
 const ACTIVE_CONTROL_BUTTON_CLASS =
   'bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary';
+
+const FlowDirectionIcon = ({ value }: { value: TAutomationFlowDirection }) =>
+  value === 'vertical' ? <IconArrowDown /> : <IconArrowRight />;
+
+const EdgeTypeIcon = ({ value }: { value: TAutomationEdgeType }) => {
+  switch (value) {
+    case 'straight':
+      return <IconLine />;
+    case 'step':
+      return <IconCornerDownRight />;
+    case 'smoothstep':
+      return <IconRoute />;
+    case 'default':
+    default:
+      return <IconVectorBezier2 />;
+  }
+};
 
 const downloadDataUrl = (filename: string, dataUrl: string) => {
   const link = document.createElement('a');
@@ -63,18 +109,27 @@ const getCurrentThemeBackgroundColor = () => {
 };
 
 type AutomationBuilderControlsProps = {
+  edgeType: TAutomationEdgeType;
+  flowDirection: TAutomationFlowDirection;
   showGrid: boolean;
   showMiniMap: boolean;
+  isMarqueeMode: boolean;
   onToggleGrid: () => void;
   onToggleMiniMap: () => void;
+  onToggleMarquee: () => void;
 };
 
 export const AutomationBuilderControls = ({
+  edgeType,
+  flowDirection,
   showGrid,
   showMiniMap,
+  isMarqueeMode,
   onToggleGrid,
   onToggleMiniMap,
+  onToggleMarquee,
 }: AutomationBuilderControlsProps) => {
+  const { getValues, setValue } = useFormContext<TAutomationBuilderForm>();
   const {
     fitView,
     getEdges,
@@ -83,12 +138,15 @@ export const AutomationBuilderControls = ({
     getZoom,
     zoomIn,
     zoomOut,
+    zoomTo,
   } = useReactFlow();
   const [zoom, setZoom] = useState(() => getZoom());
 
   useOnViewportChange({
     onChange: ({ zoom }) => setZoom(zoom),
   });
+
+  const zoomPercent = Math.round(zoom * 100);
 
   const handleExportJson = () => {
     downloadJsonFile('automation-flow.json', {
@@ -178,6 +236,40 @@ export const AutomationBuilderControls = ({
     downloadDataUrl('automation-flow.svg', dataUrl);
   };
 
+  const handleEdgeTypeChange = (value: string) => {
+    setValue('edgeType', value as TAutomationEdgeType, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+
+  const handleFlowDirectionChange = (value: string) => {
+    if (value === flowDirection) {
+      return;
+    }
+
+    const resetNodePositions = <T extends { position?: unknown }>(
+      nodes: T[] = [],
+    ) => nodes.map((node) => ({ ...node, position: undefined }));
+
+    setValue('flowDirection', value as TAutomationFlowDirection, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue('triggers', resetNodePositions(getValues('triggers')), {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue('actions', resetNodePositions(getValues('actions')), {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue('workflows', resetNodePositions(getValues('workflows') || []), {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+
   return (
     <Panel position="bottom-left" className="pointer-events-auto">
       <div className="flex w-10 flex-col items-center gap-0.5 rounded-md border bg-background/95 p-1 shadow-sm backdrop-blur">
@@ -188,6 +280,14 @@ export const AutomationBuilderControls = ({
           <IconFocusCentered />
         </ControlButton>
 
+        <ControlButton
+          label={isMarqueeMode ? 'Exit marquee select' : 'Marquee select'}
+          active={isMarqueeMode}
+          onClick={onToggleMarquee}
+        >
+          <IconMarquee2 />
+        </ControlButton>
+
         <Separator className="w-full" />
 
         <ControlButton
@@ -196,9 +296,29 @@ export const AutomationBuilderControls = ({
         >
           <IconPlus />
         </ControlButton>
-        <div className="flex h-7 w-full items-center justify-center text-xs font-medium text-muted-foreground tabular-nums">
-          {Math.round(zoom * 100)}%
-        </div>
+        <Popover>
+          <Popover.Trigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              title="Zoom level"
+              className="h-7 w-full rounded px-0 text-xs font-medium text-accent-foreground tabular-nums hover:bg-accent hover:text-foreground"
+            >
+              {zoomPercent}%
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content side="right" align="center" className="w-40">
+            <Slider
+              aria-label="Zoom level"
+              value={[zoomPercent]}
+              // Drives the canvas; `zoom` state only mirrors the viewport back
+              onValueChange={([value]) => zoomTo(value / 100)}
+              min={CANVAS_MIN_ZOOM * 100}
+              max={CANVAS_MAX_ZOOM * 100}
+              step={1}
+            />
+          </Popover.Content>
+        </Popover>
         <ControlButton
           label="Zoom out"
           onClick={() => zoomOut({ duration: 200 })}
@@ -233,30 +353,80 @@ export const AutomationBuilderControls = ({
             <DropdownMenu.Separator />
             <DropdownMenu.Sub>
               <DropdownMenu.SubTrigger>
-                <IconPhoto className="size-4" />
-                Download PNG
+                {flowDirection === 'vertical' ? (
+                  <IconArrowDown className="size-4" />
+                ) : (
+                  <IconArrowRight className="size-4" />
+                )}
+                Direction
               </DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent className="w-48">
-                <DropdownMenu.Item
-                  onClick={() => handleExportPng({ withBackground: true })}
+                <DropdownMenu.RadioGroup
+                  value={flowDirection}
+                  onValueChange={handleFlowDirectionChange}
                 >
-                  With background
+                  {AUTOMATION_FLOW_DIRECTIONS.map(({ value, label }) => (
+                    <DropdownMenu.RadioItem key={value} value={value}>
+                      <FlowDirectionIcon value={value} />
+                      {label}
+                    </DropdownMenu.RadioItem>
+                  ))}
+                </DropdownMenu.RadioGroup>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                <IconVectorBezier2 className="size-4" />
+                Edge type
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent className="w-48">
+                <DropdownMenu.RadioGroup
+                  value={edgeType}
+                  onValueChange={handleEdgeTypeChange}
+                >
+                  {AUTOMATION_EDGE_TYPES.map(({ value, label }) => (
+                    <DropdownMenu.RadioItem key={value} value={value}>
+                      <EdgeTypeIcon value={value} />
+                      {label}
+                    </DropdownMenu.RadioItem>
+                  ))}
+                </DropdownMenu.RadioGroup>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                <IconDownload className="size-4" />
+                Download
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent className="w-48">
+                <DropdownMenu.Sub>
+                  <DropdownMenu.SubTrigger>
+                    <IconPhoto className="size-4" />
+                    PNG
+                  </DropdownMenu.SubTrigger>
+                  <DropdownMenu.SubContent className="w-48">
+                    <DropdownMenu.Item
+                      onClick={() => handleExportPng({ withBackground: true })}
+                    >
+                      With background
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onClick={() => handleExportPng({ withBackground: false })}
+                    >
+                      Transparent
+                    </DropdownMenu.Item>
+                  </DropdownMenu.SubContent>
+                </DropdownMenu.Sub>
+                <DropdownMenu.Item onClick={handleExportSvg}>
+                  <IconVectorBezier2 className="size-4" />
+                  SVG
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onClick={() => handleExportPng({ withBackground: false })}
-                >
-                  Transparent
+                <DropdownMenu.Item onClick={handleExportJson}>
+                  <IconBraces className="size-4" />
+                  Export JSON
                 </DropdownMenu.Item>
               </DropdownMenu.SubContent>
             </DropdownMenu.Sub>
-            <DropdownMenu.Item onClick={handleExportSvg}>
-              <IconVectorBezier2 className="size-4" />
-              Download SVG
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onClick={handleExportJson}>
-              <IconBraces className="size-4" />
-              Export JSON
-            </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu>
       </div>

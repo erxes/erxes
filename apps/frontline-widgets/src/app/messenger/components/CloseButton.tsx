@@ -23,7 +23,7 @@ export const CloseButton: FC<Props> = ({
       onClick={closeWindow}
       aria-label="Close messenger"
       className={cn(
-        'flex-none text-foreground size-6 flex items-center justify-center',
+        'flex-none text-primary-foreground size-6 flex items-center justify-center',
         className,
       )}
     >

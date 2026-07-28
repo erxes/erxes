@@ -21,6 +21,7 @@ import {
   IconLink,
   IconSettings,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useGetPos } from '@/pos/hooks/useGetPos';
 
 type Pos = {
@@ -43,6 +44,7 @@ interface posItemProps {
 }
 
 function PosItem({ pos }: posItemProps) {
+  const { t } = useTranslation('sales');
   const { pathname } = useLocation();
 
   const isPosActive = pathname.includes(`/sales/pos/${pos._id}`);
@@ -78,37 +80,37 @@ function PosItem({ pos }: posItemProps) {
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
-                name=" POS orders"
+                name={t('pos-orders')}
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`sales/pos/${pos._id}/orders`}
               />
               <NavigationMenuLinkItem
-                name="POS covers"
+                name={t('pos-covers')}
                 path={`sales/pos/${pos._id}/covers`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="POS by items"
+                name={t('pos-by-items')}
                 path={`sales/pos/${pos._id}/by-items`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="POS items"
+                name={t('pos-items')}
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`sales/pos/${pos._id}/items`}
               />
               <NavigationMenuLinkItem
-                name="POS summary"
+                name={t('pos-summary')}
                 path={`sales/pos/${pos._id}/summary`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="POS orders by customer"
+                name={t('pos-orders-by-customer')}
                 path={`sales/pos/${pos._id}/orders-by-customer`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
@@ -128,6 +130,7 @@ function PosItem({ pos }: posItemProps) {
 }
 
 export function PosOrderNavigation() {
+  const { t } = useTranslation('sales');
   const location = useLocation();
   const currentUser = useAtomValue(currentUserState);
   const { pos, loading } = useGetPos({
@@ -143,7 +146,7 @@ export function PosOrderNavigation() {
   }
 
   return (
-    <NavigationMenuGroup name="POS order">
+    <NavigationMenuGroup name={t('pos-order')}>
       {loading ? (
         <LoadingSkeleton />
       ) : (
@@ -158,6 +161,7 @@ export function PosOrderNavigation() {
 }
 
 const PosActionsMenu = ({ pos }: { pos: Pos }) => {
+  const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -167,13 +171,13 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
       await navigator.clipboard.writeText(posLink);
       toast({
         variant: 'default',
-        title: 'Link copied to clipboard',
+        title: t('link-copied-to-clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy link',
-        description: e instanceof Error ? e.message : 'Unknown error',
+        title: t('failed-to-copy-link'),
+        description: e instanceof Error ? e.message : t('unknown-error'),
       });
     }
   };
@@ -200,7 +204,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
           }}
         >
           <IconSettings className="size-4" />
-          Go to pos settings
+          {t('go-to-pos-settings')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={(e) => {
@@ -209,7 +213,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
           className="cursor-pointer"
         >
           <IconLink className="size-4" />
-          Copy link
+          {t('copy-link')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

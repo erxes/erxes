@@ -2,6 +2,7 @@ import { getCoreRowModel, Row, TableOptions } from '@tanstack/react-table';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RecordTable, RecordTableTree, Sheet } from 'erxes-ui';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { useTourGroups } from '../hooks/useTourGroups';
@@ -22,6 +23,7 @@ export const TourGroupList = ({
   branchLanguages?: string[];
   mainLanguage?: string;
 }) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -51,8 +53,8 @@ export const TourGroupList = ({
             templateTourId: row.templateTourId,
           });
         },
-      }),
-    [],
+      }, t),
+    [t],
   );
   const tableOptions: TableOptions<TourGroupRow> = useMemo(
     () => ({
@@ -163,6 +165,7 @@ function EmptyState({
   branchLanguages?: string[];
   mainLanguage?: string;
 }) {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center w-full h-full gap-2 p-6 text-center">
       <IconShoppingCartX
@@ -171,10 +174,10 @@ function EmptyState({
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No grouped tours yet
+        {t('no-grouped-tours-yet')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">
-        Tours with a group code will appear here.
+        {t('no-grouped-tours-yet-desc')}
       </p>
       <TourCreateSheet
         branchId={branchId}

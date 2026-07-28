@@ -18,6 +18,7 @@ export interface IPersistentMenu {
   text: string;
   type: 'button' | 'link';
   link?: string;
+  contentType: string;
 }
 
 export interface IMessengerData {
@@ -70,6 +71,9 @@ export interface IWidgetUiOptions {
     foreground?: string;
   };
   logo?: string;
+  launcherLogo?: string;
+  backgroundColor?: string;
+  heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
   navigationVariant?: 'pill' | 'fluid';
 }
 

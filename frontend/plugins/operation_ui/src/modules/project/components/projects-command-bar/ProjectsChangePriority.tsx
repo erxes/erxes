@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Command } from 'erxes-ui';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
@@ -7,13 +8,14 @@ export const ProjectsChangePriorityTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item
       onSelect={() => {
         setCurrentContent('priority');
       }}
     >
-      <div className="flex gap-2 items-center">Change Priority</div>
+      <div className="flex gap-2 items-center">{t('change-priority')}</div>
     </Command.Item>
   );
 };

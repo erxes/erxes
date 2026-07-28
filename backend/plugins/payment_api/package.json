@@ -5,18 +5,22 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/main.ts && pnpm dev:widget",
-    "dev:widget": "vite --config src/widget/vite.config.ts",
-    "build:widget": "vite build --config src/widget/vite.config.ts",
-    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev:widget": "pnpm --dir src/widget run dev",
+    "build:widget": "pnpm --dir src/widget run build",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && pnpm build:widget",
     "start": "node -r tsconfig-paths/register dist/src/main.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "erxes-api-shared": "workspace:^",
     "graphql-tag": "^2.12.6",
     "qrcode": "^1.5.0",
     "stripe": "^17.2.1"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.2"
   }
 }

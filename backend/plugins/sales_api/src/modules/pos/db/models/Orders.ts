@@ -1,17 +1,31 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { IPosOrder, IPosOrderDocument } from '../../@types/orders';
 import { posOrderSchema } from '../definitions/orders';
 import { IModels } from '~/connectionResolvers';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
+export type IPosOrderUpsertInput = IPosOrder & {
+  _id: string;
+  scopeBrandIds?: string[];
+};
+
 export interface IPosOrderModel extends Model<IPosOrderDocument> {
   getOrder(_id: string): Promise<IPosOrderDocument>;
-  createOrUpdate(document: IPosOrderDocument): Promise<{ oldOrder: IPosOrderDocument, newOrder: IPosOrderDocument }>;
-  updateOrder(selector: any, document: IPosOrder): Promise<IPosOrderDocument>;
+  createOrUpdate(document: IPosOrderUpsertInput): Promise<{
+    oldOrder?: IPosOrderDocument;
+    newOrder: IPosOrderDocument;
+  }>;
+  updateOrder(
+    selector: FilterQuery<IPosOrderDocument>,
+    document: UpdateQuery<IPosOrderDocument>,
+  ): Promise<IPosOrderDocument>;
 }
 
-
-export const loadPosOrderClass = (models: IModels, _subdomain: string, { sendDbEventLog }: EventDispatcherReturn) => {
+export const loadPosOrderClass = (
+  models: IModels,
+  _subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class PosOrder {
     public static async getOrder(_id: string) {
       const order = await models.PosOrders.findOne({ _id }).lean();
@@ -23,7 +37,7 @@ export const loadPosOrderClass = (models: IModels, _subdomain: string, { sendDbE
       return order;
     }
 
-    public static async createOrUpdate(document: IPosOrderDocument) {
+    public static async createOrUpdate(document: IPosOrderUpsertInput) {
       const { _id, ...doc } = document;
 
       const oldOrder = await models.PosOrders.findOne({ _id }).lean();
@@ -40,7 +54,7 @@ export const loadPosOrderClass = (models: IModels, _subdomain: string, { sendDbE
 
       const newOrder = await models.PosOrders.findOne({ _id }).lean();
       if (!newOrder) {
-        throw new Error(`Order not created`)
+        throw new Error(`Order not created`);
       }
 
       if (oldOrder?._id) {
@@ -54,14 +68,17 @@ export const loadPosOrderClass = (models: IModels, _subdomain: string, { sendDbE
         sendDbEventLog({
           action: 'create',
           docId: _id,
-          currentDocument: { ...newOrder }
+          currentDocument: { ...newOrder },
         });
       }
 
-      return { oldOrder, newOrder }
+      return { oldOrder: oldOrder || undefined, newOrder };
     }
 
-    public static async updateOrder(selector: any, doc: IPosOrder) {
+    public static async updateOrder(
+      selector: FilterQuery<IPosOrderDocument>,
+      doc: UpdateQuery<IPosOrderDocument>,
+    ) {
       const oldOrder = await models.PosOrders.findOne(selector).lean();
       if (!oldOrder) {
         throw new Error(`Order not found with id: ${selector}`);
@@ -76,9 +93,11 @@ export const loadPosOrderClass = (models: IModels, _subdomain: string, { sendDbE
         },
       );
 
-      const newOrder = await models.PosOrders.findOne({ _id: oldOrder._id }).lean();
+      const newOrder = await models.PosOrders.findOne({
+        _id: oldOrder._id,
+      }).lean();
       if (!newOrder) {
-        throw new Error(`Order not created`)
+        throw new Error(`Order not created`);
       }
       sendDbEventLog({
         action: 'update',
@@ -87,7 +106,7 @@ export const loadPosOrderClass = (models: IModels, _subdomain: string, { sendDbE
         prevDocument: oldOrder,
       });
 
-      return newOrder
+      return newOrder;
     }
   }
 

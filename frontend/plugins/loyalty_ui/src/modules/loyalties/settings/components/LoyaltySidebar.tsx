@@ -1,8 +1,10 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { SETTINGS_ROUTES } from '../constants/settingRoutes';
 
 export const LoyaltySidebar = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Sidebar collapsible="none" className="border-r flex-none w-[250px]">
       <Sidebar.Group>
@@ -10,7 +12,7 @@ export const LoyaltySidebar = () => {
           <Sidebar.Menu>
             {Object.entries(SETTINGS_ROUTES).map(([path, label]) => (
               <LoyaltySidebarItem key={path} to={path}>
-                {label}
+                {t(label)}
               </LoyaltySidebarItem>
             ))}
           </Sidebar.Menu>

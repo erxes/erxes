@@ -11,6 +11,7 @@ import { useTicketTags } from '@/report/hooks/useTicketTags';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ResponsesChartType, TagData } from '@/report/types';
 import { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import {
   Bar,
@@ -34,6 +35,8 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { type LegendPayload } from 'recharts';
 import { getFilters } from '@/report/utils/dateFilters';
+import { getTicketPropertyFilterVariables } from '@/report/utils';
+import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
 import {
   getReportChartTypeAtom,
@@ -46,6 +49,7 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import {
@@ -65,6 +69,7 @@ export const TicketTags = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketTagsProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -76,6 +81,7 @@ export const TicketTags = ({
   const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
   const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
+  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -94,6 +100,7 @@ export const TicketTags = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
+        ...getTicketPropertyFilterVariables(propertyFilter),
       },
     },
   });
@@ -161,7 +168,7 @@ export const TicketTags = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -330,6 +337,10 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="tk-tags-primary" color="var(--primary)" />
+          <AreaGradient id="tk-tags-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="tag" tickLine={false} axisLine={false} />
         <YAxis
@@ -354,9 +365,10 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.3}
+          fill="url(#tk-tags-primary)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Area
@@ -364,9 +376,10 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
-          fillOpacity={0.3}
+          fill="url(#tk-tags-success)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />

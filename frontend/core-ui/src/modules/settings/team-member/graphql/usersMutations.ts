@@ -56,6 +56,7 @@ const USERS_INLINE_EDIT = gql`
     $links: JSON
     $branchIds: [String]
     $departmentIds: [String]
+    $unitId: String
     $password: String
     $isOnboarded: Boolean
     $propertiesData: JSON
@@ -71,6 +72,7 @@ const USERS_INLINE_EDIT = gql`
       links: $links
       branchIds: $branchIds
       departmentIds: $departmentIds
+      unitId: $unitId
       password: $password
       isOnboarded: $isOnboarded
       propertiesData: $propertiesData
@@ -96,6 +98,7 @@ const USERS_INLINE_EDIT = gql`
       employeeId
       branchIds
       departmentIds
+      unitId
       isOnboarded
     }
   }

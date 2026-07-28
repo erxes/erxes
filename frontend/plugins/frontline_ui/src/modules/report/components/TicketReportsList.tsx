@@ -1,4 +1,5 @@
 import { useState, useMemo, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   closestCenter,
@@ -13,7 +14,16 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { InfoCard, ScrollArea, Skeleton } from 'erxes-ui';
+import { ScrollArea, Skeleton } from 'erxes-ui';
+import {
+  IconTicket,
+  IconAlertOctagonFilled,
+  IconAlertTriangleFilled,
+  IconAlertCircleFilled,
+  IconInfoCircleFilled,
+  IconCircleDotFilled,
+} from '@tabler/icons-react';
+import { KpiCard } from '../call/components/KpiSection/KpiCard';
 import {
   SortableContext,
   sortableKeyboardCoordinates,
@@ -54,14 +64,27 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
   );
 }
 
+/** Map priority level (ascending severity) to a tabler icon. */
+function PriorityIcon({ priority }: { priority: number }) {
+  const icons = [
+    <IconCircleDotFilled className="h-5 w-5" />, // 0 — no priority
+    <IconInfoCircleFilled className="h-5 w-5" />, // 1 — low
+    <IconAlertCircleFilled className="h-5 w-5" />, // 2 — medium
+    <IconAlertTriangleFilled className="h-5 w-5" />, // 3 — high
+    <IconAlertOctagonFilled className="h-5 w-5" />, // 4 — urgent / critical
+  ];
+  return icons[Math.min(priority, icons.length - 1)] ?? icons[0];
+}
+
 export const TicketReportsList = () => {
+  const { t } = useTranslation('frontline');
   const { priorityData, loading: priorityLoading } = useTicketPriority();
 
   const [cards, setCards] = useState<CardConfig[]>(
     TICKET_DEFAULT_CARD_CONFIGS.map((c) => ({ id: c.id, colSpan: c.colSpan })),
   );
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [previewColSpan, setPreviewColSpan] = useState<6 | 12>(12);
+  const [previewColSpan, setPreviewColSpan] = useState<6 | 12>(6);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -124,7 +147,7 @@ export const TicketReportsList = () => {
     if (!cardConfig) return null;
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: cardConfig.title,
+      title: t(cardConfig.title),
       colSpan: overrideColSpan ?? colSpan,
       onColSpanChange: (span: 6 | 12) => handleColSpanChange(id, span),
     };
@@ -146,30 +169,29 @@ export const TicketReportsList = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
-      <div className="grid grid-cols-7 gap-3">
-        <InfoCard title="Total Tickets">
-          <InfoCard.Content className="text-center">
-            <div className="text-2xl font-bold">{totalCount}</div>
-          </InfoCard.Content>
-        </InfoCard>
-        {priorityData?.map((priority) => (
-          <InfoCard key={priority.priority} title={priority.name}>
-            <InfoCard.Content className="text-center">
-              <div
-                className="text-2xl font-bold"
-                style={{ color: priority.color }}
-              >
-                {priority.count}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {priority.percentage}%
-              </div>
-            </InfoCard.Content>
-          </InfoCard>
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+        <KpiCard
+          title={t('total-tickets')}
+          value={String(totalCount)}
+          subtitle={t('all-priorities')}
+          icon={<IconTicket className="h-5 w-5" />}
+          valueClass="text-foreground"
+          iconClass="bg-muted text-muted-foreground"
+        />
+        {priorityData?.map((p) => (
+          <KpiCard
+            key={p.priority}
+            title={p.name}
+            value={String(p.count)}
+            subtitle={t('percent-of-total', { percent: p.percentage })}
+            icon={<PriorityIcon priority={p.priority} />}
+            valueStyle={{ color: p.color }}
+            iconStyle={{ backgroundColor: `${p.color}1a`, color: p.color }}
+          />
         ))}
       </div>
 
-      <ScrollArea>
+      <ScrollArea className="flex-1 min-h-0">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

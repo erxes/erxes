@@ -31,6 +31,7 @@ export const CONFIG: IUIConfig = {
       name: 'loyalty',
       icon: IconAward,
       path: 'loyalty',
+      hasAutomation: true,
     },
   ],
   widgets: {

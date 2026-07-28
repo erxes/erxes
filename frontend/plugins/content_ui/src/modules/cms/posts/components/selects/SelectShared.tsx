@@ -1,7 +1,10 @@
 import {
+  cn,
   RecordTableInlineCell,
   Combobox,
+  Command,
   Popover,
+  PopoverScoped,
   Badge,
   Filter,
   Form,
@@ -146,3 +149,145 @@ export const SelectContent = ({
     </Combobox.Content>
   );
 };
+
+export const SelectItemValueBase = ({
+  label,
+  placeholder,
+  className,
+}: {
+  label?: string;
+  placeholder?: string;
+  className?: string;
+}) => {
+  if (!label) {
+    return (
+      <span className="text-accent-foreground/80">{placeholder || 'Select...'}</span>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2">
+      <p className={cn('font-medium text-sm', className)}>{label}</p>
+    </div>
+  );
+};
+
+export const SelectCommandList = ({
+  loading,
+  error,
+  placeholder,
+  loadingText,
+  emptyText,
+  errorText,
+  children,
+}: {
+  loading?: boolean;
+  error?: unknown;
+  placeholder?: string;
+  loadingText?: string;
+  emptyText?: string;
+  errorText?: string;
+  children?: React.ReactNode;
+}) => {
+  let body: React.ReactNode;
+  if (loading) {
+    body = (
+      <Command.List>
+        <div className="flex items-center justify-center py-4 h-32">
+          <span className="text-muted-foreground">{loadingText || 'Loading...'}</span>
+        </div>
+      </Command.List>
+    );
+  } else if (error) {
+    body = (
+      <Command.List>
+        <div className="flex items-center justify-center py-4 h-32">
+          <span className="text-muted-foreground">{errorText || 'Failed to load'}</span>
+        </div>
+      </Command.List>
+    );
+  } else {
+    body = (
+      <>
+        <Command.Empty>
+          <span className="text-muted-foreground">{emptyText || 'No results found'}</span>
+        </Command.Empty>
+        <Command.List>{children}</Command.List>
+      </>
+    );
+  }
+  return (
+    <Command>
+      <Command.Input placeholder={placeholder || 'Search...'} />
+      {body}
+    </Command>
+  );
+};
+
+export const SelectFormPopover = ({
+  open,
+  onOpenChange,
+  className,
+  children,
+  content,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  className?: string;
+  children: React.ReactNode;
+  content: React.ReactNode;
+}) => (
+  <Popover open={open} onOpenChange={onOpenChange}>
+    <Form.Control>
+      <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+        {children}
+      </Combobox.Trigger>
+    </Form.Control>
+    <Combobox.Content>{content}</Combobox.Content>
+  </Popover>
+);
+
+export const SelectBarPopover = ({
+  open,
+  onOpenChange,
+  filterKey,
+  children,
+  content,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  filterKey: string;
+  children: React.ReactNode;
+  content: React.ReactNode;
+}) => (
+  <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover.Trigger asChild>
+      <Filter.BarButton filterKey={filterKey}>{children}</Filter.BarButton>
+    </Popover.Trigger>
+    <Combobox.Content>{content}</Combobox.Content>
+  </Popover>
+);
+
+export const SelectRootPopover = ({
+  open,
+  onOpenChange,
+  scope,
+  variant,
+  disabled,
+  children,
+  content,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  scope?: string;
+  variant: SelectTriggerVariantType;
+  disabled?: boolean;
+  children: React.ReactNode;
+  content: React.ReactNode;
+}) => (
+  <PopoverScoped open={open} onOpenChange={onOpenChange} scope={scope}>
+    <SelectTrigger variant={variant} disabled={disabled}>
+      {children}
+    </SelectTrigger>
+    <SelectContent variant={variant}>{content}</SelectContent>
+  </PopoverScoped>
+);

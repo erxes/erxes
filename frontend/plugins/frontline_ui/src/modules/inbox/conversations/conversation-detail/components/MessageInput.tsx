@@ -6,6 +6,7 @@ import {
   Spinner,
   Toggle,
   cn,
+  getBlockAttachments,
   getMentionedUserIds,
   toast,
   useBlockEditor,
@@ -28,39 +29,99 @@ import {
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDebounce, useThrottledCallback } from 'use-debounce';
+import { useMutation } from '@apollo/client';
+import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { useTranslation } from 'react-i18next';
 
-import { AssignMemberInEditor } from 'ui-modules';
+import {
+  AssignMemberInEditor,
+  EditorMentionItem,
+  MentionInEditor,
+} from 'ui-modules';
 import { Block } from '@blocknote/core';
+import { useDiscordConversationParticipants } from '@/integrations/discord/hooks/useDiscordSetup';
+import { IntegrationType } from '@/types/Integration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from './ResponseTemplateSelector';
+import { PollComposer, PollDraft } from './PollComposer';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 
+// Replace mention inline nodes with a plain-text Discord token so the user id
+// survives HTML serialization + stripping on the way to Discord. The backend
+// converts `{@discord:ID}` into Discord's `<@ID>` ping.
+const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
+  blocks?.map((block) =>
+    Array.isArray(block?.content)
+      ? ({
+          ...block,
+          content: block.content.map(
+            (inline: { type?: string; props?: { _id?: string } }) =>
+              inline?.type === 'mention'
+                ? {
+                    type: 'text',
+                    text: `{@discord:${inline.props?._id}}`,
+                    styles: {},
+                  }
+                : inline,
+          ),
+        } as Block)
+      : block,
+  );
+
 export const MessageInput = ({
   conversationId,
 }: {
   conversationId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
+  const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
+
+  // Discord participants power the type-`@`-to-mention menu in the composer.
+  const discordParticipants = useDiscordConversationParticipants(
+    conversationId,
+    !isDiscord || !conversationId,
+  );
+  const discordMentionItems = useMemo<EditorMentionItem[]>(
+    () =>
+      discordParticipants.map((participant) => ({
+        id: participant.userId,
+        fullName: participant.name || 'Discord user',
+        avatar: participant.avatar,
+      })),
+    [discordParticipants],
+  );
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
     setOnlyInternal(isLead);
-    if (isLead) setIsInternalNote(true);
-  }, [integration?.kind, setOnlyInternal, setIsInternalNote]);
+    setIsInternalNote(isLead);
+  }, [integration?.kind, conversationId, setOnlyInternal, setIsInternalNote]);
 
   const { channels: availableChannels } = useGetChannels();
-  const { responses } = useGetResponses({});
+  const [searchValue, setSearchValue] = useState('');
+  const [debouncedSearchValue] = useDebounce(searchValue, 300);
+
+  const { responses } = useGetResponses({
+    skip: !debouncedSearchValue,
+    variables: {
+      filter: {
+        searchValue: debouncedSearchValue || undefined,
+      },
+    },
+  });
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<any[]>([]);
@@ -68,6 +129,32 @@ export const MessageInput = ({
 
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
+
+  // Relay the agent's "is typing…" to the channel while composing a reply.
+  // Discord-only for now (the generic backend mutation no-ops for integrations
+  // that don't implement typing yet). Heartbeat at 10s stays under the backend's
+  // 15s self-cap so the indicator stays lit while typing; it's cleared on blur
+  // and when the reply is sent. Internal notes never leak to the customer.
+  const [notifyAgentTyping] = useMutation(CONVERSATION_AGENT_TYPING);
+  const pingAgentTyping = useThrottledCallback(
+    () => {
+      if (isDiscord && !isInternalNote && conversationId) {
+        notifyAgentTyping({
+          variables: { conversationId, typing: true },
+        }).catch(() => undefined);
+      }
+    },
+    10000,
+    { leading: true, trailing: false },
+  );
+  const stopAgentTyping = useCallback(() => {
+    pingAgentTyping.cancel();
+    if (isDiscord && conversationId) {
+      notifyAgentTyping({
+        variables: { conversationId, typing: false },
+      }).catch(() => undefined);
+    }
+  }, [isDiscord, conversationId, notifyAgentTyping, pingAgentTyping]);
   const { upload, isLoading } = useUpload();
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -97,13 +184,13 @@ export const MessageInput = ({
       upload({
         files,
         beforeUpload: () =>
-          toast({ title: 'Uploading file...', variant: 'default' }),
+          toast({ title: t('uploading-file'), variant: 'default' }),
         afterRead: ({ result, fileInfo }) =>
           setAttachmentPreview({ ...fileInfo, data: result }),
         afterUpload: ({ response, fileInfo }) => {
           setAttachments((prev) => [...prev, { ...fileInfo, url: response }]);
           setAttachmentPreview(null);
-          toast({ title: 'File uploaded successfully!', variant: 'default' });
+          toast({ title: t('file-uploaded-successfully'), variant: 'default' });
         },
       });
     },
@@ -124,7 +211,7 @@ export const MessageInput = ({
 
   const handleDeleteAttachment = (name: string) => {
     setAttachments((prev) => prev.filter((f) => f.name !== name));
-    toast({ title: 'Attachment removed', variant: 'default' });
+    toast({ title: t('attachment-removed'), variant: 'default' });
   };
 
   const stripHtml = (html: string): string => {
@@ -138,7 +225,7 @@ export const MessageInput = ({
     templateId?: string,
   ) => {
     if (!editor) {
-      return toast({ title: 'Editor not ready', variant: 'destructive' });
+      return toast({ title: t('editor-not-ready'), variant: 'destructive' });
     }
 
     const parseTemplateToBlocks = (content: string) => {
@@ -173,7 +260,7 @@ export const MessageInput = ({
       setResponseTemplateId(templateId || null);
     } catch (error) {
       console.error('Error inserting template:', error);
-      toast({ title: 'Failed to insert template', variant: 'destructive' });
+      toast({ title: t('failed-to-insert-template'), variant: 'destructive' });
     }
   };
 
@@ -215,6 +302,21 @@ export const MessageInput = ({
     setSelectedIndex(-1);
   }, [suggestions]);
 
+  useEffect(() => {
+    if (!debouncedSearchValue) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    if (preparedResponses?.length > 0) {
+      setSuggestions(preparedResponses.slice(0, 5));
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [preparedResponses, debouncedSearchValue]);
+
   const handleChange = useCallback(async () => {
     const blocks = await editor?.document;
     blocks?.pop();
@@ -224,41 +326,51 @@ export const MessageInput = ({
     const plain = html?.replace(/<[^>]+>/g, '')?.trim() || '';
 
     if (plain.length >= 1) {
-      const searchTerm = plain.toLowerCase();
-      const found = preparedResponses.filter((t) => {
-        const titleMatch = t.name?.toLowerCase().includes(searchTerm);
-        const contentMatch = t.preview?.toLowerCase().includes(searchTerm);
-        return titleMatch || contentMatch;
-      });
-
-      setSuggestions(found.slice(0, 5));
-      setShowSuggestions(found.length > 0);
+      setSearchValue(plain);
+      pingAgentTyping();
     } else {
+      setSearchValue('');
+      setSuggestions([]);
       setShowSuggestions(false);
     }
 
     setMentionedUserIds(getMentionedUserIds(blocks));
-  }, [editor, preparedResponses]);
+  }, [editor, pingAgentTyping]);
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
 
+    // For a Discord reply, encode each mention node as a plain-text token
+    // `{@discord:USER_ID}` (angle brackets don't survive HTML stripping); the
+    // backend turns it into Discord's `<@USER_ID>` ping. mentionedUserIds is for
+    // teammate notifications, so it's cleared for Discord replies.
+    const outgoingBlocks =
+      isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
+
     const sendContent = isInternalNote
       ? JSON.stringify(content)
-      : await editor?.blocksToHTMLLossy(content);
+      : await editor?.blocksToHTMLLossy(outgoingBlocks);
+
+    const blockAttachments = getBlockAttachments(content || []);
+    const paperclipUrls = new Set(attachments.map((a) => a.url));
+    const allAttachments = [
+      ...attachments,
+      ...blockAttachments.filter((a) => !paperclipUrls.has(a.url)),
+    ];
 
     addConversationMessage({
       variables: {
         conversationId,
         content: sendContent,
-        mentionedUserIds,
+        mentionedUserIds:
+          isDiscord && !isInternalNote ? [] : mentionedUserIds,
         internal: isInternalNote,
         extraInfo: messageExtraInfo,
-        attachments,
+        attachments: allAttachments,
         responseTemplateId: responseTemplateId,
       },
       onCompleted: () => {
-        toast({ title: 'Message sent!', variant: 'default' });
+        toast({ title: t('message-sent'), variant: 'default' });
         if (content?.length) editor?.removeBlocks(content);
 
         setContent(undefined);
@@ -272,7 +384,7 @@ export const MessageInput = ({
       refetchQueries: ['Conversations'],
       onError: (err) =>
         toast({
-          title: `Failed to send: ${err.message}`,
+          title: t('failed-to-send', { message: err.message }),
           variant: 'destructive',
         }),
     });
@@ -281,6 +393,7 @@ export const MessageInput = ({
     content,
     mentionedUserIds,
     isInternalNote,
+    isDiscord,
     messageExtraInfo,
     attachments,
     editor,
@@ -288,6 +401,29 @@ export const MessageInput = ({
     setIsInternalNote,
     responseTemplateId,
   ]);
+
+  // Polls go straight to Discord (no text body); resolve `true` so the composer
+  // dialog closes + resets only on a successful send.
+  const handleSendPoll = useCallback(
+    async (poll: PollDraft): Promise<boolean> => {
+      if (!conversationId) return false;
+      try {
+        await addConversationMessage({
+          variables: { conversationId, content: '', internal: false, poll },
+          refetchQueries: ['Conversations'],
+        });
+        toast({ title: 'Poll sent!', variant: 'default' });
+        return true;
+      } catch (err) {
+        toast({
+          title: `Failed to send poll: ${(err as Error).message}`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+    },
+    [conversationId, addConversationMessage],
+  );
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
 
@@ -329,9 +465,18 @@ export const MessageInput = ({
               InboxHotkeyScope.MessageInput,
             )
           }
-          onBlur={goBackToPreviousHotkeyScope}
+          onBlur={() => {
+            goBackToPreviousHotkeyScope();
+            stopAgentTyping();
+          }}
         >
           {isInternalNote && <AssignMemberInEditor editor={editor} />}
+          {isDiscord && !isInternalNote && (
+            <MentionInEditor
+              editor={editor}
+              participants={discordMentionItems}
+            />
+          )}
         </BlockEditor>
 
         {attachmentPreview && (
@@ -377,7 +522,7 @@ export const MessageInput = ({
               !onlyInternal && setIsInternalNote(!isInternalNote)
             }
           >
-            Internal Note
+            {t('internal-note')}
           </Toggle>
 
           <ResponseTemplateSelector onSelect={handleTemplateSelect}>
@@ -406,6 +551,10 @@ export const MessageInput = ({
             />
           </Button>
 
+          {isDiscord && !isInternalNote && (
+            <PollComposer onSubmit={handleSendPoll} loading={loading} />
+          )}
+
           <Button
             size="lg"
             className="ml-auto"
@@ -417,7 +566,7 @@ export const MessageInput = ({
             onClick={handleSubmit}
           >
             {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
-            Send
+            {t('send')}
             <Kbd className="ml-1">
               <IconCommand size={12} />
               <IconCornerDownLeft size={12} />

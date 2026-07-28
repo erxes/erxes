@@ -9,13 +9,15 @@ import { TemplateSection } from '@/team/components/team-details/TemplateSection'
 import { useParams } from 'react-router-dom';
 import { DeleteTeamForm } from '@/team/components/team-details/DeleteTeamForm';
 import { TriageSection } from '@/team/components/team-details/TriageSection';
+import { useTranslation } from 'react-i18next';
 
 export const TeamDetails = () => {
+  const { t } = useTranslation('operation');
   const { id: teamId } = useParams();
   const { team, loading } = useGetTeam({ variables: { _id: teamId } });
 
   if (loading) return null;
-  if (!team) return <div>Not found</div>;
+  if (!team) return <div>{t('not-found')}</div>;
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16">

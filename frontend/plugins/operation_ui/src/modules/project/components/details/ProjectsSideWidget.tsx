@@ -14,6 +14,7 @@ import {
   ToggleGroup,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export enum ProjectsSideWidgetTabsEnum {
   Assignees = 'assignees',
@@ -22,10 +23,11 @@ export enum ProjectsSideWidgetTabsEnum {
 }
 
 export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
+  const { t } = useTranslation('operation');
   return (
     <SideMenu defaultValue="project">
       <SideMenu.Content value="project">
-        <SideMenu.Header Icon={IconChartHistogram} label="Project Report" />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('project-report')} />
         <>
           <div className="p-4 border-b">
             <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -36,7 +38,7 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
                   size="sm"
                 >
                   <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                  Progress
+                  {t('progress')}
                 </Button>
               </Collapsible.Trigger>
               <Collapsible.Content>
@@ -61,7 +63,7 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="project"
-          label="Project Report"
+          label={t('project-report')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>
@@ -74,6 +76,7 @@ export const ProjectsSideWidgetTabs = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('operation');
   const [value, setValue] = useState<ProjectsSideWidgetTabsEnum>(
     ProjectsSideWidgetTabsEnum.Assignees,
   );
@@ -97,19 +100,19 @@ export const ProjectsSideWidgetTabs = ({
             value={ProjectsSideWidgetTabsEnum.Assignees}
             className="flex-auto"
           >
-            Assignees
+            {t('assignees')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ProjectsSideWidgetTabsEnum.Teams}
             className="flex-auto"
           >
-            Teams
+            {t('teams')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ProjectsSideWidgetTabsEnum.Milestones}
             className="flex-auto"
           >
-            Milestones
+            {t('milestones')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

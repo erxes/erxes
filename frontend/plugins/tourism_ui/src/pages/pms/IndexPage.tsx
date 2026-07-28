@@ -1,11 +1,15 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PmsCreateSheet } from '@/pms/components/CreatePmsSheet';
 import { PmsList } from '@/pms/components/PmsList';
 
 export const IndexPage = () => {
+  const { t } = useTranslation('tourism');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('pms-index-breadcrumb'));
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -16,14 +20,17 @@ export const IndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/pms">
                     <IconSandbox />
-                    Property management system
+                    {t('pms-index-breadcrumb')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           {/* <Button variant="outline" asChild>

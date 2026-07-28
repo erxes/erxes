@@ -17,6 +17,7 @@ import { REMOVE_CATEGORY } from '../graphql/mutations';
 import { useTopics } from '../hooks/useTopics';
 import { ICategory, ITopic } from '../types';
 import { CategoryDrawer } from './CategoryDrawer';
+import { useTranslation } from 'react-i18next';
 
 interface TopicListProps {
   readonly topics: ITopic[];
@@ -27,6 +28,7 @@ interface TopicListProps {
 }
 
 export function TopicList(props: TopicListProps) {
+  const { t } = useTranslation('frontline');
   const { topics, loading, removeTopic, onEditTopic, onAddCategory } = props;
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,11 +46,11 @@ export function TopicList(props: TopicListProps) {
   const [isTopicsCollapsed, setIsTopicsCollapsed] = useState(false);
 
   const handleDeleteCategory = async (category: ICategory) => {
-    const message = `Are you sure you want to delete "${category.title}"? This will also delete all associated articles. This action cannot be undone.`;
+    const message = t('kb-confirm-delete-category', { title: category.title });
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: 'This action is permanent and cannot be undone.',
+      description: t('kb-action-permanent'),
     };
 
     try {
@@ -67,7 +69,7 @@ export function TopicList(props: TopicListProps) {
     } catch (error) {
       toast({
         type: 'foreground',
-        title: 'Failed to delete category. Please try again.',
+        title: t('kb-failed-delete-category'),
       });
     }
   };
@@ -124,7 +126,7 @@ export function TopicList(props: TopicListProps) {
             setIsCategoryDrawerOpen(true);
           }}
         >
-          Edit Category
+          {t('kb-edit-category')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={() => {
@@ -133,11 +135,11 @@ export function TopicList(props: TopicListProps) {
             setIsCategoryDrawerOpen(true);
           }}
         >
-          Add Sub Category
+          {t('kb-add-sub-category')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onClick={() => handleDeleteCategory(category)}>
-          Delete Category
+          {t('kb-delete-category')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -152,7 +154,7 @@ export function TopicList(props: TopicListProps) {
             className="cursor-pointer flex items-center justify-between"
             onClick={() => setIsTopicsCollapsed(!isTopicsCollapsed)}
           >
-            <span>Topics</span>
+            <span>{t('kb-topics')}</span>
           </Sidebar.GroupLabel>
           <Collapsible.Content
             className={isTopicsCollapsed ? 'hidden' : 'block'}
@@ -183,7 +185,7 @@ export function TopicList(props: TopicListProps) {
             className="cursor-pointer flex items-center justify-between"
             onClick={() => setIsCategoriesCollapsed(!isCategoriesCollapsed)}
           >
-            <span>Categories</span>
+            <span>{t('kb-categories')}</span>
           </Sidebar.GroupLabel>
           <Collapsible.Content
             className={isCategoriesCollapsed ? 'hidden' : 'block'}
@@ -244,6 +246,7 @@ export function TopicItem(props: {
   readonly onEditTopic: (topic: ITopic) => void;
   readonly onAddCategory?: (topicId: string) => void;
 }) {
+  const { t } = useTranslation('frontline');
   const [removeCategory] = useMutation(REMOVE_CATEGORY);
   const { refetch } = useTopics();
   const { topic, removeTopic, onEditTopic, onAddCategory } = props;
@@ -263,11 +266,14 @@ export function TopicItem(props: {
 
   const handleDeleteTopic = async (topic: ITopic) => {
     const categoryCount = topic.categories?.length || 0;
-    const message = `Are you sure you want to delete "${topic.title}"? This will also delete ${categoryCount} categories and all their associated articles. This action cannot be undone.`;
+    const message = t('kb-confirm-delete-topic-with-count', {
+      title: topic.title,
+      count: categoryCount,
+    });
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: 'This action is permanent and cannot be undone.',
+      description: t('kb-action-permanent'),
     };
 
     try {
@@ -283,11 +289,11 @@ export function TopicItem(props: {
   };
 
   const handleDeleteCategory = async (category: ICategory) => {
-    const message = `Are you sure you want to delete "${category.title}"? This will also delete all associated articles. This action cannot be undone.`;
+    const message = t('kb-confirm-delete-category', { title: category.title });
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: 'This action is permanent and cannot be undone.',
+      description: t('kb-action-permanent'),
     };
 
     try {
@@ -306,7 +312,7 @@ export function TopicItem(props: {
     } catch (error) {
       toast({
         type: 'foreground',
-        title: 'Failed to delete category. Please try again.',
+        title: t('kb-failed-delete-category'),
       });
     }
   };
@@ -321,7 +327,7 @@ export function TopicItem(props: {
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end" sideOffset={5}>
           <DropdownMenu.Item onClick={() => onEditTopic(topic)}>
-            Edit Topic
+            {t('kb-edit-topic')}
           </DropdownMenu.Item>
           {!hasCategories && (
             <DropdownMenu.Item
@@ -335,7 +341,7 @@ export function TopicItem(props: {
                 }
               }}
             >
-              Add Category
+              {t('kb-add-category')}
             </DropdownMenu.Item>
           )}
           <DropdownMenu.Separator />
@@ -343,7 +349,7 @@ export function TopicItem(props: {
             onClick={() => handleDeleteTopic(topic)}
             className="text-destructive"
           >
-            Delete Topic
+            {t('kb-delete-topic')}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>
@@ -365,7 +371,7 @@ export function TopicItem(props: {
             setIsCategoryDrawerOpen(true);
           }}
         >
-          Edit Category
+          {t('kb-edit-category')}
         </DropdownMenu.Item>
         {!isSubCategory && (
           <DropdownMenu.Item
@@ -374,12 +380,12 @@ export function TopicItem(props: {
               setIsCategoryDrawerOpen(true);
             }}
           >
-            Add Sub Category
+            {t('kb-add-sub-category')}
           </DropdownMenu.Item>
         )}
         <DropdownMenu.Separator />
         <DropdownMenu.Item onClick={() => handleDeleteCategory(category)}>
-          Delete Category
+          {t('kb-delete-category')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

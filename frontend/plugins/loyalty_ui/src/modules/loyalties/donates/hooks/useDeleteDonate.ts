@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { DELETE_DONATE_MUTATION } from '../graphql/mutations/mutations';
 
 export const useDeleteDonate = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   const [deleteDonate, { loading, error }] = useMutation(
     DELETE_DONATE_MUTATION,
@@ -17,14 +19,14 @@ export const useDeleteDonate = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Donation(s) deleted successfully',
+          title: t('success'),
+          description: t('donation-deleted'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

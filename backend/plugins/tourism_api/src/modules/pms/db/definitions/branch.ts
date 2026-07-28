@@ -37,7 +37,41 @@ export const branchSchema = new Schema({
     type: [String],
     label: ' extraProductCategories ids',
   },
+  excludeExtraProductCategoryIds: {
+    type: [String],
+    label: 'excludeExtraProductCategoryIds',
+  },
+  excludeExtraProductIds: {
+    type: [String],
+    label: 'excludeExtraProductIds',
+  },
   roomCategories: { type: [String], label: ' roomCategories ids' },
+  excludeRoomCategoryIds: {
+    type: [String],
+    label: ' excludeRoomCategories ids',
+  },
+  excludeRoomIds: {
+    type: [String],
+    label: ' excludeRoomIds ids',
+  },
+  hasAppointment: {
+    type: Boolean,
+    label: 'hasAppointment',
+    optional: true,
+    default: false,
+  },
+  appointmentCategories: {
+    type: [String],
+    label: 'appointmentCategories ids',
+  },
+  excludeAppointmentCategoryIds: {
+    type: [String],
+    label: 'excludeAppointmentCategoryIds',
+  },
+  excludeAppointmentIds: {
+    type: [String],
+    label: 'excludeAppointmentIds',
+  },
   checkintime: { type: String, label: 'checkintime' },
   checkouttime: { type: String, label: 'checkouttime' },
   checkinamount: { type: Number, label: 'checkinamount' },

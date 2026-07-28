@@ -1,7 +1,7 @@
 import { IModels } from '../connectionResolver';
 import { calculateExecution } from './calculateExecutions';
 import { executeActions } from './executeActions';
-import { getActionsMap } from '../utils/utils';
+import { getExecutionActionsMap } from '../utils/utils';
 
 const escapeRegExp = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -16,6 +16,7 @@ const matchesTriggerType = (triggerType: string, incomingType: string) =>
  * @param type - The trigger type
  * @param targets - Array of target objects to process
  * @param recordType - Optional record type filter
+ * @param eventUpdateDescription - Optional description of the event update
  */
 export const receiveTrigger = async ({
   models,
@@ -23,17 +24,26 @@ export const receiveTrigger = async ({
   type,
   targets,
   recordType,
+  eventUpdateDescription,
+  excludeAutomationIds = [],
 }: {
   models: IModels;
   subdomain: string;
   type: string;
   targets: any[];
   recordType?: string;
+  eventUpdateDescription?: Record<string, any>;
+  // Automations that already consumed this event (e.g. a button postback
+  // resumed their waiting execution) must not be re-triggered by it
+  excludeAutomationIds?: string[];
 }) => {
   // Simple query: only check status and trigger type
   // recordType check will be done in the loop for non-custom triggers only
   const automations = await models.Automations.find({
     status: 'active',
+    ...(excludeAutomationIds.length
+      ? { _id: { $nin: excludeAutomationIds } }
+      : {}),
     $or: [
       {
         'triggers.type': { $in: [type] },
@@ -43,7 +53,6 @@ export const receiveTrigger = async ({
       },
     ],
   }).lean();
-
   if (!automations.length) {
     return;
   }
@@ -76,14 +85,14 @@ export const receiveTrigger = async ({
           automationId: automation._id,
           trigger,
           target,
+          eventUpdateDescription,
         });
-
         if (execution) {
           await executeActions(
             subdomain,
             trigger.type,
             execution,
-            await getActionsMap(automation.actions),
+            await getExecutionActionsMap(automation, execution),
             trigger.actionId,
           );
         }

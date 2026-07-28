@@ -3,6 +3,10 @@ import type { IModels } from '../../connectionResolver';
 import type { TAiAgentFile } from '../aiAgent';
 import { buildAiKnowledgeChunks } from './chunk';
 import { hashKnowledgeContent } from './normalize';
+import {
+  AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
+  buildAiAgentFileKnowledgeSourceId,
+} from './sourceConfig';
 import { TAiKnowledgeMetadata } from './types';
 
 type TAiKnowledgeIndexFileParams = {
@@ -95,6 +99,11 @@ export const indexAiAgentKnowledgeFile = async ({
     }
 
     const contentHash = hashKnowledgeContent(content);
+    const sourceUpdatedAt = new Date();
+    const sourceId = buildAiAgentFileKnowledgeSourceId({
+      agentId,
+      fileId: file.id,
+    });
     const chunks = buildAiKnowledgeChunks({
       agentId,
       fileId: file.id,
@@ -106,14 +115,62 @@ export const indexAiAgentKnowledgeFile = async ({
       },
     });
 
-    await models.AiAgentKnowledgeChunks.deleteMany({
-      agentId,
-      fileId: file.id,
-    });
-
     if (chunks.length) {
-      await models.AiAgentKnowledgeChunks.insertMany(chunks, { ordered: true });
+      await models.KnowledgeChunks.bulkWrite(
+        chunks.map((chunk) => ({
+          updateOne: {
+            filter: {
+              sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
+              sourceId,
+              chunkIndex: chunk.chunkIndex,
+            },
+            update: {
+              $set: {
+                sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
+                sourceId,
+                sourceVersion: contentHash,
+                sourceUpdatedAt,
+                agentId,
+                fileId: file.id,
+                fileName: file.name,
+                visibility: 'internal',
+                title: chunk.title || file.name,
+                chunkIndex: chunk.chunkIndex,
+                headingPath: chunk.headingPath,
+                content: chunk.content,
+                contentHash: chunk.contentHash,
+                byteSize: chunk.byteSize,
+                tokenCount: chunk.tokenCount,
+                topics: chunk.topics,
+                keywords: chunk.keywords,
+                priority: chunk.priority,
+                language: chunk.language,
+                metadata: {
+                  ...chunk.metadata,
+                  sourceKind: 'ai-agent-context-file',
+                  agentId,
+                  fileId: file.id,
+                  fileName: file.name,
+                  purpose: file.purpose || 'knowledge',
+                },
+              },
+            },
+            upsert: true,
+          },
+        })),
+        { ordered: false },
+      );
     }
+
+    await models.KnowledgeChunks.deleteMany({
+      sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
+      sourceId,
+      chunkIndex: { $gte: chunks.length },
+      $or: [
+        { sourceUpdatedAt: { $lte: sourceUpdatedAt } },
+        { sourceUpdatedAt: { $exists: false } },
+      ],
+    });
 
     await updateAgentFileIndexState({
       models,
@@ -137,11 +194,6 @@ export const indexAiAgentKnowledgeFile = async ({
     };
   } catch (error) {
     const message = (error as Error).message;
-
-    await models.AiAgentKnowledgeChunks.deleteMany({
-      agentId,
-      fileId: file.id,
-    });
 
     await updateAgentFileIndexState({
       models,
@@ -183,7 +235,6 @@ export const indexAiAgentKnowledgeFiles = async ({
       }),
     );
   }
-  console.log({ results });
 
   return results;
 };

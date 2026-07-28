@@ -4,6 +4,7 @@ import { ITransactionGroupForm } from '../types/JournalForms';
 import { TR_STATUS_LABELS } from '../../types/constants';
 import { useWatch } from 'react-hook-form';
 import { Badge, Button, ScrollArea, Sheet, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ReactNode, useState } from 'react';
 import {
   ActivityLogCustomActivity,
@@ -141,6 +142,7 @@ const getRelatedContentLabel = (contentType?: string) => {
 };
 
 export const TrRightSidebar = ({ form }: { form: ITransactionGroupForm }) => {
+  const { t } = useTranslation('accounting');
   const { contentId, contentType } = useWatch({ control: form.control });
   const [parentId] = useQueryState<string>('parentId');
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -165,7 +167,7 @@ export const TrRightSidebar = ({ form }: { form: ITransactionGroupForm }) => {
       </Sheet.Trigger>
       <Sheet.View className="lg:max-w-1/3 md:max-w-1/2 sm:max-w-md p-0">
         <Sheet.Header className="border-b gap-3 px-6 py-4">
-          <Sheet.Title>Activities</Sheet.Title>
+          <Sheet.Title>{t('activities')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-0 flex flex-col overflow-hidden">
