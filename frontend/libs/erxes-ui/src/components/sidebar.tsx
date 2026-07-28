@@ -12,10 +12,7 @@ import { useIsMobile } from 'erxes-ui/hooks/use-mobile';
 import { cn } from 'erxes-ui/lib/utils';
 
 import { Tooltip } from './tooltip';
-import {
-  IconLayoutSidebarLeftCollapse,
-  IconLayoutSidebarLeftExpand,
-} from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { Key } from 'erxes-ui/types/Key';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { AppHotkeyScope } from 'erxes-ui/modules/hotkey/types/AppHotkeyScope';
@@ -355,9 +352,9 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       {collapseState === 'collapsed' ? (
-        <IconLayoutSidebarLeftExpand />
+        <IconChevronRight />
       ) : (
-        <IconLayoutSidebarLeftCollapse />
+        <IconChevronLeft />
       )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>

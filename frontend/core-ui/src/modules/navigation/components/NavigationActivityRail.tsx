@@ -1,4 +1,5 @@
 import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
+import { NavigationActivityPinButton } from '@/navigation/components/NavigationActivityPinButton';
 import { NavigationCorePanelContent } from '@/navigation/components/NavigationCoreModules';
 import { NavigationPluginPanelContent } from '@/navigation/components/NavigationPlugins';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
@@ -57,12 +58,16 @@ const NavigationSectionHeading = ({
 // skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationActivityPeek = ({
   activity,
+  pinned,
   onPointerEnter,
   onPointerLeave,
+  onPinnedChange,
 }: {
   activity: INavigationActivity;
+  pinned: boolean;
   onPointerEnter: () => void;
   onPointerLeave: () => void;
+  onPinnedChange: (pinned: boolean) => void;
 }) => {
   return (
     <HoverCard.Content
@@ -77,6 +82,11 @@ const NavigationActivityPeek = ({
         <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">
           {activity.label}
         </span>
+        <NavigationActivityPinButton
+          activity={activity}
+          pinned={pinned}
+          onPinnedChange={onPinnedChange}
+        />
       </div>
       <ScrollArea className="min-h-0 flex-1 py-1">
         {activity.kind === 'plugin' ? (
@@ -95,46 +105,66 @@ const NavigationActivityButton = ({
   active,
   expanded,
   indicator,
+  pinned,
+  onPinnedChange,
   onSelect,
 }: {
   activity: INavigationActivity;
   active: boolean;
   expanded: boolean;
   indicator?: ReactNode;
+  pinned?: boolean;
+  onPinnedChange?: (pinned: boolean) => void;
   onSelect: () => void;
 }) => {
   const Icon = activity.icon || IconApps;
 
   return (
-    <Button
-      aria-label={activity.label}
+    <div
       className={cn(
-        'relative h-10 shrink-0 rounded-md [&>svg]:size-4!',
-        expanded
-          ? 'w-full justify-start gap-2 px-3'
-          : 'w-10 justify-center px-0',
-        active && 'bg-primary/10 text-primary hover:bg-primary/10',
+        'group/activity relative flex min-w-0 shrink-0',
+        expanded ? 'h-7 w-full' : 'size-7',
       )}
-      onClick={onSelect}
-      size={expanded ? 'default' : 'icon'}
-      variant="ghost"
     >
-      {active && (
-        <span className="absolute -left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary" />
-      )}
-      <Icon
+      <Button
+        aria-label={activity.label}
         className={cn(
-          'size-4 text-accent-foreground',
-          active && 'text-primary',
+          'relative shrink-0 rounded-md [&>svg]:size-4!',
+          expanded
+            ? 'h-7 min-w-0 flex-1 justify-start gap-2 px-2 text-sm'
+            : 'size-7 justify-center px-0',
+          expanded && onPinnedChange && 'pr-8',
+          active && 'bg-primary/10 text-primary hover:bg-primary/10',
         )}
-      />
-      {expanded && (
-        <span className="min-w-0 truncate text-left text-[13px] font-medium">
-          {activity.label}
-        </span>
+        onClick={onSelect}
+        size={expanded ? 'default' : 'icon'}
+        variant="ghost"
+      >
+        {active && (
+          <span className="absolute -left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary" />
+        )}
+        <Icon
+          className={cn(
+            'size-4 text-accent-foreground',
+            active && 'text-primary',
+          )}
+        />
+        {expanded && (
+          <span className="min-w-0 truncate text-left font-medium">
+            {activity.label}
+          </span>
+        )}
+        {expanded && indicator}
+      </Button>
+      {expanded && onPinnedChange && pinned !== undefined && (
+        <NavigationActivityPinButton
+          activity={activity}
+          className="absolute top-0 right-0 opacity-0 group-focus-within/activity:opacity-100 group-hover/activity:opacity-100"
+          pinned={pinned}
+          onPinnedChange={onPinnedChange}
+        />
       )}
-      {expanded && indicator}
-    </Button>
+    </div>
   );
 };
 
@@ -144,16 +174,20 @@ const NavigationActivityHover = ({
   active,
   expanded,
   open,
+  pinned,
   onClose,
   onOpen,
+  onPinnedChange,
   onSelect,
 }: {
   activity: INavigationActivity;
   active: boolean;
   expanded: boolean;
   open: boolean;
+  pinned: boolean;
   onClose: () => void;
   onOpen: () => void;
+  onPinnedChange: (pinned: boolean) => void;
   onSelect: () => void;
 }) => {
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -215,14 +249,18 @@ const NavigationActivityHover = ({
             activity={activity}
             active={active}
             expanded={expanded}
+            pinned={pinned}
+            onPinnedChange={onPinnedChange}
             onSelect={handleSelect}
           />
         </div>
       </HoverCard.Trigger>
       <NavigationActivityPeek
         activity={activity}
+        pinned={pinned}
         onPointerEnter={keepOpen}
         onPointerLeave={closeImmediately}
+        onPinnedChange={onPinnedChange}
       />
     </HoverCard>
   );
@@ -289,10 +327,10 @@ export const NavigationActivityRail = ({
         aria-label={t('go-to')}
         aria-keyshortcuts="Control+M Meta+M"
         className={cn(
-          'mb-1 h-10 rounded-md [&>svg]:size-4!',
+          'mb-1 rounded-md [&>svg]:size-4!',
           expanded
-            ? 'w-full justify-start gap-2 px-3'
-            : 'w-10 justify-center px-0',
+            ? 'h-7 w-full justify-start gap-2 px-2 text-sm'
+            : 'size-7 justify-center px-0',
         )}
         onClick={onSearch}
         size={expanded ? 'default' : 'icon'}
@@ -301,14 +339,12 @@ export const NavigationActivityRail = ({
         variant="ghost"
       >
         <IconSearch className="size-4 text-accent-foreground" />
-        {expanded && (
-          <span className="truncate text-[13px] font-medium">{t('go-to')}</span>
-        )}
+        {expanded && <span className="truncate font-medium">{t('go-to')}</span>}
       </Button>
       <div
         className={cn(
-          'flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden',
-          expanded ? 'items-stretch' : 'items-center',
+          'flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden',
+          expanded ? 'items-stretch gap-1' : 'items-center gap-1',
         )}
       >
         <NavigationSectionHeading
@@ -352,6 +388,10 @@ export const NavigationActivityRail = ({
                   activity={activity}
                   active={active}
                   expanded={expanded}
+                  pinned={isActivityPinned(activity.id)}
+                  onPinnedChange={(pinned) =>
+                    onActivityPinnedChange(activity.id, pinned)
+                  }
                   onSelect={() => onSelectActivity(activity)}
                 />
               ) : (
@@ -360,6 +400,7 @@ export const NavigationActivityRail = ({
                   active={active}
                   expanded={expanded}
                   open={previewActivityId === activity.id}
+                  pinned={isActivityPinned(activity.id)}
                   onClose={() =>
                     setPreviewActivityId((currentActivityId) =>
                       currentActivityId === activity.id
@@ -368,6 +409,9 @@ export const NavigationActivityRail = ({
                     )
                   }
                   onOpen={() => setPreviewActivityId(activity.id)}
+                  onPinnedChange={(pinned) =>
+                    onActivityPinnedChange(activity.id, pinned)
+                  }
                   onSelect={() => onSelectActivity(activity)}
                 />
               )}

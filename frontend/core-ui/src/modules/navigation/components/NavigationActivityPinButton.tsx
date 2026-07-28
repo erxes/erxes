@@ -24,7 +24,10 @@ export const NavigationActivityPinButton = ({
     <Button
       aria-label={label}
       className={cn(
-        'size-7 shrink-0 text-muted-foreground hover:text-foreground',
+        'size-7 shrink-0 transition-colors',
+        pinned
+          ? 'text-primary hover:bg-primary/10 hover:text-primary'
+          : 'text-muted-foreground hover:text-foreground',
         className,
       )}
       onClick={(event) => {

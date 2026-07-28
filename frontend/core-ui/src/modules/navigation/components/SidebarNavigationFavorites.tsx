@@ -11,7 +11,7 @@ export function SidebarNavigationFavorites({
 
   return (
     <section className="w-full shrink-0">
-      <Sidebar.Menu className={cn('gap-0.5', !expanded && 'items-center')}>
+      <Sidebar.Menu className={cn(expanded ? 'gap-1' : 'items-center gap-1')}>
         {favorites.map((item) => {
           return (
             <SidebarNavigationFavoritesItem
@@ -49,13 +49,16 @@ export function SidebarNavigationFavoritesItem({
     <NavigationMenuLinkItem
       name={name}
       icon={Icon}
-      itemClassName="flex h-10 w-full shrink-0 items-center justify-center"
+      itemClassName={cn(
+        'flex w-full shrink-0 items-center justify-center',
+        'h-7',
+      )}
       path={pathWithoutUi}
       className={cn(
-        'h-10 rounded-md text-[13px]',
+        'rounded-md',
         expanded
-          ? 'w-full justify-start px-3'
-          : 'mx-auto w-10 justify-center px-0',
+          ? 'h-7 w-full justify-start px-2 text-sm'
+          : 'mx-auto size-7 justify-center px-0',
       )}
       label={
         expanded ? (

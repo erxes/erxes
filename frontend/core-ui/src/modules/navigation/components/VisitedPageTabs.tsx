@@ -94,7 +94,7 @@ const SortableVisitedPageTab = ({
     <div
       ref={setTabRef}
       className={cn(
-        'group/tab flex h-8 min-w-28 max-w-52 shrink-0 items-center rounded-md border border-transparent text-accent-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
+        'group/tab flex h-6 min-w-20 max-w-40 shrink-0 items-center rounded-md border border-transparent text-accent-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
         isDragging && 'z-10 opacity-40',
       )}
       data-active={isActive}
@@ -108,11 +108,11 @@ const SortableVisitedPageTab = ({
       <Tabs.Trigger
         value={pathname}
         title={label}
-        className="h-full min-w-0 flex-1 justify-start gap-1.5 rounded-md bg-transparent px-2 text-xs font-medium text-inherit shadow-none hover:bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-inherit data-[state=active]:shadow-none data-[state=active]:hover:bg-transparent"
+        className="h-full min-w-0 flex-1 justify-start gap-1 rounded-md bg-transparent px-1.5 text-[11px] font-medium text-inherit shadow-none hover:bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-inherit data-[state=active]:shadow-none data-[state=active]:hover:bg-transparent"
       >
         <Icon
           className={cn(
-            'size-3.5 shrink-0 text-muted-foreground',
+            'size-3 shrink-0 text-muted-foreground',
             isActive && 'text-primary',
           )}
         />
@@ -122,7 +122,7 @@ const SortableVisitedPageTab = ({
         <Button
           aria-label={closeLabel}
           aria-keyshortcuts={isActive ? closeAriaShortcut : undefined}
-          className="mr-1 size-5 shrink-0 rounded opacity-0 transition-[background-color,opacity] hover:bg-accent group-hover/tab:opacity-100 group-focus-within/tab:opacity-100 data-[active=true]:opacity-100"
+          className="mr-0.5 size-4 shrink-0 rounded opacity-0 transition-[background-color,opacity] hover:bg-accent group-hover/tab:opacity-100 group-focus-within/tab:opacity-100 data-[active=true]:opacity-100"
           data-active={isActive}
           onClick={onClose}
           onPointerDown={(event) => event.stopPropagation()}
@@ -133,7 +133,7 @@ const SortableVisitedPageTab = ({
           type="button"
           variant="ghost"
         >
-          <IconX className="size-3" />
+          <IconX className="size-2.5" />
         </Button>
       )}
     </div>
@@ -260,7 +260,7 @@ export const VisitedPageTabs = () => {
     /* skipcq: JS-0415 - The nesting follows the DnD, tabs, and scroll primitives. */
     <nav
       aria-label={t('navigation.visited-pages')}
-      className="fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-1.5 border-b bg-muted px-2"
+      className="fixed inset-x-0 top-0 z-40 flex h-10 items-center gap-1.5 border-b bg-muted px-2"
     >
       <div className="flex min-w-0 flex-1 items-center overflow-hidden">
         <DndContext
@@ -276,13 +276,13 @@ export const VisitedPageTabs = () => {
             className="min-w-0 flex-1 overflow-hidden"
           >
             <ScrollArea.Root
-              className="group/tabs-scroll h-12 w-full"
+              className="group/tabs-scroll h-10 w-full"
               type="auto"
             >
-              <ScrollArea.Viewport className="h-12 w-full">
+              <ScrollArea.Viewport className="h-10 w-full">
                 <Tabs.List
                   variant="segment"
-                  className="flex h-12 w-max min-w-full items-center justify-start gap-1 rounded-none bg-transparent px-0 pt-0 pb-1"
+                  className="flex h-10 w-max min-w-full items-center justify-start gap-1 rounded-none bg-transparent px-0 group-has-data-[state=visible]/tabs-scroll:pb-1"
                 >
                   <SortableContext
                     items={tabs.map((tab) => tab.pathname)}
