@@ -208,10 +208,13 @@ export function TasksBoardCards({
         ];
       });
       setAllTasksMap((prev) => {
-        const newTasks = tasks.reduce((acc, task) => {
-          acc[task._id] = task;
-          return acc;
-        }, {} as Record<string, ITask>);
+        const newTasks = tasks.reduce(
+          (acc, task) => {
+            acc[task._id] = task;
+            return acc;
+          },
+          {} as Record<string, ITask>,
+        );
         return { ...prev, ...newTasks };
       });
     }
