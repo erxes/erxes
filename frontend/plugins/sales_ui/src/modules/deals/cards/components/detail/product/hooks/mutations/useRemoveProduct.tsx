@@ -7,7 +7,7 @@ import {
 import { useCallback } from 'react';
 
 import { productRemove } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
-import { DEAL_PRODUCT_TOAST_OPTIONS } from '@/deals/cards/components/detail/product/constants';
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { IProductData } from 'ui-modules';
 import { useQueryState, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -55,7 +55,7 @@ export const useRemoveProducts = () => {
         toast({
           title: t('products-deleted'),
           variant: 'success',
-          ...DEAL_PRODUCT_TOAST_OPTIONS,
+          ...DEAL_TOAST_OPTIONS,
         });
         onCompleted?.(result.data);
 
@@ -67,7 +67,7 @@ export const useRemoveProducts = () => {
           title: t('error'),
           description: apolloError.message,
           variant: 'destructive',
-          ...DEAL_PRODUCT_TOAST_OPTIONS,
+          ...DEAL_TOAST_OPTIONS,
         });
         onError?.(apolloError);
 

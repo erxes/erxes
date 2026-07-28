@@ -1,12 +1,36 @@
+import { useMutation } from '@apollo/client';
+import { useToast } from 'erxes-ui';
 import { onLocalChangeAtom } from '../productTableAtom';
 import { useAtomValue } from 'jotai';
 import { useDealsEditProductData } from './mutations/useDealsEditProductData';
 import { IProductData } from 'ui-modules';
+import { PRODUCTS_EDIT } from 'ui-modules/modules/products/graphql/mutations/productMutations';
+import { useTranslation } from 'react-i18next';
+
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
+
+interface ProductsEditData {
+  productsEdit: {
+    __typename: 'Product';
+    _id: string;
+    name: string;
+  };
+}
+
+interface ProductsEditVariables {
+  _id: string;
+  name: string;
+}
 
 export const useUpdateProductRecord = () => {
   const { editDealsProductData } = useDealsEditProductData();
+  const [productsEdit] = useMutation<ProductsEditData, ProductsEditVariables>(
+    PRODUCTS_EDIT,
+  );
   const processId = localStorage.getItem('processId') || '';
   const onLocalChange = useAtomValue(onLocalChangeAtom);
+  const { toast } = useToast();
+  const { t } = useTranslation('sales');
 
   const updateRecord = (
     product: IProductData,
@@ -44,5 +68,62 @@ export const useUpdateProductRecord = () => {
     return request;
   };
 
-  return { updateRecord };
+  const updateProductName = async (productData: IProductData, name: string) => {
+    const product = productData.product;
+
+    if (!product) {
+      return;
+    }
+
+    const productId = productData.productId || product._id;
+    const nextProduct = { ...product, _id: productId, name };
+
+    if (onLocalChange && productData._id) {
+      onLocalChange(
+        productData._id,
+        { product: nextProduct },
+        { syncProductId: productId },
+      );
+    }
+
+    try {
+      await productsEdit({
+        variables: {
+          _id: productId,
+          name,
+        },
+        optimisticResponse: {
+          productsEdit: {
+            __typename: 'Product',
+            _id: productId,
+            name,
+          },
+        },
+      });
+
+      toast({
+        title: t('success'),
+        variant: 'success',
+        ...DEAL_TOAST_OPTIONS,
+      });
+    } catch (error) {
+      if (onLocalChange && productData._id) {
+        onLocalChange(
+          productData._id,
+          { product },
+          { syncProductId: productId },
+        );
+      }
+
+      toast({
+        title: t('error'),
+        description:
+          error instanceof Error ? error.message : t('update-failed'),
+        variant: 'destructive',
+        ...DEAL_TOAST_OPTIONS,
+      });
+    }
+  };
+
+  return { updateProductName, updateRecord };
 };

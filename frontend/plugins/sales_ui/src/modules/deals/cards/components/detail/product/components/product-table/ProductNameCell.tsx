@@ -36,8 +36,6 @@ export const ProductNameCell = ({
   hasDuplicateProduct: boolean;
 }) => {
   const product = cell.row.original.product;
-  // A product may have no name yet (freshly added row), so the accessor can
-  // return undefined; keep the draft a string to stay controlled.
   const getCellName = () => (cell.getValue() as string | undefined) ?? '';
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(getCellName);
@@ -45,7 +43,7 @@ export const ProductNameCell = ({
     null,
   );
   const cancelledRef = useRef(false);
-  const { updateRecord } = useUpdateProductRecord();
+  const { updateProductName } = useUpdateProductRecord();
   const actions = useAtomValue(productRowActionsAtom);
 
   const clearSingleClickTimeout = () => {
@@ -68,9 +66,7 @@ export const ProductNameCell = ({
     clearSingleClickTimeout();
     const trimmedName = name.trim();
     if (trimmedName && trimmedName !== getCellName() && product) {
-      updateRecord(cell.row.original, {
-        product: { ...product, name: trimmedName },
-      });
+      void updateProductName(cell.row.original, trimmedName);
     }
     setOpen(false);
   };
