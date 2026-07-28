@@ -26,10 +26,12 @@ interface IDealChanged {
   };
 }
 
-const withResolvedFieldsOnly = (deal: IDeal): Partial<IDeal> =>
-  Object.fromEntries(
-    Object.entries(deal).filter(([, value]) => value !== null),
-  ) as Partial<IDeal>;
+const withResolvedFieldsOnly = (deal: IDeal) =>
+  Object.entries(deal).reduce<Partial<IDeal>>(
+    (fields, [key, value]) =>
+      value === null ? fields : { ...fields, [key]: value },
+    {},
+  );
 
 export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
@@ -88,7 +90,7 @@ export const useDeals = (
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
         const currentList = prev.deals.list;
-        const changedDeal = deal ? withResolvedFieldsOnly(deal) : {};
+        const changedDeal = withResolvedFieldsOnly(deal);
 
         const isArchived = deal?.status === 'archived';
         const resolvedAction =
@@ -105,7 +107,7 @@ export const useDeals = (
             (item: IDeal) => item._id === deal._id,
           );
           if (!exists) {
-            const merged = [...currentList, changedDeal as IDeal];
+            const merged = [...currentList, deal];
             merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
             updatedList = merged;
             added = true;

@@ -27,7 +27,9 @@ export const stageQueries: Record<string, Resolver> = {
     },
     { subdomain, user, models }: IContext,
   ) {
-    const filter: any = {};
+    const filter: any = isAll
+      ? {}
+      : { status: { $ne: SALES_STATUSES.ARCHIVED } };
 
     filter.pipelineId = pipelineId;
 
@@ -37,15 +39,6 @@ export const stageQueries: Record<string, Resolver> = {
 
     if (isNotLost) {
       filter.probability = { $ne: 'Lost' };
-    }
-
-    // Being an owner grants sight of private stages, not of archived ones —
-    // an archived stage is finished work, and leaving it on the owner's board
-    // made "archive this list" look like it had done nothing. Callers that
-    // genuinely want everything, like the pipeline settings form, ask with
-    // isAll.
-    if (!isAll) {
-      filter.status = { $ne: SALES_STATUSES.ARCHIVED };
     }
 
     if (!isAll && !user.isOwner) {

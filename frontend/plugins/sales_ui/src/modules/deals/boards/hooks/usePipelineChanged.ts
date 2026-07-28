@@ -42,11 +42,8 @@ export const usePipelineChanged = (pipelineId?: string) => {
         return;
       }
 
-      // A stage was archived or restored, so the set of columns changed.
-      // Re-read the stages the board is built from; the column disappears or
-      // comes back without a page reload.
       if (action === 'stageStatusChanged') {
-        client.refetchQueries({ include: ['SalesStages'] });
+        void client.refetchQueries({ include: ['SalesStages'] });
         return;
       }
 

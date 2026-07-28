@@ -460,9 +460,7 @@ export const changeItemStatus = async (
     },
   );
 
-  // The caller publishes this same item afterwards and boards insert the card
-  // by order, so it has to carry the order that was just persisted — otherwise
-  // a restored card lands wherever its archived-era order used to be.
+  // Publish the persisted order when restoring the deal.
   item.order = recoveredOrder;
 
   // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {

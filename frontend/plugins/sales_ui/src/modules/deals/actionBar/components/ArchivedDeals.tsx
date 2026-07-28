@@ -10,7 +10,7 @@ import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { dealsViewAtom } from '@/deals/states/dealsViewState';
 
-export default function ArchivedDeals() {
+export const ArchivedDeals = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const isArchivedMode = searchParams.get('archivedOnly') === 'true';
   const { t } = useTranslation('sales');
@@ -19,8 +19,6 @@ export default function ArchivedDeals() {
     | 'asc'
     | 'desc';
 
-  // Archived deals are a list-view concept: the board is for work in flight,
-  // so leaving the mode on while switching to it would show an empty board.
   useEffect(() => {
     if (view === 'list' || !isArchivedMode) return;
 
@@ -110,4 +108,4 @@ export default function ArchivedDeals() {
       )}
     </div>
   );
-}
+};

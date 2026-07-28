@@ -32,10 +32,6 @@ export function useDealsArchive(options?: MutationHookOptions) {
   const archiveDeals = (stageId: string) =>
     archiveDealsBase({
       variables: { stageId },
-      // Board columns query Deals with stageId *and* pipelineId plus the
-      // active filters, so refetching one exact { stageId } variable set
-      // matched no live query and the board had nothing to fall back on when
-      // a subscription event was missed. Refetch by operation name instead.
       refetchQueries: ['Deals'],
     });
 

@@ -1,24 +1,33 @@
-import { RecordTable, useQueryState } from 'erxes-ui';
+import { Empty, RecordTable, useQueryState } from 'erxes-ui';
 
 import { DealsColumn } from '@/deals/boards/components/list/DealsColumn';
 import { DealsCommandBar } from '@/deals/boards/components/list/DealsListCommandBar';
-import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 import { useSearchParams } from 'react-router-dom';
-import { useStages } from '@/deals/stage/hooks/useStages';
+import { IconBriefcaseOff } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+
+const DealsEmptyState = () => {
+  const { t } = useTranslation('sales');
+
+  return (
+    <Empty className="h-full border-0 bg-transparent">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconBriefcaseOff />
+        </Empty.Media>
+        <Empty.Title>{t('no-deals-found')}</Empty.Title>
+        <Empty.Description>{t('no-deals-to-display')}</Empty.Description>
+      </Empty.Header>
+    </Empty>
+  );
+};
 
 export const DealsRecordTable = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');
   const [searchParams] = useSearchParams();
   const columns = DealsColumn();
-
-  const { stages, loading: stagesLoading } = useStages({
-    variables: {
-      pipelineId,
-    },
-    skip: !pipelineId,
-  });
 
   const archivedOnly = searchParams.get('archivedOnly') === 'true';
   const queryVariables = getDealsQueryVariables(searchParams);
@@ -39,8 +48,8 @@ export const DealsRecordTable = () => {
       : deal.status !== 'archived';
   });
 
-  if (pipelineId && !stagesLoading && stages.length === 0) {
-    return <NoStagesWarning />;
+  if (pipelineId && !loading && (filteredDeals?.length ?? 0) === 0) {
+    return <DealsEmptyState />;
   }
 
   return (

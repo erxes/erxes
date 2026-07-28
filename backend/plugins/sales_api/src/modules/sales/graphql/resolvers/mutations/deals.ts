@@ -226,8 +226,8 @@ export const dealMutations: Record<string, Resolver> = {
 
   async dealsArchive(
     _root,
-    { stageId, processId }: { stageId: string; processId: string },
-    { user, models, checkPermission }: IContext,
+    { stageId }: { stageId: string; processId: string },
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsArchive');
     const items = await models.Deals.find({
@@ -243,18 +243,16 @@ export const dealMutations: Record<string, Resolver> = {
     const stage = await models.Stages.findOne({ _id: stageId }).lean();
     const pipelineId = stage?.pipelineId;
 
-    // `deal` is the state subscribers should converge on and `oldDeal` the one
-    // they are holding. Subscribers derive add/remove/edit by matching both
-    // against their filter, so swapping these makes a board treat an archived
-    // card as newly added instead of removing it.
-    for (const item of items) {
-      await subscriptionWrapper(models, {
-        action: 'update',
-        deal: { ...item, status: SALES_STATUSES.ARCHIVED } as IDealDocument,
-        oldDeal: item as IDealDocument,
-        pipelineId,
-      });
-    }
+    await Promise.all(
+      items.map((item) =>
+        subscriptionWrapper(models, {
+          action: 'update',
+          deal: { ...item, status: SALES_STATUSES.ARCHIVED } as IDealDocument,
+          oldDeal: item as IDealDocument,
+          pipelineId,
+        }),
+      ),
+    );
 
     return 'ok';
   },

@@ -30,8 +30,6 @@ export const stageMutations = {
     const oldStage = await models.Stages.getStage(_id);
     const updated = await models.Stages.updateStage(_id, doc);
 
-    // Archiving a stage takes a column off every open board, so tell the other
-    // sessions rather than leaving them on a pipeline that no longer matches.
     if (doc.status && doc.status !== oldStage.status) {
       await graphqlPubsub.publish(
         `salesPipelinesChanged:${updated.pipelineId}`,

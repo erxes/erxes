@@ -91,8 +91,6 @@ export function DealsBoardColumn({
     setColumnLoading((prev) => ({ ...prev, [column._id]: loading }));
   }, [loading, column._id, setColumnLoading]);
 
-  // Archived deals never belong on the board — they are reachable from the
-  // list view only.
   const filteredDeals = useMemo(
     () => (deals || []).filter((deal) => deal.status !== 'archived'),
     [deals],
@@ -164,11 +162,7 @@ export function DealsBoardColumn({
           const item = newItems[id] || prev.items[id];
           if (item?.columnId !== column._id) return false;
 
-          // A card whose own move is still in flight is not in the query
-          // result yet, so it has to be kept. Anything else that dropped out
-          // of the result was archived or removed and must go with it —
-          // keeping it here is what left archived cards on the board when a
-          // drag happened to still be settling.
+          // Keep only fresh cards and the card currently moving.
           return freshIds.has(id) || Boolean(localMoves[id]);
         });
 
