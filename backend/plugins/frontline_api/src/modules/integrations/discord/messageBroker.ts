@@ -1,4 +1,4 @@
-import { generateModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { handleDiscordMessage } from '@/integrations/discord/handleDiscordMessage';
 import { getErrorMessage, sanitizeToken } from '@/integrations/discord/utils';
 import {
@@ -40,6 +40,35 @@ export async function handleDiscordIntegration({
 
   return response;
 }
+
+const assertChannelIsFree = async (
+  models: IModels,
+  channelId: string | undefined,
+  integrationId: string,
+) => {
+  if (!channelId) {
+    return;
+  }
+
+  const conflictingBot = await models.DiscordBots.findOne({
+    channelId,
+    erxesApiId: { $nin: [null, '', integrationId] },
+  });
+
+  if (!conflictingBot) {
+    return;
+  }
+
+  const conflictingIntegration = await models.Integrations.findOne({
+    _id: conflictingBot.erxesApiId,
+  }).lean();
+
+  throw new Error(
+    `This Discord channel is already connected to the "${
+      conflictingIntegration?.name || conflictingBot.name
+    }" integration. Disconnect that one first, or pick another channel.`,
+  );
+};
 
 export async function discordCreateIntegrations({
   subdomain,
@@ -84,6 +113,10 @@ export async function discordCreateIntegrations({
     guildName = guildName || sourceBot.guildName;
   }
 
+  const normalizedChannelId = channelId ? String(channelId).trim() : undefined;
+
+  await assertChannelIsFree(models, normalizedChannelId, data.integrationId);
+
   try {
     const bot = await models.DiscordBots.create({
       name: (name || 'Discord bot').trim(),
@@ -91,7 +124,7 @@ export async function discordCreateIntegrations({
       applicationId: (applicationId || '').trim(),
       guildId: guildId ? String(guildId).trim() : undefined,
       guildName: guildName ? String(guildName).trim() : undefined,
-      channelId: channelId ? String(channelId).trim() : undefined,
+      channelId: normalizedChannelId,
       erxesApiId: data.integrationId,
       health: { status: 'syncing' },
     });
