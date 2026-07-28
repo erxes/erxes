@@ -191,7 +191,7 @@ export const DealCardRelationDetails = ({
 
   const Icon = RELATION_ICONS[type];
   const visibleAvatars = items.slice(0, MAX_VISIBLE_AVATARS);
-  const remainingCount = items.length - 1;
+  const remainingCount = items.length - visibleAvatars.length;
 
   return (
     <Tooltip.Provider>

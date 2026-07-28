@@ -17,6 +17,7 @@ import {
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
 import { useManageRelations } from 'ui-modules';
 import {
+  type DealCardDetailItem,
   DealCardDetails,
   DealCardProducts,
   DealCardRelationDetails,
@@ -38,6 +39,30 @@ const normalizeSelectedIds = (value?: string | string[]) => {
   }
 
   return Array.isArray(value) ? value : [value];
+};
+
+const normalizeCustomProperty = (
+  property: unknown,
+  index: number,
+): DealCardDetailItem | null => {
+  if (typeof property !== 'object' || property === null) {
+    return null;
+  }
+
+  const name = Reflect.get(property, 'name');
+
+  if (typeof name !== 'string' || !name.trim()) {
+    return null;
+  }
+
+  const id = Reflect.get(property, '_id');
+  const colorCode = Reflect.get(property, 'colorCode');
+
+  return {
+    _id: typeof id === 'string' ? id : `custom-property-${index}`,
+    name: name.trim(),
+    colorCode: typeof colorCode === 'string' ? colorCode : undefined,
+  };
 };
 
 const CardDetails = ({ deal }: { deal: IDeal }) => {
@@ -113,6 +138,11 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
     _id: branch._id,
     name: branch.title || t('unknown'),
   }));
+  const customPropertyItems = Array.isArray(customProperties)
+    ? customProperties
+        .map(normalizeCustomProperty)
+        .filter((item): item is DealCardDetailItem => Boolean(item))
+    : [];
 
   if (
     !hasProducts &&
@@ -121,7 +151,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
     !customers?.length &&
     !departments?.length &&
     !tags?.length &&
-    !customProperties?.length
+    !customPropertyItems.length
   ) {
     return null;
   }
@@ -143,10 +173,10 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
       <DealCardRelationDetails items={companyItems} type="company" />
       <DealCardRelationDetails items={departmentItems} type="department" />
       <DealCardRelationDetails items={branchItems} type="branch" />
-      {Boolean(tags?.length || customProperties?.length) && (
+      {Boolean(tags?.length || customPropertyItems.length) && (
         <div className="mt-1 flex flex-col gap-1">
           <DealCardDetails items={tags || []} color="#FF6600" />
-          <DealCardDetails items={customProperties || []} color="#FF9900" />
+          <DealCardDetails items={customPropertyItems} color="#FF9900" />
         </div>
       )}
     </div>
