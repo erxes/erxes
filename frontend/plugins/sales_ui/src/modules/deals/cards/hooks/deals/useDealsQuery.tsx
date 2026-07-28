@@ -26,11 +26,31 @@ interface IDealChanged {
   };
 }
 
-// Subscriptions skip computed resolvers, so their nulls must not overwrite the cache.
+// Subscriptions skip computed resolvers, so these arrive null even when they have a
+// value. Nulls on stored fields are real clears and are merged as-is.
+const COMPUTED_DEAL_FIELDS = new Set([
+  'amount',
+  'assignedUsers',
+  'branches',
+  'companies',
+  'customers',
+  'departments',
+  'isWatched',
+  'labels',
+  'pipelineId',
+  'products',
+  'relations',
+  'stage',
+  'tags',
+  'unUsedAmount',
+]);
+
 const withResolvedFieldsOnly = (deal: IDeal) =>
   Object.entries(deal).reduce<Partial<IDeal>>(
     (fields, [key, value]) =>
-      value === null ? fields : { ...fields, [key]: value },
+      value === null && COMPUTED_DEAL_FIELDS.has(key)
+        ? fields
+        : { ...fields, [key]: value },
     {},
   );
 
