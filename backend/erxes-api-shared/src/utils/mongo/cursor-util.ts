@@ -10,6 +10,7 @@ export interface CursorPaginateParams<T> {
     orderBy?: Record<string, SortOrder>;
   };
   query?: FilterQuery<T>;
+  formatter?: Record<string, CursorFieldType>;
 }
 
 export interface CursorPaginateAggregationParams<T> {
