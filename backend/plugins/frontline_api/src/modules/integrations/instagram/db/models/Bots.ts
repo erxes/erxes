@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
-  getPageAccessToken,
+  getPageTokenByInstagramId,
   graphRequest,
 } from '@/integrations/instagram/utils';
 import { IInstagramBotDocument } from '@/integrations/instagram/@types/bots';
@@ -64,10 +64,18 @@ export const loadInstagramBotClass = (models: IModels) => {
         throw new Error('Something went wrong');
       }
 
+      // `me/messenger_profile` must be called with the Facebook Page token that
+      // owns this Instagram account — `account.token` is a user token and makes
+      // Graph API reject the request with "Object with ID 'me' does not exist".
+      const pageAccessToken = await getPageTokenByInstagramId(
+        doc.pageId,
+        account.token,
+      );
+
       const bot = await models.InstagramBots.create({
         ...doc,
         uid: account.uid,
-        token: account.token,
+        token: pageAccessToken,
       });
 
       try {
@@ -102,7 +110,8 @@ export const loadInstagramBotClass = (models: IModels) => {
           throw new Error('Not found account');
         }
 
-        const pageAccessToken = await getPageAccessToken(
+
+        const pageAccessToken = await getPageTokenByInstagramId(
           bot.pageId,
           relatedAccount.token,
         );
@@ -210,11 +219,11 @@ export const loadInstagramBotClass = (models: IModels) => {
       for (const { _id, type, text, link } of persistentMenus || []) {
         if (text) {
           if (type === 'link' && link) {
+
             generatedPersistentMenus.push({
               type: 'web_url',
               title: text,
               url: link,
-              webview_height_ratio: 'full',
             });
           } else {
             generatedPersistentMenus.push({
@@ -240,12 +249,11 @@ export const loadInstagramBotClass = (models: IModels) => {
         });
       }
 
+
       const doc: any = {
-        get_started: { payload: JSON.stringify({ botId: botId }) },
         persistent_menu: [
           {
             locale: 'default',
-            composer_input_disabled: false,
             call_to_actions: [
               {
                 type: 'postback',
@@ -257,16 +265,13 @@ export const loadInstagramBotClass = (models: IModels) => {
           },
         ],
       };
-      if (greetText) {
-        doc.greeting = [
-          {
-            locale: 'default',
-            text: greetText,
-          },
-        ];
-      }
 
-      await graphRequest.post('me/messenger_profile', pageAccessToken, doc);
+
+      await graphRequest.post(
+        'me/messenger_profile?platform=instagram',
+        pageAccessToken,
+        doc,
+      );
 
       return { status: 'success' };
     }
@@ -276,9 +281,14 @@ export const loadInstagramBotClass = (models: IModels) => {
 
       if (bot?.token) {
         try {
-          await graphRequest.delete('me/messenger_profile', bot.token, {
-            fields: ['get_started', 'persistent_menu', 'greeting'],
-          });
+
+          await graphRequest.delete(
+            'me/messenger_profile?platform=instagram',
+            bot.token,
+            {
+              fields: ['persistent_menu'],
+            },
+          );
         } catch (e) {
           // log but don't throw — DB cleanup should still proceed
           debugError(`Failed to remove Instagram messenger profile: ${e.message}`);
