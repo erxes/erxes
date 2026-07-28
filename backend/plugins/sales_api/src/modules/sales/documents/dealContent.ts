@@ -400,11 +400,16 @@ export const buildDealReplacer = async (
   attrMap.totalAmountAfterTaxVat = formatAmounts(totalAmount);
   attrMap.totalAmountWithoutVat = formatAmounts(totalWithoutVat);
   attrMap.discount = formatAmounts(discountAmount);
-  attrMap.discountType = hasDiscountPercent
-    ? '%'
-    : hasDiscountAmount
-    ? 'amount'
-    : '-';
+
+  let discountType = '-';
+
+  if (hasDiscountPercent) {
+    discountType = '%';
+  } else if (hasDiscountAmount) {
+    discountType = 'amount';
+  }
+
+  attrMap.discountType = discountType;
 
   const rawPayments = deal.paymentsData;
   const paymentsEntries: Array<[string, any]> = Array.isArray(rawPayments)

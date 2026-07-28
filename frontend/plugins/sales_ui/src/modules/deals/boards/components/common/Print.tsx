@@ -27,11 +27,11 @@ import {
   PAPER_TYPES,
 } from 'ui-modules/modules/documents/constants';
 
-import type { ColumnDef } from '@tanstack/table-core';
+import type { CellContext, ColumnDef } from '@tanstack/table-core';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
 import type { IDeal } from '@/deals/types/deals';
 import { useForm } from 'react-hook-form';
-import { useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const DEAL_DOCUMENT_CONTENT_TYPE = 'sales:deal';
@@ -408,6 +408,52 @@ const PrintDealSelectionSync = ({
   return null;
 };
 
+const PrintDealNumberHeader = () => {
+  const { t } = useTranslation('sales');
+
+  return <RecordTable.InlineHead label={t('number')} icon={IconLabelFilled} />;
+};
+
+const PrintDealNumberCell = ({ row }: CellContext<IDeal, unknown>) => (
+  <RecordTableInlineCell className="text-muted-foreground">
+    {row.original.number || ''}
+  </RecordTableInlineCell>
+);
+
+const PrintDealNameHeader = () => {
+  const { t } = useTranslation('sales');
+
+  return <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />;
+};
+
+const PrintDealNameCell = ({ row }: CellContext<IDeal, unknown>) => {
+  const { t } = useTranslation('sales');
+
+  return (
+    <RecordTableInlineCell className="font-medium">
+      {row.original.name || t('untitled-deal')}
+    </RecordTableInlineCell>
+  );
+};
+
+const PRINT_DEAL_COLUMNS: ColumnDef<IDeal>[] = [
+  RecordTable.checkboxColumn as ColumnDef<IDeal>,
+  {
+    id: 'number',
+    accessorKey: 'number',
+    header: PrintDealNumberHeader,
+    cell: PrintDealNumberCell,
+    size: 140,
+  },
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: PrintDealNameHeader,
+    cell: PrintDealNameCell,
+    size: 360,
+  },
+];
+
 const PrintDealsRecordTable = ({
   deals,
   loading,
@@ -418,72 +464,49 @@ const PrintDealsRecordTable = ({
   onSelectionChange: (dealIds: string[]) => void;
 }) => {
   const { t } = useTranslation('sales');
-  const columns = useMemo<ColumnDef<IDeal>[]>(
-    () => [
-      RecordTable.checkboxColumn as ColumnDef<IDeal>,
-      {
-        id: 'number',
-        accessorKey: 'number',
-        header: () => (
-          <RecordTable.InlineHead label={t('number')} icon={IconLabelFilled} />
-        ),
-        cell: ({ row }) => (
-          <RecordTableInlineCell className="text-muted-foreground">
-            {row.original.number || ''}
-          </RecordTableInlineCell>
-        ),
-        size: 140,
-      },
-      {
-        id: 'name',
-        accessorKey: 'name',
-        header: () => (
-          <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
-        ),
-        cell: ({ row }) => (
-          <RecordTableInlineCell className="font-medium">
-            {row.original.name || t('untitled-deal')}
-          </RecordTableInlineCell>
-        ),
-        size: 360,
-      },
-    ],
-    [t],
-  );
+  let tableContent: ReactNode;
+
+  if (loading) {
+    tableContent = (
+      <RecordTable>
+        <RecordTable.Header />
+        <RecordTable.Body>
+          <RecordTable.RowSkeleton rows={5} />
+        </RecordTable.Body>
+      </RecordTable>
+    );
+  } else if (deals.length === 0) {
+    tableContent = (
+      <Empty className="min-h-40 border-0 bg-transparent">
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconBriefcase />
+          </Empty.Media>
+          <Empty.Title>{t('no-deals-in-stage')}</Empty.Title>
+        </Empty.Header>
+      </Empty>
+    );
+  } else {
+    tableContent = (
+      <RecordTable>
+        <RecordTable.Header />
+        <RecordTable.Body>
+          <RecordTable.RowList />
+        </RecordTable.Body>
+      </RecordTable>
+    );
+  }
 
   return (
     <RecordTable.Provider
-      columns={columns}
+      columns={PRINT_DEAL_COLUMNS}
       data={deals}
       className="max-h-[calc(100dvh-28rem)] min-h-40 overflow-auto"
       stickyColumns={['checkbox', 'number']}
       tableId="sales_print_deals_record_table"
     >
       <PrintDealSelectionSync onSelectionChange={onSelectionChange} />
-      {loading ? (
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.RowSkeleton rows={5} />
-          </RecordTable.Body>
-        </RecordTable>
-      ) : deals.length === 0 ? (
-        <Empty className="min-h-40 border-0 bg-transparent">
-          <Empty.Header>
-            <Empty.Media variant="icon">
-              <IconBriefcase />
-            </Empty.Media>
-            <Empty.Title>{t('no-deals-in-stage')}</Empty.Title>
-          </Empty.Header>
-        </Empty>
-      ) : (
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.RowList />
-          </RecordTable.Body>
-        </RecordTable>
-      )}
+      {tableContent}
     </RecordTable.Provider>
   );
 };
