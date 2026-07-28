@@ -189,7 +189,7 @@ export default {
 
       if (!igIntegration) return null;
 
-      const instagramPageId = igIntegration.instagramPageIds?.[0];
+      const instagramPageId = igIntegration.instagramPageId;
       if (!instagramPageId) return null;
 
       const account = await models.InstagramAccounts.findOne({
