@@ -1,5 +1,5 @@
 import { IconLoader2, IconSearch } from '@tabler/icons-react';
-import { Input, Popover, Skeleton } from 'erxes-ui';
+import { Input, Popover, Skeleton, Badge } from 'erxes-ui';
 
 import { IDeal } from '@/deals/types/deals';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
@@ -8,7 +8,7 @@ import { useDebounce } from 'use-debounce';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const CommonDealSearch = () => {
@@ -22,9 +22,13 @@ export const CommonDealSearch = () => {
 
   const { deals, loading, loadingMore, totalCount, pageInfo, loadMore } =
     useDealSearch(debouncedSearch);
-  const { ref: loadMoreRef } = useInView({
-    onChange: (inView) => inView && loadMore(),
-  });
+  const { ref: loadMoreRef, inView: loadMoreInView } = useInView();
+
+  useEffect(() => {
+    if (loadMoreInView) {
+      loadMore();
+    }
+  }, [loadMore, loadMoreInView]);
 
   const showDropdown = focused && debouncedSearch.length >= 2;
   const hasDeals = deals.length > 0;
@@ -81,24 +85,39 @@ export const CommonDealSearch = () => {
             </div>
           )}
 
-          {deals.map((deal) => (
-            <button
-              key={deal._id}
-              type="button"
-              className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm hover:bg-muted"
-              onMouseDown={(event) => {
-                event.preventDefault();
-                handleSelect(deal);
-              }}
-            >
-              <span className="font-medium">
-                {[deal.number, deal.name].filter(Boolean).join(' - ')}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {deal.pipeline?.name}
-              </span>
-            </button>
-          ))}
+          {deals.map((deal) => {
+            const hasPipeline = Boolean(
+              deal.pipeline?._id && (deal.boardId || deal.pipeline.boardId),
+            );
+
+            return (
+              <button
+                key={deal._id}
+                type="button"
+                disabled={!hasPipeline}
+                className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  handleSelect(deal);
+                }}
+              >
+                <span className="font-medium">
+                  {[deal.number, deal.name].filter(Boolean).join(' - ')}
+                </span>
+                <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {deal.pipeline?.name || t('no-pipeline')}
+                  {deal.status === 'archived' && (
+                    <Badge
+                      variant="secondary"
+                      className="h-4 py-0 bg-yellow-100 text-yellow-800 text-[11px] border-yellow-200"
+                    >
+                      {t('archived')}
+                    </Badge>
+                  )}
+                </span>
+              </button>
+            );
+          })}
 
           {pageInfo?.hasNextPage && deals.length < totalCount && (
             <div ref={loadMoreRef} className="px-3 py-2">
@@ -109,7 +128,10 @@ export const CommonDealSearch = () => {
 
         {hasDeals && (
           <div className="border-t px-3 py-2 text-xs text-muted-foreground">
-            {deals.length} / {totalCount}
+            {t('count-out-of', {
+              current: deals.length,
+              total: totalCount,
+            })}
           </div>
         )}
       </Popover.Content>
