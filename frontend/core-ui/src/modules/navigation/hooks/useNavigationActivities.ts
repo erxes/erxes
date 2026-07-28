@@ -5,11 +5,9 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePermissionCheck, useVersion } from 'ui-modules';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const getDisplayName = (name: string) =>
   /[\sA-Z]/.test(name) ? name : name.charAt(0).toUpperCase() + name.slice(1);
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const useNavigationActivities = (): INavigationActivity[] => {
   const navigationGroups = usePluginsNavigationGroups();
   const version = useVersion();

@@ -15,7 +15,6 @@ import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
 const DEFAULT_VISITED_PAGE_PATH = `/${AppPath.MyInbox}`;
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const useVisitedPageTabs = () => {
   const { pathname, search } = useLocation();
   const navigationType = useNavigationType();
@@ -65,6 +64,9 @@ export const useVisitedPageTabs = () => {
       );
 
       if (tabPathname === activePathname) {
+        setTabs((currentTabs) =>
+          removeVisitedPageTab(currentTabs, tabPathname),
+        );
         navigate(
           closeDestination
             ? getVisitedPageTabLocation(closeDestination)

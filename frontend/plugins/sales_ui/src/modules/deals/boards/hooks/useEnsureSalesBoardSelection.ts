@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom';
 const CURRENT_BOARD_STORAGE_KEY = 'erxesCurrentBoardId';
 const CURRENT_PIPELINE_STORAGE_KEY = 'erxesCurrentPipelineId';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const useEnsureSalesBoardSelection = () => {
   const { boards } = useBoards();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,6 +29,14 @@ export const useEnsureSalesBoardSelection = () => {
       pipelines[0];
     const selectedPipelineId = selectedPipeline?._id || null;
 
+    localStorage.setItem(CURRENT_BOARD_STORAGE_KEY, selectedBoard._id);
+
+    if (selectedPipelineId) {
+      localStorage.setItem(CURRENT_PIPELINE_STORAGE_KEY, selectedPipelineId);
+    } else {
+      localStorage.removeItem(CURRENT_PIPELINE_STORAGE_KEY);
+    }
+
     if (boardId === selectedBoard._id && pipelineId === selectedPipelineId) {
       return;
     }
@@ -50,12 +57,5 @@ export const useEnsureSalesBoardSelection = () => {
       },
       { replace: true },
     );
-    localStorage.setItem(CURRENT_BOARD_STORAGE_KEY, selectedBoard._id);
-
-    if (selectedPipelineId) {
-      localStorage.setItem(CURRENT_PIPELINE_STORAGE_KEY, selectedPipelineId);
-    } else {
-      localStorage.removeItem(CURRENT_PIPELINE_STORAGE_KEY);
-    }
   }, [boardId, boards, pipelineId, setSearchParams]);
 };

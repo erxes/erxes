@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationSidebarFooter = ({
   expanded,
   isSettings,
@@ -26,7 +25,6 @@ export const NavigationSidebarFooter = ({
   const userName = userDetails?.fullName || sidebarT('profile');
 
   return (
-    /* skipcq: JS-0415 - The nesting reflects the accessible dropdown structure. */
     <div
       className={cn(
         'flex flex-col gap-1 pb-2',
@@ -36,10 +34,10 @@ export const NavigationSidebarFooter = ({
       <Button
         asChild
         className={cn(
-          'h-10 rounded-md [&>svg]:size-4!',
+          'rounded-md [&>svg]:size-4!',
           expanded
-            ? 'w-full justify-start gap-2 px-3'
-            : 'w-10 justify-center px-0',
+            ? 'h-7 w-full justify-start gap-2 px-2 text-sm'
+            : 'size-7 justify-center px-0',
           isSettings && 'bg-primary/10',
         )}
         size={expanded ? 'default' : 'icon'}
@@ -56,7 +54,7 @@ export const NavigationSidebarFooter = ({
             )}
           />
           {expanded && (
-            <span className="truncate text-[13px] font-medium">
+            <span className="truncate font-medium">
               {organizationT('settings')}
             </span>
           )}
@@ -67,10 +65,10 @@ export const NavigationSidebarFooter = ({
           <Button
             aria-label={sidebarT('profile')}
             className={cn(
-              'h-10 rounded-md',
+              'rounded-md',
               expanded
-                ? 'w-full justify-start gap-2 px-2'
-                : 'w-10 justify-center px-0',
+                ? 'h-7 w-full justify-start gap-2 px-2 text-sm'
+                : 'size-7 justify-center px-0',
             )}
             size={expanded ? 'default' : 'icon'}
             variant="ghost"
@@ -85,9 +83,7 @@ export const NavigationSidebarFooter = ({
               </Avatar.Fallback>
             </Avatar>
             {expanded && (
-              <span className="min-w-0 truncate text-[13px] font-medium">
-                {userName}
-              </span>
+              <span className="min-w-0 truncate font-medium">{userName}</span>
             )}
           </Button>
         </DropdownMenu.Trigger>

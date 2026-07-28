@@ -3,7 +3,6 @@ import {
   INavigationActivityModule,
 } from '@/navigation/types/NavigationActivity';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const normalizePath = (path: string) => {
   let startIndex = 0;
   let endIndex = path.length;
@@ -19,18 +18,15 @@ const normalizePath = (path: string) => {
   return path.slice(startIndex, endIndex);
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const getModulePaths = (module: INavigationActivityModule): string[] => [
   normalizePath(module.path),
   ...(module.submenus?.flatMap(getModulePaths) || []),
 ];
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const getNavigationActivityPaths = (
   activity: INavigationActivity,
 ): string[] => activity.modules.flatMap(getModulePaths);
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const doesNavigationActivityMatchPath = (
   activity: INavigationActivity,
   pathname: string,
@@ -43,20 +39,32 @@ export const doesNavigationActivityMatchPath = (
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
+const getLongestMatchingPathLength = (
+  activity: INavigationActivity,
+  normalizedPathname: string,
+) =>
+  Math.max(
+    ...getNavigationActivityPaths(activity)
+      .filter(
+        (path) =>
+          normalizedPathname === path ||
+          normalizedPathname.startsWith(`${path}/`),
+      )
+      .map((path) => path.length),
+    0,
+  );
+
 export const findNavigationActivityByPath = (
   activities: INavigationActivity[],
   pathname: string,
-) =>
-  activities
-    .filter((activity) => doesNavigationActivityMatchPath(activity, pathname))
-    .sort((left, right) => {
-      // skipcq: JS-D1001 - Covered by repository documentation policy.
-      const longestPath = (activity: INavigationActivity) =>
-        Math.max(
-          ...getNavigationActivityPaths(activity).map((path) => path.length),
-          0,
-        );
+) => {
+  const normalizedPathname = normalizePath(pathname);
 
-      return longestPath(right) - longestPath(left);
-    })[0];
+  return activities
+    .filter((activity) => doesNavigationActivityMatchPath(activity, pathname))
+    .sort(
+      (left, right) =>
+        getLongestMatchingPathLength(right, normalizedPathname) -
+        getLongestMatchingPathLength(left, normalizedPathname),
+    )[0];
+};

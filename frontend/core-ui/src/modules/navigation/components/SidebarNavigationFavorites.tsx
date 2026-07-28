@@ -1,17 +1,16 @@
 import { cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SidebarNavigationFavorites({
   expanded,
-}: {
+}: Readonly<{
   expanded: boolean;
-}) {
+}>) {
   const favorites = useFavorites();
 
   return (
     <section className="w-full shrink-0">
-      <Sidebar.Menu className={cn('gap-0.5', !expanded && 'items-center')}>
+      <Sidebar.Menu className={cn(expanded ? 'gap-1' : 'items-center gap-1')}>
         {favorites.map((item) => {
           return (
             <SidebarNavigationFavoritesItem
@@ -26,20 +25,19 @@ export function SidebarNavigationFavorites({
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function SidebarNavigationFavoritesItem({
   name,
   breadcrumb,
   icon,
   path,
   expanded,
-}: {
+}: Readonly<{
   name: string;
   breadcrumb: string[];
   icon?: React.ElementType;
   path: string;
   expanded: boolean;
-}) {
+}>) {
   const Icon = icon;
   const pathWithoutUi = path.replace('_ui', '');
   const sidebarLabel =
@@ -49,13 +47,16 @@ export function SidebarNavigationFavoritesItem({
     <NavigationMenuLinkItem
       name={name}
       icon={Icon}
-      itemClassName="flex h-10 w-full shrink-0 items-center justify-center"
+      itemClassName={cn(
+        'flex w-full shrink-0 items-center justify-center',
+        'h-7',
+      )}
       path={pathWithoutUi}
       className={cn(
-        'h-10 rounded-md text-[13px]',
+        'rounded-md',
         expanded
-          ? 'w-full justify-start px-3'
-          : 'mx-auto w-10 justify-center px-0',
+          ? 'h-7 w-full justify-start px-2 text-sm'
+          : 'mx-auto size-7 justify-center px-0',
       )}
       label={
         expanded ? (
@@ -71,7 +72,7 @@ export function SidebarNavigationFavoritesItem({
           'max-w-80 border bg-background px-3 py-2 text-foreground shadow-md',
         children: (
           <div className="flex items-start gap-2">
-            {Boolean(Icon) && <Icon className="mt-0.5 size-4 shrink-0" />}
+            {Icon && <Icon className="mt-0.5 size-4 shrink-0" />}
             <div className="min-w-0">
               <div className="font-medium">{breadcrumb[0]}</div>
               {breadcrumb.length > 1 && (

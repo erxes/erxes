@@ -1,4 +1,4 @@
-import { cn, Separator } from 'erxes-ui';
+import { cn, Separator, Sidebar } from 'erxes-ui';
 import React from 'react';
 import { FavoriteToggleIconButton } from '../../favorites/components/FavoriteToggleIconButton';
 
@@ -32,12 +32,20 @@ export const PageHeaderStart = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ children, className, ...props }, ref) => {
+  const sidebar = Sidebar.useOptionalSidebar();
+
   return (
     <div
       ref={ref}
       className={cn('flex items-center gap-2 flex-none pr-8', className)}
       {...props}
     >
+      {sidebar?.isMobile && (
+        <>
+          <Sidebar.Trigger />
+          <Separator.Inline />
+        </>
+      )}
       {children}
     </div>
   );

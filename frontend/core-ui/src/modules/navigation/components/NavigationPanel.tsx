@@ -5,16 +5,12 @@ import { navigationPanelOpenState } from '@/navigation/states/navigationPanelSta
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
-import {
-  IconLayoutSidebarLeftCollapse,
-  IconLayoutSidebarLeftExpand,
-} from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { Button, cn, ScrollArea, Sidebar } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationPanel = () => {
   const activities = useNavigationActivities();
   const navigationGroups = usePluginsNavigationGroups();
@@ -66,7 +62,9 @@ export const NavigationPanel = () => {
         panelOpen && isMobile && 'min-w-0 flex-1',
         panelOpen && !isMobile && 'h-full w-64 border-r',
         !panelOpen && isMobile && 'h-full w-10 border-r',
-        !panelOpen && !isMobile && 'absolute top-0 left-0 h-13 w-10 border-r',
+        !panelOpen &&
+          !isMobile &&
+          'absolute top-0 left-0 h-13 w-10 after:pointer-events-none after:absolute after:top-1/2 after:right-0 after:h-4 after:-translate-y-1/2 after:border-r',
       )}
     >
       <header
@@ -88,11 +86,7 @@ export const NavigationPanel = () => {
           title={toggleLabel}
           variant="ghost"
         >
-          {panelOpen ? (
-            <IconLayoutSidebarLeftCollapse />
-          ) : (
-            <IconLayoutSidebarLeftExpand />
-          )}
+          {panelOpen ? <IconChevronLeft /> : <IconChevronRight />}
         </Button>
       </header>
       {panelOpen && panelContent}

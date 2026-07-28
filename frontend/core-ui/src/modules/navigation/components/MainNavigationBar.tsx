@@ -10,7 +10,6 @@ import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
   const { isActivityPinned, setActivityPinned, visibleActivities } =
@@ -55,7 +54,6 @@ export const MainNavigationBar = () => {
   ]);
 
   useEffect(() => {
-    // skipcq: JS-D1001 - Covered by repository documentation policy.
     const handleOpenPalette = (event: KeyboardEvent) => {
       if (
         event.metaKey !== event.ctrlKey &&
@@ -73,7 +71,6 @@ export const MainNavigationBar = () => {
     return () => window.removeEventListener('keydown', handleOpenPalette);
   }, []);
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleSelectActivity = (activity: (typeof activities)[number]) => {
     navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
   };

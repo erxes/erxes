@@ -12,10 +12,7 @@ import { useIsMobile } from 'erxes-ui/hooks/use-mobile';
 import { cn } from 'erxes-ui/lib/utils';
 
 import { Tooltip } from './tooltip';
-import {
-  IconLayoutSidebarLeftCollapse,
-  IconLayoutSidebarLeftExpand,
-} from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { Key } from 'erxes-ui/types/Key';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { AppHotkeyScope } from 'erxes-ui/modules/hotkey/types/AppHotkeyScope';
@@ -34,7 +31,6 @@ type CollapseState = 'expanded' | 'compact' | 'collapsed';
 
 const COLLAPSE_ORDER: CollapseState[] = ['expanded', 'compact', 'collapsed'];
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const nextCollapseState = (prev: CollapseState): CollapseState =>
   COLLAPSE_ORDER[(COLLAPSE_ORDER.indexOf(prev) + 1) % COLLAPSE_ORDER.length];
 
@@ -51,9 +47,12 @@ type ISidebarContext = {
 
 const SidebarContext = React.createContext<ISidebarContext | null>(null);
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
+function useOptionalSidebar() {
+  return React.useContext(SidebarContext);
+}
+
 function useSidebar() {
-  const context = React.useContext(SidebarContext);
+  const context = useOptionalSidebar();
   if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.');
   }
@@ -355,9 +354,9 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       {collapseState === 'collapsed' ? (
-        <IconLayoutSidebarLeftExpand />
+        <IconChevronRight />
       ) : (
-        <IconLayoutSidebarLeftCollapse />
+        <IconChevronLeft />
       )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
@@ -849,5 +848,6 @@ export const Sidebar = Object.assign(SidebarRoot, {
   Rail: SidebarRail,
   Separator: SidebarSeparator,
   Trigger: SidebarTrigger,
+  useOptionalSidebar,
   useSidebar,
 });

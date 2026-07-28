@@ -2,7 +2,6 @@ import { useQuery } from '@apollo/client';
 import { GET_PACKAGES } from '../graphql/packageQueries';
 import { IPackage } from '../types/Package';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const usePackages = (variables?: {
   searchValue?: string;
   status?: string;

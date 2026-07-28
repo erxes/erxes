@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePosList } from '@/pos/hooks/usePosList';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const PosIndexPage = () => {
   const { t } = useTranslation('sales');
   const favoriteBreadcrumb = createFavoriteBreadcrumb(t('pos'));
@@ -21,7 +20,6 @@ export const PosIndexPage = () => {
   }, [loading, posList, navigate]);
 
   return (
-    /* skipcq: JS-0415 - The nesting follows the shared PageHeader primitives. */
     <div className="flex flex-col h-full">
       <PageHeader>
         <PageHeader.Start>

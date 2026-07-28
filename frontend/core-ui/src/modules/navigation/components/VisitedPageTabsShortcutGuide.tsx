@@ -1,12 +1,12 @@
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
 import { IconKeyboard } from '@tabler/icons-react';
-import { Button, HoverCard } from 'erxes-ui';
+import { Button, HoverCard, Kbd } from 'erxes-ui';
+import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const VisitedPageTabsShortcutGuide = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-  const modifierKeys = isMacPlatform() ? '⌘⌥' : 'Ctrl Alt ';
+  const modifierKeys = isMacPlatform() ? ['⌘', '⌥'] : ['Ctrl', 'Alt'];
   const shortcuts = [
     { label: t('next-tab'), shortcutKey: ']' },
     { label: t('previous-tab'), shortcutKey: '[' },
@@ -27,21 +27,33 @@ export const VisitedPageTabsShortcutGuide = () => {
           <IconKeyboard className="size-4" />
         </Button>
       </HoverCard.Trigger>
-      <HoverCard.Content align="end" className="w-64 p-1" side="bottom">
+      <HoverCard.Content align="end" className="w-72 p-1" side="bottom">
         <div className="px-2 py-1.5 text-xs font-medium text-accent-foreground">
           {t('tab-shortcuts')}
         </div>
         <div className="-mx-1 my-1 h-px bg-muted" />
         {shortcuts.map(({ label, shortcutKey }) => (
           <div
-            className="flex h-8 items-center gap-6 rounded-sm px-2 text-sm font-medium"
+            className="grid h-9 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-sm px-2 text-sm font-medium"
             key={shortcutKey}
           >
-            <span>{label}</span>
-            <span className="ml-auto text-xs tracking-widest opacity-60">
-              {modifierKeys}
-              {shortcutKey}
-            </span>
+            <span className="whitespace-nowrap">{label}</span>
+            <Kbd className="h-6 gap-1.5 border-primary/25 bg-primary/10 px-2 font-mono text-foreground opacity-100 shadow-none">
+              {[...modifierKeys, shortcutKey].map((key, index) => (
+                <Fragment key={`${shortcutKey}-${key}`}>
+                  {index > 0 && (
+                    <span className="text-muted-foreground">+</span>
+                  )}
+                  <span
+                    className={
+                      index === modifierKeys.length ? 'text-primary' : undefined
+                    }
+                  >
+                    {key}
+                  </span>
+                </Fragment>
+              ))}
+            </Kbd>
           </div>
         ))}
       </HoverCard.Content>

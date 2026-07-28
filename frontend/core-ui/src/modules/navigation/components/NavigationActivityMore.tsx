@@ -5,7 +5,6 @@ import { Button, cn, Popover, ScrollArea, Separator } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 const NavigationActivityMoreGroup = ({
   activities,
   isActivityPinned,
@@ -60,7 +59,6 @@ const NavigationActivityMoreGroup = ({
   );
 };
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationActivityMore = ({
   activities,
   expanded,
@@ -87,7 +85,6 @@ export const NavigationActivityMore = ({
     return null;
   }
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const selectActivity = (activity: INavigationActivity) => {
     onSelect(activity);
     setOpen(false);
@@ -99,10 +96,10 @@ export const NavigationActivityMore = ({
         <Button
           aria-label={t('more-activities')}
           className={cn(
-            'h-10 shrink-0 rounded-md [&>svg]:size-4!',
+            'shrink-0 rounded-md [&>svg]:size-4!',
             expanded
-              ? 'w-full justify-start gap-2 px-3'
-              : 'w-10 justify-center px-0',
+              ? 'h-7 w-full justify-start gap-2 px-2 text-sm'
+              : 'size-7 justify-center px-0',
           )}
           size={expanded ? 'default' : 'icon'}
           type="button"
@@ -110,9 +107,7 @@ export const NavigationActivityMore = ({
         >
           <IconDots className="size-4 text-accent-foreground" />
           {expanded && (
-            <span className="truncate text-[13px] font-medium">
-              {t('more')}
-            </span>
+            <span className="truncate font-medium">{t('more')}</span>
           )}
         </Button>
       </Popover.Trigger>

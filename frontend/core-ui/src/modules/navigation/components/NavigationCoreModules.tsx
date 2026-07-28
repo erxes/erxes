@@ -1,7 +1,6 @@
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export const NavigationCorePanelContent = ({
   activity,
 }: {

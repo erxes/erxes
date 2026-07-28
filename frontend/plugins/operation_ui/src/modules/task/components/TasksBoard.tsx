@@ -34,7 +34,6 @@ export const allTasksMapState = atom<Record<string, ITask>>({});
 
 const taskSortMapState = atom<Record<string, string>>({});
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function TasksBoard() {
   const { t } = useTranslation('operation');
   const { teamId } = useParams();
@@ -49,7 +48,8 @@ export function TasksBoard() {
     setTasks([]);
     setAllTasksMap({});
     setTaskSortMap({});
-  }, [teamId, setAllTasksMap, setTaskSortMap, setTasks]);
+    setTaskCountByBoard({});
+  }, [teamId, setAllTasksMap, setTaskCountByBoard, setTaskSortMap, setTasks]);
 
   const { statuses, loading } = useGetStatusByTeam({
     variables: {
@@ -65,7 +65,6 @@ export function TasksBoard() {
     color: status.color,
   }));
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) {
@@ -148,8 +147,9 @@ export function TasksBoard() {
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
-export function TasksBoardCards({ column }: { column: BoardColumnProps }) {
+export function TasksBoardCards({
+  column,
+}: Readonly<{ column: BoardColumnProps }>) {
   const currentUser = useAtomValue(currentUserState);
   const { projectId, cycleId } = useParams();
   const [taskCards, setTaskCards] = useAtom(fetchedTasksState);
@@ -273,16 +273,15 @@ export function TasksBoardCards({ column }: { column: BoardColumnProps }) {
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
 export function TaskCardsFetchMore({
   totalCount,
   handleFetchMore,
   currentLength,
-}: {
+}: Readonly<{
   totalCount: number;
   handleFetchMore: () => void;
   currentLength: number;
-}) {
+}>) {
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
   });
@@ -298,12 +297,10 @@ export function TaskCardsFetchMore({
   );
 }
 
-// skipcq: JS-D1001 - Covered by repository documentation policy.
-function TaskCreateSheetTrigger({ status }: { status: string }) {
+function TaskCreateSheetTrigger({ status }: Readonly<{ status: string }>) {
   const setOpenCreateTask = useSetAtom(taskCreateSheetState);
   const setDefaultValues = useSetAtom(taskCreateDefaultValuesState);
 
-  // skipcq: JS-D1001 - Covered by repository documentation policy.
   const handleClick = () => {
     setDefaultValues({ status });
     setOpenCreateTask(true);
