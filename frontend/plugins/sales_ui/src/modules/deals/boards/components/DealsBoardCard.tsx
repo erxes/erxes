@@ -140,7 +140,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
   }));
   const customPropertyItems = Array.isArray(customProperties)
     ? customProperties
-        .map(normalizeCustomProperty)
+        .map((property, index) => normalizeCustomProperty(property, index))
         .filter((item): item is DealCardDetailItem => Boolean(item))
     : [];
 
