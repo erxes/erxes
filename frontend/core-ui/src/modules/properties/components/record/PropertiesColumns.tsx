@@ -55,8 +55,7 @@ const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(
     selectedFieldIdsState,
   );
-  const allSelected =
-    ids.length > 0 && ids.every((id) => selectedFieldIds[id]);
+  const allSelected = ids.length > 0 && ids.every((id) => selectedFieldIds[id]);
   const someSelected = ids.some((id) => selectedFieldIds[id]);
 
   return (
@@ -131,7 +130,9 @@ const PropertiesMoreColumnCell = ({
         <DropdownMenu.Content className="min-w-48">
           <Can action="fieldsManage">
             <DropdownMenu.Item asChild>
-              <Link to={`/settings/properties/${contentType}/${groupId}/${_id}`}>
+              <Link
+                to={`/settings/properties/${contentType}/${groupId}/${_id}`}
+              >
                 <IconEdit />
                 {t('edit', 'Edit')}
               </Link>
@@ -221,9 +222,7 @@ export const propertiesColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => (
-      <RecordTable.InlineHead label={t('name', 'Name')} />
-    ),
+    header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       const { name, icon } = cell.row.original;
       return (
@@ -285,7 +284,9 @@ export const propertiesColumns = (
     id: 'isVisibleToCreate',
     accessorKey: 'isVisibleToCreate',
     header: () => (
-      <RecordTable.InlineHead label={t('visible-to-create', 'Visible to create')} />
+      <RecordTable.InlineHead
+        label={t('visible-to-create', 'Visible to create')}
+      />
     ),
     cell: ({ cell }) => (
       <PropertyToggleCell

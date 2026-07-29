@@ -42,12 +42,18 @@ export const PropertyGroupForm = ({
       >
         <Sheet.Header>
           <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-            {isEdit ? t('edit-group', 'Edit Group') : t('add-group', 'Add Group')}
+            {isEdit
+              ? t('edit-group', 'Edit Group')
+              : t('add-group', 'Add Group')}
           </Sheet.Title>
           <Sheet.Description className="sr-only">
-            {t('group-description', 'Add a new group for the content type {{type}}', {
-              type,
-            })}
+            {t(
+              'group-description',
+              'Add a new group for the content type {{type}}',
+              {
+                type,
+              },
+            )}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>

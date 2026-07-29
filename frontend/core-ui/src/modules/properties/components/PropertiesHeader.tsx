@@ -26,7 +26,10 @@ export function PropertiesHeader() {
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild className="capitalize">
                   <Link to={`/settings/properties?type=${type}`}>
-                    {t(`content-type.${type.replace(':', '-')}`, type.replace(':', ' '))}{' '}
+                    {t(
+                      `content-type.${type.replace(':', '-')}`,
+                      type.replace(':', ' '),
+                    )}{' '}
                     {t('properties-suffix', 'properties')}
                   </Link>
                 </Button>

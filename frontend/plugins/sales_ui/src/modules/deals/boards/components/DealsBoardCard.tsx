@@ -54,7 +54,9 @@ const formatFieldValue = (field: IField, value: unknown): string => {
     if (field.options?.length) {
       return value
         .map(
-          (v) => field.options?.find((option) => option.value === v)?.label ?? String(v),
+          (v) =>
+            field.options?.find((option) => option.value === v)?.label ??
+            String(v),
         )
         .join(', ');
     }
@@ -71,7 +73,9 @@ const formatFieldValue = (field: IField, value: unknown): string => {
   }
   if (field.type === 'date') {
     const date = new Date(value as string);
-    return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
+    return Number.isNaN(date.getTime())
+      ? String(value)
+      : date.toLocaleDateString();
   }
   return String(value);
 };
@@ -115,7 +119,8 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
   const cardPropertyItems = (dealFields || [])
     .filter(
       (field) =>
-        field.isVisibleInCard && hasFieldValue(deal.propertiesData?.[field._id]),
+        field.isVisibleInCard &&
+        hasFieldValue(deal.propertiesData?.[field._id]),
     )
     .map((field) => ({
       _id: field._id,

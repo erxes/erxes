@@ -26,7 +26,10 @@ export const AddProperty = () => {
         contentType: type,
       },
       onCompleted: () => {
-        toast({ title: t('property-added', 'Property added'), variant: 'success' });
+        toast({
+          title: t('property-added', 'Property added'),
+          variant: 'success',
+        });
         setNeedsToRefresh(true);
         handleClose();
       },

@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { IField, useFields } from 'ui-modules';
 import { IPropertyForm } from '../types/Properties';
 
-type LogicRule = { field: string; operator: string; value: string; action: string };
+type LogicRule = {
+  field: string;
+  operator: string;
+  value: string;
+  action: string;
+};
 
 const DEFAULT_RULE: LogicRule = {
   field: '',
@@ -143,7 +148,9 @@ const LogicRuleRow = ({
           onValueChange={(value) => onChange('field', value)}
         >
           <Select.Trigger className="flex-1">
-            <Select.Value placeholder={t('select-property', 'Select property')} />
+            <Select.Value
+              placeholder={t('select-property', 'Select property')}
+            />
           </Select.Trigger>
           <Select.Content>
             {availableFields.map((field) => (

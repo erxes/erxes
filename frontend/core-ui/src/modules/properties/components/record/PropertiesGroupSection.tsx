@@ -123,12 +123,15 @@ export const PropertiesGroupSection = ({
   };
 
   const columns = useMemo(
-    () => propertiesColumns(t, { contentType, fieldIds: fields.map((f) => f._id) }),
+    () =>
+      propertiesColumns(t, { contentType, fieldIds: fields.map((f) => f._id) }),
     [t, contentType, fields],
   );
 
   const handleRowClick = (field: IField) => {
-    navigate(`/settings/properties/${contentType}/${field.groupId}/${field._id}`);
+    navigate(
+      `/settings/properties/${contentType}/${field.groupId}/${field._id}`,
+    );
   };
 
   return (

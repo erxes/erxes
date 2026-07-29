@@ -30,10 +30,7 @@ export const PropertiesCommandBar = () => {
         toast({
           title: 'Success',
           variant: 'success',
-          description: t(
-            'fields-deleted',
-            'Fields deleted successfully',
-          ),
+          description: t('fields-deleted', 'Fields deleted successfully'),
         });
       } catch (e: any) {
         toast({

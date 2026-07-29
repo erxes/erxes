@@ -19,7 +19,8 @@ export const FieldLabel = ({
     return children;
   }
 
-  const showRequiredWarning = Boolean(field.isRequired) && !hasFieldValue(value);
+  const showRequiredWarning =
+    Boolean(field.isRequired) && !hasFieldValue(value);
 
   return (
     <div className="flex flex-col gap-2">

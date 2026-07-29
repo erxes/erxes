@@ -9,19 +9,19 @@ import { PropertiesHeader } from './PropertiesHeader';
 import { PropertiesLayout } from './PropertiesLayout';
 
 const AddPropertyFieldPage = lazy(() =>
-  import(
-    '~/pages/settings/workspace/properties/PropertiesSettingsCreatePage'
-  ).then((module) => ({
-    default: module.PropertiesSettingsCreatePage,
-  })),
+  import('~/pages/settings/workspace/properties/PropertiesSettingsCreatePage').then(
+    (module) => ({
+      default: module.PropertiesSettingsCreatePage,
+    }),
+  ),
 );
 
 const EditPropertyFieldPage = lazy(() =>
-  import(
-    '~/pages/settings/workspace/properties/PropertiesSettingsEditPage'
-  ).then((module) => ({
-    default: module.PropertiesSettingEditPage,
-  })),
+  import('~/pages/settings/workspace/properties/PropertiesSettingsEditPage').then(
+    (module) => ({
+      default: module.PropertiesSettingEditPage,
+    }),
+  ),
 );
 
 export const PropertiesSettingsPage = lazy(() =>

@@ -13,9 +13,7 @@ export const PropertiesRow = ({
   onRowClick: (field: IField) => void;
 }) => {
   const selectedFieldIds = useAtomValue(selectedFieldIdsState);
-  const isSelected = !!(
-    original && selectedFieldIds[(original as IField)._id]
-  );
+  const isSelected = !!(original && selectedFieldIds[(original as IField)._id]);
 
   return (
     <RecordTable.Row
