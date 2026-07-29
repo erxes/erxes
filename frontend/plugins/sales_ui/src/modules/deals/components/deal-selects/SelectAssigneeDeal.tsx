@@ -207,7 +207,8 @@ const SelectAssigneeDealRoot = ({
       editDeals({
         variables: {
           _id: id,
-          assignedUserIds: [value],
+          assignedUserIds:
+            value === null ? [] : Array.isArray(value) ? value : [value],
         },
       });
     }
@@ -229,9 +230,7 @@ const SelectAssigneeDealRoot = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation
-          variant={variant === 'card' ? 'default' : variant}
-        >
+        <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
