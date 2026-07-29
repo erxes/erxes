@@ -41,7 +41,10 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     id: 'type',
     accessorKey: 'product.type',
     header: () => (
-      <RecordTable.InlineHead icon={IconShoppingCart} label="Type" />
+      <RecordTable.InlineHead
+        icon={IconShoppingCart}
+        label={t('type', 'Type')}
+      />
     ),
     cell: ({ cell }) => {
       const type = cell.getValue() as string;

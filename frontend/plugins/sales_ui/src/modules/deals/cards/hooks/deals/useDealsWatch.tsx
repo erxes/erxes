@@ -1,6 +1,7 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 
 import { DEALS_WATCH } from '@/deals/graphql/mutations/DealsMutations';
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -21,6 +22,7 @@ export function useDealsWatch(options?: MutationHookOptions) {
       toast({
         title: t('watch-status-updated'),
         variant: 'default',
+        ...DEAL_TOAST_OPTIONS,
       });
       options?.onCompleted?.(...args);
     },
@@ -29,6 +31,7 @@ export function useDealsWatch(options?: MutationHookOptions) {
         title: t('error'),
         description: err.message || t('update-failed'),
         variant: 'destructive',
+        ...DEAL_TOAST_OPTIONS,
       });
       options?.onError?.(err);
     },

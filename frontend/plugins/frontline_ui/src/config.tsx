@@ -67,10 +67,12 @@ export const CONFIG: IUIConfig = {
       {
         name: 'conversation',
         icon: IconMail,
+        label: 'Conversations',
       },
       {
         name: 'ticket',
         icon: IconTicket,
+        label: 'Tickets',
       },
     ],
     propertyInputs: {

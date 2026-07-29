@@ -73,7 +73,6 @@ export const getDealsQueryVariables = (searchParams: URLSearchParams) => {
     }
   }
 
-
   if (vars.productId) {
     vars.productIds = Array.isArray(vars.productId)
       ? vars.productId
@@ -82,7 +81,7 @@ export const getDealsQueryVariables = (searchParams: URLSearchParams) => {
   }
 
   if (searchParams.get('archivedOnly') === 'true') {
-    vars.noSkipArchive = true;
+    vars.status = 'archived';
     const sortDir = searchParams.get('archivedSort') || 'desc';
     vars.orderBy = { createdAt: sortDir === 'asc' ? 1 : -1 };
   }

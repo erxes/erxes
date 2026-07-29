@@ -7,6 +7,7 @@ import {
   useDealsRemove,
   useDealsWatch,
 } from '@/deals/cards/hooks/useDeals';
+import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import { IDeal } from '@/deals/types/deals';
 
 export const useDealActions = ({
@@ -88,12 +89,42 @@ export const useDealActions = ({
   };
 
   const handleWatch = async () => {
+    const isWatched = !allWatched;
+
     await Promise.all(
       dealIds.map((id) =>
         watchDeals({
           variables: {
             _id: id,
-            isAdd: !allWatched,
+            isAdd: isWatched,
+          },
+          optimisticResponse: {
+            dealsWatch: {
+              __typename: 'Deal',
+              _id: id,
+              isWatched,
+            },
+          },
+          update: (cache) => {
+            const detail = cache.readQuery<{ dealDetail: IDeal }>({
+              query: GET_DEAL_DETAIL,
+              variables: { _id: id },
+            });
+
+            if (!detail?.dealDetail) {
+              return;
+            }
+
+            cache.writeQuery({
+              query: GET_DEAL_DETAIL,
+              variables: { _id: id },
+              data: {
+                dealDetail: {
+                  ...detail.dealDetail,
+                  isWatched,
+                },
+              },
+            });
           },
         }),
       ),

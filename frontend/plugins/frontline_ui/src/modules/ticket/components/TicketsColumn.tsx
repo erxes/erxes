@@ -5,7 +5,7 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import { ITicket, TicketHotKeyScope } from '@/ticket/types';
 import {
   IconAlertSquareRounded,
@@ -14,7 +14,7 @@ import {
   IconProgressCheck,
   IconUser,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { CellContext, ColumnDef } from '@tanstack/table-core';
 import clsx from 'clsx';
 import {
   Input,
@@ -23,10 +23,61 @@ import {
   RecordTableInlineCell,
   Tooltip,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ticketsMoreColumn } from './TicketsMoreColumn';
+
+const TicketNameCell = ({ cell }: CellContext<ITicket, unknown>) => {
+  const name = cell.getValue() as string;
+  const [value, setValue] = useState(name);
+  const { updateTicket } = useUpdateTicket();
+  const [, setActiveTicket] = useTicketDetailSheet();
+
+  const handleUpdate = () => {
+    if (value !== name) {
+      updateTicket({
+        variables: { _id: cell.row.original._id, name: value },
+      });
+    }
+  };
+
+  return (
+    <PopoverScoped
+      closeOnEnter
+      onOpenChange={(open) => {
+        if (!open) {
+          handleUpdate();
+        }
+      }}
+      scope={clsx(
+        TicketHotKeyScope.TicketTableCell,
+        cell.row.original._id,
+        'Name',
+      )}
+    >
+      <RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Anchor
+          onClick={() => setActiveTicket(cell.row.original._id)}
+        >
+          {name}
+        </RecordTableInlineCell.Anchor>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content className="min-w-72">
+        <Input
+          value={value || ''}
+          onChange={(e) => setValue(e.target.value)}
+          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleUpdate();
+            }
+          }}
+        />
+      </RecordTableInlineCell.Content>
+    </PopoverScoped>
+  );
+};
 
 export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
   const { t } = useTranslation('frontline');
@@ -41,57 +92,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       header: () => (
         <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
       ),
-      cell: ({ cell }) => {
-        const name = cell.getValue() as string;
-        const [value, setValue] = useState(name);
-        const { updateTicket } = useUpdateTicket();
-        const setActiveTicket = useSetAtom(ticketDetailSheetState);
-
-        const handleUpdate = () => {
-          if (value !== name) {
-            updateTicket({
-              variables: { _id: cell.row.original._id, name: value },
-            });
-          }
-        };
-
-        return (
-          <PopoverScoped
-            closeOnEnter
-            onOpenChange={(open) => {
-              if (!open) {
-                handleUpdate();
-              }
-            }}
-            scope={clsx(
-              TicketHotKeyScope.TicketTableCell,
-              cell.row.original._id,
-              'Name',
-            )}
-          >
-            <RecordTableInlineCell.Trigger>
-              <RecordTableInlineCell.Anchor
-                onClick={() => setActiveTicket(cell.row.original._id)}
-              >
-                {name}
-              </RecordTableInlineCell.Anchor>
-            </RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Content className="min-w-72">
-              <Input
-                value={value || ''}
-                onChange={(e) => setValue(e.target.value)}
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleUpdate();
-                  }
-                }}
-              />
-            </RecordTableInlineCell.Content>
-          </PopoverScoped>
-        );
-      },
+      cell: TicketNameCell,
       size: 240,
     },
 

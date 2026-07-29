@@ -19,7 +19,7 @@ import {
   useSyncLocalProductsData,
   useVatPercent,
 } from '../../hooks/useProductsListState';
-import { DEAL_PRODUCT_TOAST_OPTIONS } from '../../constants';
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { filterProducts } from '../../utils/filterProducts';
 
 export const ProductsList = ({
@@ -64,7 +64,7 @@ export const ProductsList = ({
     calculatePerProductAmount,
   } = useProductCalculations(localProductsData);
   const { editDeals } = useDealsEdit(undefined, {
-    toastOptions: DEAL_PRODUCT_TOAST_OPTIONS,
+    toastOptions: DEAL_TOAST_OPTIONS,
   });
   const [showAdvancedView, setShowAdvancedView] = useState(false);
   const [editingProduct, setEditingProduct] = useState<IProductData | null>(
@@ -133,13 +133,18 @@ export const ProductsList = ({
     sortByStableProductOrder,
   });
 
-  const { vatPercent, vatPercentDraft, onVatPercentChange, onVatPercentBlur, applyVat } =
-    useVatPercent({
-      localProductsData,
-      setLocalProductsData,
-      updateTotal,
-      calculatePerProductAmount,
-    });
+  const {
+    vatPercent,
+    vatPercentDraft,
+    onVatPercentChange,
+    onVatPercentBlur,
+    applyVat,
+  } = useVatPercent({
+    localProductsData,
+    setLocalProductsData,
+    updateTotal,
+    calculatePerProductAmount,
+  });
 
   const { handleSave } = useSaveDealProducts({
     localProductsData,
@@ -154,15 +159,34 @@ export const ProductsList = ({
   );
 
   const updateLocalProduct = useCallback(
-    (id: string, patch: Partial<IProductData>) => {
-      pendingProductPatchesRef.current[id] = {
-        ...(pendingProductPatchesRef.current[id] || {}),
-        ...patch,
-      };
-
+    (
+      id: string,
+      patch: Partial<IProductData>,
+      options?: { syncProductId?: string },
+    ) => {
       setLocalProductsData((prev) => {
-        const updated = prev.map((p) =>
-          p._id === id ? { ...p, ...patch } : p,
+        const affectedProductData = prev.filter(
+          (productData) =>
+            productData._id === id ||
+            (options?.syncProductId &&
+              (productData.productId || productData.product?._id) ===
+                options.syncProductId),
+        );
+
+        affectedProductData.forEach((productData) => {
+          pendingProductPatchesRef.current[productData._id] = {
+            ...pendingProductPatchesRef.current[productData._id],
+            ...patch,
+          };
+        });
+
+        const affectedIds = new Set(
+          affectedProductData.map((productData) => productData._id),
+        );
+        const updated = prev.map((productData) =>
+          affectedIds.has(productData._id)
+            ? { ...productData, ...patch }
+            : productData,
         );
 
         updateTotal(updated);
