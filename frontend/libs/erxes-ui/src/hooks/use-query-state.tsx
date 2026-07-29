@@ -36,17 +36,20 @@ export function useQueryState<T>(
   const query = parseQueryValue(searchParams.get(queryKey));
 
   const setQuery = (value: T | null) => {
-    if (value !== null && value !== query) {
+    const nextParams = new URLSearchParams(window.location.search);
+    const currentValue = parseQueryValue(nextParams.get(queryKey));
+
+    if (value !== null && value !== currentValue) {
       const stringValue =
         typeof value === 'object' ? JSON.stringify(value) : String(value);
-      searchParams.set(queryKey, stringValue);
-    } else if (value === null && query !== null) {
-      searchParams.delete(queryKey);
+      nextParams.set(queryKey, stringValue);
+    } else if (value === null && currentValue !== null) {
+      nextParams.delete(queryKey);
     } else {
       return;
     }
 
-    setSearchParams(searchParams);
+    setSearchParams(nextParams);
   };
 
   return [query, setQuery];
@@ -90,16 +93,19 @@ export function useMultiQueryState<T extends QueryTypes>(
   }, {} as QueryValues<T>);
 
   const setQueries = (values: Partial<QueryValues<T>>) => {
+    const nextParams = new URLSearchParams(window.location.search);
+
     Object.entries(values).forEach(([key, value]) => {
-      if (value !== null && value !== queries[key]) {
+      const currentValue = parseQueryValue(nextParams.get(key), key);
+      if (value !== null && value !== currentValue) {
         const stringValue =
           typeof value === 'object' ? JSON.stringify(value) : String(value);
-        searchParams.set(key, stringValue);
-      } else if (value === null && queries[key] !== null) {
-        searchParams.delete(key);
+        nextParams.set(key, stringValue);
+      } else if (value === null && currentValue !== null) {
+        nextParams.delete(key);
       }
     });
-    setSearchParams(searchParams, { replace: true });
+    setSearchParams(nextParams, { replace: true });
   };
 
   return [queries, setQueries];
@@ -118,22 +124,26 @@ export const useNonNullMultiQueryState = <T extends QueryTypes>(
 };
 
 export function useSetQueryStateByKey() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
 
   const setQuery = (key: string, value: string) => {
-    searchParams.set(key, value);
-    setSearchParams(searchParams);
+    const nextParams = new URLSearchParams(window.location.search);
+    if (nextParams.get(key) === value) return;
+    nextParams.set(key, value);
+    setSearchParams(nextParams);
   };
 
   return setQuery;
 }
 
 export function useRemoveQueryStateByKey() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
 
   const removeQuery = (key: string) => {
-    searchParams.delete(key);
-    setSearchParams(searchParams);
+    const nextParams = new URLSearchParams(window.location.search);
+    if (!nextParams.has(key)) return;
+    nextParams.delete(key);
+    setSearchParams(nextParams);
   };
 
   return removeQuery;

@@ -11,7 +11,6 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
 
 import { DealsProvider } from '@/deals/context/DealContext';
 import { IDeal } from '@/deals/types/deals';
@@ -95,18 +94,10 @@ const SalesItemDetailView = () => {
 export const SalesItemDetail = () => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
-  const { loading } = useDealDetail();
 
-  const [isOpen, setIsOpen] = useState(
-    (!!activeDealId || !!salesItemId) && !loading,
-  );
-
-  useEffect(() => {
-    setIsOpen((!!activeDealId || !!salesItemId) && !loading);
-  }, [activeDealId, salesItemId, loading]);
+  const isOpen = !!activeDealId || !!salesItemId;
 
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
     if (!open) {
       setActiveDealId(null);
       setSalesItemId(null);

@@ -85,7 +85,7 @@ function GenericBoardColumnInner<
       <VirtualizedCardList
         columnId={column._id}
         items={items}
-        isLoading={columnLoading[column._id]}
+        isLoading={columnLoading[column._id] ?? true}
         renderCard={renderCard}
         hasMore={hasMore}
         isLoadingMore={isLoadingMore}

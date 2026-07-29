@@ -31,6 +31,8 @@ export const DealsRecordTable = () => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
+  const isLoading = loading || !pipelineId;
+
   if (pipelineId && !stagesLoading && stages.length === 0) {
     return <NoStagesWarning />;
   }
@@ -39,7 +41,7 @@ export const DealsRecordTable = () => {
     <div className="flex flex-col overflow-hidden h-full relative">
       <RecordTable.Provider
         columns={columns}
-        data={deals || (loading ? [{}] : [])}
+        data={deals || []}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}
         tableId="sales_deals_record_table"
@@ -55,7 +57,7 @@ export const DealsRecordTable = () => {
               <RecordTable.CursorBackwardSkeleton
                 handleFetchMore={handleFetchMore}
               />
-              {loading && <RecordTable.RowSkeleton rows={40} />}
+              {isLoading && <RecordTable.RowSkeleton rows={40} />}
               <RecordTable.RowList />
               <RecordTable.CursorForwardSkeleton
                 handleFetchMore={handleFetchMore}
