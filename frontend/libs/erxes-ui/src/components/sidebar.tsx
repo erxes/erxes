@@ -1,3 +1,4 @@
+// skipcq: JS-C1003 - This primitive uses React APIs and namespace-qualified types.
 import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { cva, VariantProps } from 'class-variance-authority';
@@ -11,10 +12,7 @@ import { useIsMobile } from 'erxes-ui/hooks/use-mobile';
 import { cn } from 'erxes-ui/lib/utils';
 
 import { Tooltip } from './tooltip';
-import {
-  IconLayoutSidebarLeftCollapse,
-  IconLayoutSidebarLeftExpand,
-} from '@tabler/icons-react';
+import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
 import { Key } from 'erxes-ui/types/Key';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { AppHotkeyScope } from 'erxes-ui/modules/hotkey/types/AppHotkeyScope';
@@ -49,8 +47,12 @@ type ISidebarContext = {
 
 const SidebarContext = React.createContext<ISidebarContext | null>(null);
 
+function useOptionalSidebar() {
+  return React.useContext(SidebarContext);
+}
+
 function useSidebar() {
-  const context = React.useContext(SidebarContext);
+  const context = useOptionalSidebar();
   if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.');
   }
@@ -67,6 +69,9 @@ const SidebarProvider = React.forwardRef<
     collapseState?: CollapseState;
     defaultCollapseState?: CollapseState;
     onCollapseStateChange?: (state: CollapseState) => void;
+    sidebarKeyboardShortcut?: string | false;
+    sidebarWidth?: string;
+    sidebarWidthIcon?: string;
   }
 >(
   (
@@ -77,6 +82,9 @@ const SidebarProvider = React.forwardRef<
       collapseState: collapseStateProp,
       defaultCollapseState,
       onCollapseStateChange,
+      sidebarKeyboardShortcut = SIDEBAR_KEYBOARD_SHORTCUT,
+      sidebarWidth = SIDEBAR_WIDTH,
+      sidebarWidthIcon = SIDEBAR_WIDTH_ICON,
       className,
       style,
       children,
@@ -153,7 +161,9 @@ const SidebarProvider = React.forwardRef<
     // Adds a keyboard shortcut to toggle the sidebar.
 
     useScopedHotkeys(
-      `${Key.Meta}+${SIDEBAR_KEYBOARD_SHORTCUT}`,
+      sidebarKeyboardShortcut
+        ? `${Key.Meta}+${sidebarKeyboardShortcut}`
+        : '__sidebar-shortcut-disabled__',
       toggleSidebar,
       AppHotkeyScope.Sidebar,
     );
@@ -189,9 +199,9 @@ const SidebarProvider = React.forwardRef<
           <div
             style={
               {
-                '--sidebar-width': SIDEBAR_WIDTH,
+                '--sidebar-width': sidebarWidth,
                 '--sidebar-width-compact': SIDEBAR_WIDTH_COMPACT,
-                '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
+                '--sidebar-width-icon': sidebarWidthIcon,
                 ...style,
               } as React.CSSProperties
             }
@@ -344,9 +354,9 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       {collapseState === 'collapsed' ? (
-        <IconLayoutSidebarLeftExpand />
+        <IconChevronsRight />
       ) : (
-        <IconLayoutSidebarLeftCollapse />
+        <IconChevronsLeft />
       )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
@@ -495,7 +505,7 @@ const SidebarGroup = React.forwardRef<
       ref={ref}
       data-sidebar="group"
       className={cn(
-        'relative flex w-full min-w-0 flex-col py-3 px-4',
+        'relative flex w-full min-w-0 flex-col px-4 py-3 group-data-[collapsible=icon]:px-2',
         className,
       )}
       {...props}
@@ -838,5 +848,6 @@ export const Sidebar = Object.assign(SidebarRoot, {
   Rail: SidebarRail,
   Separator: SidebarSeparator,
   Trigger: SidebarTrigger,
+  useOptionalSidebar,
   useSidebar,
 });

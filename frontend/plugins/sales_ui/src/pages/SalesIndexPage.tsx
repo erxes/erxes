@@ -16,6 +16,7 @@ import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
+import { useEnsureSalesBoardSelection } from '@/deals/boards/hooks/useEnsureSalesBoardSelection';
 
 export const SalesIndexPage = () => {
   const { t } = useTranslation('sales');
@@ -26,6 +27,8 @@ export const SalesIndexPage = () => {
 
   if (boardId) settingsSearchParams.set('activeBoardId', boardId);
   if (pipelineId) settingsSearchParams.set('pipelineId', pipelineId);
+
+  useEnsureSalesBoardSelection();
 
   return (
     <div className="flex h-full overflow-hidden w-full">
