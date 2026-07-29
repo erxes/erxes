@@ -21,6 +21,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 
 import { CompaniesInline } from './CompaniesInline';
+import { AddCompany } from './AddCompany';
 import { ICompany } from '../types';
 import { useCompanies } from 'ui-modules/modules/contacts/hooks/useCompanies';
 import { useDebounce } from 'use-debounce';
@@ -32,6 +33,7 @@ interface SelectCompanyProviderProps {
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   hideAvatar?: boolean;
+  allowCreate?: boolean;
 }
 
 const SelectCompanyProvider = ({
@@ -40,8 +42,10 @@ const SelectCompanyProvider = ({
   onValueChange,
   mode = 'single',
   hideAvatar,
+  allowCreate,
 }: SelectCompanyProviderProps) => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
   const companyIds = companies.map((c) => c._id);
 
   const valueIds = useMemo(() => {
@@ -56,14 +60,10 @@ const SelectCompanyProvider = ({
   });
 
   useEffect(() => {
-    if (
-      fetchedCompanies &&
-      fetchedCompanies.length > 0 &&
-      companies.length === 0
-    ) {
+    if (fetchedCompanies?.length) {
       setCompanies(fetchedCompanies);
     }
-  }, [fetchedCompanies, companies.length]);
+  }, [fetchedCompanies]);
 
   const onSelect = (company: ICompany) => {
     if (!company) return;
@@ -85,6 +85,15 @@ const SelectCompanyProvider = ({
     onValueChange?.(newSelectedCompanyIds);
   };
 
+  const onCreateSuccess = (companyId: string) => {
+    const newSelectedCompanyIds =
+      mode === 'single'
+        ? companyId
+        : Array.from(new Set([...valueIds, companyId]));
+
+    onValueChange?.(newSelectedCompanyIds);
+  };
+
   return (
     <SelectCompanyContext.Provider
       value={{
@@ -96,9 +105,18 @@ const SelectCompanyProvider = ({
         error: null,
         hideAvatar,
         mode,
+        allowCreate,
+        openCreate: () => setCreateOpen(true),
       }}
     >
       {children}
+      {allowCreate && (
+        <AddCompany
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          onSuccess={onCreateSuccess}
+        />
+      )}
     </SelectCompanyContext.Provider>
   );
 };
@@ -106,7 +124,9 @@ const SelectCompanyProvider = ({
 const SelectCompanyContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { companyIds, companies } = useSelectCompanyContext();
+  const { companyIds, companies, allowCreate, openCreate } =
+    useSelectCompanyContext();
+  const { t } = useTranslation('contact');
   const {
     companies: companiesData,
     loading,
@@ -118,6 +138,12 @@ const SelectCompanyContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  const showCreate =
+    allowCreate &&
+    debouncedSearch.trim().length > 0 &&
+    !loading &&
+    !error &&
+    totalCount === 0;
 
   return (
     <Command shouldFilter={false}>
@@ -129,6 +155,12 @@ const SelectCompanyContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        {showCreate && (
+          <Command.Item onSelect={openCreate} className="font-medium">
+            <IconPlus />
+            {t('customer.detail.add-company')}
+          </Command.Item>
+        )}
         {companies?.length > 0 && (
           <>
             {companies.map((company) => (

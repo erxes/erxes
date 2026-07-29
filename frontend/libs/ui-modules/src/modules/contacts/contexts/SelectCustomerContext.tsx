@@ -10,6 +10,8 @@ export type ISelectCustomerContext = {
   error: string | null;
   hideAvatar?: boolean;
   mode: 'single' | 'multiple';
+  allowCreate?: boolean;
+  openCreate: () => void;
 };
 
 export const SelectCustomerContext =

@@ -16,12 +16,14 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 
 import { CustomersInline } from './CustomersInline';
+import { AddCustomer } from './AddCustomer';
 import { ICustomer } from '../types';
-import { IconUser } from '@tabler/icons-react';
+import { IconPlus, IconUser } from '@tabler/icons-react';
 import { SelectCustomerContext } from '../contexts/SelectCustomerContext';
 import { useCustomers } from '../hooks';
 import { useDebounce } from 'use-debounce';
 import { useSelectCustomerContext } from '../hooks/useSelectCustomerContext';
+import { useTranslation } from 'react-i18next';
 
 interface SelectCustomerProviderProps {
   children: React.ReactNode;
@@ -29,6 +31,7 @@ interface SelectCustomerProviderProps {
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   hideAvatar?: boolean;
+  allowCreate?: boolean;
 }
 
 const SelectCustomerProvider = ({
@@ -37,8 +40,10 @@ const SelectCustomerProvider = ({
   onValueChange,
   mode = 'single',
   hideAvatar,
+  allowCreate,
 }: SelectCustomerProviderProps) => {
   const [customers, setCustomers] = useState<ICustomer[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
   const customerIds = customers.map((c) => c._id);
 
   const valueIds = useMemo(() => {
@@ -53,14 +58,10 @@ const SelectCustomerProvider = ({
   });
 
   useEffect(() => {
-    if (
-      fetchedCustomers &&
-      fetchedCustomers.length > 0 &&
-      customers.length === 0
-    ) {
+    if (fetchedCustomers?.length) {
       setCustomers(fetchedCustomers);
     }
-  }, [fetchedCustomers, customers.length]);
+  }, [fetchedCustomers]);
 
   const onSelect = (customer: ICustomer) => {
     if (!customer) return;
@@ -72,17 +73,26 @@ const SelectCustomerProvider = ({
     const newSelectedCustomerIds = isSingleMode
       ? [customer._id]
       : isSelected
-        ? multipleValue.filter((t) => t !== customer._id)
-        : [...multipleValue, customer._id];
+      ? multipleValue.filter((t) => t !== customer._id)
+      : [...multipleValue, customer._id];
 
     const newSelectedCustomers = isSingleMode
       ? [customer]
       : isSelected
-        ? customers.filter((t) => t._id !== customer._id)
-        : [...customers, customer];
+      ? customers.filter((t) => t._id !== customer._id)
+      : [...customers, customer];
 
     setCustomers(newSelectedCustomers);
     onValueChange?.(isSingleMode ? customer._id : newSelectedCustomerIds);
+  };
+
+  const onCreateSuccess = (customerId: string) => {
+    const newSelectedCustomerIds =
+      mode === 'single'
+        ? customerId
+        : Array.from(new Set([...valueIds, customerId]));
+
+    onValueChange?.(newSelectedCustomerIds);
   };
 
   return (
@@ -96,9 +106,18 @@ const SelectCustomerProvider = ({
         error: null,
         hideAvatar,
         mode,
+        allowCreate,
+        openCreate: () => setCreateOpen(true),
       }}
     >
       {children}
+      {allowCreate && (
+        <AddCustomer
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          onSuccess={onCreateSuccess}
+        />
+      )}
     </SelectCustomerContext.Provider>
   );
 };
@@ -106,7 +125,9 @@ const SelectCustomerProvider = ({
 const SelectCustomerContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { customerIds, customers } = useSelectCustomerContext();
+  const { customerIds, customers, allowCreate, openCreate } =
+    useSelectCustomerContext();
+  const { t } = useTranslation('contact');
   const {
     customers: customersData,
     loading,
@@ -118,6 +139,12 @@ const SelectCustomerContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  const showCreate =
+    allowCreate &&
+    debouncedSearch.trim().length > 0 &&
+    !loading &&
+    !error &&
+    totalCount === 0;
 
   return (
     <Command shouldFilter={false}>
@@ -129,6 +156,12 @@ const SelectCustomerContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        {showCreate && (
+          <Command.Item onSelect={openCreate} className="font-medium">
+            <IconPlus />
+            {t('customer.add._')}
+          </Command.Item>
+        )}
         {customers?.length > 0 && (
           <>
             {customers.map((customer) => (

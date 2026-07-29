@@ -11,32 +11,47 @@ const AddCompanyForm = lazy(() =>
 export const AddCompany = ({
   children,
   onSuccess,
+  open,
+  onOpenChange,
 }: {
   children?: React.ReactNode;
   onSuccess?: (id: string) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const resolvedOpen = open ?? internalOpen;
+
+  const setOpen = (isOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(isOpen);
+    }
+    onOpenChange?.(isOpen);
+  };
+
+  const trigger =
+    children ??
+    (isControlled ? null : (
+      <Button variant="outline">
+        <IconPlus />
+        Create new company
+      </Button>
+    ));
 
   return (
-    <FocusSheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        {children || (
-          <Button variant="outline">
-            <IconPlus />
-            Create new company
-          </Button>
-        )}
-      </Sheet.Trigger>
-      <FocusSheet.View className="w-[30%] md:w-[30%] lg:w-[30%]">
+    <FocusSheet open={resolvedOpen} onOpenChange={setOpen}>
+      {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
+      <FocusSheet.View
+        className="w-[30%] md:w-[30%] lg:w-[30%]"
+        onSubmit={(event) => event.stopPropagation()}
+      >
         <FocusSheet.Header title="Create company" />
         <FocusSheet.Content className="flex-1 min-h-0">
           <div className="flex overflow-hidden flex-col flex-1">
             <Suspense fallback={<Spinner />}>
-              {open && (
-                <AddCompanyForm
-                  onOpenChange={setOpen}
-                  onSuccess={onSuccess}
-                />
+              {resolvedOpen && (
+                <AddCompanyForm onOpenChange={setOpen} onSuccess={onSuccess} />
               )}
             </Suspense>
           </div>

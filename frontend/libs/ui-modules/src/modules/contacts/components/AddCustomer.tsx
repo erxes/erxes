@@ -13,34 +13,52 @@ export const AddCustomer = ({
   children,
   state,
   onSuccess,
+  open,
+  onOpenChange,
 }: {
   children?: React.ReactNode;
   state?: 'lead' | 'customer';
   onSuccess?: (id: string) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const resolvedOpen = open ?? internalOpen;
   const [, setSelectedTab] = useQueryState<string>('tab');
   const title = state === 'lead' ? 'Create Lead' : 'Create Customer';
+
+  const setOpen = (isOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(isOpen);
+    }
+    onOpenChange?.(isOpen);
+  };
 
   const onClose = () => {
     setOpen(false);
     setSelectedTab(null);
   };
 
+  const trigger =
+    children ??
+    (isControlled ? null : (
+      <Button variant="outline">
+        <IconPlus />
+        Create new customer
+      </Button>
+    ));
+
   return (
     <FocusSheet
-      open={open}
+      open={resolvedOpen}
       onOpenChange={(isOpen) => (isOpen ? setOpen(true) : onClose())}
     >
-      <Sheet.Trigger asChild>
-        {children || (
-          <Button variant="outline">
-            <IconPlus />
-            Create new customer
-          </Button>
-        )}
-      </Sheet.Trigger>
-      <FocusSheet.View className="w-[50%] md:w-[50%] lg:w-[50%]">
+      {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
+      <FocusSheet.View
+        className="w-[50%] md:w-[50%] lg:w-[50%]"
+        onSubmit={(event) => event.stopPropagation()}
+      >
         <FocusSheet.Header title={title} />
         <FocusSheet.Content className="flex-1 min-h-0">
           <FocusSheet.SideBar>
@@ -51,7 +69,7 @@ export const AddCustomer = ({
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1">
             <Suspense fallback={<Spinner />}>
-              {open && (
+              {resolvedOpen && (
                 <AddCustomerForm
                   onOpenChange={onClose}
                   state={state}
