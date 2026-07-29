@@ -84,6 +84,7 @@ export const CONFIG: IUIConfig = {
       {
         name: 'posOrders',
         icon: IconReceipt,
+        label: 'POS orders',
       },
     ],
     propertyInputs: {
