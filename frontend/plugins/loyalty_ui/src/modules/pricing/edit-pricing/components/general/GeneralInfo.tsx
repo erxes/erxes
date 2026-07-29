@@ -286,10 +286,10 @@ export const GeneralInfo = ({
     );
 
     return () => onSaveActionChange(null);
-  }, [isDirty, loading, onSaveActionChange, pricingId]);
+  }, [isDirty, loading, onSaveActionChange, pricingId, t]);
 
   return (
-    <div className="p-6">
+    <div className="mx-auto w-full max-w-6xl p-4 md:p-6">
       <Form {...form}>
         <form
           id={GENERAL_FORM_ID}
@@ -297,19 +297,107 @@ export const GeneralInfo = ({
           noValidate
         >
           <InfoCard title={t('general')}>
-            <InfoCard.Content className="grid w-full grid-cols-2 gap-6">
-              <div className="flex flex-col w-full space-y-4">
-                <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+            <InfoCard.Content className="grid w-full grid-cols-1 gap-4 md:grid-cols-12">
+              <Form.Field
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <Form.Item className="min-w-0 md:col-span-8">
+                    <Form.Label>{t('name')}</Form.Label>
+                    <Form.Control>
+                      <Input placeholder={t('enter-pricing-name')} {...field} />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <Form.Item className="min-w-0 md:col-span-4">
+                    <Form.Label>{t('status')}</Form.Label>
+                    <Form.Control>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger>
+                          <Select.Value placeholder={t('select-status')} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Item value="active">
+                            {t('active')}
+                          </Select.Item>
+                          <Select.Item value="archived">
+                            {t('archived')}
+                          </Select.Item>
+                          <Select.Item value="draft">{t('draft')}</Select.Item>
+                          <Select.Item value="completed">
+                            {t('completed')}
+                          </Select.Item>
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="appliesTo"
+                render={({ field }) => (
+                  <Form.Item className="min-w-0 md:col-span-4">
+                    <Form.Label>{t('applies-to')}</Form.Label>
+                    <Form.Control>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger>
+                          <Select.Value placeholder={t('select-target')} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Item value="category">
+                            {t('specific-category')}
+                          </Select.Item>
+                          <Select.Item value="product">
+                            {t('specific-product')}
+                          </Select.Item>
+                          <Select.Item value="segment">
+                            {t('specific-segment')}
+                          </Select.Item>
+                          <Select.Item value="vendor">
+                            {t('specific-vendor')}
+                          </Select.Item>
+                          <Select.Item value="tag">
+                            {t('specific-tag')}
+                          </Select.Item>
+                          <Select.Item value="bundle">
+                            {t('specific-bundle')}
+                          </Select.Item>
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              {appliesTo === 'category' && (
+                <div className="grid min-w-0 gap-4 sm:grid-cols-2 md:col-span-8">
                   <Form.Field
                     control={form.control}
-                    name="name"
+                    name="productCategoryIds"
                     render={({ field }) => (
                       <Form.Item className="min-w-0">
-                        <Form.Label>{t('name')}</Form.Label>
+                        <Form.Label>{t('product-categories-label')}</Form.Label>
                         <Form.Control>
-                          <Input
-                            placeholder={t('enter-pricing-name')}
-                            {...field}
+                          <SelectCategory
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(normalizeMultipleValue(value))
+                            }
                           />
                         </Form.Control>
                       </Form.Item>
@@ -318,343 +406,242 @@ export const GeneralInfo = ({
 
                   <Form.Field
                     control={form.control}
-                    name="status"
+                    name="excludeCategoryIds"
                     render={({ field }) => (
                       <Form.Item className="min-w-0">
-                        <Form.Label>{t('status')}</Form.Label>
+                        <Form.Label>{t('exclude-categories')}</Form.Label>
                         <Form.Control>
-                          <Select
+                          <SelectCategory
+                            mode="multiple"
                             value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <Select.Trigger>
-                              <Select.Value placeholder={t('select-status')} />
-                            </Select.Trigger>
-                            <Select.Content>
-                              <Select.Item value="active">
-                                {t('active')}
-                              </Select.Item>
-                              <Select.Item value="archived">
-                                {t('archived')}
-                              </Select.Item>
-                              <Select.Item value="draft">
-                                {t('draft')}
-                              </Select.Item>
-                              <Select.Item value="completed">
-                                {t('completed')}
-                              </Select.Item>
-                            </Select.Content>
-                          </Select>
+                            onValueChange={(value) =>
+                              field.onChange(normalizeMultipleValue(value))
+                            }
+                          />
                         </Form.Control>
                       </Form.Item>
                     )}
                   />
-                </div>
 
-                <Form.Field
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <Form.Item className="min-w-0">
-                      <Form.Label>{t('priority')}</Form.Label>
-                      <Form.Control>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Select.Trigger>
-                            <Select.Value placeholder={t('select-priority')} />
-                          </Select.Trigger>
-                          <Select.Content>
-                            {PRICING_PRIORITY_OPTIONS.map((option) => (
-                              <Select.Item
-                                key={option.label}
-                                value={option.value}
-                              >
-                                {t(option.label)}
-                              </Select.Item>
-                            ))}
-                          </Select.Content>
-                        </Select>
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
-
-                <div className="grid w-full grid-cols-2 gap-4">
-                  <GeneralDateField
-                    control={form.control}
-                    name="startDate"
-                    label={t('start-date')}
-                    placeholder={t('select-start-date')}
-                  />
-
-                  <GeneralDateField
-                    control={form.control}
-                    name="endDate"
-                    label={t('end-date')}
-                    placeholder={t('select-end-date')}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col w-full space-y-4">
-                <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
                   <Form.Field
                     control={form.control}
-                    name="appliesTo"
+                    name="excludeProductIds"
                     render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('applies-to')}</Form.Label>
+                      <Form.Item className="min-w-0 sm:col-span-2">
+                        <Form.Label>{t('exclude-products')}</Form.Label>
                         <Form.Control>
-                          <Select
+                          <SelectProduct
+                            mode="multiple"
                             value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <Select.Trigger>
-                              <Select.Value placeholder={t('select-target')} />
-                            </Select.Trigger>
-                            <Select.Content>
-                              <Select.Item value="category">
-                                {t('specific-category')}
-                              </Select.Item>
-                              <Select.Item value="product">
-                                {t('specific-product')}
-                              </Select.Item>
-                              <Select.Item value="segment">
-                                {t('specific-segment')}
-                              </Select.Item>
-                              <Select.Item value="vendor">
-                                {t('specific-vendor')}
-                              </Select.Item>
-                              <Select.Item value="tag">
-                                {t('specific-tag')}
-                              </Select.Item>
-                              <Select.Item value="bundle">
-                                {t('specific-bundle')}
-                              </Select.Item>
-                            </Select.Content>
-                          </Select>
+                            onValueChange={(value) =>
+                              field.onChange(normalizeMultipleValue(value))
+                            }
+                          />
                         </Form.Control>
                       </Form.Item>
                     )}
                   />
                 </div>
+              )}
 
-                {appliesTo === 'category' && (
-                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-                    <Form.Field
-                      control={form.control}
-                      name="productCategoryIds"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>
-                            {t('product-categories-label')}
-                          </Form.Label>
-                          <Form.Control>
-                            <SelectCategory
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(normalizeMultipleValue(value))
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
+              {appliesTo === 'product' && (
+                <div className="min-w-0 md:col-span-8">
+                  <Form.Field
+                    control={form.control}
+                    name="appliesProductIds"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0">
+                        <Form.Label>{t('products-label')}</Form.Label>
+                        <Form.Control>
+                          <SelectProduct
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(normalizeMultipleValue(value))
+                            }
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              )}
 
-                    <Form.Field
-                      control={form.control}
-                      name="excludeCategoryIds"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('exclude-categories')}</Form.Label>
-                          <Form.Control>
-                            <SelectCategory
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(normalizeMultipleValue(value))
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
+              {appliesTo === 'segment' && (
+                <div className="min-w-0 md:col-span-8">
+                  <Form.Field
+                    control={form.control}
+                    name="segmentId"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0">
+                        <Form.Label>{t('segment-label')}</Form.Label>
+                        <Form.Control>
+                          <SelectSegment
+                            selected={field.value || undefined}
+                            onSelect={(id) => field.onChange(id)}
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              )}
 
-                    <Form.Field
-                      control={form.control}
-                      name="excludeProductIds"
-                      render={({ field }) => (
-                        <Form.Item className="lg:col-span-2">
-                          <Form.Label>{t('exclude-products')}</Form.Label>
-                          <Form.Control>
-                            <SelectProduct
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(normalizeMultipleValue(value))
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
+              {appliesTo === 'vendor' && (
+                <div className="min-w-0 md:col-span-8">
+                  <Form.Field
+                    control={form.control}
+                    name="vendorCompanyIds"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0">
+                        <Form.Label>{t('vendors')}</Form.Label>
+                        <Form.Control>
+                          <SelectCompany
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(normalizeMultipleValue(value))
+                            }
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              )}
+
+              {appliesTo === 'tag' && (
+                <div className="grid min-w-0 gap-4 sm:grid-cols-2 md:col-span-8">
+                  <Form.Field
+                    control={form.control}
+                    name="productTagIds"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0">
+                        <Form.Label>{t('product-tags')}</Form.Label>
+                        <Form.Control>
+                          <SelectTags
+                            tagType="sales:product"
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(value as string[])
+                            }
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+
+                  <Form.Field
+                    control={form.control}
+                    name="excludeTagIds"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0">
+                        <Form.Label>{t('exclude-tags')}</Form.Label>
+                        <Form.Control>
+                          <SelectTags
+                            tagType="sales:product"
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(value as string[])
+                            }
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+
+                  <Form.Field
+                    control={form.control}
+                    name="excludeProductIds"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0 sm:col-span-2">
+                        <Form.Label>{t('exclude-products')}</Form.Label>
+                        <Form.Control>
+                          <SelectProduct
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(normalizeMultipleValue(value))
+                            }
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              )}
+
+              {appliesTo === 'bundle' && (
+                <div className="min-w-0 md:col-span-8">
+                  <Form.Field
+                    control={form.control}
+                    name="bundleProductIds"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0">
+                        <Form.Label>{t('products-to-bundle')}</Form.Label>
+                        <Form.Control>
+                          <SelectProduct
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(normalizeMultipleValue(value))
+                            }
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              )}
+
+              <Form.Field
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <Form.Item className="min-w-0 md:col-span-4">
+                    <Form.Label>{t('priority')}</Form.Label>
+                    <Form.Control>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger>
+                          <Select.Value placeholder={t('select-priority')} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {PRICING_PRIORITY_OPTIONS.map((option) => (
+                            <Select.Item
+                              key={option.label}
+                              value={option.value}
+                            >
+                              {t(option.label)}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                  </Form.Item>
                 )}
+              />
 
-                {appliesTo === 'product' && (
-                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-                    <Form.Field
-                      control={form.control}
-                      name="appliesProductIds"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('products-label')}</Form.Label>
-                          <Form.Control>
-                            <SelectProduct
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(normalizeMultipleValue(value))
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                )}
+              <div className="min-w-0 md:col-span-4">
+                <GeneralDateField
+                  control={form.control}
+                  name="startDate"
+                  label={t('start-date')}
+                  placeholder={t('select-start-date')}
+                />
+              </div>
 
-                {appliesTo === 'segment' && (
-                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-                    <Form.Field
-                      control={form.control}
-                      name="segmentId"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('segment-label')}</Form.Label>
-                          <Form.Control>
-                            <SelectSegment
-                              selected={field.value || undefined}
-                              onSelect={(id) => field.onChange(id)}
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                )}
-
-                {appliesTo === 'vendor' && (
-                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-                    <Form.Field
-                      control={form.control}
-                      name="vendorCompanyIds"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('vendors')}</Form.Label>
-                          <Form.Control>
-                            <SelectCompany
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(normalizeMultipleValue(value))
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                )}
-
-                {appliesTo === 'tag' && (
-                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-                    <Form.Field
-                      control={form.control}
-                      name="productTagIds"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('product-tags')}</Form.Label>
-                          <Form.Control>
-                            <SelectTags
-                              tagType="sales:product"
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(value as string[])
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      control={form.control}
-                      name="excludeTagIds"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('exclude-tags')}</Form.Label>
-                          <Form.Control>
-                            <SelectTags
-                              tagType="sales:product"
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(value as string[])
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      control={form.control}
-                      name="excludeProductIds"
-                      render={({ field }) => (
-                        <Form.Item className="lg:col-span-2">
-                          <Form.Label>{t('exclude-products')}</Form.Label>
-                          <Form.Control>
-                            <SelectProduct
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(normalizeMultipleValue(value))
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                )}
-
-                {appliesTo === 'bundle' && (
-                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-                    <Form.Field
-                      control={form.control}
-                      name="bundleProductIds"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('products-to-bundle')}</Form.Label>
-                          <Form.Control>
-                            <SelectProduct
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) =>
-                                field.onChange(normalizeMultipleValue(value))
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                )}
+              <div className="min-w-0 md:col-span-4">
+                <GeneralDateField
+                  control={form.control}
+                  name="endDate"
+                  label={t('end-date')}
+                  placeholder={t('select-end-date')}
+                />
               </div>
             </InfoCard.Content>
           </InfoCard>
@@ -663,5 +650,3 @@ export const GeneralInfo = ({
     </div>
   );
 };
-
-export default GeneralInfo;
