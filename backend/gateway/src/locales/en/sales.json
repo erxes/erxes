@@ -107,6 +107,8 @@
   "start-date": "Start Date",
   "end-date": "End Date",
   "close-date": "Close Date",
+  "stage-changed": "Stage changed",
+  "stage-changed-date": "Stage changed date",
   "date-created": "Date created",
   "created-date": "Created Date",
   "created-time": "Created Time",
