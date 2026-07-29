@@ -62,14 +62,14 @@ export const SelectBranchesProvider = ({
     const newSelectedBranchIds = isSingleMode
       ? [branch._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== branch._id)
-      : [...multipleValue, branch._id];
+        ? multipleValue.filter((p) => p !== branch._id)
+        : [...multipleValue, branch._id];
 
     const newSelectedBranches = isSingleMode
       ? [branch]
       : isSelected
-      ? selectedBranches.filter((p) => p._id !== branch._id)
-      : [...selectedBranches, branch];
+        ? selectedBranches.filter((p) => p._id !== branch._id)
+        : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
     onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
@@ -227,10 +227,10 @@ export const BranchesList = ({
     useSelectBranchesContext();
 
   const selectedBranchIds = value
-  ? Array.isArray(value)
-    ? value
-    : [value]
-  : [];;
+    ? Array.isArray(value)
+      ? value
+      : [value]
+    : [];
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
