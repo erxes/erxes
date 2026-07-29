@@ -14,6 +14,12 @@ const valueMatches = (actual: unknown, expected: string): boolean => {
   return String(actual ?? '') === expected;
 };
 
+export const hasFieldValue = (value: unknown): boolean => {
+  if (value === null || value === undefined || value === '') return false;
+  if (Array.isArray(value) && value.length === 0) return false;
+  return true;
+};
+
 export const isFieldVisibleByLogic = (
   field: Pick<IField, 'logics'>,
   valuesByFieldId: Record<string, unknown>,

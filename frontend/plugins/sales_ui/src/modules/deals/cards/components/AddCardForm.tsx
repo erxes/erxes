@@ -16,12 +16,13 @@ import {
   SelectMember,
   useFields,
 } from 'ui-modules';
-
+import { IconInfoCircle } from '@tabler/icons-react';
 import { SelectLabels } from '../../components/common/filters/SelectLabel';
 import WorkflowFields from './WorkflowFields';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
@@ -88,6 +89,12 @@ export function AddCardForm({
   const propertiesData = form.watch('propertiesData') || {};
 
   const { t } = useTranslation('sales');
+  const navigate = useNavigate();
+
+  const onConfigureProperties = () => {
+    onCloseSheet();
+    navigate('/settings/properties/sales:deal');
+  };
 
   return (
     <Form {...form}>
@@ -212,6 +219,16 @@ export function AddCardForm({
                 propertiesData={propertiesData}
                 onFieldChange={updateCustomFieldValue}
               />
+              <button
+                type="button"
+                onClick={onConfigureProperties}
+                className="mt-4 flex w-full cursor-pointer items-start gap-2.5 rounded-lg border border-info/40 bg-info/10 px-3 py-2.5 text-left text-xs text-info hover:bg-info/15"
+              >
+                <IconInfoCircle className="mt-0.5 size-3.5 shrink-0" />
+                <span className="cursor-pointer leading-5 underline underline-offset-2">
+                  {t('configure-properties-in-settings')}
+                </span>
+              </button>
             </div>
           </ScrollArea>
         </Sheet.Content>
