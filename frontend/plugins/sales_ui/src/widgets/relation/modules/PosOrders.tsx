@@ -4,6 +4,7 @@ import { IconReceipt } from '@tabler/icons-react';
 import { PosOrderRow } from './PosOrderRow';
 import { POS_ORDERS_BY_DEAL } from '../graphql/posOrdersByDeal';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 type IPosOrder = {
   _id: string;
@@ -17,6 +18,7 @@ type IPosOrder = {
 };
 
 export const PosOrders = ({ contentId }: { contentId: string }) => {
+  const { t } = useTranslation('sales');
   const { data, loading } = useQuery(POS_ORDERS_BY_DEAL, {
     variables: { dealId: contentId },
     skip: !contentId,
@@ -35,7 +37,12 @@ export const PosOrders = ({ contentId }: { contentId: string }) => {
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconReceipt />
         </div>
-        <span className="text-sm">No POS orders to display at the moment.</span>
+        <span className="text-sm">
+          {t(
+            'no-pos-orders-to-display',
+            'No POS orders to display at the moment.',
+          )}
+        </span>
       </div>
     );
   }

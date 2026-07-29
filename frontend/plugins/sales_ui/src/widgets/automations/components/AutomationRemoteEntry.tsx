@@ -28,11 +28,12 @@ const AutomationRemoteEntries = ({
   moduleName,
   ...props
 }: AutomationRemoteEntryProps & { moduleName: string }) => {
+  const { t } = useTranslation('sales');
   const RemoteComponent = Remotes[moduleName];
 
   return (
     <Suspense fallback={<Spinner />}>
-      <ErrorBoundary FallbackComponent={() => <div>Error </div>}>
+      <ErrorBoundary FallbackComponent={() => <div>{t('error', 'Error')} </div>}>
         <RemoteComponent {...props} />
       </ErrorBoundary>
     </Suspense>
