@@ -121,6 +121,7 @@ export const PRODUCTS_EDIT = gql`
       videos: $videos
     ) {
       _id
+      name
     }
   }
 `;

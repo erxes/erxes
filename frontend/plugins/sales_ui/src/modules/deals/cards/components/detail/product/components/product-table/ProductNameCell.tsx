@@ -36,13 +36,14 @@ export const ProductNameCell = ({
   hasDuplicateProduct: boolean;
 }) => {
   const product = cell.row.original.product;
+  const getCellName = () => (cell.getValue() as string | undefined) ?? '';
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState(cell.getValue() as string);
+  const [name, setName] = useState(getCellName);
   const singleClickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
   const cancelledRef = useRef(false);
-  const { updateRecord } = useUpdateProductRecord();
+  const { updateProductName } = useUpdateProductRecord();
   const actions = useAtomValue(productRowActionsAtom);
 
   const clearSingleClickTimeout = () => {
@@ -64,17 +65,15 @@ export const ProductNameCell = ({
   const onSave = () => {
     clearSingleClickTimeout();
     const trimmedName = name.trim();
-    if (trimmedName && trimmedName !== cell.getValue() && product) {
-      updateRecord(cell.row.original, {
-        product: { ...product, name: trimmedName },
-      });
+    if (trimmedName && trimmedName !== getCellName() && product) {
+      void updateProductName(cell.row.original, trimmedName);
     }
     setOpen(false);
   };
 
   const cancelEdit = () => {
     cancelledRef.current = true;
-    setName(cell.getValue() as string);
+    setName(getCellName());
     setOpen(false);
   };
 
@@ -90,7 +89,7 @@ export const ProductNameCell = ({
       singleClickTimeoutRef.current = null;
       // Re-seed the draft: the product may have been replaced or renamed
       // since this cell's state was initialized.
-      setName(cell.getValue() as string);
+      setName(getCellName());
       setOpen(true);
     }, SINGLE_CLICK_DELAY_MS);
   };
@@ -146,7 +145,7 @@ export const ProductNameCell = ({
       <RecordTableInlineCell.Content
         onEscapeKeyDown={() => {
           cancelledRef.current = true;
-          setName(cell.getValue() as string);
+          setName(getCellName());
         }}
       >
         <Input

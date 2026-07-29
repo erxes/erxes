@@ -3,6 +3,7 @@ import { toast, useQueryState } from 'erxes-ui';
 
 import { EDIT_DEALS } from '@/deals/graphql/mutations/DealsMutations';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -43,6 +44,7 @@ export function useDealsEdit(
       toast({
         title: t('deal-updated'),
         variant: 'success',
+        ...DEAL_TOAST_OPTIONS,
         ...toastOptions,
       });
       options?.onCompleted?.(...args);
@@ -52,6 +54,7 @@ export function useDealsEdit(
         title: t('error'),
         description: err.message || t('update-failed'),
         variant: 'destructive',
+        ...DEAL_TOAST_OPTIONS,
         ...toastOptions,
       });
     },
