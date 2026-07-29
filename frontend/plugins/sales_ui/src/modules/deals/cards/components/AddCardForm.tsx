@@ -150,6 +150,7 @@ export function AddCardForm({
                           mode="multiple"
                           value={field.value}
                           onValueChange={field.onChange}
+                          allowCreate
                         />
                       </Form.Control>
                       <Form.Message />
@@ -166,6 +167,7 @@ export function AddCardForm({
                         mode="multiple"
                         value={field.value}
                         onValueChange={field.onChange}
+                        allowCreate
                       />
                     </Form.Item>
                   )}

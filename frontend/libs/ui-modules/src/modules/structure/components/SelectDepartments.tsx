@@ -234,7 +234,11 @@ export const DepartmentsList = ({
   const { value, selectedDepartments, setSelectedDepartments, onSelect } =
     useSelectDepartmentsContext();
 
-  const selectedDepartmentIds = Array.isArray(value) ? value : [value];
+  const selectedDepartmentIds = value
+    ? Array.isArray(value)
+      ? value
+      : [value]
+    : [];
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;

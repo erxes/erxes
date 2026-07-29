@@ -226,7 +226,11 @@ export const BranchesList = ({
   const { value, selectedBranches, setSelectedBranches, onSelect } =
     useSelectBranchesContext();
 
-  const selectedBranchIds = Array.isArray(value) ? value : [value];
+  const selectedBranchIds = value
+  ? Array.isArray(value)
+    ? value
+    : [value]
+  : [];;
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
