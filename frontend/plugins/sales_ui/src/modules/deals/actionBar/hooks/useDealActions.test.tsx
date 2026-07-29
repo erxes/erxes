@@ -99,6 +99,38 @@ describe('useDealActions', () => {
     expect(mockSetSalesItemId).not.toHaveBeenCalled();
   });
 
+  it('clears only successfully removed detail state after a partial failure', async () => {
+    mockSalesItemId = 'deal-2';
+    mockRemoveDeals
+      .mockResolvedValueOnce({
+        data: { dealsRemove: { _id: 'deal-1' } },
+      })
+      .mockRejectedValueOnce(new Error('deal-2 failed'));
+    const { result } = renderHook(() =>
+      useDealActions({
+        deals: [
+          {
+            _id: 'deal-1',
+            isWatched: false,
+            status: 'archived',
+          },
+          {
+            _id: 'deal-2',
+            isWatched: false,
+            status: 'archived',
+          },
+        ],
+      }),
+    );
+
+    await expect(result.current.handleRemove()).rejects.toThrow(
+      'deal-2 failed',
+    );
+
+    expect(mockSetActiveDealId).toHaveBeenCalledWith(null);
+    expect(mockSetSalesItemId).not.toHaveBeenCalled();
+  });
+
   it('does not close an unrelated open detail', async () => {
     mockActiveDealId = 'deal-2';
     mockSalesItemId = 'deal-2';

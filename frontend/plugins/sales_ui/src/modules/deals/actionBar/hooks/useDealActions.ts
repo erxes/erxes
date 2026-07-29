@@ -83,16 +83,27 @@ export const useDealActions = ({
       message: t('remove-deals-confirm', { count }),
     });
 
-    await Promise.all(
+    const removalResults = await Promise.allSettled(
       dealIds.map((id) => removeDeals({ variables: { _id: id } })),
     );
+    const removedDealIds = dealIds.filter(
+      (_id, index) => removalResults[index].status === 'fulfilled',
+    );
 
-    if (activeDealId && dealIds.includes(activeDealId)) {
+    if (activeDealId && removedDealIds.includes(activeDealId)) {
       setActiveDealId(null);
     }
 
-    if (salesItemId && dealIds.includes(salesItemId)) {
+    if (salesItemId && removedDealIds.includes(salesItemId)) {
       setSalesItemId(null);
+    }
+
+    const failedRemoval = removalResults.find(
+      (result) => result.status === 'rejected',
+    );
+
+    if (failedRemoval?.status === 'rejected') {
+      throw failedRemoval.reason;
     }
   };
 
