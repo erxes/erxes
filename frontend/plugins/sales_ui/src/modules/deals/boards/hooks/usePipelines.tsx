@@ -77,9 +77,16 @@ export const usePipelines = (
         });
       }
 
-      void client.refetchQueries({
-        include: ['SalesPipelines', 'SalesBoards'],
-      });
+      void client
+        .refetchQueries({
+          include: ['SalesPipelines', 'SalesBoards'],
+        })
+        .catch((error: unknown) => {
+          toast({
+            title: error instanceof Error ? error.message : String(error),
+            variant: 'destructive',
+          });
+        });
     },
   });
 
