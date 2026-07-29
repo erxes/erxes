@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Combobox, Command, Popover } from 'erxes-ui';
+import { IconTags } from '@tabler/icons-react';
 import {
   SelectBranches,
   SelectCompany,
@@ -7,7 +8,7 @@ import {
   SelectDepartments,
   SelectMember,
   SelectStage,
-  SelectTags,
+  TagsSelect,
 } from 'ui-modules';
 
 import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
@@ -73,26 +74,24 @@ export const DealAssigneeChip = ({
 };
 
 export const DealTagsChip = ({ value, onValueChange }: ChipProps) => {
-  const [open, setOpen] = useState(false);
+  const tagIds = Array.isArray(value) ? value : value ? [value] : [];
 
   return (
-    <SelectTags.Provider
-      tagType="sales:deal"
+    <TagsSelect.Provider
+      value={tagIds}
       mode="multiple"
-      value={value}
-      onValueChange={(next) => {
-        if (next == null) return;
-        onValueChange(next);
-      }}
+      type="sales:deal"
+      onValueChange={onValueChange}
     >
-      <ChipPopover
-        open={open}
-        onOpenChange={setOpen}
-        value={<SelectTags.Value />}
-      >
-        <SelectTags.Content />
-      </ChipPopover>
-    </SelectTags.Provider>
+      <div className="flex flex-wrap items-center gap-2">
+        <IconTags className="size-5 ml-2" />
+        <TagsSelect.SelectedList />
+        <TagsSelect.Trigger variant="ICON" />
+        <Combobox.Content>
+          <TagsSelect.Content />
+        </Combobox.Content>
+      </div>
+    </TagsSelect.Provider>
   );
 };
 
