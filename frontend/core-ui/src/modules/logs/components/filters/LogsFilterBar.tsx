@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   IconCalendarPlus,
   IconHash,
@@ -5,12 +6,7 @@ import {
   IconSourceCode,
   IconTag,
 } from '@tabler/icons-react';
-import {
-  Combobox,
-  Filter,
-  Popover,
-  useFilterQueryState,
-} from 'erxes-ui';
+import { Combobox, Filter, Popover, useFilterQueryState } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 
 import { formatLogContentTypeLabel } from '@/logs/constants/logFilter';
@@ -20,80 +16,113 @@ import { LogSourceFilter } from './LogSourceFilter';
 import { LogStatusFilter } from './LogStatusFilter';
 import { LogsTotalCount } from '../LogsTotalCount';
 
-export const LogsFilterBar = () => {
+const LogStatusBarItem = () => {
   const [status] = useFilterQueryState<string>('status');
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Filter.BarItem queryKey="status">
+      <Filter.BarName>
+        <IconProgressCheck />
+        Status
+      </Filter.BarName>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <Filter.BarButton filterKey="status">
+            {status || 'Set value'}
+          </Filter.BarButton>
+        </Popover.Trigger>
+        <Combobox.Content>
+          <LogStatusFilter onValueChange={() => setOpen(false)} />
+        </Combobox.Content>
+      </Popover>
+    </Filter.BarItem>
+  );
+};
+
+const LogSourceBarItem = () => {
   const [source] = useFilterQueryState<string>('source');
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Filter.BarItem queryKey="source">
+      <Filter.BarName>
+        <IconSourceCode />
+        Source
+      </Filter.BarName>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <Filter.BarButton filterKey="source">
+            {source || 'Set value'}
+          </Filter.BarButton>
+        </Popover.Trigger>
+        <Combobox.Content>
+          <LogSourceFilter onValueChange={() => setOpen(false)} />
+        </Combobox.Content>
+      </Popover>
+    </Filter.BarItem>
+  );
+};
+
+const LogActionBarItem = () => {
   const [action] = useFilterQueryState<string>('action');
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Filter.BarItem queryKey="action">
+      <Filter.BarName>
+        <IconProgressCheck />
+        Action
+      </Filter.BarName>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <Filter.BarButton filterKey="action">
+            {action || 'Set value'}
+          </Filter.BarButton>
+        </Popover.Trigger>
+        <Combobox.Content>
+          <LogActionsFilter onValueChange={() => setOpen(false)} />
+        </Combobox.Content>
+      </Popover>
+    </Filter.BarItem>
+  );
+};
+
+const LogContentTypeBarItem = () => {
   const [contentType] = useFilterQueryState<string>('contentType');
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Filter.BarItem queryKey="contentType">
+      <Filter.BarName>
+        <IconTag />
+        Content Type
+      </Filter.BarName>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <Filter.BarButton filterKey="contentType">
+            {formatLogContentTypeLabel(contentType) || 'Set value'}
+          </Filter.BarButton>
+        </Popover.Trigger>
+        <Combobox.Content>
+          <LogContentTypeFilter onValueChange={() => setOpen(false)} />
+        </Combobox.Content>
+      </Popover>
+    </Filter.BarItem>
+  );
+};
+
+export const LogsFilterBar = () => {
+  const [source] = useFilterQueryState<string>('source');
   const [docId] = useFilterQueryState<string>('docId');
 
   return (
     <>
-      <Filter.BarItem queryKey="status">
-        <Filter.BarName>
-          <IconProgressCheck />
-          Status
-        </Filter.BarName>
-        <Popover>
-          <Popover.Trigger>
-            <Filter.BarButton>{status || 'Set value'}</Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <LogStatusFilter />
-          </Combobox.Content>
-        </Popover>
-      </Filter.BarItem>
-
-      <Filter.BarItem queryKey="source">
-        <Filter.BarName>
-          <IconSourceCode />
-          Source
-        </Filter.BarName>
-        <Popover>
-          <Popover.Trigger>
-            <Filter.BarButton>{source || 'Set value'}</Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <LogSourceFilter />
-          </Combobox.Content>
-        </Popover>
-      </Filter.BarItem>
-
-      {source && (
-        <Filter.BarItem queryKey="action">
-          <Filter.BarName>
-            <IconProgressCheck />
-            Action
-          </Filter.BarName>
-          <Popover>
-            <Popover.Trigger>
-              <Filter.BarButton>{action || 'Set value'}</Filter.BarButton>
-            </Popover.Trigger>
-            <Combobox.Content>
-              <LogActionsFilter />
-            </Combobox.Content>
-          </Popover>
-        </Filter.BarItem>
-      )}
-
+      <LogStatusBarItem />
+      <LogSourceBarItem />
+      {source && <LogActionBarItem />}
       <SelectMember.FilterBar queryKey="userIds" />
-
-      <Filter.BarItem queryKey="contentType">
-        <Filter.BarName>
-          <IconTag />
-          Content Type
-        </Filter.BarName>
-        <Popover>
-          <Popover.Trigger>
-            <Filter.BarButton>
-              {formatLogContentTypeLabel(contentType) || 'Set value'}
-            </Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <LogContentTypeFilter />
-          </Combobox.Content>
-        </Popover>
-      </Filter.BarItem>
+      <LogContentTypeBarItem />
 
       <Filter.BarItem queryKey="docId">
         <Filter.BarName>
