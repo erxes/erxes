@@ -46,7 +46,9 @@ function BoardItem({ board }: { board: IBoard }) {
     useMultiQueryState<TBoardSelection>(['boardId', 'pipelineId', 'stageId']);
 
   const isActive = boardId === board._id;
-  const pipelines = board.pipelines || [];
+  const pipelines = (board.pipelines || []).filter(
+    (pipeline) => pipeline.status !== 'archived',
+  );
 
   const [open, setOpen] = useState(isActive);
 
@@ -185,7 +187,7 @@ const ActionsMenu = () => {
       <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
         <DropdownMenu.Item
           className="cursor-pointer"
-          onSelect={(e) => {
+          onSelect={() => {
             navigate(`/settings/deals`);
           }}
         >
@@ -193,7 +195,7 @@ const ActionsMenu = () => {
           {t('manage-board-pipelines')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
-          onSelect={(e) => {
+          onSelect={() => {
             handleCopyLink();
           }}
           className="cursor-pointer"
@@ -237,7 +239,9 @@ const DealsNavigation = () => {
 
     if (!currentBoard) return;
 
-    const pipelines = currentBoard.pipelines || [];
+    const pipelines = (currentBoard.pipelines || []).filter(
+      (pipeline) => pipeline.status !== 'archived',
+    );
 
     if (pipelines.some((pipeline) => pipeline._id === pipelineId)) return;
 

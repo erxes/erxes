@@ -78,7 +78,7 @@ export const usePipelines = (
       }
 
       void client.refetchQueries({
-        include: ['SalesPipelines'],
+        include: ['SalesPipelines', 'SalesBoards'],
       });
     },
   });
@@ -145,7 +145,7 @@ export const usePipelineRemove = (
     variables: {
       ...options?.variables,
     },
-    refetchQueries: ['SalesPipelines'],
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
@@ -177,7 +177,7 @@ export const usePipelineAdd = () => {
     addPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards'],
       awaitRefetchQueries: true,
       update: (cache) => {
         cache.evict({ id: 'ROOT_QUERY', fieldName: 'salesStages' });
@@ -207,7 +207,7 @@ export const usePipelineEdit = () => {
     editPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines', 'SalesStages'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards', 'SalesStages'],
       awaitRefetchQueries: true,
       update: (cache, { data: { salesPipelinesEdit } }) => {
         if (salesPipelinesEdit) {
@@ -274,7 +274,7 @@ export const usePipelineArchive = (
         },
       });
     },
-    refetchQueries: ['SalesPipelines'],
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
@@ -305,7 +305,7 @@ export const usePipelineCopy = (
     variables: {
       ...options?.variables,
     },
-    refetchQueries: ['SalesPipelines'],
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
@@ -338,7 +338,7 @@ export const usePipelineUpdateOrder = (
       variables: {
         ...options?.variables,
       },
-      refetchQueries: ['SalesPipelines'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards'],
       awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
@@ -392,7 +392,7 @@ export const usePipelinesBulkRemove = () => {
       }
 
       // Single refetch after all operations complete
-      client.refetchQueries({ include: ['SalesPipelines'] });
+      client.refetchQueries({ include: ['SalesPipelines', 'SalesBoards'] });
 
       toast({
         title: t('success'),
