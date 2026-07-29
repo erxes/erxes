@@ -4,8 +4,15 @@
   "private": true,
   "description": "One-off database migration scripts, consolidated per domain, with a unified runner.",
   "scripts": {
+    "import:wordpress": "node --import tsx ./content/wordpress/importWordPress.ts",
     "migrate": "tsx ./run.ts",
     "migrate:list": "tsx ./run.ts --list",
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "erxes-api-shared": "workspace:*",
+    "fast-xml-parser": "5.10.1",
+    "nanoid": "3.3.11",
+    "undici": "6.27.0"
   }
 }
