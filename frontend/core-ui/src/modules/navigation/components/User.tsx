@@ -10,19 +10,17 @@ export function User() {
   if (!userDetail) return null;
 
   return (
-    <div className="flex items-center gap-2 h-auto p-2">
-      <Avatar className="h-8 w-8 rounded-lg">
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <Avatar className="size-8 shrink-0">
         <Avatar.Image
           src={readImage(userDetail?.avatar || '')}
           alt={userDetail?.fullName || ''}
         />
-        <Avatar.Fallback className="rounded-lg">
-          {userDetail?.fullName?.split('')[0]}
-        </Avatar.Fallback>
+        <Avatar.Fallback>{userDetail?.fullName?.split('')[0]}</Avatar.Fallback>
       </Avatar>
-      <div className="grid flex-1 text-left text-sm leading-tight">
+      <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
         <span className="truncate font-semibold">{userDetail?.fullName}</span>
-        <span className="truncate text-xs text-accent-foreground font-medium">
+        <span className="truncate text-xs font-medium text-accent-foreground">
           {currentUser.email}
         </span>
       </div>

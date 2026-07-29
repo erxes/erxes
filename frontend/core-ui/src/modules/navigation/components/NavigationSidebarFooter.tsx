@@ -3,7 +3,13 @@ import { SelectLanguages } from '@/navigation/components/SelectLanguages';
 import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { User } from '@/navigation/components/User';
 import { AppPath } from '@/types/paths/AppPath';
-import { IconSettings } from '@tabler/icons-react';
+import { SettingsPath } from '@/types/paths/SettingsPath';
+import {
+  IconChevronRight,
+  IconLogout,
+  IconSettings,
+  IconUserCircle,
+} from '@tabler/icons-react';
 import { Avatar, Button, cn, DropdownMenu, readImage } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -67,7 +73,7 @@ export const NavigationSidebarFooter = ({
             className={cn(
               'rounded-md',
               expanded
-                ? 'h-7 w-full justify-start gap-2 px-2 text-sm'
+                ? 'h-10 w-full justify-start gap-2 px-2 text-sm'
                 : 'size-7 justify-center px-0',
             )}
             size={expanded ? 'default' : 'icon'}
@@ -83,17 +89,49 @@ export const NavigationSidebarFooter = ({
               </Avatar.Fallback>
             </Avatar>
             {expanded && (
-              <span className="min-w-0 truncate font-medium">{userName}</span>
+              <span className="grid min-w-0 flex-1 text-left leading-tight">
+                <span className="truncate font-medium">{userName}</span>
+                <span className="truncate text-[11px] text-muted-foreground">
+                  {currentUser?.email}
+                </span>
+              </span>
             )}
           </Button>
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end" className="space-y-1" side="right">
-          <User />
+        <DropdownMenu.Content
+          align={expanded ? 'start' : 'end'}
+          alignOffset={expanded ? -8 : 0}
+          className="w-52 min-w-52! space-y-0.5 p-1.5"
+          side={expanded ? 'top' : 'right'}
+          sideOffset={8}
+        >
+          <DropdownMenu.Item asChild className="p-2">
+            <Link to={`/${AppPath.Settings}/${SettingsPath.Profile}`}>
+              <User />
+              <IconChevronRight className="text-muted-foreground" />
+            </Link>
+          </DropdownMenu.Item>
           <DropdownMenu.Separator />
+          <DropdownMenu.Item asChild className="h-9 text-sm">
+            <Link to={`/${AppPath.Settings}/${SettingsPath.Profile}`}>
+              <IconUserCircle />
+              {sidebarT('profile')}
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item asChild className="h-9 text-sm">
+            <Link to={`/${AppPath.Settings}`}>
+              <IconSettings />
+              {organizationT('settings')}
+            </Link>
+          </DropdownMenu.Item>
           <ThemeSelector />
           <SelectLanguages />
           <DropdownMenu.Separator />
-          <DropdownMenu.Item className="text-sm" onClick={() => handleLogout()}>
+          <DropdownMenu.Item
+            className="h-9 text-sm"
+            onClick={() => handleLogout()}
+          >
+            <IconLogout />
             {organizationT('logout')}
           </DropdownMenu.Item>
         </DropdownMenu.Content>

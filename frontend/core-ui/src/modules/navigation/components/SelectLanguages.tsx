@@ -9,7 +9,7 @@ export const SelectLanguages = () => {
 
   const getLanguageName = (language: AvailableLanguage) => {
     return (
-      Object.entries(INTL_LANGUAGES).find(([_, code]) =>
+      Object.entries(INTL_LANGUAGES).find(([, code]) =>
         code.includes(language + '-'),
       )?.[0] || language
     );
@@ -18,7 +18,8 @@ export const SelectLanguages = () => {
 
   return (
     <DropdownMenu.Sub>
-      <DropdownMenu.SubTrigger>
+      <DropdownMenu.SubTrigger className="h-9">
+        <IconLanguage />
         {t('change-language')}
         <IconChevronRight className="ml-auto" />
       </DropdownMenu.SubTrigger>

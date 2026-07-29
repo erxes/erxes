@@ -1,62 +1,53 @@
-import { IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
-import { ThemeOption, themeState, ToggleGroup, Tooltip } from 'erxes-ui';
+import {
+  IconChevronRight,
+  IconDeviceLaptop,
+  IconMoon,
+  IconPalette,
+  IconSun,
+} from '@tabler/icons-react';
+import { DropdownMenu, ThemeOption, themeState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+
+const isThemeOption = (value: string): value is ThemeOption =>
+  value === 'light' || value === 'dark' || value === 'system';
 
 export const ThemeSelector = () => {
   const [theme, setTheme] = useAtom(themeState);
   const { t } = useTranslation('organization');
 
   return (
-    <div className="flex items-center gap-2 px-2 font-medium h-7 text-sm">
-      {t('change-theme')}
-      <Tooltip.Provider delayDuration={100}>
-        <ToggleGroup
-          value={theme}
-          type="single"
-          size="sm"
-          className="ml-auto h-6 bg-accent rounded gap-0.5 text-accent-foreground"
-          onValueChange={(value) => value && setTheme(value as ThemeOption)}
-        >
-          <Tooltip>
-            <ToggleGroup.Item
-              value="light"
-              className="data-[state=on]:bg-background h-full data-[state=on]:shadow-sm px-1 min-w-6"
-              asChild
-            >
-              <Tooltip.Trigger>
-                <IconSun />
-              </Tooltip.Trigger>
-            </ToggleGroup.Item>
-            <Tooltip.Content alignOffset={4}>{t('light')}</Tooltip.Content>
-          </Tooltip>
-          <Tooltip>
-            <ToggleGroup.Item
-              value="dark"
-              className="data-[state=on]:bg-background h-full data-[state=on]:shadow-sm px-1 min-w-6"
-              asChild
-            >
-              <Tooltip.Trigger>
-                <IconMoon />
-              </Tooltip.Trigger>
-            </ToggleGroup.Item>
-            <Tooltip.Content alignOffset={4}>{t('dark')}</Tooltip.Content>
-          </Tooltip>
-          <Tooltip>
-            <ToggleGroup.Item
-              value="system"
-              className="data-[state=on]:bg-background h-full data-[state=on]:shadow-sm px-1 min-w-6"
-              asChild
-            >
-              <Tooltip.Trigger>
-                <IconDeviceLaptop />
-              </Tooltip.Trigger>
-            </ToggleGroup.Item>
-
-            <Tooltip.Content alignOffset={4}>{t('system')}</Tooltip.Content>
-          </Tooltip>
-        </ToggleGroup>
-      </Tooltip.Provider>
-    </div>
+    <DropdownMenu.Sub>
+      <DropdownMenu.SubTrigger className="h-9">
+        <IconPalette />
+        {t('change-theme')}
+        <IconChevronRight className="ml-auto" />
+      </DropdownMenu.SubTrigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.SubContent className="min-w-44" sideOffset={8}>
+          <DropdownMenu.RadioGroup
+            value={theme}
+            onValueChange={(value) => {
+              if (isThemeOption(value)) {
+                setTheme(value);
+              }
+            }}
+          >
+            <DropdownMenu.RadioItem value="light">
+              <IconSun />
+              {t('light')}
+            </DropdownMenu.RadioItem>
+            <DropdownMenu.RadioItem value="dark">
+              <IconMoon />
+              {t('dark')}
+            </DropdownMenu.RadioItem>
+            <DropdownMenu.RadioItem value="system">
+              <IconDeviceLaptop />
+              {t('system')}
+            </DropdownMenu.RadioItem>
+          </DropdownMenu.RadioGroup>
+        </DropdownMenu.SubContent>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Sub>
   );
 };

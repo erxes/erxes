@@ -2,7 +2,8 @@ export type TVisitedPageTabShortcut =
   | 'close-all'
   | 'close-current'
   | 'next'
-  | 'previous';
+  | 'previous'
+  | 'toggle-visibility';
 
 interface IVisitedPageTabShortcutEvent {
   altKey: boolean;
@@ -45,6 +46,10 @@ export const getVisitedPageTabShortcut = ({
 
   if (code === 'KeyW') {
     return 'close-current';
+  }
+
+  if (code === 'KeyT') {
+    return 'toggle-visibility';
   }
 
   return null;

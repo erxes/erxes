@@ -2,6 +2,7 @@ import { VisitedPageTabsShortcutGuide } from '@/navigation/components/VisitedPag
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
 import { useVisitedPageTabs } from '@/navigation/hooks/useVisitedPageTabs';
+import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import {
   getAdjacentVisitedPageTabPathname,
@@ -34,8 +35,15 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconApps, IconFile, IconX } from '@tabler/icons-react';
+import {
+  IconApps,
+  IconFile,
+  IconLayoutNavbarCollapse,
+  IconLayoutNavbarExpand,
+  IconX,
+} from '@tabler/icons-react';
 import { Button, cn, ScrollArea, Sidebar, Tabs } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import type { ComponentProps, ElementType, ReactNode } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -198,6 +206,7 @@ const VisitedPageTabsContent = ({
 
 export const VisitedPageTabs = () => {
   const { i18n, t } = useTranslation('common');
+  const [tabsVisible, setTabsVisible] = useAtom(visitedPageTabsVisibleState);
   const activities = useNavigationActivities();
   const modules = usePluginsModules() ?? [];
   const {
@@ -232,6 +241,8 @@ export const VisitedPageTabs = () => {
   const isMac = isMacPlatform();
   const closeAriaShortcut = isMac ? 'Meta+Alt+W' : 'Control+Alt+W';
   const closeShortcutLabel = isMac ? '⌘ ⌥ W' : 'Ctrl Alt W';
+  const toggleTabsAriaShortcut = isMac ? 'Meta+Alt+T' : 'Control+Alt+T';
+  const toggleTabsShortcutLabel = isMac ? '⌘ ⌥ T' : 'Ctrl Alt T';
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (
@@ -254,6 +265,11 @@ export const VisitedPageTabs = () => {
       event.preventDefault();
 
       if (event.repeat) {
+        return;
+      }
+
+      if (tabShortcut === 'toggle-visibility') {
+        setTabsVisible((visible) => !visible);
         return;
       }
 
@@ -311,9 +327,27 @@ export const VisitedPageTabs = () => {
     closeAllVisitedPageTabs,
     closeVisitedPageTab,
     openVisitedPageTab,
+    setTabsVisible,
     tabs,
     toggleSidebar,
   ]);
+
+  if (!tabsVisible) {
+    return (
+      <Button
+        aria-keyshortcuts={toggleTabsAriaShortcut}
+        aria-label={t('navigation.show-tabs-row')}
+        className="fixed top-1 right-2 z-40 size-8 shrink-0 border bg-background text-muted-foreground shadow-sm"
+        onClick={() => setTabsVisible(true)}
+        size="icon"
+        title={`${t('navigation.show-tabs-row')} (${toggleTabsShortcutLabel})`}
+        type="button"
+        variant="ghost"
+      >
+        <IconLayoutNavbarExpand className="size-4" />
+      </Button>
+    );
+  }
 
   const tabPathnames = tabs.map((tab) => tab.pathname);
   const tabItems = tabs.map((tab) => {
@@ -368,6 +402,18 @@ export const VisitedPageTabs = () => {
           {tabItems}
         </VisitedPageTabsContent>
       </div>
+      <Button
+        aria-keyshortcuts={toggleTabsAriaShortcut}
+        aria-label={t('navigation.hide-tabs-row')}
+        className="size-8 shrink-0 text-muted-foreground"
+        onClick={() => setTabsVisible(false)}
+        size="icon"
+        title={`${t('navigation.hide-tabs-row')} (${toggleTabsShortcutLabel})`}
+        type="button"
+        variant="ghost"
+      >
+        <IconLayoutNavbarCollapse className="size-4" />
+      </Button>
       <VisitedPageTabsShortcutGuide />
     </nav>
   );
