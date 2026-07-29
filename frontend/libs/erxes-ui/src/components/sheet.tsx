@@ -61,7 +61,8 @@ export const SheetPortal = ({
 SheetPortal.displayName = SheetPrimitive.Portal.displayName;
 
 interface SheetContentProps
-  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+  extends
+    React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
 const SheetView = React.forwardRef<
