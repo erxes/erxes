@@ -91,7 +91,7 @@ export const generateFilter = async (
   Object.assign(
     filter,
     status
-      ? { status, parentId: undefined }
+      ? { status }
       : noSkipArchive
         ? {}
         : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
