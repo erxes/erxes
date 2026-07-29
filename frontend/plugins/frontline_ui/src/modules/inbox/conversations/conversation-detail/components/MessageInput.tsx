@@ -498,10 +498,11 @@ export const MessageInput = ({
             </div>
             <button
               type="button"
+              aria-label="Cancel reply"
               onClick={() => setDiscordReplyTo(null)}
               className="flex-none text-muted-foreground hover:text-foreground"
             >
-              <IconX size={14} />
+              <IconX size={14} aria-hidden="true" />
             </button>
           </div>
         )}

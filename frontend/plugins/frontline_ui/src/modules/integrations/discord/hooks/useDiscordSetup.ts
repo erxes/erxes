@@ -176,22 +176,24 @@ export const useDiscordConversationChannel = (
 };
 
 export const useDiscordConversationChannels = (conversationIds: string[]) => {
-  const { data, loading } = useQuery<{
+  const { data, previousData, loading } = useQuery<{
     discordConversationChannels: DiscordConversationChannel[];
   }>(DISCORD_CONVERSATION_CHANNELS, {
     variables: { conversationIds },
     skip: conversationIds.length === 0,
   });
 
+  const resolved = data ?? previousData;
+
   const channelMap = useMemo(() => {
     const map = new Map<string, DiscordConversationChannel>();
-    for (const item of data?.discordConversationChannels ?? []) {
+    for (const item of resolved?.discordConversationChannels ?? []) {
       if (item.conversationId) {
         map.set(item.conversationId, item);
       }
     }
     return map;
-  }, [data]);
+  }, [resolved]);
 
   return { channelMap, loading };
 };

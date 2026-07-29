@@ -233,10 +233,12 @@ export const DiscordIntegrationDetail = () => {
       return;
     }
 
-    try {
-      for (const channel of channels) {
-        const channelName = channel.label.replace(/^#/, '');
-        const displayName = `${values.name} - #${channelName}`;
+    const failed: MultiSelectOption[] = [];
+
+    for (const channel of channels) {
+      const channelName = channel.label.replace(/^#/, '');
+      const displayName = `${values.name} - #${channelName}`;
+      try {
         await addIntegration({
           variables: {
             kind: IntegrationType.DISCORD_MESSENGER,
@@ -257,13 +259,20 @@ export const DiscordIntegrationDetail = () => {
             },
           },
         });
+      } catch {
+        failed.push(channel);
       }
-
-      void refetchNamePresets();
-      setOpen(false);
-      reset();
-    } catch {
     }
+
+    void refetchNamePresets();
+
+    if (failed.length) {
+      setChannels(failed);
+      return;
+    }
+
+    setOpen(false);
+    reset();
   };
 
   const inviteUrl =

@@ -149,7 +149,7 @@ export const MessageItem = () => {
               <DiscordMessageActions
                 conversationId={conversationId || ''}
                 messageId={extraData.discordMessageId}
-                content={displayContent}
+                content={hasTextBubble ? displayContent : undefined}
                 isOwnMessage={Boolean(userId) || Boolean(fromBot)}
               />
             </div>

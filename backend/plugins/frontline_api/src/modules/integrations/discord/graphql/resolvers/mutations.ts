@@ -37,7 +37,37 @@ const resolveChannelContext = async (
     token: bot.token,
     channelId: conversation.channelId,
     channelName: conversation.channelName,
+    mirrorConversationId: conversation._id,
   };
+};
+
+const resolveOwnMessageContext = async (
+  models: IModels,
+  conversationId: string,
+  messageId: string,
+) => {
+  if (!messageId) {
+    throw new Error('Message id is required');
+  }
+
+  const context = await resolveChannelContext(models, conversationId);
+
+  const message = await models.DiscordConversationMessages.findOne({
+    messageId: { $eq: messageId },
+    conversationId: context.mirrorConversationId,
+  });
+
+  if (!message) {
+    throw new Error('This message is not part of this conversation');
+  }
+
+  if (!message.userId && !message.fromBot) {
+    throw new Error(
+      'Only messages sent from erxes can be edited or deleted — Discord does not allow acting on another author’s message',
+    );
+  }
+
+  return context;
 };
 
 const CANNOT_EDIT_OTHERS_MESSAGE = 50005;
@@ -109,9 +139,10 @@ export const discordMutations = {
       throw new Error('Message content is required');
     }
 
-    const { token, channelId, channelName } = await resolveChannelContext(
+    const { token, channelId, channelName } = await resolveOwnMessageContext(
       models,
       conversationId,
+      messageId,
     );
     await runMessageAction('edit', channelName, () =>
       editChannelMessage(token, channelId, messageId, text),
@@ -124,9 +155,10 @@ export const discordMutations = {
     { conversationId, messageId }: { conversationId: string; messageId: string },
     { models }: IContext,
   ) => {
-    const { token, channelId, channelName } = await resolveChannelContext(
+    const { token, channelId, channelName } = await resolveOwnMessageContext(
       models,
       conversationId,
+      messageId,
     );
     await runMessageAction('delete', channelName, () =>
       deleteChannelMessage(token, channelId, messageId),

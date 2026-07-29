@@ -36,9 +36,8 @@ const stripToText = (html?: string): string => {
   if (!html) {
     return '';
   }
-  const el = document.createElement('div');
-  el.innerHTML = html;
-  return (el.textContent || el.innerText || '').trim();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return (doc.body.textContent || '').trim();
 };
 
 const copyToClipboard = async (value: string, success: string) => {
