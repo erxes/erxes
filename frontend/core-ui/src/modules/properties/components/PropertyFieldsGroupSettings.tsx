@@ -1,13 +1,39 @@
+import { Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { useFieldGroups } from 'ui-modules';
+import { PropertiesCommandBar } from './record/PropertiesCommandBar';
+import { PropertiesGroupSection } from './record/PropertiesGroupSection';
 import { PropertyGroupEditSheet } from './PropertyGroupEdit';
-import { PropertiesFilterBar } from './record/PropertiesFilterBar';
-import { PropertiesTable } from './record/PropertiesTable';
 
 export const PropertyFieldsGroupSettings = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { type: contentType } = useParams<{ type: string }>();
+  const { fieldGroups, loading } = useFieldGroups({
+    contentType: contentType || '',
+  });
+
   return (
-    <div className="size-full overflow-hidden flex flex-col">
+    <>
       <PropertyGroupEditSheet />
-      <PropertiesFilterBar />
-      <PropertiesTable />
-    </div>
+      <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
+        {loading ? (
+          <Spinner containerClassName="py-12" />
+        ) : fieldGroups.length === 0 ? (
+          <div className="py-12 text-center text-muted-foreground">
+            {t('no-groups-found', 'No field groups found')}
+          </div>
+        ) : (
+          fieldGroups.map((group) => (
+            <PropertiesGroupSection
+              key={group._id}
+              group={group}
+              contentType={contentType || ''}
+            />
+          ))
+        )}
+      </div>
+      <PropertiesCommandBar />
+    </>
   );
 };

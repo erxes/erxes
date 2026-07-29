@@ -1,5 +1,5 @@
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import type { Cell, ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef, Cell } from '@tanstack/react-table';
 import {
   Badge,
   Checkbox,
@@ -12,27 +12,83 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import type { TFunction } from 'i18next';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Can, CORE_RELATION_TYPES, IField } from 'ui-modules';
 import { FIELD_TYPES_OBJECT } from '../../constants/fieldTypes';
 import { useEditProperty } from '../../hooks/useEditProperty';
 import { useFieldRemove } from '../../hooks/useFieldRemove';
+import { selectedFieldIdsState } from '../../states/selectedFieldsState';
 
-const propertiesCheckboxColumn: ColumnDef<IField> = {
-  ...(RecordTable.checkboxColumn as ColumnDef<IField>),
-  cell: ({ row }) => (
+const PropertiesCheckboxCell = ({ id }: { id: string }) => {
+  const [selectedFieldIds, setSelectedFieldIds] = useAtom(
+    selectedFieldIdsState,
+  );
+
+  return (
     <div
       className="flex items-center justify-center"
       onClick={(e) => e.stopPropagation()}
     >
       <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        checked={!!selectedFieldIds[id]}
+        onCheckedChange={(value) =>
+          setSelectedFieldIds((prev) => {
+            const isChecked = !!value;
+            if (isChecked === !!prev[id]) return prev;
+            const next = { ...prev };
+            if (isChecked) {
+              next[id] = true;
+            } else {
+              delete next[id];
+            }
+            return next;
+          })
+        }
       />
     </div>
-  ),
+  );
 };
+
+const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
+  const [selectedFieldIds, setSelectedFieldIds] = useAtom(
+    selectedFieldIdsState,
+  );
+  const allSelected =
+    ids.length > 0 && ids.every((id) => selectedFieldIds[id]);
+  const someSelected = ids.some((id) => selectedFieldIds[id]);
+
+  return (
+    <div className="flex items-center justify-center h-8">
+      <Checkbox
+        checked={allSelected || (someSelected && 'indeterminate')}
+        onCheckedChange={(value) =>
+          setSelectedFieldIds((prev) => {
+            const isChecked = !!value;
+            const next = { ...prev };
+            ids.forEach((id) => {
+              if (isChecked) {
+                next[id] = true;
+              } else {
+                delete next[id];
+              }
+            });
+            return next;
+          })
+        }
+      />
+    </div>
+  );
+};
+
+const buildCheckboxColumn = (ids: string[]): ColumnDef<IField> => ({
+  id: 'checkbox',
+  accessorKey: 'checkbox',
+  header: () => <PropertiesHeaderCheckboxCell ids={ids} />,
+  cell: ({ row }) => <PropertiesCheckboxCell id={row.original._id} />,
+  size: 33,
+});
 
 const PropertiesMoreColumnCell = ({
   cell,
@@ -45,6 +101,7 @@ const PropertiesMoreColumnCell = ({
   const { _id, groupId } = cell.row.original;
   const { confirm } = useConfirm();
   const { removeField, loading } = useFieldRemove();
+  const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
 
   const handleDelete = () => {
     confirm({
@@ -54,6 +111,12 @@ const PropertiesMoreColumnCell = ({
       ),
     }).then(() => {
       removeField({ variables: { id: _id } });
+      setSelectedFieldIds((prev) => {
+        if (!prev[_id]) return prev;
+        const next = { ...prev };
+        delete next[_id];
+        return next;
+      });
     });
   };
 
@@ -122,14 +185,39 @@ const PropertyToggleCell = ({
   );
 };
 
+const buildGroupColumn = (
+  t: TFunction,
+  groupNameById: Record<string, string>,
+): ColumnDef<IField> => ({
+  id: 'group',
+  accessorKey: 'groupId',
+  header: () => <RecordTable.InlineHead label={t('group', 'Group')} />,
+  cell: ({ cell }) => {
+    const { groupId } = cell.row.original;
+    return (
+      <RecordTableInlineCell>
+        <span className="truncate text-muted-foreground">
+          {(groupId && groupNameById[groupId]) || '—'}
+        </span>
+      </RecordTableInlineCell>
+    );
+  },
+  size: 160,
+});
+
 export const propertiesColumns = (
   t: TFunction,
   {
     groupNameById,
     contentType,
-  }: { groupNameById: Record<string, string>; contentType: string },
+    fieldIds,
+  }: {
+    groupNameById?: Record<string, string>;
+    contentType: string;
+    fieldIds: string[];
+  },
 ): ColumnDef<IField>[] => [
-  propertiesCheckboxColumn,
+  buildCheckboxColumn(fieldIds),
   {
     id: 'name',
     accessorKey: 'name',
@@ -179,22 +267,7 @@ export const propertiesColumns = (
     },
     size: 200,
   },
-  {
-    id: 'group',
-    accessorKey: 'groupId',
-    header: () => <RecordTable.InlineHead label={t('group', 'Group')} />,
-    cell: ({ cell }) => {
-      const { groupId } = cell.row.original;
-      return (
-        <RecordTableInlineCell>
-          <span className="truncate text-muted-foreground">
-            {(groupId && groupNameById[groupId]) || '—'}
-          </span>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 160,
-  },
+  ...(groupNameById ? [buildGroupColumn(t, groupNameById)] : []),
   {
     id: 'isVisible',
     accessorKey: 'isVisible',

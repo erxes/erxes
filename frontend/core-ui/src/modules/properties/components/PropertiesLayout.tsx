@@ -1,3 +1,4 @@
+import { ScrollArea } from 'erxes-ui';
 import { PropertiesSidebar } from './PropertiesSidebar';
 
 export const PropertiesLayout = ({
@@ -8,7 +9,7 @@ export const PropertiesLayout = ({
   return (
     <div className="flex flex-auto overflow-hidden">
       <PropertiesSidebar />
-      <div className="flex-auto overflow-hidden">{children}</div>
+      <ScrollArea className="flex-auto">{children}</ScrollArea>
     </div>
   );
 };
