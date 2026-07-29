@@ -679,6 +679,7 @@
   "sort-close-desc": "Date assigned (Latest first)",
   "sort-alphabetically": "Alphabetically",
   "showing-of": "Showing {{current}} of {{total}}",
+  "count-out-of": "{{current}} out of {{total}}",
   "please-select-document": "Please select a document",
   "please-select-at-least-one-deal": "Please select at least one deal",
   "an-error-occurred": "An error occurred",

@@ -678,6 +678,7 @@
   "sort-close-desc": "Хариуцуулсан огноо (Хожуу эхэлж)",
   "sort-alphabetically": "Цагаан толгойн дарааллаар",
   "showing-of": "{{current}}-г {{total}}-аас харуулж байна",
+  "count-out-of": "{{total}}-аас {{current}}",
   "please-select-document": "Баримт сонгоно уу",
   "please-select-at-least-one-deal": "Дор хаяж нэг хэлцэл сонгоно уу",
   "an-error-occurred": "Алдаа гарлаа",
