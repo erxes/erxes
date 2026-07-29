@@ -77,9 +77,16 @@ export const usePipelines = (
         });
       }
 
-      void client.refetchQueries({
-        include: ['SalesPipelines'],
-      });
+      void client
+        .refetchQueries({
+          include: ['SalesPipelines', 'SalesBoards'],
+        })
+        .catch((error: unknown) => {
+          toast({
+            title: error instanceof Error ? error.message : String(error),
+            variant: 'destructive',
+          });
+        });
     },
   });
 
@@ -145,7 +152,7 @@ export const usePipelineRemove = (
     variables: {
       ...options?.variables,
     },
-    refetchQueries: ['SalesPipelines'],
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
@@ -177,7 +184,7 @@ export const usePipelineAdd = () => {
     addPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards'],
       awaitRefetchQueries: true,
       update: (cache) => {
         cache.evict({ id: 'ROOT_QUERY', fieldName: 'salesStages' });
@@ -207,7 +214,7 @@ export const usePipelineEdit = () => {
     editPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines', 'SalesStages'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards', 'SalesStages'],
       awaitRefetchQueries: true,
       update: (cache, { data: { salesPipelinesEdit } }) => {
         if (salesPipelinesEdit) {
@@ -274,7 +281,7 @@ export const usePipelineArchive = (
         },
       });
     },
-    refetchQueries: ['SalesPipelines'],
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
@@ -305,7 +312,7 @@ export const usePipelineCopy = (
     variables: {
       ...options?.variables,
     },
-    refetchQueries: ['SalesPipelines'],
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
@@ -338,7 +345,7 @@ export const usePipelineUpdateOrder = (
       variables: {
         ...options?.variables,
       },
-      refetchQueries: ['SalesPipelines'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards'],
       awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
@@ -385,14 +392,19 @@ export const usePipelinesBulkRemove = () => {
       );
 
       const failures = results.filter((result) => result.status === 'rejected');
+
+      // Some deletions can land even when others fail, so refresh before
+      // reporting either outcome — and wait for it, or the caller sees
+      // "success" while the table still lists removed pipelines.
+      await client.refetchQueries({
+        include: ['SalesPipelines', 'SalesBoards'],
+      });
+
       if (failures.length > 0) {
         throw new Error(
           t('failed-to-delete-pipelines', { count: failures.length }),
         );
       }
-
-      // Single refetch after all operations complete
-      client.refetchQueries({ include: ['SalesPipelines'] });
 
       toast({
         title: t('success'),
