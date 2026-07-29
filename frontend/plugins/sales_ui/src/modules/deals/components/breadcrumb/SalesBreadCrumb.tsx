@@ -1,4 +1,10 @@
-import { Breadcrumb, Button, Separator, Skeleton } from 'erxes-ui';
+import {
+  Breadcrumb,
+  Button,
+  Separator,
+  Skeleton,
+  TextOverflowTooltip,
+} from 'erxes-ui';
 import { IconCards, IconLayoutCards } from '@tabler/icons-react';
 
 import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
@@ -36,11 +42,14 @@ export const SalesBreadCrumb = ({
     <>
       {boardDetail && (
         <>
-          <Breadcrumb.Item>
-            <Button variant="ghost" asChild>
+          <Breadcrumb.Item className="min-w-0">
+            <Button variant="ghost" asChild className="min-w-0">
               <span className="flex items-center gap-1">
                 <IconLayoutCards />
-                {boardDetail?.name}
+                <TextOverflowTooltip
+                  value={boardDetail.name}
+                  className="min-w-0"
+                />
               </span>
             </Button>
           </Breadcrumb.Item>
@@ -49,16 +58,19 @@ export const SalesBreadCrumb = ({
       )}
 
       {pipelineDetail && (
-        <Breadcrumb.Item>
-          <Button variant="ghost" asChild>
+        <Breadcrumb.Item className="min-w-0">
+          <Button variant="ghost" asChild className="min-w-0">
             <span className="flex items-center gap-1">
               <IconCards />
-              {pipelineDetail?.name}
+              <TextOverflowTooltip
+                value={pipelineDetail.name}
+                className="min-w-0"
+              />
             </span>
           </Button>
         </Breadcrumb.Item>
       )}
-      <Breadcrumb.Item className="ml-1">
+      <Breadcrumb.Item className="ml-1 shrink-0">
         <FavoriteToggleIconButton
           breadcrumb={breadcrumb}
           icon="IconBriefcase"

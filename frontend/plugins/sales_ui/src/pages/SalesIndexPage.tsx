@@ -34,14 +34,14 @@ export const SalesIndexPage = () => {
     <div className="flex h-full overflow-hidden w-full">
       <div className="flex flex-col h-full w-full overflow-hidden">
         <PageHeader>
-          <PageHeader.Start>
-            <Breadcrumb>
-              <Breadcrumb.List className="gap-1">
-                <Breadcrumb.Item>
+          <PageHeader.Start className="flex-1 min-w-0">
+            <Breadcrumb className="min-w-0">
+              <Breadcrumb.List className="gap-1 flex-nowrap min-w-0">
+                <Breadcrumb.Item className="shrink-0">
                   <Button variant="ghost" asChild>
                     <Link to="/sales/deal">
                       <IconSandbox />
-                      {t('sales-pipeline')}
+                      {t('sales-pipeline', 'Sales Pipeline')}
                     </Link>
                   </Button>
                 </Breadcrumb.Item>
@@ -52,14 +52,14 @@ export const SalesIndexPage = () => {
               </Breadcrumb.List>
             </Breadcrumb>
           </PageHeader.Start>
-          <PageHeader.End>
+          <PageHeader.End className="flex-none">
             <CommonDealSearch />
             <Button variant="ghost" asChild>
               <Link
                 to={`/settings/sales/deals?${settingsSearchParams.toString()}`}
               >
                 <IconSettings />
-                {t('go-to-settings')}
+                {t('go-to-settings', 'Go to Settings')}
               </Link>
             </Button>
           </PageHeader.End>
