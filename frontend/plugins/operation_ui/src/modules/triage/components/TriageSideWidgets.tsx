@@ -1,5 +1,5 @@
 import { SideMenu } from 'erxes-ui';
-import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
+import { useRelationWidget } from 'ui-modules';
 
 export const TriageSideWidgets = ({ contentId }: { contentId: string }) => {
   const { relationWidgetsModules, RelationWidget } = useRelationWidget({
@@ -28,7 +28,7 @@ export const TriageSideWidgets = ({ contentId }: { contentId: string }) => {
             <SideMenu.Trigger
               key={module.name}
               value={module.name}
-              label={getRelationWidgetLabel(module)}
+              label={module.name}
               Icon={module.icon}
             />
           );
