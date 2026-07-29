@@ -130,7 +130,7 @@ export const useDeals = (
   filterVariablesRef.current = filterVariables;
 
   const dropsArchived =
-    !filterVariables?.noSkipArchive && !filterVariables?.archivedOnly;
+    !filterVariables?.noSkipArchive && filterVariables?.status !== 'archived';
 
   useEffect(() => {
     if (!currentUser?._id || !lastPipelineId) return;

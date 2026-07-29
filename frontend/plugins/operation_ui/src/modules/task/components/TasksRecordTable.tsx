@@ -38,6 +38,7 @@ export const TasksRecordTable = ({
   const { tasks, handleFetchMore, pageInfo, loading, totalCount } = useTasks({
     variables,
   });
+  const isInitialLoading = loading && !tasks;
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -58,7 +59,7 @@ export const TasksRecordTable = ({
     <div className="flex flex-col overflow-hidden h-full">
       <RecordTable.Provider
         columns={tasksColumns(teams, team, t)}
-        data={tasks || (loading ? [{}] : [])}
+        data={tasks || (isInitialLoading ? [{}] : [])}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}
         tableId="tasks_record_table"
@@ -75,7 +76,7 @@ export const TasksRecordTable = ({
               <RecordTable.CursorBackwardSkeleton
                 handleFetchMore={handleFetchMore}
               />
-              {loading && <RecordTable.RowSkeleton rows={40} />}
+              {isInitialLoading && <RecordTable.RowSkeleton rows={40} />}
               <RecordTable.RowList />
               <RecordTable.CursorForwardSkeleton
                 handleFetchMore={handleFetchMore}

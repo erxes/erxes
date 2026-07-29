@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { IProduct, IProductData } from 'ui-modules';
 
-import { DEAL_PRODUCT_TOAST_OPTIONS } from '../constants';
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { isPatchAppliedByServer } from '../utils/isPatchAppliedByServer';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -210,7 +210,7 @@ export const useSaveDealProducts = ({
         variant: 'destructive',
         title: t('error'),
         description: t('assign-service-before-saving', { names }),
-        ...DEAL_PRODUCT_TOAST_OPTIONS,
+        ...DEAL_TOAST_OPTIONS,
       });
     }
     const formattedProductsData = localProductsData.map((data) => ({

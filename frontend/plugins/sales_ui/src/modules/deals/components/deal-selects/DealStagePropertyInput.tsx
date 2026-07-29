@@ -7,6 +7,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useBoards, usePipelines, useStages } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const getMetaValue = (meta: TPropertyInputMeta | undefined, key: string) =>
   typeof meta?.[key] === 'string' ? (meta[key] as string) : '';
@@ -68,6 +69,7 @@ export const DealStagePropertyInput = ({
   onMetaChange,
   disabled,
 }: TPropertyInputProps) => {
+  const { t } = useTranslation('sales');
   const boardId = getMetaValue(meta, 'boardId');
   const pipelineId = getMetaValue(meta, 'pipelineId');
   const [open, setOpen] = useState(false);
@@ -92,7 +94,7 @@ export const DealStagePropertyInput = ({
       >
         <Combobox.Value
           value={selectedStage?.name}
-          placeholder="Select stage"
+          placeholder={t('select-stage', 'Select Stage')}
         />
       </Combobox.TriggerBase>
       <Combobox.Content
@@ -106,7 +108,7 @@ export const DealStagePropertyInput = ({
             options={boards}
             loading={boardsLoading}
             disabled={disabled}
-            placeholder="Select board"
+            placeholder={t('select-board', 'Select Board')}
             onSelect={(nextBoardId) => {
               onMetaChange({
                 ...(meta || {}),
@@ -121,7 +123,7 @@ export const DealStagePropertyInput = ({
             options={pipelines}
             loading={pipelinesLoading}
             disabled={disabled || !boardId}
-            placeholder="Select pipeline"
+            placeholder={t('select-pipeline', 'Select Pipeline')}
             onSelect={(nextPipelineId) => {
               onMetaChange({
                 ...(meta || {}),
@@ -133,12 +135,15 @@ export const DealStagePropertyInput = ({
           />
         </div>
         <Command>
-          <Command.Input placeholder="Search stage..." disabled={!pipelineId} />
+          <Command.Input
+            placeholder={t('search-stage', 'Search stage...')}
+            disabled={!pipelineId}
+          />
           <Command.List>
             <Combobox.Empty loading={stagesLoading} />
             {!pipelineId ? (
               <div className="p-2 text-sm text-accent-foreground/70">
-                Please select a pipeline first
+                {t('select-pipeline-first', 'Please select a pipeline first')}
               </div>
             ) : (
               stages.map((stage) => (

@@ -476,7 +476,10 @@ export const dealMutations: Record<string, Resolver> = {
     );
 
     if (!oldPData.length) {
-      throw new Error('Deals productData not found');
+      return {
+        dataIds,
+        productsData: deal.productsData || [],
+      };
     }
 
     const productsData = (deal.productsData || []).filter(

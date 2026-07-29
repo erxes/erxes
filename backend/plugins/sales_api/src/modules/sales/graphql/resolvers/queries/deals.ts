@@ -14,7 +14,6 @@ import {
 import {
   getNextMonth,
   getToday,
-  regexSearchText,
   escapeRegExp,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -71,7 +70,7 @@ export const generateFilter = async (
     stageChangedStartDate,
     stageChangedEndDate,
     noSkipArchive,
-    archivedOnly,
+    status,
     number,
     branchIds,
     departmentIds,
@@ -89,17 +88,14 @@ export const generateFilter = async (
     closeDateEndDate,
     source,
   } = params;
-  if (archivedOnly) {
-    Object.assign(filter, {
-      status: SALES_STATUSES.ARCHIVED,
-      parentId: undefined,
-    });
-  } else if (!noSkipArchive) {
-    Object.assign(filter, {
-      status: { $ne: SALES_STATUSES.ARCHIVED },
-      parentId: undefined,
-    });
-  }
+  Object.assign(
+    filter,
+    status
+      ? { status, parentId: undefined }
+      : noSkipArchive
+      ? {}
+      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+  );
 
   let filterIds: string[] = [];
 
@@ -304,11 +300,11 @@ export const generateFilter = async (
   }
 
   if (search) {
+    const escaped = escapeRegExp(search);
     Object.assign(filter, {
       $or: [
-        regexSearchText(search),
-        { name: { $regex: new RegExp(`${escapeRegExp(search)}`, 'i') } },
-        { number: { $regex: new RegExp(`^${escapeRegExp(search)}`, 'i') } },
+        { name: { $regex: escaped, $options: 'i' } },
+        { number: { $regex: escaped, $options: 'i' } },
       ],
     });
   }
@@ -708,7 +704,11 @@ const fetchDeals = async (
     list: deals,
     pageInfo,
     totalCount,
-  } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
+  } = await getItemList(models, subdomain, filter, args, user, getExtraFields, {
+    formatter: {
+      modifiedAt: 'date',
+    },
+  });
 
   await enrichDealsWithProducts(subdomain, deals);
 

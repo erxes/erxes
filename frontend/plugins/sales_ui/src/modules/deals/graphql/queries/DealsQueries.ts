@@ -21,7 +21,7 @@ const commonParams = `
   $endDate: String,
   $tagIds: [String],
   $noSkipArchive: Boolean,
-  $archivedOnly: Boolean,
+  $status: String,
   $branchIds: [String],
   $departmentIds: [String],
   $createdStartDate: Date,
@@ -55,7 +55,7 @@ const commonParamDefs = `
   endDate: $endDate,
   tagIds: $tagIds,
   noSkipArchive: $noSkipArchive,
-  archivedOnly: $archivedOnly,
+  status: $status,
   branchIds: $branchIds,
   departmentIds: $departmentIds,
   createdStartDate: $createdStartDate,
@@ -136,19 +136,24 @@ export const commonListFields = `
 
 export const GET_DEALS_SEARCH_DROPDOWN = gql`
   query Deals(
-    $limit: Int, 
+    $limit: Int,
+    $cursor: String,
+    $direction: CURSOR_DIRECTION,
     $orderBy: JSON,
     ${commonParams}
   ) {
     deals(
       limit: $limit, 
-      orderBy: $orderBy, 
+      orderBy: $orderBy,
+      cursor: $cursor,
+      direction: $direction,
       ${commonParamDefs}
     ) {
         list {
           _id
           name
           number
+          status
           pipeline {
             _id
             name
@@ -156,6 +161,15 @@ export const GET_DEALS_SEARCH_DROPDOWN = gql`
           }
           boardId
         }
+
+        pageInfo {
+          startCursor
+          endCursor
+          hasNextPage
+          hasPreviousPage
+        }
+
+        totalCount
       }
   }
 `;
@@ -167,6 +181,7 @@ export const GET_DEALS = gql`
     $limit: Int, 
     $cursor: String, 
     $cursorMode: CURSOR_MODE,
+    $direction: CURSOR_DIRECTION,
     $orderBy: JSON,
     ${commonParams}
   ) {
@@ -176,6 +191,7 @@ export const GET_DEALS = gql`
       limit: $limit, 
       cursor: $cursor, 
       cursorMode: $cursorMode,
+      direction: $direction,
       orderBy: $orderBy, 
       ${commonParamDefs}
     ) {

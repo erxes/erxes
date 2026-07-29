@@ -26,6 +26,7 @@ export const useRelationWidgetsModules = (): IRelationModules[] => {
       pluginName: plugin.name,
       icon: module.icon as Icon,
       name: module.name,
+      label: module.label,
     }));
   });
 

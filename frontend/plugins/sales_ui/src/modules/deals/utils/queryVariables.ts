@@ -83,7 +83,7 @@ export const getDealsQueryVariables = (
   }
 
   if (includeArchivedMode && searchParams.get('archivedOnly') === 'true') {
-    vars.archivedOnly = true;
+    vars.status = 'archived';
     const sortDir = searchParams.get('archivedSort') || 'desc';
     vars.orderBy = { createdAt: sortDir === 'asc' ? 1 : -1 };
   }

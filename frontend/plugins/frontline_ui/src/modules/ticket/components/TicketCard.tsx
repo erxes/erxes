@@ -3,7 +3,7 @@ import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateT
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import { ticketCountByBoardAtom } from '@/ticket/states/ticketsTotalCountState';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
@@ -23,7 +23,7 @@ export const ticketBoardItemAtom = atom(
 export const TicketCard = ({ id, column }: BoardCardProps) => {
   const { t } = useTranslation('frontline');
   const ticket = useAtomValue(ticketBoardItemAtom)(id);
-  const setActiveTicket = useSetAtom(ticketDetailSheetState);
+  const [, setActiveTicket] = useTicketDetailSheet();
   const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
 
   if (!ticket) {

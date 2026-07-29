@@ -2,9 +2,11 @@ import { Empty, RecordTable, useQueryState } from 'erxes-ui';
 
 import { DealsColumn } from '@/deals/boards/components/list/DealsColumn';
 import { DealsCommandBar } from '@/deals/boards/components/list/DealsListCommandBar';
+import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 import { useSearchParams } from 'react-router-dom';
+import { useStages } from '@/deals/stage/hooks/useStages';
 import { IconBriefcaseOff } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -29,26 +31,29 @@ export const DealsRecordTable = () => {
   const [searchParams] = useSearchParams();
   const columns = DealsColumn();
 
-  const archivedOnly = searchParams.get('archivedOnly') === 'true';
-  const queryVariables = getDealsQueryVariables(searchParams);
+  const { stages, loading: stagesLoading } = useStages({
+    variables: {
+      pipelineId,
+    },
+    skip: !pipelineId,
+  });
 
-  const { deals, loading, handleFetchMore } = useDeals({
+  const queryVariables = getDealsQueryVariables(searchParams);
+  const { deals, loading, handleFetchMore, pageInfo } = useDeals({
     skip: !pipelineId,
     variables: {
-      boardId: searchParams.get('boardId'),
       pipelineId,
       stageId: searchParams.get('stageId'),
       ...queryVariables,
     },
   });
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const filteredDeals = deals?.filter((deal) => {
-    return archivedOnly
-      ? deal.status === 'archived'
-      : deal.status !== 'archived';
-  });
+  if (pipelineId && !stagesLoading && stages.length === 0) {
+    return <NoStagesWarning />;
+  }
 
-  if (pipelineId && !loading && (filteredDeals?.length ?? 0) === 0) {
+  if (pipelineId && !loading && (deals?.length ?? 0) === 0) {
     return <DealsEmptyState />;
   }
 
@@ -56,12 +61,16 @@ export const DealsRecordTable = () => {
     <div className="flex flex-col overflow-hidden h-full relative">
       <RecordTable.Provider
         columns={columns}
-        data={filteredDeals || (loading ? [{}] : [])}
+        data={deals || (loading ? [{}] : [])}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}
         tableId="sales_deals_record_table"
       >
-        <RecordTable.CursorProvider dataLength={deals?.length}>
+        <RecordTable.CursorProvider
+          dataLength={deals?.length}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+        >
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>
