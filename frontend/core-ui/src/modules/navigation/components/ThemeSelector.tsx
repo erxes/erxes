@@ -1,11 +1,5 @@
-import {
-  IconChevronRight,
-  IconDeviceLaptop,
-  IconMoon,
-  IconPalette,
-  IconSun,
-} from '@tabler/icons-react';
-import { DropdownMenu, ThemeOption, themeState } from 'erxes-ui';
+import { IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
+import { ThemeOption, themeState, ToggleGroup, Tooltip } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -17,37 +11,58 @@ export const ThemeSelector = () => {
   const { t } = useTranslation('organization');
 
   return (
-    <DropdownMenu.Sub>
-      <DropdownMenu.SubTrigger className="h-9">
-        <IconPalette />
-        {t('change-theme')}
-        <IconChevronRight className="ml-auto" />
-      </DropdownMenu.SubTrigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.SubContent className="min-w-44" sideOffset={8}>
-          <DropdownMenu.RadioGroup
-            value={theme}
-            onValueChange={(value) => {
-              if (isThemeOption(value)) {
-                setTheme(value);
-              }
-            }}
-          >
-            <DropdownMenu.RadioItem value="light">
-              <IconSun />
-              {t('light')}
-            </DropdownMenu.RadioItem>
-            <DropdownMenu.RadioItem value="dark">
-              <IconMoon />
-              {t('dark')}
-            </DropdownMenu.RadioItem>
-            <DropdownMenu.RadioItem value="system">
-              <IconDeviceLaptop />
-              {t('system')}
-            </DropdownMenu.RadioItem>
-          </DropdownMenu.RadioGroup>
-        </DropdownMenu.SubContent>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Sub>
+    <div className="flex h-7 items-center gap-2 px-2 text-sm font-medium">
+      {t('theme')}
+      <Tooltip.Provider delayDuration={100}>
+        <ToggleGroup
+          className="ml-auto h-6 gap-0.5 rounded bg-accent text-accent-foreground"
+          onValueChange={(value) => {
+            if (value && isThemeOption(value)) {
+              setTheme(value);
+            }
+          }}
+          size="sm"
+          type="single"
+          value={theme}
+        >
+          <Tooltip>
+            <ToggleGroup.Item
+              asChild
+              className="h-full min-w-6 px-1 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              value="light"
+            >
+              <Tooltip.Trigger>
+                <IconSun />
+              </Tooltip.Trigger>
+            </ToggleGroup.Item>
+            <Tooltip.Content alignOffset={4}>{t('light')}</Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <ToggleGroup.Item
+              asChild
+              className="h-full min-w-6 px-1 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              value="dark"
+            >
+              <Tooltip.Trigger>
+                <IconMoon />
+              </Tooltip.Trigger>
+            </ToggleGroup.Item>
+            <Tooltip.Content alignOffset={4}>{t('dark')}</Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <ToggleGroup.Item
+              asChild
+              className="h-full min-w-6 px-1 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              value="system"
+            >
+              <Tooltip.Trigger>
+                <IconDeviceLaptop />
+              </Tooltip.Trigger>
+            </ToggleGroup.Item>
+            <Tooltip.Content alignOffset={4}>{t('system')}</Tooltip.Content>
+          </Tooltip>
+        </ToggleGroup>
+      </Tooltip.Provider>
+    </div>
   );
 };

@@ -4,12 +4,7 @@ import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { User } from '@/navigation/components/User';
 import { AppPath } from '@/types/paths/AppPath';
 import { SettingsPath } from '@/types/paths/SettingsPath';
-import {
-  IconChevronRight,
-  IconLogout,
-  IconSettings,
-  IconUserCircle,
-} from '@tabler/icons-react';
+import { IconChevronRight, IconSettings } from '@tabler/icons-react';
 import { Avatar, Button, cn, DropdownMenu, readImage } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -100,8 +95,7 @@ export const NavigationSidebarFooter = ({
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
           align={expanded ? 'start' : 'end'}
-          alignOffset={expanded ? -8 : 0}
-          className="w-52 min-w-52! space-y-0.5 p-1.5"
+          className="w-48 min-w-48! space-y-1 p-1.5"
           side={expanded ? 'top' : 'right'}
           sideOffset={8}
         >
@@ -112,26 +106,13 @@ export const NavigationSidebarFooter = ({
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
-          <DropdownMenu.Item asChild className="h-9 text-sm">
-            <Link to={`/${AppPath.Settings}/${SettingsPath.Profile}`}>
-              <IconUserCircle />
-              {sidebarT('profile')}
-            </Link>
-          </DropdownMenu.Item>
-          <DropdownMenu.Item asChild className="h-9 text-sm">
-            <Link to={`/${AppPath.Settings}`}>
-              <IconSettings />
-              {organizationT('settings')}
-            </Link>
-          </DropdownMenu.Item>
           <ThemeSelector />
           <SelectLanguages />
           <DropdownMenu.Separator />
           <DropdownMenu.Item
-            className="h-9 text-sm"
+            className="h-7 py-0 text-sm"
             onClick={() => handleLogout()}
           >
-            <IconLogout />
             {organizationT('logout')}
           </DropdownMenu.Item>
         </DropdownMenu.Content>

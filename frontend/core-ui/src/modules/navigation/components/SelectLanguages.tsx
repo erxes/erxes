@@ -1,4 +1,4 @@
-import { IconChevronRight, IconLanguage } from '@tabler/icons-react';
+import { IconChevronRight } from '@tabler/icons-react';
 import { DropdownMenu } from 'erxes-ui';
 import { INTL_LANGUAGES } from 'erxes-ui/constants/IntlLanguages';
 import { AvailableLanguage, useSwitchLanguage } from '~/i18n';
@@ -18,9 +18,8 @@ export const SelectLanguages = () => {
 
   return (
     <DropdownMenu.Sub>
-      <DropdownMenu.SubTrigger className="h-9">
-        <IconLanguage />
-        {t('change-language')}
+      <DropdownMenu.SubTrigger className="h-7 py-0">
+        {t('language')}
         <IconChevronRight className="ml-auto" />
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>
