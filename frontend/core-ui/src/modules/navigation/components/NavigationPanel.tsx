@@ -6,7 +6,7 @@ import { findNavigationActivityByPath } from '@/navigation/utils/navigationActiv
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
 import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
-import { Button, cn, ScrollArea, Sidebar } from 'erxes-ui';
+import { Button, cn, ScrollArea, Separator, Sidebar } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
@@ -62,9 +62,7 @@ export const NavigationPanel = () => {
         panelOpen && isMobile && 'min-w-0 flex-1',
         panelOpen && !isMobile && 'h-full w-64 border-r',
         !panelOpen && isMobile && 'h-full w-10 border-r',
-        !panelOpen &&
-          !isMobile &&
-          'absolute top-0 left-0 h-13 w-10 after:pointer-events-none after:absolute after:top-1/2 after:right-0 after:h-4 after:-translate-y-1/2 after:border-r',
+        !panelOpen && !isMobile && 'absolute top-0 left-0 h-13 w-10',
       )}
     >
       <header
@@ -89,6 +87,9 @@ export const NavigationPanel = () => {
           {panelOpen ? <IconChevronsLeft /> : <IconChevronsRight />}
         </Button>
       </header>
+      {!panelOpen && !isMobile && (
+        <Separator.Inline className="absolute top-1/2 right-0 -translate-y-1/2" />
+      )}
       {panelOpen && panelContent}
     </aside>
   );

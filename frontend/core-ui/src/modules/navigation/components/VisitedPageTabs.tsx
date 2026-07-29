@@ -39,7 +39,6 @@ import {
   IconApps,
   IconFile,
   IconLayoutNavbarCollapse,
-  IconLayoutNavbarExpand,
   IconX,
 } from '@tabler/icons-react';
 import { Button, cn, ScrollArea, Sidebar, Tabs } from 'erxes-ui';
@@ -333,20 +332,7 @@ export const VisitedPageTabs = () => {
   ]);
 
   if (!tabsVisible) {
-    return (
-      <Button
-        aria-keyshortcuts={toggleTabsAriaShortcut}
-        aria-label={t('navigation.show-tabs-row')}
-        className="fixed top-1 right-2 z-40 size-8 shrink-0 border bg-background text-muted-foreground shadow-sm"
-        onClick={() => setTabsVisible(true)}
-        size="icon"
-        title={`${t('navigation.show-tabs-row')} (${toggleTabsShortcutLabel})`}
-        type="button"
-        variant="ghost"
-      >
-        <IconLayoutNavbarExpand className="size-4" />
-      </Button>
-    );
+    return null;
   }
 
   const tabPathnames = tabs.map((tab) => tab.pathname);

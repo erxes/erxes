@@ -11,6 +11,8 @@
     "toggle-tabs-row": "Табын мөрийг харуулах эсвэл нуух",
     "hide-tabs-row": "Табын мөрийг нуух",
     "show-tabs-row": "Табын мөрийг харуулах",
+    "show-open-tabs_one": "Нээлттэй {{count}} табыг харуулах",
+    "show-open-tabs_other": "Нээлттэй {{count}} табыг харуулах",
     "tab-shortcuts": "Табын товчлолууд",
     "toggle-panel": "Навигацийн самбарыг нээх эсвэл хаах",
     "open-plugin": "Плагин нээх",

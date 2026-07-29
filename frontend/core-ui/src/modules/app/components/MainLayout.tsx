@@ -1,6 +1,7 @@
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
+import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
 import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
@@ -21,7 +22,13 @@ const NavigationWorkspace = () => {
     >
       <div className="relative flex min-h-0 flex-1">
         {!isMobile && <NavigationPanel />}
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem]">
+        <div
+          className={cn(
+            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem]',
+            !tabsVisible && '[--visited-page-tabs-open-button-space:2.75rem]',
+          )}
+        >
+          <VisitedPageTabsOpenButton />
           <FloatingWidgets />
           <Outlet />
         </div>
