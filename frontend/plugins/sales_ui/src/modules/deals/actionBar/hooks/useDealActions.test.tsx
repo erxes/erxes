@@ -91,7 +91,9 @@ describe('useDealActions', () => {
       }),
     );
 
-    await expect(result.current.handleRemove()).rejects.toThrow('delete failed');
+    await expect(result.current.handleRemove()).rejects.toThrow(
+      'delete failed',
+    );
 
     expect(mockSetActiveDealId).not.toHaveBeenCalled();
     expect(mockSetSalesItemId).not.toHaveBeenCalled();
