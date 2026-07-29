@@ -70,6 +70,7 @@ export const generateFilter = async (
     stageChangedStartDate,
     stageChangedEndDate,
     noSkipArchive,
+    status,
     number,
     branchIds,
     departmentIds,
@@ -89,7 +90,9 @@ export const generateFilter = async (
   } = params;
   Object.assign(
     filter,
-    noSkipArchive
+    status
+      ? { status }
+      : noSkipArchive
       ? {}
       : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
@@ -368,7 +371,6 @@ export const generateFilter = async (
   if (tagIds) {
     filter.tagIds = { $in: tagIds };
   }
-
 
   if (pipelineId && !forClientPortal) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
