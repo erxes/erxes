@@ -1,6 +1,5 @@
-import { productsMutations, productsQueries } from '@/products/graphql';
-import { OperationVariables, useMutation, ApolloCache } from '@apollo/client';
-import { IProductCategory } from 'ui-modules';
+import { productsMutations } from '@/products/graphql';
+import { ApolloCache, OperationVariables, useMutation } from '@apollo/client';
 import { useState } from 'react';
 
 const normalizeCategoryIds = (categoryIds: string | string[]) => {
@@ -12,29 +11,8 @@ const normalizeCategoryIds = (categoryIds: string | string[]) => {
     .filter(Boolean);
 };
 
-const filterOutCategories = (ids: string[]) => (category: IProductCategory) =>
-  !ids.includes(category._id);
-
-const getUpdatedCategories = (
-  productCategories: IProductCategory[],
-  ids: string[],
-) => ({
-  productCategories: productCategories.filter(filterOutCategories(ids)),
-});
-
-const applyCacheCategoryRemoval = (cache: ApolloCache<any>, ids: string[]) => {
-  cache.updateQuery(
-    {
-      query: productsQueries.productCategories,
-    },
-    (data: { productCategories: IProductCategory[] } | null | undefined) => {
-      if (!data?.productCategories) {
-        return data;
-      }
-      return getUpdatedCategories(data.productCategories, ids);
-    },
-  );
-};
+const getErrorDedupeKey = (message: string) =>
+  message.replace(/category "[^"]+"/, 'category').replace(/\d+/g, '{count}');
 
 interface RemoveError {
   message: string;
@@ -66,6 +44,8 @@ export const useRemoveCategories = () => {
     setIsRemoving(true);
 
     try {
+      let mutationCache: ApolloCache<unknown> | null = null;
+
       const results = await Promise.allSettled(
         ids.map((id) =>
           _removeCategory({
@@ -73,13 +53,19 @@ export const useRemoveCategories = () => {
               ...(variables as OperationVariables),
               _id: id,
             },
-            update: (cache) => applyCacheCategoryRemoval(cache, [id]),
+            update: (cache) => {
+              mutationCache = cache;
+              cache.evict({ fieldName: 'productCategories' });
+              cache.evict({ fieldName: 'productCategoriesTotalCount' });
+            },
           }),
         ),
       );
 
+      mutationCache?.gc();
+
       const succeededIds: string[] = [];
-      const errors: RemoveError[] = [];
+      const errorMessages = new Map<string, string>();
 
       results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
@@ -89,18 +75,18 @@ export const useRemoveCategories = () => {
             result.reason instanceof Error
               ? result.reason.message
               : 'Unknown error';
-          errors.push({ message: errorMessage });
+          errorMessages.set(getErrorDedupeKey(errorMessage), errorMessage);
         }
       });
 
-      if (errors.length === 0) {
-        if (typeof onCompleted === 'function') {
-          onCompleted(succeededIds);
-        }
-      } else {
-        if (typeof onError === 'function') {
-          onError({ succeededIds, errors });
-        }
+      const errors = Array.from(errorMessages.values(), (message) => ({
+        message,
+      }));
+
+      if (errors.length > 0 && typeof onError === 'function') {
+        onError({ succeededIds, errors });
+      } else if (typeof onCompleted === 'function') {
+        onCompleted(succeededIds);
       }
     } finally {
       setIsRemoving(false);

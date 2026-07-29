@@ -5,6 +5,8 @@ import type { ReactNode } from 'react';
 import { useCallback } from 'react';
 import { Can } from 'ui-modules';
 
+const CONFIRM_OPTIONS = { confirmationValue: 'delete' };
+
 interface CategoriesDeleteProps {
   categoryIds: string;
   onDeleteSuccess?: () => void;
@@ -20,8 +22,6 @@ export const CategoriesDelete = ({
   const { removeCategory, loading } = useRemoveCategories();
   const { toast } = useToast();
 
-  const confirmOptions = { confirmationValue: 'delete' };
-
   const categoryCount = categoryIds.includes(',')
     ? categoryIds.split(',').length
     : 1;
@@ -34,27 +34,38 @@ export const CategoriesDelete = ({
     }
 
     confirm({
-      message: `Are you sure you want to delete the ${categoryCount} selected categories?`,
-      options: confirmOptions,
+      message:
+        categoryCount === 1
+          ? 'Are you sure you want to delete this category?'
+          : `Are you sure you want to delete the ${categoryCount} selected categories?`,
+      options: CONFIRM_OPTIONS,
     })
       .then(() => {
         removeCategory(categoryIds, {
-          onError: ({ errors }) => {
-            const errorMessage =
-              errors.length > 0
-                ? errors.map((e) => e.message).join(', ')
-                : 'Failed to delete categories';
+          onError: ({ succeededIds, errors }) => {
+            const failedCount = categoryCount - succeededIds.length;
+            const failureReason =
+              failedCount === 1
+                ? errors[0]?.message || 'Failed to delete category.'
+                : `${failedCount} categories could not be deleted because they contain products or sub-categories. Move or delete them first.`;
+            const partialSuccess =
+              succeededIds.length > 0
+                ? `${succeededIds.length} deleted, ${failedCount} failed. `
+                : '';
+
             toast({
               title: 'Error',
-              description: errorMessage,
+              description: `${partialSuccess}${failureReason}`,
               variant: 'destructive',
             });
           },
-          onCompleted: () => {
+          onCompleted: (succeededIds) => {
+            const succeededCount = succeededIds.length;
+
             toast({
               title: 'Success',
-              description: `${categoryCount} ${
-                categoryCount === 1 ? 'category' : 'categories'
+              description: `${succeededCount} ${
+                succeededCount === 1 ? 'category' : 'categories'
               } deleted successfully.`,
               variant: 'success',
             });
@@ -69,7 +80,6 @@ export const CategoriesDelete = ({
   }, [
     disabled,
     confirm,
-    confirmOptions,
     categoryCount,
     categoryIds,
     removeCategory,

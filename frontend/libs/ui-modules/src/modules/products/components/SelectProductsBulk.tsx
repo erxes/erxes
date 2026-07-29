@@ -6,11 +6,11 @@ import {
   Sheet,
   Separator,
   ScrollArea,
-  Spinner,
+  SkeletonArray,
   useQueryState,
   fixNum,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { useProducts } from '../hooks/useProducts';
 import { useInView } from 'react-intersection-observer';
@@ -40,7 +40,8 @@ interface SelectProductsProps {
 }
 
 interface SelectProductsBulkContentProps
-  extends Pick<
+  extends
+    Pick<
       SelectProductsProps,
       | 'onSelect'
       | 'productIds'
@@ -225,29 +226,20 @@ const ProductsList = ({
   setSelectedProductIds,
   selectionLimit,
 }: ProductsListProps) => {
-  const [search, setSearch] = useState(
-    () => localStorage.getItem('search') || '',
-  );
+  const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const [companyId, setCompanyId] = useState<string>(
-    () => localStorage.getItem('companyId') || '',
-  );
-  const [categoryId, setCategoryId] = useState<string>(
-    () => localStorage.getItem('categoryId') || '',
-  );
+  const [companyId, setCompanyId] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [pipelineId] = useQueryState<string>('pipelineId');
 
-  useEffect(() => {
-    localStorage.setItem('search', debouncedSearch);
-    localStorage.setItem('companyId', companyId);
-    localStorage.setItem('categoryId', categoryId);
-  }, [debouncedSearch, companyId, categoryId]);
-  const { products, handleFetchMore, totalCount } = useProducts({
+  const { products, handleFetchMore, totalCount, fetchingMore } = useProducts({
+    fetchPolicy: 'network-only',
     variables: {
       searchValue: debouncedSearch,
       vendorId: companyId || undefined,
       categoryIds: categoryId ? [categoryId] : undefined,
       pipelineId: pipelineId || undefined,
+      sortField: '_id',
     },
   });
 
@@ -268,11 +260,17 @@ const ProductsList = ({
 
   const selectionLimitReached =
     selectionLimit !== undefined && selectedProductIds.length >= selectionLimit;
-  const unselectedProducts = products
-    .filter((p) => !selectedProductIds.includes(p._id))
-    .sort(
-      (a, b) => (b.remainder?.remainder ?? 0) - (a.remainder?.remainder ?? 0),
-    );
+  const unselectedProducts = products.filter(
+    (product) => !selectedProductIds.includes(product._id),
+  );
+
+  // with a pipeline the server already orders its initial categories first,
+  // so re-sorting here would scatter them back into the rest of the list
+  const availableProducts = pipelineId
+    ? unselectedProducts
+    : [...unselectedProducts].sort(
+        (a, b) => (b.remainder?.remainder ?? 0) - (a.remainder?.remainder ?? 0),
+      );
 
   return (
     <div className="flex overflow-hidden flex-col border-r">
@@ -315,7 +313,7 @@ const ProductsList = ({
       <Separator />
       <div className="overflow-auto flex-1">
         <div className="flex flex-col gap-1 p-4 min-w-max">
-          {unselectedProducts.map((product) => {
+          {availableProducts.map((product) => {
             return (
               <Button
                 key={product._id}
@@ -347,11 +345,10 @@ const ProductsList = ({
           })}
 
           {products.length < totalCount && (
-            <div className="flex gap-2 items-center px-2 h-8" ref={bottomRef}>
-              <Spinner containerClassName="flex-none" />
-              <span className="animate-pulse text-accent-foreground">
-                Loading more products...
-              </span>
+            <div className="flex min-h-px flex-col gap-1" ref={bottomRef}>
+              {fetchingMore && (
+                <SkeletonArray count={3} className="w-full h-9" />
+              )}
             </div>
           )}
         </div>

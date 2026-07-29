@@ -3,7 +3,7 @@ import {
   GET_ASSIGNED_PRODUCTS,
   GET_PRODUCTS,
 } from '../graphql/queries/productsQueries';
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { NetworkStatus, QueryHookOptions, useQuery } from '@apollo/client';
 
 import { IProduct } from '../types/Product';
 
@@ -11,10 +11,11 @@ const PRODUCTS_LIMIT = 30;
 export const useProducts = (
   options?: QueryHookOptions<ICursorListResponse<IProduct>>,
 ) => {
-  const { data, loading, fetchMore, error } = useQuery<
+  const { data, loading, fetchMore, error, networkStatus } = useQuery<
     ICursorListResponse<IProduct>
   >(GET_PRODUCTS, {
     ...options,
+    notifyOnNetworkStatusChange: true,
     variables: {
       limit: PRODUCTS_LIMIT,
       ...options?.variables,
@@ -23,7 +24,14 @@ export const useProducts = (
   const { list = [], totalCount = 0, pageInfo } = data?.productsMain || {};
 
   const handleFetchMore = () => {
-    if (!pageInfo || totalCount <= list.length) return;
+    if (
+      !pageInfo ||
+      totalCount <= list.length ||
+      networkStatus === NetworkStatus.fetchMore
+    ) {
+      return;
+    }
+
     fetchMore({
       variables: {
         ...options?.variables,
@@ -48,6 +56,7 @@ export const useProducts = (
   return {
     products: list,
     loading,
+    fetchingMore: networkStatus === NetworkStatus.fetchMore,
     handleFetchMore,
     totalCount,
     error,
