@@ -21,6 +21,7 @@ const commonParams = `
   $endDate: String,
   $tagIds: [String],
   $noSkipArchive: Boolean,
+  $status: String,
   $branchIds: [String],
   $departmentIds: [String],
   $createdStartDate: Date,
@@ -54,6 +55,7 @@ const commonParamDefs = `
   endDate: $endDate,
   tagIds: $tagIds,
   noSkipArchive: $noSkipArchive,
+  status: $status,
   branchIds: $branchIds,
   departmentIds: $departmentIds,
   createdStartDate: $createdStartDate,
@@ -179,6 +181,7 @@ export const GET_DEALS = gql`
     $limit: Int, 
     $cursor: String, 
     $cursorMode: CURSOR_MODE,
+    $direction: CURSOR_DIRECTION,
     $orderBy: JSON,
     ${commonParams}
   ) {
@@ -188,6 +191,7 @@ export const GET_DEALS = gql`
       limit: $limit, 
       cursor: $cursor, 
       cursorMode: $cursorMode,
+      direction: $direction,
       orderBy: $orderBy, 
       ${commonParamDefs}
     ) {
