@@ -7,11 +7,17 @@ export const SettingsHeader = ({
   children?: React.ReactNode;
   breadcrumbs?: React.ReactNode;
 }) => {
+  const sidebar = Sidebar.useOptionalSidebar();
+
   return (
     <div className="flex flex-col h-13 box-border shrink-0 bg-sidebar w-full">
       <div className="flex gap-2 px-3 flex-auto items-center">
-        <Sidebar.Trigger />
-        <Separator.Inline />
+        {sidebar?.isMobile && (
+          <>
+            <Sidebar.Trigger />
+            <Separator.Inline />
+          </>
+        )}
         {breadcrumbs}
         {children}
       </div>

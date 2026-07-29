@@ -24,20 +24,20 @@ const NavigationActivityMoreGroup = ({
 
   return (
     <section>
-      <h2 className="px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-wide text-accent-foreground">
+      <h2 className="flex h-5 items-center px-2 font-mono text-[10px] font-semibold uppercase text-accent-foreground">
         {label}
       </h2>
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col">
         {activities.map((activity) => {
           const Icon = activity.icon || IconApps;
 
           return (
             <div
-              className="flex min-w-0 items-center rounded-md hover:bg-accent"
+              className="flex h-7 min-w-0 items-center rounded-md hover:bg-accent"
               key={activity.id}
             >
               <Button
-                className="h-8 min-w-0 flex-1 justify-start gap-2 px-2 text-sm"
+                className="h-7 min-w-0 flex-1 justify-start gap-2 px-2 text-sm"
                 onClick={() => onSelect(activity)}
                 type="button"
                 variant="ghost"
@@ -113,11 +113,11 @@ export const NavigationActivityMore = ({
       </Popover.Trigger>
       <Popover.Content
         align="start"
-        className="flex max-h-[var(--radix-popover-content-available-height)] w-64 flex-col overflow-hidden p-1"
+        className="flex max-h-[var(--radix-popover-content-available-height)] w-52 flex-col overflow-hidden p-1"
         side="right"
         sideOffset={4}
       >
-        <div className="shrink-0 px-2 py-1.5 text-sm font-semibold">
+        <div className="flex h-7 shrink-0 items-center px-2 text-sm font-semibold">
           {t('more')}
         </div>
         <ScrollArea className="min-h-0 flex-auto">
@@ -129,7 +129,7 @@ export const NavigationActivityMore = ({
             onSelect={selectActivity}
           />
           {pluginActivities.length > 0 && coreActivities.length > 0 && (
-            <Separator className="my-1" />
+            <Separator className="my-0.5" />
           )}
           <NavigationActivityMoreGroup
             activities={coreActivities}

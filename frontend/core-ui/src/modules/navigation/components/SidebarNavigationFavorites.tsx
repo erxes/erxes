@@ -56,7 +56,7 @@ export function SidebarNavigationFavoritesItem({
         'rounded-md',
         expanded
           ? 'h-7 w-full justify-start px-2 text-sm'
-          : 'mx-auto size-7 justify-center px-0',
+          : 'mx-auto size-7 justify-center px-0 group-data-[collapsible=icon]:[&&]:size-7! group-data-[collapsible=icon]:[&&]:p-0!',
       )}
       label={
         expanded ? (

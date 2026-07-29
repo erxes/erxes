@@ -28,7 +28,7 @@ export const PageSubHeader = React.forwardRef<
       className={cn(
         'flex-none bg-sidebar px-3 py-2 border-b flex gap-3 h-auto',
         className,
-        'pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem))]',
+        'pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem)_+_var(--visited-page-tabs-open-button-space,0rem))]',
       )}
       {...props}
     />

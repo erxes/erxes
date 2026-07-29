@@ -3,7 +3,7 @@ export const resolvePinnedNavigationActivityIds = (
   availableActivityIds: string[],
 ) => {
   if (storedActivityIds === null) {
-    return availableActivityIds;
+    return [];
   }
 
   const storedActivityIdSet = new Set(storedActivityIds);

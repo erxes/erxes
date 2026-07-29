@@ -7,52 +7,78 @@ import { NavigationSidebarFooter } from '@/navigation/components/NavigationSideb
 import { SidebarNavigationFavorites } from '@/navigation/components/SidebarNavigationFavorites';
 import { NotificationCount } from '@/notification/components/MyInboxNavigationItem';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { IconApps, IconInbox, IconSearch } from '@tabler/icons-react';
+import {
+  IconApps,
+  IconCaretRightFilled,
+  IconInbox,
+  IconSearch,
+} from '@tabler/icons-react';
 import {
   Button,
   cn,
+  Collapsible,
   HoverCard,
   ScrollArea,
   Separator,
   Sidebar,
 } from 'erxes-ui';
 import type { ReactNode } from 'react';
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const HOVER_PREVIEW_HANDOFF_DELAY = 60;
 
-const NavigationSectionHeading = ({
+const NavigationActivitySection = ({
+  children,
   expanded,
   label,
 }: {
+  children: ReactNode;
   expanded: boolean;
   label: string;
-}) => (
-  <div className="relative h-6 w-full shrink-0">
-    <div
-      className={cn(
-        'absolute inset-0 flex items-center overflow-hidden whitespace-nowrap px-2 font-mono text-[10px] font-semibold uppercase text-accent-foreground transition-opacity duration-100 ease-linear motion-reduce:transition-none',
-        expanded
-          ? 'delay-100 opacity-100'
-          : 'pointer-events-none delay-0 opacity-0',
-      )}
-    >
-      {label}
-    </div>
-    <div
-      aria-hidden
-      className={cn(
-        'absolute inset-y-0 left-0 flex w-10 items-center justify-center transition-[opacity,transform] duration-100 ease-linear motion-reduce:transition-none',
-        expanded
-          ? 'pointer-events-none delay-0 scale-x-75 opacity-0'
-          : 'delay-100 scale-x-100 opacity-100',
-      )}
-    >
-      <Separator className="w-8" />
-    </div>
-  </div>
-);
+}) => {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <section className="w-full shrink-0">
+      <Collapsible
+        className="group/navigation-section"
+        open={!expanded || open}
+        onOpenChange={setOpen}
+      >
+        <div className="relative h-6 w-full shrink-0">
+          <Collapsible.Trigger
+            className={cn(
+              'absolute inset-0 flex w-full items-center gap-2 overflow-hidden whitespace-nowrap rounded-md px-2 text-left font-sans text-xs font-semibold text-accent-foreground transition-opacity duration-100 ease-linear hover:bg-accent motion-reduce:transition-none',
+              expanded
+                ? 'delay-100 opacity-100'
+                : 'pointer-events-none delay-0 opacity-0',
+            )}
+            disabled={!expanded}
+            tabIndex={expanded ? 0 : -1}
+          >
+            <IconCaretRightFilled className="size-3.5 shrink-0 transition-transform group-data-[state=open]/navigation-section:rotate-90" />
+            <span className="truncate">{label}</span>
+          </Collapsible.Trigger>
+          <div
+            aria-hidden
+            className={cn(
+              'absolute inset-y-0 left-0 flex w-10 items-center justify-center transition-[opacity,transform] duration-100 ease-linear motion-reduce:transition-none',
+              expanded
+                ? 'pointer-events-none delay-0 scale-x-75 opacity-0'
+                : 'delay-100 scale-x-100 opacity-100',
+            )}
+          >
+            <Separator className="w-8" />
+          </div>
+        </div>
+        <Collapsible.Content className="flex flex-col gap-1">
+          {children}
+        </Collapsible.Content>
+      </Collapsible>
+    </section>
+  );
+};
 
 const NavigationActivityPeek = ({
   activity,
@@ -294,6 +320,12 @@ export const NavigationActivityRail = ({
   const [previewActivityId, setPreviewActivityId] = useState<string | null>(
     null,
   );
+  const pluginActivities = visibleActivities.filter(
+    (activity) => activity.kind === 'plugin',
+  );
+  const coreActivities = visibleActivities.filter(
+    (activity) => activity.kind === 'core',
+  );
 
   useEffect(() => {
     if (!hoverEnabled) {
@@ -309,6 +341,46 @@ export const NavigationActivityRail = ({
     modules: [],
     defaultPath: 'my-inbox',
   };
+
+  const renderActivity = (activity: INavigationActivity) => {
+    const active = !isSettings && activity.id === activeActivityId;
+
+    if (!hoverEnabled) {
+      return (
+        <NavigationActivityButton
+          key={activity.id}
+          activity={activity}
+          active={active}
+          expanded={expanded}
+          pinned={isActivityPinned(activity.id)}
+          onPinnedChange={(pinned) =>
+            onActivityPinnedChange(activity.id, pinned)
+          }
+          onSelect={() => onSelectActivity(activity)}
+        />
+      );
+    }
+
+    return (
+      <NavigationActivityHover
+        key={activity.id}
+        activity={activity}
+        active={active}
+        expanded={expanded}
+        open={previewActivityId === activity.id}
+        pinned={isActivityPinned(activity.id)}
+        onClose={() =>
+          setPreviewActivityId((currentActivityId) =>
+            currentActivityId === activity.id ? null : currentActivityId,
+          )
+        }
+        onOpen={() => setPreviewActivityId(activity.id)}
+        onPinnedChange={(pinned) => onActivityPinnedChange(activity.id, pinned)}
+        onSelect={() => onSelectActivity(activity)}
+      />
+    );
+  };
+
   return (
     <aside
       className={cn(
@@ -341,77 +413,32 @@ export const NavigationActivityRail = ({
           expanded ? 'items-stretch gap-1' : 'items-center gap-1',
         )}
       >
-        <NavigationSectionHeading
+        <NavigationActivitySection
           expanded={expanded}
           label={sidebarT('favorites')}
-        />
-        <NavigationActivityButton
-          activity={inboxActivity}
-          active={isInboxActive}
-          expanded={expanded}
-          indicator={<NotificationCount />}
-          onSelect={onSelectInbox}
-        />
-        <SidebarNavigationFavorites expanded={expanded} />
-        {visibleActivities[0] && (
-          <NavigationSectionHeading
+        >
+          <NavigationActivityButton
+            activity={inboxActivity}
+            active={isInboxActive}
             expanded={expanded}
-            label={t(
-              visibleActivities[0].kind === 'plugin'
-                ? 'plugins'
-                : 'core-modules',
-            )}
+            indicator={<NotificationCount />}
+            onSelect={onSelectInbox}
           />
+          <SidebarNavigationFavorites expanded={expanded} />
+        </NavigationActivitySection>
+        {pluginActivities.length > 0 && (
+          <NavigationActivitySection expanded={expanded} label={t('plugins')}>
+            {pluginActivities.map(renderActivity)}
+          </NavigationActivitySection>
         )}
-        {visibleActivities.map((activity, index) => {
-          const active = !isSettings && activity.id === activeActivityId;
-          const startsCoreSection =
-            activity.kind === 'core' &&
-            visibleActivities[index - 1]?.kind === 'plugin';
-
-          return (
-            <Fragment key={activity.id}>
-              {startsCoreSection && (
-                <NavigationSectionHeading
-                  expanded={expanded}
-                  label={t('core-modules')}
-                />
-              )}
-              {!hoverEnabled ? (
-                <NavigationActivityButton
-                  activity={activity}
-                  active={active}
-                  expanded={expanded}
-                  pinned={isActivityPinned(activity.id)}
-                  onPinnedChange={(pinned) =>
-                    onActivityPinnedChange(activity.id, pinned)
-                  }
-                  onSelect={() => onSelectActivity(activity)}
-                />
-              ) : (
-                <NavigationActivityHover
-                  activity={activity}
-                  active={active}
-                  expanded={expanded}
-                  open={previewActivityId === activity.id}
-                  pinned={isActivityPinned(activity.id)}
-                  onClose={() =>
-                    setPreviewActivityId((currentActivityId) =>
-                      currentActivityId === activity.id
-                        ? null
-                        : currentActivityId,
-                    )
-                  }
-                  onOpen={() => setPreviewActivityId(activity.id)}
-                  onPinnedChange={(pinned) =>
-                    onActivityPinnedChange(activity.id, pinned)
-                  }
-                  onSelect={() => onSelectActivity(activity)}
-                />
-              )}
-            </Fragment>
-          );
-        })}
+        {coreActivities.length > 0 && (
+          <NavigationActivitySection
+            expanded={expanded}
+            label={t('core-modules')}
+          >
+            {coreActivities.map(renderActivity)}
+          </NavigationActivitySection>
+        )}
         <NavigationActivityMore
           activities={activities}
           expanded={expanded}

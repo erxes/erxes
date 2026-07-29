@@ -1,20 +1,34 @@
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
+import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
 import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
+import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
-import { Sidebar, useQueryState } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { cn, Sidebar, useQueryState } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
 import { Outlet } from 'react-router';
 
 const NavigationWorkspace = () => {
   const { isMobile } = Sidebar.useSidebar();
+  const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
 
   return (
-    <Sidebar.Inset className="h-svh grow-0 shrink basis-full overflow-hidden pt-10 shadow-sidebar-inset">
+    <Sidebar.Inset
+      className={cn(
+        'h-svh grow-0 shrink basis-full overflow-hidden shadow-sidebar-inset',
+        tabsVisible && 'pt-10',
+      )}
+    >
       <div className="relative flex min-h-0 flex-1">
         {!isMobile && <NavigationPanel />}
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem]">
+        <div
+          className={cn(
+            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem]',
+            !tabsVisible && '[--visited-page-tabs-open-button-space:2.75rem]',
+          )}
+        >
+          <VisitedPageTabsOpenButton />
           <FloatingWidgets />
           <Outlet />
         </div>
@@ -26,6 +40,7 @@ const NavigationWorkspace = () => {
 export const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useAtom(navigationSidebarOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');
+  const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
 
   if (inPreview) {
     return <Outlet />;
@@ -41,7 +56,11 @@ export const DefaultLayout = () => {
       sidebarWidthIcon="3.5rem"
     >
       <VisitedPageTabs />
-      <Sidebar collapsible="icon" variant="sidebar" className="p-0 pt-10">
+      <Sidebar
+        collapsible="icon"
+        variant="sidebar"
+        className={cn('p-0', tabsVisible && 'pt-10')}
+      >
         <MainNavigationBar />
       </Sidebar>
       <NavigationWorkspace />

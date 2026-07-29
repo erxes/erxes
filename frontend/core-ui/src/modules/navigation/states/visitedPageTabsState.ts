@@ -16,6 +16,11 @@ const storedVisitedPageTabsState = atomWithStorage<IVisitedPageTab[]>(
   },
 );
 
+export const visitedPageTabsVisibleState = atomWithStorage(
+  'navigation:visited-page-tabs-visible',
+  true,
+);
+
 export const visitedPageTabsState = atom(
   (get) => normalizeVisitedPageTabs(get(storedVisitedPageTabsState)),
   (get, set, update: VisitedPageTabsUpdate) => {

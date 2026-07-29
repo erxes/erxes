@@ -1,7 +1,6 @@
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
 import { IconKeyboard } from '@tabler/icons-react';
 import { Button, HoverCard, Kbd } from 'erxes-ui';
-import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const VisitedPageTabsShortcutGuide = () => {
@@ -12,6 +11,7 @@ export const VisitedPageTabsShortcutGuide = () => {
     { label: t('previous-tab'), shortcutKey: '[' },
     { label: t('close-current-tab'), shortcutKey: 'W' },
     { label: t('close-all-tabs'), shortcutKey: 'X' },
+    { label: t('toggle-tabs-row'), shortcutKey: 'T' },
   ];
 
   return (
@@ -27,35 +27,27 @@ export const VisitedPageTabsShortcutGuide = () => {
           <IconKeyboard className="size-4" />
         </Button>
       </HoverCard.Trigger>
-      <HoverCard.Content align="end" className="w-72 p-1" side="bottom">
-        <div className="px-2 py-1.5 text-xs font-medium text-accent-foreground">
+      <HoverCard.Content
+        align="end"
+        className="w-64 max-w-[calc(100vw-1rem)] p-0"
+        side="bottom"
+      >
+        <div className="border-b px-2 py-2 text-xs font-medium text-muted-foreground">
           {t('tab-shortcuts')}
         </div>
-        <div className="-mx-1 my-1 h-px bg-muted" />
-        {shortcuts.map(({ label, shortcutKey }) => (
-          <div
-            className="grid h-9 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-sm px-2 text-sm font-medium"
-            key={shortcutKey}
-          >
-            <span className="whitespace-nowrap">{label}</span>
-            <Kbd className="h-6 gap-1.5 border-primary/25 bg-primary/10 px-2 font-mono text-foreground opacity-100 shadow-none">
-              {[...modifierKeys, shortcutKey].map((key, index) => (
-                <Fragment key={`${shortcutKey}-${key}`}>
-                  {index > 0 && (
-                    <span className="text-muted-foreground">+</span>
-                  )}
-                  <span
-                    className={
-                      index === modifierKeys.length ? 'text-primary' : undefined
-                    }
-                  >
-                    {key}
-                  </span>
-                </Fragment>
-              ))}
-            </Kbd>
-          </div>
-        ))}
+        <div className="py-0.5">
+          {shortcuts.map(({ label, shortcutKey }) => (
+            <div
+              className="flex min-h-7 items-center justify-between gap-2 px-2 py-0.5"
+              key={shortcutKey}
+            >
+              <span className="text-[13px] text-foreground">{label}</span>
+              <Kbd className="h-auto min-w-0 shrink-0 border-0 bg-transparent p-0 font-sans text-[13px] font-normal text-muted-foreground opacity-100">
+                {[...modifierKeys, shortcutKey].join(' ')}
+              </Kbd>
+            </div>
+          ))}
+        </div>
       </HoverCard.Content>
     </HoverCard>
   );
