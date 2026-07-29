@@ -96,5 +96,5 @@ export const DepartmentsMoreColumnCell = ({
 export const DepartmentsMoreColumn = {
   id: 'more',
   cell: DepartmentsMoreColumnCell,
-  size: 25,
+  size: 33,
 };

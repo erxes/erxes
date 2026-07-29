@@ -49,5 +49,5 @@ export const facebookBotMoreColumn = (): ColumnDef<IFacebookBot> => ({
   cell: (cell: CellContext<IFacebookBot, unknown>) => (
     <FacebookBotMoreColumnCell cell={cell} />
   ),
-  size: 56,
+  size: 33,
 });

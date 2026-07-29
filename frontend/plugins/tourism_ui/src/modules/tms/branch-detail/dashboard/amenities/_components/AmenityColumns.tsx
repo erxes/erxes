@@ -23,8 +23,8 @@ export const amenityColumns = (
   mainLanguage?: string,
   t: (key: string) => string = (k) => k,
 ): ColumnDef<IAmenity>[] => [
-  RecordTable.checkboxColumn as ColumnDef<IAmenity>,
   amenityMoreColumn(branchId, branchLanguages, mainLanguage),
+  RecordTable.checkboxColumn as ColumnDef<IAmenity>,
   {
     id: 'icon',
     accessorKey: 'icon',

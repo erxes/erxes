@@ -248,10 +248,10 @@ export const sendMessage = async (
   );
 
   try {
-    // Send the actual message
+
     return await sendReply(
       models,
-      `${recipientId}/messages`,
+      'me/messages',
       {
         recipient: { id: senderId },
         message,
@@ -298,7 +298,7 @@ async function trySendTypingOn(
   try {
     await sendReply(
       models,
-      `${recipientId}/messages`,
+      'me/messages',
       {
         recipient: { id: senderId },
         sender_action: 'typing_on',

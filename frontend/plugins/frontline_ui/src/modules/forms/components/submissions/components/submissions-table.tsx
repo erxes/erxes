@@ -231,7 +231,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
   }));
   const moreColumns: ColumnDef<FlatRow> = {
     id: 'more',
-    size: 30,
+    size: 33,
     header: () => <RecordTable.ColumnSelector />,
     cell: MoreColumnCell,
   };
