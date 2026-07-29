@@ -37,13 +37,15 @@ export function useQueryState<T>(
 
   const setQuery = (value: T | null) => {
     const nextParams = new URLSearchParams(window.location.search);
-    const currentValue = parseQueryValue(nextParams.get(queryKey));
 
-    if (value !== null && value !== currentValue) {
+    if (value !== null) {
       const stringValue =
         typeof value === 'object' ? JSON.stringify(value) : String(value);
+
+      if (nextParams.get(queryKey) === stringValue) return;
+
       nextParams.set(queryKey, stringValue);
-    } else if (value === null && currentValue !== null) {
+    } else if (nextParams.has(queryKey)) {
       nextParams.delete(queryKey);
     } else {
       return;
@@ -94,17 +96,25 @@ export function useMultiQueryState<T extends QueryTypes>(
 
   const setQueries = (values: Partial<QueryValues<T>>) => {
     const nextParams = new URLSearchParams(window.location.search);
+    let hasChanges = false;
 
     Object.entries(values).forEach(([key, value]) => {
-      const currentValue = parseQueryValue(nextParams.get(key), key);
-      if (value !== null && value !== currentValue) {
+      if (value !== null) {
         const stringValue =
           typeof value === 'object' ? JSON.stringify(value) : String(value);
+
+        if (nextParams.get(key) === stringValue) return;
+
         nextParams.set(key, stringValue);
-      } else if (value === null && currentValue !== null) {
+        hasChanges = true;
+      } else if (nextParams.has(key)) {
         nextParams.delete(key);
+        hasChanges = true;
       }
     });
+
+    if (!hasChanges) return;
+
     setSearchParams(nextParams, { replace: true });
   };
 

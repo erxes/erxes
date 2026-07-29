@@ -95,7 +95,7 @@ export const SalesItemDetail = () => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
 
-  const isOpen = !!activeDealId || !!salesItemId;
+  const isOpen = Boolean(activeDealId) || Boolean(salesItemId);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
