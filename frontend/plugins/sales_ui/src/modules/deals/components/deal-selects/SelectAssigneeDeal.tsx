@@ -204,11 +204,18 @@ const SelectAssigneeDealRoot = ({
 
   const handleValueChange = (value: string | string[] | null) => {
     if (id) {
+      let assignedUserIds: string[] = [];
+
+      if (Array.isArray(value)) {
+        assignedUserIds = value;
+      } else if (value !== null) {
+        assignedUserIds = [value];
+      }
+
       editDeals({
         variables: {
           _id: id,
-          assignedUserIds:
-            value === null ? [] : Array.isArray(value) ? value : [value],
+          assignedUserIds,
         },
       });
     }
