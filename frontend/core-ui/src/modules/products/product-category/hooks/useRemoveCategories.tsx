@@ -1,5 +1,10 @@
 import { productsMutations } from '@/products/graphql';
-import { ApolloError, OperationVariables, useMutation } from '@apollo/client';
+import {
+  ApolloError,
+  OperationVariables,
+  useApolloClient,
+  useMutation,
+} from '@apollo/client';
 import { useState } from 'react';
 
 const normalizeCategoryIds = (categoryIds: string | string[]) => {
@@ -46,6 +51,7 @@ interface RemoveCategoryOptions {
 }
 
 export const useRemoveCategories = () => {
+  const client = useApolloClient();
   const [_removeCategory] = useMutation(productsMutations.categoryRemove);
   const [isRemoving, setIsRemoving] = useState<boolean>(false);
 
@@ -70,11 +76,12 @@ export const useRemoveCategories = () => {
             update: (cache) => {
               cache.evict({ fieldName: 'productCategories' });
               cache.evict({ fieldName: 'productCategoriesTotalCount' });
-              cache.gc();
             },
           }),
         ),
       );
+
+      client.cache.gc();
 
       const succeededIds: string[] = [];
       const errorMessages = new Map<string, string>();
