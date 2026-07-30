@@ -232,16 +232,17 @@ const ProductsList = ({
   const [categoryId, setCategoryId] = useState('');
   const [pipelineId] = useQueryState<string>('pipelineId');
 
-  const { products, handleFetchMore, totalCount, fetchingMore } = useProducts({
-    fetchPolicy: 'network-only',
-    variables: {
-      searchValue: debouncedSearch,
-      vendorId: companyId || undefined,
-      categoryIds: categoryId ? [categoryId] : undefined,
-      pipelineId: pipelineId || undefined,
-      sortField: '_id',
-    },
-  });
+  const { products, handleFetchMore, totalCount, loading, fetchingMore } =
+    useProducts({
+      fetchPolicy: 'network-only',
+      variables: {
+        searchValue: debouncedSearch,
+        vendorId: companyId || undefined,
+        categoryIds: categoryId ? [categoryId] : undefined,
+        pipelineId: pipelineId || undefined,
+        sortField: '_id',
+      },
+    });
 
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
@@ -260,6 +261,7 @@ const ProductsList = ({
 
   const selectionLimitReached =
     selectionLimit !== undefined && selectedProductIds.length >= selectionLimit;
+  const initialLoading = loading && !products.length;
   const unselectedProducts = products.filter(
     (product) => !selectedProductIds.includes(product._id),
   );
@@ -307,42 +309,46 @@ const ProductsList = ({
           </div>
         </div>
         <div className="mt-4 text-xs text-accent-foreground">
-          {totalCount} results
+          {!initialLoading && `${totalCount} results`}
         </div>
       </div>
       <Separator />
       <div className="overflow-auto flex-1">
         <div className="flex flex-col gap-1 p-4 min-w-max">
-          {availableProducts.map((product) => {
-            return (
-              <Button
-                key={product._id}
-                variant="ghost"
-                className="min-h-9 h-auto w-full justify-start font-normal whitespace-nowrap text-left"
-                disabled={selectionLimitReached}
-                onClick={() => handleProductSelect(product)}
-              >
-                <div className="flex flex-1 gap-2 items-center">
-                  <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
-                    {product.code}
-                  </span>
-                  <span className="truncate">{product.name}</span>
-                  <span className="ml-auto flex items-center gap-2 shrink-0">
-                    <span className="text-xs tabular-nums font-medium">
-                      <span className="text-muted-foreground font-normal mr-0.5">
-                        {product.currency ?? ''}
+          {initialLoading ? (
+            <SkeletonArray count={8} className="w-full h-9" />
+          ) : (
+            availableProducts.map((product) => {
+              return (
+                <Button
+                  key={product._id}
+                  variant="ghost"
+                  className="min-h-9 h-auto w-full justify-start font-normal whitespace-nowrap text-left"
+                  disabled={selectionLimitReached}
+                  onClick={() => handleProductSelect(product)}
+                >
+                  <div className="flex flex-1 gap-2 items-center">
+                    <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
+                      {product.code}
+                    </span>
+                    <span className="truncate">{product.name}</span>
+                    <span className="ml-auto flex items-center gap-2 shrink-0">
+                      <span className="text-xs tabular-nums font-medium">
+                        <span className="text-muted-foreground font-normal mr-0.5">
+                          {product.currency ?? ''}
+                        </span>
+                        {fixNum(product.unitPrice).toLocaleString()}
                       </span>
-                      {fixNum(product.unitPrice).toLocaleString()}
+                      <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
+                        {product.remainder.remainder ?? 0} {product.uom ?? ''}
+                      </span>
                     </span>
-                    <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
-                      {product.remainder.remainder ?? 0} {product.uom ?? ''}
-                    </span>
-                  </span>
-                </div>
-                <IconPlus className="ml-2 shrink-0" />
-              </Button>
-            );
-          })}
+                  </div>
+                  <IconPlus className="ml-2 shrink-0" />
+                </Button>
+              );
+            })
+          )}
 
           {products.length < totalCount && (
             <div className="flex min-h-px flex-col gap-1" ref={bottomRef}>
