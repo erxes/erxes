@@ -187,7 +187,7 @@ export async function discordRepairIntegrations({
     return { status: 'error', errorMessage: 'Discord bot not found' };
   }
 
-  await models.DiscordBots.validateConnection(bot._id);
+  await models.DiscordBots.revalidateToken(bot.token);
 
   try {
     await disconnectDiscordToken(subdomain, bot.token);
@@ -197,4 +197,36 @@ export async function discordRepairIntegrations({
   }
 
   return { status: 'success' };
+}
+
+export async function discordStatus({
+  subdomain,
+  data,
+}: {
+  subdomain: string;
+  data: { integrationId: string };
+}) {
+  const healthy = { data: { status: 'healthy' }, status: 'success' };
+
+  try {
+    const models = await generateModels(subdomain);
+    const bot = await models.DiscordBots.findOne({
+      erxesApiId: data.integrationId,
+    });
+
+    if (!bot) {
+      return healthy;
+    }
+
+    return {
+      data: {
+        status: bot.health?.status || 'healthy',
+        error: bot.health?.lastError,
+      },
+      status: 'success',
+    };
+  } catch (e) {
+    debugError(`Failed to read Discord bot health: ${getErrorMessage(e)}`);
+    return healthy;
+  }
 }

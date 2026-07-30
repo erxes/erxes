@@ -28,8 +28,6 @@ export interface IAutomatedReplyControl {
   updatedBy?: string;
 }
 
-// A poll carried on a message's `extraData` (currently produced by the Discord
-// integration). `results` is absent until the first vote.
 export interface IMessagePoll {
   question: string;
   answers: { id: number; text: string; emoji?: string }[];
@@ -41,10 +39,6 @@ export interface IMessagePoll {
   };
 }
 
-// A preview card carried on a message's `extraData` (produced by the Discord
-// integration from a message's `embeds[]`): link previews, Tenor/Giphy GIFs, and
-// bot rich embeds. `type` selects the renderer (`gifv`/`video` play inline,
-// `image` shows the image, everything else renders as a rich card).
 export interface IMessageEmbed {
   type?: string;
   title?: string;
@@ -63,6 +57,7 @@ export interface IMessageEmbed {
 
 export interface IMessage {
   _id: string;
+  conversationId?: string;
   userId?: string;
   customerId?: string;
   content: string;
@@ -70,11 +65,14 @@ export interface IMessage {
   updatedAt: string;
   attachments?: IAttachment[];
   formWidgetData?: IFormWidgetItem[];
-  extraData?: { poll?: IMessagePoll; embeds?: IMessageEmbed[] };
+  extraData?: {
+    poll?: IMessagePoll;
+    embeds?: IMessageEmbed[];
+    discordMessageId?: string;
+    discordDeletedAt?: string;
+  };
   internal?: boolean;
   botData?: unknown[];
-  // Set on messages an automation sent (e.g. the AI Agent), so the inbox can
-  // render them differently from human-written messages.
   fromBot?: boolean;
 }
 

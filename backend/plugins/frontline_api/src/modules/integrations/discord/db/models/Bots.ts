@@ -6,9 +6,29 @@ import {
   IDiscordBotDocument,
   IDiscordBotEditInput,
 } from '@/integrations/discord/@types/bot';
-import { getCurrentBotUser, sanitizeToken } from '@/integrations/discord/utils';
+import {
+  DiscordApiError,
+  getApplicationInfo,
+  getCurrentBotUser,
+  resolveMissingIntents,
+  sanitizeToken,
+} from '@/integrations/discord/utils';
 import { DISCORD_INBOX_KIND } from '@/integrations/discord/constants';
 import { debugError } from '@/integrations/discord/debuggers';
+
+const probeMissingIntents = async (
+  token: string,
+): Promise<string[] | undefined> => {
+  try {
+    const appInfo = await getApplicationInfo(token);
+    return resolveMissingIntents(appInfo?.flags);
+  } catch (e) {
+    debugError(
+      `Discord application info probe failed: ${(e as Error).message}`,
+    );
+    return undefined;
+  }
+};
 
 export interface IDiscordBotModel extends Model<IDiscordBotDocument> {
   getBot(_id: string): Promise<IDiscordBotDocument>;
@@ -24,6 +44,12 @@ export interface IDiscordBotModel extends Model<IDiscordBotDocument> {
     doc: IDiscordBotEditInput & { updatedBy: string },
   ): Promise<IDiscordBotDocument>;
   validateConnection(_id: string): Promise<IDiscordBotDocument>;
+  markTokenBroken(
+    token: string,
+    reason: string,
+    tokenValid?: boolean,
+  ): Promise<void>;
+  revalidateToken(token: string): Promise<boolean>;
   ensureInboxIntegration(
     _id: string,
     userId?: string,
@@ -148,6 +174,7 @@ export const loadDiscordBotClass = (models: IModels) => {
 
       try {
         const botUser = await getCurrentBotUser(bot.token);
+        const missingIntents = await probeMissingIntents(bot.token);
 
         return setHealth({
           status: 'healthy',
@@ -155,6 +182,7 @@ export const loadDiscordBotClass = (models: IModels) => {
           botUsername: botUser?.username,
           lastVerifiedAt: new Date(),
           lastError: undefined,
+          missingIntents,
         });
       } catch (e) {
         debugError(
@@ -170,6 +198,76 @@ export const loadDiscordBotClass = (models: IModels) => {
           lastError: 'Invalid bot token',
         });
       }
+    }
+
+    public static async markTokenBroken(
+      token: string,
+      reason: string,
+      tokenValid = false,
+    ) {
+      if (!token) {
+        return;
+      }
+
+      await models.DiscordBots.updateMany(
+        { token },
+        {
+          $set: {
+            'health.status': 'broken',
+            'health.isTokenValid': tokenValid,
+            'health.lastError': reason,
+            'health.lastVerifiedAt': new Date(),
+          },
+        },
+      );
+    }
+
+    public static async revalidateToken(token: string) {
+      if (!token) {
+        return false;
+      }
+
+      let botUsername: string | undefined;
+      try {
+        botUsername = (await getCurrentBotUser(token))?.username;
+      } catch (e) {
+        const status = e instanceof DiscordApiError ? e.status : undefined;
+
+        if (status !== 401 && status !== 403) {
+          debugError(
+            `Discord token probe failed transiently (${
+              status ?? 'network'
+            }): ${(e as Error).message}`,
+          );
+          return true;
+        }
+
+        await models.DiscordBots.markTokenBroken(
+          token,
+          `Discord rejected this bot token: ${(e as Error).message}`,
+        );
+        return false;
+      }
+
+      const missingIntents = await probeMissingIntents(token);
+
+      await models.DiscordBots.updateMany(
+        { token },
+        {
+          $set: {
+            'health.status': 'healthy',
+            'health.isTokenValid': true,
+            'health.lastVerifiedAt': new Date(),
+            ...(botUsername ? { 'health.botUsername': botUsername } : {}),
+            ...(missingIntents
+              ? { 'health.missingIntents': missingIntents }
+              : {}),
+          },
+          $unset: { 'health.lastError': '' },
+        },
+      );
+
+      return true;
     }
 
     public static async ensureInboxIntegration(

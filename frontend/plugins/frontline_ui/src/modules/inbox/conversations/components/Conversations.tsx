@@ -123,10 +123,6 @@ export const Conversations = () => {
     [conversations, loading, totalCount],
   );
 
-  // Resolve thread/channel metadata for the loaded Discord conversations so the
-  // list can nest threads under their parent channel and show the channel as the
-  // profile in group mode. Only Discord ids are sent, so non-Discord inboxes
-  // never trigger the query.
   const discordConversationIds = useMemo(
     () =>
       (conversations || [])
@@ -134,7 +130,8 @@ export const Conversations = () => {
         .map((conversation) => conversation._id),
     [conversations],
   );
-  const threadMap = useDiscordConversationChannels(discordConversationIds);
+  const { channelMap, loading: channelInfoLoading } =
+    useDiscordConversationChannels(discordConversationIds);
 
   const renderConversationItem = (conversation: IConversation) => (
     <ConversationContext.Provider
@@ -142,7 +139,12 @@ export const Conversations = () => {
       value={{ ...conversation, tagIds: conversation.tagIds ?? [] }}
     >
       <ConversationItem
-        channelInfo={threadMap.get(conversation._id)}
+        channelInfo={channelMap.get(conversation._id)}
+        channelInfoPending={
+          channelInfoLoading &&
+          isDiscordConversation(conversation) &&
+          !channelMap.has(conversation._id)
+        }
         onConversationSelect={() => {
           setConversationsContainerScroll(containerRef.current?.scrollTop || 0);
           setRerendered(true);
@@ -161,15 +163,9 @@ export const Conversations = () => {
         </Filter>
         <Separator />
         <div className="h-full w-full overflow-y-auto" ref={containerRef}>
-          {/* The inbox renders a flat conversation list. Per-channel selection
-              lives in the sidebar's "Discord Channels" section (sets
-              `integrationId`); when a channel is selected the list is already
-              server-side isolated to it. Threads still nest under their parent
-              via ConversationThreadList; non-Discord inboxes have an empty
-              threadMap, so everything renders as one flat list. */}
           <ConversationThreadList
             conversations={conversations || []}
-            threadMap={threadMap}
+            threadMap={channelMap}
             renderItem={renderConversationItem}
           />
           {!loading && conversations?.length > 0 && pageInfo?.hasNextPage && (

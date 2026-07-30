@@ -342,6 +342,8 @@
   "na": "N/A",
   "loading-boards": "Loading boards...",
   "select-pricing": "Select Pricing",
+  "search-pricing": "Search pricing...",
+  "no-pricing-found": "No pricing found",
   "select-board": "Select board",
   "no-boards-found": "No boards found",
   "loading-pipelines": "Loading pipelines...",
