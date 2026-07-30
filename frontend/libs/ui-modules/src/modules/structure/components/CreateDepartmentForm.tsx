@@ -58,7 +58,7 @@ export const CreateDepartmentForm = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.stopPropagation();
-    void form.handleSubmit(onSubmit)(event);
+    form.handleSubmit(onSubmit)(event);
   };
 
   return (
