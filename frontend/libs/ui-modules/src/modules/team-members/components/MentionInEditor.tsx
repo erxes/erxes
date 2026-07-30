@@ -2,6 +2,13 @@ import {
   SuggestionMenuController,
   SuggestionMenuProps,
 } from '@blocknote/react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import { IBlockEditor, SuggestionMenu, SuggestionMenuItem, cn } from 'erxes-ui';
 
 export type EditorMentionItem = {
@@ -17,73 +24,119 @@ type MentionSuggestionItem = {
   onItemClick?: () => void;
 };
 
-/**
- * Type-`@`-to-mention control for the shared BlockNote editor. Lives in
- * `ui-modules` (not the consuming remote) so importing `@blocknote/react`'s
- * `SuggestionMenuController` resolves against the host singleton — importing it
- * from inside a remote plugin breaks the editor context. Mentions are drawn from
- * the caller-provided `participants` list and inserted as the shared `mention`
- * inline node, identical to what `AssignMemberInEditor` produces.
- */
+const MentionStatusContext = createContext<string | undefined>(undefined);
+
 export const MentionInEditor = ({
   editor,
   participants,
   emptyText = 'No participants yet',
+  searchItems,
+  statusNote,
 }: {
   editor: IBlockEditor;
   participants: EditorMentionItem[];
   emptyText?: string;
+  searchItems?: (query: string) => Promise<EditorMentionItem[]>;
+  statusNote?: string;
 }) => {
-  return (
-    <SuggestionMenuController
-      triggerCharacter="@"
-      suggestionMenuComponent={MentionMenu}
-      onItemClick={(item: MentionSuggestionItem) => item.onItemClick?.()}
-      // skipcq: JS-0116 — BlockNote's getItems prop must return a Promise, so
-      // `async` is required here even without an explicit await.
-      getItems={async (query) => {
-        if (participants.length === 0) {
-          return [{ title: emptyText, isPlaceholder: true }];
+  const participantsRef = useRef(participants);
+  const searchItemsRef = useRef(searchItems);
+  const emptyTextRef = useRef(emptyText);
+
+  useLayoutEffect(() => {
+    participantsRef.current = participants;
+    searchItemsRef.current = searchItems;
+    emptyTextRef.current = emptyText;
+  });
+
+  const handleItemClick = useCallback(
+    (item: MentionSuggestionItem) => item.onItemClick?.(),
+    [],
+  );
+
+  const getItems = useCallback(
+    async (query: string): Promise<MentionSuggestionItem[]> => {
+      const participantList = participantsRef.current;
+      const search = searchItemsRef.current;
+
+      const trimmed = query.trim();
+      const lowered = trimmed.toLowerCase();
+
+      const localMatches = lowered
+        ? participantList.filter((participant) =>
+            (participant.fullName || '').toLowerCase().includes(lowered),
+          )
+        : participantList;
+
+      const merged = new Map<string, EditorMentionItem>();
+
+      for (const participant of localMatches) {
+        merged.set(participant.id, participant);
+      }
+
+      if (search && lowered) {
+        const remote = await search(trimmed).catch(
+          () => [] as EditorMentionItem[],
+        );
+
+        for (const item of remote) {
+          if (!merged.has(item.id)) {
+            merged.set(item.id, item);
+          }
         }
+      }
 
-        const lowered = query.trim().toLowerCase();
-        const filtered = lowered
-          ? participants.filter((participant) =>
-              (participant.fullName || '').toLowerCase().includes(lowered),
-            )
-          : participants;
+      const filtered = [...merged.values()];
 
-        if (filtered.length === 0) {
-          return [{ title: 'No results found', isPlaceholder: true }];
-        }
-
-        return filtered.map((participant) => ({
-          title: participant.fullName || 'Unknown',
-          item: participant,
-          onItemClick: () => {
-            editor.suggestionMenus.clearQuery();
-            editor.suggestionMenus.closeMenu();
-
-            editor.insertInlineContent([
-              {
-                type: 'mention',
-                props: {
-                  fullName: participant.fullName || 'Unknown',
-                  _id: participant.id,
-                },
-              },
-              ' ',
-            ]);
+      if (filtered.length === 0) {
+        return [
+          {
+            title: participantList.length
+              ? 'No results found'
+              : emptyTextRef.current,
+            isPlaceholder: true,
           },
-        }));
-      }}
-    />
+        ];
+      }
+
+      return filtered.map((participant) => ({
+        title: participant.fullName || 'Unknown',
+        item: participant,
+        onItemClick: () => {
+          editor.suggestionMenus.clearQuery();
+          editor.suggestionMenus.closeMenu();
+
+          editor.insertInlineContent([
+            {
+              type: 'mention',
+              props: {
+                fullName: participant.fullName || 'Unknown',
+                _id: participant.id,
+              },
+            },
+            ' ',
+          ]);
+        },
+      }));
+    },
+    [editor],
+  );
+
+  return (
+    <MentionStatusContext.Provider value={statusNote}>
+      <SuggestionMenuController
+        triggerCharacter="@"
+        suggestionMenuComponent={MentionMenu}
+        onItemClick={handleItemClick}
+        getItems={getItems}
+      />
+    </MentionStatusContext.Provider>
   );
 };
 
-/** Renders the `@`-mention suggestion list (or a placeholder row). */
 function MentionMenu(props: SuggestionMenuProps<MentionSuggestionItem>) {
   const { items, selectedIndex } = props;
+  const statusNote = useContext(MentionStatusContext);
   const mentionItems = items as MentionSuggestionItem[];
 
   return (
@@ -92,7 +145,7 @@ function MentionMenu(props: SuggestionMenuProps<MentionSuggestionItem>) {
         if (entry.isPlaceholder) {
           return (
             <div
-              key="placeholder"
+              key={`placeholder-${index}`}
               className="p-2 text-muted-foreground italic cursor-default"
             >
               {entry.title}
@@ -132,6 +185,11 @@ function MentionMenu(props: SuggestionMenuProps<MentionSuggestionItem>) {
           </SuggestionMenuItem>
         );
       })}
+      {statusNote && (
+        <div className="px-2 py-1.5 border-t text-xs text-muted-foreground">
+          {statusNote}
+        </div>
+      )}
     </SuggestionMenu>
   );
 }

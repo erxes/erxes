@@ -3,7 +3,9 @@ import { IModels } from '~/connectionResolvers';
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
 import {
   DiscordActivity,
+  DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
+  DiscordTypingEvent,
 } from '@/integrations/discord/@types/activity';
 import {
   isIgnorableActivity,
@@ -13,13 +15,6 @@ import {
 import { getMessage } from '@/integrations/discord/utils';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
-/**
- * Resolves the local conversation that owns a previously-stored Discord message.
- * Edit and poll-vote events both reference a message we've already ingested, so
- * we recover the conversation (and its inbox `erxesApiId`) through the message
- * mirror rather than re-deriving channel+author. Returns `null` when the message
- * predates the integration (nothing to route).
- */
 const resolveConversationByMessageId = async (
   models: IModels,
   messageId: string,
@@ -47,30 +42,13 @@ const resolveConversationByMessageId = async (
   return { message, conversation };
 };
 
-/**
- * Merges `extraPatch` into the inbox message that mirrors `discordMessageId`
- * (located via the `extraData.discordMessageId` stamp set when the message was
- * stored) and re-publishes `conversationMessageInserted`. Shared by the live
- * structured-content updates — poll-vote tallies and asynchronously-unfurled
- * embeds. Re-emitting the same message `_id` with fresh `extraData` updates the
- * card in place (the frontend replaces a same-id message rather than appending),
- * so no separate "message updated" subscription is needed. No-op when the poll/
- * embed predates the stamping or isn't mirrored to the inbox.
- */
 const updateInboxMessageExtra = async (
   models: IModels,
   discordMessageId: string,
   extraPatch: Record<string, unknown>,
+  rootPatch: Record<string, unknown> = {},
 ): Promise<boolean> => {
-  // Set each patched key by path (`extraData.poll`, `extraData.embeds`) so Mongo
-  // merges into the existing `extraData` server-side. This does it in one
-  // round-trip (no read-then-merge, no re-read to publish) AND is atomic per
-  // key: a concurrent poll-vote and embed unfurl patch different sub-keys, so
-  // they can't clobber each other the way a whole-object read-merge-write would.
-  // `extraData` is guaranteed to exist on any matched row (that's how it's
-  // located), and `discordMessageId` is left untouched since only the patched
-  // keys are set.
-  const setOps: Record<string, unknown> = {};
+  const setOps: Record<string, unknown> = { ...rootPatch };
   for (const [key, value] of Object.entries(extraPatch)) {
     setOps[`extraData.${key}`] = value;
   }
@@ -85,8 +63,6 @@ const updateInboxMessageExtra = async (
     return false;
   }
 
-  // `{ new: true }` returns the post-update doc, so the same round-trip yields
-  // both the conversation id (topic) and the fresh `extraData` (payload).
   await graphqlPubsub.publish(
     `conversationMessageInserted:${updated.conversationId}`,
     { conversationMessageInserted: updated },
@@ -95,13 +71,6 @@ const updateInboxMessageExtra = async (
   return true;
 };
 
-/**
- * `MESSAGE_UPDATE` → keeps the inbox in sync with a Discord edit. Updates the
- * local mirror's content so AI context / history reflect the edit. Discord also
- * unfurls link/Tenor/Giphy previews asynchronously and re-delivers the message
- * here with `embeds[]` populated, so this is where preview cards are refreshed
- * onto the inbox message.
- */
 export const receiveDiscordMessageEdit = async ({
   models,
   activity,
@@ -109,7 +78,7 @@ export const receiveDiscordMessageEdit = async ({
   models: IModels;
   activity: DiscordActivity;
 }) => {
-  if (isIgnorableActivity(activity)) {
+  if (isIgnorableActivity(activity, { allowBotAuthor: true })) {
     return;
   }
 
@@ -124,22 +93,12 @@ export const receiveDiscordMessageEdit = async ({
 
   const { message, conversation } = resolved;
 
-  // Surface newly-unfurled previews (link cards, Tenor/Giphy) on the inbox
-  // message. Only set when embeds are present: a plain text edit re-delivers the
-  // message with an empty `embeds[]`, and we must not wipe an existing preview
-  // card on such an update.
   if (activity.embeds?.length) {
     await updateInboxMessageExtra(models, activity.messageId, {
       embeds: activity.embeds,
     });
   }
 
-  // Discord re-delivers a message via MESSAGE_UPDATE for two reasons: a genuine
-  // user edit, or an automatic embed unfurl. The unfurl payload is partial and
-  // omits `content`, so a present `content` field is what distinguishes a real
-  // edit. We branch on it to avoid (a) blanking the mirror's stored text — which
-  // AI context / history read — when the unfurl carries no content, and (b)
-  // firing the "message edited" automation on every link a user posts.
   const editedContent =
     typeof activity.raw?.content === 'string' ? activity.content : undefined;
 
@@ -147,16 +106,21 @@ export const receiveDiscordMessageEdit = async ({
     return;
   }
 
-  // Mirror stores the display form (`<@ID>` -> `@Name`) to match ingestion.
   const displayContent = resolveDiscordMentions(
     editedContent,
     activity.mentions,
   );
 
-  // Keep the mirror current so generateAiContext/history show the edited text.
   await models.DiscordConversationMessages.updateOne(
     { _id: message._id },
     { $set: { content: displayContent, updatedAt: new Date() } },
+  );
+
+  await updateInboxMessageExtra(
+    models,
+    activity.messageId,
+    { discordEditedAt: new Date().toISOString() },
+    { content: displayContent },
   );
 
   debugDiscord(
@@ -164,15 +128,40 @@ export const receiveDiscordMessageEdit = async ({
   );
 };
 
-/**
- * `MESSAGE_POLL_VOTE_ADD` / `MESSAGE_POLL_VOTE_REMOVE` → refreshes the poll's
- * vote tallies in the inbox. The vote event carries only the answer id (not the
- * updated counts), so we re-fetch the message to read Discord's authoritative
- * `poll.results`, update the stored inbox message's `extraData.poll`, and
- * re-publish `conversationMessageInserted` so the open poll card updates live
- * (the inbox message is normalized by `_id`, so re-emitting it with fresh
- * `extraData` updates the card in place rather than duplicating it).
- */
+export const receiveDiscordMessageDelete = async ({
+  models,
+  event,
+}: {
+  models: IModels;
+  event: DiscordMessageDeleteEvent;
+}) => {
+  for (const messageId of event.messageIds) {
+    const resolved = await resolveConversationByMessageId(models, messageId);
+
+    if (!resolved) {
+      continue;
+    }
+
+    const deletedAt = new Date();
+
+    await models.DiscordConversationMessages.updateOne(
+      { _id: resolved.message._id },
+      { $set: { deletedAt } },
+    );
+
+    await updateInboxMessageExtra(
+      models,
+      messageId,
+      { discordDeletedAt: deletedAt.toISOString() },
+      { content: '' },
+    );
+
+    debugDiscord(
+      `Discord message ${messageId} deleted in conversation ${resolved.conversation.erxesApiId}`,
+    );
+  }
+};
+
 export const receiveDiscordPollVote = async ({
   models,
   bot,
@@ -187,7 +176,6 @@ export const receiveDiscordPollVote = async ({
     return;
   }
 
-  // Re-read the authoritative tallies from Discord (the vote event omits them).
   let poll;
   try {
     const fetched = await getMessage(
@@ -214,4 +202,41 @@ export const receiveDiscordPollVote = async ({
   if (updated) {
     debugDiscord(`Updated Discord poll ${event.messageId} tallies`);
   }
+};
+
+export const receiveDiscordTyping = async ({
+  models,
+  bot,
+  event,
+}: {
+  models: IModels;
+  bot: IDiscordBotDocument;
+  event: DiscordTypingEvent;
+}) => {
+  if (event.bot || !event.userId || event.userId === bot.applicationId) {
+    return;
+  }
+
+  const conversation = await models.DiscordConversations.findOne({
+    channelId: { $eq: event.channelId },
+  });
+
+  if (!conversation?.erxesApiId) {
+    return;
+  }
+
+  const customer = await models.DiscordCustomers.findOne({
+    userId: { $eq: event.userId },
+  });
+
+  await graphqlPubsub.publish(
+    `conversationClientTypingStatusChanged:${conversation.erxesApiId}`,
+    {
+      conversationClientTypingStatusChanged: {
+        conversationId: conversation.erxesApiId,
+        customerId: customer?.erxesApiId,
+        customerName: event.username || customer?.firstName || 'Discord user',
+      },
+    },
+  );
 };

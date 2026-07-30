@@ -9,7 +9,9 @@ import {
   APIComponentInMessageActionRow,
   APIEmbed,
   APIGuild,
+  APIGuildMember,
   APIMessage,
+  APIRole,
   APIThreadChannel,
   APIUser,
   ChannelType,
@@ -247,6 +249,7 @@ type TSendChannelMessageArgs = {
   components?: APIActionRowComponent<APIComponentInMessageActionRow>[];
   files?: DiscordMessageAttachment[];
   poll?: DiscordPollRequest;
+  messageReference?: string;
 };
 
 const typingTimers = new Map<string, ReturnType<typeof setInterval>>();
@@ -359,12 +362,19 @@ const postDiscordMessage = async ({
   components,
   files,
   poll,
+  messageReference,
 }: TSendChannelMessageArgs): Promise<APIMessage> => {
   const payload: Record<string, unknown> = {};
   if (content) payload.content = content;
   if (embeds?.length) payload.embeds = embeds;
   if (components?.length) payload.components = components;
   if (poll) payload.poll = poll;
+  if (messageReference) {
+    payload.message_reference = {
+      message_id: messageReference,
+      fail_if_not_exists: false,
+    };
+  }
 
   const path = `/channels/${channelId}/messages`;
 
@@ -419,7 +429,8 @@ const postDiscordMessage = async ({
 export const sendChannelMessage = async (
   args: TSendChannelMessageArgs,
 ): Promise<APIMessage> => {
-  const { token, channelId, content, embeds, components, files, poll } = args;
+  const { token, channelId, content, embeds, components, files, poll, messageReference } =
+    args;
   const { chunks, truncated } = splitDiscordContent(content || '');
 
   if (truncated) {
@@ -441,12 +452,18 @@ export const sendChannelMessage = async (
       components,
       files,
       poll,
+      messageReference,
     });
   }
 
   const lastText = chunks.pop() as string;
-  for (const chunk of chunks) {
-    await postDiscordMessage({ token, channelId, content: chunk });
+  for (let i = 0; i < chunks.length; i++) {
+    await postDiscordMessage({
+      token,
+      channelId,
+      content: chunks[i],
+      messageReference: i === 0 ? messageReference : undefined,
+    });
   }
   return postDiscordMessage({
     token,
@@ -482,10 +499,30 @@ export const getDiscordUser = (token: string, userId: string) => {
 
 const GATEWAY_MESSAGE_CONTENT = 1 << 18;
 const GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19;
+const GATEWAY_GUILD_MEMBERS = 1 << 14;
+const GATEWAY_GUILD_MEMBERS_LIMITED = 1 << 15;
 
 export const hasMessageContentIntent = (flags?: number): boolean =>
   typeof flags === 'number' &&
   (flags & (GATEWAY_MESSAGE_CONTENT | GATEWAY_MESSAGE_CONTENT_LIMITED)) !== 0;
+
+export const hasServerMembersIntent = (flags?: number): boolean =>
+  typeof flags === 'number' &&
+  (flags & (GATEWAY_GUILD_MEMBERS | GATEWAY_GUILD_MEMBERS_LIMITED)) !== 0;
+
+export const resolveMissingIntents = (flags?: number): string[] => {
+  const missing: string[] = [];
+
+  if (!hasMessageContentIntent(flags)) {
+    missing.push('MESSAGE_CONTENT');
+  }
+
+  if (!hasServerMembersIntent(flags)) {
+    missing.push('SERVER_MEMBERS');
+  }
+
+  return missing;
+};
 
 export const getApplicationInfo = (token: string) => {
   return discordRequest<APIApplication>({
@@ -542,6 +579,30 @@ export const getMessage = (
     path: `/channels/${channelId}/messages/${messageId}`,
   });
 };
+
+export const editChannelMessage = (
+  token: string,
+  channelId: string,
+  messageId: string,
+  content: string,
+) =>
+  discordRequest<APIMessage>({
+    token,
+    method: 'PATCH',
+    path: `/channels/${channelId}/messages/${messageId}`,
+    body: { content },
+  });
+
+export const deleteChannelMessage = (
+  token: string,
+  channelId: string,
+  messageId: string,
+) =>
+  discordRequest<unknown>({
+    token,
+    method: 'DELETE',
+    path: `/channels/${channelId}/messages/${messageId}`,
+  });
 
 type GuildChannelLike = {
   id: string;
@@ -621,4 +682,53 @@ export const listActiveThreads = async (
   });
 
   return Array.isArray(res?.threads) ? res.threads : [];
+};
+
+export const getGuildRoles = async (
+  token: string,
+  guildId: string,
+): Promise<APIRole[]> => {
+  const roles = await discordRequest<APIRole[]>({
+    token,
+    method: 'GET',
+    path: `/guilds/${guildId}/roles`,
+  });
+
+  return Array.isArray(roles) ? roles : [];
+};
+
+export const MEMBER_SEARCH_LIMIT = 1000;
+export const MEMBER_QUERY_MAX_LENGTH = 100;
+
+export const normalizeMemberQuery = (query?: string): string =>
+  (query || '').trim().slice(0, MEMBER_QUERY_MAX_LENGTH);
+
+export const searchGuildMembers = async (
+  token: string,
+  guildId: string,
+  query: string,
+  limit: number = MEMBER_SEARCH_LIMIT,
+): Promise<{ members: APIGuildMember[]; truncated: boolean }> => {
+  const normalized = normalizeMemberQuery(query);
+
+  if (!normalized) {
+    return { members: [], truncated: false };
+  }
+
+  const capped = Math.min(Math.max(limit, 1), MEMBER_SEARCH_LIMIT);
+
+  const params = new URLSearchParams({
+    query: normalized,
+    limit: String(capped),
+  });
+
+  const members = await discordRequest<APIGuildMember[]>({
+    token,
+    method: 'GET',
+    path: `/guilds/${guildId}/members/search?${params.toString()}`,
+  });
+
+  const list = Array.isArray(members) ? members : [];
+
+  return { members: list, truncated: list.length >= capped };
 };
