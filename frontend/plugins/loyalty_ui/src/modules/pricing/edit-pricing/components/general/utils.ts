@@ -9,6 +9,10 @@ import {
   GeneralPricingDocument,
   GeneralPricingStatus,
 } from '@/pricing/edit-pricing/components/general/types';
+export {
+  PRICING_TARGET_FIELD_NAMES as GENERAL_TARGET_FIELD_NAMES,
+  getPricingTargetValidationError as getGeneralTargetValidationError,
+} from '@/pricing/utils/targetValidation';
 
 export const GENERAL_FORM_DEFAULT_VALUES: GeneralFormValues = {
   name: '',
@@ -28,23 +32,6 @@ export const GENERAL_FORM_DEFAULT_VALUES: GeneralFormValues = {
   bundleProductIds: [],
 };
 
-export type GeneralTargetFieldName =
-  | 'productCategoryIds'
-  | 'appliesProductIds'
-  | 'segmentId'
-  | 'vendorCompanyIds'
-  | 'productTagIds'
-  | 'bundleProductIds';
-
-export const GENERAL_TARGET_FIELD_NAMES: GeneralTargetFieldName[] = [
-  'productCategoryIds',
-  'appliesProductIds',
-  'segmentId',
-  'vendorCompanyIds',
-  'productTagIds',
-  'bundleProductIds',
-];
-
 const GENERAL_PRICING_STATUSES: GeneralPricingStatus[] = [
   'active',
   'archived',
@@ -63,55 +50,6 @@ export const normalizeMultipleValue = (
   value?: string | string[] | null,
 ): string[] =>
   (Array.isArray(value) ? value : value ? [value] : []).filter(Boolean);
-
-export const getGeneralTargetValidationError = (
-  values: GeneralFormValues,
-  t: (key: string) => string,
-): { field: GeneralTargetFieldName; message: string } | null => {
-  switch (values.appliesTo) {
-    case 'category':
-      return values.productCategoryIds.length
-        ? null
-        : {
-            field: 'productCategoryIds',
-            message: t('select-at-least-one-category'),
-          };
-    case 'product':
-      return values.appliesProductIds.length
-        ? null
-        : {
-            field: 'appliesProductIds',
-            message: t('select-at-least-one-product'),
-          };
-    case 'segment':
-      return values.segmentId
-        ? null
-        : { field: 'segmentId', message: t('select-a-segment') };
-    case 'vendor':
-      return values.vendorCompanyIds.length
-        ? null
-        : {
-            field: 'vendorCompanyIds',
-            message: t('select-at-least-one-vendor'),
-          };
-    case 'tag':
-      return values.productTagIds.length
-        ? null
-        : {
-            field: 'productTagIds',
-            message: t('select-at-least-one-tag'),
-          };
-    case 'bundle':
-      return values.bundleProductIds.length
-        ? null
-        : {
-            field: 'bundleProductIds',
-            message: t('select-at-least-one-bundle-product'),
-          };
-  }
-
-  return null;
-};
 
 export const getGeneralFormValues = (
   pricingDetail: IPricingPlanDetail,
