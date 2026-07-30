@@ -8,6 +8,10 @@ const AddCompanyForm = lazy(() =>
   })),
 );
 
+const stopPropagation = (event: React.SyntheticEvent) => {
+  event.stopPropagation();
+};
+
 export const AddCompany = ({
   children,
   onSuccess,
@@ -43,7 +47,8 @@ export const AddCompany = ({
       {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
       <FocusSheet.View
         className="w-[30%] md:w-[30%] lg:w-[30%]"
-        onSubmit={(event) => event.stopPropagation()}
+        onClick={stopPropagation}
+        onSubmit={stopPropagation}
       >
         <FocusSheet.Header title="Create company" />
         <FocusSheet.Content className="flex-1 min-h-0">

@@ -9,6 +9,10 @@ const AddCustomerForm = lazy(() =>
   })),
 );
 
+const stopPropagation = (event: React.SyntheticEvent) => {
+  event.stopPropagation();
+};
+
 export const AddCustomer = ({
   children,
   state,
@@ -56,7 +60,8 @@ export const AddCustomer = ({
       {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
       <FocusSheet.View
         className="w-[50%] md:w-[50%] lg:w-[50%]"
-        onSubmit={(event) => event.stopPropagation()}
+        onClick={stopPropagation}
+        onSubmit={stopPropagation}
       >
         <FocusSheet.Header title={title} />
         <FocusSheet.Content className="flex-1 min-h-0">
