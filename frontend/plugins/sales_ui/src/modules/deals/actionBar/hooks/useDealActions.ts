@@ -86,15 +86,17 @@ export const useDealActions = ({
     const removalResults = await Promise.allSettled(
       dealIds.map((id) => removeDeals({ variables: { _id: id } })),
     );
-    const removedDealIds = dealIds.filter(
-      (_id, index) => removalResults[index].status === 'fulfilled',
+    const removedDealIds = new Set(
+      dealIds.filter(
+        (_id, index) => removalResults[index].status === 'fulfilled',
+      ),
     );
 
-    if (activeDealId && removedDealIds.includes(activeDealId)) {
+    if (activeDealId && removedDealIds.has(activeDealId)) {
       setActiveDealId(null);
     }
 
-    if (salesItemId && removedDealIds.includes(salesItemId)) {
+    if (salesItemId && removedDealIds.has(salesItemId)) {
       setSalesItemId(null);
     }
 
