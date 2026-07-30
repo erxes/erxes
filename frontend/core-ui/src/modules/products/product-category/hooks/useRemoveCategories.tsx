@@ -1,5 +1,5 @@
 import { productsMutations } from '@/products/graphql';
-import { ApolloCache, OperationVariables, useMutation } from '@apollo/client';
+import { ApolloError, OperationVariables, useMutation } from '@apollo/client';
 import { useState } from 'react';
 
 const normalizeCategoryIds = (categoryIds: string | string[]) => {
@@ -13,6 +13,18 @@ const normalizeCategoryIds = (categoryIds: string | string[]) => {
 
 const getErrorDedupeKey = (message: string) =>
   message.replace(/category "[^"]+"/, 'category').replace(/\d+/g, '{count}');
+
+const getMutationErrorMessage = (error: unknown) => {
+  if (error instanceof ApolloError) {
+    return (
+      error.graphQLErrors[0]?.message ||
+      error.networkError?.message ||
+      error.message
+    );
+  }
+
+  return error instanceof Error ? error.message : 'Unknown error';
+};
 
 interface RemoveError {
   message: string;
@@ -44,8 +56,6 @@ export const useRemoveCategories = () => {
     setIsRemoving(true);
 
     try {
-      let mutationCache: ApolloCache<unknown> | null = null;
-
       const results = await Promise.allSettled(
         ids.map((id) =>
           _removeCategory({
@@ -54,15 +64,13 @@ export const useRemoveCategories = () => {
               _id: id,
             },
             update: (cache) => {
-              mutationCache = cache;
               cache.evict({ fieldName: 'productCategories' });
               cache.evict({ fieldName: 'productCategoriesTotalCount' });
+              cache.gc();
             },
           }),
         ),
       );
-
-      mutationCache?.gc();
 
       const succeededIds: string[] = [];
       const errorMessages = new Map<string, string>();
@@ -71,10 +79,7 @@ export const useRemoveCategories = () => {
         if (result.status === 'fulfilled') {
           succeededIds.push(ids[index]);
         } else {
-          const errorMessage =
-            result.reason instanceof Error
-              ? result.reason.message
-              : 'Unknown error';
+          const errorMessage = getMutationErrorMessage(result.reason);
           errorMessages.set(getErrorDedupeKey(errorMessage), errorMessage);
         }
       });

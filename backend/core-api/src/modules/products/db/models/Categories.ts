@@ -187,84 +187,53 @@ export const loadProductCategoryClass = (
      * Remove Product category
      */
     public static async removeProductCategory(_id: string) {
-      const session = await models.ProductCategories.db.startSession();
-      let deletion:
-        | {
-            category: IProductCategoryDocument;
-            result: DeleteResult;
-          }
-        | undefined;
+      const category = await models.ProductCategories.findOne({ _id });
 
-      try {
-        deletion = await session.withTransaction(async () => {
-          const category = await models.ProductCategories.findOne({
-            _id,
-          }).session(session);
-
-          if (!category) {
-            throw new Error('Product & service category not found');
-          }
-
-          const [productCount, childCount] = await Promise.all([
-            models.Products.countDocuments({
-              categoryId: _id,
-              status: { $ne: PRODUCT_STATUSES.DELETED },
-            }).session(session),
-            models.ProductCategories.countDocuments({
-              parentId: _id,
-              status: {
-                $nin: [
-                  PRODUCT_CATEGORY_STATUSES.DISABLED,
-                  PRODUCT_CATEGORY_STATUSES.ARCHIVED,
-                ],
-              },
-            }).session(session),
-          ]);
-
-          if (productCount > 0 || childCount > 0) {
-            const blockers: string[] = [];
-
-            if (productCount > 0) {
-              blockers.push(
-                `${productCount} ${
-                  productCount === 1 ? 'product' : 'products'
-                }`,
-              );
-            }
-
-            if (childCount > 0) {
-              blockers.push(
-                `${childCount} ${
-                  childCount === 1 ? 'sub-category' : 'sub-categories'
-                }`,
-              );
-            }
-
-            throw new Error(
-              `Can't remove category "${category.name}": it has ${blockers.join(
-                ' and ',
-              )}. Move or delete them first.`,
-            );
-          }
-
-          const result = await models.ProductCategories.deleteOne({
-            _id,
-          }).session(session);
-
-          return {
-            category,
-            result,
-          };
-        });
-      } finally {
-        await session.endSession();
+      if (!category) {
+        throw new Error('Product & service category not found');
       }
 
-      if (!deletion) {
-        throw new Error('Failed to remove product category');
+      const [productCount, childCount] = await Promise.all([
+        models.Products.countDocuments({
+          categoryId: _id,
+          status: { $ne: PRODUCT_STATUSES.DELETED },
+        }),
+        models.ProductCategories.countDocuments({
+          parentId: _id,
+          status: {
+            $nin: [
+              PRODUCT_CATEGORY_STATUSES.DISABLED,
+              PRODUCT_CATEGORY_STATUSES.ARCHIVED,
+            ],
+          },
+        }),
+      ]);
+
+      if (productCount > 0 || childCount > 0) {
+        const blockers: string[] = [];
+
+        if (productCount > 0) {
+          blockers.push(
+            `${productCount} ${productCount === 1 ? 'product' : 'products'}`,
+          );
+        }
+
+        if (childCount > 0) {
+          blockers.push(
+            `${childCount} ${
+              childCount === 1 ? 'sub-category' : 'sub-categories'
+            }`,
+          );
+        }
+
+        throw new Error(
+          `Can't remove category "${category.name}": it has ${blockers.join(
+            ' and ',
+          )}. Move or delete them first.`,
+        );
       }
 
-      const { category, result } = deletion;
+      const result = await models.ProductCategories.deleteOne({ _id });
 
       if (!result.acknowledged || result.deletedCount !== 1) {
         throw new Error('Failed to remove product category');
