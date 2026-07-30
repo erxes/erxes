@@ -11,7 +11,6 @@ export type ISelectCompanyContext = {
   error: string | null;
   hideAvatar?: boolean;
   mode: 'single' | 'multiple';
-  allowCreate?: boolean;
   openCreate: () => void;
 };
 

@@ -33,7 +33,6 @@ interface SelectCompanyProviderProps {
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   hideAvatar?: boolean;
-  allowCreate?: boolean;
 }
 
 const SelectCompanyProvider = ({
@@ -42,14 +41,17 @@ const SelectCompanyProvider = ({
   onValueChange,
   mode = 'single',
   hideAvatar,
-  allowCreate,
 }: SelectCompanyProviderProps) => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const companyIds = companies.map((c) => c._id);
 
   const valueIds = useMemo(() => {
-    return !value ? [] : Array.isArray(value) ? value : [value];
+    if (!value) {
+      return [];
+    }
+
+    return Array.isArray(value) ? value : [value];
   }, [value]);
 
   const { companies: fetchedCompanies } = useCompanies({
@@ -105,18 +107,15 @@ const SelectCompanyProvider = ({
         error: null,
         hideAvatar,
         mode,
-        allowCreate,
         openCreate: () => setCreateOpen(true),
       }}
     >
       {children}
-      {allowCreate && (
-        <AddCompany
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-          onSuccess={onCreateSuccess}
-        />
-      )}
+      <AddCompany
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={onCreateSuccess}
+      />
     </SelectCompanyContext.Provider>
   );
 };
@@ -124,8 +123,7 @@ const SelectCompanyProvider = ({
 const SelectCompanyContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { companyIds, companies, allowCreate, openCreate } =
-    useSelectCompanyContext();
+  const { companyIds, companies, openCreate } = useSelectCompanyContext();
   const { t } = useTranslation('contact');
   const {
     companies: companiesData,
@@ -139,11 +137,7 @@ const SelectCompanyContent = () => {
     },
   });
   const showCreate =
-    allowCreate &&
-    debouncedSearch.trim().length > 0 &&
-    !loading &&
-    !error &&
-    totalCount === 0;
+    debouncedSearch.trim().length > 0 && !loading && !error && totalCount === 0;
 
   return (
     <Command shouldFilter={false}>
