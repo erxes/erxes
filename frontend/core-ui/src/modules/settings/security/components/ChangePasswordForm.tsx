@@ -27,14 +27,17 @@ export const ChangePasswordForm = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Password has changed successfully',
+          title: t(
+            'password-changed-successfully',
+            'Password has changed successfully',
+          ),
           variant: 'success',
         });
         reset();
       },
       onError: (error) =>
         toast({
-          title: 'Error changing password',
+          title: t('error-changing-password', 'Error changing password'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -48,17 +51,21 @@ export const ChangePasswordForm = () => {
         onSubmit={handleSubmit(onSubmit)}
       >
         <fieldset className="flex flex-col space-y-4">
-          <legend className="font-semibold text-lg pt-4 pb-6">{t('_')}</legend>
+          <legend className="font-semibold text-lg pt-4 pb-6">
+            {t('_', 'Change Password')}
+          </legend>
           <Form.Field
             control={control}
             name="currentPassword"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('current-password')}</Form.Label>
+                <Form.Label>
+                  {t('current-password', 'Current password')}
+                </Form.Label>
                 <Form.Control>
                   <PasswordInput
                     {...field}
-                    placeholder={t('current-password')}
+                    placeholder={t('current-password', 'Current password')}
                     autoComplete={field.name}
                   />
                 </Form.Control>
@@ -71,11 +78,11 @@ export const ChangePasswordForm = () => {
             name="newPassword"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('new-password')}</Form.Label>
+                <Form.Label>{t('new-password', 'New password')}</Form.Label>
                 <Form.Control>
                   <PasswordInput
                     {...field}
-                    placeholder={t('new-password')}
+                    placeholder={t('new-password', 'New password')}
                     autoComplete={field.name}
                   />
                 </Form.Control>
@@ -87,11 +94,16 @@ export const ChangePasswordForm = () => {
             name="reTypeNewPassword"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('confirm-password')}</Form.Label>
+                <Form.Label>
+                  {t('confirm-password', 'Re-enter your password to confirm')}
+                </Form.Label>
                 <Form.Control>
                   <PasswordInput
                     {...field}
-                    placeholder={t('confirm-password')}
+                    placeholder={t(
+                      'confirm-password',
+                      'Re-enter your password to confirm',
+                    )}
                     autoComplete={field.name}
                   />
                 </Form.Control>
@@ -115,7 +127,7 @@ export const ChangePasswordForm = () => {
               newPassword !== reTypeValue
             }
           >
-            {loading ? <Spinner /> : t('save')}
+            {loading ? <Spinner /> : t('save', 'Save')}
           </Button>
         </div>
       </form>

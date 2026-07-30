@@ -10,20 +10,29 @@ import {
 } from 'erxes-ui';
 import { IconCopy, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
+import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const TokenCell = ({ token }: { token: string }) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const masked = token.slice(0, 6) + '••••••••••••••••••••';
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(token);
       setCopied(true);
-      toast({ variant: 'success', title: 'Token copied to clipboard' });
+      toast({
+        variant: 'success',
+        title: t('token-copied', 'Token copied to clipboard'),
+      });
       setTimeout(() => setCopied(false), 1000);
     } catch {
-      toast({ variant: 'destructive', title: 'Failed to copy token' });
+      toast({
+        variant: 'destructive',
+        title: t('failed-to-copy-token', 'Failed to copy token'),
+      });
     }
   };
 
@@ -40,12 +49,12 @@ const TokenCell = ({ token }: { token: string }) => {
   );
 };
 
-export const appsSettingsColumns: ColumnDef<IApp>[] = [
+export const appsSettingsColumns: (t: TFunction) => ColumnDef<IApp>[] = (t) => [
   { ...RecordTable.checkboxColumn, size: 33 } as ColumnDef<IApp>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: 'App Name',
+    header: t('app-name', 'App Name'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -53,13 +62,13 @@ export const appsSettingsColumns: ColumnDef<IApp>[] = [
   {
     id: 'token',
     accessorKey: 'token',
-    header: 'Token',
+    header: t('token', 'Token'),
     cell: ({ cell }) => <TokenCell token={cell.getValue() as string} />,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: 'Status',
+    header: t('status', 'Status'),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (
@@ -74,7 +83,7 @@ export const appsSettingsColumns: ColumnDef<IApp>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: 'Created At',
+    header: t('created-at', 'Created At'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {format(new Date(cell.getValue() as string), 'yyyy/MM/dd') ||

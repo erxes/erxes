@@ -14,12 +14,14 @@ import {
 import { IDepartmentListItem } from '../../types/department';
 import { renderingDepartmentDetailAtom } from '../../states/renderingDepartmentDetail';
 import { useRemoveDepartment } from '../../hooks/useDepartmentActions';
+import { useTranslation } from 'react-i18next';
 
 export const DepartmentsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IDepartmentListItem, unknown>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { _id, title } = cell.row.original;
   const [, setOpenDepartment] = useQueryState('department_id');
   const [, setOpenWorkingHours] = useQueryState('workingHoursId');
@@ -31,13 +33,17 @@ export const DepartmentsMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${title}"?`,
+      message: t(
+        'confirm-delete-title',
+        'Are you sure you want to delete "{{title}}"?',
+        { title },
+      ),
     }).then(async () => {
       try {
         await handleRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -63,7 +69,7 @@ export const DepartmentsMoreColumnCell = ({
                   setRenderingDepartmentDetail(false);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit', 'Edit')}
               </Command.Item>
             </Can>
             <Can action="departmentsManage">
@@ -74,7 +80,7 @@ export const DepartmentsMoreColumnCell = ({
                   setRenderingDepartmentDetail(false);
                 }}
               >
-                <IconClock /> Working Hours
+                <IconClock /> {t('working-hours', 'Working Hours')}
               </Command.Item>
             </Can>
             <Can action="departmentsManage">
@@ -83,7 +89,7 @@ export const DepartmentsMoreColumnCell = ({
                 onSelect={handleDelete}
                 className="text-destructive"
               >
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete', 'Delete')}
               </Command.Item>
             </Can>
           </Command.List>

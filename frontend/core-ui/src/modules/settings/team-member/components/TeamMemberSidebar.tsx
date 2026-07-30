@@ -4,7 +4,7 @@ import { TeamMembersPath } from '../constants/teamMemberRoutes';
 import { useTranslation } from 'react-i18next';
 
 export function TeamMemberSidebar() {
-  const { t } = useTranslation('settings');
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
@@ -14,12 +14,12 @@ export function TeamMemberSidebar() {
             <TeamMemberSidebarItem
               to={`${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`}
             >
-              {t('Members')}
+              {t('members', 'Members')}
             </TeamMemberSidebarItem>
             <TeamMemberSidebarItem
               to={`${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`}
             >
-              {t('Permission groups')}
+              {t('permission-groups', 'Permission groups')}
             </TeamMemberSidebarItem>
           </Sidebar.Menu>
         </Sidebar.GroupContent>

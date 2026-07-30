@@ -35,31 +35,31 @@ export const MessageProSettings = () => {
     <form onSubmit={handleSubmit} className="py-1 flex flex-col space-y-3">
       <div className="flex flex-col space-y-1.5">
         <Label htmlFor={MESSAGE_PRO_API_KEY}>
-          {t('messageProApiKey', 'Message Pro API key')}
+          {t('message-pro-api-key', 'Message Pro API key')}
         </Label>
         <Input
           id={MESSAGE_PRO_API_KEY}
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder="API key"
+          placeholder={t('api-key', 'API key')}
         />
       </div>
       <div className="flex flex-col space-y-1.5">
         <Label htmlFor={MESSAGE_PRO_PHONE_NUMBER}>
-          {t('messageProPhoneNumber', 'Message Pro phone number')}
+          {t('message-pro-phone-number', 'Message Pro phone number')}
         </Label>
         <Input
           id={MESSAGE_PRO_PHONE_NUMBER}
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
-          placeholder="Phone number"
+          placeholder={t('phone-number', 'Phone number')}
         />
       </div>
       <Button disabled={isLoading} type="submit" className="w-1/4 ml-auto">
         {isLoading ? (
           <Spinner className="stroke-white/90 w-4 h-4" />
         ) : (
-          t('update')
+          t('update', 'Update')
         )}
       </Button>
     </form>

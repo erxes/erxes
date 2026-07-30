@@ -4,6 +4,7 @@ import { InviteMemberRowContext } from '../../context/InviteMemberContext';
 import { cn, Form, Input, Table } from 'erxes-ui';
 import { InviteRowCheckbox } from './InviteRowCheckbox';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   SelectBranches,
   SelectDepartments,
@@ -19,6 +20,7 @@ export const InviteRow = ({
   user: IUserEntry & { id: string };
 }) => {
   const { selectedUsers, fields } = useUserInviteContext();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { control, formState } = useFormContext<TUserForm>();
   const { errors } = formState;
   return (
@@ -58,7 +60,7 @@ export const InviteRow = ({
                 <Form.Control>
                   <Input
                     {...field}
-                    placeholder="Email"
+                    placeholder={t('email', 'Email')}
                     type={'email'}
                     autoComplete="new-email"
                     className={cn(
@@ -85,7 +87,7 @@ export const InviteRow = ({
                 <Form.Control>
                   <Input
                     {...field}
-                    placeholder="Password"
+                    placeholder={t('password', 'Password')}
                     autoComplete={`new-password`}
                     type="password"
                     className={cn(

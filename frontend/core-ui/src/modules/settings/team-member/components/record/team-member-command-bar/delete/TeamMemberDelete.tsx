@@ -2,6 +2,7 @@ import { useTeamMemberRemove } from '@/settings/team-member/hooks/useRemoveTeamM
 import { IconTrash } from '@tabler/icons-react';
 import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const TeamMemberDelete = ({
   teamMemberIds,
@@ -12,6 +13,7 @@ export const TeamMemberDelete = ({
   const { removeTeamMember } = useTeamMemberRemove();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   return (
     <Can action="teamMembersRemove">
       <Button
@@ -19,19 +21,26 @@ export const TeamMemberDelete = ({
         className="text-destructive"
         onClick={() =>
           confirm({
-            message: `Are you sure you want to delete the ${teamMemberIds.length} selected team member?`,
+            message: t(
+              'confirm-delete-selected',
+              'Are you sure you want to delete the {{count}} selected team member?',
+              { count: teamMemberIds.length },
+            ),
           }).then(async () => {
             try {
               await removeTeamMember(teamMemberIds);
               table.setRowSelection({});
               toast({
-                title: 'Success',
+                title: t('success', 'Success'),
                 variant: 'success',
-                description: 'Team member deleted successfully',
+                description: t(
+                  'team-member-deleted-successfully',
+                  'Team member deleted successfully',
+                ),
               });
             } catch (e: any) {
               toast({
-                title: 'Error',
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -40,7 +49,7 @@ export const TeamMemberDelete = ({
         }
       >
         <IconTrash />
-        Delete
+        {t('delete', 'Delete')}
       </Button>
     </Can>
   );

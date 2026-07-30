@@ -68,7 +68,11 @@ export const ApprovalRequestsRecordTable = () => {
           {loading && !totalCount ? (
             <Skeleton className="mt-1.5 inline-block h-4 w-20" />
           ) : (
-            t('requests-found', { count: totalCount })
+            t('requests-found', {
+              count: totalCount,
+              defaultValue_one: '{{count}} request found',
+              defaultValue_other: '{{count}} requests found',
+            })
           )}
         </div>
       </PageSubHeader>
@@ -110,7 +114,7 @@ export const ApprovalRequestsRecordTable = () => {
                   <td colSpan={columns.length} className="py-10 text-center">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
                       <IconArchive className="mb-2 size-8" />
-                      <Label>{t('no-requests')}</Label>
+                      <Label>{t('no-requests', 'No approval requests')}</Label>
                     </div>
                   </td>
                 </tr>

@@ -6,10 +6,10 @@ export const CHANGE_PASSWORD_SCHEMA = z
   .object({
     currentPassword: z
       .string({
-        required_error: 'password-error',
+        required_error: 'Please provide your current password',
       })
       .trim()
-      .min(8, { message: 'password-error' }),
+      .min(8, { message: 'Please provide your current password' }),
     newPassword: z
       .string()
       .refine((val) => /.{8,}/.test(val), { message: 'At least 8 characters' })

@@ -17,8 +17,10 @@ import { useUnitAdd } from '../../hooks/useUnitActions';
 import { TUnitForm, UnitHotKeyScope } from '../../types/unit';
 import { UnitForm } from './UnitForm';
 import { Can, usePermissionCheck } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CreateUnit = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const {
     methods,
     methods: { handleSubmit },
@@ -57,16 +59,19 @@ export const CreateUnit = () => {
         variables: data,
         onCompleted: () => {
           toast({
-            title: 'Success!',
+            title: t('success', 'Success!'),
             variant: 'success',
-            description: 'Unit created successfully',
+            description: t(
+              'unit-created-successfully',
+              'Unit created successfully',
+            ),
           });
           methods.reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -79,7 +84,7 @@ export const CreateUnit = () => {
       <Can action="unitsManage">
         <Sheet.Trigger asChild>
           <Button>
-            <IconPlus /> Create Unit
+            <IconPlus /> {t('create-unit', 'Create Unit')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -98,7 +103,7 @@ export const CreateUnit = () => {
             <Sheet.Header>
               <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconUsersGroup size={16} />
-                Create unit
+                {t('create-unit', 'Create Unit')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -107,10 +112,10 @@ export const CreateUnit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

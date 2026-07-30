@@ -10,10 +10,12 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const TagAddButtons = ({ className }: { className?: string }) => {
   const [type] = useQueryState<string>('tagType');
   const [addingTag, setAddingTag] = useAtom(addingTagAtom);
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   useScopedHotkeys(
     'c',
@@ -38,7 +40,7 @@ export const TagAddButtons = ({ className }: { className?: string }) => {
         }}
         variant="outline"
       >
-        Add Group
+        {t('add-group', 'Add Group')}
       </Button>
       <Button
         disabled={addingTag !== null && !addingTag?.isGroup}
@@ -50,7 +52,7 @@ export const TagAddButtons = ({ className }: { className?: string }) => {
         }}
       >
         <IconPlus className="size-4" />
-        Add Tag
+        {t('add-tag', 'Add Tag')}
         <Kbd>C</Kbd>
       </Button>
     </div>

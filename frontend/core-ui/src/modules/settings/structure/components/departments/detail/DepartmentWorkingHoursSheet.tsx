@@ -8,8 +8,10 @@ import { useDepartmentDetailsById } from '@/settings/structure/hooks/useDepartme
 import { useDepartmentInlineEdit } from '@/settings/structure/hooks/useDepartmentActions';
 import { Can } from 'ui-modules';
 import { WeekDayRow } from '@/settings/structure/components/workhours/WeekDayRow';
+import { useTranslation } from 'react-i18next';
 
 export const DepartmentWorkingHoursSheet = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [workingHoursId] = useQueryState('workingHoursId');
   const [searchParams, setSearchParams] = useSearchParams();
   const { form } = useWorkhoursForm();
@@ -92,7 +94,12 @@ export const DepartmentWorkingHoursSheet = () => {
         <Sheet.View className="p-0 md:max-w-4xl">
           <div className="flex flex-col gap-0 size-full">
             <Sheet.Header>
-              <Sheet.Title>Setup department working hours</Sheet.Title>
+              <Sheet.Title>
+                {t(
+                  'setup-department-working-hours',
+                  'Setup department working hours',
+                )}
+              </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="flex-1 min-h-0 overflow-y-auto flex flex-col px-5">
@@ -107,7 +114,7 @@ export const DepartmentWorkingHoursSheet = () => {
             </Sheet.Content>
             <Sheet.Footer className="flex justify-end items-center gap-3">
               <Button variant={'secondary'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Can action="departmentsManage">
                 <Button
@@ -115,7 +122,7 @@ export const DepartmentWorkingHoursSheet = () => {
                   type="button"
                   onClick={form.handleSubmit(onSubmit)}
                 >
-                  Save
+                  {t('save', 'Save')}
                 </Button>
               </Can>
             </Sheet.Footer>

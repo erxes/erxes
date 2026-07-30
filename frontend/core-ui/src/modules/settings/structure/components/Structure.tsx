@@ -14,8 +14,10 @@ import {
 import { useStructureDetailsForm } from '../hooks/useStructureDetailsForm';
 import { useEffect } from 'react';
 import { Can, SelectMember } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const Structure = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { structureDetail } = useStructureDetails();
   const {
     methods,
@@ -65,7 +67,9 @@ export const Structure = () => {
     <ScrollArea className="w-full min-h-svh">
       <div className="w-full overflow-hidden flex flex-col">
         <div className="mx-auto max-w-2xl w-full relative">
-          <h2 className="font-semibold text-lg mt-4 mb-12 px-4">Structure</h2>
+          <h2 className="font-semibold text-lg mt-4 mb-12 px-4">
+            {t('_', 'Structure')}
+          </h2>
           <Form {...methods}>
             <form
               className="grid grid-cols-2 gap-3"
@@ -102,11 +106,11 @@ export const Structure = () => {
                 name={'supervisorId'}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{'supervisor'}</Form.Label>
+                    <Form.Label>{t('supervisor', 'Supervisor')}</Form.Label>
                     <SelectMember.FormItem
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select supervisor"
+                      placeholder={t('select-supervisor', 'Select supervisor')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -183,7 +187,7 @@ export const Structure = () => {
                   className="w-1/2 ml-auto col-start-2"
                   type="submit"
                 >
-                  Update
+                  {t('update', 'Update')}
                 </Button>
               </Can>
             </form>

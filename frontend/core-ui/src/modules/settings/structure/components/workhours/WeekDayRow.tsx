@@ -2,12 +2,14 @@ import { Form, Switch } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { IWorkhoursForm, WorkDay } from '@/settings/structure/types/workhours';
 import { WorkTimeField } from '@/settings/structure/components/workhours/WorkTimeField';
+import { useTranslation } from 'react-i18next';
 
 /**
  * One weekday row (active toggle + work hours + lunch hours). Shared between the
  * branch and department working-hours sheets.
  */
 export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const form = useFormContext<IWorkhoursForm>();
   const isInactive = form.watch(`${weekDay}.inactive`) as boolean;
 
@@ -43,7 +45,7 @@ export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
           </div>
           <div className="flex items-center gap-3">
             <legend className="font-medium text-sm text-accent-foreground">
-              Lunch
+              {t('lunch', 'Lunch')}
             </legend>
             <WorkTimeField name={`${weekDay}.lunchStartFrom`} />
             <span className="font-medium text-sm text-accent-foreground">

@@ -9,8 +9,10 @@ import {
 } from 'erxes-ui';
 import { useRemoveDepartment } from '../../hooks/useDepartmentActions';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const DepartmentsCommandBar = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { table } = RecordTable.useRecordTable();
   const { handleRemove } = useRemoveDepartment();
   const { confirm } = useConfirm();
@@ -22,7 +24,10 @@ export const DepartmentsCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t(
+        'confirm-remove-selected',
+        'Are you sure you want to remove the selected?',
+      ),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -41,13 +46,15 @@ export const DepartmentsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('n-selected', '{{count}} selected', {
+            count: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Separator.Inline />
         <Can action="departmentsManage">
           <Button variant="secondary" onClick={onRemove}>
             <IconTrash />
-            Delete
+            {t('delete', 'Delete')}
           </Button>
         </Can>
       </CommandBar.Bar>

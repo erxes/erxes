@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+import { useTranslation } from 'react-i18next';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -39,6 +40,7 @@ export const TagsListNameField = ({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { editTag } = useTagEdit();
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -100,8 +102,8 @@ export const TagsListNameField = ({
         if (!warned && !open && !form.getValues('name') && isForm) {
           setTimeout(() => textareaRef.current?.focus());
           toast({
-            title: 'Error',
-            description: 'Name cannot be empty',
+            title: t('error', 'Error'),
+            description: t('name-cannot-be-empty', 'Name cannot be empty'),
             variant: 'destructive',
           });
           setWarned(true);
@@ -126,7 +128,7 @@ export const TagsListNameField = ({
             />
           ) : (
             <p className="text-xs font-medium truncate  text-accent-foreground">
-              Add tag name
+              {t('add-tag-name', 'Add tag name')}
             </p>
           )}
         </Badge>
@@ -139,7 +141,7 @@ export const TagsListNameField = ({
       >
         <Textarea
           value={form.watch('name')}
-          placeholder="Add tag name"
+          placeholder={t('add-tag-name', 'Add tag name')}
           className="focus-visible:ring-0 focus-visible:shadow-none resize-none text-xs! font-medium min-h-0 px-2 py-[calc((24px-var(--text-xs--line-height))/2)] overflow-hidden "
           maxLength={64}
           onClick={(e) => e.stopPropagation()}
@@ -159,7 +161,7 @@ export const TagsListNameField = ({
                 (e) => {
                   toast({
                     variant: 'destructive',
-                    title: 'Error',
+                    title: t('error', 'Error'),
                     description: Object.values(e)[0].message,
                   });
                 },

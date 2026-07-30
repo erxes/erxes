@@ -8,6 +8,7 @@ import { useAppsRevoke } from '../../hooks/useAppsRevoke';
 import { useSetAtom } from 'jotai';
 import { editingAppAtom } from '../../state';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
   const { _id, name, status } = cell.row.original;
@@ -16,16 +17,21 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
   const { appsRemove } = useAppsRemove();
   const { appsRevoke } = useAppsRevoke();
   const setEditingApp = useSetAtom(editingAppAtom);
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${name}"?`,
+      message: t(
+        'confirm-delete-name',
+        'Are you sure you want to delete "{{name}}"?',
+        { name },
+      ),
     }).then(async () => {
       try {
         await appsRemove({ variables: { _id } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -35,14 +41,21 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
 
   const handleRevoke = () => {
     confirm({
-      message: `Are you sure you want to revoke "${name}"?`,
+      message: t(
+        'confirm-revoke-name',
+        'Are you sure you want to revoke "{{name}}"?',
+        { name },
+      ),
     }).then(async () => {
       try {
         await appsRevoke({ variables: { _id } });
-        toast({ variant: 'success', title: 'App revoked successfully' });
+        toast({
+          variant: 'success',
+          title: t('app-revoked-successfully', 'App revoked successfully'),
+        });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -64,15 +77,15 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
               value="edit"
               onSelect={() => setEditingApp(cell.row.original)}
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             {status === 'active' && (
               <Command.Item value="revoke" onSelect={handleRevoke}>
-                <IconLock /> Revoke
+                <IconLock /> {t('revoke', 'Revoke')}
               </Command.Item>
             )}
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

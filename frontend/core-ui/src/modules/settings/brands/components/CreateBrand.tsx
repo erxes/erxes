@@ -73,14 +73,17 @@ export const CreateBrand = () => {
         onCompleted: () => {
           toast({
             variant: 'success',
-            title: t('brand-created-successfully'),
+            title: t(
+              'brand-created-successfully',
+              'Brand created successfully',
+            ),
           });
           reset();
           onClose();
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -94,7 +97,7 @@ export const CreateBrand = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('create-brand')}
+          {t('create-brand', 'Create brand')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -106,7 +109,7 @@ export const CreateBrand = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>{t('create-brand')}</Sheet.Title>
+              <Sheet.Title>{t('create-brand', 'Create brand')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -114,10 +117,10 @@ export const CreateBrand = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'secondary'} onClick={onClose}>
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : t('create-brand')}
+                {loading ? <Spinner /> : t('create-brand', 'Create brand')}
               </Button>
             </Sheet.Footer>
           </form>

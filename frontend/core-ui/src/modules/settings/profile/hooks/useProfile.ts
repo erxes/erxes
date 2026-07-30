@@ -10,9 +10,11 @@ import { GET_USER_DETAIL } from '@/settings/profile/graphql/queries/userDetail';
 import { UPDATE_PROFILE } from '@/settings/profile/graphql/mutations/updateProfile';
 import { currentUserState } from 'ui-modules';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 const useProfile = (options?: OperationVariables) => {
   const [currentUser, setCurrentUser] = useAtom(currentUserState);
+  const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
   const { confirm } = useConfirm();
 
@@ -28,7 +30,10 @@ const useProfile = (options?: OperationVariables) => {
     const confirmOptions = { confirmationValue: 'update' };
 
     confirm({
-      message: 'Are you sure you want to update the profile?',
+      message: t(
+        'confirm-update-profile',
+        'Are you sure you want to update the profile?',
+      ),
       options: confirmOptions,
     }).then(() => {
       updateProfile({
@@ -51,14 +56,19 @@ const useProfile = (options?: OperationVariables) => {
           }));
 
           toast({
-            title: 'Successfully updated profile',
+            title: t(
+              'profile-updated-successfully',
+              'Successfully updated profile',
+            ),
             variant: 'success',
           });
         },
         onError: (error) => {
           toast({
-            title: 'Error updating profile',
-            description: error.message || 'An unexpected error occurred.',
+            title: t('error-updating-profile', 'Error updating profile'),
+            description:
+              error.message ||
+              t('unexpected-error', 'An unexpected error occurred.'),
             variant: 'destructive',
           });
         },

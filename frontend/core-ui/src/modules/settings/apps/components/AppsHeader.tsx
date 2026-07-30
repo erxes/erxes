@@ -3,8 +3,11 @@ import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconShieldCog } from '@tabler/icons-react';
 import { CreateApp } from './CreateApp';
+import { useTranslation } from 'react-i18next';
 
 export function AppsHeader() {
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
+
   return (
     <PageHeader>
       <PageHeaderStart>
@@ -14,7 +17,7 @@ export function AppsHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/app-tokens">
                   <IconShieldCog />
-                  Apps
+                  {t('_', 'Apps')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

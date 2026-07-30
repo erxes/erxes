@@ -3,9 +3,11 @@ import { Form, Input, Select, StringArrayInput, Textarea } from 'erxes-ui';
 import { TOAuthClientsForm } from '../hooks/useOAuthClientsForm';
 import { OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS } from '../types';
 import { OAuthClientLogoUpload } from './OAuthClientLogoUpload';
+import { useTranslation } from 'react-i18next';
 
 export const OAuthClientForm = () => {
   const form = useFormContext<TOAuthClientsForm>();
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const clientType = form.watch('type');
   const showAccessTokenLifetime = clientType === 'confidential';
 
@@ -16,7 +18,7 @@ export const OAuthClientForm = () => {
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Name</Form.Label>
+            <Form.Label>{t('name', 'Name')}</Form.Label>
             <Form.Control>
               <Input {...field} placeholder="erxes-local" />
             </Form.Control>
@@ -30,12 +32,15 @@ export const OAuthClientForm = () => {
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description', 'Description')}</Form.Label>
             <Form.Control>
               <Textarea
                 {...field}
                 value={field.value || ''}
-                placeholder="Short description for this client"
+                placeholder={t(
+                  'description-placeholder',
+                  'Short description for this client',
+                )}
                 className="min-h-24 resize-none"
               />
             </Form.Control>
@@ -49,7 +54,7 @@ export const OAuthClientForm = () => {
         name="logo"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Logo</Form.Label>
+            <Form.Label>{t('logo', 'Logo')}</Form.Label>
             <Form.Control>
               <OAuthClientLogoUpload
                 value={field.value || ''}
@@ -66,7 +71,7 @@ export const OAuthClientForm = () => {
         name="type"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Client type</Form.Label>
+            <Form.Label>{t('client-type', 'Client type')}</Form.Label>
             <Select
               value={field.value}
               onValueChange={(value) => {
@@ -90,17 +95,21 @@ export const OAuthClientForm = () => {
             >
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Choose a type" />
+                  <Select.Value placeholder={t('choose-a-type', 'Choose a type')} />
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
-                <Select.Item value="public">Public</Select.Item>
-                <Select.Item value="confidential">Confidential</Select.Item>
+                <Select.Item value="public">{t('public', 'Public')}</Select.Item>
+                <Select.Item value="confidential">
+                  {t('confidential', 'Confidential')}
+                </Select.Item>
               </Select.Content>
             </Select>
             <Form.Description>
-              Use public for local tools and device flow. Confidential clients
-              get a one-time secret during creation.
+              {t(
+                'client-type-description',
+                'Use public for local tools and device flow. Confidential clients get a one-time secret during creation.',
+              )}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -113,11 +122,15 @@ export const OAuthClientForm = () => {
           name="accessTokenLifetime"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Access token lifetime</Form.Label>
+              <Form.Label>
+                {t('access-token-lifetime', 'Access token lifetime')}
+              </Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Form.Control>
                   <Select.Trigger>
-                    <Select.Value placeholder="Choose a lifetime" />
+                    <Select.Value
+                      placeholder={t('choose-a-lifetime', 'Choose a lifetime')}
+                    />
                   </Select.Trigger>
                 </Form.Control>
                 <Select.Content>
@@ -129,7 +142,10 @@ export const OAuthClientForm = () => {
                 </Select.Content>
               </Select>
               <Form.Description>
-                Choose how long issued access tokens stay valid.
+                {t(
+                  'access-token-lifetime-description',
+                  'Choose how long issued access tokens stay valid.',
+                )}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -142,12 +158,12 @@ export const OAuthClientForm = () => {
         name="redirectUrls"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Redirect URLs</Form.Label>
+            <Form.Label>{t('redirect-urls', 'Redirect URLs')}</Form.Label>
             <Form.Control>
               <StringArrayInput
                 value={field.value || []}
                 onValueChange={field.onChange}
-                placeholder="Add a callback URL"
+                placeholder={t('add-callback-url', 'Add a callback URL')}
                 styleClasses={{
                   inlineTagsContainer: `shadow-xs ${
                     field.value?.length ? 'p-2' : ''
@@ -156,7 +172,10 @@ export const OAuthClientForm = () => {
               />
             </Form.Control>
             <Form.Description>
-              Optional. Leave empty for device-flow or polling-only clients.
+              {t(
+                'redirect-urls-description',
+                'Optional. Leave empty for device-flow or polling-only clients.',
+              )}
             </Form.Description>
             <Form.Message />
           </Form.Item>

@@ -5,12 +5,14 @@ import { OAuthClientsCommandBar } from './OAuthClientsCommandBar';
 import { oauthClientsMoreColumn } from './table/OAuthClientsMoreColumn';
 import { oauthClientsSettingsColumns } from './table/OAuthClientsSettingsColumns';
 import { useOAuthClients } from '../hooks/useOAuthClients';
+import { useTranslation } from 'react-i18next';
 
 export function OAuthClientsRecordTable() {
   const { oauthClientApps, loading, error } = useOAuthClients();
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const columns = useMemo(
-    () => [...oauthClientsSettingsColumns, oauthClientsMoreColumn],
-    [],
+    () => [...oauthClientsSettingsColumns(t), oauthClientsMoreColumn],
+    [t],
   );
 
   return (
@@ -32,12 +34,15 @@ export function OAuthClientsRecordTable() {
                   <IconArchive className="h-8 w-8 text-muted-foreground" />
                 </div>
 
-                <h3 className="text-lg font-semibold">No OAuth clients yet</h3>
+                <h3 className="text-lg font-semibold">
+                  {t('no-clients-yet', 'No OAuth clients yet')}
+                </h3>
 
                 <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                  OAuth clients you create will appear here. Create your first
-                  client to enable applications to authenticate with your
-                  platform.
+                  {t(
+                    'no-clients-description',
+                    'OAuth clients you create will appear here. Create your first client to enable applications to authenticate with your platform.',
+                  )}
                 </p>
               </div>
             )}

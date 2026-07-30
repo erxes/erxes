@@ -52,13 +52,13 @@ export const TagsList = () => {
     <div className="bg-sidebar p-2 rounded-lg basis-full m-3 grow-0 overflow-hidden">
       <div className="h-7 w-full flex items-center px-12 pb-2">
         <TagsListHead className="w-full md:max-w-[30%] pl-2">
-          {t('name')}
+          {t('name', 'Name')}
         </TagsListHead>
         <TagsListHead className="flex-1 max-md:hidden pl-2">
-          {t('description')}
+          {t('description', 'Description')}
         </TagsListHead>
         <TagsListHead className="max-sm:hidden ">
-          {t('created-at')}
+          {t('created-at', 'Created At')}
         </TagsListHead>
       </div>
       <div className="pb-7 h-full">
@@ -76,7 +76,7 @@ export const TagsList = () => {
           ) : (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-3 text-muted-foreground items-center justify-center opacity-50 select-none">
               <IconTagOff className="size-16" strokeWidth={1} />
-              <span className="font-medium text-lg">{t('not-found')}</span>
+              <span className="font-medium text-lg">{t('not-found', 'No tags found')}</span>
             </div>
           )}
         </ScrollArea>

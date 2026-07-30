@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import { Button } from 'erxes-ui';
 import { useUserInviteContext } from '../../hooks/useUserInviteContext';
 import { IUserEntry, TUserForm } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 export const AddInviteRowButton = ({
   append,
@@ -13,6 +14,7 @@ export const AddInviteRowButton = ({
 }) => {
   const { fields } = useUserInviteContext();
   const { control } = useFormContext<TUserForm>();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   const inviteUserDefaultValues = {
     email: '',
@@ -27,7 +29,7 @@ export const AddInviteRowButton = ({
         onClick={() => append(inviteUserDefaultValues)}
       >
         <IconPlus />
-        Add Invite
+        {t('add-invite', 'Add Invite')}
       </Button>
       <Button
         variant="secondary"
@@ -41,7 +43,7 @@ export const AddInviteRowButton = ({
         }
       >
         <IconPlus />
-        Add Multiple Invites
+        {t('add-multiple-invites', 'Add Multiple Invites')}
       </Button>
     </>
   );

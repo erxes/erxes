@@ -6,9 +6,11 @@ import {
   fileSettingsMutations,
   fileSettingsQueries,
 } from '@/settings/file-upload/graphql';
+import { useTranslation } from 'react-i18next';
 
 const useConfig = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('settings');
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'update' };
 
@@ -26,8 +28,11 @@ const useConfig = () => {
       },
       onCompleted() {
         toast({
-          title: 'Success',
-          description: 'Configs updated successfully',
+          title: t('success', 'Success'),
+          description: t(
+            'configs-updated-successfully',
+            'Configs updated successfully',
+          ),
           variant: 'success',
         });
       },

@@ -1,6 +1,7 @@
 import { IconCheck, IconMinus } from '@tabler/icons-react';
 import { RadioGroup, ThemeOption, themeState } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 const items = [
   {
@@ -25,11 +26,12 @@ const items = [
 
 export function ChooseTheme() {
   const [theme, setTheme] = useAtom(themeState);
+  const { t } = useTranslation('settings');
 
   return (
     <fieldset className="space-y-4">
       <legend className="text-sm font-medium leading-none text-foreground">
-        Appearance
+        {t('appearance', 'Appearance')}
       </legend>
       <RadioGroup
         className="flex gap-4"

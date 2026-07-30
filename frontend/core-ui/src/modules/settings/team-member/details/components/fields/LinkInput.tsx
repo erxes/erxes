@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Icon, IconLink, IconProps } from '@tabler/icons-react';
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { UserLinks } from '@/settings/team-member/types';
+import { useTranslation } from 'react-i18next';
 
 type LinkFieldName = keyof UserLinks;
 
@@ -18,6 +19,7 @@ type Props = {
 
 export const LinkInput = React.forwardRef<HTMLButtonElement, Props>(
   ({ _id, links, linkField, label, InputIcon, ...props }, ref) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
     const inputId = React.useId();
 
     const { usersEdit } = useUserEdit();
@@ -102,7 +104,7 @@ export const LinkInput = React.forwardRef<HTMLButtonElement, Props>(
           className="flex flex-row gap-2 items-center"
         >
           <IconLink size={12} />
-          Double click to visit
+          {t('double-click-to-visit', 'Double click to visit')}
         </Tooltip.Content>
       </Tooltip>
     );

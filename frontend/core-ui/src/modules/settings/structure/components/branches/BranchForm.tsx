@@ -5,6 +5,7 @@ import { Collapsible, Form, Input, Skeleton, Textarea } from 'erxes-ui';
 import { SelectBranches, SelectMember } from 'ui-modules';
 import { PhoneInput } from 'erxes-ui/modules/record-field/meta-inputs/components/PhoneInput';
 import { IconChevronDown } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   TitleField,
   CodeField,
@@ -12,6 +13,7 @@ import {
 } from '../StructureFormFields';
 
 export const BranchForm = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { control, formState } = useFormContext<TBranchForm>();
   // show the status field only when the record was originally deleted, so the
   // field stays visible while the user switches it back to active
@@ -31,7 +33,7 @@ export const BranchForm = () => {
               <Textarea
                 {...field}
                 value={field.value ?? ''}
-                placeholder="Provide an address"
+                placeholder={t('provide-an-address', 'Provide an address')}
               />
             </Form.Control>
             <Form.Message />
@@ -114,7 +116,7 @@ export const BranchForm = () => {
       />
       <Collapsible className="col-span-2">
         <Collapsible.Trigger className="flex items-center justify-between w-full py-3">
-          <Form.Label>Links</Form.Label>
+          <Form.Label>{t('links', 'Links')}</Form.Label>
           <IconChevronDown size={16} className="text-accent-foreground" />
         </Collapsible.Trigger>
         <Collapsible.Content>
@@ -138,7 +140,7 @@ export const BranchForm = () => {
                   )
                 }
                 inputMode="numeric"
-                placeholder="Radius"
+                placeholder={t('radius', 'Radius')}
               />
             </Form.Control>
             <Form.Message />
@@ -155,7 +157,7 @@ export const BranchForm = () => {
               <Input
                 {...field}
                 value={field.value ?? ''}
-                placeholder="Latitude"
+                placeholder={t('latitude', 'Latitude')}
               />
             </Form.Control>
             <Form.Message />
@@ -172,7 +174,7 @@ export const BranchForm = () => {
               <Input
                 {...field}
                 value={field.value ?? ''}
-                placeholder="Longitude"
+                placeholder={t('longitude', 'Longitude')}
               />
             </Form.Control>
             <Form.Message />

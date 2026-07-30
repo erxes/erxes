@@ -12,8 +12,10 @@ import { TeamMemberFilterPopover } from './TeamMemberFilterPopover';
 import { TeamMemberCounts } from '../TeamMemberCounts';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../../constants/teamMemberCursorSessionKey';
 import { useTeamMemberVariables } from '@/settings/team-member/hooks/useTeamMember';
+import { useTranslation } from 'react-i18next';
 
 export const TeamMemberFilterBar = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [queries] = useMultiQueryState<{
     branchIds: string[];
     departmentIds: string[];
@@ -50,7 +52,7 @@ export const TeamMemberFilterBar = () => {
             <SelectBrands.FilterBar
               mode="multiple"
               filterKey="brandIds"
-              label="Brands"
+              label={t('brands', 'Brands')}
             />
           )}
 
@@ -58,7 +60,7 @@ export const TeamMemberFilterBar = () => {
             <SelectBranches.FilterBar
               mode="multiple"
               filterKey="branchIds"
-              label="Branches"
+              label={t('branches', 'Branches')}
             />
           )}
 
@@ -66,7 +68,7 @@ export const TeamMemberFilterBar = () => {
             <SelectDepartments.FilterBar
               mode="multiple"
               filterKey="departmentIds"
-              label="Departments"
+              label={t('departments', 'Departments')}
             />
           )}
 

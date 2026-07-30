@@ -14,12 +14,14 @@ import {
 import { IPositionListItem } from '../../types/position';
 import { renderingPositionDetailAtom } from '../../states/renderingPositionDetail';
 import { useRemovePosition } from '../../hooks/usePositionActions';
+import { useTranslation } from 'react-i18next';
 
 export const PositionsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IPositionListItem, unknown>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { _id, title } = cell.row.original || {};
   const [, setOpenPosition] = useQueryState('position_id');
   const setRenderingPositionDetail = useSetAtom(renderingPositionDetailAtom);
@@ -28,13 +30,17 @@ export const PositionsMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${title}" position?`,
+      message: t(
+        'confirm-delete-position',
+        'Are you sure you want to delete "{{title}}" position?',
+        { title },
+      ),
     }).then(async () => {
       try {
         await handleRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -60,7 +66,7 @@ export const PositionsMoreColumnCell = ({
                   setRenderingPositionDetail(false);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit', 'Edit')}
               </Command.Item>
             </Can>
             <Can action="positionsManage">
@@ -69,7 +75,7 @@ export const PositionsMoreColumnCell = ({
                 onSelect={handleDelete}
                 className="text-destructive"
               >
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete', 'Delete')}
               </Command.Item>
             </Can>
           </Command.List>

@@ -2,6 +2,7 @@
 
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { Label, Select, Separator, Sidebar, Switch } from 'erxes-ui';
 import { useEffect, useState } from 'react';
@@ -40,6 +41,7 @@ export const PermissionModulesForm = ({
   form: UseFormReturn<IPermissionGroupSchema>;
 }) => {
   const { permissionModulesByPlugin } = useGetPermissionModules();
+  const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
   const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
 
   const permissions = form.watch('permissions');
@@ -205,7 +207,7 @@ export const PermissionModulesForm = ({
       <Sidebar.Content className="flex-1 shrink-0 min-w-0 w-52 border-r border-border/60 bg-muted/20">
         <Sidebar.Group className="px-3 py-4">
           <Sidebar.GroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-2">
-            Plugins
+            {t('plugins', 'Plugins')}
           </Sidebar.GroupLabel>
           <Sidebar.GroupContent className="space-y-1">
             <Sidebar.Menu>
@@ -278,7 +280,7 @@ export const PermissionModulesForm = ({
                           <div className="px-5 py-5 space-y-6 bg-muted/5">
                             <div className="flex items-center gap-4 flex-col sm:flex-row">
                               <Label className="text-sm font-medium min-w-[80px]">
-                                Access Scope
+                                {t('access-scope', 'Access Scope')}
                               </Label>
                               <Select
                                 value={permOrDefault.scope}
@@ -311,7 +313,7 @@ export const PermissionModulesForm = ({
                             </div>
                             <div className="space-y-3">
                               <Label className="text-sm font-medium">
-                                Allowed Actions
+                                {t('allowed-actions', 'Allowed Actions')}
                               </Label>
                               <div className="flex flex-col gap-0.5">
                                 {module.actions.map((action) => (
@@ -367,11 +369,13 @@ export const PermissionModulesForm = ({
                 <IconPlugConnected size={32} stroke={1.5} />
               </div>
               <h4 className="text-base font-semibold text-foreground mb-2">
-                Select a plugin
+                {t('select-a-plugin', 'Select a plugin')}
               </h4>
               <p className="text-sm text-muted-foreground max-w-[280px]">
-                Choose a plugin from the sidebar to configure its module
-                permissions and access controls
+                {t(
+                  'select-a-plugin-description',
+                  'Choose a plugin from the sidebar to configure its module permissions and access controls',
+                )}
               </p>
             </div>
           )}

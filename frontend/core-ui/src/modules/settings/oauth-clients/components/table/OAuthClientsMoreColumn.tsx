@@ -10,6 +10,7 @@ import {
 import { IconEdit, IconLock, IconTrash } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { IOAuthClientApp } from '../../types';
 import { editingOAuthClientAtom } from '../../state';
 import { useOAuthClientsRemove } from '../../hooks/useOAuthClientsRemove';
@@ -26,16 +27,21 @@ export const OAuthClientsMoreColumnCell = ({
   const { oauthClientAppsRemove } = useOAuthClientsRemove();
   const { oauthClientAppsRevoke } = useOAuthClientsRevoke();
   const setEditingOAuthClient = useSetAtom(editingOAuthClientAtom);
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${name}"?`,
+      message: t(
+        'confirm-delete-name',
+        'Are you sure you want to delete "{{name}}"?',
+        { name },
+      ),
     }).then(async () => {
       try {
         await oauthClientAppsRemove({ variables: { _id } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -45,17 +51,24 @@ export const OAuthClientsMoreColumnCell = ({
 
   const handleRevoke = () => {
     confirm({
-      message: `Are you sure you want to revoke "${name}"?`,
+      message: t(
+        'confirm-revoke-name',
+        'Are you sure you want to revoke "{{name}}"?',
+        { name },
+      ),
     }).then(async () => {
       try {
         await oauthClientAppsRevoke({ variables: { _id } });
         toast({
           variant: 'success',
-          title: 'OAuth client revoked successfully',
+          title: t(
+            'client-revoked-successfully',
+            'OAuth client revoked successfully',
+          ),
         });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -77,15 +90,15 @@ export const OAuthClientsMoreColumnCell = ({
               value="edit"
               onSelect={() => setEditingOAuthClient(cell.row.original)}
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             {status === 'active' && (
               <Command.Item value="revoke" onSelect={handleRevoke}>
-                <IconLock /> Revoke
+                <IconLock /> {t('revoke', 'Revoke')}
               </Command.Item>
             )}
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

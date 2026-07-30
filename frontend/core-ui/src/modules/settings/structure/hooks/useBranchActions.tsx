@@ -6,6 +6,7 @@ import {
 import { ADD_BRANCH, EDIT_BRANCH, REMOVE_BRANCHES } from '../graphql';
 import { TBranchForm } from '../types/branch';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface AddBranchResult {
   branchesAdd: TBranchForm;
@@ -43,9 +44,13 @@ export function useBranchEdit(
 
 export function useRemoveBranch() {
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [handleRemove, { loading, error }] = useMutation(REMOVE_BRANCHES, {
     onCompleted: () =>
-      toast({ title: 'Removed successfully!', variant: 'success' }),
+      toast({
+        title: t('removed-successfully', 'Removed successfully!'),
+        variant: 'success',
+      }),
     refetchQueries: ['Branches'],
   });
 
@@ -57,6 +62,7 @@ export function useRemoveBranch() {
 }
 
 export function useBranchInlineEdit() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [_branchesEdit, { loading }] = useMutation(EDIT_BRANCH);
   const { toast } = useToast();
 
@@ -83,14 +89,14 @@ export function useBranchInlineEdit() {
       onCompleted: (data) => {
         if (data?.branchesEdit) {
           toast({
-            title: 'Branch updated successfully!',
+            title: t('branch-updated-successfully', 'Branch updated successfully!'),
             variant: 'success',
           });
         }
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

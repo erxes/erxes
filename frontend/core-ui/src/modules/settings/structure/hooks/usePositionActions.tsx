@@ -7,6 +7,7 @@ import {
 import { useToast } from 'erxes-ui';
 import { TPositionForm } from '../types/position';
 import { ADD_POSITION, EDIT_POSITION, REMOVE_POSITIONS } from '../graphql';
+import { useTranslation } from 'react-i18next';
 
 interface AddPositionResult {
   positionsAdd: TPositionForm;
@@ -44,9 +45,13 @@ export function usePositionEdit(
 
 export function useRemovePosition() {
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [handleRemove, { loading, error }] = useMutation(REMOVE_POSITIONS, {
     onCompleted: () =>
-      toast({ title: 'Removed successfully!', variant: 'success' }),
+      toast({
+        title: t('removed-successfully', 'Removed successfully!'),
+        variant: 'success',
+      }),
     refetchQueries: ['Positions'],
   });
 

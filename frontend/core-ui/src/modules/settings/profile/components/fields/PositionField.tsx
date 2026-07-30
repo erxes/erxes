@@ -18,7 +18,7 @@ export const PositionField = () => {
         name="positionIds"
         render={({ field }) => (
           <Form.Item className="flex flex-col space-y-2">
-            <Form.Label>{t('position')}</Form.Label>
+            <Form.Label>{t('position', 'Position')}</Form.Label>
             <Form.Control>
               <SelectPositions.Detail
                 value={field.value}
