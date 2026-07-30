@@ -1,5 +1,33 @@
 import { useSearchParams } from 'react-router-dom';
 
+let searchParamsDraft: URLSearchParams | null = null;
+let draftSourceSearch = '';
+
+const getSearchParamsDraft = () => {
+  const currentSearch = window.location.search;
+  const draftSearch = searchParamsDraft?.toString();
+  const draftTargetSearch = draftSearch ? `?${draftSearch}` : '';
+
+  if (
+    !searchParamsDraft ||
+    (draftSourceSearch !== currentSearch && draftTargetSearch !== currentSearch)
+  ) {
+    draftSourceSearch = currentSearch;
+    searchParamsDraft = new URLSearchParams(currentSearch);
+
+    queueMicrotask(() => {
+      searchParamsDraft = null;
+      draftSourceSearch = '';
+    });
+  }
+
+  return new URLSearchParams(searchParamsDraft);
+};
+
+const updateSearchParamsDraft = (nextParams: URLSearchParams) => {
+  searchParamsDraft = new URLSearchParams(nextParams);
+};
+
 // Single key types and hook
 export type QueryState<T> = [T | null, (value: T | null) => void];
 
@@ -36,13 +64,14 @@ export function useQueryState<T>(
   const query = parseQueryValue(searchParams.get(queryKey));
 
   const setQuery = (value: T | null) => {
-    const nextParams = new URLSearchParams(window.location.search);
+    const nextParams = getSearchParamsDraft();
 
     if (value !== null) {
       const stringValue =
         typeof value === 'object' ? JSON.stringify(value) : String(value);
 
       if (nextParams.get(queryKey) === stringValue) return;
+      if (!nextParams.has(queryKey) && value === query) return;
 
       nextParams.set(queryKey, stringValue);
     } else if (nextParams.has(queryKey)) {
@@ -51,6 +80,7 @@ export function useQueryState<T>(
       return;
     }
 
+    updateSearchParamsDraft(nextParams);
     setSearchParams(nextParams);
   };
 
@@ -95,7 +125,7 @@ export function useMultiQueryState<T extends QueryTypes>(
   }, {} as QueryValues<T>);
 
   const setQueries = (values: Partial<QueryValues<T>>) => {
-    const nextParams = new URLSearchParams(window.location.search);
+    const nextParams = getSearchParamsDraft();
     let hasChanges = false;
 
     Object.entries(values).forEach(([key, value]) => {
@@ -115,6 +145,7 @@ export function useMultiQueryState<T extends QueryTypes>(
 
     if (!hasChanges) return;
 
+    updateSearchParamsDraft(nextParams);
     setSearchParams(nextParams, { replace: true });
   };
 
@@ -137,9 +168,10 @@ export function useSetQueryStateByKey() {
   const [, setSearchParams] = useSearchParams();
 
   const setQuery = (key: string, value: string) => {
-    const nextParams = new URLSearchParams(window.location.search);
+    const nextParams = getSearchParamsDraft();
     if (nextParams.get(key) === value) return;
     nextParams.set(key, value);
+    updateSearchParamsDraft(nextParams);
     setSearchParams(nextParams);
   };
 
@@ -150,9 +182,10 @@ export function useRemoveQueryStateByKey() {
   const [, setSearchParams] = useSearchParams();
 
   const removeQuery = (key: string) => {
-    const nextParams = new URLSearchParams(window.location.search);
+    const nextParams = getSearchParamsDraft();
     if (!nextParams.has(key)) return;
     nextParams.delete(key);
+    updateSearchParamsDraft(nextParams);
     setSearchParams(nextParams);
   };
 

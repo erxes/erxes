@@ -34,17 +34,18 @@ export const useDealDetail = (
   const passedId = options?.variables?._id;
   const finalId = passedId || salesItemId || activeDealId;
 
-  const { data, loading, error, subscribeToMore, refetch } = useQuery<{
-    dealDetail: IDeal;
-  }>(GET_DEAL_DETAIL, {
-    ...options,
-    variables: {
-      ...options?.variables,
-      _id: finalId,
-    },
-    skip: !finalId,
-    fetchPolicy: options?.fetchPolicy || 'cache-and-network',
-  });
+  const { data, previousData, loading, error, subscribeToMore, refetch } =
+    useQuery<{
+      dealDetail: IDeal;
+    }>(GET_DEAL_DETAIL, {
+      ...options,
+      variables: {
+        ...options?.variables,
+        _id: finalId,
+      },
+      skip: !finalId,
+      fetchPolicy: options?.fetchPolicy || 'cache-and-network',
+    });
 
   useEffect(() => {
     if (!salesItemId) return;
@@ -114,7 +115,8 @@ export const useDealDetail = (
     return unsubscribe;
   }, [finalId, refetch, subscribeToMore]);
 
-  const deal = data?.dealDetail;
+  const deal =
+    data?.dealDetail || (!finalId ? previousData?.dealDetail : undefined);
 
   return { deal, loading: loading && !deal, error, refetch };
 };
