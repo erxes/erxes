@@ -1,9 +1,8 @@
 import { PricingDelete } from '@/pricing/components/PricingDelete';
+import { SelectPricing } from '@/pricing/components/SelectPricing';
 import { PricingEdit } from '@/pricing/edit-pricing/PricingEdit';
-import { usePricing } from '@/pricing/hooks/usePricing';
-import { IPricing } from '@/pricing/types';
 import { IconCoins } from '@tabler/icons-react';
-import { Breadcrumb, Button, Select } from 'erxes-ui';
+import { Breadcrumb, Button } from 'erxes-ui';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -13,10 +12,7 @@ export const PricingEditPage = () => {
   const { t } = useTranslation('loyalty');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { pricing, loading } = usePricing();
   const [saveAction, setSaveAction] = useState<ReactNode | null>(null);
-
-  const currentPricing = pricing?.find((p: IPricing) => p._id === id);
 
   const handlePricingChange = (pricingId: string) => {
     navigate(`/settings/loyalty/pricing/${pricingId}`);
@@ -42,24 +38,7 @@ export const PricingEditPage = () => {
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
-                <Select value={id} onValueChange={handlePricingChange}>
-                  <Select.Trigger className="w-[200px]">
-                    <Select.Value
-                      placeholder={
-                        loading
-                          ? t('loading')
-                          : currentPricing?.name || t('select-pricing')
-                      }
-                    />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {pricing?.map((p: IPricing) => (
-                      <Select.Item key={p._id} value={p._id}>
-                        {p.name}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
+                <SelectPricing value={id} onValueChange={handlePricingChange} />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
