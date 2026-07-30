@@ -1,8 +1,10 @@
 import { mutations } from '@/settings/team-member/graphql';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
+import { useState } from 'react';
 
 type InviteResendResult = {
-  usersResendInvitation: boolean;
+  // The registration token of the reinvited user.
+  usersResendInvitation: string;
 };
 
 type InviteResendVariables = {
@@ -33,15 +35,26 @@ export const useResendInvite = () => {
 };
 
 export const useResendInvites = () => {
-  const [mutate, { loading, error }] = useMutation<
+  const [mutate, { error }] = useMutation<
     InviteResendResult,
     InviteResendVariables
   >(mutations.USERS_RESEND_INVITATION);
+  // Apollo only reports the state of the latest mutation, so the whole batch is
+  // tracked here instead.
+  const [loading, setLoading] = useState(false);
 
   const handleResendMany = async (emails: string[]) => {
+    setLoading(true);
+
     const results = await Promise.allSettled(
-      emails.map((email) => mutate({ variables: { email } })),
-    );
+      emails.map(async (email) => {
+        const { data } = await mutate({ variables: { email } });
+
+        if (!data?.usersResendInvitation) {
+          throw new Error('Invitation could not be resent');
+        }
+      }),
+    ).finally(() => setLoading(false));
 
     const rejected = results.filter(
       (result): result is PromiseRejectedResult => result.status === 'rejected',

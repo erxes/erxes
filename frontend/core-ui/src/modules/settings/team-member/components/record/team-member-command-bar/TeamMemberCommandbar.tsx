@@ -32,9 +32,7 @@ export const TeamMemberCommandBar = () => {
         </Can>
         <Separator.Inline />
         <TeamMemberAssignPermissions teamMemberIds={teamMemberIds} />
-        <Separator.Inline />
         <TeamMemberResendInvite teamMembers={teamMembers} />
-        <Separator.Inline />
         <TeamMemberDeactivate teamMembers={teamMembers} />
         <Separator.Inline />
         <TeamMemberDelete teamMemberIds={teamMemberIds} />

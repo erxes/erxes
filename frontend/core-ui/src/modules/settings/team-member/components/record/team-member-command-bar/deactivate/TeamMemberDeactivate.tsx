@@ -1,7 +1,14 @@
 import { useTeamMemberDeactivate } from '@/settings/team-member/hooks/useTeamMemberDeactivate';
 import { IUser } from '@/settings/team-member/types';
 import { IconToggleLeft } from '@tabler/icons-react';
-import { Button, RecordTable, Spinner, useConfirm, useToast } from 'erxes-ui';
+import {
+  Button,
+  RecordTable,
+  Separator,
+  Spinner,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { Can, currentUserState } from 'ui-modules';
 
@@ -14,19 +21,23 @@ export const TeamMemberDeactivate = ({
   const { deactivateTeamMembers, loading } = useTeamMemberDeactivate();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
-  const currentUser = useAtomValue(currentUserState);
+  const currentUserId = useAtomValue(currentUserState)?._id;
 
   // Only active members can be deactivated and the backend rejects the whole
-  // batch when it contains the requesting user.
-  const teamMemberIds = teamMembers
-    .filter(
-      (teamMember) =>
-        teamMember.isActive !== false && teamMember._id !== currentUser?._id,
-    )
-    .map((teamMember) => teamMember._id);
+  // batch when it contains the requesting user, so wait until the current user
+  // is loaded before allowing the action.
+  const teamMemberIds = currentUserId
+    ? teamMembers
+        .filter(
+          (teamMember) =>
+            teamMember.isActive !== false && teamMember._id !== currentUserId,
+        )
+        .map((teamMember) => teamMember._id)
+    : [];
 
   return (
     <Can action="teamMembersRemove">
+      <Separator.Inline />
       <Button
         variant="secondary"
         disabled={loading || teamMemberIds.length === 0}
