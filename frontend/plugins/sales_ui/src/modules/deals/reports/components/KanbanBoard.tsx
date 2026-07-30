@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { useDealsByStage } from '../hooks/useDealsByStage';
 import { MOVE_DEAL } from '../graphql/mutations/mutations';

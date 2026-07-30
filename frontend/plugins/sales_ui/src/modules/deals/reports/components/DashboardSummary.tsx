@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
-import { Card } from 'erxes-ui';
+import { SectionCard } from '../components/common/SectionCard';
 import { DASHBOARD_SUMMARY } from '../graphql/queries/queries';
 
 interface KpiData {
@@ -13,27 +13,35 @@ interface Props {
   filters: { fromDate?: string; toDate?: string; dateRange?: string };
 }
 
-const KpiCard = ({ title, data }: { title: string; data: KpiData }) => (
-  <Card>
-    <Card.Header className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <Card.Title className="text-sm font-medium">{title}</Card.Title>
-    </Card.Header>
-    <Card.Content>
-      <div className="text-2xl font-bold">{data.current.toLocaleString()}</div>
+const KpiCard = ({
+  title,
+  data,
+  suffix = '',
+}: {
+  title: string;
+  data: KpiData;
+  suffix?: string;
+}) => (
+  <SectionCard title={title}>
+    <div className="text-2xl font-bold">
+      {data.current.toLocaleString()}
+      {suffix}
+    </div>
+
+    {data.percentChange !== 0 && (
       <p className="text-xs text-muted-foreground">
-        {data.percentChange !== 0 && (
-          <>
-            {data.percentChange > 0 ? (
-              <span className="text-green-500">▲</span>
-            ) : (
-              <span className="text-red-500">▼</span>
-            )}
-            {Math.abs(data.percentChange)}% from previous ({data.previous.toLocaleString()})
-          </>
+        {data.percentChange > 0 ? (
+          <span className="text-green-500">▲</span>
+        ) : (
+          <span className="text-red-500">▼</span>
         )}
+
+        {Math.abs(data.percentChange)}% from previous (
+        {data.previous.toLocaleString()}
+        {suffix})
       </p>
-    </Card.Content>
-  </Card>
+    )}
+  </SectionCard>
 );
 
 export const DashboardSummary: React.FC<Props> = ({ filters }) => {
@@ -53,26 +61,11 @@ export const DashboardSummary: React.FC<Props> = ({ filters }) => {
       <KpiCard title="Total Deals" data={totalDeals} />
       <KpiCard title="Won Deals" data={wonDeals} />
       <KpiCard title="Lost Deals" data={lostDeals} />
-      <Card>
-        <Card.Header className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <Card.Title className="text-sm font-medium">Conversion Rate</Card.Title>
-        </Card.Header>
-        <Card.Content>
-          <div className="text-2xl font-bold">{conversionRate.current.toFixed(1)}%</div>
-          <p className="text-xs text-muted-foreground">
-            {conversionRate.percentChange !== 0 && (
-              <>
-                {conversionRate.percentChange > 0 ? (
-                  <span className="text-green-500">▲</span>
-                ) : (
-                  <span className="text-red-500">▼</span>
-                )}
-                {Math.abs(conversionRate.percentChange)}% from previous ({conversionRate.previous.toFixed(1)}%)
-              </>
-            )}
-          </p>
-        </Card.Content>
-      </Card>
+      <KpiCard
+  title="Conversion Rate"
+  data={conversionRate}
+  suffix="%"
+/>
       <KpiCard title="Expected Revenue" data={expectedRevenue} />
     </div>
   );

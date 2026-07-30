@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSavedWidgets } from '../../hooks/useSavedWidgets';
 import { Card, Button } from 'erxes-ui';
+import { SectionCard } from '../common/SectionCard';
 import { WidgetEditor } from './WidgetEditor';
 
 interface Props {
@@ -31,39 +32,64 @@ export const WidgetList: React.FC<Props> = ({ onLoad }) => {
   if (loading) return <div className="text-center py-4">Loading widgets...</div>;
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Saved Widgets</h3>
-        <Button onClick={() => { setEditingWidget(null); setEditorOpen(true); }}>
-          Add Widget
-        </Button>
-      </div>
+      <SectionCard
+    title="Saved Widgets"
+    loading={loading}
+    skeletonHeight="h-64"
+  >
+    <div className="flex justify-end mb-4">
+      <Button
+        onClick={() => {
+          setEditingWidget(null);
+          setEditorOpen(true);
+        }}
+      >
+        Add Widget
+      </Button>
+    </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {widgets.map((widget: any) => (
-          <Card key={widget._id} className="cursor-pointer hover:shadow-lg transition">
+          <Card
+            key={widget._id}
+            className="cursor-pointer transition hover:shadow-lg"
+          >
             <Card.Header className="flex justify-between items-start">
               <div>
-                <Card.Title className="text-base">{widget.name}</Card.Title>
-                <p className="text-sm text-gray-500">{widget.chartType}</p>
+                <Card.Title className="text-base">
+                  {widget.name}
+                </Card.Title>
+                <p className="text-sm text-gray-500">
+                  {widget.chartType}
+                </p>
               </div>
+
               <div className="flex gap-1">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={(e) => { e.stopPropagation(); setEditingWidget(widget); setEditorOpen(true); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingWidget(widget);
+                    setEditorOpen(true);
+                  }}
                 >
                   Edit
                 </Button>
+
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={(e) => { e.stopPropagation(); handleDelete(widget._id); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(widget._id);
+                  }}
                 >
                   Delete
                 </Button>
               </div>
             </Card.Header>
+
             <Card.Content>
               <button
                 className="w-full text-left text-sm text-blue-600 hover:underline"
@@ -71,7 +97,8 @@ export const WidgetList: React.FC<Props> = ({ onLoad }) => {
               >
                 Load Widget
               </button>
-              <div className="text-xs text-gray-400 mt-1">
+
+              <div className="mt-1 text-xs text-gray-400">
                 Filters: {JSON.stringify(widget.filters).slice(0, 40)}...
               </div>
             </Card.Content>
@@ -81,10 +108,13 @@ export const WidgetList: React.FC<Props> = ({ onLoad }) => {
 
       <WidgetEditor
         isOpen={editorOpen}
-        onClose={() => { setEditorOpen(false); setEditingWidget(null); }}
+        onClose={() => {
+          setEditorOpen(false);
+          setEditingWidget(null);
+        }}
         onSave={handleSave}
         initialData={editingWidget}
       />
-    </div>
+    </SectionCard>
   );
 };
