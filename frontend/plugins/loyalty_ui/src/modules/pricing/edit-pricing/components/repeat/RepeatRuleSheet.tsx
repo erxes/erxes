@@ -124,6 +124,17 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
     }
   }, [editingRule, form]);
 
+  useEffect(() => {
+    form.clearErrors([
+      'startDate',
+      'endDate',
+      'startTime',
+      'endTime',
+      'weekDay',
+      'monthDay',
+    ]);
+  }, [ruleType, form]);
+
   const handleClose = () => {
     form.reset();
     setOpen(false);
@@ -158,15 +169,13 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
         }
       }}
     >
-      {!isEditing && (
-        <Sheet.Trigger asChild>
-          <Button type="button" variant="outline">
-            <IconPlus size={16} className="mr-2" /> {t('add-rule')}
-          </Button>
-        </Sheet.Trigger>
-      )}
+      <Sheet.Trigger asChild>
+        <Button type="button" variant="outline" disabled={isEditing}>
+          <IconPlus size={16} className="mr-2" /> {t('add-rule')}
+        </Button>
+      </Sheet.Trigger>
 
-      <Sheet.View className="flex-col h-full p-0 sm:max-w-xl">
+      <Sheet.View className="inset-y-0 right-0 h-dvh rounded-none border-l p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
             {isEditing ? t('edit-repeat-rule') : t('add-repeat-rule')}
@@ -225,6 +234,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                     <Form.Field
                       control={form.control}
                       name="startDate"
+                      rules={{ required: t('fill-required-fields') }}
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>{t('start-date')}</Form.Label>
@@ -241,6 +251,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                               }
                             />
                           </Form.Control>
+                          <Form.Message />
                         </Form.Item>
                       )}
                     />
@@ -248,6 +259,19 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                     <Form.Field
                       control={form.control}
                       name="endDate"
+                      rules={{
+                        required: t('fill-required-fields'),
+                        validate: (value) => {
+                          const startDate = form.getValues('startDate');
+
+                          return (
+                            !value ||
+                            !startDate ||
+                            value > startDate ||
+                            t('end-date-after-start')
+                          );
+                        },
+                      }}
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>{t('end-date')}</Form.Label>
@@ -264,6 +288,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                               }
                             />
                           </Form.Control>
+                          <Form.Message />
                         </Form.Item>
                       )}
                     />
@@ -275,6 +300,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                     <Form.Field
                       control={form.control}
                       name="startTime"
+                      rules={{ required: t('fill-required-fields') }}
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>{t('start-time')}</Form.Label>
@@ -284,8 +310,10 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                               onValueChange={(value) =>
                                 field.onChange(value ?? null)
                               }
+                              aria-label={t('start-time')}
                             />
                           </Form.Control>
+                          <Form.Message />
                         </Form.Item>
                       )}
                     />
@@ -293,6 +321,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                     <Form.Field
                       control={form.control}
                       name="endTime"
+                      rules={{ required: t('fill-required-fields') }}
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>{t('end-time')}</Form.Label>
@@ -302,8 +331,10 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                               onValueChange={(value) =>
                                 field.onChange(value ?? null)
                               }
+                              aria-label={t('end-time')}
                             />
                           </Form.Control>
+                          <Form.Message />
                         </Form.Item>
                       )}
                     />
@@ -314,6 +345,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                   <Form.Field
                     control={form.control}
                     name="weekDay"
+                    rules={{ required: t('fill-required-fields') }}
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>{t('rule-value')}</Form.Label>
@@ -323,7 +355,9 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger className="w-full">
-                              <Select.Value placeholder={t('select-a-weekday')} />
+                              <Select.Value
+                                placeholder={t('select-a-weekday')}
+                              />
                             </Select.Trigger>
                             <Select.Content>
                               {WEEK_DAYS.map((day) => (
@@ -334,6 +368,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                             </Select.Content>
                           </Select>
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />
@@ -343,6 +378,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                   <Form.Field
                     control={form.control}
                     name="monthDay"
+                    rules={{ required: t('fill-required-fields') }}
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>{t('rule-value')}</Form.Label>
@@ -363,6 +399,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                             </Select.Content>
                           </Select>
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />

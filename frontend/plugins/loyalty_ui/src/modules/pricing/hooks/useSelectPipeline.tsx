@@ -51,7 +51,6 @@ const SelectPipelineProvider = ({
 
   const handleValueChange = useCallback(
     (pipelineId: string) => {
-      if (!pipelineId) return;
       onValueChange(pipelineId);
       setOpen?.(false);
     },
@@ -83,7 +82,9 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
 
   if (loading) {
     return (
-      <span className="text-accent-foreground/80">{t('loading-pipelines')}</span>
+      <span className="text-accent-foreground/80">
+        {t('loading-pipelines')}
+      </span>
     );
   }
 
@@ -136,7 +137,8 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 // SelectPipeline Content
 const SelectPipelineContent = () => {
   const { t } = useTranslation('loyalty');
-  const { pipelines, boardId, loading } = useSelectPipelineContext();
+  const { pipelines, boardId, loading, onValueChange, value } =
+    useSelectPipelineContext();
   const emptyMessage = loading
     ? t('loading-pipelines')
     : boardId
@@ -148,6 +150,11 @@ const SelectPipelineContent = () => {
         <Command.Empty>
           <div className="text-muted-foreground">{emptyMessage}</div>
         </Command.Empty>
+        {value && (
+          <Command.Item value="none" onSelect={() => onValueChange('')}>
+            {t('none')}
+          </Command.Item>
+        )}
         {pipelines?.map((pipeline) => (
           <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />
         ))}

@@ -677,6 +677,7 @@
   "quantity-rules-updated": "Quantity rules updated",
   "failed-to-update-quantity-rules": "Failed to update quantity rules",
   "no-quantity-rules": "No quantity rules yet. Click \"Add rule\" to add one.",
+  "pricing-rule-added": "{{rule}} rule added",
   "common-rule-updated": "Common rule updated",
   "failed-to-update-common-rule": "Failed to update common rule",
   "failed-to-load-pricing-details": "Failed to load Pricing details: {{message}}",

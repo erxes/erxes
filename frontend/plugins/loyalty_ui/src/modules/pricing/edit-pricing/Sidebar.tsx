@@ -9,8 +9,6 @@ interface PricingEditSidebarProps {
   pricingDetail?: IPricingPlanDetail;
 }
 
-const RULE_TABS = new Set(['rules', 'common', 'quantity', 'price', 'expiry']);
-
 export const PricingEditSidebar = ({
   activeTab,
   pricingDetail,
@@ -30,11 +28,7 @@ export const PricingEditSidebar = ({
               <PricingEditSidebarItem
                 key={step.value}
                 to={step.value}
-                isActive={
-                  step.value === 'rules'
-                    ? RULE_TABS.has(activeTab)
-                    : activeTab === step.value
-                }
+                isActive={activeTab === step.value}
               >
                 {t(step.title)}
               </PricingEditSidebarItem>

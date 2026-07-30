@@ -5,26 +5,20 @@ import { useTranslation } from 'react-i18next';
 import { SelectProduct } from 'ui-modules';
 import {
   RULE_DISCOUNT_TYPES,
-  DiscountType,
   PRICE_ADJUST_TYPES,
-  PriceAdjustType,
 } from '@/pricing/edit-pricing/components';
+import {
+  isOptionalInteger,
+  isRuleNumber,
+  type PricingRuleConfig,
+} from '@/pricing/edit-pricing/components/rules/pricingRuleUtils';
 import { IconPlus } from '@tabler/icons-react';
 
-export interface QuantityRuleConfig {
-  _id?: string;
-  ruleType: string;
-  ruleValue: string;
-  discountType: DiscountType;
-  discountValue: string;
-  priceAdjustType: PriceAdjustType;
-  priceAdjustFactor: string;
-  bonusProductId?: string | null;
-}
+export type QuantityRuleConfig = PricingRuleConfig;
 
 interface QuantityRuleSheetProps {
-  onRuleAdded?: (config: QuantityRuleConfig) => void;
-  onRuleUpdated?: (config: QuantityRuleConfig) => void;
+  onRuleAdded?: (config: QuantityRuleConfig) => boolean | Promise<boolean>;
+  onRuleUpdated?: (config: QuantityRuleConfig) => boolean | Promise<boolean>;
   editingRule?: QuantityRuleConfig | null;
   onEditComplete?: () => void;
 }
@@ -61,6 +55,10 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
     }
   }, [editingRule, form]);
 
+  useEffect(() => {
+    form.clearErrors(['discountValue', 'bonusProductId']);
+  }, [discountType, form]);
+
   const handleClose = () => {
     form.reset();
     setOpen(false);
@@ -69,19 +67,19 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
     }
   };
 
-  const handleSubmit = (values: QuantityRuleConfig) => {
+  const handleSubmit = async (values: QuantityRuleConfig) => {
     const payload: QuantityRuleConfig = {
       _id: editingRule?._id,
       ...values,
     };
 
-    if (editingRule) {
-      onRuleUpdated?.(payload);
-    } else {
-      onRuleAdded?.(payload);
-    }
+    const saved = editingRule
+      ? await onRuleUpdated?.(payload)
+      : await onRuleAdded?.(payload);
 
-    handleClose();
+    if (saved !== false) {
+      handleClose();
+    }
   };
 
   return (
@@ -98,14 +96,12 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
         }
       }}
     >
-      {!isEditing && (
-        <Sheet.Trigger asChild>
-          <Button variant="outline">
-            {' '}
-            <IconPlus size={16} className="mr-2" /> {t('add-rule')}
-          </Button>
-        </Sheet.Trigger>
-      )}
+      <Sheet.Trigger asChild>
+        <Button variant="outline" disabled={isEditing}>
+          <IconPlus size={16} className="mr-2" />
+          {t('add-rule')}
+        </Button>
+      </Sheet.Trigger>
 
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
@@ -152,12 +148,17 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
               <Form.Field
                 control={form.control}
                 name="ruleValue"
+                rules={{
+                  validate: (value) =>
+                    isRuleNumber(value) || t('number-required'),
+                }}
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>{t('rule-value')}</Form.Label>
                     <Form.Control>
                       <Input placeholder="0" type="number" {...field} />
                     </Form.Control>
+                    <Form.Message />
                   </Form.Item>
                 )}
               />
@@ -198,6 +199,10 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
                 <Form.Field
                   control={form.control}
                   name="discountValue"
+                  rules={{
+                    validate: (value) =>
+                      isRuleNumber(value) || t('number-required'),
+                  }}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>{t('discount-value')}</Form.Label>
@@ -210,6 +215,7 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
                           {...field}
                         />
                       </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />
@@ -219,9 +225,10 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
                 <Form.Field
                   control={form.control}
                   name="bonusProductId"
+                  rules={{ required: t('select-at-least-one-product') }}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('discount-value')}</Form.Label>
+                      <Form.Label>{t('bonus-product')}</Form.Label>
                       <Form.Control>
                         <SelectProduct
                           mode="single"
@@ -231,6 +238,7 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
                           }
                         />
                       </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />
@@ -269,21 +277,33 @@ export const QuantityRuleSheet: React.FC<QuantityRuleSheetProps> = ({
               <Form.Field
                 control={form.control}
                 name="priceAdjustFactor"
+                rules={{
+                  validate: (value) =>
+                    isOptionalInteger(value) || t('number-required'),
+                }}
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>{t('price-adjust-factor')}</Form.Label>
                     <Form.Control>
                       <Input placeholder="0" type="number" {...field} />
                     </Form.Control>
+                    <Form.Message />
                   </Form.Item>
                 )}
               />
 
               <div className="flex gap-2 justify-end pt-4">
-                <Button type="button" variant="outline" onClick={handleClose}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={form.formState.isSubmitting}
+                >
                   {t('cancel')}
                 </Button>
-                <Button type="submit">{t('save')}</Button>
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {t('save')}
+                </Button>
               </div>
             </form>
           </Form>

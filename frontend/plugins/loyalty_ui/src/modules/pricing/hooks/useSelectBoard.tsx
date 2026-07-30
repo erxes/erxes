@@ -46,7 +46,6 @@ const SelectBoardProvider = ({
 
   const handleValueChange = useCallback(
     (boardId: string) => {
-      if (!boardId) return;
       onValueChange(boardId);
       setOpen?.(false);
     },
@@ -76,7 +75,9 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, boards, loading } = useSelectBoardContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">{t('loading-boards')}</span>;
+    return (
+      <span className="text-accent-foreground/80">{t('loading-boards')}</span>
+    );
   }
 
   if (!boards || boards.length === 0 || !value) {
@@ -126,7 +127,7 @@ const SelectBoardCommandItem = ({ board }: { board: IBoard }) => {
 // SelectBoard Content
 const SelectBoardContent = () => {
   const { t } = useTranslation('loyalty');
-  const { boards, loading } = useSelectBoardContext();
+  const { boards, loading, onValueChange, value } = useSelectBoardContext();
   return (
     <Command>
       <Command.List>
@@ -135,6 +136,11 @@ const SelectBoardContent = () => {
             {loading ? t('loading-boards') : t('no-boards-found')}
           </div>
         </Command.Empty>
+        {value && (
+          <Command.Item value="none" onSelect={() => onValueChange('')}>
+            {t('none')}
+          </Command.Item>
+        )}
         {boards?.map((board) => (
           <SelectBoardCommandItem key={board._id} board={board} />
         ))}

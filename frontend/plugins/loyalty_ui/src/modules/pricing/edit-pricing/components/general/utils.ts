@@ -10,8 +10,6 @@ import {
   GeneralPricingStatus,
 } from '@/pricing/edit-pricing/components/general/types';
 
-export const GENERAL_FORM_ID = 'pricing-general-form';
-
 export const GENERAL_FORM_DEFAULT_VALUES: GeneralFormValues = {
   name: '',
   status: 'active',
@@ -30,6 +28,23 @@ export const GENERAL_FORM_DEFAULT_VALUES: GeneralFormValues = {
   bundleProductIds: [],
 };
 
+export type GeneralTargetFieldName =
+  | 'productCategoryIds'
+  | 'appliesProductIds'
+  | 'segmentId'
+  | 'vendorCompanyIds'
+  | 'productTagIds'
+  | 'bundleProductIds';
+
+export const GENERAL_TARGET_FIELD_NAMES: GeneralTargetFieldName[] = [
+  'productCategoryIds',
+  'appliesProductIds',
+  'segmentId',
+  'vendorCompanyIds',
+  'productTagIds',
+  'bundleProductIds',
+];
+
 const GENERAL_PRICING_STATUSES: GeneralPricingStatus[] = [
   'active',
   'archived',
@@ -44,8 +59,59 @@ const getPricingAppliesTo = (applyType: string) =>
   PRICING_APPLIES_TO_OPTIONS.find(({ value }) => value === applyType)?.value ||
   'category';
 
-export const normalizeMultipleValue = (value: string | string[]) =>
-  Array.isArray(value) ? value : [value];
+export const normalizeMultipleValue = (
+  value?: string | string[] | null,
+): string[] =>
+  (Array.isArray(value) ? value : value ? [value] : []).filter(Boolean);
+
+export const getGeneralTargetValidationError = (
+  values: GeneralFormValues,
+  t: (key: string) => string,
+): { field: GeneralTargetFieldName; message: string } | null => {
+  switch (values.appliesTo) {
+    case 'category':
+      return values.productCategoryIds.length
+        ? null
+        : {
+            field: 'productCategoryIds',
+            message: t('select-at-least-one-category'),
+          };
+    case 'product':
+      return values.appliesProductIds.length
+        ? null
+        : {
+            field: 'appliesProductIds',
+            message: t('select-at-least-one-product'),
+          };
+    case 'segment':
+      return values.segmentId
+        ? null
+        : { field: 'segmentId', message: t('select-a-segment') };
+    case 'vendor':
+      return values.vendorCompanyIds.length
+        ? null
+        : {
+            field: 'vendorCompanyIds',
+            message: t('select-at-least-one-vendor'),
+          };
+    case 'tag':
+      return values.productTagIds.length
+        ? null
+        : {
+            field: 'productTagIds',
+            message: t('select-at-least-one-tag'),
+          };
+    case 'bundle':
+      return values.bundleProductIds.length
+        ? null
+        : {
+            field: 'bundleProductIds',
+            message: t('select-at-least-one-bundle-product'),
+          };
+  }
+
+  return null;
+};
 
 export const getGeneralFormValues = (
   pricingDetail: IPricingPlanDetail,
@@ -85,6 +151,15 @@ export const getGeneralPricingDocument = (
     priority: priorityFromFormValue(values.priority),
     isStartDateEnabled: Boolean(values.startDate),
     isEndDateEnabled: Boolean(values.endDate),
+    products: [],
+    productsExcluded: [],
+    productsBundle: [],
+    categories: [],
+    categoriesExcluded: [],
+    segments: [],
+    vendors: [],
+    tags: [],
+    tagsExcluded: [],
   };
 
   if (values.startDate) {

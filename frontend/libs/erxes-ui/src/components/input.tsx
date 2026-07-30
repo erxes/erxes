@@ -16,7 +16,7 @@ export const inputVariants = cva(
           '[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none',
         default: '',
         number:
-          '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+          '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
       },
       variant: {
         default: '',
@@ -46,6 +46,8 @@ const InputMain = React.forwardRef<HTMLInputElement, InputProps>(
                 ? 'file'
                 : type === 'search'
                 ? 'search'
+                : type === 'number'
+                ? 'number'
                 : 'default',
             variant,
           }),

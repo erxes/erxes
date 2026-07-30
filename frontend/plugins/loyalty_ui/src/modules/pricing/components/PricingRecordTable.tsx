@@ -3,12 +3,14 @@ import { pricingColumns } from '@/pricing/components/PricingColumns';
 import { PricingCommandBar } from '@/pricing/components/PricingCommandBar';
 import { usePricing } from '@/pricing/hooks/usePricing';
 import { IconCoins, IconPlus } from '@tabler/icons-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PricingCreateSheet } from '@/pricing/create-pricing/PricingCreateSheet';
 
 export function PricingRecordTable() {
   const { t } = useTranslation('loyalty');
   const { pricing, loading, totalCount } = usePricing();
+  const columns = useMemo(() => pricingColumns(t), [t]);
 
   if (!loading && totalCount === 0) {
     return (
@@ -35,9 +37,10 @@ export function PricingRecordTable() {
   return (
     <RecordTable.Provider
       data={pricing || []}
-      columns={pricingColumns(t)}
+      columns={columns}
       stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"
+      tableId="loyalty_pricing_record_table"
     >
       <RecordTable.Scroll>
         <RecordTable>
