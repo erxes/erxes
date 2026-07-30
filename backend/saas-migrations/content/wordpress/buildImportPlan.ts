@@ -529,6 +529,33 @@ type RelatedTermIds = (
   taxonomy: 'category' | 'post_tag',
 ) => string[];
 
+interface BuildPostsOptions {
+  clientPortalId: string;
+  adminUserId: string;
+  itemTargetIds: Map<string, string>;
+  postSlugs: Map<string, string>;
+  postTypeTargetIds: Map<string, string>;
+  relatedTermIds: RelatedTermIds;
+  resolveTargetId: ResolveTargetId;
+  warnings: string[];
+  skipped: Record<string, number>;
+}
+
+interface BuildPagesOptions {
+  clientPortalId: string;
+  adminUserId: string;
+  itemTargetIds: Map<string, string>;
+  pageSlugs: Map<string, string>;
+  resolveTargetId: ResolveTargetId;
+  warnings: string[];
+  skipped: Record<string, number>;
+}
+
+interface TranslationBuildResult {
+  translations: ErxesTranslationDocument[];
+  translationMappings: WordPressMappingDocument[];
+}
+
 const createRelatedTermResolver = (
   itemGroups: WordPressLanguageGroup<WordPressItem>[],
   termTargetIds: Map<string, string>,
@@ -556,15 +583,17 @@ const createRelatedTermResolver = (
 
 const buildPosts = (
   items: WordPressItem[],
-  clientPortalId: string,
-  adminUserId: string,
-  itemTargetIds: Map<string, string>,
-  postSlugs: Map<string, string>,
-  postTypeTargetIds: Map<string, string>,
-  relatedTermIds: RelatedTermIds,
-  resolveTargetId: ResolveTargetId,
-  warnings: string[],
-  skipped: Record<string, number>,
+  {
+    clientPortalId,
+    adminUserId,
+    itemTargetIds,
+    postSlugs,
+    postTypeTargetIds,
+    relatedTermIds,
+    resolveTargetId,
+    warnings,
+    skipped,
+  }: BuildPostsOptions,
 ): ErxesPostDocument[] =>
   items.map((item) => {
     const status = mapStatus(item);
@@ -609,13 +638,15 @@ const buildPosts = (
 
 const buildPages = (
   items: WordPressItem[],
-  clientPortalId: string,
-  adminUserId: string,
-  itemTargetIds: Map<string, string>,
-  pageSlugs: Map<string, string>,
-  resolveTargetId: ResolveTargetId,
-  warnings: string[],
-  skipped: Record<string, number>,
+  {
+    clientPortalId,
+    adminUserId,
+    itemTargetIds,
+    pageSlugs,
+    resolveTargetId,
+    warnings,
+    skipped,
+  }: BuildPagesOptions,
 ): ErxesPageDocument[] =>
   items.map((item) => {
     const status = mapStatus(item);
@@ -649,20 +680,16 @@ const buildPages = (
     };
   });
 
-const buildTranslations = (
-  polylang: WordPressPolylangPlan,
+const buildItemTranslations = (
+  itemGroups: WordPressLanguageGroup<WordPressItem>[],
   itemTargetIds: Map<string, string>,
-  termTargetIds: Map<string, string>,
   resolveTargetId: ResolveTargetId,
   mappingBase: MappingBase,
-): {
-  translations: ErxesTranslationDocument[];
-  translationMappings: WordPressMappingDocument[];
-} => {
+): TranslationBuildResult => {
   const translations: ErxesTranslationDocument[] = [];
   const translationMappings: WordPressMappingDocument[] = [];
 
-  for (const group of polylang.itemGroups) {
+  for (const group of itemGroups) {
     const baseItem = group.base.value;
     const objectId = itemTargetIds.get(baseItem.id) as string;
     const type = baseItem.postType === 'page' ? 'page' : 'post';
@@ -701,7 +728,19 @@ const buildTranslations = (
     }
   }
 
-  for (const group of polylang.termGroups) {
+  return { translations, translationMappings };
+};
+
+const buildTermTranslations = (
+  termGroups: WordPressPolylangPlan['termGroups'],
+  termTargetIds: Map<string, string>,
+  resolveTargetId: ResolveTargetId,
+  mappingBase: MappingBase,
+): TranslationBuildResult => {
+  const translations: ErxesTranslationDocument[] = [];
+  const translationMappings: WordPressMappingDocument[] = [];
+
+  for (const group of termGroups) {
     const baseTerm = group.base.value;
     const objectId = termTargetIds.get(
       `${baseTerm.taxonomy}:${baseTerm.id || baseTerm.slug}`,
@@ -737,6 +776,38 @@ const buildTranslations = (
   }
 
   return { translations, translationMappings };
+};
+
+const buildTranslations = (
+  polylang: WordPressPolylangPlan,
+  itemTargetIds: Map<string, string>,
+  termTargetIds: Map<string, string>,
+  resolveTargetId: ResolveTargetId,
+  mappingBase: MappingBase,
+): TranslationBuildResult => {
+  const itemTranslations = buildItemTranslations(
+    polylang.itemGroups,
+    itemTargetIds,
+    resolveTargetId,
+    mappingBase,
+  );
+  const termTranslations = buildTermTranslations(
+    polylang.termGroups,
+    termTargetIds,
+    resolveTargetId,
+    mappingBase,
+  );
+
+  return {
+    translations: [
+      ...itemTranslations.translations,
+      ...termTranslations.translations,
+    ],
+    translationMappings: [
+      ...itemTranslations.translationMappings,
+      ...termTranslations.translationMappings,
+    ],
+  };
 };
 
 const buildCustomFieldGroups = (
@@ -1078,8 +1149,7 @@ export const buildImportPlan = (
     polylang.itemGroups,
     termTargetIds,
   );
-  const posts = buildPosts(
-    postCandidates,
+  const posts = buildPosts(postCandidates, {
     clientPortalId,
     adminUserId,
     itemTargetIds,
@@ -1089,9 +1159,8 @@ export const buildImportPlan = (
     resolveTargetId,
     warnings,
     skipped,
-  );
-  const pages = buildPages(
-    pageCandidates,
+  });
+  const pages = buildPages(pageCandidates, {
     clientPortalId,
     adminUserId,
     itemTargetIds,
@@ -1099,7 +1168,7 @@ export const buildImportPlan = (
     resolveTargetId,
     warnings,
     skipped,
-  );
+  });
   const { translations, translationMappings } = buildTranslations(
     polylang,
     itemTargetIds,

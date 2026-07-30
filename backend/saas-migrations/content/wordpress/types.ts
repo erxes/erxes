@@ -1,7 +1,5 @@
 import type { ObjectId } from 'mongodb';
 
-export type WordPressPostStatus = string;
-
 export interface WordPressSite {
   title: string;
   description: string;
@@ -49,7 +47,7 @@ export interface WordPressItem {
   modifiedDateGmt: string;
   commentStatus: string;
   slug: string;
-  status: WordPressPostStatus;
+  status: string;
   parentId: string;
   menuOrder: number;
   postType: string;
