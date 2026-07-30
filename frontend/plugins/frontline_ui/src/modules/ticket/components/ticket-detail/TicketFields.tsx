@@ -2,6 +2,7 @@ import { ActivityList } from '@/activity/components/ActivityList';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
@@ -35,7 +36,6 @@ import { TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { AttachmentProvider } from '../attachments/AttachmentContext';
 import AttachmentUploader from '../attachments/AttachmentUploader';
-import Attachments from '../attachments/Attachments';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const { t } = useTranslation('frontline');
@@ -43,6 +43,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     _id: ticketId,
     priority,
     assigneeId,
+    assignedMembers,
     name: _name,
     targetDate,
     pipelineId,
@@ -350,6 +351,12 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             <SelectAssigneeTicket
               variant="detail"
               value={assigneeId}
+              id={ticketId}
+              disabled={!canEditTicket}
+            />
+            <SelectAssignedMembersTicket
+              variant="detail"
+              value={assignedMembers}
               id={ticketId}
               disabled={!canEditTicket}
             />
