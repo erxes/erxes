@@ -50,7 +50,13 @@ export const SelectBranchesProvider = ({
 }: ISelectBranchesProviderProps) => {
   const [newBranchName, setNewBranchName] = useState<string>('');
   const [selectedBranches, setSelectedBranches] = useState<IBranch[]>([]);
-  const branchIds = !value ? [] : Array.isArray(value) ? value : [value];
+  let branchIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    branchIds = value;
+  } else if (value) {
+    branchIds = [value];
+  }
 
   const handleSelectCallback = (branch: IBranch) => {
     if (!branch) return;
@@ -226,11 +232,13 @@ export const BranchesList = ({
   const { value, selectedBranches, setSelectedBranches, onSelect } =
     useSelectBranchesContext();
 
-  const selectedBranchIds = value
-    ? Array.isArray(value)
-      ? value
-      : [value]
-    : [];
+  let selectedBranchIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    selectedBranchIds = value;
+  } else if (value) {
+    selectedBranchIds = [value];
+  }
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;

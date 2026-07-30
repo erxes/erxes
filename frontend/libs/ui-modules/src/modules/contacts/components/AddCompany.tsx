@@ -30,14 +30,13 @@ export const AddCompany = ({
     onOpenChange?.(isOpen);
   };
 
-  const trigger =
-    children ??
-    (isControlled ? null : (
-      <Button variant="outline">
-        <IconPlus />
-        Create new company
-      </Button>
-    ));
+  const defaultTrigger = isControlled ? null : (
+    <Button variant="outline">
+      <IconPlus />
+      Create new company
+    </Button>
+  );
+  const trigger = children ?? defaultTrigger;
 
   return (
     <FocusSheet open={resolvedOpen} onOpenChange={setOpen}>

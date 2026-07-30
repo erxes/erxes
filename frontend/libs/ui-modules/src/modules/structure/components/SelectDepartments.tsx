@@ -55,7 +55,13 @@ export const SelectDepartmentsProvider = ({
   const [selectedDepartments, setSelectedDepartments] = useState<IDepartment[]>(
     [],
   );
-  const departmentIds = !value ? [] : Array.isArray(value) ? value : [value];
+  let departmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    departmentIds = value;
+  } else if (value) {
+    departmentIds = [value];
+  }
 
   const handleSelectCallback = (department: IDepartment) => {
     if (!department) return;
@@ -234,11 +240,13 @@ export const DepartmentsList = ({
   const { value, selectedDepartments, setSelectedDepartments, onSelect } =
     useSelectDepartmentsContext();
 
-  const selectedDepartmentIds = value
-    ? Array.isArray(value)
-      ? value
-      : [value]
-    : [];
+  let selectedDepartmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    selectedDepartmentIds = value;
+  } else if (value) {
+    selectedDepartmentIds = [value];
+  }
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;

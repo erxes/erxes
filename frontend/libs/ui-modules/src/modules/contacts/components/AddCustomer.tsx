@@ -40,14 +40,13 @@ export const AddCustomer = ({
     setSelectedTab(null);
   };
 
-  const trigger =
-    children ??
-    (isControlled ? null : (
-      <Button variant="outline">
-        <IconPlus />
-        Create new customer
-      </Button>
-    ));
+  const defaultTrigger = isControlled ? null : (
+    <Button variant="outline">
+      <IconPlus />
+      Create new customer
+    </Button>
+  );
+  const trigger = children ?? defaultTrigger;
 
   return (
     <FocusSheet
