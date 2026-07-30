@@ -2,6 +2,13 @@ import { IAttachment } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 
 export type PricingPriority = '' | 'public' | 'posBase';
+export type PricingAppliesTo =
+  | 'category'
+  | 'product'
+  | 'segment'
+  | 'vendor'
+  | 'tag'
+  | 'bundle';
 
 export interface IPricing {
   _id: string;

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PricingEditSidebar } from '@/pricing/edit-pricing/Sidebar';
 import { PricingMainContent } from '@/pricing/edit-pricing/MainContent';
@@ -6,9 +6,10 @@ import { usePricingDetail } from '@/pricing/hooks/usePricingDetail';
 
 interface PricingEditProps {
   id?: string;
+  onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
-export const PricingEdit = ({ id }: PricingEditProps) => {
+export const PricingEdit = ({ id, onSaveActionChange }: PricingEditProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { pricingDetail, loading, error } = usePricingDetail(id);
 
@@ -57,6 +58,7 @@ export const PricingEdit = ({ id }: PricingEditProps) => {
         pricingDetail={pricingDetail}
         loading={loading}
         error={error}
+        onSaveActionChange={onSaveActionChange}
       />
     </div>
   );

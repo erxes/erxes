@@ -3,6 +3,7 @@ import { SelectPricing } from '@/pricing/components/SelectPricing';
 import { PricingEdit } from '@/pricing/edit-pricing/PricingEdit';
 import { IconCoins } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
@@ -11,6 +12,7 @@ export const PricingEditPage = () => {
   const { t } = useTranslation('loyalty');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [saveAction, setSaveAction] = useState<ReactNode | null>(null);
 
   const handlePricingChange = (pricingId: string) => {
     navigate(`/settings/loyalty/pricing/${pricingId}`);
@@ -42,17 +44,18 @@ export const PricingEditPage = () => {
           </Breadcrumb>
         </PageHeaderStart>
 
-        <PageHeaderEnd>
+        <PageHeaderEnd className="gap-2">
           {id && (
             <PricingDelete
               pricingIds={id}
               onDeleteSuccess={handleDeleteSuccess}
             />
           )}
+          {saveAction}
         </PageHeaderEnd>
       </PageHeader>
 
-      <PricingEdit id={id} />
+      <PricingEdit key={id} id={id} onSaveActionChange={setSaveAction} />
     </div>
   );
 };
