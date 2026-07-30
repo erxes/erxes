@@ -14,15 +14,20 @@ interface RulesInfoProps {
   activeStep?: string;
 }
 
-const PRICING_RULE_TYPES: PricingRuleType[] = [
+const PRICING_RULE_TYPES: readonly string[] = [
   'common',
   'quantity',
   'price',
   'expiry',
 ];
 
-const isPricingRuleType = (value?: string): value is PricingRuleType =>
-  PRICING_RULE_TYPES.some((ruleType) => ruleType === value);
+const isPricingRuleType = (value?: string): value is PricingRuleType => {
+  if (!value) {
+    return false;
+  }
+
+  return PRICING_RULE_TYPES.includes(value);
+};
 
 export const RulesInfo = ({
   pricingId,

@@ -20,6 +20,11 @@ interface PricingRulesTableProps {
   disabled?: boolean;
 }
 
+type PricingRuleActionsColumnOptions = Pick<
+  PricingRulesTableProps,
+  'title' | 'onEdit' | 'onDelete' | 'disabled'
+>;
+
 type PricingRuleTextField =
   | 'ruleType'
   | 'ruleValue'
@@ -42,6 +47,28 @@ const getTextColumn = (
   ),
 });
 
+const PricingRuleColumnSelector = () => <RecordTable.ColumnSelector />;
+
+const getActionsColumn = ({
+  title,
+  onEdit,
+  onDelete,
+  disabled,
+}: PricingRuleActionsColumnOptions): ColumnDef<PricingRuleConfig> => ({
+  id: 'more',
+  header: PricingRuleColumnSelector,
+  cell: ({ row }) => (
+    <PricingRuleMoreCell
+      rule={row.original}
+      title={title}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      disabled={disabled}
+    />
+  ),
+  size: 33,
+});
+
 export const PricingRulesTable = ({
   ruleType,
   rules,
@@ -54,20 +81,7 @@ export const PricingRulesTable = ({
   const { t } = useTranslation('loyalty');
   const tableId = `loyalty_pricing_${ruleType}_rules_record_table_v3`;
   const columns: ColumnDef<PricingRuleConfig>[] = [
-    {
-      id: 'more',
-      header: () => <RecordTable.ColumnSelector />,
-      cell: ({ row }) => (
-        <PricingRuleMoreCell
-          rule={row.original}
-          title={title}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          disabled={disabled}
-        />
-      ),
-      size: 33,
-    },
+    getActionsColumn({ title, onEdit, onDelete, disabled }),
     RecordTable.checkboxColumn as ColumnDef<PricingRuleConfig>,
     getTextColumn('ruleType', t('rule-type')),
     getTextColumn('ruleValue', t('rule-value')),

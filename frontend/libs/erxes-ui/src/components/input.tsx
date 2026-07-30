@@ -33,6 +33,16 @@ export const inputVariants = cva(
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement> &
   Except<VariantProps<typeof inputVariants>, 'type'>;
 
+const getInputVariant = (
+  type?: React.HTMLInputTypeAttribute,
+): 'file' | 'search' | 'number' | 'default' => {
+  if (type === 'file' || type === 'search' || type === 'number') {
+    return type;
+  }
+
+  return 'default';
+};
+
 const InputMain = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, variant, ...props }, ref) => {
     return (
@@ -41,14 +51,7 @@ const InputMain = React.forwardRef<HTMLInputElement, InputProps>(
         autoComplete="off"
         className={cn(
           inputVariants({
-            type:
-              type === 'file'
-                ? 'file'
-                : type === 'search'
-                  ? 'search'
-                  : type === 'number'
-                    ? 'number'
-                    : 'default',
+            type: getInputVariant(type),
             variant,
           }),
           className,

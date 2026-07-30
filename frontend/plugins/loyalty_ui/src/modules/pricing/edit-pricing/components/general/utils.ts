@@ -48,8 +48,13 @@ const getPricingAppliesTo = (applyType: string) =>
 
 export const normalizeMultipleValue = (
   value?: string | string[] | null,
-): string[] =>
-  (Array.isArray(value) ? value : value ? [value] : []).filter(Boolean);
+): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+
+  return value ? [value] : [];
+};
 
 export const getGeneralFormValues = (
   pricingDetail: IPricingPlanDetail,
