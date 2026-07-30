@@ -2,6 +2,7 @@ import { IconMenu2 } from '@tabler/icons-react';
 import { Button, Separator, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+/** Renders the shell-level navigation toggle on mobile viewports. */
 export const MobileNavigationTrigger = () => {
   const { isMobile, toggleSidebar } = Sidebar.useSidebar();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });

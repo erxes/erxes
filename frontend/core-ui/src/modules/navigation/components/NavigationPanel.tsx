@@ -11,6 +11,22 @@ import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
+/** Returns the responsive width and border styles for the navigation panel. */
+const getNavigationPanelClassName = (panelOpen: boolean, isMobile: boolean) => {
+  const baseClassName =
+    'peer relative z-20 flex shrink-0 flex-col bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none';
+
+  if (isMobile) {
+    return cn(
+      baseClassName,
+      'h-full overflow-hidden border-r',
+      panelOpen ? 'w-[calc(100%-3.5rem)]' : 'w-10',
+    );
+  }
+
+  return cn(baseClassName, panelOpen ? 'h-full w-64 border-r' : 'h-full w-0');
+};
+
 export const NavigationPanel = () => {
   const activities = useNavigationActivities();
   const navigationGroups = usePluginsNavigationGroups();
@@ -60,14 +76,7 @@ export const NavigationPanel = () => {
   return (
     <aside
       data-state={panelOpen ? 'expanded' : 'collapsed'}
-      className={cn(
-        'peer relative z-20 flex shrink-0 flex-col bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none',
-        isMobile && 'h-full overflow-hidden border-r',
-        panelOpen && isMobile && 'w-[calc(100%-3.5rem)]',
-        !panelOpen && isMobile && 'w-10',
-        panelOpen && !isMobile && 'h-full w-64 border-r',
-        !panelOpen && !isMobile && 'h-full w-0',
-      )}
+      className={getNavigationPanelClassName(panelOpen, isMobile)}
     >
       <header
         className={cn(
