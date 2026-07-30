@@ -1,8 +1,12 @@
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
+import { MobileNavigationTrigger } from '@/navigation/components/MobileNavigationTrigger';
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
 import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
-import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
+import {
+  navigationPanelOpenState,
+  navigationSidebarOpenState,
+} from '@/navigation/states/navigationPanelState';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 import { cn, Sidebar, useQueryState } from 'erxes-ui';
@@ -25,9 +29,11 @@ const NavigationWorkspace = () => {
         <div
           className={cn(
             'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem]',
+            isMobile && '[--navigation-panel-toggle-space:2.5rem]',
             !tabsVisible && '[--visited-page-tabs-open-button-space:2.75rem]',
           )}
         >
+          <MobileNavigationTrigger />
           <VisitedPageTabsOpenButton />
           <FloatingWidgets />
           <Outlet />
@@ -39,6 +45,7 @@ const NavigationWorkspace = () => {
 
 export const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useAtom(navigationSidebarOpenState);
+  const panelOpen = useAtomValue(navigationPanelOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');
   const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
 
@@ -60,6 +67,10 @@ export const DefaultLayout = () => {
         collapsible="icon"
         variant="sidebar"
         className={cn('p-0', tabsVisible && 'pt-10')}
+        mobileClassName={cn(
+          'transition-[width] duration-200 ease-out motion-reduce:transition-none',
+          !panelOpen && 'w-24',
+        )}
       >
         <MainNavigationBar />
       </Sidebar>

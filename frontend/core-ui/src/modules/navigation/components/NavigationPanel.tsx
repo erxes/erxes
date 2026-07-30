@@ -61,24 +61,31 @@ export const NavigationPanel = () => {
     <aside
       data-state={panelOpen ? 'expanded' : 'collapsed'}
       className={cn(
-        'peer z-20 flex shrink-0 flex-col bg-sidebar',
-        panelOpen && isMobile && 'min-w-0 flex-1',
+        'peer relative z-20 flex shrink-0 flex-col bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none',
+        isMobile && 'h-full overflow-hidden border-r',
+        panelOpen && isMobile && 'w-[calc(100%-3.5rem)]',
+        !panelOpen && isMobile && 'w-10',
         panelOpen && !isMobile && 'h-full w-64 border-r',
-        !panelOpen && isMobile && 'h-full w-10 border-r',
-        !panelOpen && !isMobile && 'absolute top-0 left-0 h-13 w-10',
+        !panelOpen && !isMobile && 'h-full w-0',
       )}
     >
       <header
         className={cn(
-          'flex h-13 shrink-0 items-center gap-2 pt-1',
+          'flex h-13 w-full min-w-10 shrink-0 items-center gap-2 overflow-hidden pt-1',
           panelOpen ? 'px-2' : 'justify-center px-1',
         )}
       >
-        {panelOpen && (
-          <span className="min-w-0 flex-1 truncate px-1 text-[13px] font-semibold">
-            {title}
-          </span>
-        )}
+        <span
+          aria-hidden={!panelOpen}
+          className={cn(
+            'min-w-0 flex-1 truncate px-1 text-[13px] font-semibold transition-opacity duration-100 motion-reduce:delay-0 motion-reduce:transition-none',
+            panelOpen
+              ? 'visible delay-100 opacity-100'
+              : 'invisible delay-0 opacity-0',
+          )}
+        >
+          {title}
+        </span>
         <Button
           aria-label={toggleLabel}
           className="size-8 shrink-0"
@@ -93,7 +100,19 @@ export const NavigationPanel = () => {
       {!panelOpen && !isMobile && (
         <Separator.Inline className="absolute top-1/2 right-0 -translate-y-1/2" />
       )}
-      {panelOpen && panelContent}
+      <div
+        aria-hidden={!panelOpen}
+        className={cn(
+          'min-h-0 w-full flex-1 overflow-hidden transition-opacity duration-100 motion-reduce:delay-0 motion-reduce:transition-none',
+          panelOpen
+            ? 'visible delay-100 opacity-100'
+            : 'invisible delay-0 opacity-0',
+        )}
+      >
+        <div className={cn('flex h-full flex-col', !isMobile && 'w-64')}>
+          {panelContent}
+        </div>
+      </div>
     </aside>
   );
 };

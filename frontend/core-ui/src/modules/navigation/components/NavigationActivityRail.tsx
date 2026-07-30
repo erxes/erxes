@@ -384,7 +384,8 @@ export const NavigationActivityRail = ({
   return (
     <aside
       className={cn(
-        'flex shrink-0 flex-col border-r bg-sidebar px-2 py-2',
+        'flex shrink-0 flex-col bg-sidebar px-2 py-2',
+        isMobile && 'border-r',
         expanded ? 'w-full items-stretch' : 'w-14 items-center',
       )}
     >
