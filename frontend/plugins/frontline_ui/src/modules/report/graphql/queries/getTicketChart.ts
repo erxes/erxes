@@ -28,6 +28,7 @@ export const GET_TICKET_CUSTOM_PROPERTIES = gql`
     reportTicketCustomProperties(filters: $filters) {
       _id
       name
+      group
       count
       percentage
     }

@@ -26,6 +26,8 @@ export const types = `
     frequency: String
     branchIds: [String]
     propertyIds: [String]
+    groupPropertyId: String
+    groupPropertyValue: String
     propertyValueFilters: [TicketPropertyValueFilter!]
   }
 
@@ -52,6 +54,7 @@ export const types = `
   type ReportTicketCustomProperty {
     _id: String
     name: String
+    group: String
     count: Int
     percentage: Int
   }
