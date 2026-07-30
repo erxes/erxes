@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Combobox, Command, Popover } from 'erxes-ui';
-import { IconTags } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   SelectBranches,
   SelectCompany,
@@ -10,7 +10,6 @@ import {
   SelectStage,
   TagsSelect,
 } from 'ui-modules';
-
 import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 
 /**
@@ -74,7 +73,14 @@ export const DealAssigneeChip = ({
 };
 
 export const DealTagsChip = ({ value, onValueChange }: ChipProps) => {
-  const tagIds = Array.isArray(value) ? value : value ? [value] : [];
+  const { t } = useTranslation('sales');
+  let tagIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    tagIds = value;
+  } else if (value) {
+    tagIds = [value];
+  }
 
   return (
     <TagsSelect.Provider
@@ -84,9 +90,8 @@ export const DealTagsChip = ({ value, onValueChange }: ChipProps) => {
       onValueChange={onValueChange}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <IconTags className="size-5 ml-2" />
+        <TagsSelect.Trigger variant="outline" placeholder={t('select-tags')} />
         <TagsSelect.SelectedList />
-        <TagsSelect.Trigger variant="ICON" />
         <Combobox.Content>
           <TagsSelect.Content />
         </Combobox.Content>
