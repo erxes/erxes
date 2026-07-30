@@ -22,13 +22,10 @@ export const useProducts = (
     },
   });
   const { list = [], totalCount = 0, pageInfo } = data?.productsMain || {};
+  const fetchingMore = networkStatus === NetworkStatus.fetchMore;
 
   const handleFetchMore = () => {
-    if (
-      !pageInfo ||
-      totalCount <= list.length ||
-      networkStatus === NetworkStatus.fetchMore
-    ) {
+    if (!pageInfo || totalCount <= list.length || fetchingMore) {
       return;
     }
 
@@ -55,8 +52,8 @@ export const useProducts = (
   };
   return {
     products: list,
-    loading,
-    fetchingMore: networkStatus === NetworkStatus.fetchMore,
+    loading: loading && !fetchingMore,
+    fetchingMore,
     handleFetchMore,
     totalCount,
     error,

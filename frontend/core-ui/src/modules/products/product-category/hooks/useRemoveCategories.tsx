@@ -5,10 +5,14 @@ import { useState } from 'react';
 const normalizeCategoryIds = (categoryIds: string | string[]) => {
   const rawIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
 
-  return rawIds
-    .flatMap((id) => id.split(','))
-    .map((id) => id.trim())
-    .filter(Boolean);
+  return [
+    ...new Set(
+      rawIds
+        .flatMap((id) => id.split(','))
+        .map((id) => id.trim())
+        .filter(Boolean),
+    ),
+  ];
 };
 
 const getErrorDedupeKey = (message: string) =>

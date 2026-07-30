@@ -278,7 +278,6 @@ const ProductsList = ({
         vendorId: companyId || undefined,
         categoryIds: categoryId ? [categoryId] : undefined,
         pipelineId: pipelineId || undefined,
-        sortField: '_id',
       },
     });
 
@@ -303,6 +302,10 @@ const ProductsList = ({
   const unselectedProducts = products.filter(
     (product) => !selectedProductIds.includes(product._id),
   );
+  const selectedResultCount = products.filter((product) =>
+    selectedProductIds.includes(product._id),
+  ).length;
+  const availableTotalCount = Math.max(totalCount - selectedResultCount, 0);
 
   // with a pipeline the server already orders its initial categories first,
   // so re-sorting here would scatter them back into the rest of the list
@@ -347,7 +350,7 @@ const ProductsList = ({
           </div>
         </div>
         <div className="mt-4 text-xs text-accent-foreground">
-          {!initialLoading && `${totalCount} results`}
+          {!initialLoading && `${availableTotalCount} results`}
         </div>
       </div>
       <Separator />

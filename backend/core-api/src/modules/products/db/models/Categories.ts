@@ -1,7 +1,4 @@
-import {
-  PRODUCT_CATEGORY_STATUSES,
-  PRODUCT_STATUSES,
-} from '@/products/constants';
+import { PRODUCT_STATUSES } from '@/products/constants';
 import { productCategorySchema } from '@/products/db/definitions/categories';
 import {
   IProductCategory,
@@ -11,7 +8,6 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
-import { DeleteResult } from 'mongodb';
 
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
   getProductCategory(selector: any): Promise<IProductCategoryDocument>;
@@ -22,7 +18,7 @@ export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
     _id: string,
     doc: IProductCategory,
   ): Promise<IProductCategoryDocument>;
-  removeProductCategory(_id: string): Promise<DeleteResult>;
+  removeProductCategory(_id: string): Promise<IProductCategoryDocument>;
   getChildCategories(
     categoryIds: string[],
   ): Promise<IProductCategoryDocument[]>;
@@ -187,64 +183,29 @@ export const loadProductCategoryClass = (
      * Remove Product category
      */
     public static async removeProductCategory(_id: string) {
-      const category = await models.ProductCategories.findOne({ _id });
+      await models.ProductCategories.getProductCategory({ _id });
 
-      if (!category) {
-        throw new Error('Product & service category not found');
-      }
-
-      const [productCount, childCount] = await Promise.all([
-        models.Products.countDocuments({
-          categoryId: _id,
-          status: { $ne: PRODUCT_STATUSES.DELETED },
-        }),
-        models.ProductCategories.countDocuments({
-          parentId: _id,
-          status: {
-            $nin: [
-              PRODUCT_CATEGORY_STATUSES.DISABLED,
-              PRODUCT_CATEGORY_STATUSES.ARCHIVED,
-            ],
-          },
-        }),
-      ]);
-
-      if (productCount > 0 || childCount > 0) {
-        const blockers: string[] = [];
-
-        if (productCount > 0) {
-          blockers.push(
-            `${productCount} ${productCount === 1 ? 'product' : 'products'}`,
-          );
-        }
-
-        if (childCount > 0) {
-          blockers.push(
-            `${childCount} ${
-              childCount === 1 ? 'sub-category' : 'sub-categories'
-            }`,
-          );
-        }
-
-        throw new Error(
-          `Can't remove category "${category.name}": it has ${blockers.join(
-            ' and ',
-          )}. Move or delete them first.`,
-        );
-      }
-
-      const result = await models.ProductCategories.deleteOne({ _id });
-
-      if (!result.acknowledged || result.deletedCount !== 1) {
-        throw new Error('Failed to remove product category');
-      }
-
-      sendDbEventLog({
-        action: 'delete',
-        docId: category._id,
-        prevDocument: category.toObject(),
+      let count = await models.Products.countDocuments({
+        categoryId: _id,
+        status: { $ne: PRODUCT_STATUSES.DELETED },
       });
 
+      count += await models.ProductCategories.countDocuments({
+        parentId: _id,
+      });
+
+      if (count > 0) {
+        throw new Error("Can't remove a product category");
+      }
+
+      const category = await models.ProductCategories.findOne({ _id });
+      const result = await models.ProductCategories.deleteOne({ _id });
+      if (category) {
+        sendDbEventLog({
+          action: 'delete',
+          docId: category._id,
+        });
+      }
       return result;
     }
 
