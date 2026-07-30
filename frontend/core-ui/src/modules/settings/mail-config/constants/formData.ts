@@ -31,6 +31,28 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
         description: t('default-email-service-desc'),
         options: ['SES', 'sendgrid', 'custom'],
       },
+      {
+        name: 'COMPANY_POSTAL_ADDRESS',
+        inputType: 'input',
+        type: 'input',
+        label: t('postal-address'),
+        description: t('postal-address-desc'),
+        className: 'col-span-4',
+      },
+      {
+        name: 'COMPANY_POSTAL_CITY',
+        inputType: 'input',
+        type: 'input',
+        label: t('postal-city'),
+        className: 'col-span-2',
+      },
+      {
+        name: 'COMPANY_POSTAL_COUNTRY',
+        inputType: 'input',
+        type: 'input',
+        label: t('postal-country'),
+        className: 'col-span-2',
+      },
     ],
     custom: [
       {
@@ -113,6 +135,13 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
         type: 'input',
         label: 'SendGrid Subuser',
         description: t('sendgrid-subuser-desc'),
+      },
+      {
+        name: 'SENDGRID_WEBHOOK_PUBLIC_KEY',
+        inputType: 'input',
+        type: 'input',
+        label: 'SendGrid Webhook Public Key',
+        description: t('sendgrid-webhook-key-desc'),
       },
     ],
   };

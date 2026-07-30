@@ -2,6 +2,7 @@ export * from './attachments';
 export * from './config';
 export * from './constants';
 export * from './providers/sendgrid';
+export * from './providers/sendgridEvents';
 export * from './providers/ses';
 export * from './providers/smtp';
 export * from './resolveProvider';

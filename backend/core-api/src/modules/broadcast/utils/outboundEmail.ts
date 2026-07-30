@@ -1,10 +1,6 @@
-import { getConfig } from '@/organization/settings/utils/configs';
-import {
-  IEmailProviderConfig,
-  IOutboundEmail,
-  loadEmailProviderConfig,
-} from 'erxes-api-shared/utils';
+import { IOutboundEmail } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { getScopedCacheKey, getScopedEmailConfig } from '~/utils/email/scope';
 
 /** What `prepareEmailParams` returns — nodemailer's own shape. */
 interface INodemailerParams {
@@ -17,45 +13,25 @@ interface INodemailerParams {
   headers?: Record<string, string>;
 }
 
-/**
- * Campaign sending used to build AWS SES transports directly, so it could only
- * ever use SES. Routing it through the provider layer instead lets a campaign
- * go out over whichever provider the organization configured.
- *
- * `BROADCAST_AWS_SES_*` stays an override: installs that deliberately put
- * campaigns on a separate SES account keep doing so instead of silently moving
- * to the transactional one.
- */
-export const getBroadcastEmailConfig = async (
-  models: IModels,
-): Promise<IEmailProviderConfig> => {
-  const config = await loadEmailProviderConfig((code, defaultValue) =>
-    getConfig(code, defaultValue, models),
-  );
+export const getBroadcastEmailConfig = (models: IModels) =>
+  getScopedEmailConfig(models, 'broadcast');
 
-  const overrides: Array<[keyof IEmailProviderConfig, string]> = [
-    ['AWS_SES_ACCESS_KEY_ID', 'BROADCAST_AWS_SES_ACCESS_KEY_ID'],
-    ['AWS_SES_SECRET_ACCESS_KEY', 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY'],
-    ['AWS_REGION', 'BROADCAST_AWS_REGION'],
-  ];
-
-  for (const [target, code] of overrides) {
-    const value = await getConfig(code, '', models);
-
-    if (value) {
-      config[target] = value;
-    }
-  }
-
-  return config;
-};
-
-/**
- * Campaigns may run on different credentials than transactional mail, so they
- * get their own cached provider instance rather than sharing one.
- */
 export const getBroadcastCacheKey = (models: IModels) =>
-  `${models.Users.db.name}:broadcast`;
+  getScopedCacheKey(models, 'broadcast');
+
+/**
+ * Lets the mail client show its own unsubscribe control beside the sender name,
+ * which Gmail and Yahoo have required of bulk senders since February 2024. The
+ * `One-Click` post is what allows that control to act without the recipient
+ * having to open the link and find the button.
+ */
+const toUnsubscribeHeaders = (unsubscribeUrl?: string) =>
+  unsubscribeUrl
+    ? {
+        'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      }
+    : undefined;
 
 /**
  * Adapts the existing nodemailer params to the provider layer without touching
@@ -66,7 +42,10 @@ export const getBroadcastCacheKey = (models: IModels) =>
  * receives them as custom args its webhook can return. The SES configuration
  * set is dropped because the provider sets it from config itself.
  */
-export const toOutboundEmail = (params: INodemailerParams): IOutboundEmail => {
+export const toOutboundEmail = (
+  params: INodemailerParams,
+  unsubscribeUrl?: string,
+): IOutboundEmail => {
   const { 'X-SES-CONFIGURATION-SET': _configSet, ...customArgs } =
     params.headers || {};
 
@@ -76,6 +55,7 @@ export const toOutboundEmail = (params: INodemailerParams): IOutboundEmail => {
     replyTo: params.replyTo,
     subject: params.subject,
     html: params.html,
+    headers: toUnsubscribeHeaders(unsubscribeUrl),
     attachments: params.attachments,
     customArgs,
   };

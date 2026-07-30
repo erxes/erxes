@@ -3,6 +3,7 @@ import {
   SENDER_OPTIONS,
   VERIFY_SENDER,
 } from '@/settings/mail-config/graphql/verifiedSenders';
+import { useEmailSenderScope } from '@/settings/mail-config/contexts/EmailSenderScope';
 import { OperationVariables, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 
@@ -24,6 +25,8 @@ export interface IEmailSenderOptions {
   supportsDynamicSender: boolean;
   /** What the "company email" sender option resolves to, as the server sees it. */
   defaultSenderEmail: string;
+  /** True when this scope ends up on the very same credentials as mail config. */
+  sameAsMailConfig: boolean;
   senders: IEmailSender[];
 }
 
@@ -31,9 +34,6 @@ export interface IVerifySenderInput {
   email: string;
   name?: string;
   replyTo?: string;
-  address?: string;
-  city?: string;
-  country?: string;
 }
 
 const EMPTY_OPTIONS: IEmailSenderOptions = {
@@ -41,6 +41,7 @@ const EMPTY_OPTIONS: IEmailSenderOptions = {
   supportsSenderVerification: false,
   supportsDynamicSender: false,
   defaultSenderEmail: '',
+  sameAsMailConfig: false,
   senders: [],
 };
 
@@ -52,9 +53,11 @@ const EMPTY_OPTIONS: IEmailSenderOptions = {
  * offering a sender the backend would refuse.
  */
 export const useSenderOptions = () => {
+  const scope = useEmailSenderScope();
+
   const { data, loading, error } = useQuery<{
     emailSenderOptions: IEmailSenderOptions;
-  }>(SENDER_OPTIONS);
+  }>(SENDER_OPTIONS, { variables: { scope } });
 
   const options = data?.emailSenderOptions || EMPTY_OPTIONS;
 
@@ -69,6 +72,7 @@ export const useSenderOptions = () => {
 };
 
 export const useVerifySender = () => {
+  const scope = useEmailSenderScope();
   const [_verifySender, { loading }] = useMutation(VERIFY_SENDER);
 
   const verifySender = async (
@@ -77,7 +81,7 @@ export const useVerifySender = () => {
   ) => {
     await _verifySender({
       ...options,
-      variables: input,
+      variables: { ...input, scope },
       refetchQueries: [SENDER_OPTIONS],
       onError: (error) => {
         toast({
@@ -93,6 +97,7 @@ export const useVerifySender = () => {
 };
 
 export const useRemoveVerifiedSender = () => {
+  const scope = useEmailSenderScope();
   const [_removeVerifiedSender, { loading }] = useMutation(
     REMOVE_VERIFIED_SENDER,
   );
@@ -103,7 +108,7 @@ export const useRemoveVerifiedSender = () => {
   ) => {
     await _removeVerifiedSender({
       ...options,
-      variables: { email },
+      variables: { email, scope },
       refetchQueries: [SENDER_OPTIONS],
       onCompleted: () => {
         toast({

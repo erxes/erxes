@@ -96,7 +96,16 @@ export interface IEmailProvider {
 
   send(message: IOutboundEmail): Promise<ISentEmail>;
 
-  listSenders(): Promise<ISender[]>;
+  /**
+   * Kept apart because each is a separate call, and callers rarely want both.
+   *
+   * `ids` and `domains` ask the provider for those senders specifically.
+   * Listing everything and filtering afterwards would both pull other
+   * organizations' senders over the wire and silently drop any that fall
+   * beyond the provider's first page.
+   */
+  listSingleSenders(ids?: string[]): Promise<ISender[]>;
+  listAuthenticatedDomains(domains?: string[]): Promise<ISender[]>;
 
   verifySingleSender(input: ISingleSenderInput): Promise<ISender>;
 

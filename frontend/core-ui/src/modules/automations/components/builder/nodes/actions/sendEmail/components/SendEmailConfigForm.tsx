@@ -3,7 +3,14 @@ import { TAutomationSendEmailConfig } from '@/automations/components/builder/nod
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
-import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
+import {
+  Collapsible,
+  Form,
+  Label,
+  RadioGroup,
+  Separator,
+  Skeleton,
+} from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
 import {
   PlaceholderInput,
@@ -28,6 +35,7 @@ export const SendEmailConfigForm = ({
     supportsSenderVerification,
     supportsDynamicSender,
     defaultSenderEmail,
+    loading: senderOptionsLoading,
   } = useSenderOptions();
   const { t } = useTranslation('automations');
   return (
@@ -59,26 +67,40 @@ export const SendEmailConfigForm = ({
                     )}
                   </Label>
                 </label>
-                {supportsSenderVerification && (
-                  <label className="flex space-x-2 items-center">
-                    <RadioGroup.Item value="verified" id="verified-sender" />
-                    <Label htmlFor="verified-sender">
-                      {t('verified-sender-email')}
-                    </Label>
-                  </label>
-                )}
                 {/*
-                  A free-form address can only be delivered when an
-                  authenticated domain covers it, so the option stays hidden
-                  until one exists.
+                  Which of the remaining options apply depends on the mail
+                  settings, and the loading defaults say "neither" — so hold the
+                  space until the answer is in rather than popping them in.
                 */}
-                {supportsDynamicSender && (
-                  <label className="flex space-x-2 items-center">
-                    <RadioGroup.Item value="custom" id="custom-sender" />
-                    <Label htmlFor="custom-sender">
-                      {t('custom-sender-email')}
-                    </Label>
-                  </label>
+                {senderOptionsLoading ? (
+                  <Skeleton className="h-5 w-40" />
+                ) : (
+                  <>
+                    {supportsSenderVerification && (
+                      <label className="flex space-x-2 items-center">
+                        <RadioGroup.Item
+                          value="verified"
+                          id="verified-sender"
+                        />
+                        <Label htmlFor="verified-sender">
+                          {t('verified-sender-email')}
+                        </Label>
+                      </label>
+                    )}
+                    {/*
+                      A free-form address can only be delivered when an
+                      authenticated domain covers it, so the option stays hidden
+                      until one exists.
+                    */}
+                    {supportsDynamicSender && (
+                      <label className="flex space-x-2 items-center">
+                        <RadioGroup.Item value="custom" id="custom-sender" />
+                        <Label htmlFor="custom-sender">
+                          {t('custom-sender-email')}
+                        </Label>
+                      </label>
+                    )}
+                  </>
                 )}
               </RadioGroup>
             </Form.Item>

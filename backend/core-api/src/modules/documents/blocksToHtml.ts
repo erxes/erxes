@@ -25,6 +25,7 @@ interface Config {
   wrapper?: {
     email?: boolean;
     unsubscribeUrl?: string;
+    postalAddress?: string;
   };
 }
 
@@ -465,6 +466,7 @@ export const blocksToHtml = (
 export const emailHtmlWrapper = (html: string, config?: Config) => {
   const maxWidth = Math.min(config?.maxWidth || DEFAULTS.maxWidth, 600);
   const unsubscribeUrl = config?.wrapper?.unsubscribeUrl;
+  const postalAddress = config?.wrapper?.postalAddress;
 
   const unsubscribeRow = unsubscribeUrl
     ? `<tr>
@@ -472,6 +474,16 @@ export const emailHtmlWrapper = (html: string, config?: Config) => {
           You are receiving this email because you have signed up for our services.
           <br />
           <a style="text-decoration: underline; color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a>
+        </td>
+      </tr>`
+    : '';
+
+  // Commercial email has to name the sender's physical address; it is left out
+  // rather than faked when the organization has not configured one.
+  const postalAddressRow = postalAddress
+    ? `<tr>
+        <td style="padding: 0 10px 10px; color: #ccc; text-align: center; font-size: 12px;">
+          ${postalAddress}
         </td>
       </tr>`
     : '';
@@ -494,6 +506,7 @@ export const emailHtmlWrapper = (html: string, config?: Config) => {
                   </td>
                 </tr>
                 ${unsubscribeRow}
+                ${postalAddressRow}
               </table>
             </td>
           </tr>

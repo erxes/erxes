@@ -12,6 +12,7 @@ import {
 } from '@/broadcast/utils/outboundEmail';
 import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { TEmailScope } from '~/utils/email/scope';
 import { createDeliveryLogPort } from '~/utils/email/deliveryLog';
 import { removeVerifiedSender, verifySender } from '~/utils/email/senders';
 
@@ -26,11 +27,7 @@ export const engageMutations = {
   ) {
     await checkPermission('broadcastCreate');
 
-    const { isLive, isDraft, fromUserId } = doc || {};
-
-    if (!fromUserId) {
-      doc.fromUserId = user._id;
-    }
+    const { isLive, isDraft } = doc || {};
 
     await checkCampaignDoc(models, doc);
 
@@ -158,13 +155,12 @@ export const engageMutations = {
    */
   async engageMessageVerifyEmail(
     _root: undefined,
-    input: ISingleSenderInput,
+    { scope, ...input }: ISingleSenderInput & { scope?: TEmailScope },
     { models }: IContext,
   ) {
-    // SES only needs the address; SendGrid additionally stores a name and a
-    // postal address on the sender identity, so both arrive through here and
-    // each provider takes what it understands.
-    const response = await verifySender(models, input);
+    // SES only needs the address; SendGrid additionally stores a name and the
+    // organization's postal address, which `verifySender` fills in from config.
+    const response = await verifySender(models, input, scope);
 
     return JSON.stringify(response);
   },
@@ -174,10 +170,10 @@ export const engageMutations = {
    */
   async engageMessageRemoveVerifiedEmail(
     _root: undefined,
-    { email }: { email: string },
+    { email, scope }: { email: string; scope?: TEmailScope },
     { models }: IContext,
   ) {
-    await removeVerifiedSender(models, email);
+    await removeVerifiedSender(models, email, scope);
 
     return JSON.stringify({ email });
   },

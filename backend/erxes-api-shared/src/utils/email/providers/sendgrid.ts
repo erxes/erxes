@@ -44,6 +44,14 @@ const toDnsRecords = (dns?: Record<string, TSendgridDnsEntry>): IDnsRecord[] =>
     valid: entry.valid,
   }));
 
+const toSingleSender = (sender: TSendgridVerifiedSender): ISender => ({
+  id: String(sender.id),
+  type: 'single',
+  value: sender.from_email,
+  name: sender.from_name || sender.nickname,
+  status: sender.verified ? 'verified' : 'pending',
+});
+
 const toDomainSender = (domain: TSendgridDomain): ISender => ({
   id: String(domain.id),
   type: 'domain',
@@ -51,6 +59,27 @@ const toDomainSender = (domain: TSendgridDomain): ISender => ({
   status: domain.valid ? 'verified' : 'pending',
   dnsRecords: toDnsRecords(domain.dns),
 });
+
+/**
+ * The SDK reports only the HTTP reason — "Bad Request" — while what was
+ * actually wrong with the payload sits in the response body. A delivery log
+ * saying "Bad Request" tells nobody which field to fix.
+ */
+const toSendError = (error: any) => {
+  const response = error?.response;
+
+  if (!response) {
+    return error;
+  }
+
+  return new EmailProviderRequestError(
+    'sendgrid',
+    response.statusCode || 0,
+    typeof response.body === 'string'
+      ? response.body
+      : JSON.stringify(response.body),
+  );
+};
 
 export class SendgridEmailProvider implements IEmailProvider {
   public readonly name: TEmailProviderName = 'sendgrid';
@@ -95,7 +124,13 @@ export class SendgridEmailProvider implements IEmailProvider {
       customArgs: message.customArgs,
     };
 
-    const [response] = await this.mailer.send(payload);
+    let response: any;
+
+    try {
+      [response] = await this.mailer.send(payload);
+    } catch (error) {
+      throw toSendError(error);
+    }
 
     const messageId =
       response?.headers?.['x-message-id'] ||
@@ -110,24 +145,37 @@ export class SendgridEmailProvider implements IEmailProvider {
     };
   }
 
-  public async listSenders(): Promise<ISender[]> {
-    const [singles, domains] = await Promise.all([
-      this.request<{ results?: TSendgridVerifiedSender[] }>(
-        'GET',
-        '/verified_senders',
+  public async listSingleSenders(ids?: string[]): Promise<ISender[]> {
+    // `id` takes a single value, so asking for several means one call each.
+    const paths = ids?.length
+      ? ids.map((id) => `/verified_senders?id=${encodeURIComponent(id)}`)
+      : ['/verified_senders'];
+
+    const pages = await Promise.all(
+      paths.map((path) =>
+        this.request<{ results?: TSendgridVerifiedSender[] }>('GET', path),
       ),
-      this.request<TSendgridDomain[]>('GET', '/whitelabel/domains'),
-    ]);
+    );
 
-    const singleSenders: ISender[] = (singles?.results || []).map((sender) => ({
-      id: String(sender.id),
-      type: 'single' as const,
-      value: sender.from_email,
-      name: sender.from_name || sender.nickname,
-      status: sender.verified ? ('verified' as const) : ('pending' as const),
-    }));
+    return pages.flatMap((page) => (page?.results || []).map(toSingleSender));
+  }
 
-    return [...singleSenders, ...(domains || []).map(toDomainSender)];
+  public async listAuthenticatedDomains(
+    domains?: string[],
+  ): Promise<ISender[]> {
+    // `domain` takes a single value, so asking for several means one call each.
+    const paths = domains?.length
+      ? domains.map(
+          (domain) =>
+            `/whitelabel/domains?domain=${encodeURIComponent(domain)}`,
+        )
+      : ['/whitelabel/domains'];
+
+    const pages = await Promise.all(
+      paths.map((path) => this.request<TSendgridDomain[]>('GET', path)),
+    );
+
+    return pages.flatMap((page) => (page || []).map(toDomainSender));
   }
 
   public async verifySingleSender(input: ISingleSenderInput): Promise<ISender> {

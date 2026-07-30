@@ -11,6 +11,7 @@ export const types = `
     customerIds: [String]
     cpId: String
     title: String
+    fromEmail: String
     fromUserId: String
     method: String
     isDraft: Boolean
@@ -209,6 +210,7 @@ export const types = `
     supportsSenderVerification: Boolean
     supportsDynamicSender: Boolean
     defaultSenderEmail: String
+    sameAsMailConfig: Boolean
     senders: [EmailSender]
   }
 `;
@@ -236,13 +238,14 @@ export const queries = `
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
   engageBroadcastTraces(engageMessageId: String!): [BroadcastTrace]
   engageVerifiedEmails: [String]
-  emailSenderOptions: EmailSenderOptions
+  emailSenderOptions(scope: String): EmailSenderOptions
 `;
 
 const mutationParams = `
   title: String
   kind: String
   method: String
+  fromEmail: String
   fromUserId: String
   cpId: String
 
@@ -270,11 +273,9 @@ export const mutations = `
     email: String!
     name: String
     replyTo: String
-    address: String
-    city: String
-    country: String
+    scope: String
   ): String
-  engageMessageRemoveVerifiedEmail(email: String!): String
+  engageMessageRemoveVerifiedEmail(email: String!, scope: String): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
   broadcastUpdateConfigs(configsMap: JSON!): JSON

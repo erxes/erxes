@@ -1,7 +1,7 @@
 import { IEngageMessage } from '@/broadcast/@types';
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '@/broadcast/constants';
 import { isUsingElk } from '@/broadcast/utils';
-import { getVerifiedSenderEmails } from '~/utils/email/senders';
+import { isSenderAllowed } from '~/utils/email/senders';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { fetchEs } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -170,11 +170,35 @@ export const checkCustomerExists = async (
   return customers.length > 0;
 };
 
+/**
+ * The address a campaign goes out from. Campaigns created before senders were
+ * pickable directly only carry a user id, so those still resolve through it.
+ */
+export const resolveCampaignFromEmail = async (
+  models: IModels,
+  campaign: Pick<IEngageMessage, 'fromEmail' | 'fromUserId'>,
+) => {
+  if (campaign.fromEmail) {
+    return campaign.fromEmail;
+  }
+
+  if (!campaign.fromUserId) {
+    return undefined;
+  }
+
+  const user = await models.Users.findOne({ _id: campaign.fromUserId }).lean();
+
+  return user?.email;
+};
+
+const isEmailAddress = (value: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
 export const checkCampaignDoc = async (
   models: IModels,
   doc: IEngageMessage,
 ) => {
-  const { method, targetIds = [], fromUserId } = doc;
+  const { method, targetIds = [] } = doc;
 
   if (!CAMPAIGN_METHODS.ALL.includes(method)) {
     throw new Error(`Unsupported broadcast method: ${method}`);
@@ -185,24 +209,24 @@ export const checkCampaignDoc = async (
   }
 
   if (method === CAMPAIGN_METHODS.EMAIL) {
-    const user = await models.Users.findOne({ _id: fromUserId }).lean();
+    const fromEmail = await resolveCampaignFromEmail(models, doc);
 
-    if (!user) {
-      throw new Error('From user must be specified');
+    if (!fromEmail) {
+      throw new Error('From sender must be specified');
     }
 
-    if (!user.email) {
-      throw new Error(`From user email is not specified: ${user.username}`);
+    // Campaigns may run on their own credentials, so the check has to be
+    // against the account they will actually go out on.
+    if (!(await isSenderAllowed(models, fromEmail, 'broadcast'))) {
+      throw new Error(`"${fromEmail}" is not a verified sender`);
     }
 
-    const verifiedEmails = await getVerifiedSenderEmails(models);
+    // Providers reject the whole message over this, so a campaign that stored
+    // it would only fail once it was already running.
+    const { replyTo } = doc.email || {};
 
-    // `null` means the configured provider keeps no sender registry (plain
-    // SMTP), so there is nothing to check the address against.
-    if (verifiedEmails && !verifiedEmails.includes(user.email)) {
-      throw new Error(
-        `From user email "${user.email}" is not a verified sender`,
-      );
+    if (replyTo && !isEmailAddress(replyTo)) {
+      throw new Error(`"${replyTo}" is not a valid reply-to address`);
     }
   }
 

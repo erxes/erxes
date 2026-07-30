@@ -20,7 +20,10 @@ export const readFileUrl = (value: string, subdomain: string) => {
   return `${domain}/gateway/read-file?key=${encodeURIComponent(value)}`;
 };
 
-const prepareAttachments = (attachments: IAttachment[] = [], subdomain: string) => {
+const prepareAttachments = (
+  attachments: IAttachment[] = [],
+  subdomain: string,
+) => {
   return attachments.map((file) => ({
     filename: file.name || '',
     path: readFileUrl(file.url || '', subdomain),
@@ -63,6 +66,9 @@ export const prepareEmailHeader = (
     CustomerId: customerId,
     MailMessageId: randomAlphanumeric(),
     Host: callbackUrl,
+    // SendGrid posts every account's events to one webhook URL, so on SaaS the
+    // event itself has to say which organization it belongs to.
+    Subdomain: subdomain,
   };
 
   if (engageMessageId) {

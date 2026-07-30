@@ -22,30 +22,12 @@ const FIELDS = [
     placeholder: 'sales@example.com',
     type: 'email',
   },
-  {
-    name: 'address' as const,
-    label: 'Address',
-    placeholder: 'Sukhbaatar district, 1st khoroo',
-    required: true,
-  },
-  {
-    name: 'city' as const,
-    label: 'City',
-    placeholder: 'Ulaanbaatar',
-    required: true,
-  },
-  {
-    name: 'country' as const,
-    label: 'Country',
-    placeholder: 'Mongolia',
-    required: true,
-  },
 ];
 
 /**
- * SendGrid stores a postal address alongside every sender identity, which
- * anti-spam law requires on commercial mail. SES asks for nothing but the
- * address, so it keeps the lighter inline flow instead of this form.
+ * SendGrid stores a name and a reply-to alongside every sender identity, and a
+ * postal address that the server fills in from the organization's mail config.
+ * SES asks for nothing but the address, so it keeps the lighter inline flow.
  */
 export const VerifiedSenderSendgridForm = ({
   open,

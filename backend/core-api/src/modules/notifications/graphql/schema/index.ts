@@ -39,23 +39,6 @@ export const types = `
     totalCount: Int
   }
 
-  type EmailDelivery {
-    _id: String
-    notificationId: String
-    userId: String
-    email: String
-    subject: String
-    content: String
-    provider: String
-    messageId: String
-    status: String
-    sentAt: String
-    error: String
-    retryCount: Int
-    createdAt: String
-    updatedAt: String
-  }
-
   type Notification {
     _id: String,
     title: String,
@@ -77,6 +60,50 @@ export const types = `
 
   type NotificationsList {
     list:[Notification]
+    totalCount: Int
+    pageInfo: PageInfo
+  }
+
+  """
+  One handover of a message to the email provider. Delivery events that arrive
+  afterwards land in the arrays below, and stay empty for providers that push
+  no webhooks.
+  """
+  type EmailDelivery {
+    _id: String
+    createdAt: Date
+    updatedAt: Date
+
+    from: String
+    toEmails: [String]
+    ccEmails: [String]
+    subject: String
+    content: String
+
+    provider: String
+    messageId: String
+    providerResponse: String
+
+    status: String
+    sentAt: Date
+    error: String
+    rejected: [String]
+
+    source: String
+    sourceId: String
+    userId: String
+    notificationId: String
+
+    deliveryStatus: String
+    deliveryStatusAt: Date
+    bounced: [String]
+    complained: [String]
+    opened: [String]
+    clicked: [String]
+  }
+
+  type EmailDeliveriesList {
+    list:[EmailDelivery]
     totalCount: Int
     pageInfo: PageInfo
   }
@@ -143,12 +170,23 @@ const NOTIFICATIONS_QUERIES_PARAMS = `
   module:String
 `;
 
+const EMAIL_DELIVERIES_QUERY_PARAMS = `
+  status:String,
+  source:String,
+  provider:String,
+  searchValue:String,
+  createdAtFrom:Date,
+  createdAtTo:Date
+`;
+
 export const queries = `
   pluginsNotifications: [NotificationPluginType]
   notifications(${GQL_CURSOR_PARAM_DEFS},${NOTIFICATIONS_QUERIES_PARAMS}):NotificationsList
   notificationDetail(_id:String!):Notification
   unreadNotificationsCount:Int
   notificationSettings: NotificationSettings
+  emailDeliveries(${GQL_CURSOR_PARAM_DEFS},${EMAIL_DELIVERIES_QUERY_PARAMS}):EmailDeliveriesList
+  emailDeliveryDetail(_id:String!):EmailDelivery
 `;
 
 export const mutations = `

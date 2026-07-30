@@ -8,9 +8,6 @@ const SENDGRID_SENDER_SCHEMA = z.object({
   name: z.string().min(1, 'From name is required'),
   email: z.string().email('Enter a valid email'),
   replyTo: z.string().email('Enter a valid email').or(z.literal('')).optional(),
-  address: z.string().min(1, 'Address is required'),
-  city: z.string().min(1, 'City is required'),
-  country: z.string().min(1, 'Country is required'),
 });
 
 export type TSendgridSenderForm = z.infer<typeof SENDGRID_SENDER_SCHEMA>;
@@ -28,9 +25,6 @@ export const useSendgridSenderForm = ({
       name: '',
       email: '',
       replyTo: '',
-      address: '',
-      city: '',
-      country: '',
     },
   });
 

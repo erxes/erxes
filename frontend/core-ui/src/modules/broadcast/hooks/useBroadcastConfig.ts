@@ -14,7 +14,9 @@ const useBroadcastConfig = () => {
       onError(error) {
         console.error(error.message);
       },
-      refetchQueries: ['Configs'],
+      // Credential changes decide which provider account the sender list comes
+      // from, so it has to be re-read rather than served from cache.
+      refetchQueries: ['Configs', 'EmailSenderOptions'],
       awaitRefetchQueries: true,
     },
   );

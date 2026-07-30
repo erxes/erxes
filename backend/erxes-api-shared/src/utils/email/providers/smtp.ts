@@ -63,8 +63,15 @@ export class SmtpEmailProvider implements IEmailProvider {
    * what gets delivered. Callers must surface this to the UI rather than
    * pretending an empty list means "nothing verified yet".
    */
-  public async listSenders(): Promise<ISender[]> {
-    throw new EmailProviderNotSupportedError('custom', 'listSenders');
+  public async listSingleSenders(): Promise<ISender[]> {
+    throw new EmailProviderNotSupportedError('custom', 'listSingleSenders');
+  }
+
+  public async listAuthenticatedDomains(): Promise<ISender[]> {
+    throw new EmailProviderNotSupportedError(
+      'custom',
+      'listAuthenticatedDomains',
+    );
   }
 
   public async verifySingleSender(

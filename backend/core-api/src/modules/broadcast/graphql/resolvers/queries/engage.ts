@@ -13,6 +13,7 @@ import {
   getEmailSenderOptions,
   getVerifiedSenderEmails,
 } from '~/utils/email/senders';
+import { TEmailScope } from '~/utils/email/scope';
 import { ICursorPaginateParams, IUser } from 'erxes-api-shared/core-types';
 import { cursorPaginate, getCustomerName } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
@@ -250,7 +251,7 @@ export const engageQueries = {
     // `null` means the configured provider keeps no sender registry (plain
     // SMTP), in which case every member is an eligible sender.
     const verifiedEmails = isVerified
-      ? await getVerifiedSenderEmails(models)
+      ? await getVerifiedSenderEmails(models, 'broadcast')
       : null;
 
     if (verifiedEmails) {
@@ -333,10 +334,13 @@ export const engageQueries = {
    */
   async emailSenderOptions(
     _root: undefined,
-    _args: undefined,
+    { scope }: { scope?: TEmailScope },
     { models }: IContext,
   ) {
-    return await getEmailSenderOptions(models);
+    const options = await getEmailSenderOptions(models, scope);
+
+    // Carried onto the root so the field resolvers reach the same credentials.
+    return { ...options, _scope: scope };
   },
 
   async engageVerifiedEmails(
@@ -348,7 +352,10 @@ export const engageQueries = {
       isActive: true,
     });
     const userEmails = users?.map((u) => u.email);
-    const allVerifiedEmails = await getVerifiedSenderEmails(models);
+    const allVerifiedEmails = await getVerifiedSenderEmails(
+      models,
+      'broadcast',
+    );
 
     // `null` means the configured provider keeps no sender registry (plain
     // SMTP), in which case every member's address is usable as a sender.

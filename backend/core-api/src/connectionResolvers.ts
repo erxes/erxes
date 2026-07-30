@@ -94,6 +94,7 @@ import {
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
+  IEmailSenderDocument,
   INotificationDocument,
   notificationSchema,
   NotificationSettings,
@@ -225,6 +226,10 @@ import {
   IEmailDeliveryModel,
   loadEmailDeliveryClass,
 } from './modules/organization/team-member/db/models/EmailDeliveries';
+import {
+  IEmailSenderModel,
+  loadEmailSenderClass,
+} from './modules/organization/team-member/db/models/EmailSenders';
 import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
 import {
   IOrgWhiteLabelModel,
@@ -325,6 +330,7 @@ export interface IModels {
   Exports: IExportModel;
   Notifications: Model<INotificationDocument>;
   EmailDeliveries: IEmailDeliveryModel;
+  EmailSenders: IEmailSenderModel;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
   CPComments: ICPCommentsModel;
@@ -607,6 +613,11 @@ export const loadClasses = (
     IEmailDeliveryDocument,
     IEmailDeliveryModel
   >('email_deliveries', loadEmailDeliveryClass(models));
+
+  models.EmailSenders = db.model<IEmailSenderDocument, IEmailSenderModel>(
+    'email_senders',
+    loadEmailSenderClass(models),
+  );
 
   models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
     'automations_ai_agents',

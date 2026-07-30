@@ -28,6 +28,10 @@ const useMailConfigForm = () => {
       COMPANY_EMAIL_TEMPLATE: '',
       DEFAULT_EMAIL_SERVICE: 'SES',
 
+      COMPANY_POSTAL_ADDRESS: '',
+      COMPANY_POSTAL_CITY: '',
+      COMPANY_POSTAL_COUNTRY: '',
+
       MAIL_SERVICE: '',
       MAIL_PORT: '',
       MAIL_USER: '',
@@ -41,6 +45,7 @@ const useMailConfigForm = () => {
 
       SENDGRID_API_KEY: '',
       SENDGRID_SUBUSER: '',
+      SENDGRID_WEBHOOK_PUBLIC_KEY: '',
     } as TProps,
   });
 

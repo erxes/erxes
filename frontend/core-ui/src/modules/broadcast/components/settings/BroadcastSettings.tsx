@@ -1,24 +1,40 @@
+import { BroadcastCredentialsNotice } from '@/broadcast/components/settings/BroadcastCredentialsNotice';
 import { BROADCAST_SETTINGS_CONFIG_FIELDS } from '@/broadcast/constants';
+import { useBroadcastConfig } from '@/broadcast/hooks/useBroadcastConfig';
+import {
+  BROADCAST_CONFIG_CODES,
+  BROADCAST_MODE_FIELD,
+  BROADCAST_PROVIDER_FIELD,
+  useBroadcastEmailCredentials,
+} from '@/broadcast/hooks/useBroadcastEmailCredentials';
 import { useConfig } from '@/settings/file-upload/hook/useConfigs';
-import { Form, Input } from 'erxes-ui';
+import { VerifiedSenders } from '@/settings/mail-config/components/VerifiedSenders';
+import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
+import { Form, Input, Select } from 'erxes-ui';
 import { useEffect } from 'react';
 import { ControllerRenderProps, FieldValues, useForm } from 'react-hook-form';
-import { useVersion } from 'ui-modules';
-import { VerifiedSenders } from '@/settings/mail-config/components/VerifiedSenders';
-import { useBroadcastConfig } from '@/broadcast/hooks/useBroadcastConfig';
+
+const MODE_OPTIONS = [
+  { value: 'default', label: 'Use mail config' },
+  { value: 'custom', label: 'Use own credentials' },
+];
+
+const PROVIDER_OPTIONS = ['SES', 'sendgrid', 'custom'];
 
 export const BroadcastSettings = () => {
   const form = useForm();
-  const isSaas = useVersion('saas');
 
   const { configs } = useConfig();
 
   const { updateConfig } = useBroadcastConfig();
 
+  const { showCredentials, usesOwnCredentials, providerFields } =
+    useBroadcastEmailCredentials(form);
+
   useEffect(() => {
     if (!configs) return;
 
-    const values = BROADCAST_SETTINGS_CONFIG_FIELDS.reduce((acc, { name }) => {
+    const values = BROADCAST_CONFIG_CODES.reduce((acc, name) => {
       const config = configs.find((c: { code: string }) => c.code === name);
 
       if (config) acc[name] = config.value;
@@ -41,47 +57,104 @@ export const BroadcastSettings = () => {
     updateConfig({ [name]: value }, { skipConfirm: true });
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    form.setValue(name, value, { shouldDirty: true });
+    updateConfig({ [name]: value }, { skipConfirm: true });
+  };
+
+  const renderInput = (name: string, label: string, type?: string) => (
+    <Form.Field
+      key={name}
+      name={name}
+      control={form.control}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Form.Control>
+            <Input
+              {...field}
+              value={field.value || ''}
+              placeholder={label}
+              type={type}
+              onBlur={() => handleFieldChange(field)}
+            />
+          </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+
+  const renderSelect = (
+    name: string,
+    label: string,
+    options: Array<{ value: string; label: string }>,
+  ) => (
+    <Form.Field
+      key={name}
+      name={name}
+      control={form.control}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Select
+            value={field.value || options[0].value}
+            onValueChange={(value) => handleSelectChange(name, value)}
+          >
+            <Form.Control>
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+            </Form.Control>
+            <Select.Content>
+              {options.map(({ value, label: optionLabel }) => (
+                <Select.Item key={value} value={value}>
+                  {optionLabel}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </Form.Item>
+      )}
+    />
+  );
+
   return (
     <Form {...form}>
       <form className="w-full h-full grid grid-cols-2 gap-4">
-        {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, label, type, osOnly }) => {
-          if (osOnly && isSaas) return <></>;
+        {showCredentials &&
+          renderSelect(BROADCAST_MODE_FIELD, 'Email credentials', MODE_OPTIONS)}
 
-          return (
-            <Form.Field
-              key={name}
-              name={name}
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{label}</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder={label}
-                      type={type}
-                      onBlur={(e) => handleFieldChange(field)}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          );
-        })}
+        {showCredentials && usesOwnCredentials && (
+          <>
+            {renderSelect(
+              BROADCAST_PROVIDER_FIELD,
+              'Email service',
+              PROVIDER_OPTIONS.map((value) => ({ value, label: value })),
+            )}
+            {providerFields.map(({ name, label, type }) =>
+              renderInput(name, label, type),
+            )}
+          </>
+        )}
 
-        <Form.Field
-          key="verifiedEmail"
-          name="verifiedEmail"
-          control={form.control}
-          render={() => (
-            <Form.Item>
-              <Form.Label>Verified emails</Form.Label>
-              <Form.Control>
-                <VerifiedSenders />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
+        {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, label, type }) =>
+          renderInput(name, label, type),
+        )}
+
+        {/*
+          Campaigns may run on their own provider account, so everything below
+          has to read those credentials rather than the mail config's.
+        */}
+        <EmailSenderScopeProvider scope="broadcast">
+          <Form.Item>
+            <Form.Label>Verified emails</Form.Label>
+            <Form.Control>
+              <VerifiedSenders />
+            </Form.Control>
+          </Form.Item>
+
+          {usesOwnCredentials && <BroadcastCredentialsNotice />}
+        </EmailSenderScopeProvider>
       </form>
     </Form>
   );

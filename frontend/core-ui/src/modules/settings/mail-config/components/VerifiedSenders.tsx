@@ -52,8 +52,10 @@ export const VerifiedSenders = () => {
   } = useSenderCreation();
 
   // A plain SMTP relay accepts whatever the server allows, so there is no
-  // sender list to show or manage.
-  if (!supportsSenderVerification) {
+  // sender list to show or manage. Waits for the answer first — the loading
+  // defaults say "unsupported", so bailing out early would blank the field on
+  // every render and then pop it back in.
+  if (!loading && !supportsSenderVerification) {
     return null;
   }
 

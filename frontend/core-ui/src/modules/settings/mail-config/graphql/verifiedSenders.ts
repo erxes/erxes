@@ -5,12 +5,13 @@ import { gql } from '@apollo/client';
  * carry the org's provider credentials, which has no business on these screens.
  */
 export const SENDER_OPTIONS = gql`
-  query EmailSenderOptions {
-    emailSenderOptions {
+  query EmailSenderOptions($scope: String) {
+    emailSenderOptions(scope: $scope) {
       provider
       supportsSenderVerification
       supportsDynamicSender
       defaultSenderEmail
+      sameAsMailConfig
       senders {
         id
         type
@@ -27,23 +28,19 @@ export const VERIFY_SENDER = gql`
     $email: String!
     $name: String
     $replyTo: String
-    $address: String
-    $city: String
-    $country: String
+    $scope: String
   ) {
     engageMessageVerifyEmail(
       email: $email
       name: $name
       replyTo: $replyTo
-      address: $address
-      city: $city
-      country: $country
+      scope: $scope
     )
   }
 `;
 
 export const REMOVE_VERIFIED_SENDER = gql`
-  mutation RemoveVerifiedSender($email: String!) {
-    engageMessageRemoveVerifiedEmail(email: $email)
+  mutation RemoveVerifiedSender($email: String!, $scope: String) {
+    engageMessageRemoveVerifiedEmail(email: $email, scope: $scope)
   }
 `;

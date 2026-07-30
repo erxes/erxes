@@ -13,6 +13,7 @@ import {
 } from 'erxes-ui/components';
 import {
   IconFilter2,
+  IconChevronLeft,
   IconChevronRight,
   IconSearch,
   IconX,
@@ -201,6 +202,36 @@ const FilterCommandItem = React.forwardRef<
   );
 });
 
+/**
+ * Takes the popover back to the filter list. Rendered for every non-root view
+ * so that picking a filter is never a one-way trip — without it the only way
+ * out is to close the popover and open it again.
+ */
+const FilterBackButton = () => {
+  const { id } = useFilterContext();
+  const setView = useSetAtom(filterPopoverViewState(id));
+
+  return (
+    // Sits outside the view's own Command, so it is a plain button rather than
+    // a Command.Item — cmdk primitives need that context to work.
+    <button
+      type="button"
+      onClick={() => setView('root')}
+      className="flex h-8 w-full items-center gap-1 border-b px-2 text-sm text-muted-foreground hover:text-foreground"
+    >
+      <IconChevronLeft className="size-4" />
+      Back
+    </button>
+  );
+};
+
+/**
+ * Set once a view is rendering. Shared selects such as `SelectMember.FilterView`
+ * wrap their own `Filter.View` around the same key the caller already opened, so
+ * without this the nested one would draw a second back button.
+ */
+const FilterViewNesting = React.createContext(false);
+
 const FilterView = ({
   children,
   filterKey = 'root',
@@ -213,11 +244,23 @@ const FilterView = ({
   const { id } = useFilterContext();
   const view = useAtomValue(filterPopoverViewState(id));
   const dialogView = useAtomValue(filterDialogViewState(id));
+  const isNested = React.useContext(FilterViewNesting);
 
   if (inDialog ? dialogView !== filterKey : view !== filterKey) {
     return null;
   }
-  return children;
+
+  // Dialogs close on their own, and the root view has nowhere to go back to.
+  if (inDialog || filterKey === 'root' || isNested) {
+    return children;
+  }
+
+  return (
+    <FilterViewNesting.Provider value={true}>
+      <FilterBackButton />
+      {children}
+    </FilterViewNesting.Provider>
+  );
 };
 
 const FilterDialog = (props: React.ComponentPropsWithoutRef<typeof Dialog>) => {

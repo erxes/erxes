@@ -6,7 +6,7 @@ import { IModels } from '~/connectionResolvers';
 import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 import { IEngageMessageDocument } from '../@types';
-import { generateCustomerSelector } from './engage';
+import { generateCustomerSelector, resolveCampaignFromEmail } from './engage';
 import { addBroadcastWorkerQueue } from './worker';
 
 const CUSTOMER_BATCH_SIZE = 1000;
@@ -115,12 +115,12 @@ const sendBroadcastEmail = async ({
   subdomain: string;
   engageMessage: IEngageMessageDocument;
 }) => {
-  const { _id, targetType, targetIds, method, fromUserId } = engageMessage;
+  const { _id, targetType, targetIds, method } = engageMessage;
 
-  const fromUser = await models.Users.findOne({ _id: fromUserId }).lean();
+  const fromEmail = await resolveCampaignFromEmail(models, engageMessage);
 
-  if (!fromUser?.email) {
-    throw new Error('Invalid from user');
+  if (!fromEmail) {
+    throw new Error('Invalid from sender');
   }
 
   const configSet = await getValueAsString(
@@ -226,7 +226,7 @@ const sendBroadcastEmail = async ({
         payload: {
           customers: batches[batchIndex],
           engageMessage,
-          fromEmail: fromUser.email,
+          fromEmail,
           configSet,
           subdomain,
         },

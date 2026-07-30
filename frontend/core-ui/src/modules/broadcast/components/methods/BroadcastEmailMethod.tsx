@@ -1,7 +1,9 @@
+import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
+import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { z } from 'zod';
 import { BroadcastAttachment } from '../BroadcastAttachment';
-import { SelectBroadcastMember } from '../select/BroadcastSelectMember';
 
 export const BroadcastEmailMethod = () => {
   const { control } = useFormContext();
@@ -10,19 +12,19 @@ export const BroadcastEmailMethod = () => {
     <form className="flex flex-col h-full gap-3">
       <div className="grid grid-cols-2 gap-3">
         <Form.Field
-          name="fromUserId"
+          name="fromEmail"
           control={control}
-          rules={{ required: 'From user is required' }}
+          rules={{ required: 'From sender is required' }}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>From User</Form.Label>
+              <Form.Label>From sender</Form.Label>
               <Form.Control>
-                <SelectBroadcastMember.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  placeholder="Select team members"
-                  variables={{ isVerified: true }}
-                />
+                <EmailSenderScopeProvider scope="broadcast">
+                  <SelectVerifiedSender
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </EmailSenderScopeProvider>
               </Form.Control>
             </Form.Item>
           )}
@@ -59,12 +61,21 @@ export const BroadcastEmailMethod = () => {
         <Form.Field
           name="email.replyTo"
           control={control}
+          rules={{
+            // Providers reject a malformed reply-to outright, so catching it
+            // here is the difference between a form error and a failed campaign.
+            validate: (value?: string) =>
+              !value ||
+              z.string().email().safeParse(value).success ||
+              'Enter a valid email address',
+          }}
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Reply To</Form.Label>
               <Form.Control>
                 <Input {...field} placeholder="Reply To" />
               </Form.Control>
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -74,7 +85,7 @@ export const BroadcastEmailMethod = () => {
         name="email.attachments"
         control={control}
         render={({ field }) => (
-          <Form.Item className='h-full overflow-hidden'>
+          <Form.Item className="h-full overflow-hidden">
             <Form.Label>Attachments</Form.Label>
             <Form.Control>
               <BroadcastAttachment {...field} />

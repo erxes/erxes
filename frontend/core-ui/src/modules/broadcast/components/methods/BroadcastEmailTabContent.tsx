@@ -7,7 +7,7 @@ export const BroadcastTabPreviewEmailContent = ({
 }: {
   message: any;
 }) => {
-  const { fromUserId, email } = message || {};
+  const { fromEmail, fromUserId, email } = message || {};
   const { sender, subject, content } = email || {};
   const editor = useBlockEditor();
 
@@ -37,7 +37,12 @@ export const BroadcastTabPreviewEmailContent = ({
 
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">From:</span>
-          <MembersInline memberIds={[fromUserId]} className="font-semibold" />
+          {/* Campaigns created before senders were pickable only carry a user. */}
+          {fromEmail ? (
+            <span className="font-semibold">{fromEmail}</span>
+          ) : (
+            <MembersInline memberIds={[fromUserId]} className="font-semibold" />
+          )}
           {sender && (
             <>
               <span className="text-sm text-muted-foreground">as</span>

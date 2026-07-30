@@ -1,5 +1,15 @@
-import { INotificationDocument } from 'erxes-api-shared/core-modules';
-import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
+import {
+  IEmailDeliveryDocument,
+  INotificationDocument,
+} from 'erxes-api-shared/core-modules';
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getPlugin,
+  getPlugins,
+} from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CORE_NOTIFICATION_MODULES } from '~/modules/notifications/constants';
 import { generateNotificationsFilter } from '~/modules/notifications/graphql/resolver/utils';
@@ -23,6 +33,74 @@ const generateOrderByNotifications = (orderBy?: any) => {
 };
 
 export const notificationQueries = {
+  /**
+   * Sent mail, newest first. The list view asks for a handful of fields; the
+   * bodies and raw provider responses only come out through
+   * `emailDeliveryDetail`.
+   */
+  async emailDeliveries(
+    _root: undefined,
+    params: {
+      status?: string;
+      source?: string;
+      provider?: string;
+      searchValue?: string;
+      createdAtFrom?: Date;
+      createdAtTo?: Date;
+    } & ICursorPaginateParams,
+    { models }: IContext,
+  ) {
+    const {
+      status,
+      source,
+      provider,
+      searchValue,
+      createdAtFrom,
+      createdAtTo,
+    } = params;
+
+    const query: FilterQuery<IEmailDeliveryDocument> = {};
+
+    if (createdAtFrom || createdAtTo) {
+      query.createdAt = {
+        ...(createdAtFrom ? { $gte: createdAtFrom } : {}),
+        ...(createdAtTo ? { $lte: createdAtTo } : {}),
+      };
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (source) {
+      query.source = source;
+    }
+
+    if (provider) {
+      query.provider = provider;
+    }
+
+    if (searchValue) {
+      const pattern = new RegExp(escapeRegExp(searchValue), 'i');
+
+      query.$or = [{ toEmails: pattern }, { subject: pattern }];
+    }
+
+    return await cursorPaginate({
+      model: models.EmailDeliveries,
+      params: { ...params, orderBy: { createdAt: -1 } },
+      query,
+    });
+  },
+
+  async emailDeliveryDetail(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return await models.EmailDeliveries.findOne({ _id });
+  },
+
   async pluginsNotifications() {
     const plugins = await getPlugins();
 

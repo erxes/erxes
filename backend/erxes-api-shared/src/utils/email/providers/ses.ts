@@ -116,38 +116,46 @@ export class SesEmailProvider implements IEmailProvider {
     };
   }
 
-  public async listSenders(): Promise<ISender[]> {
-    const [emailIdentities, domainIdentities] = await Promise.all([
-      this.client.listIdentities({ IdentityType: 'EmailAddress' }).promise(),
-      this.client.listIdentities({ IdentityType: 'Domain' }).promise(),
-    ]);
+  public async listSingleSenders(ids?: string[]): Promise<ISender[]> {
+    // SES identities are the addresses themselves, so given ids there is
+    // nothing to enumerate first.
+    const emails =
+      ids ??
+      (
+        await this.client
+          .listIdentities({ IdentityType: 'EmailAddress' })
+          .promise()
+      ).Identities ??
+      [];
 
-    const emails = emailIdentities.Identities || [];
-    const domains = domainIdentities.Identities || [];
-    const senders: ISender[] = [];
-
-    if (emails.length) {
-      const attributes = await this.client
-        .getIdentityVerificationAttributes({ Identities: emails })
-        .promise();
-
-      for (const email of emails) {
-        senders.push({
-          id: email,
-          type: 'single',
-          value: email,
-          status: toSenderStatus(
-            attributes.VerificationAttributes?.[email]?.VerificationStatus,
-          ),
-        });
-      }
+    if (!emails.length) {
+      return [];
     }
 
-    for (const domain of domains) {
-      senders.push(await this.getDomainSender(domain));
-    }
+    const attributes = await this.client
+      .getIdentityVerificationAttributes({ Identities: emails })
+      .promise();
 
-    return senders;
+    return emails.map((email) => ({
+      id: email,
+      type: 'single' as const,
+      value: email,
+      status: toSenderStatus(
+        attributes.VerificationAttributes?.[email]?.VerificationStatus,
+      ),
+    }));
+  }
+
+  public async listAuthenticatedDomains(
+    domains?: string[],
+  ): Promise<ISender[]> {
+    const names =
+      domains ??
+      (await this.client.listIdentities({ IdentityType: 'Domain' }).promise())
+        .Identities ??
+      [];
+
+    return Promise.all(names.map((domain) => this.getDomainSender(domain)));
   }
 
   public async verifySingleSender(input: ISingleSenderInput): Promise<ISender> {

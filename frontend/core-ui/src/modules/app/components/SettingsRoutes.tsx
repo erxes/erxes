@@ -101,6 +101,12 @@ const LogsRoutes = lazy(() =>
   })),
 );
 
+const EmailDeliveries = lazy(() =>
+  import('~/pages/settings/workspace/EmailDeliveriesPage').then((module) => ({
+    default: module.EmailDeliveriesPage,
+  })),
+);
+
 const BroadcastSettings = lazy(() =>
   import('~/pages/settings/workspace/BroadcastSettingsPage').then((module) => ({
     default: module.BroadcastSettingsPage,
@@ -194,6 +200,10 @@ export function SettingsRoutes() {
           element={<ClientPortalDetailPage />}
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
+        <Route
+          path={SettingsWorkspacePath.EmailDeliveries}
+          element={<EmailDeliveries />}
+        />
         <Route
           path={SettingsWorkspacePath.ImportExportCatchAll}
           element={<ImportExportSettingsRoutes />}

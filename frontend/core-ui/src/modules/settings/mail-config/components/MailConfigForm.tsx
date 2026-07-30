@@ -25,6 +25,7 @@ const MailConfigForm = () => {
     name: 'COMPANY_EMAIL_TEMPLATE_TYPE',
   });
   const MAIL_SERVICE = useWatch({ control, name: 'DEFAULT_EMAIL_SERVICE' });
+  const POSTAL_ADDRESS = useWatch({ control, name: 'COMPANY_POSTAL_ADDRESS' });
 
   useEffect(() => {
     if (!configs) {
@@ -56,7 +57,10 @@ const MailConfigForm = () => {
         className="grid grid-cols-4 gap-3 py-1"
       >
         {columns['common'].map(
-          ({ name, inputType, type, label, description, options }, idx) => {
+          (
+            { name, inputType, type, label, description, options, className },
+            idx,
+          ) => {
             if (inputType === 'select') {
               return (
                 <Form.Field
@@ -154,7 +158,7 @@ const MailConfigForm = () => {
                 render={({ field }) => (
                   <Form.Item
                     className={cn(
-                      idx === 0 ? 'col-span-2' : 'col-span-4',
+                      className ?? (idx === 0 ? 'col-span-2' : 'col-span-4'),
                       'flex flex-col justify-between',
                     )}
                   >
@@ -171,6 +175,12 @@ const MailConfigForm = () => {
             );
           },
         )}
+        {!POSTAL_ADDRESS && (
+          <div className="col-span-4 p-3 text-sm leading-[140%] font-normal bg-warning/6 text-warning rounded-lg border border-warning/30">
+            {t('postal-address-missing')}
+          </div>
+        )}
+
         <AnimatePresence mode="popLayout">
           {columns[MAIL_SERVICE]?.map(
             ({ name, inputType, type, label, description, options }, idx) => (

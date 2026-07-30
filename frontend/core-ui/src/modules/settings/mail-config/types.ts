@@ -8,6 +8,9 @@ type TCustomMailConfig = {
   COMPANY_EMAIL_FROM: string;
   COMPANY_EMAIL_TEMPLATE_TYPE: string;
   COMPANY_EMAIL_TEMPLATE: string;
+  COMPANY_POSTAL_ADDRESS?: string;
+  COMPANY_POSTAL_CITY?: string;
+  COMPANY_POSTAL_COUNTRY?: string;
   MAIL_SERVICE: string;
   MAIL_PORT: string;
   MAIL_USER: string;
@@ -20,6 +23,9 @@ type TSESMailConfig = {
   COMPANY_EMAIL_FROM: string;
   COMPANY_EMAIL_TEMPLATE_TYPE: string;
   COMPANY_EMAIL_TEMPLATE: string;
+  COMPANY_POSTAL_ADDRESS?: string;
+  COMPANY_POSTAL_CITY?: string;
+  COMPANY_POSTAL_COUNTRY?: string;
   AWS_SES_ACCESS_KEY_ID: string;
   AWS_SES_SECRET_ACCESS_KEY: string;
   AWS_REGION: string;
@@ -31,8 +37,12 @@ type TSendgridMailConfig = {
   COMPANY_EMAIL_FROM: string;
   COMPANY_EMAIL_TEMPLATE_TYPE: string;
   COMPANY_EMAIL_TEMPLATE: string;
+  COMPANY_POSTAL_ADDRESS?: string;
+  COMPANY_POSTAL_CITY?: string;
+  COMPANY_POSTAL_COUNTRY?: string;
   SENDGRID_API_KEY: string;
   SENDGRID_SUBUSER?: string;
+  SENDGRID_WEBHOOK_PUBLIC_KEY?: string;
 };
 
 interface TInput {
@@ -42,6 +52,8 @@ interface TInput {
   label?: string;
   description?: string;
   options?: string[];
+  /** Overrides the index-based column span the form falls back to. */
+  className?: string;
 }
 
 type TFormData = {
