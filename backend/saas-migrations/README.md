@@ -46,19 +46,27 @@ The WordPress importer is an explicit command and is not discovered by
 starting an external import.
 
 First create/select the target erxes client portal and content CMS. Export
-WordPress through **Tools → Export → All content**, copy the resulting WXR 1.x
-XML file to the machine running this command, and preview the import:
+WordPress through **Tools → Export → All content** and place exactly one WXR 1.x
+XML file in `content/wordpress/data`. Configure the target in the repository
+root `.env`; the runner loads that file regardless of the working directory:
 
-```bash
-pnpm --dir backend/saas-migrations import:wordpress -- \
-  --file=/absolute/path/wordpress.xml \
-  --target-subdomain=acme \
-  --client-portal-id=client_portal_id \
-  --admin-user-id=web_admin_user_id \
-  --dry-run
+```dotenv
+CORE_MONGO_URL=mongodb://localhost:27017/erxes?directConnection=true
+TARGET_SUBDOMAIN=acme
+CLIENT_PORTAL_ID=client_portal_id
+ADMIN_USER_ID=web_admin_user_id
+DRY_RUN=true
+SKIP_MEDIA=false
 ```
 
-Run the same command without `--dry-run` after reviewing the counts and
+Run the single TypeScript entry from its directory:
+
+```bash
+cd backend/saas-migrations/content/wordpress
+node --import tsx migrateWordPress.ts
+```
+
+Set `DRY_RUN=false` and run the same entry again after reviewing the counts and
 warnings. All WordPress authors are deliberately mapped to the selected erxes
 web admin for this first version. WXR stores attachment URLs rather than the
 binary files, so keep the old WordPress uploads publicly reachable during the
@@ -71,7 +79,9 @@ The importer handles:
 - Polylang post, page, category, and tag groups as base content plus
   `cms_translations`;
 - custom post types in `cms_posts`;
-- public post meta (keys not beginning with `_`) as CMS custom fields;
+- public post meta as CMS custom fields, preserving ACF `field_...` keys and
+  available ACF labels, compatible scalar types, required state, instructions,
+  and choices (complex serialized ACF values remain text);
 - WordPress navigation menu items;
 - attachments, featured images, galleries, and content URL rewriting.
 
@@ -94,15 +104,19 @@ Safety behavior:
 - Slugs are checked against the target portal before writing. Collisions use
   the normal erxes suffix sequence (`slug`, `slug_2`, `slug_3`, ...), while
   reruns preserve the slug already assigned to the mapped record.
-- `--skip-media` keeps original WordPress media URLs and avoids file transfer.
-  With `UPLOAD_SERVICE_TYPE=local`, files are copied to `LOCAL_UPLOADS_DIR` or
-  the core API's default ignored uploads directory. Cloud storage uses the
+- `SKIP_MEDIA=true` stores original WordPress URLs in CMS attachment fields,
+  keeps them in content, and avoids file transfer. With
+  `UPLOAD_SERVICE_TYPE=local`, files are copied to `LOCAL_UPLOADS_DIR` or the
+  core API's default ignored uploads directory. Cloud storage uses the
   configured erxes storage service and requires Redis/service discovery.
-- A media failure leaves that attachment retryable and returns exit code `2`
-  after importing the remaining data.
+- A media failure stores the original WordPress attachment as a fallback,
+  leaves the upload retryable, and returns exit code `2` after importing the
+  remaining data.
 
-Use `pnpm --dir backend/saas-migrations import:wordpress -- --help` for batch,
-file-size, timeout, and concurrency options. Validate migration TypeScript with
+Optional `.env` tuning values are `BATCH_SIZE` (default `500`),
+`MAX_WXR_BYTES` (default `536870912`), `MAX_MEDIA_BYTES` (default `104857600`),
+`MEDIA_TIMEOUT_MS` (default `30000`), and `MEDIA_CONCURRENCY` (default `3`).
+Validate migration TypeScript with
 `pnpm --dir backend/saas-migrations typecheck`.
 
 ## How it works

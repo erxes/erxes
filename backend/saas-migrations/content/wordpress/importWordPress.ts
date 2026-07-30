@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 import { resolve } from 'node:path';
 
 import { MongoClient } from 'mongodb';
@@ -21,128 +19,6 @@ import {
 const DEFAULT_MONGO_URL =
   'mongodb://localhost:27017/erxes?directConnection=true';
 
-const HELP = String.raw`
-Import a WordPress WXR export into an existing erxes content CMS.
-
-Usage:
-  pnpm import:wordpress -- \
-    --file=/absolute/path/site.xml \
-    --target-subdomain=acme \
-    --client-portal-id=portal_id \
-    --admin-user-id=user_id \
-    [--dry-run] [--skip-media]
-
-Options:
-  --batch-size=500
-  --max-wxr-bytes=536870912
-  --max-media-bytes=104857600
-  --media-timeout-ms=30000
-  --media-concurrency=3
-`.trim();
-
-const BOOLEAN_ARGUMENTS = new Set(['dry-run', 'help', 'skip-media']);
-const VALUE_ARGUMENTS = new Set([
-  'admin-user-id',
-  'batch-size',
-  'client-portal-id',
-  'file',
-  'max-media-bytes',
-  'max-wxr-bytes',
-  'media-concurrency',
-  'media-timeout-ms',
-  'target-subdomain',
-]);
-
-interface ParsedArguments {
-  flags: Set<string>;
-  values: Map<string, string>;
-}
-
-interface ParsedArgument {
-  name: string;
-  inlineValue?: string;
-}
-
-const parseArgument = (argument: string): ParsedArgument => {
-  if (!argument.startsWith('--')) {
-    throw new Error(`Unexpected positional argument "${argument}".`);
-  }
-
-  const separatorIndex = argument.indexOf('=');
-
-  return {
-    name: argument.slice(2, separatorIndex === -1 ? undefined : separatorIndex),
-    inlineValue:
-      separatorIndex === -1 ? undefined : argument.slice(separatorIndex + 1),
-  };
-};
-
-const addBooleanArgument = (
-  flags: Set<string>,
-  name: string,
-  inlineValue: string | undefined,
-): void => {
-  if (inlineValue !== undefined) {
-    throw new Error(`Boolean option "--${name}" does not accept a value.`);
-  }
-
-  flags.add(name);
-};
-
-const readValueArgument = (
-  argv: string[],
-  index: number,
-  name: string,
-  inlineValue: string | undefined,
-): { value: string; consumedNext: boolean } => {
-  const consumedNext = inlineValue === undefined;
-  const value = inlineValue ?? argv[index + 1];
-
-  if (!value || (consumedNext && value.startsWith('--'))) {
-    throw new Error(`Option "--${name}" requires a value.`);
-  }
-
-  return { value, consumedNext };
-};
-
-const parseArguments = (argv: string[]): ParsedArguments => {
-  const flags = new Set<string>();
-  const values = new Map<string, string>();
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const argument = argv[index];
-
-    if (argument === '--') {
-      continue;
-    }
-
-    const { name, inlineValue } = parseArgument(argument);
-
-    if (BOOLEAN_ARGUMENTS.has(name)) {
-      addBooleanArgument(flags, name, inlineValue);
-      continue;
-    }
-
-    if (!VALUE_ARGUMENTS.has(name)) {
-      throw new Error(`Unknown option "--${name}".`);
-    }
-
-    const { value, consumedNext } = readValueArgument(
-      argv,
-      index,
-      name,
-      inlineValue,
-    );
-    values.set(name, value);
-
-    if (consumedNext) {
-      index += 1;
-    }
-  }
-
-  return { flags, values };
-};
-
 const parsePositiveInteger = (
   value: string | undefined,
   fallback: number,
@@ -152,50 +28,50 @@ const parsePositiveInteger = (
   const parsed = /^\d+$/.test(normalized) ? Number(normalized) : Number.NaN;
 
   if (!Number.isSafeInteger(parsed) || parsed < 1) {
-    throw new Error(`--${name} must be a positive integer.`);
+    throw new Error(`${name} must be a positive integer.`);
   }
 
   return parsed;
 };
 
-const envFlag = (value: string | undefined): boolean =>
-  value === '1' || value?.toLowerCase() === 'true';
-
-export const parseImportOptions = (
-  argv: string[],
-  env: NodeJS.ProcessEnv = process.env,
-): WordPressImportOptions | null => {
-  const { flags, values } = parseArguments(argv);
-
-  if (flags.has('help')) {
-    return null;
+const parseEnvironmentFlag = (
+  value: string | undefined,
+  name: string,
+): boolean => {
+  if (!value) {
+    return false;
   }
 
-  const wxrPath = values.get('file');
-  const targetSubdomain = (
-    values.get('target-subdomain') ||
-    env.TARGET_SUBDOMAIN ||
-    ''
-  ).trim();
-  const clientPortalId = (
-    values.get('client-portal-id') ||
-    env.CLIENT_PORTAL_ID ||
-    ''
-  ).trim();
-  const adminUserId = (
-    values.get('admin-user-id') ||
-    env.ADMIN_USER_ID ||
-    ''
-  ).trim();
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === '1' || normalized === 'true') {
+    return true;
+  }
+
+  if (normalized === '0' || normalized === 'false') {
+    return false;
+  }
+
+  throw new Error(`${name} must be one of: true, false, 1, 0.`);
+};
+
+export const readWordPressImportOptions = (
+  wxrPath: string,
+  env: NodeJS.ProcessEnv = process.env,
+): WordPressImportOptions => {
+  const targetSubdomain = (env.TARGET_SUBDOMAIN || '').trim();
+  const clientPortalId = (env.CLIENT_PORTAL_ID || '').trim();
+  const adminUserId = (env.ADMIN_USER_ID || '').trim();
   const missing = [
-    !wxrPath && '--file',
-    !targetSubdomain && '--target-subdomain',
-    !clientPortalId && '--client-portal-id',
-    !adminUserId && '--admin-user-id',
+    !targetSubdomain && 'TARGET_SUBDOMAIN',
+    !clientPortalId && 'CLIENT_PORTAL_ID',
+    !adminUserId && 'ADMIN_USER_ID',
   ].filter((value): value is string => Boolean(value));
 
-  if (!wxrPath || !targetSubdomain || !clientPortalId || !adminUserId) {
-    throw new Error(`Missing required options: ${missing.join(', ')}`);
+  if (!targetSubdomain || !clientPortalId || !adminUserId) {
+    throw new Error(
+      `Missing required environment variables: ${missing.join(', ')}`,
+    );
   }
 
   return {
@@ -203,32 +79,28 @@ export const parseImportOptions = (
     targetSubdomain,
     clientPortalId,
     adminUserId,
-    dryRun: flags.has('dry-run') || envFlag(env.DRY_RUN),
-    skipMedia: flags.has('skip-media'),
-    batchSize: parsePositiveInteger(
-      values.get('batch-size') || env.BATCH_SIZE,
-      500,
-      'batch-size',
-    ),
+    dryRun: parseEnvironmentFlag(env.DRY_RUN, 'DRY_RUN'),
+    skipMedia: parseEnvironmentFlag(env.SKIP_MEDIA, 'SKIP_MEDIA'),
+    batchSize: parsePositiveInteger(env.BATCH_SIZE, 500, 'BATCH_SIZE'),
     maxWxrBytes: parsePositiveInteger(
-      values.get('max-wxr-bytes') || env.MAX_WXR_BYTES,
+      env.MAX_WXR_BYTES,
       512 * 1024 * 1024,
-      'max-wxr-bytes',
+      'MAX_WXR_BYTES',
     ),
     maxMediaBytes: parsePositiveInteger(
-      values.get('max-media-bytes') || env.MAX_MEDIA_BYTES,
+      env.MAX_MEDIA_BYTES,
       100 * 1024 * 1024,
-      'max-media-bytes',
+      'MAX_MEDIA_BYTES',
     ),
     mediaTimeoutMs: parsePositiveInteger(
-      values.get('media-timeout-ms') || env.MEDIA_TIMEOUT_MS,
+      env.MEDIA_TIMEOUT_MS,
       30_000,
-      'media-timeout-ms',
+      'MEDIA_TIMEOUT_MS',
     ),
     mediaConcurrency: parsePositiveInteger(
-      values.get('media-concurrency') || env.MEDIA_CONCURRENCY,
+      env.MEDIA_CONCURRENCY,
       3,
-      'media-concurrency',
+      'MEDIA_CONCURRENCY',
     ),
   };
 };
@@ -315,8 +187,12 @@ export const runWordPressImport = async (
 
     if (options.skipMedia) {
       console.warn(
-        '[warning] Media transfer was skipped; original WordPress URLs remain in content.',
+        '[warning] Media transfer was skipped; original WordPress URLs were stored in attachment fields and remain in content.',
       );
+      applyMediaToImportPlan(plan, {
+        attachments: new Map(),
+        failures: [],
+      });
     } else {
       const mediaResult = await importWordPressMedia({
         db: targetDb,
@@ -365,31 +241,3 @@ export const runWordPressImport = async (
     await client.close();
   }
 };
-
-if (require.main === module) {
-  let options: WordPressImportOptions | null;
-
-  try {
-    options = parseImportOptions(process.argv.slice(2));
-  } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
-    console.error(HELP);
-    process.exitCode = 1;
-    options = null;
-  }
-
-  if (!options) {
-    if (!process.exitCode) {
-      console.log(HELP);
-    }
-  } else {
-    runWordPressImport(options)
-      .then((exitCode) => {
-        process.exitCode = exitCode;
-      })
-      .catch((error) => {
-        console.error(error instanceof Error ? error.stack : String(error));
-        process.exitCode = 1;
-      });
-  }
-}

@@ -1,4 +1,10 @@
 import { lookup } from 'node:dns/promises';
+import type {
+  LookupAddress,
+  LookupAllOptions,
+  LookupOneOptions,
+  LookupOptions,
+} from 'node:dns';
 import { copyFile, mkdir, mkdtemp, open, rm } from 'node:fs/promises';
 import { isIP } from 'node:net';
 import { basename, extname, join, resolve } from 'node:path';
@@ -153,6 +159,84 @@ interface SafeFetchResult {
   close: () => Promise<void>;
 }
 
+type LookupOneCallback = (
+  error: NodeJS.ErrnoException | null,
+  address: string,
+  family: number,
+) => void;
+
+type LookupAllCallback = (
+  error: NodeJS.ErrnoException | null,
+  addresses: LookupAddress[],
+) => void;
+
+interface PinnedDnsLookup {
+  (
+    hostname: string,
+    options: LookupOneOptions,
+    callback: LookupOneCallback,
+  ): void;
+  (
+    hostname: string,
+    options: LookupAllOptions,
+    callback: LookupAllCallback,
+  ): void;
+}
+
+export const createPinnedDnsLookup = (
+  address: string,
+  family: number,
+): PinnedDnsLookup => {
+  function pinnedDnsLookup(
+    hostname: string,
+    options: LookupOneOptions,
+    callback: LookupOneCallback,
+  ): void;
+  function pinnedDnsLookup(
+    hostname: string,
+    options: LookupAllOptions,
+    callback: LookupAllCallback,
+  ): void;
+  function pinnedDnsLookup(
+    _hostname: string,
+    options: LookupOptions,
+    callback: LookupOneCallback | LookupAllCallback,
+  ): void {
+    // Undici requests all addresses at runtime even though Node's connector
+    // types expose only the single-address callback.
+    if (options.all) {
+      (callback as LookupAllCallback)(null, [{ address, family }]);
+      return;
+    }
+
+    (callback as LookupOneCallback)(null, address, family);
+  }
+
+  return pinnedDnsLookup;
+};
+
+export const formatMediaImportError = (error: unknown): string => {
+  if (!(error instanceof Error)) {
+    return String(error);
+  }
+
+  const messages: string[] = [];
+  const seen = new Set<Error>();
+  let current: unknown = error;
+
+  while (current instanceof Error && !seen.has(current)) {
+    seen.add(current);
+
+    if (current.message && !messages.includes(current.message)) {
+      messages.push(current.message);
+    }
+
+    current = 'cause' in current ? current.cause : undefined;
+  }
+
+  return messages.join(': ') || error.name;
+};
+
 const normalizeHostname = (hostname: string): string =>
   hostname.startsWith('[') && hostname.endsWith(']')
     ? hostname.slice(1, -1)
@@ -211,9 +295,7 @@ const fetchWithSafeRedirects = async (
     const { address, family, url } = validated;
     const dispatcher = new Agent({
       connect: {
-        lookup: (_hostname, _options, callback) => {
-          callback(null, address, family);
-        },
+        lookup: createPinnedDnsLookup(address, family),
       },
     });
     let response: Response;
@@ -562,7 +644,7 @@ export const importWordPressMedia = async ({
         failures.push({
           sourceId: media.sourceId,
           sourceUrl: media.sourceUrl,
-          message: error instanceof Error ? error.message : String(error),
+          message: formatMediaImportError(error),
         });
       }
     }
@@ -688,6 +770,19 @@ const applyMediaAttachment = (
   }
 };
 
+const buildWordPressSourceAttachment = (
+  media: WordPressMediaSource,
+): ErxesAttachment => {
+  const extension = extname(media.fileName).toLowerCase();
+
+  return {
+    name: media.fileName,
+    url: media.sourceUrl,
+    size: 0,
+    type: MIME_BY_EXTENSION[extension] || 'application/octet-stream',
+  };
+};
+
 const rewriteImportPlanMediaUrls = (
   plan: WordPressImportPlan,
   replacements: Map<string, string>,
@@ -717,11 +812,9 @@ export const applyMediaToImportPlan = (
   const replacements = new Map<string, string>();
 
   for (const media of plan.media) {
-    const attachment = result.attachments.get(media.sourceId);
-
-    if (!attachment) {
-      continue;
-    }
+    const attachment =
+      result.attachments.get(media.sourceId) ||
+      buildWordPressSourceAttachment(media);
 
     applyMediaAttachment(plan, media, attachment, replacements);
   }

@@ -1,6 +1,11 @@
 import { nanoid } from 'nanoid';
 
 import {
+  buildWordPressAcfFieldDefinitions,
+  resolveWordPressAcfFieldKey,
+  type WordPressAcfFieldDefinition,
+} from './acf';
+import {
   createCmsSlug,
   createWordPressCode,
   normalizeSourceSite,
@@ -29,6 +34,7 @@ import {
   WordPressLanguageGroup,
   WordPressPolylangPlan,
 } from './polylang';
+import { normalizeWordPressContent } from './normalizeContent';
 
 interface BuildImportPlanOptions {
   clientPortalId: string;
@@ -163,56 +169,131 @@ const mappingKey = (
   targetCollection: string,
 ): string => `${sourceType}\u0000${sourceId}\u0000${targetCollection}`;
 
+interface CustomFieldReference {
+  acfFieldKey?: string;
+  fieldId: string;
+  metaKey: string;
+  sourceId: string;
+  sourceType: string;
+}
+
+const resolveCustomFieldReference = (
+  item: WordPressItem,
+  metaKey: string,
+  resolveTargetId: ResolveTargetId,
+): CustomFieldReference => {
+  const acfFieldKey = resolveWordPressAcfFieldKey(item, metaKey);
+
+  if (acfFieldKey) {
+    return {
+      acfFieldKey,
+      fieldId: acfFieldKey,
+      metaKey,
+      sourceId: acfFieldKey,
+      sourceType: 'acf-field',
+    };
+  }
+
+  const sourceType = `field:${item.postType}`;
+
+  return {
+    fieldId: resolveTargetId(
+      sourceType,
+      metaKey,
+      'cms_custom_field_groups.fields',
+    ),
+    metaKey,
+    sourceId: metaKey,
+    sourceType,
+  };
+};
+
 const buildCustomFieldsData = (
   item: WordPressItem,
   resolveTargetId: ResolveTargetId,
 ) =>
-  publicMetaEntries(item).map(([key, values]) => ({
-    field: resolveTargetId(
-      `field:${item.postType}`,
-      key,
-      'cms_custom_field_groups.fields',
-    ),
-    value: values.length === 1 ? values[0] : values,
-    stringValue: values.join(', '),
-  }));
+  publicMetaEntries(item).map(([key, values]) => {
+    const reference = resolveCustomFieldReference(item, key, resolveTargetId);
+
+    return {
+      field: reference.fieldId,
+      value: values.length === 1 ? values[0] : values,
+    };
+  });
+
+const createUniqueFieldCode = (
+  baseCode: string,
+  fieldId: string,
+  usedCodes: Set<string>,
+): string => {
+  if (!usedCodes.has(baseCode)) {
+    usedCodes.add(baseCode);
+    return baseCode;
+  }
+
+  const suffix = normalizeWordPressCode(fieldId);
+  let candidate = `${baseCode}_${suffix}`;
+  let duplicateCount = 1;
+
+  while (usedCodes.has(candidate)) {
+    duplicateCount += 1;
+    candidate = `${baseCode}_${suffix}_${duplicateCount}`;
+  }
+
+  usedCodes.add(candidate);
+  return candidate;
+};
 
 const buildFieldDefinitions = (
   postType: string,
   items: WordPressItem[],
   resolveTargetId: ResolveTargetId,
+  acfDefinitions: Map<string, WordPressAcfFieldDefinition>,
 ): ErxesCustomFieldDefinition[] => {
-  const keys = new Set<string>();
+  const references = new Map<string, CustomFieldReference>();
   const usedCodes = new Set<string>();
 
   for (const item of items) {
     for (const [key] of publicMetaEntries(item)) {
-      keys.add(key);
+      const reference = resolveCustomFieldReference(item, key, resolveTargetId);
+
+      if (!references.has(reference.fieldId)) {
+        references.set(reference.fieldId, reference);
+      }
     }
   }
 
-  return [...keys]
-    .sort((first, second) => first.localeCompare(second))
-    .map((key, index) => {
-      const baseCode = normalizeWordPressCode(key);
-      const code = usedCodes.has(baseCode)
-        ? `${baseCode}_${index + 1}`
-        : baseCode;
-
-      usedCodes.add(code);
+  return [...references.values()]
+    .sort(
+      (first, second) =>
+        first.metaKey.localeCompare(second.metaKey) ||
+        first.fieldId.localeCompare(second.fieldId),
+    )
+    .map((reference) => {
+      const acfDefinition = reference.acfFieldKey
+        ? acfDefinitions.get(reference.acfFieldKey)
+        : undefined;
+      const baseCode = normalizeWordPressCode(
+        acfDefinition?.name || reference.metaKey,
+      );
+      const code = createUniqueFieldCode(
+        baseCode,
+        reference.fieldId,
+        usedCodes,
+      );
 
       return {
-        _id: resolveTargetId(
-          `field:${postType}`,
-          key,
-          'cms_custom_field_groups.fields',
-        ),
-        label: titleFromCode(key),
+        _id: reference.fieldId,
+        label: acfDefinition?.label || titleFromCode(reference.metaKey),
         code,
-        type: 'text',
-        description: `Imported from WordPress post meta key "${key}".`,
-        isRequired: false,
-        options: [],
+        type: acfDefinition?.type || 'text',
+        description:
+          acfDefinition?.description ||
+          (reference.acfFieldKey
+            ? `Imported from WordPress ACF field "${reference.acfFieldKey}" for post meta key "${reference.metaKey}".`
+            : `Imported from WordPress post meta key "${reference.metaKey}".`),
+        isRequired: acfDefinition?.isRequired || false,
+        options: acfDefinition?.options || [],
       };
     });
 };
@@ -619,8 +700,8 @@ const buildPosts = (
       count: Number.parseInt(item.id, 10) || 0,
       title: item.title || `Untitled ${item.postType} ${item.id}`,
       slug: postSlugs.get(item.id) as string,
-      content: item.content,
-      excerpt: item.excerpt,
+      content: normalizeWordPressContent(item.content),
+      excerpt: normalizeWordPressContent(item.excerpt),
       categoryIds: relatedTermIds(item, 'category'),
       type: postTypeTargetIds.get(item.postType) || 'post',
       status,
@@ -667,8 +748,8 @@ const buildPages = (
       clientPortalId,
       name: item.title || `Untitled page ${item.id}`,
       parentId: itemTargetIds.get(item.parentId),
-      description: item.excerpt,
-      content: item.content,
+      description: normalizeWordPressContent(item.excerpt),
+      content: normalizeWordPressContent(item.content),
       slug: pageSlugs.get(item.id) as string,
       status,
       createdUserId: adminUserId,
@@ -707,8 +788,10 @@ const buildItemTranslations = (
         objectId,
         language,
         title: item.title,
-        content: isPage ? item.excerpt : item.content,
-        excerpt: isPage ? undefined : item.excerpt,
+        content: normalizeWordPressContent(
+          isPage ? item.excerpt : item.content,
+        ),
+        excerpt: isPage ? undefined : normalizeWordPressContent(item.excerpt),
         customFieldsData: buildCustomFieldsData(item, resolveTargetId),
         type,
         createdAt: parseWordPressDate(item.postDateGmt, item.postDate),
@@ -817,6 +900,7 @@ const buildCustomFieldGroups = (
   itemTargetIds: Map<string, string>,
   postTypeTargetIds: Map<string, string>,
   resolveTargetId: ResolveTargetId,
+  acfDefinitions: Map<string, WordPressAcfFieldDefinition>,
 ): {
   customFieldGroups: ErxesCustomFieldGroupDocument[];
   groupedItems: Map<string, WordPressItem[]>;
@@ -832,7 +916,12 @@ const buildCustomFieldGroups = (
   }
 
   for (const [postType, items] of groupedItems) {
-    const fields = buildFieldDefinitions(postType, items, resolveTargetId);
+    const fields = buildFieldDefinitions(
+      postType,
+      items,
+      resolveTargetId,
+      acfDefinitions,
+    );
 
     if (fields.length === 0) {
       continue;
@@ -989,26 +1078,37 @@ const appendCustomFieldMappings = (
   mappingBase: MappingBase,
   resolveTargetId: ResolveTargetId,
 ): void => {
-  for (const [postType, items] of groupedItems) {
-    const metaKeys = new Set(
-      items.flatMap((item) => publicMetaEntries(item).map(([key]) => key)),
-    );
+  const references = new Map<string, CustomFieldReference>();
 
-    for (const key of metaKeys) {
-      mappings.push(
-        createMapping(
-          mappingBase,
-          `field:${postType}`,
-          key,
+  for (const items of groupedItems.values()) {
+    for (const item of items) {
+      for (const [metaKey] of publicMetaEntries(item)) {
+        const reference = resolveCustomFieldReference(
+          item,
+          metaKey,
+          resolveTargetId,
+        );
+        const key = mappingKey(
+          reference.sourceType,
+          reference.sourceId,
           'cms_custom_field_groups.fields',
-          resolveTargetId(
-            `field:${postType}`,
-            key,
-            'cms_custom_field_groups.fields',
-          ),
-        ),
-      );
+        );
+
+        references.set(key, reference);
+      }
     }
+  }
+
+  for (const reference of references.values()) {
+    mappings.push(
+      createMapping(
+        mappingBase,
+        reference.sourceType,
+        reference.sourceId,
+        'cms_custom_field_groups.fields',
+        reference.fieldId,
+      ),
+    );
   }
 };
 
@@ -1042,6 +1142,7 @@ export const buildImportPlan = (
   const sourceSite = normalizeSourceSite(
     wxr.site.baseBlogUrl || wxr.site.baseSiteUrl || wxr.site.link,
   );
+  const acfDefinitions = buildWordPressAcfFieldDefinitions(wxr.items);
   const warnings: string[] = [];
   const skipped: Record<string, number> = {};
   const mappings: WordPressMappingDocument[] = [];
@@ -1196,6 +1297,7 @@ export const buildImportPlan = (
     itemTargetIds,
     postTypeTargetIds,
     resolveTargetId,
+    acfDefinitions,
   );
   const media = buildMediaPlan(wxr.items, candidates, itemTargetIds);
 

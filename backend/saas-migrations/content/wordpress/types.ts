@@ -76,7 +76,6 @@ export interface ErxesAttachment {
 export interface ErxesCustomFieldValue {
   field: string;
   value: string | string[];
-  stringValue: string;
 }
 
 export interface ErxesPostDocument {
@@ -164,13 +163,28 @@ export interface ErxesCustomPostTypeDocument {
   isActive: true;
 }
 
+export type ErxesCustomFieldType =
+  | 'checkbox'
+  | 'date'
+  | 'email'
+  | 'file'
+  | 'image'
+  | 'multiSelect'
+  | 'number'
+  | 'radio'
+  | 'richText'
+  | 'select'
+  | 'text'
+  | 'textarea'
+  | 'url';
+
 export interface ErxesCustomFieldDefinition {
   _id: string;
   label: string;
   code: string;
-  type: 'text';
+  type: ErxesCustomFieldType;
   description: string;
-  isRequired: false;
+  isRequired: boolean;
   options: string[];
 }
 
