@@ -42,7 +42,7 @@ export const SalesBreadCrumb = ({
     <>
       {boardDetail && (
         <>
-          <Breadcrumb.Item className="min-w-0">
+          <Breadcrumb.Item className="min-w-32">
             <Button variant="ghost" asChild className="min-w-0">
               <span className="flex items-center gap-1">
                 <IconLayoutCards />
@@ -58,7 +58,7 @@ export const SalesBreadCrumb = ({
       )}
 
       {pipelineDetail && (
-        <Breadcrumb.Item className="min-w-0">
+        <Breadcrumb.Item className="min-w-32">
           <Button variant="ghost" asChild className="min-w-0">
             <span className="flex items-center gap-1">
               <IconCards />

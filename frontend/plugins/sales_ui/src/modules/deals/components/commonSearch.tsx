@@ -52,7 +52,7 @@ export const CommonDealSearch = () => {
   return (
     <Popover open={showDropdown}>
       <Popover.Anchor asChild>
-        <div className="relative w-72">
+        <div className="relative w-64">
           <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="h-8 pl-8"

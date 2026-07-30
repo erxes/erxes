@@ -34,7 +34,7 @@ export const SalesIndexPage = () => {
     <div className="flex h-full overflow-hidden w-full">
       <div className="flex flex-col h-full w-full overflow-hidden">
         <PageHeader>
-          <PageHeader.Start className="flex-1 min-w-0">
+          <PageHeader.Start className="flex-auto min-w-0">
             <Breadcrumb className="min-w-0">
               <Breadcrumb.List className="gap-1 flex-nowrap min-w-0">
                 <Breadcrumb.Item className="shrink-0">
@@ -52,7 +52,7 @@ export const SalesIndexPage = () => {
               </Breadcrumb.List>
             </Breadcrumb>
           </PageHeader.Start>
-          <PageHeader.End className="flex-none">
+          <PageHeader.End>
             <CommonDealSearch />
             <Button variant="ghost" asChild>
               <Link
