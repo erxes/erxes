@@ -45,10 +45,10 @@ const InputMain = React.forwardRef<HTMLInputElement, InputProps>(
               type === 'file'
                 ? 'file'
                 : type === 'search'
-                ? 'search'
-                : type === 'number'
-                ? 'number'
-                : 'default',
+                  ? 'search'
+                  : type === 'number'
+                    ? 'number'
+                    : 'default',
             variant,
           }),
           className,

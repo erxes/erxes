@@ -142,8 +142,8 @@ const SelectPipelineContent = () => {
   const emptyMessage = loading
     ? t('loading-pipelines')
     : boardId
-    ? t('no-pipelines-found')
-    : t('board-not-selected');
+      ? t('no-pipelines-found')
+      : t('board-not-selected');
   return (
     <Command>
       <Command.List>
