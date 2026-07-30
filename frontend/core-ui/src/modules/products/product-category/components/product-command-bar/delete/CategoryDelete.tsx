@@ -134,7 +134,7 @@ export const CategoriesDelete = ({
 
         return Boolean(
           (category?.productCount && category.productCount > 0) ||
-            parentIds.has(categoryId),
+          parentIds.has(categoryId),
         );
       }),
     );
