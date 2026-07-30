@@ -1,87 +1,15 @@
-import { Button, RecordTable } from 'erxes-ui';
-import { IconShoppingCartX } from '@tabler/icons-react';
-import i18n from 'i18next';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  getAccountingCheckSyncedDealsColumns,
-  isSyncableAccountingDeal,
-} from './AccountingCheckSyncedDealsColumns';
 import {
   ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
   useAccountingCheckSyncedDeals,
 } from '../hooks/useAccountingCheckSyncedDeals';
-import { AccountingCheckSyncedDealRulePicker } from './AccountingCheckSyncedDealRuleSelect';
 
-const getSyncButtonLabel = ({
-  canSync,
-  syncing,
-  toSyncCount,
-}: {
-  canSync: boolean;
-  syncing: boolean;
-  toSyncCount: number;
-}) => {
-  if (syncing) return i18n.t('accounting:syncing');
-  if (!canSync) return i18n.t('accounting:select-rule-to-sync');
-  return i18n.t('accounting:sync-selected', { count: toSyncCount });
-};
-
-const AccountingCheckSyncedDealsActions = ({
-  checking,
-  canSync,
-  dealsCount,
-  syncing,
-  toSyncCount,
-  onCheck,
-  onSync,
-}: {
-  checking: boolean;
-  canSync: boolean;
-  dealsCount: number;
-  syncing: boolean;
-  toSyncCount: number;
-  onCheck: (ids: string[]) => void;
-  onSync: () => void;
-}) => {
-  const { t } = useTranslation('accounting');
-  const { table } = RecordTable.useRecordTable();
-  const selectedIds = table
-    .getSelectedRowModel()
-    .rows.map((row) => row.original._id)
-    .filter(Boolean);
-
-  return (
-    <div className="flex items-center justify-between gap-3 px-3 pt-3">
-      <div className="text-sm text-muted-foreground">
-        {selectedIds.length} {t('selected')} / {dealsCount} {t('deals')}
-      </div>
-      <div className="flex items-center gap-2">
-        <Button
-          onClick={() => onCheck(selectedIds)}
-          disabled={checking || !selectedIds.length}
-        >
-          {checking ? t('checking') : t('check-deals')}
-        </Button>
-        {canSync ? (
-          <Button
-            onClick={onSync}
-            disabled={syncing || !toSyncCount}
-            variant="outline"
-          >
-            {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
-          </Button>
-        ) : (
-          <AccountingCheckSyncedDealRulePicker>
-            <Button variant="outline" disabled={syncing}>
-              {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
-            </Button>
-          </AccountingCheckSyncedDealRulePicker>
-        )}
-      </div>
-    </div>
-  );
-};
+import { AccountingCheckSyncedDealsCommandBar } from './AccountingCheckSyncedDealsCommandBar';
+import { IconShoppingCartX } from '@tabler/icons-react';
+import { RecordTable } from 'erxes-ui';
+import { getAccountingCheckSyncedDealsColumns } from './AccountingCheckSyncedDealsColumns';
+import { isSyncable } from '~/modules/check-synced/constants/shared';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const AccountingCheckSyncedDealsRecordTable = () => {
   const { t } = useTranslation('accounting');
@@ -102,8 +30,7 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
   } = useAccountingCheckSyncedDeals();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const syncableDealIds = useMemo(
-    () =>
-      (deals || []).filter(isSyncableAccountingDeal).map((deal) => deal._id),
+    () => (deals || []).filter(isSyncable).map((deal) => deal._id),
     [deals],
   );
   const columns = useMemo(
@@ -124,14 +51,13 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
       className="m-3"
       stickyColumns={['checkbox', 'toSync', 'name']}
     >
-      <AccountingCheckSyncedDealsActions
+      <AccountingCheckSyncedDealsCommandBar
         canSync={canSync}
         checking={checking}
-        dealsCount={deals?.length || 0}
         syncing={syncing}
+        toSyncCount={syncSelectedDealIds.length}
         onCheck={checkDeals}
         onSync={() => syncDeals(syncSelectedDealIds)}
-        toSyncCount={syncSelectedDealIds.length}
       />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

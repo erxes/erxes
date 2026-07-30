@@ -6,11 +6,15 @@ import {
   getErrorMessage,
   getGuild,
   hasMessageContentIntent,
+  hasServerMembersIntent,
   listBotGuilds,
   listGuildChannels,
+  normalizeMemberQuery,
   sanitizeToken,
 } from '@/integrations/discord/utils';
 import { debugError } from '@/integrations/discord/debuggers';
+import { DISCORD_INBOX_KIND } from '@/integrations/discord/constants';
+import { getChannelMemberViewers } from '@/integrations/discord/channelAccess';
 
 export const discordQueries = {
   discordBots: (_root: undefined, _args: unknown, { models }: IContext) =>
@@ -28,12 +32,6 @@ export const discordQueries = {
     { models }: IContext,
   ) => models.DiscordBots.countDocuments({}),
 
-  /**
-   * Probes a pasted bot token against Discord so the connect wizard can confirm
-   * it, auto-fill the application id / public key, and flag a missing MESSAGE
-   * CONTENT intent. Never throws — an invalid token comes back as
-   * `{ valid: false, error }` so the UI can show it inline.
-   */
   discordValidateToken: async (
     _root: undefined,
     { token }: { token: string },
@@ -52,6 +50,7 @@ export const discordQueries = {
         botUsername: botUser?.username,
         applicationId: appInfo?.id || botUser?.id,
         hasMessageContentIntent: hasMessageContentIntent(appInfo?.flags),
+        hasServerMembersIntent: hasServerMembersIntent(appInfo?.flags),
       };
     } catch (e) {
       return { valid: false, error: (e as Error).message };
@@ -78,14 +77,11 @@ export const discordQueries = {
       id: c.id,
       name: c.name,
       type: c.type,
+      parentId: c.parentId,
+      parentName: c.parentName,
     }));
   },
 
-  /**
-   * Lists the routable channels for an existing bot, keyed by bot id so the
-   * automation "Send Discord Message" form can offer a channel dropdown without
-   * the client ever handling the bot token (resolved server-side here).
-   */
   discordBotChannels: async (
     _root: undefined,
     { botId }: { botId: string },
@@ -103,6 +99,8 @@ export const discordQueries = {
         id: c.id,
         name: c.name,
         type: c.type,
+        parentId: c.parentId,
+        parentName: c.parentName,
       }));
     } catch (e) {
       debugError(
@@ -114,12 +112,6 @@ export const discordQueries = {
     }
   },
 
-  /**
-   * Returns the Discord channel an inbox conversation came from (keyed by the
-   * core conversation id = `erxesApiId`). Self-heals: if the channel name was
-   * never stored (conversation predates the feature, or the resolve failed at
-   * ingest), it's fetched from Discord once and persisted.
-   */
   discordConversationChannel: async (
     _root: undefined,
     { conversationId }: { conversationId: string },
@@ -135,9 +127,6 @@ export const discordQueries = {
 
     let { channelName } = conversation;
 
-    // The owning bot carries the token used to backfill a missing channel name.
-    // Newest-first to match the gateway's routing (`resolveBot`): if duplicate
-    // bots exist for a channel, both must agree on which bot owns it.
     const bot = await models.DiscordBots.findOne({
       erxesApiId: conversation.integrationId,
     }).sort({ createdAt: -1 });
@@ -172,13 +161,6 @@ export const discordQueries = {
     };
   },
 
-  /**
-   * Batch variant of `discordConversationChannel`, keyed by core conversation
-   * id, so the inbox list can resolve thread/channel metadata for every loaded
-   * Discord conversation in a single round-trip (used to nest threads under
-   * their parent channel). Returns stored values only — no per-row Discord
-   * backfill — to keep the list cheap.
-   */
   discordConversationChannels: async (
     _root: undefined,
     { conversationIds }: { conversationIds: string[] },
@@ -192,11 +174,6 @@ export const discordQueries = {
       erxesApiId: { $in: conversationIds },
     }).lean();
 
-    // Map each integration to its bot's (parent) channel id, so thread-ness can
-    // be derived for conversations that predate the `isThread` field: a thread
-    // routes to its parent's integration but keeps its own channelId, so a
-    // channelId that differs from the integration's channel is a thread. Pure
-    // Mongo — no Discord REST in the list path.
     const integrationIds = [
       ...new Set(conversations.map((c) => c.integrationId).filter(Boolean)),
     ];
@@ -230,13 +207,6 @@ export const discordQueries = {
     });
   },
 
-  /**
-   * The connected Discord servers (guilds) with the integration ids that belong
-   * to each, so the sidebar can group channels under their server. Guild names
-   * are stored on the bot at creation (the wizard knows them); bots that predate
-   * the field self-heal here: the name is fetched from Discord once and
-   * persisted onto every bot of that guild.
-   */
   discordServers: async (
     _root: undefined,
     _args: unknown,
@@ -247,7 +217,6 @@ export const discordQueries = {
       guildId: { $nin: [null, ''] },
     }).lean();
 
-    // guildId → its bots (each bot = one channel-integration of that server).
     const byGuild = new Map<string, typeof bots>();
     for (const bot of bots) {
       const guildId = bot.guildId as string;
@@ -259,9 +228,6 @@ export const discordQueries = {
         let name = guildBots.find((bot) => bot.guildName)?.guildName;
 
         if (!name) {
-          // Self-heal: resolve once via REST (any of the guild's bot tokens can
-          // read its own guild) and persist so this never refetches. Best-effort
-          // — on failure the sidebar falls back to the raw guild id.
           try {
             name = (await getGuild(guildBots[0].token, guildId))?.name;
             if (name) {
@@ -272,7 +238,9 @@ export const discordQueries = {
             }
           } catch (e) {
             debugError(
-              `Failed to resolve Discord guild ${guildId}: ${getErrorMessage(e)}`,
+              `Failed to resolve Discord guild ${guildId}: ${getErrorMessage(
+                e,
+              )}`,
             );
           }
         }
@@ -280,17 +248,81 @@ export const discordQueries = {
         return {
           guildId,
           name,
-          integrationIds: guildBots.map((bot) => bot.erxesApiId).filter(Boolean),
+          integrationIds: guildBots
+            .map((bot) => bot.erxesApiId)
+            .filter(Boolean),
         };
       }),
     );
   },
 
-  /**
-   * The Discord users who have chatted in a conversation, so the inbox composer
-   * can @-mention them in a reply. Derived from the conversation's message
-   * authors mapped to their Discord identity.
-   */
+  discordConnectedServers: async (
+    _root: undefined,
+    { channelId }: { channelId: string },
+    { models }: IContext,
+  ) => {
+    const bots = await models.DiscordBots.getBotsByInboxChannel(channelId);
+
+    const byGuild = new Map<
+      string,
+      { guildId: string; guildName?: string; botId: string }
+    >();
+    for (const bot of bots) {
+      if (!bot.guildId || byGuild.has(bot.guildId)) continue;
+      byGuild.set(bot.guildId, {
+        guildId: bot.guildId,
+        guildName: bot.guildName,
+        botId: bot._id,
+      });
+    }
+
+    return [...byGuild.values()];
+  },
+
+  discordTakenChannels: async (
+    _root: undefined,
+    { channelId }: { channelId: string },
+    { models }: IContext,
+  ) => {
+    const bots = await models.DiscordBots.getBotsByInboxChannel(channelId);
+
+    return [...new Set(bots.map((bot) => bot.channelId).filter(Boolean))];
+  },
+
+  discordNamePresets: async (
+    _root: undefined,
+    { channelId }: { channelId: string },
+    { models }: IContext,
+  ) => {
+    if (!channelId) {
+      return [];
+    }
+
+    const names: string[] = await models.Integrations.find({
+      kind: DISCORD_INBOX_KIND,
+      channelId,
+    }).distinct('name');
+
+    const presets = new Set<string>();
+    for (const name of names) {
+      const trimmed = (name || '').trim();
+      if (!trimmed) {
+        continue;
+      }
+
+      const separatorIndex = trimmed.indexOf(' - #');
+      const prefix = (
+        separatorIndex === -1 ? trimmed : trimmed.slice(0, separatorIndex)
+      ).trim();
+
+      if (prefix) {
+        presets.add(prefix);
+      }
+    }
+
+    return [...presets].sort((a, b) => a.localeCompare(b));
+  },
+
   discordConversationParticipants: async (
     _root: undefined,
     { conversationId }: { conversationId: string },
@@ -327,5 +359,46 @@ export const discordQueries = {
           'Discord user',
         avatar: customer.profilePic,
       }));
+  },
+
+  discordChannelMembers: async (
+    _root: undefined,
+    { conversationId, query }: { conversationId: string; query: string },
+    { models }: IContext,
+  ) => {
+    const unavailable = {
+      members: [],
+      status: 'ERROR' as const,
+      truncated: false,
+    };
+
+    if (!normalizeMemberQuery(query)) {
+      return { members: [], status: 'OK' as const, truncated: false };
+    }
+
+    const conversation = await models.DiscordConversations.findOne({
+      erxesApiId: conversationId,
+    });
+
+    if (!conversation?.channelId || !conversation.guildId) {
+      return unavailable;
+    }
+
+    const bot = await models.DiscordBots.findOne({
+      erxesApiId: conversation.integrationId,
+    }).sort({ createdAt: -1 });
+
+    if (!bot?.token) {
+      return unavailable;
+    }
+
+    const { viewers, status, truncated } = await getChannelMemberViewers(
+      bot.token,
+      conversation.channelId,
+      conversation.guildId,
+      query,
+    );
+
+    return { members: viewers, status, truncated };
   },
 };

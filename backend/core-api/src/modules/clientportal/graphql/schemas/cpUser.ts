@@ -237,11 +237,12 @@ export const mutations = `
   clientPortalUserDelete: CPUserRemoveResponse
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): CPUser
   clientPortalUserLoginWithToki(token: String!): JSON
+  checkTokiUserLegalAge(token: String!): Boolean
+
 `;
 
 export const queries = `
   clientPortalCurrentUser: CPUser
   getClientPortalUsers(filter: IClientPortalUserFilter): CPUserListResponse
   getClientPortalUser(_id: String!): CPUser
-  checkTokiUserLegalAge(token: String!): Boolean
 `;

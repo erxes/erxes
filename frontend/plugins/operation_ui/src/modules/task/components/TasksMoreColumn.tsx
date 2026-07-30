@@ -1,10 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { ITask } from '@/task/types';
 import { IconEdit } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 
 export const TasksMoreColumnCell = ({
   cell,
@@ -12,7 +11,7 @@ export const TasksMoreColumnCell = ({
   cell: Cell<ITask, unknown>;
 }) => {
   const { t } = useTranslation('operation');
-  const setActiveTask = useSetAtom(taskDetailSheetState);
+  const [, setActiveTask] = useTaskDetailSheet();
   const { _id } = cell.row.original;
 
   const handleEdit = (taskId: string) => {

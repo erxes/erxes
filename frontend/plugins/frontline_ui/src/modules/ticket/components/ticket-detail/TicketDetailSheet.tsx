@@ -1,6 +1,6 @@
 import { TicketDetails } from '@/ticket/components/ticket-detail/TicketDetails';
 import { useGetTicket } from '@/ticket/hooks/useGetTicket';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import {
   FocusSheet,
   ScrollArea,
@@ -9,7 +9,6 @@ import {
   Empty,
   Sheet,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
 import { TicketSidebar } from './TicketSidebar';
@@ -22,7 +21,7 @@ export const TicketDetailSheet = ({
   hideRelationWidgetSideTabs?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
-  const [activeTicket, setActiveTicket] = useAtom(ticketDetailSheetState);
+  const [activeTicket, setActiveTicket] = useTicketDetailSheet();
   const { ticket, loading, error } = useGetTicket({
     variables: { _id: activeTicket },
     skip: !activeTicket,

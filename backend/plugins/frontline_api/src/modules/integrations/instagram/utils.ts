@@ -143,7 +143,14 @@ export const subscribePage = async (
   pageToken,
 ): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['messages'],
+    // `messaging_postbacks` is required to receive persistent-menu / Get Started
+    // / button taps — without it those postback events are never delivered and
+    // the bot never triggers. `messaging_referrals` covers ad/referral entries.
+    subscribed_fields: [
+      'messages',
+      'messaging_postbacks',
+      'messaging_referrals',
+    ],
   });
 };
 
@@ -157,6 +164,27 @@ export const getPageAccessToken = async (
   );
   return response.access_token;
 };
+export const getPageTokenByInstagramId = async (
+  instagramAccountId: string,
+  userAccessToken: string,
+): Promise<string> => {
+  const response: any = await graphRequest.get(
+    '/me/accounts?fields=instagram_business_account,access_token',
+    userAccessToken,
+  );
+
+  const page = (response?.data || []).find(
+    (item: any) => item?.instagram_business_account?.id === instagramAccountId,
+  );
+
+  if (!page?.access_token) {
+    throw new Error(
+      `Could not find a Facebook Page access token for Instagram account ${instagramAccountId}`,
+    );
+  }
+
+  return page.access_token;
+};
 
 export const getPageAccessTokenInstagram = async (
   pageId: string,
@@ -168,7 +196,6 @@ export const getPageAccessTokenInstagram = async (
       userAccessToken,
     );
 
-    // Handle cases where the Page is linked to an Instagram Business Account
     if (response.instagram_business_account) {
       return {
         type: 'IGUser',

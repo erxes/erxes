@@ -41,7 +41,7 @@ const TokenCell = ({ token }: { token: string }) => {
 };
 
 export const appsSettingsColumns: ColumnDef<IApp>[] = [
-  { ...RecordTable.checkboxColumn, size: 20 } as ColumnDef<IApp>,
+  { ...RecordTable.checkboxColumn, size: 33 } as ColumnDef<IApp>,
   {
     id: 'name',
     accessorKey: 'name',

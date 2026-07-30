@@ -3,7 +3,8 @@ import { Button, cn, Collapsible, InfoCard, Spinner, Tooltip } from 'erxes-ui';
 import { useState } from 'react';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { useFields } from '../hooks/useFields';
-import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
+import { IField, IFieldGroup, mutateFunction } from '../types/fieldsTypes';
+import { isFieldVisibleByLogic } from '../propertyUtils';
 import { Field, FieldMultiple } from './Field';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,6 +26,19 @@ const FieldGroupContent = ({
   };
 }) => {
   const { configs } = group || {};
+  const { fields, loading } = useFields({ groupId: group._id, contentType });
+
+  const visibleFields = fields
+    .filter((field) => field.isVisible !== false)
+    .filter((field) => isFieldVisibleByLogic(field, propertiesData));
+
+  if (loading) {
+    return <Spinner containerClassName="py-6" />;
+  }
+
+  if (visibleFields.length === 0) {
+    return null;
+  }
 
   if (configs?.isMultiple) {
     return (
@@ -34,6 +48,7 @@ const FieldGroupContent = ({
         contentType={contentType}
         propertiesData={propertiesData}
         mutateHook={mutateHook}
+        fields={visibleFields}
       />
     );
   }
@@ -53,6 +68,7 @@ const FieldGroupContent = ({
           contentType={contentType}
           propertiesData={propertiesData}
           mutateHook={mutateHook}
+          fields={visibleFields}
         />
       </Collapsible.Content>
     </Collapsible>
@@ -109,11 +125,10 @@ export const FieldsInDetail = ({
 };
 
 export const FieldsInGroup = ({
-  group,
-  contentType,
   propertiesData,
   mutateHook,
   id,
+  fields,
 }: {
   group: IFieldGroup;
   id: string;
@@ -124,13 +139,8 @@ export const FieldsInGroup = ({
     mutate: mutateFunction;
     loading: boolean;
   };
+  fields: IField[];
 }) => {
-  const { fields, loading } = useFields({ groupId: group._id, contentType });
-
-  if (loading) {
-    return <Spinner containerClassName="py-6" />;
-  }
-
   return (
     <div className="grid grid-cols-2 gap-4">
       {fields.map((field) => (
@@ -149,10 +159,10 @@ export const FieldsInGroup = ({
 
 export const MultipleFieldsInGroup = ({
   group,
-  contentType,
   propertiesData,
   mutateHook,
   id,
+  fields,
 }: {
   group: IFieldGroup;
   id: string;
@@ -163,16 +173,11 @@ export const MultipleFieldsInGroup = ({
     mutate: mutateFunction;
     loading: boolean;
   };
+  fields: IField[];
 }) => {
-  const { fields, loading } = useFields({ groupId: group._id, contentType });
-
   const [properties, setProperties] = useState<any[]>(
     propertiesData[group._id] || [{}],
   );
-
-  if (loading) {
-    return <Spinner containerClassName="py-6" />;
-  }
 
   const handleAddProperty = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();

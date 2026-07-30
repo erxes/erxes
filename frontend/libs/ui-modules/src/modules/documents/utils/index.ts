@@ -155,6 +155,12 @@ ${BASE_STYLES}
       padding: ${margin}mm;
     }
 
+    .scaled-content .label-item {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-height: ${Math.max(0, height - margin * 2)}mm !important;
+    }
+
     @media print {
       .scaled-content {
         transform: none !important;

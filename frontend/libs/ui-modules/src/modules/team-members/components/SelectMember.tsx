@@ -1,3 +1,4 @@
+import { useSubscription } from '@apollo/client';
 import { IconPlus, IconUser } from '@tabler/icons-react';
 import {
   AvatarProps,
@@ -20,6 +21,7 @@ import {
   SelectMemberContext,
   useSelectMemberContext,
 } from '../contexts/SelectMemberContext';
+import { USER_STATUS_CHANGED } from '../graphql/subscriptions/userStatusChanged';
 import { IUser } from '../types/TeamMembers';
 import { MembersInline } from './MembersInline';
 
@@ -153,6 +155,7 @@ const SelectMemberNoAssigneeItem = () => {
 
 const SelectMemberContent = () => {
   const [search, setSearch] = useState('');
+  const [inactiveMemberIds, setInactiveMemberIds] = useState<string[]>([]);
   const [debouncedSearch] = useDebounce(search, 500);
   const { memberIds, members, allowUnassigned } = useSelectMemberContext();
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
@@ -160,9 +163,26 @@ const SelectMemberContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  useSubscription<{ userStatusChanged?: IUser }>(USER_STATUS_CHANGED, {
+    onData: ({ data }) => {
+      const statusChangedUser = data.data?.userStatusChanged;
 
+      if (!statusChangedUser) return;
+
+      setInactiveMemberIds((currentIds) =>
+        statusChangedUser.isActive === false
+          ? [...new Set([...currentIds, statusChangedUser._id])]
+          : currentIds.filter((id) => id !== statusChangedUser._id),
+      );
+    },
+  });
+
+  const activeMembers = members.filter(
+    ({ _id, isActive }) =>
+      isActive !== false && !inactiveMemberIds.includes(_id),
+  );
   const filteredMembers = search
-    ? members.filter((member) => {
+    ? activeMembers.filter((member) => {
         const q = search.toLowerCase();
         const fullName = `${member.details?.firstName || ''} ${
           member.details?.lastName || ''
@@ -174,7 +194,7 @@ const SelectMemberContent = () => {
           (member.username || '').toLowerCase().includes(q)
         );
       })
-    : members;
+    : activeMembers;
 
   return (
     <Command shouldFilter={false}>
@@ -200,7 +220,9 @@ const SelectMemberContent = () => {
         {!loading &&
           users
             .filter(
-              (user) => !memberIds.find((memberId) => memberId === user._id),
+              (user) =>
+                !inactiveMemberIds.includes(user._id) &&
+                !memberIds.some((memberId) => memberId === user._id),
             )
             .map((user) => (
               <SelectMemberCommandItem key={user._id} user={user} />
@@ -383,7 +405,9 @@ export const SelectMemberFormItem = ({
     <SelectMemberProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        props.mode !== 'multiple' && setOpen(false);
+        if (props.mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
       {...props}
     >
@@ -427,12 +451,15 @@ export const SelectMemberDetail = ({
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           {!value ? (
-            <Combobox.TriggerBase className="font-medium">
-              Add Owner <IconPlus />
+            <Combobox.TriggerBase className={cn('font-medium', className)}>
+              {placeholder || 'Add Owner'} <IconPlus />
             </Combobox.TriggerBase>
           ) : (
-            <Button variant="ghost" className="w-full inline-flex">
-              <SelectMemberValue size={size} />
+            <Button
+              variant="ghost"
+              className={cn('w-full inline-flex', className)}
+            >
+              <SelectMemberValue size={size} placeholder={placeholder} />
             </Button>
           )}
         </Popover.Trigger>

@@ -16,6 +16,7 @@ export const PageHeaderRoot = React.forwardRef<
         className={cn(
           'flex items-center justify-between h-13 px-3 box-border shrink-0 bg-sidebar overflow-auto styled-scroll',
           className,
+          'pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem)_+_var(--visited-page-tabs-open-button-space,0rem))]',
         )}
       >
         {children}
@@ -31,14 +32,20 @@ export const PageHeaderStart = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ children, className, ...props }, ref) => {
+  const sidebar = Sidebar.useOptionalSidebar();
+
   return (
     <div
       ref={ref}
       className={cn('flex items-center gap-2 flex-none pr-8', className)}
       {...props}
     >
-      <Sidebar.Trigger />
-      <Separator.Inline />
+      {sidebar?.isMobile && (
+        <>
+          <Sidebar.Trigger />
+          <Separator.Inline />
+        </>
+      )}
       {children}
     </div>
   );
