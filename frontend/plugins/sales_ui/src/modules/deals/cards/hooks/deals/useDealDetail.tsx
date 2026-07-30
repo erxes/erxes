@@ -28,8 +28,8 @@ interface ISalesDealChangedPayload {
 export const useDealDetail = (
   options?: QueryHookOptions<{ dealDetail: IDeal }>,
 ) => {
-  const [activeDealId] = useAtom(dealDetailSheetState);
-  const [salesItemId] = useQueryState('salesItemId');
+  const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
+  const [salesItemId, setSalesItemId] = useQueryState('salesItemId');
 
   const passedId = options?.variables?._id;
   const finalId = passedId || salesItemId || activeDealId;
@@ -78,7 +78,21 @@ export const useDealDetail = (
       document: DEAL_CHANGED,
       variables: { _id: finalId },
       updateQuery: (prev, { subscriptionData }) => {
-        const changedDeal = subscriptionData?.data?.salesDealChanged?.deal;
+        const dealChange = subscriptionData?.data?.salesDealChanged;
+
+        if (dealChange?.action === 'delete') {
+          if (activeDealId === finalId) {
+            setActiveDealId(null);
+          }
+
+          if (salesItemId === finalId) {
+            setSalesItemId(null);
+          }
+
+          return prev;
+        }
+
+        const changedDeal = dealChange?.deal;
 
         if (!changedDeal) {
           return prev;
@@ -112,7 +126,15 @@ export const useDealDetail = (
     });
 
     return unsubscribe;
-  }, [finalId, refetch, subscribeToMore]);
+  }, [
+    activeDealId,
+    finalId,
+    refetch,
+    salesItemId,
+    setActiveDealId,
+    setSalesItemId,
+    subscribeToMore,
+  ]);
 
   const deal = data?.dealDetail;
 
