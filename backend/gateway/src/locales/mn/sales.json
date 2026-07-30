@@ -546,6 +546,7 @@
   "no-matching-labels-found": "Тохирох шошго олдсонгүй",
   "create-new-label": "Шинэ шошго үүсгэх",
   "add-new-deal-to-stage": "Үе шатандаа шинэ хэлцэл нэмэх.",
+  "configure-properties-in-settings": "Та Property Settings хэсгээс үндсэн property болон тэдгээрийн хамаарлыг тохируулах боломжтой",
   "no-activity-logs-found": "Үйл ажиллагааны бүртгэл олдсонгүй",
   "deal-not-found": "Хэлцэл олдсонгүй",
   "no-deal-with-id": "Энэ ID-тай хэлцэл байхгүй байна",

@@ -15,7 +15,7 @@ import {
   SelectCustomerFilterBar,
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
-import { useManageRelations } from 'ui-modules';
+import { useManageRelations, useFields, type IField } from 'ui-modules';
 import {
   type DealCardDetailItem,
   DealCardDetails,
@@ -39,6 +39,43 @@ const normalizeSelectedIds = (value?: string | string[]) => {
   }
 
   return Array.isArray(value) ? value : [value];
+};
+
+const hasFieldValue = (value: unknown) => {
+  if (value === null || value === undefined || value === '') return false;
+  if (Array.isArray(value) && value.length === 0) return false;
+  return true;
+};
+
+const formatFieldValue = (field: IField, value: unknown): string => {
+  if (Array.isArray(value)) {
+    if (field.options?.length) {
+      return value
+        .map(
+          (v) =>
+            field.options?.find((option) => option.value === v)?.label ??
+            String(v),
+        )
+        .join(', ');
+    }
+    return value.join(', ');
+  }
+  if (field.options?.length) {
+    return (
+      field.options.find((option) => option.value === value)?.label ??
+      String(value)
+    );
+  }
+  if (field.type === 'boolean' || field.type === 'check') {
+    return value ? 'Yes' : 'No';
+  }
+  if (field.type === 'date') {
+    const date = new Date(value as string);
+    return Number.isNaN(date.getTime())
+      ? String(value)
+      : date.toLocaleDateString();
+  }
+  return String(value);
 };
 
 const normalizeCustomProperty = (
@@ -75,6 +112,21 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
     tags,
     customProperties,
   } = deal;
+  const { fields: dealFields } = useFields({ contentType: 'sales:deal' });
+
+  const cardPropertyItems = (dealFields || [])
+    .filter(
+      (field) =>
+        field.isVisibleInCard &&
+        hasFieldValue(deal.propertiesData?.[field._id]),
+    )
+    .map((field) => ({
+      _id: field._id,
+      name: `${field.name}: ${formatFieldValue(
+        field,
+        deal.propertiesData?.[field._id],
+      )}`,
+    }));
 
   const productMap = new Map(
     deal.products?.map((product: DealProductReference) => [
@@ -151,7 +203,8 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
     !customers?.length &&
     !departments?.length &&
     !tags?.length &&
-    !customPropertyItems.length
+    !customPropertyItems.length &&
+    !cardPropertyItems.length
   ) {
     return null;
   }
@@ -173,10 +226,13 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
       <DealCardRelationDetails items={companyItems} type="company" />
       <DealCardRelationDetails items={departmentItems} type="department" />
       <DealCardRelationDetails items={branchItems} type="branch" />
-      {Boolean(tags?.length || customPropertyItems.length) && (
+      {Boolean(
+        tags?.length || customPropertyItems.length || cardPropertyItems.length,
+      ) && (
         <div className="mt-1 flex flex-col gap-1">
           <DealCardDetails items={tags || []} color="#FF6600" />
           <DealCardDetails items={customPropertyItems} color="#FF9900" />
+          <DealCardDetails items={cardPropertyItems} color="#0EA5E9" />
         </div>
       )}
     </div>

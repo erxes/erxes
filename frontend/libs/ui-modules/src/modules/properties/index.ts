@@ -6,4 +6,6 @@ export * from './hooks/useFieldGroups';
 export * from './hooks/useFieldDetail';
 export * from './components/FieldsInDetail';
 export * from './components/PropertiesFilter';
+export * from './components/PropertyFormField';
 export * from './constants/coreRelationTypes';
+export * from './propertyUtils';

@@ -1,14 +1,31 @@
-import { Button, Editor, Form, Input, ScrollArea, Sheet } from 'erxes-ui';
+import {
+  Button,
+  Editor,
+  Form,
+  Input,
+  ScrollArea,
+  Sheet,
+  Spinner,
+} from 'erxes-ui';
+import {
+  PropertyFormField,
+  SelectCompany,
+  SelectCustomer,
+  SelectMember,
+  isFieldVisibleByLogic,
+  useFields,
+} from 'ui-modules';
 import { SalesFormType, salesFormSchema } from '@/deals/constants/formSchema';
-import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
+import { useCallback, useEffect } from 'react';
 
+import { IconInfoCircle } from '@tabler/icons-react';
 import { SelectLabels } from '../../components/common/filters/SelectLabel';
 import WorkflowFields from './WorkflowFields';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export function AddCardForm({
   onCloseSheet,
@@ -29,18 +46,37 @@ export function AddCardForm({
       customerIds: [],
       labelIds: [],
       tagIds: [],
+      propertiesData: {},
     },
   });
   const { addDeals, loading } = useDealsAdd();
+
+  const updateCustomFieldValue = useCallback(
+    (fieldId: string, value: unknown) => {
+      const current = form.getValues('propertiesData') || {};
+      form.setValue('propertiesData', { ...current, [fieldId]: value });
+    },
+    [form],
+  );
 
   useEffect(() => {
     form.setFocus('name');
   }, [form]);
 
-  const onSubmit = (data: SalesFormType) => {
+  const onSubmit = ({ propertiesData, ...rest }: SalesFormType) => {
+    const cleanPropertiesData =
+      propertiesData && Object.keys(propertiesData).length > 0
+        ? Object.fromEntries(
+            Object.entries(propertiesData).filter(
+              ([, v]) => v !== undefined && v !== null && v !== '',
+            ),
+          )
+        : undefined;
+
     addDeals({
       variables: {
-        ...data,
+        ...rest,
+        propertiesData: cleanPropertiesData,
       },
       onCompleted: (data) => {
         form.reset();
@@ -50,7 +86,15 @@ export function AddCardForm({
     });
   };
 
+  const propertiesData = form.watch('propertiesData') || {};
+
   const { t } = useTranslation('sales');
+  const navigate = useNavigate();
+
+  const onConfigureProperties = () => {
+    onCloseSheet();
+    navigate('/settings/properties/sales:deal');
+  };
 
   return (
     <Form {...form}>
@@ -171,6 +215,20 @@ export function AddCardForm({
                   )}
                 />
               </div>
+              <DealPropertiesSection
+                propertiesData={propertiesData}
+                onFieldChange={updateCustomFieldValue}
+              />
+              <button
+                type="button"
+                onClick={onConfigureProperties}
+                className="mt-4 flex w-full cursor-pointer items-start gap-2.5 rounded-lg border border-info/40 bg-info/10 px-3 py-2.5 text-left text-xs text-info hover:bg-info/15"
+              >
+                <IconInfoCircle className="mt-0.5 size-3.5 shrink-0" />
+                <span className="cursor-pointer leading-5 underline underline-offset-2">
+                  {t('configure-properties-in-settings')}
+                </span>
+              </button>
             </div>
           </ScrollArea>
         </Sheet.Content>
@@ -195,5 +253,41 @@ export function AddCardForm({
         </Sheet.Footer>
       </form>
     </Form>
+  );
+}
+
+function DealPropertiesSection({
+  propertiesData,
+  onFieldChange,
+}: Readonly<{
+  propertiesData: Record<string, unknown>;
+  onFieldChange: (fieldId: string, value: unknown) => void;
+}>) {
+  const { fields, loading } = useFields({ contentType: 'sales:deal' });
+
+  const visibleFields = fields
+    .filter((field) => field.isVisibleToCreate)
+    .filter((field) => isFieldVisibleByLogic(field, propertiesData));
+
+  if (loading) {
+    return <Spinner containerClassName="py-6" />;
+  }
+
+  if (visibleFields.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      {visibleFields.map((field) => (
+        <PropertyFormField
+          key={field._id}
+          field={field}
+          value={propertiesData[field._id]}
+          idPrefix="deal_add_form"
+          onFieldChange={onFieldChange}
+        />
+      ))}
+    </div>
   );
 }
