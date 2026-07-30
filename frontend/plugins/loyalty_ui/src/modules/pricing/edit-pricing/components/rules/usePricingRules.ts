@@ -44,7 +44,11 @@ export const usePricingRules = ({
       return;
     }
 
-    setRules(getPricingRules(pricingDetail, ruleType).map(mapRuleToConfig));
+    setRules(
+      getPricingRules(pricingDetail, ruleType).map((rule, index) =>
+        mapRuleToConfig(rule, index),
+      ),
+    );
     setEnabled(getPricingRuleEnabled(pricingDetail, ruleType));
   }, [pricingDetail, ruleType]);
 
