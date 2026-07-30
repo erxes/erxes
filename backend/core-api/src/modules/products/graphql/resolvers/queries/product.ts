@@ -229,7 +229,6 @@ const buildDiscountSortPipeline = (
  * descendants. Products of these categories are listed before the rest.
  */
 const getPipelineInitialCategoryIds = async (
-  models: IModels,
   context: IContext,
   pipelineId?: string,
 ): Promise<string[]> => {
@@ -243,7 +242,7 @@ const getPipelineInitialCategoryIds = async (
     return [];
   }
 
-  const categories = await models.ProductCategories.getChildCategories(
+  const categories = await context.models.ProductCategories.getChildCategories(
     pipeline.initialCategoryIds,
   );
 
@@ -601,7 +600,6 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     const sortField = getSortField(params);
 
     const initialCategoryIds = await getPipelineInitialCategoryIds(
-      models,
       context,
       params.pipelineId,
     );
@@ -648,7 +646,11 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         ),
         params: {
           ...params,
-          orderBy: { ...priorityOrder, ...params.orderBy, _id: 1 },
+          orderBy: {
+            ...priorityOrder,
+            ...params.orderBy,
+            _id: params.orderBy._id ?? 1,
+          },
         },
       });
     }

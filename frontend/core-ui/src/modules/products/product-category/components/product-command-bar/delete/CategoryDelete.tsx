@@ -47,7 +47,8 @@ export const CategoriesDelete = ({
             const failureReason =
               failedCount === 1
                 ? errors[0]?.message || 'Failed to delete category.'
-                : `${failedCount} categories could not be deleted because they contain products or sub-categories. Move or delete them first.`;
+                : errors.map(({ message }) => message).join(' ') ||
+                  `Failed to delete ${failedCount} categories.`;
             const partialSuccess =
               succeededIds.length > 0
                 ? `${succeededIds.length} deleted, ${failedCount} failed. `

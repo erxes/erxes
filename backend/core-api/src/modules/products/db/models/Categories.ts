@@ -1,4 +1,7 @@
-import { PRODUCT_STATUSES } from '@/products/constants';
+import {
+  PRODUCT_CATEGORY_STATUSES,
+  PRODUCT_STATUSES,
+} from '@/products/constants';
 import { productCategorySchema } from '@/products/db/definitions/categories';
 import {
   IProductCategory,
@@ -209,6 +212,12 @@ export const loadProductCategoryClass = (
             }).session(session),
             models.ProductCategories.countDocuments({
               parentId: _id,
+              status: {
+                $nin: [
+                  PRODUCT_CATEGORY_STATUSES.DISABLED,
+                  PRODUCT_CATEGORY_STATUSES.ARCHIVED,
+                ],
+              },
             }).session(session),
           ]);
 
@@ -256,6 +265,10 @@ export const loadProductCategoryClass = (
       }
 
       const { category, result } = deletion;
+
+      if (!result.acknowledged || result.deletedCount !== 1) {
+        throw new Error('Failed to remove product category');
+      }
 
       sendDbEventLog({
         action: 'delete',

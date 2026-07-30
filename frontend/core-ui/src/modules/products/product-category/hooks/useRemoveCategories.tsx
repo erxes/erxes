@@ -83,10 +83,10 @@ export const useRemoveCategories = () => {
         message,
       }));
 
-      if (errors.length > 0 && typeof onError === 'function') {
-        onError({ succeededIds, errors });
-      } else if (typeof onCompleted === 'function') {
-        onCompleted(succeededIds);
+      if (errors.length > 0) {
+        onError?.({ succeededIds, errors });
+      } else {
+        onCompleted?.(succeededIds);
       }
     } finally {
       setIsRemoving(false);
