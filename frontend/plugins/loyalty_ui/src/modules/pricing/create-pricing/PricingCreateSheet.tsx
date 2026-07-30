@@ -1,20 +1,14 @@
-import {
-  Button,
-  DatePicker,
-  Input,
-  Select,
-  Sheet,
-  useToast,
-  Form,
-} from 'erxes-ui';
+import { Button, DatePicker, Input, Sheet, useToast, Form } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useCreatePricing } from '@/pricing/hooks/useCreatePricing';
 import {
-  PRICING_PRIORITY_OPTIONS,
   PricingPriorityFormValue,
   priorityFromFormValue,
 } from '@/pricing/constants';
+import { PricingAppliesToSelect } from '@/pricing/components/PricingAppliesToSelect';
+import { PricingPrioritySelect } from '@/pricing/components/PricingPrioritySelect';
+import { PricingAppliesTo } from '@/pricing/types';
 import {
   SelectCompany,
   SelectSegment,
@@ -40,7 +34,7 @@ interface PricingFormValues {
   priority: PricingPriorityFormValue;
   startDate: string | null;
   endDate: string | null;
-  appliesTo: 'category' | 'product' | 'segment' | 'vendor' | 'tag' | 'bundle';
+  appliesTo: PricingAppliesTo;
   productCategoryIds: string[];
   excludeCategoryIds: string[];
   excludeProductIds: string[];
@@ -133,7 +127,6 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   });
 
   const appliesTo = form.watch('appliesTo');
-  const priority = form.watch('priority');
   const formValues = form.watch();
 
   useEffect(() => {
@@ -303,24 +296,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   <Form.Item>
                     <Form.Label>{t('priority')}</Form.Label>
                     <Form.Control>
-                      <Select
+                      <PricingPrioritySelect
                         value={field.value}
                         onValueChange={field.onChange}
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder={t('select-priority')} />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {PRICING_PRIORITY_OPTIONS.map((option) => (
-                            <Select.Item
-                              key={option.label}
-                              value={option.value}
-                            >
-                              {t(option.label)}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
+                      />
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -389,34 +368,11 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   <Form.Item>
                     <Form.Label>{t('applies-to')}</Form.Label>
                     <Form.Control>
-                      <Select
+                      <PricingAppliesToSelect
                         value={field.value}
                         onValueChange={field.onChange}
-                      >
-                        <Select.Trigger className="bg-background">
-                          <Select.Value placeholder={t('select-target')} />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="category">
-                            {t('specific-category')}
-                          </Select.Item>
-                          <Select.Item value="product">
-                            {t('specific-product')}
-                          </Select.Item>
-                          <Select.Item value="segment">
-                            {t('specific-segment')}
-                          </Select.Item>
-                          <Select.Item value="vendor">
-                            {t('specific-vendor')}
-                          </Select.Item>
-                          <Select.Item value="tag">
-                            {t('specific-tag')}
-                          </Select.Item>
-                          <Select.Item value="bundle">
-                            {t('specific-bundle')}
-                          </Select.Item>
-                        </Select.Content>
-                      </Select>
+                        triggerClassName="bg-background"
+                      />
                     </Form.Control>
                   </Form.Item>
                 )}
