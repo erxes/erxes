@@ -10,20 +10,20 @@ import {
   Switch,
   Textarea,
 } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { IPropertyForm } from '../types/Properties';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { propertySchema } from '../propertySchema';
-
-import { PropertyFormValidation } from './PropertyFormValidations';
-import { PropertyFormSelectFields } from './PropertyFormSelectFields';
-import { PropertyFormLogicFields } from './PropertyFormLogicFields';
-import { PropertyFormGroupField } from './PropertyFormGroupField';
-import { PropertySelectRelationType } from './PropertySelectRelationType';
 import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
+
 import { Can } from 'ui-modules';
+import { IPropertyForm } from '../types/Properties';
+import { PropertyFormGroupField } from './PropertyFormGroupField';
+import { PropertyFormLogicFields } from './PropertyFormLogicFields';
+import { PropertyFormSelectFields } from './PropertyFormSelectFields';
+import { PropertyFormValidation } from './PropertyFormValidations';
+import { PropertySelectRelationType } from './PropertySelectRelationType';
+import { propertySchema } from '../propertySchema';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const PropertyForm = ({
   onSubmit,
@@ -169,7 +169,7 @@ export const PropertyForm = ({
                         {FIELD_TYPES.map((type) => (
                           <Select.Item key={type.value} value={type.value}>
                             <div className="flex items-center gap-2 [&_svg]:size-4">
-                              {type.icon}
+                              <type.icon />
                               {t(`field-type.${type.value}`, type.label)}
                             </div>
                           </Select.Item>

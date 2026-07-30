@@ -1,5 +1,3 @@
-import { IconEdit, IconTrash } from '@tabler/icons-react';
-import type { ColumnDef, Cell } from '@tanstack/react-table';
 import {
   Badge,
   Checkbox,
@@ -11,15 +9,19 @@ import {
   Switch,
   useConfirm,
 } from 'erxes-ui';
-import type { TFunction } from 'i18next';
+import { CORE_RELATION_TYPES, Can, IField } from 'ui-modules';
+import type { Cell, ColumnDef } from '@tanstack/react-table';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { Can, CORE_RELATION_TYPES, IField } from 'ui-modules';
+
 import { FIELD_TYPES_OBJECT } from '../../constants/fieldTypes';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import type { TFunction } from 'i18next';
+import { selectedFieldIdsState } from '../../states/selectedFieldsState';
 import { useEditProperty } from '../../hooks/useEditProperty';
 import { useFieldRemove } from '../../hooks/useFieldRemove';
-import { selectedFieldIdsState } from '../../states/selectedFieldsState';
+import { useTranslation } from 'react-i18next';
 
 const PropertiesCheckboxCell = ({ id }: { id: string }) => {
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(
@@ -228,7 +230,10 @@ export const propertiesColumns = (
       return (
         <RecordTableInlineCell>
           <div className="flex items-center gap-2 overflow-hidden">
-            <IconComponent name={icon} />
+            <IconComponent
+              className="h-4 w-4 text-muted-foreground"
+              name={icon}
+            />
             <span className="truncate">{name}</span>
           </div>
         </RecordTableInlineCell>
@@ -245,10 +250,12 @@ export const propertiesColumns = (
     cell: ({ cell }) => {
       const { type, relationType } = cell.row.original;
       const fieldTypeObject = FIELD_TYPES_OBJECT[type || ''];
+      const Icon = fieldTypeObject?.icon;
+
       return (
         <RecordTableInlineCell>
           <div className="flex items-center gap-2 text-muted-foreground overflow-hidden">
-            {fieldTypeObject?.icon}
+            {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
             <span className="truncate">
               {fieldTypeObject &&
                 t(`field-type.${fieldTypeObject.value}`, fieldTypeObject.label)}

@@ -7,25 +7,25 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { SalesFormType, salesFormSchema } from '@/deals/constants/formSchema';
 import {
-  isFieldVisibleByLogic,
   PropertyFormField,
   SelectCompany,
   SelectCustomer,
   SelectMember,
+  isFieldVisibleByLogic,
   useFields,
 } from 'ui-modules';
+import { SalesFormType, salesFormSchema } from '@/deals/constants/formSchema';
+import { useCallback, useEffect } from 'react';
+
 import { IconInfoCircle } from '@tabler/icons-react';
 import { SelectLabels } from '../../components/common/filters/SelectLabel';
 import WorkflowFields from './WorkflowFields';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
-import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export function AddCardForm({
   onCloseSheet,

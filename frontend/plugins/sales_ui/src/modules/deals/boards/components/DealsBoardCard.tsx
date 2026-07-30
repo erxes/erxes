@@ -15,9 +15,7 @@ import {
   SelectCustomerFilterBar,
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
-import { useManageRelations } from 'ui-modules';
-import type { IField } from 'ui-modules';
-import { useFields } from 'ui-modules';
+import { useManageRelations, useFields, type IField } from 'ui-modules';
 import {
   type DealCardDetailItem,
   DealCardDetails,
@@ -124,7 +122,10 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
     )
     .map((field) => ({
       _id: field._id,
-      name: `${field.name}: ${formatFieldValue(field, deal.propertiesData?.[field._id])}`,
+      name: `${field.name}: ${formatFieldValue(
+        field,
+        deal.propertiesData?.[field._id],
+      )}`,
     }));
 
   const productMap = new Map(
