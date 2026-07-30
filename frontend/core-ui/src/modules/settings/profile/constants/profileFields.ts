@@ -8,7 +8,9 @@ import {
 } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
 
-const PROFILE_ADVANCED_FIELDS = (t: TFunction): Array<{
+const PROFILE_ADVANCED_FIELDS = (
+  t: TFunction,
+): Array<{
   fieldLabel: string;
   fieldName: string;
   fieldPath: string;

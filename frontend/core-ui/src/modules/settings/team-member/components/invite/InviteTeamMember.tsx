@@ -38,7 +38,10 @@ export function InviteTeamMember() {
         </Dialog.Header>
         <div className="flex flex-col gap-6 px-3 pb-3">
           <span className="text-accent-foreground">
-            {t('notify', "Send an email and notify members that they've been invited!")}
+            {t(
+              'notify',
+              "Send an email and notify members that they've been invited!",
+            )}
           </span>
           <InviteForm setIsOpen={setIsOpen} />
         </div>

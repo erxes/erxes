@@ -89,7 +89,11 @@ export const CreateOAuthClient = () => {
                   {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? <Spinner /> : t('create-client-short', 'Create client')}
+                  {loading ? (
+                    <Spinner />
+                  ) : (
+                    t('create-client-short', 'Create client')
+                  )}
                 </Button>
               </Sheet.Footer>
             </form>

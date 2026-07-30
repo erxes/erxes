@@ -9,7 +9,15 @@ import {
   IconToggleRight,
 } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, Spinner, toast, useQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  Spinner,
+  toast,
+  useQueryState,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { Can } from 'ui-modules';
@@ -131,7 +139,10 @@ export const TeamMemberMoreColumnCell = ({
                       toast({ title: error.message, variant: 'destructive' }),
                     onCompleted: () =>
                       toast({
-                        title: t('invitation-resent', 'Invitation has been resent'),
+                        title: t(
+                          'invitation-resent',
+                          'Invitation has been resent',
+                        ),
                         variant: 'success',
                       }),
                   })

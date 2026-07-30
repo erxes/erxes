@@ -144,7 +144,10 @@ export const TeamMemberAssignPermissions = ({
                         className="w-full justify-start font-medium"
                       >
                         <Collapsible.TriggerIcon />
-                        {t('custom-permission-groups', 'Custom Permission Groups')}
+                        {t(
+                          'custom-permission-groups',
+                          'Custom Permission Groups',
+                        )}
                       </Button>
                     </Collapsible.Trigger>
                     <Collapsible.Content className="pt-2 space-y-2">

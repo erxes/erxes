@@ -40,10 +40,8 @@ export function AppsRecordTable() {
             )}
           </RecordTable.Body>
         </RecordTable>
-
       </RecordTable.Scroll>
       <AppsCommandBar />
     </RecordTable.Provider>
   );
 }
-

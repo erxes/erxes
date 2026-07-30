@@ -1,11 +1,5 @@
 import { IconPlus, IconShieldCog } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Sheet,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React, { useState } from 'react';
 import { useAppsForm } from '../hooks/useAppsForm';
 import { useAppsAdd } from '../hooks/useAppsAdd';

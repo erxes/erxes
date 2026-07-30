@@ -76,7 +76,9 @@ export const TagsList = () => {
           ) : (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-3 text-muted-foreground items-center justify-center opacity-50 select-none">
               <IconTagOff className="size-16" strokeWidth={1} />
-              <span className="font-medium text-lg">{t('not-found', 'No tags found')}</span>
+              <span className="font-medium text-lg">
+                {t('not-found', 'No tags found')}
+              </span>
             </div>
           )}
         </ScrollArea>

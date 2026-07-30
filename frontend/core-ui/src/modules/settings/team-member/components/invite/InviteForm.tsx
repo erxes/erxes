@@ -188,7 +188,10 @@ export function InviteForm({
 
     if (step === 'permissions' && permissionGroupsError) {
       toast({
-        title: t('permission-groups-load-failed', 'Failed to load permission groups'),
+        title: t(
+          'permission-groups-load-failed',
+          'Failed to load permission groups',
+        ),
         variant: 'destructive',
       });
       return;
@@ -333,7 +336,10 @@ export function InviteForm({
             <div className="w-full">
               <Input
                 name="email"
-                placeholder={t('enter-email-addresses', 'Enter email addresses')}
+                placeholder={t(
+                  'enter-email-addresses',
+                  'Enter email addresses',
+                )}
                 value={inputValue}
                 autoFocus
                 onChange={handleChange}
@@ -347,7 +353,10 @@ export function InviteForm({
               )}
               {!error && (
                 <p className="text-sm text-muted-foreground mt-1.5">
-                  {t('separate-emails', 'Separate emails with comma, space, or Enter')}
+                  {t(
+                    'separate-emails',
+                    'Separate emails with comma, space, or Enter',
+                  )}
                 </p>
               )}
             </div>
@@ -402,7 +411,10 @@ export function InviteForm({
             <Spinner containerClassName="py-10" />
           ) : permissionGroupsError ? (
             <p className="text-sm text-destructive">
-              {t('permission-groups-load-failed', 'Failed to load permission groups')}
+              {t(
+                'permission-groups-load-failed',
+                'Failed to load permission groups',
+              )}
             </p>
           ) : (
             <div className="flex max-h-80 flex-col gap-4 overflow-y-auto pr-1 styled-scroll">

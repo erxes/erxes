@@ -19,7 +19,7 @@ type Props = {
 
 export const LinkInput = React.forwardRef<HTMLButtonElement, Props>(
   ({ _id, links, linkField, label, InputIcon, ...props }, ref) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+    const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
     const inputId = React.useId();
 
     const { usersEdit } = useUserEdit();

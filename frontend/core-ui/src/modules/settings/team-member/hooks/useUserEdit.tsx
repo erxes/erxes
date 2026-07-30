@@ -55,7 +55,8 @@ export const useUserEdit = () => {
   const { toast } = useToast();
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [_usersEdit, { loading }] = useMutation(mutations.USERS_INLINE_EDIT, {
-    onCompleted: () => toast({ title: t('updated', 'Updated'), variant: 'success' }),
+    onCompleted: () =>
+      toast({ title: t('updated', 'Updated'), variant: 'success' }),
     onError(error) {
       toast({
         title: t('error', 'Error'),
@@ -109,7 +110,8 @@ export const useUsersStatusEdit = () => {
     editStatus({
       ...options,
       variables,
-      onCompleted: () => toast({ title: t('updated', 'Updated'), variant: 'success' }),
+      onCompleted: () =>
+        toast({ title: t('updated', 'Updated'), variant: 'success' }),
       onError(error) {
         toast({
           title: t('error', 'Error'),

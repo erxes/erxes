@@ -17,8 +17,14 @@ const PasswordStrength = ({ value, reTypeValue, errors }: TProps) => {
     const requirements = [
       { regex: /.{8,}/, text: t('atleast-8', 'At least 8 characters') },
       { regex: /[0-9]/, text: t('least-number', 'At least 1 number') },
-      { regex: /[a-z]/, text: t('least-lowercase', 'At least 1 lowercase letter') },
-      { regex: /[A-Z]/, text: t('least-uppercase', 'At least 1 uppercase letter') },
+      {
+        regex: /[a-z]/,
+        text: t('least-lowercase', 'At least 1 lowercase letter'),
+      },
+      {
+        regex: /[A-Z]/,
+        text: t('least-uppercase', 'At least 1 uppercase letter'),
+      },
     ];
 
     const baseChecks = requirements.map((req) => ({

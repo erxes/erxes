@@ -89,7 +89,10 @@ export function useBranchInlineEdit() {
       onCompleted: (data) => {
         if (data?.branchesEdit) {
           toast({
-            title: t('branch-updated-successfully', 'Branch updated successfully!'),
+            title: t(
+              'branch-updated-successfully',
+              'Branch updated successfully!',
+            ),
             variant: 'success',
           });
         }

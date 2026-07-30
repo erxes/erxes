@@ -1,11 +1,5 @@
 import { IconShieldCog } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Sheet,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React from 'react';
 import { useAtom } from 'jotai';
 import { editingAppAtom } from '../state';

@@ -95,11 +95,15 @@ export const OAuthClientForm = () => {
             >
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder={t('choose-a-type', 'Choose a type')} />
+                  <Select.Value
+                    placeholder={t('choose-a-type', 'Choose a type')}
+                  />
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
-                <Select.Item value="public">{t('public', 'Public')}</Select.Item>
+                <Select.Item value="public">
+                  {t('public', 'Public')}
+                </Select.Item>
                 <Select.Item value="confidential">
                   {t('confidential', 'Confidential')}
                 </Select.Item>

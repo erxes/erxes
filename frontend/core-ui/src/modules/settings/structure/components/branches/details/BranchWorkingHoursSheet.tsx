@@ -227,9 +227,7 @@ const HolidayRow = ({
   const endDate = form.watch(`holidays.${index}.endDate`);
   const startFrom = form.watch(`holidays.${index}.startFrom`);
   const endTo = form.watch(`holidays.${index}.endTo`);
-  const [hasWorkHours, setHasWorkHours] = useState(
-    Boolean(startFrom || endTo),
-  );
+  const [hasWorkHours, setHasWorkHours] = useState(Boolean(startFrom || endTo));
 
   const toggleWorkHours = (checked: boolean) => {
     setHasWorkHours(checked);

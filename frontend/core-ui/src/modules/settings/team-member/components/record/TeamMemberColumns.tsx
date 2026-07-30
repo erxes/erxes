@@ -66,7 +66,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />
+        <RecordTable.InlineHead
+          label={t('name', 'Name')}
+          icon={IconLabelFilled}
+        />
       ),
       cell: ({ cell }) => {
         const [, setDetailOpen] = useQueryState('user_id');
@@ -140,7 +143,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: field,
       accessorKey: field,
       header: () => (
-        <RecordTable.InlineHead icon={IconAlignLeft} label={t('employeeId', 'Employee ID')} />
+        <RecordTable.InlineHead
+          icon={IconAlignLeft}
+          label={t('employeeId', 'Employee ID')}
+        />
       ),
       cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
         const { _id, employeeId } = cell.row.original || {};
@@ -188,7 +194,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'branchIds',
       accessorKey: 'branchIds',
       header: () => (
-        <RecordTable.InlineHead icon={IconGitBranch} label={t('branches', 'Branches')} />
+        <RecordTable.InlineHead
+          icon={IconGitBranch}
+          label={t('branches', 'Branches')}
+        />
       ),
       cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
         const { _id } = cell.row.original;
@@ -210,7 +219,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'departmentIds',
       accessorKey: 'departmentIds',
       header: () => (
-        <RecordTable.InlineHead icon={IconFolder} label={t('departments', 'Departments')} />
+        <RecordTable.InlineHead
+          icon={IconFolder}
+          label={t('departments', 'Departments')}
+        />
       ),
       cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
         const { _id } = cell.row.original;

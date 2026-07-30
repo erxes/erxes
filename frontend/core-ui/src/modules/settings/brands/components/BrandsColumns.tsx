@@ -1,4 +1,9 @@
-import { IconAlignJustified, IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
+import {
+  IconAlignJustified,
+  IconAlignLeft,
+  IconCalendarPlus,
+  IconHash,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,

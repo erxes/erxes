@@ -20,7 +20,11 @@ export function TitleField<T extends FieldValues>({
         <Form.Item>
           <Form.Label>{t('title', 'Title')}</Form.Label>
           <Form.Control>
-            <Input {...field} value={field.value ?? ''} placeholder={t('title', 'Title')} />
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              placeholder={t('title', 'Title')}
+            />
           </Form.Control>
           <Form.Message />
         </Form.Item>
@@ -43,7 +47,11 @@ export function CodeField<T extends FieldValues>({
         <Form.Item>
           <Form.Label>{t('code', 'Code')}</Form.Label>
           <Form.Control>
-            <Input {...field} value={field.value ?? ''} placeholder={t('code', 'Code')} />
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              placeholder={t('code', 'Code')}
+            />
           </Form.Control>
           <Form.Message />
         </Form.Item>

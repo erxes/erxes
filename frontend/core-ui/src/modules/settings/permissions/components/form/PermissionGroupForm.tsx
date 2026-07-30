@@ -1,4 +1,7 @@
-import { IPermissionGroupSchema, PERMISSION_GROUP_SCHEMA } from '@/settings/permissions/schemas/permissionGroup';
+import {
+  IPermissionGroupSchema,
+  PERMISSION_GROUP_SCHEMA,
+} from '@/settings/permissions/schemas/permissionGroup';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Separator } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
@@ -96,8 +99,8 @@ export const PermissionGroupForm = ({
                 ? t('saving', 'Saving...')
                 : t('creating', 'Creating...')
               : mode === 'edit'
-              ? t('save-changes', 'Save Changes')
-              : t('create-group', 'Create Group')}
+                ? t('save-changes', 'Save Changes')
+                : t('create-group', 'Create Group')}
           </Button>
         </div>
       </form>

@@ -31,10 +31,13 @@ const GeneralSettings = () => {
   const updateCurrency = (data: TGeneralSettingsProps) => {
     const updatedConfigs = {
       // start with all existing configs
-      ...configs.reduce((acc: Record<string, any>, config: TConfig) => {
-        acc[config.code] = config.value;
-        return acc;
-      }, {} as Record<string, any>),
+      ...configs.reduce(
+        (acc: Record<string, any>, config: TConfig) => {
+          acc[config.code] = config.value;
+          return acc;
+        },
+        {} as Record<string, any>,
+      ),
       // override/add with new data
       ...data,
     };
