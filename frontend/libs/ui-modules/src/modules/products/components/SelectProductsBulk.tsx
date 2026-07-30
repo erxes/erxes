@@ -63,6 +63,44 @@ interface ProductsListProps {
   selectionLimit?: number;
 }
 
+interface ProductListItemProps {
+  product: IProduct;
+  disabled: boolean;
+  onSelect: (product: IProduct) => void;
+}
+
+const ProductListItem = ({
+  product,
+  disabled,
+  onSelect,
+}: ProductListItemProps) => (
+  <Button
+    variant="ghost"
+    className="min-h-9 h-auto w-full justify-start font-normal whitespace-nowrap text-left"
+    disabled={disabled}
+    onClick={() => onSelect(product)}
+  >
+    <div className="flex flex-1 gap-2 items-center">
+      <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
+        {product.code}
+      </span>
+      <span className="truncate">{product.name}</span>
+      <span className="ml-auto flex items-center gap-2 shrink-0">
+        <span className="text-xs tabular-nums font-medium">
+          <span className="text-muted-foreground font-normal mr-0.5">
+            {product.currency ?? ''}
+          </span>
+          {fixNum(product.unitPrice).toLocaleString()}
+        </span>
+        <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
+          {product.remainder.remainder ?? 0} {product.uom ?? ''}
+        </span>
+      </span>
+    </div>
+    <IconPlus className="ml-2 shrink-0" />
+  </Button>
+);
+
 export const SelectProductsBulk = ({
   onSelect,
   children,
@@ -318,36 +356,14 @@ const ProductsList = ({
           {initialLoading ? (
             <SkeletonArray count={8} className="w-full h-9" />
           ) : (
-            availableProducts.map((product) => {
-              return (
-                <Button
-                  key={product._id}
-                  variant="ghost"
-                  className="min-h-9 h-auto w-full justify-start font-normal whitespace-nowrap text-left"
-                  disabled={selectionLimitReached}
-                  onClick={() => handleProductSelect(product)}
-                >
-                  <div className="flex flex-1 gap-2 items-center">
-                    <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
-                      {product.code}
-                    </span>
-                    <span className="truncate">{product.name}</span>
-                    <span className="ml-auto flex items-center gap-2 shrink-0">
-                      <span className="text-xs tabular-nums font-medium">
-                        <span className="text-muted-foreground font-normal mr-0.5">
-                          {product.currency ?? ''}
-                        </span>
-                        {fixNum(product.unitPrice).toLocaleString()}
-                      </span>
-                      <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
-                        {product.remainder.remainder ?? 0} {product.uom ?? ''}
-                      </span>
-                    </span>
-                  </div>
-                  <IconPlus className="ml-2 shrink-0" />
-                </Button>
-              );
-            })
+            availableProducts.map((product) => (
+              <ProductListItem
+                key={product._id}
+                product={product}
+                disabled={selectionLimitReached}
+                onSelect={handleProductSelect}
+              />
+            ))
           )}
 
           {products.length < totalCount && (
