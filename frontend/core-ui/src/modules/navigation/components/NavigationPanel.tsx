@@ -39,7 +39,10 @@ export const NavigationPanel = () => {
     panelOpen ? 'collapse-plugin-navigation' : 'expand-plugin-navigation',
   );
   let panelContent = (
-    <ScrollArea className="min-h-0 flex-1">
+    <ScrollArea
+      className="min-h-0 flex-1"
+      viewportClassName="[&>div]:block! [&>div]:min-w-0"
+    >
       {activity?.kind === 'plugin' && (
         <NavigationPluginPanelContent activityId={activity.id} />
       )}
