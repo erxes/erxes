@@ -62,7 +62,7 @@ export const NavigationSidebarFooter = ({
             aria-label={sidebarT('profile')}
             className={cn(
               'h-10 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear',
-              expanded ? 'w-full px-2' : 'ml-1.5 w-7 gap-0 px-0.5',
+              expanded ? 'w-full px-1' : 'ml-0.5 w-7 gap-0 px-0.5',
             )}
             size="default"
             variant="ghost"

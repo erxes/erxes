@@ -19,7 +19,7 @@ const getNavigationPanelClassName = (panelOpen: boolean, isMobile: boolean) => {
     return cn(
       baseClassName,
       'h-full overflow-hidden border-r',
-      panelOpen ? 'w-[calc(100%-3.5rem)]' : 'w-10',
+      panelOpen ? 'w-[calc(100%-3rem)]' : 'w-10',
     );
   }
 
@@ -80,17 +80,17 @@ export const NavigationPanel = () => {
     >
       <header
         className={cn(
-          'flex h-13 w-full min-w-10 shrink-0 items-center gap-2 overflow-hidden pt-1',
-          expanded ? 'px-2' : 'justify-center px-1',
+          'relative flex h-13 w-full min-w-10 shrink-0 items-center overflow-hidden pt-1',
+          expanded ? 'gap-2 px-2' : 'gap-0 px-1',
         )}
       >
         <span
           aria-hidden={!expanded}
           className={cn(
-            'min-w-0 flex-1 truncate px-1 text-[13px] font-semibold transition-opacity duration-100 motion-reduce:delay-0 motion-reduce:transition-none',
+            'min-w-0 flex-1 truncate text-[13px] font-semibold transition-opacity duration-100 motion-reduce:delay-0 motion-reduce:transition-none',
             expanded
-              ? 'visible delay-100 opacity-100'
-              : 'invisible delay-0 opacity-0',
+              ? 'visible delay-100 px-1 opacity-100'
+              : 'invisible delay-0 px-0 opacity-0',
           )}
         >
           {title}
@@ -107,10 +107,10 @@ export const NavigationPanel = () => {
             {expanded ? <IconChevronsLeft /> : <IconChevronsRight />}
           </Button>
         )}
+        {!expanded && !isMobile && (
+          <Separator.Inline className="absolute top-1/2 right-0 -translate-y-1/2" />
+        )}
       </header>
-      {!expanded && !isMobile && (
-        <Separator.Inline className="absolute top-1/2 right-0 -translate-y-1/2" />
-      )}
       <div
         aria-hidden={!expanded}
         className={cn(

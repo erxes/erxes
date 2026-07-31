@@ -64,7 +64,7 @@ const NavigationActivitySection = ({
           <div
             aria-hidden
             className={cn(
-              'absolute inset-y-0 left-0 flex w-10 items-center justify-center transition-[opacity,transform] duration-100 ease-linear motion-reduce:transition-none',
+              'absolute inset-y-0 left-0 flex w-full items-center justify-center transition-[opacity,transform] duration-100 ease-linear motion-reduce:transition-none',
               expanded
                 ? 'pointer-events-none delay-0 scale-x-75 opacity-0'
                 : 'delay-100 scale-x-100 opacity-100',
@@ -381,9 +381,9 @@ export const NavigationActivityRail = ({
   return (
     <aside
       className={cn(
-        'flex w-full shrink-0 flex-col border-r bg-sidebar px-2 py-2',
-        expanded && 'border-none!',
-        isMobile && !expanded && 'w-14',
+        'flex w-full shrink-0 flex-col border-none bg-sidebar px-2 py-2',
+        !expanded && 'border-r!',
+        isMobile && !expanded && 'w-12',
       )}
     >
       <NavigationRailLogo expanded={expanded} />
@@ -408,7 +408,12 @@ export const NavigationActivityRail = ({
           {t('go-to')}
         </NavigationRailLabel>
       </Button>
-      <div className="flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-x-hidden overflow-y-auto">
+      <div
+        className={cn(
+          'flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-x-hidden overflow-y-auto',
+          !expanded && 'hide-scroll',
+        )}
+      >
         <NavigationActivitySection
           expanded={expanded}
           label={sidebarT('favorites')}
