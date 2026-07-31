@@ -45,8 +45,8 @@ const LinkFields = () => {
                     fieldName === 'discord' && /^\d{17,19}$/.test(trimmed)
                       ? `https://discord.com/users/${trimmed}`
                       : trimmed.startsWith('http')
-                      ? trimmed
-                      : `https://${trimmed}`;
+                        ? trimmed
+                        : `https://${trimmed}`;
 
                   window.open(url, '_blank');
                 }

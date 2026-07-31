@@ -108,7 +108,10 @@ export const TeamMemberMoreColumnCell = ({
                     onCompleted: () =>
                       toast({
                         title: isActive
-                          ? t('user-deactivated', 'User deactivated successfully')
+                          ? t(
+                              'user-deactivated',
+                              'User deactivated successfully',
+                            )
                           : t('user-activated', 'User activated successfully'),
                         variant: 'success',
                       }),

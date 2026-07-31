@@ -307,7 +307,9 @@ export const PermissionGroupDetails = ({
                                           : 'text-muted-foreground'
                                       }`}
                                     >
-                                      {hasPermission ? t('yes', 'Yes') : t('no', 'No')}
+                                      {hasPermission
+                                        ? t('yes', 'Yes')
+                                        : t('no', 'No')}
                                     </span>
                                   </div>
                                 );

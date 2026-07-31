@@ -81,7 +81,9 @@ const MailConfigForm = () => {
                           <Select.Trigger
                             className={cn(idx === 1 && 'capitalize', 'h-7')}
                           >
-                            <Select.Value placeholder={t('select-type', 'Select type')} />
+                            <Select.Value
+                              placeholder={t('select-type', 'Select type')}
+                            />
                           </Select.Trigger>
                         </Form.Control>
                         <Select.Content>

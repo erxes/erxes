@@ -85,7 +85,10 @@ const PasswordStrength = ({ value, reTypeValue, errors }: TProps) => {
         {getStrengthText(strengthScore)}. Must contain:
       </p> */}
 
-      <ul className="space-y-1.5" aria-label={t('password-requirements', 'Password requirements')}>
+      <ul
+        className="space-y-1.5"
+        aria-label={t('password-requirements', 'Password requirements')}
+      >
         {strength.map((req, index) => (
           <li key={index} className="flex items-center gap-2">
             {req.met ? (

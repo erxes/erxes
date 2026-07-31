@@ -10,7 +10,10 @@ export const MembersPermissions = () => {
     return (
       <div className="p-6">
         <p className="text-muted-foreground">
-          {t('owner-no-permission-needed', 'This user is owner, no permission needed.')}
+          {t(
+            'owner-no-permission-needed',
+            'This user is owner, no permission needed.',
+          )}
         </p>
       </div>
     );
