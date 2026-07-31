@@ -32,6 +32,7 @@ import {
   CompanyPhones,
   SelectMember,
   TagsSelect,
+  getCompanyDisplayName,
   useCompaniesEdit,
 } from 'ui-modules';
 import { useSetAtom } from 'jotai';
@@ -49,16 +50,12 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       accessorKey: 'avatar',
       header: () => <RecordTable.InlineHead icon={IconBuilding} label="" />,
       cell: ({ cell }) => {
-        const { primaryName, primaryEmail, primaryPhone } = cell.row.original;
         return (
           <div className="flex items-center justify-center h-8">
             <Avatar>
               <Avatar.Image src={readImage(cell.getValue() as string)} />
               <Avatar.Fallback>
-                {primaryName?.charAt(0) ||
-                  primaryEmail?.charAt(0) ||
-                  primaryPhone?.charAt(0) ||
-                  '-'}
+                {getCompanyDisplayName(cell.row.original)?.charAt(0) || '-'}
               </Avatar.Fallback>
             </Avatar>
           </div>
@@ -91,7 +88,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
                   setCompanyDetail(cell.row.original._id);
                 }}
               >
-                {primaryName}
+                {primaryName || getCompanyDisplayName(cell.row.original)}
               </RecordTableInlineCell.Anchor>
             </RecordTableInlineCell.Trigger>
           </CompanyName>

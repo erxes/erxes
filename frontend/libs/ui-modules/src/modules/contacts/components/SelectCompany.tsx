@@ -87,11 +87,22 @@ const SelectCompanyProvider = ({
     onValueChange?.(newSelectedCompanyIds);
   };
 
-  const onCreateSuccess = (companyId: string) => {
+  const onCreateSuccess = (companyId: string, company?: ICompany) => {
     const newSelectedCompanyIds =
       mode === 'single'
         ? companyId
         : Array.from(new Set([...valueIds, companyId]));
+
+    // Keep the created company around so it renders straight away instead of
+    // waiting for the list query to catch up.
+    if (company) {
+      setCompanies((prev) => {
+        if (mode === 'single') return [company];
+        return prev.some((c) => c._id === companyId)
+          ? prev
+          : [...prev, company];
+      });
+    }
 
     onValueChange?.(newSelectedCompanyIds);
   };

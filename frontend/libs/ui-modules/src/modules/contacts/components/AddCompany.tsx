@@ -1,6 +1,7 @@
 import { FocusSheet, Sheet, Spinner, Button } from 'erxes-ui';
 import { lazy, Suspense, useState } from 'react';
 import { IconPlus } from '@tabler/icons-react';
+import { ICompany } from '../types';
 
 const AddCompanyForm = lazy(() =>
   import('./AddCompanyForm').then((module) => ({
@@ -19,7 +20,7 @@ export const AddCompany = ({
   onOpenChange,
 }: {
   children?: React.ReactNode;
-  onSuccess?: (id: string) => void;
+  onSuccess?: (id: string, company?: ICompany) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) => {

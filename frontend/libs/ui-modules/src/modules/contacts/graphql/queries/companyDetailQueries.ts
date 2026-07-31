@@ -37,6 +37,7 @@ export const COMPANY_INLINE = gql`
       primaryEmail
       primaryPhone
       primaryName
+      code
       avatar
     }
   }

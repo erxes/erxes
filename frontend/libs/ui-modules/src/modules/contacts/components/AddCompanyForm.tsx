@@ -17,6 +17,7 @@ import {
   COMPANY_BUSINESS_TYPES,
   DEFAULT_COMPANY_INDUSTRY_TYPES,
 } from '../constants/companyConstants';
+import { ICompany } from '../types';
 import { useAddCompany } from '../hooks/useAddCompany';
 import { SelectCompany } from './SelectCompany';
 import { SelectMember } from '../../team-members/components/SelectMember';
@@ -25,26 +26,31 @@ const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter(Boolean).map(
   (i) => ({ label: i, value: i }),
 );
 
-const SCHEMA = z.object({
-  avatar: z.string().optional(),
-  primaryName: z.string().min(1, 'Company name is required'),
-  code: z.string().optional(),
-  ownerId: z.string().optional(),
-  parentCompanyId: z.string().optional(),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
-  phone: z.string().optional(),
-  website: z.string().optional(),
-  industry: z
-    .array(z.object({ label: z.string(), value: z.string() }))
-    .optional(),
-  location: z.string().optional(),
-  businessType: z.string().optional(),
-  size: z.preprocess(
-    (val) => (val === '' || val === null ? undefined : val),
-    z.number().optional(),
-  ),
-  description: z.string().optional(),
-});
+const SCHEMA = z
+  .object({
+    avatar: z.string().optional(),
+    primaryName: z.string().optional(),
+    code: z.string().optional(),
+    ownerId: z.string().optional(),
+    parentCompanyId: z.string().optional(),
+    email: z.string().email('Invalid email').optional().or(z.literal('')),
+    phone: z.string().optional(),
+    website: z.string().optional(),
+    industry: z
+      .array(z.object({ label: z.string(), value: z.string() }))
+      .optional(),
+    location: z.string().optional(),
+    businessType: z.string().optional(),
+    size: z.preprocess(
+      (val) => (val === '' || val === null ? undefined : val),
+      z.number().optional(),
+    ),
+    description: z.string().optional(),
+  })
+  .refine((data) => !!data.primaryName?.trim() || !!data.code?.trim(), {
+    message: 'Company name or code is required',
+    path: ['primaryName'],
+  });
 
 type FormValues = z.infer<typeof SCHEMA>;
 
@@ -53,7 +59,7 @@ export function AddCompanyForm({
   onSuccess,
 }: Readonly<{
   onOpenChange: (open: boolean) => void;
-  onSuccess?: (id: string) => void;
+  onSuccess?: (id: string, company?: ICompany) => void;
 }>) {
   const { companiesAdd, loading } = useAddCompany();
 
@@ -77,11 +83,12 @@ export function AddCompanyForm({
   });
 
   function onSubmit(data: FormValues) {
-    const { phone, industry, code, ...rest } = data;
+    const { phone, industry, code, primaryName, ...rest } = data;
     companiesAdd({
       variables: {
         ...rest,
-        code: code?.trim(),
+        primaryName: primaryName?.trim() || undefined,
+        code: code?.trim() || undefined,
         primaryPhone: phone,
         industry: industry?.map((i) => i.value),
       },
@@ -93,7 +100,7 @@ export function AddCompanyForm({
         });
       },
       onCompleted: (result) => {
-        onSuccess?.(result.companiesAdd._id);
+        onSuccess?.(result.companiesAdd._id, result.companiesAdd);
         toast({
           title: 'Success',
           description: 'Company created successfully',
@@ -160,9 +167,7 @@ export function AddCompanyForm({
                 name="primaryName"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
-                      Name <span className="text-destructive">*</span>
-                    </Form.Label>
+                    <Form.Label>Name</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>

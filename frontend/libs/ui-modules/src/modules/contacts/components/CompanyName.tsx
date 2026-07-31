@@ -11,11 +11,13 @@ import { useCompaniesEdit } from 'ui-modules/modules/contacts/hooks';
 export const CompanyName = ({
   _id,
   primaryName,
+  displayName,
   scope,
   children,
 }: {
   _id: string;
   primaryName: string;
+  displayName?: string;
   scope?: string;
   children?: React.ReactNode;
 }) => {
@@ -40,7 +42,7 @@ export const CompanyName = ({
 
   return (
     <PopoverScoped scope={scope} closeOnEnter onEnter={handleEnter}>
-      {children || <CompanyNameTrigger name={primaryName} />}
+      {children || <CompanyNameTrigger name={primaryName || displayName} />}
       <RecordTableInlineCell.Content>
         <Input
           value={editingName}
@@ -51,7 +53,7 @@ export const CompanyName = ({
   );
 };
 
-const CompanyNameTrigger = ({ name }: { name: string }) => {
+const CompanyNameTrigger = ({ name }: { name?: string }) => {
   return (
     <Popover.Trigger asChild>
       <Button variant="ghost" className="text-base" size="lg">
