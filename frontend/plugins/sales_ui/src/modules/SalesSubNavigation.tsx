@@ -8,6 +8,7 @@ import {
   TextOverflowTooltip,
   cn,
   useMultiQueryState,
+  useQueryState,
   useToast,
 } from 'erxes-ui';
 import {
@@ -51,8 +52,8 @@ function BoardItem({ board }: { board: IBoard }) {
 
   const [open, setOpen] = useState(isActive);
 
-  // Board selection can arrive after mount, so keep opening the active board
-  // instead of relying on defaultOpen alone.
+  // Board selection can arrive after mount (restored from localStorage), so
+  // keep opening the active board instead of relying on defaultOpen alone.
   useEffect(() => {
     if (isActive) setOpen(true);
   }, [isActive]);
@@ -212,7 +213,48 @@ const ActionsMenu = () => {
 
 const DealsNavigation = () => {
   const { boards, loading } = useBoards();
+  const [boardId, setBoardId] = useQueryState<string | null>('boardId');
+  const [pipelineId, setPipelineId] = useQueryState<string | null>(
+    'pipelineId',
+  );
   const { t } = useTranslation('sales');
+
+  useEffect(() => {
+    if (!boards || boards.length === 0) return;
+
+    const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
+
+    if (!boardId && storedBoardId) {
+      setBoardId(storedBoardId);
+      return;
+    }
+
+    if (!boardId && boards[0]?._id) {
+      setBoardId(boards[0]._id);
+    }
+  }, [boards, setBoardId, boardId]);
+
+  // Keep the selected pipeline within the selected board.
+  useEffect(() => {
+    if (!boards || boards.length === 0 || !boardId) return;
+
+    const currentBoard = boards.find((board) => board._id === boardId);
+
+    if (!currentBoard) return;
+
+    const pipelines = (currentBoard.pipelines || []).filter(
+      (pipeline) => pipeline.status !== 'archived',
+    );
+
+    if (pipelines.some((pipeline) => pipeline._id === pipelineId)) return;
+
+    const storedPipelineId = localStorage.getItem('erxesCurrentPipelineId');
+    const storedPipeline = pipelines.find(
+      (pipeline) => pipeline._id === storedPipelineId,
+    );
+
+    setPipelineId(storedPipeline?._id || pipelines[0]?._id || null);
+  }, [boards, boardId, pipelineId, setPipelineId]);
 
   return (
     <NavigationMenuGroup name={t('boards')} actions={<ActionsMenu />}>
