@@ -13,6 +13,7 @@ export const CONFIG: IUIConfig = {
   path: 'content',
   navigationGroup: {
     name: 'content',
+    defaultPath: 'content/cms',
     icon: IconLibraryPhoto,
     content: () => (
       <Suspense fallback={<div />}>

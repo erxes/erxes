@@ -14,6 +14,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'loyalty',
+    defaultPath: 'loyalty/vouchers',
     icon: IconAward,
     content: () => (
       <Suspense fallback={<div />}>

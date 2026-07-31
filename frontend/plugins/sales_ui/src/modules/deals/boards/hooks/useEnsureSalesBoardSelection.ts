@@ -1,4 +1,5 @@
 import { useBoards } from '@/deals/boards/hooks/useBoards';
+import { resolveSalesBoardSelection } from '@/deals/boards/hooks/salesBoardSelection';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -12,32 +13,25 @@ export const useEnsureSalesBoardSelection = () => {
   const pipelineId = searchParams.get('pipelineId');
 
   useEffect(() => {
-    if (!boards?.length) {
+    if (!boards) {
       return;
     }
 
-    const storedBoardId = localStorage.getItem(CURRENT_BOARD_STORAGE_KEY);
-    const storedPipelineId = localStorage.getItem(CURRENT_PIPELINE_STORAGE_KEY);
-    const selectedBoard =
-      boards.find((board) => board._id === boardId) ??
-      boards.find((board) => board._id === storedBoardId) ??
-      boards[0];
-    const pipelines = selectedBoard.pipelines || [];
-    const selectedPipeline =
-      pipelines.find((pipeline) => pipeline._id === pipelineId) ??
-      pipelines.find((pipeline) => pipeline._id === storedPipelineId) ??
-      pipelines[0];
-    const selectedPipelineId = selectedPipeline?._id || null;
+    const selection = resolveSalesBoardSelection(boards, boardId, pipelineId);
 
-    localStorage.setItem(CURRENT_BOARD_STORAGE_KEY, selectedBoard._id);
+    if (!selection) {
+      return;
+    }
 
-    if (selectedPipelineId) {
-      localStorage.setItem(CURRENT_PIPELINE_STORAGE_KEY, selectedPipelineId);
+    localStorage.setItem(CURRENT_BOARD_STORAGE_KEY, selection.boardId);
+
+    if (selection.pipelineId) {
+      localStorage.setItem(CURRENT_PIPELINE_STORAGE_KEY, selection.pipelineId);
     } else {
       localStorage.removeItem(CURRENT_PIPELINE_STORAGE_KEY);
     }
 
-    if (boardId === selectedBoard._id && pipelineId === selectedPipelineId) {
+    if (boardId === selection.boardId && pipelineId === selection.pipelineId) {
       return;
     }
 
@@ -45,10 +39,10 @@ export const useEnsureSalesBoardSelection = () => {
       (currentSearchParams) => {
         const nextSearchParams = new URLSearchParams(currentSearchParams);
 
-        nextSearchParams.set('boardId', selectedBoard._id);
+        nextSearchParams.set('boardId', selection.boardId);
 
-        if (selectedPipelineId) {
-          nextSearchParams.set('pipelineId', selectedPipelineId);
+        if (selection.pipelineId) {
+          nextSearchParams.set('pipelineId', selection.pipelineId);
         } else {
           nextSearchParams.delete('pipelineId');
         }
