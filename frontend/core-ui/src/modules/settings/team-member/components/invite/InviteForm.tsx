@@ -73,12 +73,12 @@ export function InviteForm({
 
     const validation = emailSchema.safeParse(normalizedValue);
     if (!validation.success) {
-      setError('Please enter a valid email address');
+      setError(t('valid-email-required', 'Please enter a valid email address'));
       return;
     }
 
     if (tags.includes(normalizedValue)) {
-      setError('This email has already been added');
+      setError(t('email-already-added', 'This email has already been added'));
       return;
     }
 
@@ -136,24 +136,27 @@ export function InviteForm({
 
     if (tags.length === 0 && isEmpty) {
       toast({
-        title: 'Please add at least one email address',
+        title: t(
+          'add-at-least-one-email',
+          'Please add at least one email address',
+        ),
         variant: 'destructive',
       });
       return false;
     }
 
     if (!isEmpty && !isValid) {
-      setError('Please enter a valid email address');
+      setError(t('valid-email-required', 'Please enter a valid email address'));
       return false;
     }
 
     if (isDuplicate) {
-      setError('This email has already been added');
+      setError(t('email-already-added', 'This email has already been added'));
       return false;
     }
 
     return true;
-  }, [getDraftState, tags.length, toast]);
+  }, [getDraftState, tags.length, toast, t]);
 
   const getInvitationEntries = useCallback(() => {
     const { draftEmail, isDuplicate, isValid } = getDraftState();
@@ -185,7 +188,10 @@ export function InviteForm({
 
     if (step === 'permissions' && permissionGroupsError) {
       toast({
-        title: t('permission-groups-load-failed'),
+        title: t(
+          'permission-groups-load-failed',
+          'Failed to load permission groups',
+        ),
         variant: 'destructive',
       });
       return;
@@ -196,12 +202,15 @@ export function InviteForm({
         entries: getInvitationEntries(),
       },
       onCompleted() {
-        toast({ title: 'Invitation has been sent', variant: 'success' });
+        toast({
+          title: t('invitation-sent', 'Invitation has been sent'),
+          variant: 'success',
+        });
         setIsOpen(false);
       },
       onError(e: ApolloError) {
         toast({
-          title: 'Failed to send invitation',
+          title: t('invitation-send-failed', 'Failed to send invitation'),
           description: e.message,
           variant: 'destructive',
         });
@@ -327,7 +336,10 @@ export function InviteForm({
             <div className="w-full">
               <Input
                 name="email"
-                placeholder="Enter email addresses"
+                placeholder={t(
+                  'enter-email-addresses',
+                  'Enter email addresses',
+                )}
                 value={inputValue}
                 autoFocus
                 onChange={handleChange}
@@ -341,7 +353,10 @@ export function InviteForm({
               )}
               {!error && (
                 <p className="text-sm text-muted-foreground mt-1.5">
-                  {t('separate-emails')}
+                  {t(
+                    'separate-emails',
+                    'Separate emails with comma, space, or Enter',
+                  )}
                 </p>
               )}
             </div>
@@ -356,7 +371,7 @@ export function InviteForm({
                     <TextOverflowTooltip value={tag} className="truncate" />
                     <button
                       type="button"
-                      aria-label={`Remove ${tag}`}
+                      aria-label={t('remove-tag', 'Remove {{tag}}', { tag })}
                       onClick={() => removeTag(tag)}
                       className="hover:bg-secondary-foreground/20 rounded-sm p-0.5 shrink-0"
                     >
@@ -370,7 +385,7 @@ export function InviteForm({
           <div className="w-full flex gap-3 justify-end">
             {canManagePermissions ? (
               <Button onClick={handleNext} className="text-sm">
-                {t('next')}
+                {t('next', 'Next')}
               </Button>
             ) : (
               <Button
@@ -383,7 +398,7 @@ export function InviteForm({
                 ) : (
                   <IconSend size={16} />
                 )}
-                {t('send-invites')}
+                {t('send-invites', 'Send invites')}
               </Button>
             )}
           </div>
@@ -396,7 +411,10 @@ export function InviteForm({
             <Spinner containerClassName="py-10" />
           ) : permissionGroupsError ? (
             <p className="text-sm text-destructive">
-              {t('permission-groups-load-failed')}
+              {t(
+                'permission-groups-load-failed',
+                'Failed to load permission groups',
+              )}
             </p>
           ) : (
             <div className="flex max-h-80 flex-col gap-4 overflow-y-auto pr-1 styled-scroll">
@@ -416,7 +434,7 @@ export function InviteForm({
               {permissionGroups.length > 0 && (
                 <div className="space-y-2">
                   <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {t('custom-groups')}
+                    {t('custom-groups', 'Custom Groups')}
                   </div>
                   <div className="space-y-2">
                     {permissionGroups.map((group) =>
@@ -434,7 +452,7 @@ export function InviteForm({
               onClick={() => setStep('emails')}
               className="text-sm"
             >
-              {t('back')}
+              {t('back', 'Back')}
             </Button>
             <Button
               onClick={submitHandler}
@@ -446,7 +464,7 @@ export function InviteForm({
               ) : (
                 <IconSend size={16} />
               )}
-              {t('send-invites')}
+              {t('send-invites', 'Send invites')}
             </Button>
           </div>
         </>

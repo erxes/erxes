@@ -5,10 +5,15 @@ import { appsMoreColumn } from './table/AppsMoreColumn';
 import { AppsCommandBar } from './AppsCommandBar';
 import { useApps } from '../hooks/useApps';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function AppsRecordTable() {
   const { apps, loading, error } = useApps();
-  const columns = useMemo(() => [...appsSettingsColumns, appsMoreColumn], []);
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
+  const columns = useMemo(
+    () => [...appsSettingsColumns(t), appsMoreColumn],
+    [t],
+  );
 
   return (
     <RecordTable.Provider
@@ -28,17 +33,15 @@ export function AppsRecordTable() {
                 <td colSpan={6} className="py-10 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
                     <IconArchive className="w-8 h-8 mb-2" />
-                    <Label>No apps found</Label>
+                    <Label>{t('no-apps-found', 'No apps found')}</Label>
                   </div>
                 </td>
               </tr>
             )}
           </RecordTable.Body>
         </RecordTable>
-
       </RecordTable.Scroll>
       <AppsCommandBar />
     </RecordTable.Provider>
   );
 }
-

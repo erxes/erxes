@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { Form, Skeleton } from 'erxes-ui';
 import { SelectDepartments, SelectMember } from 'ui-modules';
 import { TUnitForm } from '../../types/unit';
+import { useTranslation } from 'react-i18next';
 import {
   TitleField,
   CodeField,
@@ -9,6 +10,7 @@ import {
 } from '../StructureFormFields';
 
 export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { control } = useFormContext<TUnitForm>();
 
   if (loading) {
@@ -25,7 +27,7 @@ export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
         name="supervisorId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Supervisor'}</Form.Label>
+            <Form.Label>{t('supervisor', 'Supervisor')}</Form.Label>
             <SelectMember.FormItem
               value={field.value ?? ''}
               onValueChange={field.onChange}
@@ -39,7 +41,7 @@ export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
         name="departmentId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Department'}</Form.Label>
+            <Form.Label>{t('department', 'Department')}</Form.Label>
             <Form.Control>
               <SelectDepartments.FormItem
                 mode={'single'}
@@ -56,7 +58,7 @@ export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
         name="userIds"
         render={({ field }) => (
           <Form.Item className="col-span-2">
-            <Form.Label>{'Team members'}</Form.Label>
+            <Form.Label>{t('team-members', 'Team members')}</Form.Label>
             <SelectMember.FormItem
               mode="multiple"
               value={field.value ?? []}

@@ -3,6 +3,7 @@ import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissio
 import { Button, FocusSheet, Sheet, toast } from 'erxes-ui';
 import React, { useCallback, useState } from 'react';
 import { PermissionGroupForm } from './PermissionGroupForm';
+import { useTranslation } from 'react-i18next';
 
 export const PermissionGroupAdd = ({
   text,
@@ -14,6 +15,7 @@ export const PermissionGroupAdd = ({
   trigger?: React.ReactNode;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
+  const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
 
   const { addPermissionGroup, loading } = useAddPermissionGroup();
 
@@ -27,19 +29,25 @@ export const PermissionGroupAdd = ({
           permissions: data.permissions,
         },
         onCompleted: () => {
-          toast({ title: 'Permission group added', variant: 'success' });
+          toast({
+            title: t('permission-group-added', 'Permission group added'),
+            variant: 'success',
+          });
           setOpen(false);
         },
         onError: (error) => {
           toast({
-            title: 'Error adding permission group',
+            title: t(
+              'error-adding-permission-group',
+              'Error adding permission group',
+            ),
             variant: 'destructive',
             description: error.message,
           });
         },
       });
     },
-    [loading, addPermissionGroup],
+    [loading, addPermissionGroup, t],
   );
 
   const onCancel = useCallback(() => {
@@ -52,12 +60,18 @@ export const PermissionGroupAdd = ({
         <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
       ) : (
         <Sheet.Trigger asChild>
-          <Button variant="secondary">{text || 'Add Custom Group'}</Button>
+          <Button variant="secondary">
+            {text || t('add-custom-group', 'Add Custom Group')}
+          </Button>
         </Sheet.Trigger>
       )}
       <FocusSheet.View>
         <FocusSheet.Header
-          title={defaultValues?.name ? 'Edit Group' : 'Add Custom Group'}
+          title={
+            defaultValues?.name
+              ? t('edit-group', 'Edit Group')
+              : t('add-custom-group', 'Add Custom Group')
+          }
         />
         <FocusSheet.Content>
           <PermissionGroupForm

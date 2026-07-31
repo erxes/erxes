@@ -31,10 +31,13 @@ const GeneralSettings = () => {
   const updateCurrency = (data: TGeneralSettingsProps) => {
     const updatedConfigs = {
       // start with all existing configs
-      ...configs.reduce((acc: Record<string, any>, config: TConfig) => {
-        acc[config.code] = config.value;
-        return acc;
-      }, {} as Record<string, any>),
+      ...configs.reduce(
+        (acc: Record<string, any>, config: TConfig) => {
+          acc[config.code] = config.value;
+          return acc;
+        },
+        {} as Record<string, any>,
+      ),
       // override/add with new data
       ...data,
     };
@@ -47,9 +50,13 @@ const GeneralSettings = () => {
 
     handleLanguage(data.languageCode).then(() => {
       toast({
-        title: 'Updated successfully',
+        title: t('updated-successfully', 'Updated successfully'),
         variant: 'success',
-        description: `Language switched to (${data.languageCode})`,
+        description: t(
+          'language-switched',
+          'Language switched to ({{language}})',
+          { language: data.languageCode },
+        ),
       });
     });
   };
@@ -111,8 +118,8 @@ const GeneralSettings = () => {
           options={LANGUAGES.filter((lang) =>
             languages.some((lng) => lang.value === lng),
           )}
-          placeholder="Languages"
-          label={t('language')}
+          placeholder={t('languages', 'Languages')}
+          label={t('language', 'Language')}
         />
         <SelectMainCurrency />
         <SelectCurrency />
@@ -122,7 +129,7 @@ const GeneralSettings = () => {
           {isLoading ? (
             <Spinner className="stroke-white/90 w-4 h-4" />
           ) : (
-            t('update')
+            t('update', 'Update')
           )}
         </Button>
       </form>

@@ -9,19 +9,26 @@ import {
 } from 'erxes-ui';
 import { useAppsRemove } from '../hooks/useAppsRemove';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AppsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { appsRemove } = useAppsRemove();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
 
   const onRemove = () => {
     const ids: string[] =
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: `Are you sure you want to remove the selected (${ids.length})?`,
+      message: t('confirm-remove-selected', {
+        count: ids.length,
+        defaultValue_one: 'Are you sure you want to remove the selected app?',
+        defaultValue_other:
+          'Are you sure you want to remove the {{count}} selected apps?',
+      }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
       try {
@@ -31,7 +38,7 @@ export const AppsCommandBar = () => {
               variables: { _id },
               onError: (error) => {
                 toast({
-                  title: 'Error',
+                  title: t('error', 'Error'),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -49,14 +56,16 @@ export const AppsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('n-selected', '{{count}} selected', {
+            count: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Can action="appsManage">
           <>
             <Separator.Inline />
             <Button variant="destructive" onClick={onRemove}>
               <IconTrash />
-              Delete
+              {t('delete', 'Delete')}
             </Button>
           </>
         </Can>

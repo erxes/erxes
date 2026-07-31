@@ -1,4 +1,9 @@
-import { IconAlignJustified, IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
+import {
+  IconAlignJustified,
+  IconAlignLeft,
+  IconCalendarPlus,
+  IconHash,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -26,7 +31,10 @@ export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
     id: 'name',
     accessorKey: 'name',
     header: () => (
-      <RecordTable.InlineHead label={t('brand-name')} icon={IconAlignLeft} />
+      <RecordTable.InlineHead
+        label={t('brand-name', 'Brand name')}
+        icon={IconAlignLeft}
+      />
     ),
     cell: ({ cell }) => {
       const [, setBrandDetail] = useQueryState('brand_id');
@@ -87,7 +95,10 @@ export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
     id: 'description',
     accessorKey: 'description',
     header: () => (
-      <RecordTable.InlineHead label={t('description')} icon={IconHash} />
+      <RecordTable.InlineHead
+        label={t('description', 'Description')}
+        icon={IconHash}
+      />
     ),
     cell: ({ cell }) => {
       const { _id, description, name } = cell.row.original;
@@ -139,7 +150,12 @@ export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label={t('code')} icon={IconAlignJustified} />,
+    header: () => (
+      <RecordTable.InlineHead
+        label={t('code', 'Code')}
+        icon={IconAlignJustified}
+      />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -152,7 +168,10 @@ export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label={t('date-created')} icon={IconCalendarPlus} />
+      <RecordTable.InlineHead
+        label={t('date-created', 'Date created')}
+        icon={IconCalendarPlus}
+      />
     ),
     cell: ({ cell }) => {
       return (

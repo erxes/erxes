@@ -15,7 +15,7 @@ export function SelectTimezone() {
       name="TIMEZONE"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('timezone')}</Form.Label>
+          <Form.Label>{t('timezone', 'Timezone')}</Form.Label>
           <Form.Control>
             <TimezoneSelect
               value={field.value}

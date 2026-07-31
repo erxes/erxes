@@ -1,11 +1,5 @@
 import { IconShieldCog } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Sheet,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React from 'react';
 import { useAtom } from 'jotai';
 import { editingAppAtom } from '../state';
@@ -14,10 +8,12 @@ import { useAppsEdit } from '../hooks/useAppsEdit';
 import { SubmitHandler } from 'react-hook-form';
 import { AppsForm } from './AppsForm';
 import { TAppsForm } from '../hooks/useAppsForm';
+import { useTranslation } from 'react-i18next';
 
 export const EditApp = () => {
   const { toast } = useToast();
   const [editingApp, setEditingApp] = useAtom(editingAppAtom);
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const { appsEdit, loading } = useAppsEdit();
   const {
     methods,
@@ -41,18 +37,21 @@ export const EditApp = () => {
       appsEdit({
         variables: { _id: editingApp._id, ...data },
         onCompleted: () => {
-          toast({ variant: 'success', title: 'App updated successfully' });
+          toast({
+            variant: 'success',
+            title: t('app-updated-successfully', 'App updated successfully'),
+          });
           onClose();
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
       });
     },
-    [appsEdit, editingApp, toast],
+    [appsEdit, editingApp, toast, t],
   );
 
   return (
@@ -65,7 +64,7 @@ export const EditApp = () => {
           >
             <Sheet.Header>
               <IconShieldCog />
-              <Sheet.Title>Edit App</Sheet.Title>
+              <Sheet.Title>{t('edit-app', 'Edit App')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -73,10 +72,10 @@ export const EditApp = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'secondary'} onClick={onClose}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Update'}
+                {loading ? <Spinner /> : t('update', 'Update')}
               </Button>
             </Sheet.Footer>
           </form>

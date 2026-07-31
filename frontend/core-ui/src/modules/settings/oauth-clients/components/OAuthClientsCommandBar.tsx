@@ -9,19 +9,27 @@ import {
 } from 'erxes-ui';
 import { useOAuthClientsRemove } from '../hooks/useOAuthClientsRemove';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const OAuthClientsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { oauthClientAppsRemove } = useOAuthClientsRemove();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
 
   const onRemove = () => {
     const ids: string[] =
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: `Are you sure you want to remove the selected (${ids.length})?`,
+      message: t('confirm-remove-selected', {
+        count: ids.length,
+        defaultValue_one:
+          'Are you sure you want to remove the selected OAuth client?',
+        defaultValue_other:
+          'Are you sure you want to remove the {{count}} selected OAuth clients?',
+      }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
       try {
@@ -31,7 +39,7 @@ export const OAuthClientsCommandBar = () => {
               variables: { _id },
               onError: (error) => {
                 toast({
-                  title: 'Error',
+                  title: t('error', 'Error'),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -51,14 +59,16 @@ export const OAuthClientsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={handleClose}>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('n-selected', '{{count}} selected', {
+            count: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Can action="appsManage">
           <>
             <Separator.Inline />
             <Button variant="destructive" onClick={onRemove}>
               <IconTrash />
-              Delete
+              {t('delete', 'Delete')}
             </Button>
           </>
         </Can>

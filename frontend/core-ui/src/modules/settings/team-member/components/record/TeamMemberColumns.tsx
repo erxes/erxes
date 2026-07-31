@@ -66,7 +66,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
+        <RecordTable.InlineHead
+          label={t('name', 'Name')}
+          icon={IconLabelFilled}
+        />
       ),
       cell: ({ cell }) => {
         const [, setDetailOpen] = useQueryState('user_id');
@@ -91,7 +94,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
               },
               onError: (error: ApolloError) => {
                 toast({
-                  title: 'Failed to update user details',
+                  title: t(
+                    'update-user-details-failed',
+                    'Failed to update user details',
+                  ),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -128,7 +134,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'email',
       accessorKey: 'email',
       header: () => (
-        <RecordTable.InlineHead icon={IconMail} label={t('email')} />
+        <RecordTable.InlineHead icon={IconMail} label={t('email', 'Email')} />
       ),
       cell: ({ cell }) => <TeamMemberEmailField cell={cell} />,
       size: 250,
@@ -137,7 +143,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: field,
       accessorKey: field,
       header: () => (
-        <RecordTable.InlineHead icon={IconAlignLeft} label={t('employeeId')} />
+        <RecordTable.InlineHead
+          icon={IconAlignLeft}
+          label={t('employeeId', 'Employee ID')}
+        />
       ),
       cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
         const { _id, employeeId } = cell.row.original || {};
@@ -185,7 +194,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'branchIds',
       accessorKey: 'branchIds',
       header: () => (
-        <RecordTable.InlineHead icon={IconGitBranch} label={t('branches')} />
+        <RecordTable.InlineHead
+          icon={IconGitBranch}
+          label={t('branches', 'Branches')}
+        />
       ),
       cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
         const { _id } = cell.row.original;
@@ -207,7 +219,10 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'departmentIds',
       accessorKey: 'departmentIds',
       header: () => (
-        <RecordTable.InlineHead icon={IconFolder} label={t('departments')} />
+        <RecordTable.InlineHead
+          icon={IconFolder}
+          label={t('departments', 'Departments')}
+        />
       ),
       cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
         const { _id } = cell.row.original;
@@ -229,7 +244,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'unitId',
       accessorKey: 'unitId',
       header: () => (
-        <RecordTable.InlineHead icon={IconUsers} label={t('unit')} />
+        <RecordTable.InlineHead icon={IconUsers} label={t('unit', 'Unit')} />
       ),
       cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
         const { _id } = cell.row.original;
@@ -280,7 +295,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconAlignLeft}
-          label={t('work-started-date')}
+          label={t('work-started-date', 'Work started date')}
         />
       ),
       cell: ({ cell }) => {
@@ -340,7 +355,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconMailCheck}
-          label={t('invitation-status')}
+          label={t('invitation-status', 'Invitation status')}
         />
       ),
       cell: ({ cell }) => {
@@ -352,7 +367,9 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
                 !status || status === 'Not verified' ? 'destructive' : 'success'
               }
             >
-              {status ? (cell.getValue() as string) : 'Not verified'}
+              {status === 'Verified'
+                ? t('verified', 'Verified')
+                : t('not-verified', 'Not verified')}
             </Badge>
           </RecordTableInlineCell>
         );
@@ -362,7 +379,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
     //   id: 'isActive',
     //   accessorKey: 'isActive',
     //   header: () => (
-    //     <RecordTable.InlineHead icon={IconChecks} label={t('status')} />
+    //     <RecordTable.InlineHead icon={IconChecks} label={t('status', 'Status')} />
     //   ),
     //   cell: ({ cell }) => {
     //     const { _id } = cell.row.original || {};

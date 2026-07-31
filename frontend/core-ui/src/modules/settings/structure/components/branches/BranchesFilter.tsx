@@ -3,8 +3,10 @@ import { Combobox, Command, Filter, PageSubHeader } from 'erxes-ui';
 import { SelectBranches } from 'ui-modules';
 import { BranchesTotalCount } from './BranchesTotalCount';
 import { SelectStructureStatus } from '../SelectStructureStatus';
+import { useTranslation } from 'react-i18next';
 
 export const BranchesFilter = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   return (
     <PageSubHeader>
       <Filter id="branches">
@@ -15,7 +17,7 @@ export const BranchesFilter = () => {
               <Filter.View>
                 <Command>
                   <Filter.CommandInput
-                    placeholder="Filter"
+                    placeholder={t('filter', 'Filter')}
                     variant="secondary"
                     className="bg-background"
                   />
@@ -23,7 +25,7 @@ export const BranchesFilter = () => {
                     <Filter.SearchValueTrigger />
                     <SelectBranches.FilterItem
                       value="parentId"
-                      label="By Parent"
+                      label={t('by-parent', 'By Parent')}
                     />
                     <SelectStructureStatus.FilterItem />
                   </Command.List>
@@ -40,7 +42,7 @@ export const BranchesFilter = () => {
           <SelectBranches.FilterBar
             mode="single"
             filterKey="parentId"
-            label="By Parent"
+            label={t('by-parent', 'By Parent')}
           />
           <SelectStructureStatus.FilterBar />
           <BranchesTotalCount />

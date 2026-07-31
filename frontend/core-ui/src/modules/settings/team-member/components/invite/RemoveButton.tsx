@@ -1,12 +1,14 @@
 import { IconX } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useUserInviteContext } from '../../hooks/useUserInviteContext';
+import { useTranslation } from 'react-i18next';
 export const InviteRowRemoveButton = ({
   remove,
 }: {
   remove: (index: number | number[]) => void;
 }) => {
   const { selectedUsers, setSelectedUsers, fields } = useUserInviteContext();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   if (selectedUsers.length === 0) return null;
 
@@ -26,7 +28,7 @@ export const InviteRowRemoveButton = ({
       onClick={handleRemove}
     >
       <IconX />
-      Remove Selected
+      {t('remove-selected', 'Remove Selected')}
     </Button>
   );
 };

@@ -11,6 +11,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import {
   useGetPermissionDefaultGroups,
   useGetPermissionGroups,
@@ -30,6 +31,7 @@ export const TeamMemberAssignPermissions = ({
   const [open, setOpen] = useState(false);
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { table } = RecordTable.useRecordTable();
 
   const { defaultGroups, loading: defaultLoading } =
@@ -56,8 +58,12 @@ export const TeamMemberAssignPermissions = ({
       },
       onCompleted: () => {
         toast({
-          title: 'Permission groups assigned',
-          description: `Updated ${teamMemberIds.length} team member(s)`,
+          title: t('permission-groups-assigned', 'Permission groups assigned'),
+          description: t('updated-n-members', {
+            count: teamMemberIds.length,
+            defaultValue_one: 'Updated {{count}} team member',
+            defaultValue_other: 'Updated {{count}} team members',
+          }),
           variant: 'success',
         });
         setSelectedGroupIds([]);
@@ -66,7 +72,7 @@ export const TeamMemberAssignPermissions = ({
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -89,7 +95,7 @@ export const TeamMemberAssignPermissions = ({
         <Popover.Trigger asChild>
           <Button variant="secondary">
             <IconShieldCheck />
-            Assign Permissions
+            {t('assign-permissions', 'Assign Permissions')}
           </Button>
         </Popover.Trigger>
         <Popover.Content className="w-96 p-0">
@@ -142,7 +148,10 @@ export const TeamMemberAssignPermissions = ({
                         className="w-full justify-start font-medium"
                       >
                         <Collapsible.TriggerIcon />
-                        Custom Permission Groups
+                        {t(
+                          'custom-permission-groups',
+                          'Custom Permission Groups',
+                        )}
                       </Button>
                     </Collapsible.Trigger>
                     <Collapsible.Content className="pt-2 space-y-2">
@@ -182,7 +191,7 @@ export const TeamMemberAssignPermissions = ({
               onClick={handleApply}
               disabled={!selectedGroupIds.length || updateLoading}
             >
-              {updateLoading ? <Spinner size="sm" /> : 'Apply'}
+              {updateLoading ? <Spinner size="sm" /> : t('apply', 'Apply')}
             </Button>
           </div>
         </Popover.Content>

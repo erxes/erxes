@@ -1,10 +1,12 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { EDIT_BRANDS } from '../graphql';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export function useBrandsEdit() {
   const [_brandsEdit, { loading, error }] = useMutation(EDIT_BRANDS);
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'brands' });
 
   const handleEdit = (
     operationVariables: OperationVariables,
@@ -27,7 +29,10 @@ export function useBrandsEdit() {
       onCompleted(data) {
         if (data.brandsEdit) {
           toast({
-            title: 'Brand updated successfully',
+            title: t(
+              'brand-updated-successfully',
+              'Brand updated successfully',
+            ),
             variant: 'success',
           });
         }

@@ -17,8 +17,10 @@ import { useDepartmentAdd } from '../../hooks/useDepartmentActions';
 import { DepartmentHotKeyScope, TDepartmentForm } from '../../types/department';
 import { DepartmentForm } from './DepartmentForm';
 import { Can, usePermissionCheck } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CreateDepartment = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const {
     methods,
     methods: { handleSubmit },
@@ -64,29 +66,32 @@ export const CreateDepartment = () => {
         variables: data,
         onCompleted: () => {
           toast({
-            title: 'Success!',
+            title: t('success', 'Success!'),
             variant: 'success',
-            description: 'Department created successfully',
+            description: t(
+              'department-created-successfully',
+              'Department created successfully',
+            ),
           });
           methods.reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
       });
     },
-    [handleAdd],
+    [handleAdd, t],
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
       <Can action="departmentsManage">
         <Sheet.Trigger asChild>
           <Button>
-            <IconPlus /> Create Department
+            <IconPlus /> {t('create-department', 'Create Department')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -105,7 +110,7 @@ export const CreateDepartment = () => {
             <Sheet.Header>
               <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconFolder size={16} />
-                Create department
+                {t('create-department', 'Create Department')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -114,10 +119,10 @@ export const CreateDepartment = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

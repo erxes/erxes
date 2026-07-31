@@ -70,7 +70,7 @@ export function SettingsSidebar({
   return (
     <Sidebar.Content className="styled-scroll gap-2">
       {!hideExit && <SettingsExitButton />}
-      <SettingsNavigationGroup name={t('account')}>
+      <SettingsNavigationGroup name={t('account', 'Account')}>
         {sidebar.account.map((item) => (
           <NavigationMenuLinkItem
             key={item.name}
@@ -80,7 +80,7 @@ export function SettingsSidebar({
           />
         ))}
       </SettingsNavigationGroup>
-      <SettingsNavigationGroup name={t('workspace')}>
+      <SettingsNavigationGroup name={t('workspace', 'Workspace')}>
         {filteredNav.map((item) => (
           <NavigationMenuLinkItem
             pathPrefix={AppPath.Settings}
@@ -91,7 +91,7 @@ export function SettingsSidebar({
         ))}
       </SettingsNavigationGroup>
 
-      <SettingsNavigationGroup name={t('developer')}>
+      <SettingsNavigationGroup name={t('developer', 'Developer')}>
         {filteredDeveloper.map((item) => (
           <NavigationMenuLinkItem
             pathPrefix={AppPath.Settings}
@@ -102,7 +102,7 @@ export function SettingsSidebar({
         ))}
       </SettingsNavigationGroup>
 
-      <SettingsNavigationGroup name={t('core-modules')}>
+      <SettingsNavigationGroup name={t('core-modules', 'Core modules')}>
         {filteredCoreModules.map((item) => (
           <NavigationMenuLinkItem
             key={item.name}
@@ -159,7 +159,7 @@ export function SettingsExitButton() {
         <Sidebar.MenuItem>
           <Sidebar.MenuButton onClick={handleExitSettings}>
             <IconChevronLeft />
-            <span>{t('exit-settings')}</span>
+            <span>{t('exit-settings', 'Exit Settings')}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
       </Sidebar.Menu>

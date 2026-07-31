@@ -25,8 +25,10 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
 import { WeekDayRow } from '@/settings/structure/components/workhours/WeekDayRow';
 import { WorkTimeField } from '@/settings/structure/components/workhours/WorkTimeField';
+import { useTranslation } from 'react-i18next';
 
 export const BranchWorkingHoursSheet = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [workingHoursId] = useQueryState('workingHoursId');
   const [searchParams, setSearchParams] = useSearchParams();
   const { form } = useWorkhoursForm();
@@ -117,7 +119,9 @@ export const BranchWorkingHoursSheet = () => {
         <Sheet.View className="p-0 md:max-w-5xl">
           <div className="flex flex-col gap-0 size-full">
             <Sheet.Header>
-              <Sheet.Title>Setup branch working hours</Sheet.Title>
+              <Sheet.Title>
+                {t('setup-branch-working-hours', 'Setup branch working hours')}
+              </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="flex-1 min-h-0 overflow-y-auto flex flex-col px-5">
@@ -134,7 +138,7 @@ export const BranchWorkingHoursSheet = () => {
             </Sheet.Content>
             <Sheet.Footer className="flex justify-end items-center gap-3">
               <Button variant={'secondary'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Can action="branchesManage">
                 <Button
@@ -142,7 +146,7 @@ export const BranchWorkingHoursSheet = () => {
                   type="button"
                   onClick={form.handleSubmit(onSubmit)}
                 >
-                  Save
+                  {t('save', 'Save')}
                 </Button>
               </Can>
             </Sheet.Footer>
@@ -154,6 +158,7 @@ export const BranchWorkingHoursSheet = () => {
 };
 
 const HolidaysSection = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const form = useFormContext<IWorkhoursForm>();
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -175,21 +180,26 @@ const HolidaysSection = () => {
     <div className="flex flex-col gap-3 py-4">
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <span className="font-semibold">Custom holidays</span>
+          <span className="font-semibold">
+            {t('custom-holidays', 'Custom holidays')}
+          </span>
           <span className="text-sm text-accent-foreground">
-            Add special non-working periods for this branch
+            {t(
+              'special-non-working-periods',
+              'Add special non-working periods for this branch',
+            )}
           </span>
         </div>
         <Can action="branchesManage">
           <Button type="button" variant="secondary" onClick={addHoliday}>
-            <IconPlus /> Add holiday
+            <IconPlus /> {t('add-holiday', 'Add holiday')}
           </Button>
         </Can>
       </div>
 
       {fields.length === 0 ? (
         <span className="text-sm text-accent-foreground py-2">
-          No holidays added yet.
+          {t('no-holidays-yet', 'No holidays added yet.')}
         </span>
       ) : (
         <div className="flex flex-col gap-2">
@@ -213,15 +223,14 @@ const HolidayRow = ({
   index: number;
   onRemove: () => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const form = useFormContext<IWorkhoursForm>();
   const isInactive = form.watch(`holidays.${index}.inactive`) as boolean;
   const startDate = form.watch(`holidays.${index}.startDate`);
   const endDate = form.watch(`holidays.${index}.endDate`);
   const startFrom = form.watch(`holidays.${index}.startFrom`);
   const endTo = form.watch(`holidays.${index}.endTo`);
-  const [hasWorkHours, setHasWorkHours] = useState(
-    Boolean(startFrom || endTo),
-  );
+  const [hasWorkHours, setHasWorkHours] = useState(Boolean(startFrom || endTo));
 
   const toggleWorkHours = (checked: boolean) => {
     setHasWorkHours(checked);
@@ -264,7 +273,7 @@ const HolidayRow = ({
               <Form.Control>
                 <Input
                   className="w-full"
-                  placeholder="Holiday name"
+                  placeholder={t('holiday-name', 'Holiday name')}
                   {...field}
                 />
               </Form.Control>
@@ -275,7 +284,7 @@ const HolidayRow = ({
           <DatePicker
             className="w-36"
             mode="single"
-            placeholder="Start date"
+            placeholder={t('start-date', 'Start date')}
             value={startDate ? new Date(startDate) : undefined}
             onChange={(date) => {
               form.setValue(
@@ -288,7 +297,7 @@ const HolidayRow = ({
           <DatePicker
             className="w-36"
             mode="single"
-            placeholder="End date"
+            placeholder={t('end-date', 'End date')}
             value={endDate ? new Date(endDate) : undefined}
             onChange={(date) => {
               form.setValue(
@@ -303,7 +312,7 @@ const HolidayRow = ({
           variant="ghost"
           size="icon"
           onClick={onRemove}
-          aria-label="Remove holiday"
+          aria-label={t('remove-holiday', 'Remove holiday')}
         >
           <IconTrash />
         </Button>
@@ -315,7 +324,9 @@ const HolidayRow = ({
           onCheckedChange={toggleWorkHours}
           disabled={isInactive}
         />
-        <span className="text-sm text-accent-foreground">Working hours</span>
+        <span className="text-sm text-accent-foreground">
+          {t('working-hours', 'Working hours')}
+        </span>
         {hasWorkHours && (
           <div className="flex items-center gap-3">
             <WorkTimeField name={`holidays.${index}.startFrom`} />

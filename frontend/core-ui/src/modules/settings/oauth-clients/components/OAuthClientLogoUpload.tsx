@@ -1,5 +1,6 @@
 import { IconPhoto, IconTrash, IconUpload } from '@tabler/icons-react';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Button, Spinner, cn, useUpload } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
@@ -12,6 +13,7 @@ type Props = {
 
 export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const { isLoading, upload } = useUpload();
 
   const handleClick = () => {
@@ -53,7 +55,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
         {value ? (
           <img
             src={readImage(value, 64)}
-            alt="Logo"
+            alt={t('logo', 'Logo')}
             className="size-full object-contain"
           />
         ) : (
@@ -71,7 +73,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
             onClick={handleClick}
           >
             {isLoading ? <Spinner /> : <IconUpload className="size-4" />}
-            {value ? 'Change' : 'Upload'}
+            {value ? t('change', 'Change') : t('upload', 'Upload')}
           </Button>
 
           {value ? (
@@ -83,13 +85,13 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
               onClick={handleRemove}
             >
               <IconTrash className="size-4" />
-              Remove
+              {t('remove', 'Remove')}
             </Button>
           ) : null}
         </div>
 
         <p className="text-xs text-muted-foreground">
-          PNG, JPG, SVG — max 2 MB
+          {t('logo-upload-hint', 'PNG, JPG, SVG — max 2 MB')}
         </p>
       </div>
 

@@ -20,6 +20,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { ITag, useTagEdit, useTagRemove } from 'ui-modules';
 
@@ -28,6 +29,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
     'main',
   );
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { editTag } = useTagEdit();
   const { removeTag } = useTagRemove();
   const setAddingTag = useSetAtom(addingTagAtom);
@@ -82,7 +84,9 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                 }}
               >
                 <IconTransform />
-                Convert to {tag.isGroup ? 'tag' : 'group'}
+                {tag.isGroup
+                  ? t('convert-to-tag', 'Convert to tag')
+                  : t('convert-to-group', 'Convert to group')}
               </Command.Item>
               {tag.isGroup ? (
                 <Command.Item
@@ -92,12 +96,14 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                   }}
                 >
                   <IconPlus />
-                  Add tag to group
+                  {t('add-tag-to-group', 'Add tag to group')}
                 </Command.Item>
               ) : (
                 <Command.Item onSelect={() => setMenuContent('groupSelect')}>
                   <IconArrowMoveRight />
-                  {!tag.parentId ? 'Move to group' : 'Change group'}
+                  {!tag.parentId
+                    ? t('move-to-group', 'Move to group')
+                    : t('change-group', 'Change group')}
                   <IconCaretRightFilled className="size-5 absolute right-1 text-accent-foreground" />
                 </Command.Item>
               )}
@@ -106,7 +112,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                 onSelect={() => removeTag(tag._id)}
               >
                 <IconTrash />
-                Delete
+                {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>
@@ -116,9 +122,11 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
             <Command.Input
               variant="secondary"
               focusOnMount
-              placeholder="Search tag groups"
+              placeholder={t('search-tag-groups', 'Search tag groups')}
             />
-            <Command.Empty>No groups found</Command.Empty>
+            <Command.Empty>
+              {t('no-groups-found', 'No groups found')}
+            </Command.Empty>
             <Command.List className="[&>div>div]:cursor-pointer">
               {tagGroupsFiltered.map((group) => (
                 <Command.Item

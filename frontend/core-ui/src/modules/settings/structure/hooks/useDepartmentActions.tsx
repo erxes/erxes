@@ -6,6 +6,7 @@ import {
 
 import { useToast } from 'erxes-ui';
 import { TDepartmentForm } from '../types/department';
+import { useTranslation } from 'react-i18next';
 import {
   ADD_DEPARTMENT,
   EDIT_DEPARTMENT,
@@ -48,9 +49,13 @@ export function useDepartmentEdit(
 
 export function useRemoveDepartment() {
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [handleRemove, { loading, error }] = useMutation(REMOVE_DEPARTMENTS, {
     onCompleted: () =>
-      toast({ title: 'Removed successfully!', variant: 'success' }),
+      toast({
+        title: t('removed-successfully', 'Removed successfully!'),
+        variant: 'success',
+      }),
     refetchQueries: ['Departments'],
   });
 
@@ -62,6 +67,7 @@ export function useRemoveDepartment() {
 }
 
 export function useDepartmentInlineEdit() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [_departmentsEdit, { loading }] = useMutation(EDIT_DEPARTMENT);
   const { toast } = useToast();
 
@@ -88,14 +94,17 @@ export function useDepartmentInlineEdit() {
       onCompleted: (data) => {
         if (data?.departmentsEdit) {
           toast({
-            title: 'Department updated successfully!',
+            title: t(
+              'department-updated-successfully',
+              'Department updated successfully!',
+            ),
             variant: 'success',
           });
         }
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

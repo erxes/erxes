@@ -14,12 +14,14 @@ import {
 import { IUnitListItem } from '../../types/unit';
 import { renderingUnitDetailAtom } from '../../states/renderingUnitDetail';
 import { useRemoveUnit } from '../../hooks/useUnitActions';
+import { useTranslation } from 'react-i18next';
 
 export const UnitsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IUnitListItem, unknown>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { _id, title } = cell.row.original;
   const [, setOpenUnit] = useQueryState('unit_id');
   const setRenderingUnitDetail = useSetAtom(renderingUnitDetailAtom);
@@ -28,13 +30,17 @@ export const UnitsMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to remove "${title}"?`,
+      message: t(
+        'confirm-remove-title',
+        'Are you sure you want to remove "{{title}}"?',
+        { title },
+      ),
     }).then(async () => {
       try {
         await handleRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -60,7 +66,7 @@ export const UnitsMoreColumnCell = ({
                   setRenderingUnitDetail(false);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit', 'Edit')}
               </Command.Item>
             </Can>
             <Can action="unitsManage">
@@ -69,7 +75,7 @@ export const UnitsMoreColumnCell = ({
                 onSelect={handleDelete}
                 className="text-destructive"
               >
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete', 'Delete')}
               </Command.Item>
             </Can>
           </Command.List>

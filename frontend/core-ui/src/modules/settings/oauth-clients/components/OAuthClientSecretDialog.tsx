@@ -1,6 +1,7 @@
 import { IconCheck, IconCopy, IconKey } from '@tabler/icons-react';
 import { Button, Dialog, Input, useToast } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const OAuthClientSecretDialog = ({
   open,
@@ -14,6 +15,7 @@ export const OAuthClientSecretDialog = ({
   secret?: string;
 }) => {
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -23,7 +25,7 @@ export const OAuthClientSecretDialog = ({
     setCopied(true);
     toast({
       variant: 'success',
-      title: 'Client secret copied to clipboard',
+      title: t('client-secret-copied', 'Client secret copied to clipboard'),
     });
 
     window.setTimeout(() => setCopied(false), 2000);
@@ -35,28 +37,34 @@ export const OAuthClientSecretDialog = ({
         <Dialog.Header>
           <Dialog.Title className="flex items-center gap-2">
             <IconKey size={18} />
-            Client secret created
+            {t('client-secret-created', 'Client secret created')}
           </Dialog.Title>
           <Dialog.Description>
-            Save this secret for {clientName}. It will not be shown again after
-            closing this dialog.
+            {t(
+              'client-secret-description',
+              'Save this secret for {{clientName}}. It will not be shown again after closing this dialog.',
+              { clientName },
+            )}
           </Dialog.Description>
         </Dialog.Header>
 
         <div className="space-y-3">
           <Input readOnly value={secret || ''} className="font-mono text-xs" />
           <div className="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
-            Keep this secret in a secure server-side store before you continue.
+            {t(
+              'client-secret-warning',
+              'Keep this secret in a secure server-side store before you continue.',
+            )}
           </div>
         </div>
 
         <Dialog.Footer>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
-            Close
+            {t('close', 'Close')}
           </Button>
           <Button onClick={handleCopy} disabled={!secret}>
             {copied ? <IconCheck /> : <IconCopy />}
-            {copied ? 'Copied' : 'Copy secret'}
+            {copied ? t('copied', 'Copied') : t('copy-secret', 'Copy secret')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

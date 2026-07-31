@@ -1,9 +1,11 @@
 import { cn, Sidebar, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useTagTypes } from 'ui-modules/modules/tags-new/hooks/useTagTypes';
 
 export const TagsSidebar = ({ className }: { className?: string }) => {
   const { types } = useTagTypes();
   const [type, setType] = useQueryState<string>('tagType');
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
 
   return (
     <Sidebar collapsible="none" className={cn('border-r flex-none', className)}>
@@ -20,7 +22,7 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
                     isActive={type === null}
                     onClick={() => setType(null)}
                   >
-                    Workspace tags
+                    {t('workspace-tags', 'Workspace tags')}
                   </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               )}

@@ -9,12 +9,21 @@ import {
   IconToggleRight,
 } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, Spinner, toast, useQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  Spinner,
+  toast,
+  useQueryState,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { Can } from 'ui-modules';
 import { useResendInvite } from '../../hooks/useResendInvite';
 import { useUsersStatusEdit } from '../../hooks/useUserEdit';
+import { useTranslation } from 'react-i18next';
 
 export const TeamMemberMoreColumnCell = ({
   cell,
@@ -30,6 +39,7 @@ export const TeamMemberMoreColumnCell = ({
   const { email, _id, isActive } = cell.row.original;
   const { resend, loading } = useResendInvite();
   const { editStatus } = useUsersStatusEdit();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   const handleEditPermissions = () => {
     const next = new URLSearchParams(searchParams);
@@ -64,7 +74,7 @@ export const TeamMemberMoreColumnCell = ({
           <Command.List>
             <Can action="teamMembersUpdate">
               <Command.Item value="edit" onSelect={handleEdit}>
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit', 'Edit')}
               </Command.Item>
             </Can>
             <Can action="permissionsManage">
@@ -72,7 +82,8 @@ export const TeamMemberMoreColumnCell = ({
                 value="permissions"
                 onSelect={handleEditPermissions}
               >
-                <IconSettings size={18} /> Edit Permission Groups
+                <IconSettings size={18} />{' '}
+                {t('edit-permission-groups', 'Edit Permission Groups')}
               </Command.Item>
             </Can>
             <Can action="teamMembersResetPassword">
@@ -83,7 +94,7 @@ export const TeamMemberMoreColumnCell = ({
                   setRenderingTeamMemberResetPasswordAtom(true);
                 }}
               >
-                <IconLock /> Reset Password
+                <IconLock /> {t('reset-password', 'Reset Password')}
               </Command.Item>
             </Can>
             <Can action="teamMembersUpdate">
@@ -96,9 +107,12 @@ export const TeamMemberMoreColumnCell = ({
                     },
                     onCompleted: () =>
                       toast({
-                        title: `User ${
-                          isActive ? 'deactivated' : 'activated'
-                        } successfully`,
+                        title: isActive
+                          ? t(
+                              'user-deactivated',
+                              'User deactivated successfully',
+                            )
+                          : t('user-activated', 'User activated successfully'),
                         variant: 'success',
                       }),
                     onError: (error) =>
@@ -112,7 +126,9 @@ export const TeamMemberMoreColumnCell = ({
                   ) : (
                     <IconToggleRight size={18} />
                   )}
-                  {isActive ? 'Deactivate' : 'Activate'}
+                  {isActive
+                    ? t('deactivate', 'Deactivate')
+                    : t('activate', 'Activate')}
                 </div>
               </Command.Item>
             </Can>
@@ -128,7 +144,10 @@ export const TeamMemberMoreColumnCell = ({
                       toast({ title: error.message, variant: 'destructive' }),
                     onCompleted: () =>
                       toast({
-                        title: 'Invitation has been resent',
+                        title: t(
+                          'invitation-resent',
+                          'Invitation has been resent',
+                        ),
                         variant: 'success',
                       }),
                   })
@@ -136,7 +155,7 @@ export const TeamMemberMoreColumnCell = ({
               >
                 <div className="flex items-center gap-2">
                   {loading ? <Spinner size="sm" /> : <IconRefresh size={18} />}
-                  Resend Invite
+                  {t('resend-invite', 'Resend Invite')}
                 </div>
               </Command.Item>
             </Can>

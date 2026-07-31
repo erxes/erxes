@@ -15,10 +15,16 @@ const PasswordStrength = ({ value, reTypeValue, errors }: TProps) => {
 
   const checkStrength = (pass: string, reType: string) => {
     const requirements = [
-      { regex: /.{8,}/, text: t('atleast-8') },
-      { regex: /[0-9]/, text: t('least-number') },
-      { regex: /[a-z]/, text: t('least-lowercase') },
-      { regex: /[A-Z]/, text: t('least-uppercase') },
+      { regex: /.{8,}/, text: t('atleast-8', 'At least 8 characters') },
+      { regex: /[0-9]/, text: t('least-number', 'At least 1 number') },
+      {
+        regex: /[a-z]/,
+        text: t('least-lowercase', 'At least 1 lowercase letter'),
+      },
+      {
+        regex: /[A-Z]/,
+        text: t('least-uppercase', 'At least 1 uppercase letter'),
+      },
     ];
 
     const baseChecks = requirements.map((req) => ({
@@ -28,7 +34,7 @@ const PasswordStrength = ({ value, reTypeValue, errors }: TProps) => {
 
     const confirmCheck = {
       met: pass.length > 0 && pass === reType,
-      text: t('password-same'),
+      text: t('password-same', 'Passwords must match'),
     };
 
     return [...baseChecks, confirmCheck];
@@ -79,7 +85,10 @@ const PasswordStrength = ({ value, reTypeValue, errors }: TProps) => {
         {getStrengthText(strengthScore)}. Must contain:
       </p> */}
 
-      <ul className="space-y-1.5" aria-label="Password requirements">
+      <ul
+        className="space-y-1.5"
+        aria-label={t('password-requirements', 'Password requirements')}
+      >
         {strength.map((req, index) => (
           <li key={index} className="flex items-center gap-2">
             {req.met ? (
