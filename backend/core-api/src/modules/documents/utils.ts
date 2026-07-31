@@ -28,25 +28,45 @@ export const prepareContent = ({
   const height = toDimension(paperHeight ?? config?.height);
 
   const isRoll = type === 'roll';
+  const isLabel = isRoll && !!height;
+  const isContinuous = isRoll && !height;
 
-  const sizing =
-    isRoll && !height
-      ? 'width: 100%;'
-      : isRoll
-      ? `width: ${width}mm;
+  const sizing = isContinuous
+    ? 'width: 100%;'
+    : isLabel
+    ? `width: ${width}mm;
               height: ${height}mm;
               overflow: hidden;
               break-after: page;
               page-break-after: always;`
-      : `width: ${width}mm;${
-          height ? `\n              min-height: ${height}mm;` : ''
-        }`;
+    : `width: ${width}mm;${
+        height ? `\n              min-height: ${height}mm;` : ''
+      }`;
 
-  const pageStyle = width
+  const pageRule = isLabel
+    ? `
+            @page {
+              size: ${width}mm ${height}mm;
+              margin: 0;
+            }`
+    : isContinuous
     ? `
             @page {
               margin: 0;
-            }
+            }`
+    : '';
+
+  const fitStyle = isLabel
+    ? `
+            .label-fit {
+              width: 100%;
+              text-align: left;
+              overflow-wrap: break-word;
+            }`
+    : '';
+
+  const pageStyle = width
+    ? `${pageRule}
             html,
             body {
               margin: 0;
@@ -59,7 +79,7 @@ export const prepareContent = ({
             .label-item:last-child {
               break-after: auto;
               page-break-after: auto;
-            }
+            }${fitStyle}
             img,
             svg {
               max-width: 100%;
@@ -79,7 +99,9 @@ export const prepareContent = ({
 
     htmlContents.push(
       width
-        ? `<div class="label-item">${html}</div>`
+        ? `<div class="label-item">${
+            isLabel ? `<div class="label-fit">${html}</div>` : html
+          }</div>`
         : `<div style="margin-bottom: 2mm">${html}</div>`,
     );
   }
