@@ -15,6 +15,42 @@ const toDimension = (value?: number | string) => {
   return num;
 };
 
+const isBlankBlock = (block: any) => {
+  if (!block || block.type !== 'paragraph') {
+    return false;
+  }
+
+  if (!Array.isArray(block.content) || !block.content.length) {
+    return true;
+  }
+
+  return block.content.every(
+    (item: any) => item?.type === 'text' && !String(item.text || '').trim(),
+  );
+};
+
+const trimBlankBlocks = (content: string) => {
+  try {
+    const blocks = JSON.parse(content);
+
+    if (!Array.isArray(blocks)) {
+      return content;
+    }
+
+    let end = blocks.length;
+
+    while (end > 0 && isBlankBlock(blocks[end - 1])) {
+      end -= 1;
+    }
+
+    return end === blocks.length
+      ? content
+      : JSON.stringify(blocks.slice(0, end));
+  } catch {
+    return content;
+  }
+};
+
 export const prepareContent = ({
   contents,
   config,
@@ -59,9 +95,16 @@ export const prepareContent = ({
   const fitStyle = isLabel
     ? `
             .label-fit {
+              display: flow-root;
               width: 100%;
               text-align: left;
               overflow-wrap: break-word;
+            }
+            .label-fit > :first-child {
+              margin-top: 0 !important;
+            }
+            .label-fit > :last-child {
+              margin-bottom: 0 !important;
             }`
     : '';
 
@@ -95,7 +138,7 @@ export const prepareContent = ({
   let htmlContents: string[] = [];
 
   for (const content of contents) {
-    const html = blocksToHtml(content, {});
+    const html = blocksToHtml(trimBlankBlocks(content), {});
 
     htmlContents.push(
       width

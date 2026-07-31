@@ -333,8 +333,26 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
     }
 
     case 'table': {
-      const { rows } = content || {};
+      const { rows, columnWidths } = content || {};
       if (!rows || !Array.isArray(rows)) return '';
+
+      const widths: number[] = (columnWidths || []).map(
+        (columnWidth: unknown) => Number(columnWidth) || 0,
+      );
+
+      const totalWidth = widths.reduce((sum, width) => sum + width, 0);
+
+      const colgroup =
+        totalWidth > 0 && widths.every((width) => width > 0)
+          ? `<colgroup>${widths
+              .map(
+                (width) =>
+                  `<col style="width: ${
+                    Math.round((width / totalWidth) * 10000) / 100
+                  }%" />`,
+              )
+              .join('')}</colgroup>`
+          : '';
 
       const tableRows = rows
         .map((row: any, rowIndex: number) => {
@@ -370,7 +388,7 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
         .join('');
 
       return `<table style="${mergeStyles(baseStyles.table, customStyle)}">
-        <tbody>${tableRows}</tbody>
+        ${colgroup}<tbody>${tableRows}</tbody>
       </table>`;
     }
 
