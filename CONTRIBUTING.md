@@ -150,7 +150,8 @@ implementations, debug logs, or untracked TODOs.
 
 ### TypeScript and exports
 
-- Use named exports. Do not introduce default exports.
+- Use named exports in application code. Allow a default export only when Nx,
+  Rspack, or another external tool contract requires it.
 - Fully type new and modified code. Do not add `any`, `as any`, or unnecessary
   casts.
 - Preserve local naming, import aliases, and file organization.
@@ -233,12 +234,12 @@ project:
 ```bash
 pnpm nx lint <project>
 pnpm nx build <project>
-pnpm nx test <project>
+pnpm nx test <project> # when project.json defines a test target
 ```
 
-Run tests when the project has tests or when tests were changed. Also confirm
-that TypeScript compiles without new errors and that the final change contains
-no unrelated files.
+Run tests only when the project defines a test target and the affected behavior
+is covered by tests. Also confirm that TypeScript compiles without new errors
+and that the final change contains no unrelated files.
 
 For changes spanning multiple projects, Nx can run the affected graph:
 

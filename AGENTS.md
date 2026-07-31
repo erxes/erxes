@@ -28,8 +28,8 @@ Plugins keep local guides at `backend/plugins/<name>_api/AGENTS.md` and
 `frontend/plugins/<name>_ui/AGENTS.md`. A plugin guide is loaded on demand:
 read it whenever that plugin is in scope, and do not load guides for unrelated
 plugins. Every plugin implementation change must create the applicable guide if
-it is absent and update it before delivery. Beyond the required bounded
-recent-change metadata defined below, keep only durable facts and rules in a
+it is absent and update it before delivery. Beyond the bounded recent-change
+metadata required below, keep only durable facts and rules in a
 plugin guide; never use it as a task journal or backlog.
 
 ---
@@ -140,7 +140,7 @@ monorepo of microservices (backend) and Module Federation micro-frontends
 
 ## Repository Structure
 
-```
+```text
 backend/
   gateway/             API gateway (4000)
   core-api/            Core business logic (3300): apollo/, trpc/, modules/, meta/
@@ -298,7 +298,7 @@ Use this exact section order:
 
 - `pnpm nx lint <project-name>`
 - `pnpm nx build <project-name>`
-- `pnpm nx test <project-name>`
+- `pnpm nx test <project-name>` (when `project.json` defines a test target)
 - `<plugin-specific smoke scenario>`
 
 ## Recent Changes
