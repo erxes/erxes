@@ -22,7 +22,7 @@ export const useCompaniesEdit = () => {
         }
 
         const nextValues: Record<string, unknown> = {
-          ...(variables || {}),
+          ...variables,
           ...updated,
         };
         delete nextValues.__typename;
