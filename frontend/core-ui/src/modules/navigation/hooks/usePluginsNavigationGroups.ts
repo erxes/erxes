@@ -42,6 +42,7 @@ export type NavigationGroupContent = ComponentType;
 export interface NavigationGroupResult {
   icon?: ElementType;
   contents: NavigationGroupContent[];
+  defaultPath: string;
   subGroups: NavigationGroupContent[];
   modules: NonNullable<IUIConfig['modules']>;
   name: string;
@@ -71,6 +72,7 @@ export const usePluginsNavigationGroups = () => {
 
         const existingGroup = acc[groupName] || {
           contents: [],
+          defaultPath: plugin.path,
           subGroups: [],
           modules: [],
         };
@@ -89,6 +91,8 @@ export const usePluginsNavigationGroups = () => {
           name: groupName,
           icon: plugin.navigationGroup?.icon || existingGroup.icon,
           contents: updatedContents,
+          defaultPath:
+            plugin.navigationGroup?.defaultPath || existingGroup.defaultPath,
           subGroups: updatedSubGroups,
           modules: [...existingGroup.modules, ...(plugin.modules || [])],
           i18n: plugin.i18n || existingGroup.i18n,
