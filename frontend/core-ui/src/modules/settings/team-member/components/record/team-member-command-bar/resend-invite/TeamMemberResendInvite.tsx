@@ -13,7 +13,6 @@ export const TeamMemberResendInvite = ({
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
 
-  // Invitations can only be resent to members who have not confirmed theirs yet.
   const pendingEmails = teamMembers
     .filter(({ status }) => status !== EStatus.Verified)
     .map(({ email }) => email);

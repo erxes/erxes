@@ -23,9 +23,6 @@ export const TeamMemberDeactivate = ({
   const { toast } = useToast();
   const currentUserId = useAtomValue(currentUserState)?._id;
 
-  // Only active members can be deactivated and the backend rejects the whole
-  // batch when it contains the requesting user, so wait until the current user
-  // is loaded before allowing the action.
   const teamMemberIds = currentUserId
     ? teamMembers
         .filter(

@@ -3,7 +3,6 @@ import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { useState } from 'react';
 
 type InviteResendResult = {
-  // The registration token of the reinvited user.
   usersResendInvitation: string;
 };
 
@@ -39,8 +38,6 @@ export const useResendInvites = () => {
     InviteResendResult,
     InviteResendVariables
   >(mutations.USERS_RESEND_INVITATION);
-  // Apollo only reports the state of the latest mutation, so the whole batch is
-  // tracked here instead.
   const [loading, setLoading] = useState(false);
 
   const handleResendMany = async (emails: string[]) => {
