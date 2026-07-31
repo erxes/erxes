@@ -1,3 +1,4 @@
+export * from './address';
 export * from './attachments';
 export * from './config';
 export * from './constants';

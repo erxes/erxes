@@ -5,7 +5,7 @@ import {
   SENDGRID_TIMESTAMP_HEADER,
   verifySendgridSignature,
 } from 'erxes-api-shared/utils';
-import { getSubdomain } from 'erxes-api-shared/utils';
+import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 
@@ -25,6 +25,26 @@ const EVENT_MAP: Record<
   dropped: { sesType: 'reject', field: 'bounced', suppress: true },
   spamreport: { sesType: 'complaint', field: 'complained', suppress: true },
 };
+
+/**
+ * SendGrid reports a full mailbox and a mailbox that does not exist under the
+ * same `bounce` event, separating them only by `type`. Treating both as
+ * permanent would close addresses whose owner was merely over quota that day.
+ */
+const isHardBounce = (event: ISendgridEvent) => {
+  const name = String(event.event);
+
+  if (name === 'dropped') {
+    // SendGrid refused it against what it already knows about the address.
+    return true;
+  }
+
+  return name === 'bounce' && String(event.type || 'bounce') !== 'blocked';
+};
+
+/** A verdict there is no coming back from: the address is gone, or unwanted. */
+const isPermanent = (event: ISendgridEvent) =>
+  String(event.event) === 'spamreport' || isHardBounce(event);
 
 /** The delivery row's own status, which is a narrower set than the events. */
 const DELIVERY_STATUS: Record<string, string> = {
@@ -54,6 +74,9 @@ const recordDelivery = async (
     {
       $set: {
         ...(status ? { deliveryStatus: status } : {}),
+        // What the receiving server actually said. The address record keeps
+        // only the current verdict, so the per-send explanation lives here.
+        ...(event.reason ? { providerResponse: String(event.reason) } : {}),
         deliveryStatusAt: new Date(),
         updatedAt: new Date(),
       },
@@ -99,6 +122,40 @@ const recordCampaign = async (models: IModels, event: ISendgridEvent) => {
   await models.DeliveryReports.create({ ...report, status: sesType });
 };
 
+/**
+ * Updates what this organization knows about the address itself, which is what
+ * later decides whether it may be mailed again. Everything else the webhook
+ * writes is per-message; this is the part that outlives the message.
+ */
+const recordAddress = async (models: IModels, event: ISendgridEvent) => {
+  const name = String(event.event);
+  const email = event.email;
+
+  if (!email) {
+    return;
+  }
+
+  if (name === 'delivered') {
+    return models.EmailAddresses.recordDelivered(email);
+  }
+
+  if (name === 'spamreport') {
+    return models.EmailAddresses.suppress(email, 'complaint');
+  }
+
+  if (name !== 'bounce' && name !== 'dropped') {
+    return;
+  }
+
+  if (isHardBounce(event)) {
+    return models.EmailAddresses.suppress(email, 'hard_bounce');
+  }
+
+  const limit = Number(getEnv({ name: 'EMAIL_SOFT_BOUNCE_LIMIT' }) || 3);
+
+  await models.EmailAddresses.recordSoftBounce(email, limit);
+};
+
 const handleEvent = async (models: IModels, event: ISendgridEvent) => {
   const mapped = EVENT_MAP[String(event.event)];
 
@@ -108,8 +165,11 @@ const handleEvent = async (models: IModels, event: ISendgridEvent) => {
 
   await recordDelivery(models, event, mapped.field);
   await recordCampaign(models, event);
+  await recordAddress(models, event);
 
-  if (mapped.suppress && event.CustomerId) {
+  // A temporary failure is not a reason to stop mailing someone, so only the
+  // permanent verdicts reach the customer's own subscription flag.
+  if (mapped.suppress && event.CustomerId && isPermanent(event)) {
     await models.Customers.updateSubscriptionStatus({
       _id: event.CustomerId as string,
       status: mapped.sesType,

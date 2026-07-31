@@ -20,12 +20,24 @@ export interface IEmailDeliveryModel extends Model<IEmailDeliveriesDocument> {
 export const loadEmailDeliveryClass = (models: IModels) => {
   class EmailDelivery {
     /**
-     * Create an EmailDelivery document
+     * Create an EmailDelivery document.
+     *
+     * Stamping each recipient's own history happens here rather than at the
+     * call sites because every send arrives through this method — core's send
+     * path directly, the automations service over tRPC — and a second place to
+     * remember is a place that eventually gets forgotten.
      */
     public static async createEmailDelivery(doc: IEmailDeliveries) {
-      return models.EmailDeliveries.create({
+      const delivery = await models.EmailDeliveries.create({
         ...doc,
       });
+
+      await models.EmailAddresses.recordSent([
+        ...(doc.toEmails || []),
+        ...(doc.ccEmails || []),
+      ]);
+
+      return delivery;
     }
 
     public static async updateEmailDeliveryStatus(

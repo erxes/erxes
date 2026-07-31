@@ -93,6 +93,7 @@ import {
   IActivityLogDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
+  IEmailAddressDocument,
   IEmailDeliveryDocument,
   IEmailSenderDocument,
   INotificationDocument,
@@ -223,6 +224,10 @@ import {
   loadFormSubmissionClass,
 } from './modules/forms/db/models/Forms';
 import {
+  IEmailAddressModel,
+  loadEmailAddressClass,
+} from './modules/organization/team-member/db/models/EmailAddresses';
+import {
   IEmailDeliveryModel,
   loadEmailDeliveryClass,
 } from './modules/organization/team-member/db/models/EmailDeliveries';
@@ -329,6 +334,7 @@ export interface IModels {
   Imports: IImportModel;
   Exports: IExportModel;
   Notifications: Model<INotificationDocument>;
+  EmailAddresses: IEmailAddressModel;
   EmailDeliveries: IEmailDeliveryModel;
   EmailSenders: IEmailSenderModel;
   ClientPortal: IClientPortalModel;
@@ -608,6 +614,11 @@ export const loadClasses = (
     NotificationSettings,
     Model<NotificationSettings>
   >('notification_settings', notificationSettingsSchema);
+
+  models.EmailAddresses = db.model<IEmailAddressDocument, IEmailAddressModel>(
+    'email_addresses',
+    loadEmailAddressClass(models),
+  );
 
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
