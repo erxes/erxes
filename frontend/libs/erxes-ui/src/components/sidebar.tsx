@@ -1,4 +1,3 @@
-// skipcq: JS-C1003 - This primitive uses React APIs and namespace-qualified types.
 import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { cva, VariantProps } from 'class-variance-authority';

@@ -2,6 +2,7 @@ import { NavigationActivityMore } from '@/navigation/components/NavigationActivi
 import { NavigationActivityPinButton } from '@/navigation/components/NavigationActivityPinButton';
 import { NavigationCorePanelContent } from '@/navigation/components/NavigationCoreModules';
 import { NavigationPluginPanelContent } from '@/navigation/components/NavigationPlugins';
+import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
 import { SidebarNavigationFavorites } from '@/navigation/components/SidebarNavigationFavorites';
@@ -143,24 +144,17 @@ const NavigationActivityButton = ({
   const Icon = activity.icon || IconApps;
 
   return (
-    <div
-      className={cn(
-        'group/activity relative flex min-w-0 shrink-0',
-        expanded ? 'h-7 w-full' : 'size-7',
-      )}
-    >
+    <div className="group/activity relative flex h-7 w-full min-w-0 shrink-0">
       <Button
         aria-label={activity.label}
         className={cn(
-          'relative shrink-0 rounded-md [&>svg]:size-4!',
-          expanded
-            ? 'h-7 min-w-0 flex-1 justify-start gap-2 px-2 text-sm'
-            : 'size-7 justify-center px-0',
+          'relative h-7 min-w-0 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+          expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           expanded && onPinnedChange && 'pr-8',
           active && 'bg-primary/10 text-primary hover:bg-primary/10',
         )}
         onClick={onSelect}
-        size={expanded ? 'default' : 'icon'}
+        size="default"
         variant="ghost"
       >
         {active && (
@@ -172,11 +166,12 @@ const NavigationActivityButton = ({
             active && 'text-primary',
           )}
         />
-        {expanded && (
-          <span className="min-w-0 truncate text-left font-medium">
-            {activity.label}
-          </span>
-        )}
+        <NavigationRailLabel
+          className="truncate text-left font-medium"
+          expanded={expanded}
+        >
+          {activity.label}
+        </NavigationRailLabel>
         {expanded && indicator}
       </Button>
       {expanded && onPinnedChange && pinned !== undefined && (
@@ -260,7 +255,7 @@ const NavigationActivityHover = ({
     >
       <HoverCard.Trigger asChild>
         <div
-          className="flex shrink-0"
+          className="flex w-full shrink-0"
           onBlur={scheduleClose}
           onFocus={keepOpen}
           onPointerEnter={keepOpen}
@@ -293,6 +288,7 @@ export const NavigationActivityRail = ({
   isInboxActive,
   isActivityPinned,
   isSettings,
+  mobileExpanded,
   onActivityPinnedChange,
   onSearch,
   onSelectInbox,
@@ -304,6 +300,7 @@ export const NavigationActivityRail = ({
   isInboxActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
+  mobileExpanded: boolean;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSearch: () => void;
   onSelectInbox: () => void;
@@ -315,7 +312,7 @@ export const NavigationActivityRail = ({
   const { t: sidebarT } = useTranslation('common', {
     keyPrefix: 'sidebar',
   });
-  const expanded = state === 'expanded' && !isMobile;
+  const expanded = isMobile ? mobileExpanded : state === 'expanded';
   const hoverEnabled = !expanded && !isMobile;
   const [previewActivityId, setPreviewActivityId] = useState<string | null>(
     null,
@@ -384,9 +381,9 @@ export const NavigationActivityRail = ({
   return (
     <aside
       className={cn(
-        'flex shrink-0 flex-col bg-sidebar px-2 py-2',
-        isMobile && 'border-r',
-        expanded ? 'w-full items-stretch' : 'w-14 items-center',
+        'flex w-full shrink-0 flex-col border-r bg-sidebar px-2 py-2',
+        expanded && 'border-none!',
+        isMobile && !expanded && 'w-14',
       )}
     >
       <NavigationRailLogo expanded={expanded} />
@@ -394,26 +391,24 @@ export const NavigationActivityRail = ({
         aria-label={t('go-to')}
         aria-keyshortcuts="Control+M Meta+M"
         className={cn(
-          'mb-1 rounded-md [&>svg]:size-4!',
-          expanded
-            ? 'h-7 w-full justify-start gap-2 px-2 text-sm'
-            : 'size-7 justify-center px-0',
+          'mb-1 h-7 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+          expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
         )}
         onClick={onSearch}
-        size={expanded ? 'default' : 'icon'}
+        size="default"
         title={t('go-to')}
         type="button"
         variant="ghost"
       >
         <IconSearch className="size-4 text-accent-foreground" />
-        {expanded && <span className="truncate font-medium">{t('go-to')}</span>}
+        <NavigationRailLabel
+          className="truncate font-medium"
+          expanded={expanded}
+        >
+          {t('go-to')}
+        </NavigationRailLabel>
       </Button>
-      <div
-        className={cn(
-          'flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden',
-          expanded ? 'items-stretch gap-1' : 'items-center gap-1',
-        )}
-      >
+      <div className="flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-x-hidden overflow-y-auto">
         <NavigationActivitySection
           expanded={expanded}
           label={sidebarT('favorites')}

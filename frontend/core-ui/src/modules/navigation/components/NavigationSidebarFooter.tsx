@@ -2,6 +2,7 @@ import { useAuth } from '@/auth/hooks/useAuth';
 import { SelectLanguages } from '@/navigation/components/SelectLanguages';
 import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { User } from '@/navigation/components/User';
+import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
 import { AppPath } from '@/types/paths/AppPath';
 import { SettingsPath } from '@/types/paths/SettingsPath';
 import { IconChevronRight, IconSettings } from '@tabler/icons-react';
@@ -26,22 +27,15 @@ export const NavigationSidebarFooter = ({
   const userName = userDetails?.fullName || sidebarT('profile');
 
   return (
-    <div
-      className={cn(
-        'flex flex-col gap-1 pb-2',
-        expanded ? 'items-stretch' : 'items-center',
-      )}
-    >
+    <div className="flex flex-col items-stretch gap-1 pb-2">
       <Button
         asChild
         className={cn(
-          'rounded-md [&>svg]:size-4!',
-          expanded
-            ? 'h-7 w-full justify-start gap-2 px-2 text-sm'
-            : 'size-7 justify-center px-0',
+          'h-7 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+          expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           isSettings && 'bg-primary/10',
         )}
-        size={expanded ? 'default' : 'icon'}
+        size="default"
         variant="ghost"
       >
         <Link
@@ -54,11 +48,12 @@ export const NavigationSidebarFooter = ({
               isSettings && 'text-primary',
             )}
           />
-          {expanded && (
-            <span className="truncate font-medium">
-              {organizationT('settings')}
-            </span>
-          )}
+          <NavigationRailLabel
+            className="truncate font-medium"
+            expanded={expanded}
+          >
+            {organizationT('settings')}
+          </NavigationRailLabel>
         </Link>
       </Button>
       <DropdownMenu>
@@ -66,12 +61,10 @@ export const NavigationSidebarFooter = ({
           <Button
             aria-label={sidebarT('profile')}
             className={cn(
-              'rounded-md',
-              expanded
-                ? 'h-10 w-full justify-start gap-2 px-2 text-sm'
-                : 'size-7 justify-center px-0',
+              'h-10 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear',
+              expanded ? 'w-full px-2' : 'ml-1.5 w-7 gap-0 px-0.5',
             )}
-            size={expanded ? 'default' : 'icon'}
+            size="default"
             variant="ghost"
           >
             <Avatar className="size-6">
@@ -83,14 +76,15 @@ export const NavigationSidebarFooter = ({
                 {userName.charAt(0)}
               </Avatar.Fallback>
             </Avatar>
-            {expanded && (
-              <span className="grid min-w-0 flex-1 text-left leading-tight">
-                <span className="truncate font-medium">{userName}</span>
-                <span className="truncate text-[11px] text-muted-foreground">
-                  {currentUser?.email}
-                </span>
+            <NavigationRailLabel
+              className="grid flex-1 text-left leading-tight"
+              expanded={expanded}
+            >
+              <span className="truncate font-medium">{userName}</span>
+              <span className="truncate text-[11px] text-muted-foreground">
+                {currentUser?.email}
               </span>
-            )}
+            </NavigationRailLabel>
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content

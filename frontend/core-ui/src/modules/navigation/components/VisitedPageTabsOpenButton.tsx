@@ -30,7 +30,7 @@ export const VisitedPageTabsOpenButton = () => {
           <Button
             aria-keyshortcuts={toggleTabsAriaShortcut}
             aria-label={label}
-            className="h-8 min-w-8 shrink-0 gap-1 rounded-md border bg-sidebar px-1.5 text-xs font-semibold text-foreground shadow-sm tabular-nums hover:bg-accent"
+            className="h-8 min-w-8 shrink-0 gap-1 rounded-md px-1.5 text-xs font-semibold text-foreground tabular-nums hover:bg-accent-foreground/10"
             onClick={() => setTabsVisible(true)}
             type="button"
             variant="ghost"

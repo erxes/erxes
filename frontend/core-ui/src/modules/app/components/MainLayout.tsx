@@ -3,10 +3,7 @@ import { MobileNavigationTrigger } from '@/navigation/components/MobileNavigatio
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
 import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
-import {
-  navigationPanelOpenState,
-  navigationSidebarOpenState,
-} from '@/navigation/states/navigationPanelState';
+import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 import { cn, Sidebar, useQueryState } from 'erxes-ui';
@@ -45,7 +42,6 @@ const NavigationWorkspace = () => {
 
 export const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useAtom(navigationSidebarOpenState);
-  const panelOpen = useAtomValue(navigationPanelOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');
   const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
 
@@ -67,10 +63,6 @@ export const DefaultLayout = () => {
         collapsible="icon"
         variant="sidebar"
         className={cn('p-0', tabsVisible && 'pt-10')}
-        mobileClassName={cn(
-          'transition-[width] duration-200 ease-out motion-reduce:transition-none',
-          !panelOpen && 'w-24',
-        )}
       >
         <MainNavigationBar />
       </Sidebar>

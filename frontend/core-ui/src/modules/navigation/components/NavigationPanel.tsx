@@ -44,6 +44,7 @@ export const NavigationPanel = () => {
     navigationGroup?.contents.length || navigationGroup?.subGroups.length,
   );
   const shouldShowPanel = isSettings || hasActivityPanel;
+  const expanded = isMobile || panelOpen;
   let title = activity?.label;
 
   if (isSettings) {
@@ -51,7 +52,7 @@ export const NavigationPanel = () => {
   }
 
   const toggleLabel = navigationT(
-    panelOpen ? 'collapse-plugin-navigation' : 'expand-plugin-navigation',
+    expanded ? 'collapse-plugin-navigation' : 'expand-plugin-navigation',
   );
   let panelContent = (
     <ScrollArea
@@ -74,45 +75,47 @@ export const NavigationPanel = () => {
 
   return (
     <aside
-      data-state={panelOpen ? 'expanded' : 'collapsed'}
-      className={getNavigationPanelClassName(panelOpen, isMobile)}
+      data-state={expanded ? 'expanded' : 'collapsed'}
+      className={getNavigationPanelClassName(expanded, isMobile)}
     >
       <header
         className={cn(
           'flex h-13 w-full min-w-10 shrink-0 items-center gap-2 overflow-hidden pt-1',
-          panelOpen ? 'px-2' : 'justify-center px-1',
+          expanded ? 'px-2' : 'justify-center px-1',
         )}
       >
         <span
-          aria-hidden={!panelOpen}
+          aria-hidden={!expanded}
           className={cn(
             'min-w-0 flex-1 truncate px-1 text-[13px] font-semibold transition-opacity duration-100 motion-reduce:delay-0 motion-reduce:transition-none',
-            panelOpen
+            expanded
               ? 'visible delay-100 opacity-100'
               : 'invisible delay-0 opacity-0',
           )}
         >
           {title}
         </span>
-        <Button
-          aria-label={toggleLabel}
-          className="size-8 shrink-0"
-          onClick={() => setPanelOpen((open) => !open)}
-          size="icon"
-          title={toggleLabel}
-          variant="ghost"
-        >
-          {panelOpen ? <IconChevronsLeft /> : <IconChevronsRight />}
-        </Button>
+        {!isMobile && (
+          <Button
+            aria-label={toggleLabel}
+            className="size-8 shrink-0"
+            onClick={() => setPanelOpen((open) => !open)}
+            size="icon"
+            title={toggleLabel}
+            variant="ghost"
+          >
+            {expanded ? <IconChevronsLeft /> : <IconChevronsRight />}
+          </Button>
+        )}
       </header>
-      {!panelOpen && !isMobile && (
+      {!expanded && !isMobile && (
         <Separator.Inline className="absolute top-1/2 right-0 -translate-y-1/2" />
       )}
       <div
-        aria-hidden={!panelOpen}
+        aria-hidden={!expanded}
         className={cn(
           'min-h-0 w-full flex-1 overflow-hidden transition-opacity duration-100 motion-reduce:delay-0 motion-reduce:transition-none',
-          panelOpen
+          expanded
             ? 'visible delay-100 opacity-100'
             : 'invisible delay-0 opacity-0',
         )}
