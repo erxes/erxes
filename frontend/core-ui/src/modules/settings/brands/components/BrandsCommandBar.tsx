@@ -26,11 +26,12 @@ export const BrandsCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: t(
-        'confirm-remove-selected',
-        'Are you sure you want to remove the selected({{count}})?',
-        { count: ids?.length },
-      ),
+      message: t('confirm-remove-selected', {
+        count: ids?.length,
+        defaultValue_one: 'Are you sure you want to remove the selected brand?',
+        defaultValue_other:
+          'Are you sure you want to remove the {{count}} selected brands?',
+      }),
       options: confirmOptions,
     }).then(async () => {
       try {

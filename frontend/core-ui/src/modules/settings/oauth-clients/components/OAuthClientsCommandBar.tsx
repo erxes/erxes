@@ -23,11 +23,13 @@ export const OAuthClientsCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: t(
-        'confirm-remove-selected',
-        'Are you sure you want to remove the selected ({{count}})?',
-        { count: ids.length },
-      ),
+      message: t('confirm-remove-selected', {
+        count: ids.length,
+        defaultValue_one:
+          'Are you sure you want to remove the selected OAuth client?',
+        defaultValue_other:
+          'Are you sure you want to remove the {{count}} selected OAuth clients?',
+      }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
       try {

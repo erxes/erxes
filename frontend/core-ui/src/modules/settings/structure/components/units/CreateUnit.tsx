@@ -77,7 +77,7 @@ export const CreateUnit = () => {
           }),
       });
     },
-    [handleAdd],
+    [handleAdd, t],
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>

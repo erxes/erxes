@@ -55,7 +55,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
         {value ? (
           <img
             src={readImage(value, 64)}
-            alt="Logo"
+            alt={t('logo', 'Logo')}
             className="size-full object-contain"
           />
         ) : (
@@ -73,7 +73,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
             onClick={handleClick}
           >
             {isLoading ? <Spinner /> : <IconUpload className="size-4" />}
-            {value ? 'Change' : 'Upload'}
+            {value ? t('change', 'Change') : t('upload', 'Upload')}
           </Button>
 
           {value ? (
@@ -91,7 +91,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          PNG, JPG, SVG — max 2 MB
+          {t('logo-upload-hint', 'PNG, JPG, SVG — max 2 MB')}
         </p>
       </div>
 

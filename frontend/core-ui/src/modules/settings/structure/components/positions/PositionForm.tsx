@@ -30,7 +30,7 @@ export const PositionForm = ({ loading }: { loading?: boolean }) => {
         render={({ field }) => {
           return (
             <Form.Item className="col-span-2">
-              <Form.Label>{'Team members'}</Form.Label>
+              <Form.Label>{t('team-members', 'Team members')}</Form.Label>
               <Form.Control>
                 <SelectMember.FormItem
                   value={field.value ?? []}

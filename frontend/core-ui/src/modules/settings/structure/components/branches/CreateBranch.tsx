@@ -77,7 +77,7 @@ export const CreateBranch = () => {
           }),
       });
     },
-    [handleAdd],
+    [handleAdd, t],
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>

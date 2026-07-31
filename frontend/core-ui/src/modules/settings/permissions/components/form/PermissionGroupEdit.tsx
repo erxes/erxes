@@ -47,7 +47,7 @@ export const PermissionGroupEdit = ({
         },
       });
     },
-    [loading, editPermissionGroup, group._id],
+    [loading, editPermissionGroup, group._id, t],
   );
 
   const defaultValues: Partial<IPermissionGroupSchema> = {

@@ -106,7 +106,7 @@ export const BranchEdit = () => {
               </Button>
               <Can action="branchesManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save', 'Save')}
                 </Button>
               </Can>
             </Sheet.Footer>

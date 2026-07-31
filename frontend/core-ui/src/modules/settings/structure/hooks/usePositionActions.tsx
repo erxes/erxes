@@ -63,6 +63,7 @@ export function useRemovePosition() {
 }
 
 export function usePositionInlineEdit() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [_positionsEdit, { loading }] = useMutation(EDIT_POSITION);
   const { toast } = useToast();
 
@@ -87,7 +88,11 @@ export function usePositionInlineEdit() {
       onCompleted: (data) => {
         if (data?.positionsEdit) {
           toast({
-            title: `Position ${data.positionsEdit.code} updated successfully.`,
+            title: t(
+              'position-code-updated',
+              'Position {{code}} updated successfully.',
+              { code: data.positionsEdit.code },
+            ),
           });
         }
       },

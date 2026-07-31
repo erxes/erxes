@@ -107,9 +107,9 @@ export const TeamMemberMoreColumnCell = ({
                     },
                     onCompleted: () =>
                       toast({
-                        title: `User ${
-                          isActive ? 'deactivated' : 'activated'
-                        } successfully`,
+                        title: isActive
+                          ? t('user-deactivated', 'User deactivated successfully')
+                          : t('user-activated', 'User activated successfully'),
                         variant: 'success',
                       }),
                     onError: (error) =>
@@ -123,7 +123,9 @@ export const TeamMemberMoreColumnCell = ({
                   ) : (
                     <IconToggleRight size={18} />
                   )}
-                  {isActive ? 'Deactivate' : 'Activate'}
+                  {isActive
+                    ? t('deactivate', 'Deactivate')
+                    : t('activate', 'Activate')}
                 </div>
               </Command.Item>
             </Can>

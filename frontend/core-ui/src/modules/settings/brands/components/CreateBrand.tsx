@@ -89,7 +89,7 @@ export const CreateBrand = () => {
           }),
       });
     },
-    [brandsAdd, toast, reset, onClose],
+    [brandsAdd, toast, reset, onClose, t],
   );
 
   return (

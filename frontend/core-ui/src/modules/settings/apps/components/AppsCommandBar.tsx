@@ -23,11 +23,12 @@ export const AppsCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: t(
-        'confirm-remove-selected',
-        'Are you sure you want to remove the selected ({{count}})?',
-        { count: ids.length },
-      ),
+      message: t('confirm-remove-selected', {
+        count: ids.length,
+        defaultValue_one: 'Are you sure you want to remove the selected app?',
+        defaultValue_other:
+          'Are you sure you want to remove the {{count}} selected apps?',
+      }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
       try {

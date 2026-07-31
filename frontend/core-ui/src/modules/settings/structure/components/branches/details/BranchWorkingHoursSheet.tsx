@@ -184,7 +184,10 @@ const HolidaysSection = () => {
             {t('custom-holidays', 'Custom holidays')}
           </span>
           <span className="text-sm text-accent-foreground">
-            Add special non-working periods for this branch
+            {t(
+              'special-non-working-periods',
+              'Add special non-working periods for this branch',
+            )}
           </span>
         </div>
         <Can action="branchesManage">
@@ -196,7 +199,7 @@ const HolidaysSection = () => {
 
       {fields.length === 0 ? (
         <span className="text-sm text-accent-foreground py-2">
-          No holidays added yet.
+          {t('no-holidays-yet', 'No holidays added yet.')}
         </span>
       ) : (
         <div className="flex flex-col gap-2">

@@ -21,11 +21,13 @@ export const TeamMemberDelete = ({
         className="text-destructive"
         onClick={() =>
           confirm({
-            message: t(
-              'confirm-delete-selected',
-              'Are you sure you want to delete the {{count}} selected team member?',
-              { count: teamMemberIds.length },
-            ),
+            message: t('confirm-delete-selected', {
+              count: teamMemberIds.length,
+              defaultValue_one:
+                'Are you sure you want to delete the selected team member?',
+              defaultValue_other:
+                'Are you sure you want to delete the {{count}} selected team members?',
+            }),
           }).then(async () => {
             try {
               await removeTeamMember(teamMemberIds);

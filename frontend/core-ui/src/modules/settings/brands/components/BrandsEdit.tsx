@@ -71,7 +71,7 @@ export const BrandsEdit = () => {
         ['name', 'description'],
       );
     },
-    [handleEdit, methods, toast, brandId, setOpen],
+    [handleEdit, methods, toast, brandId, setOpen, t],
   );
 
   React.useEffect(() => {

@@ -47,7 +47,10 @@ const useConfig = () => {
     }
 
     confirm({
-      message: 'Are you sure you want to update file configs?',
+      message: t(
+        'confirm-update-configs',
+        'Are you sure you want to update file configs?',
+      ),
       options: confirmOptions,
     })
       .then(() => update({ variables: { configsMap: { ...args } } }))

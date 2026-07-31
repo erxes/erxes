@@ -45,7 +45,7 @@ export const BranchForm = () => {
         name="supervisorId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Supervisor'}</Form.Label>
+            <Form.Label>{t('supervisor', 'Supervisor')}</Form.Label>
             <SelectMember.FormItem
               value={field.value ?? ''}
               onValueChange={field.onChange}
@@ -59,7 +59,7 @@ export const BranchForm = () => {
         name="parentId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Parent'}</Form.Label>
+            <Form.Label>{t('parent', 'Parent')}</Form.Label>
             <SelectBranches.FormItem
               value={field.value as string}
               onValueChange={field.onChange}
@@ -73,7 +73,7 @@ export const BranchForm = () => {
         name="userIds"
         render={({ field }) => (
           <Form.Item className="col-span-2">
-            <Form.Label>{'Team members'}</Form.Label>
+            <Form.Label>{t('team-members', 'Team members')}</Form.Label>
             <SelectMember.FormItem
               value={field.value ?? []}
               onValueChange={field.onChange}
@@ -88,7 +88,7 @@ export const BranchForm = () => {
         name="phoneNumber"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Phone number'}</Form.Label>
+            <Form.Label>{t('phone-number', 'Phone number')}</Form.Label>
             <Form.Control>
               <PhoneInput {...field} value={field.value as string} />
             </Form.Control>
@@ -152,7 +152,7 @@ export const BranchForm = () => {
         name="coordinate.latitude"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'latitude'}</Form.Label>
+            <Form.Label>{t('latitude', 'Latitude')}</Form.Label>
             <Form.Control>
               <Input
                 {...field}
@@ -169,7 +169,7 @@ export const BranchForm = () => {
         name="coordinate.longitude"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'longitude'}</Form.Label>
+            <Form.Label>{t('longitude', 'Longitude')}</Form.Label>
             <Form.Control>
               <Input
                 {...field}

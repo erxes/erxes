@@ -47,7 +47,7 @@ export function SelectTeamMemberMasterUsers() {
                 <Form.Label>
                   {t(
                     'team-members-access-branches',
-                    'Team members who can access every branches',
+                    'Team members who can access all branches',
                   )}
                 </Form.Label>
                 <Form.Control>
@@ -71,7 +71,7 @@ export function SelectTeamMemberMasterUsers() {
                 <Form.Label>
                   {t(
                     'team-members-access-departments',
-                    'Team members who can access every departments',
+                    'Team members who can access all departments',
                   )}
                 </Form.Label>
                 <Form.Control>

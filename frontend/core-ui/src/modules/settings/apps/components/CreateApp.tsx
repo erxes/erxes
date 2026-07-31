@@ -39,7 +39,7 @@ export const CreateApp = () => {
           }),
       });
     },
-    [appsAdd, toast, reset],
+    [appsAdd, toast, reset, t],
   );
 
   return (

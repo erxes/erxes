@@ -73,12 +73,12 @@ export function InviteForm({
 
     const validation = emailSchema.safeParse(normalizedValue);
     if (!validation.success) {
-      setError('Please enter a valid email address');
+      setError(t('valid-email-required', 'Please enter a valid email address'));
       return;
     }
 
     if (tags.includes(normalizedValue)) {
-      setError('This email has already been added');
+      setError(t('email-already-added', 'This email has already been added'));
       return;
     }
 
@@ -146,17 +146,17 @@ export function InviteForm({
     }
 
     if (!isEmpty && !isValid) {
-      setError('Please enter a valid email address');
+      setError(t('valid-email-required', 'Please enter a valid email address'));
       return false;
     }
 
     if (isDuplicate) {
-      setError('This email has already been added');
+      setError(t('email-already-added', 'This email has already been added'));
       return false;
     }
 
     return true;
-  }, [getDraftState, tags.length, toast]);
+  }, [getDraftState, tags.length, toast, t]);
 
   const getInvitationEntries = useCallback(() => {
     const { draftEmail, isDuplicate, isValid } = getDraftState();
@@ -371,7 +371,7 @@ export function InviteForm({
                     <TextOverflowTooltip value={tag} className="truncate" />
                     <button
                       type="button"
-                      aria-label={`Remove ${tag}`}
+                      aria-label={t('remove-tag', 'Remove {{tag}}', { tag })}
                       onClick={() => removeTag(tag)}
                       className="hover:bg-secondary-foreground/20 rounded-sm p-0.5 shrink-0"
                     >

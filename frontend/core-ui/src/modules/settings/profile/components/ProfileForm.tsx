@@ -108,7 +108,7 @@ export const ProfileForm = () => {
             element="input"
             attributes={{
               type: 'email',
-              placeholder: 'Enter email',
+              placeholder: t('email-placeholder', 'Enter email'),
             }}
           />
         </div>

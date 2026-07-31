@@ -56,7 +56,7 @@ export const CreateOAuthClient = () => {
           }),
       });
     },
-    [oauthClientAppsAdd, toast, reset],
+    [oauthClientAppsAdd, toast, reset, t],
   );
 
   return (

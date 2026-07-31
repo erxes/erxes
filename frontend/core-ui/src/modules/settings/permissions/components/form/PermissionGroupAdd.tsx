@@ -47,7 +47,7 @@ export const PermissionGroupAdd = ({
         },
       });
     },
-    [loading, addPermissionGroup],
+    [loading, addPermissionGroup, t],
   );
 
   const onCancel = useCallback(() => {

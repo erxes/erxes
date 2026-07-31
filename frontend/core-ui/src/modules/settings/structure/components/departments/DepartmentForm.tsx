@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { Form } from 'erxes-ui';
 import { SelectDepartments, SelectMember } from 'ui-modules';
 import { TDepartmentForm } from '../../types/department';
+import { useTranslation } from 'react-i18next';
 import {
   TitleField,
   CodeField,
@@ -10,6 +11,7 @@ import {
 } from '../StructureFormFields';
 
 export const DepartmentForm = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { control, formState } = useFormContext<TDepartmentForm>();
   // show the status field only when the record was originally deleted, so the
   // field stays visible while the user switches it back to active
@@ -25,7 +27,7 @@ export const DepartmentForm = () => {
         name="supervisorId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Supervisor'}</Form.Label>
+            <Form.Label>{t('supervisor', 'Supervisor')}</Form.Label>
             <SelectMember.FormItem
               value={field.value ?? ''}
               onValueChange={field.onChange}
@@ -39,7 +41,7 @@ export const DepartmentForm = () => {
         name="parentId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Parent'}</Form.Label>
+            <Form.Label>{t('parent', 'Parent')}</Form.Label>
             <Form.Control>
               <SelectDepartments.FormItem
                 mode="single"
@@ -56,7 +58,7 @@ export const DepartmentForm = () => {
         name="userIds"
         render={({ field }) => (
           <Form.Item className="col-span-2">
-            <Form.Label>{'Team members'}</Form.Label>
+            <Form.Label>{t('team-members', 'Team members')}</Form.Label>
             <SelectMember.FormItem
               mode="multiple"
               value={field.value ?? []}

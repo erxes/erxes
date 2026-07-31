@@ -59,7 +59,11 @@ export const TeamMemberAssignPermissions = ({
       onCompleted: () => {
         toast({
           title: t('permission-groups-assigned', 'Permission groups assigned'),
-          description: `Updated ${teamMemberIds.length} team member(s)`,
+          description: t('updated-n-members', {
+            count: teamMemberIds.length,
+            defaultValue_one: 'Updated {{count}} team member',
+            defaultValue_other: 'Updated {{count}} team members',
+          }),
           variant: 'success',
         });
         setSelectedGroupIds([]);
@@ -187,7 +191,7 @@ export const TeamMemberAssignPermissions = ({
               onClick={handleApply}
               disabled={!selectedGroupIds.length || updateLoading}
             >
-              {updateLoading ? <Spinner size="sm" /> : 'Apply'}
+              {updateLoading ? <Spinner size="sm" /> : t('apply', 'Apply')}
             </Button>
           </div>
         </Popover.Content>

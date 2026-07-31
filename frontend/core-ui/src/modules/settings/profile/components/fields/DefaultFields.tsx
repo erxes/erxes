@@ -22,7 +22,7 @@ const DefaultFields = () => {
       </div>
       <div className="flex flex-col gap-2 col-start-1">
         <Form.Label className="text-xs">
-          {t('firstname', 'Firstname')}
+          {t('firstname', 'First name')}
         </Form.Label>
         <FormField
           name={'details.firstName' as keyof FormType}
@@ -34,7 +34,7 @@ const DefaultFields = () => {
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Form.Label className="text-xs">{t('lastname', 'Lastname')}</Form.Label>
+        <Form.Label className="text-xs">{t('lastname', 'Last name')}</Form.Label>
         <FormField
           name={'details.lastName' as keyof FormType}
           element="input"

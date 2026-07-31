@@ -49,7 +49,10 @@ export const ResetPasswordDialog = () => {
           toast({ title: error.message, variant: 'destructive' }),
         onCompleted: () => {
           toast({
-            title: "This user's password has been changed",
+            title: t(
+              'user-password-changed',
+              "This user's password has been changed",
+            ),
             variant: 'success',
           });
           reset();
@@ -70,8 +73,11 @@ export const ResetPasswordDialog = () => {
     >
       <Dialog.Content>
         <Dialog.HeaderCombined
-          title="Reset password"
-          description="Set new password for the user"
+          title={t('reset-password', 'Reset Password')}
+          description={t(
+            'set-new-password-description',
+            'Set new password for the user',
+          )}
         />
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -125,7 +131,7 @@ export const ResetPasswordDialog = () => {
                   newPassword !== repeatPassword
                 }
               >
-                {loading ? <Spinner /> : 'Save'}
+                {loading ? <Spinner /> : t('save', 'Save')}
               </Button>
             </div>
           </form>

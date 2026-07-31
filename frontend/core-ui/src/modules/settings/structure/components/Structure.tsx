@@ -80,7 +80,7 @@ export const Structure = () => {
                 name={'title'}
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
-                    <Form.Label>{'Name'}</Form.Label>
+                    <Form.Label>{t('name', 'Name')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -93,7 +93,7 @@ export const Structure = () => {
                 name={'description'}
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
-                    <Form.Label>{'description'}</Form.Label>
+                    <Form.Label>{t('description', 'Description')}</Form.Label>
                     <Form.Control>
                       <Textarea {...field} rows={10} className="resize-none" />
                     </Form.Control>
@@ -134,7 +134,7 @@ export const Structure = () => {
                 name={'phoneNumber'}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{'Phone number'}</Form.Label>
+                    <Form.Label>{t('phone-number', 'Phone number')}</Form.Label>
                     <Form.Control>
                       <PhoneInput {...field} />
                     </Form.Control>
@@ -147,7 +147,7 @@ export const Structure = () => {
                 name={'email'}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{'Email'}</Form.Label>
+                    <Form.Label>{t('email', 'Email')}</Form.Label>
                     <Form.Control>
                       <Input {...field} type="email" />
                     </Form.Control>

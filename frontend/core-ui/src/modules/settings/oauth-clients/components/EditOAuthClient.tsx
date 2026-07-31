@@ -98,7 +98,7 @@ export const EditOAuthClient = () => {
           }),
       });
     },
-    [oauthClientAppsEdit, editingOAuthClient, toast],
+    [oauthClientAppsEdit, editingOAuthClient, toast, t],
   );
 
   return (

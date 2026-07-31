@@ -107,7 +107,7 @@ export const PositionEdit = () => {
               </Button>
               <Can action="positionsManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save', 'Save')}
                 </Button>
               </Can>
             </Sheet.Footer>

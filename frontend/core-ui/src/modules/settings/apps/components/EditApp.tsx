@@ -51,7 +51,7 @@ export const EditApp = () => {
           }),
       });
     },
-    [appsEdit, editingApp, toast],
+    [appsEdit, editingApp, toast, t],
   );
 
   return (

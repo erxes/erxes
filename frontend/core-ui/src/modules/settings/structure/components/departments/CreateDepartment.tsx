@@ -84,7 +84,7 @@ export const CreateDepartment = () => {
           }),
       });
     },
-    [handleAdd],
+    [handleAdd, t],
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>

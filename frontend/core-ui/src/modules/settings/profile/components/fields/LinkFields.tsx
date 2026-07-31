@@ -4,8 +4,10 @@ import FormField from '@/settings/profile/components/fields/FormField';
 import { FormType } from '@/settings/profile/hooks/useProfileForm';
 import { useFormContext } from 'react-hook-form';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const LinkFields = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const form = useFormContext<FormType>();
   const [currentLink, setCurrentLink] = useState<string>('');
   return (
@@ -28,7 +30,7 @@ const LinkFields = () => {
           return (
             <ToggleGroup.Item
               value={fieldName}
-              aria-label="Toggle bold"
+              aria-label={t('toggle-bold', 'Toggle bold')}
               key={`toggle-item-${index}`}
               className={`${field.error && 'border-red-500'} w-10`}
               onDoubleClick={() => {

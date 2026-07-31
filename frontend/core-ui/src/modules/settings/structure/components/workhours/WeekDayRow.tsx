@@ -32,14 +32,14 @@ export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
       <span className="font-semibold">{weekDay}</span>
       {(isInactive && (
         <span className="font-normal text-sm h-8 text-accent-foreground flex items-center">
-          Not working on this day
+          {t('not-working-this-day', 'Not working on this day')}
         </span>
       )) || (
         <div className="flex items-center gap-8 ml-auto">
           <div className="flex items-center gap-3">
             <WorkTimeField name={`${weekDay}.startFrom`} />
             <span className="font-medium text-sm text-accent-foreground">
-              to
+              {t('to', 'to')}
             </span>
             <WorkTimeField name={`${weekDay}.endTo`} />
           </div>
@@ -49,7 +49,7 @@ export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
             </legend>
             <WorkTimeField name={`${weekDay}.lunchStartFrom`} />
             <span className="font-medium text-sm text-accent-foreground">
-              to
+              {t('to', 'to')}
             </span>
             <WorkTimeField name={`${weekDay}.lunchEndTo`} />
           </div>

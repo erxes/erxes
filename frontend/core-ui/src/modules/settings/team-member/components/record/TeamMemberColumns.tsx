@@ -367,7 +367,9 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
                 !status || status === 'Not verified' ? 'destructive' : 'success'
               }
             >
-              {status ? (cell.getValue() as string) : 'Not verified'}
+              {status
+                ? (cell.getValue() as string)
+                : t('not-verified', 'Not verified')}
             </Badge>
           </RecordTableInlineCell>
         );

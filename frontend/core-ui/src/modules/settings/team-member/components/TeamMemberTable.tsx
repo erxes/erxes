@@ -26,7 +26,7 @@ const TeamMemberTable = () => {
   if (error) {
     return (
       <div className="text-destructive">
-        Error loading members: {error.message}
+        {t('error-loading-members', 'Error loading members')}: {error.message}
       </div>
     );
   }
