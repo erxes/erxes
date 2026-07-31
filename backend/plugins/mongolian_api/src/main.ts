@@ -7,7 +7,6 @@ import { generateModels } from './connectionResolvers';
 import { permissions } from '~/meta/permissions';
 import { beforeResolvers } from '~/meta/beforeResolvers';
 
-
 startPlugin({
   name: 'mongolian',
   port: 3313,
