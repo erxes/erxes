@@ -11,7 +11,6 @@ import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
-/** Returns the responsive width and border styles for the navigation panel. */
 const getNavigationPanelClassName = (panelOpen: boolean, isMobile: boolean) => {
   const baseClassName =
     'peer relative z-20 flex shrink-0 flex-col bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none';
