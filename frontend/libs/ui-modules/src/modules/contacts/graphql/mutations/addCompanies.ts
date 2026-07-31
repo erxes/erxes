@@ -32,6 +32,11 @@ export const COMPANIES_ADD = gql`
       parentCompanyId: $parentCompanyId
     ) {
       _id
+      avatar
+      primaryName
+      primaryEmail
+      primaryPhone
+      code
     }
   }
 `;

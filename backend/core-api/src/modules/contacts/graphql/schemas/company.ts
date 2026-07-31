@@ -82,6 +82,7 @@ const queryParams = `
 
 export const queries = `
   companies(${queryParams}): CompaniesListResponse
+  cpCompanies(${queryParams}): CompaniesListResponse
   companyDetail(_id: String!): Company
 `;
 

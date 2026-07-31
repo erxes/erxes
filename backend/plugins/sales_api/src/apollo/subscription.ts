@@ -10,6 +10,7 @@ export default {
     salesDealListChanged(pipelineId: String!, userId: String, filter: IDealFilter): DealSubscription
     salesProductsDataChanged(_id: String!): DealProductsDataChangeResponse
     salesPipelinesChanged(_id: String!): SalesPipelineChangeResponse
+    salesPipelineListChanged: SalesPipelineChangeResponse
     salesChecklistsChanged(contentType: String!, contentTypeId: String!): SalesChecklist
     salesChecklistDetailChanged(_id: String!): SalesChecklist
 
@@ -67,7 +68,13 @@ export default {
           const { matchesOld, matchesNew } = payload.matches;
 
           if (matchesOld && !matchesNew) {
-            return { ...payload.salesDealListChanged, action: 'remove' };
+            return {
+              ...payload.salesDealListChanged,
+              action: 'remove',
+              deal:
+                payload.salesDealListChanged.deal ??
+                payload.salesDealListChanged.oldDeal,
+            };
           }
 
           if (!matchesOld && matchesNew) {
@@ -86,6 +93,11 @@ export default {
         resolve: (payload) => payload.salesPipelinesChanged,
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`salesPipelinesChanged:${_id}`),
+      },
+      salesPipelineListChanged: {
+        resolve: (payload) => payload.salesPipelineListChanged,
+        subscribe: () =>
+          graphqlPubsub.asyncIterator('salesPipelineListChanged'),
       },
       salesChecklistsChanged: {
         resolve: (payload) => payload.salesChecklistsChanged,

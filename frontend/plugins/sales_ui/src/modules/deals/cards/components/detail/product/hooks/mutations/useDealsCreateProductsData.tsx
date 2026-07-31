@@ -12,7 +12,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { DEALS_CREATE_PRODUCT_DATA } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
-import { DEAL_PRODUCT_TOAST_OPTIONS } from '@/deals/cards/components/detail/product/constants';
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { IProductData } from 'ui-modules';
 import { updateDealProductsCache } from './updateDealProductsCache';
 
@@ -55,7 +55,7 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
         toast({
           title: t('success'),
           variant: 'success',
-          ...DEAL_PRODUCT_TOAST_OPTIONS,
+          ...DEAL_TOAST_OPTIONS,
         });
 
         const newDocs: IProductData[] | undefined =
@@ -75,7 +75,7 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
           title: t('error'),
           description: apolloError.message,
           variant: 'destructive',
-          ...DEAL_PRODUCT_TOAST_OPTIONS,
+          ...DEAL_TOAST_OPTIONS,
         });
         onError?.(apolloError);
 

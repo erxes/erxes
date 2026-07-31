@@ -1,8 +1,7 @@
 import { useMutation } from '@apollo/client';
-import { useAtom } from 'jotai';
 import { GET_TICKETS } from '../graphql/queries/getTickets';
 import { REMOVE_TICKET } from '../graphql/mutations/removeTicket';
-import { ticketDetailSheetState } from '../states/ticketDetailSheetState';
+import { useTicketDetailSheet } from './useTicketDetailSheet';
 import {
   markTicketsRemoved,
   unmarkTicketsRemoved,
@@ -12,7 +11,7 @@ import { useRemoveTicketsFromView } from './useRemoveTicketsFromView';
 export const useTicketRemove = () => {
   const [_removeTicket, { loading }] = useMutation(REMOVE_TICKET);
   const { removeTicketsFromView } = useRemoveTicketsFromView();
-  const [activeTicket, setActiveTicket] = useAtom(ticketDetailSheetState);
+  const [activeTicket, setActiveTicket] = useTicketDetailSheet();
   const removeTicket = async (ticketIds: string[]) => {
     markTicketsRemoved(ticketIds);
 

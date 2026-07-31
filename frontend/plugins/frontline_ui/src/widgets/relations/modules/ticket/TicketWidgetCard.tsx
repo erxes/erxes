@@ -2,12 +2,11 @@ import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateT
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import { ITicket } from '@/ticket/types';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { Button, Card, Separator } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -33,7 +32,7 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
     pipelineId,
     createdAt,
   } = ticket || {};
-  const [activeTicket, setActiveTicket] = useAtom(ticketDetailSheetState);
+  const [activeTicket, setActiveTicket] = useTicketDetailSheet();
 
   return (
     <>

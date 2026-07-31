@@ -80,11 +80,13 @@ export const DealsBoard = () => {
     useColumnPagination(PAGE_SIZE);
 
   const queryVariables = useMemo(
-    () => getDealsQueryVariables(searchParams),
+    () =>
+      getDealsQueryVariables(searchParams, {
+        includeArchivedMode: false,
+      }),
     [searchParams],
   );
 
-  const archivedOnly = searchParams.get('archivedOnly') === 'true';
   const queryVariablesKey = useMemo(
     () => JSON.stringify(queryVariables),
     [queryVariables],
@@ -102,10 +104,6 @@ export const DealsBoard = () => {
   useEffect(() => {
     resetColumnsRef.current = columns;
   }, [columnIdsKey, columns]);
-
-  useEffect(() => {
-    setBoardState(null);
-  }, [archivedOnly, setBoardState]);
 
   useEffect(() => {
     const resetColumns = resetColumnsRef.current;
@@ -243,8 +241,7 @@ export const DealsBoard = () => {
         });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setBoardState, setAllDealsMap],
+    [changeDeals, setBoardState, setAllDealsMap, updateStagesOrder],
   );
 
   const columnPaginationState = useMemo((): Record<
@@ -262,7 +259,7 @@ export const DealsBoard = () => {
     return result;
   }, [pagination]);
 
-  if (columnsLoading) {
+  if (!pipelineId || columnsLoading) {
     return <StagesLoading />;
   }
 

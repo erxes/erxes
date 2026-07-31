@@ -403,9 +403,10 @@ export const instagramQueries = {
 
     const allPosts = await Promise.all(
       fetchedIntegrations.map(async (integration) => {
-        const { instagramPageIds, facebookPageTokensMap } = integration;
+        const { instagramPageId, facebookPageId, facebookPageTokensMap } =
+          integration;
 
-        if (!instagramPageIds || instagramPageIds.length === 0) {
+        if (!instagramPageId) {
           return [];
         }
 
@@ -427,18 +428,21 @@ export const instagramQueries = {
           return fetchPagesPostsList(pageId, accessToken, limit);
         };
 
-        const posts = await Promise.all(
-          instagramPageIds.map(async (pageId) => {
-            const accessToken = facebookPageTokensMap[pageId];
-            if (!accessToken) {
-              debugInstagram(`Access token missing for page ID: ${pageId}`);
-              return [];
-            }
-            return fetchPagePostsWithRateLimiting(pageId, accessToken, limit);
-          }),
+        const accessToken = facebookPageId
+          ? facebookPageTokensMap[facebookPageId]
+          : undefined;
+        if (!accessToken) {
+          debugInstagram(`Access token missing for page ID: ${instagramPageId}`);
+          return [];
+        }
+
+        const posts = await fetchPagePostsWithRateLimiting(
+          instagramPageId,
+          accessToken,
+          limit,
         );
 
-        return posts.flat();
+        return posts;
       }),
     );
 

@@ -3,7 +3,7 @@ import {
   useRelationWidget,
   WidgetAccessProp,
 } from '../widget-provider/context/widgetContext';
-import { resolveAccess } from '../utils';
+import { getRelationWidgetLabel, resolveAccess } from '../utils';
 
 export const RelationWidgetSideTabs = ({
   contentId,
@@ -52,7 +52,7 @@ export const RelationWidgetSideTabs = ({
             key={module.name}
             value={module.name}
             Icon={module.icon}
-            label={module.name.charAt(0).toUpperCase() + module.name.slice(1)}
+            label={getRelationWidgetLabel(module)}
           />
         ))}
       </FocusSheet.SideTabsList>

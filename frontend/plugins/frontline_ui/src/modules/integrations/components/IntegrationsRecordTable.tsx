@@ -15,7 +15,10 @@ import {
 } from 'erxes-ui';
 import { useApolloClient, useMutation } from '@apollo/client';
 import { IIntegrationDetail } from '../types/Integration';
-import { useIntegrations } from '../hooks/useIntegrations';
+import {
+  INTEGRATIONS_PER_PAGE,
+  useIntegrations,
+} from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
 import { useState } from 'react';
@@ -37,10 +40,11 @@ export const IntegrationsRecordTable = () => {
   const integrationName =
     INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name;
 
-  const { integrations, loading, handleFetchMore } = useIntegrations({
+  const { integrations, loading, pageInfo, handleFetchMore } = useIntegrations({
     variables: {
       kind: params?.integrationType,
       channelId: params?.id,
+      ...(isDiscord ? { limit: INTEGRATIONS_PER_PAGE } : {}),
     },
     skip: !params?.integrationType,
     errorPolicy: 'all',
@@ -72,6 +76,18 @@ export const IntegrationsRecordTable = () => {
     );
   }
 
+  const table = (
+    <RecordTable className="w-full">
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+        {loading && <RecordTable.RowSkeleton rows={40} />}
+        <RecordTable.RowList />
+        <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+      </RecordTable.Body>
+    </RecordTable>
+  );
+
   return (
     <RecordTable.Provider
       columns={columns}
@@ -80,21 +96,18 @@ export const IntegrationsRecordTable = () => {
         isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
       }
     >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
+      {isDiscord ? (
+        <RecordTable.CursorProvider
+          hasPreviousPage={pageInfo?.hasPreviousPage}
+          hasNextPage={pageInfo?.hasNextPage}
+          dataLength={integrations?.length}
+          sessionKey={`frontline_integrations_${params?.integrationType}_${params?.id}`}
+        >
+          {table}
+        </RecordTable.CursorProvider>
+      ) : (
+        <RecordTable.Scroll>{table}</RecordTable.Scroll>
+      )}
       {isDiscord && <IntegrationsCommandBar />}
     </RecordTable.Provider>
   );
@@ -131,9 +144,6 @@ const IntegrationsCommandBar = () => {
 
       let refreshFailed = false;
       try {
-        // Integrations is read with errorPolicy: 'all', so the refetch resolves
-        // even when the server returns GraphQL errors — a settled promise is
-        // not proof that the table now holds fresh data.
         const results = await client.refetchQueries({
           include: ['Integrations'],
         });
@@ -145,8 +155,6 @@ const IntegrationsCommandBar = () => {
       }
 
       const succeeded = ids.length - failed;
-      // Only one toast is ever visible, so both outcomes go in one description:
-      // a stale table would otherwise be hidden behind the removal result.
       const description = [
         failed
           ? t('integrations-removed-with-failures', {

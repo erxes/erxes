@@ -15,6 +15,7 @@ export const types = `
     labelIds: [String]
     tagIds: [String]
     assigneeId: String
+    assignedMembers: [String]
     createdBy: String
     userId: String
     startDate: Date
@@ -50,6 +51,7 @@ export const types = `
     priority: Int
     pipelineId: String
     assigneeId: String
+    assignedMembers: [String]
     createdBy: String
     labelIds: [String]
     tagIds: [String]
@@ -69,6 +71,7 @@ export const types = `
     priority: Int
     pipelineId: String
     assigneeId: String
+    assignedMembers: [String]
     createdBy: String
     labelIds: [String]
     tagIds: [String]
@@ -101,6 +104,7 @@ const createTicketParams = `
   startDate: Date
   targetDate: Date
   assigneeId: String
+  assignedMembers: [String]
   state: String
   propertiesData: JSON
   attachments: [AttachmentInput]
@@ -120,6 +124,7 @@ const updateTicketParams = `
   labelIds: [String]
   tagIds: [String]
   assigneeId: String
+  assignedMembers: [String]
   startDate: Date
   targetDate: Date
   isSubscribed: Boolean

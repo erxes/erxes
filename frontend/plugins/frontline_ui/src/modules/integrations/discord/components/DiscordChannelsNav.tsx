@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import {
   IconBrandDiscord,
@@ -132,7 +132,9 @@ export const DiscordServersNav = () => {
           counts={counts}
           defaultOpen={
             serverGroups.length === 1 ||
-            group.integrations.some((i) => i._id === integrationId)
+            group.integrations.some((i) =>
+              (integrationId ? integrationId.split(',') : []).includes(i._id),
+            )
           }
         />
       ))}
@@ -236,21 +238,50 @@ const DiscordCategoryItem = ({
   integrations: IIntegration[];
   counts: ChannelCounts;
 }) => {
+  const [integrationId, setIntegrationId] =
+    useQueryState<string>('integrationId');
+  const [open, setOpen] = useState(true);
+
   const totalCount = integrations.reduce(
     (sum, integration) => sum + (counts[integration._id] || 0),
     0,
   );
 
+  const groupIds = integrations.map((integration) => integration._id);
+  const selectedIds = integrationId
+    ? integrationId.split(',').filter(Boolean)
+    : [];
+  const isGroupActive =
+    groupIds.length > 0 &&
+    groupIds.length === selectedIds.length &&
+    groupIds.every((id) => selectedIds.includes(id));
+
+  const handleSelectGroup = () => {
+    setIntegrationId(isGroupActive ? null : groupIds.join(','));
+    setOpen(true);
+  };
+
   return (
-    <Collapsible className="group/category" defaultOpen>
-      <Collapsible.Trigger asChild>
-        <Button
-          variant="ghost"
-          className="w-full flex min-w-0 justify-start pl-6 pr-2 font-medium"
-        >
-          <span className="shrink-0">
+    <Collapsible
+      className="group/category"
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <div className="flex items-center w-full pr-2">
+        <Collapsible.Trigger asChild>
+          <Button
+            variant="ghost"
+            className="shrink-0 size-6 p-0 ml-4"
+            aria-label={open ? 'Collapse channels' : 'Expand channels'}
+          >
             <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/category:rotate-90 text-accent-foreground" />
-          </span>
+          </Button>
+        </Collapsible.Trigger>
+        <Button
+          variant={isGroupActive ? 'secondary' : 'ghost'}
+          className="flex min-w-0 justify-start flex-auto gap-1 pl-1 pr-1 font-medium"
+          onClick={handleSelectGroup}
+        >
           <TextOverflowTooltip
             className="font-semibold normal-case flex-1 min-w-0 text-left"
             value={name}
@@ -261,7 +292,7 @@ const DiscordCategoryItem = ({
             </Badge>
           )}
         </Button>
-      </Collapsible.Trigger>
+      </div>
       <Collapsible.Content>
         <Sidebar.Menu>
           {integrations.map((integration) => (

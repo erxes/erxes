@@ -1,29 +1,69 @@
 import { WebSocketManager, WebSocketShardEvents } from '@discordjs/ws';
 import { REST } from '@discordjs/rest';
-import { GatewayIntentBits, GatewayDispatchEvents } from 'discord-api-types/v10';
+import {
+  GatewayIntentBits,
+  GatewayDispatchEvents,
+  GatewayCloseCodes,
+} from 'discord-api-types/v10';
 import {
   mapMessageCreateToActivity,
+  mapMessageDeleteToEvent,
   mapPollVoteToEvent,
+  mapTypingStartToEvent,
 } from '@/integrations/discord/activity';
 import {
   DiscordActivity,
+  DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
+  DiscordTypingEvent,
 } from '@/integrations/discord/@types/activity';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
-// Guilds + GuildMessages + MessageContent + GuildMessagePolls.
-// MESSAGE_CONTENT is a *privileged* intent: it must be enabled on the bot in the
-// Discord Developer Portal (and approved once the bot is in 100+ servers), or
-// message payloads arrive with empty `content`. GuildMessagePolls is NOT
-// privileged, so requesting it is always safe; it's what delivers
-// MESSAGE_POLL_VOTE_ADD/REMOVE so vote tallies stay in sync. (`|` widens to
-// number, hence the cast.) Note: member/presence triggers would need the
-// privileged GuildMembers intent and are intentionally left out — requesting an
-// unapproved privileged intent makes the Gateway reject the connection outright.
 const DISCORD_INTENTS = (GatewayIntentBits.Guilds |
   GatewayIntentBits.GuildMessages |
   GatewayIntentBits.MessageContent |
-  GatewayIntentBits.GuildMessagePolls) as GatewayIntentBits;
+  GatewayIntentBits.GuildMessagePolls |
+  GatewayIntentBits.GuildMessageTyping) as GatewayIntentBits;
+
+const FATAL_CLOSE_CODES = new Map<
+  number,
+  { reason: string; tokenValid: boolean }
+>([
+  [
+    GatewayCloseCodes.AuthenticationFailed,
+    { reason: 'Bot token is invalid or was revoked', tokenValid: false },
+  ],
+  [
+    GatewayCloseCodes.DisallowedIntents,
+    {
+      reason:
+        'A privileged intent is not enabled for this bot in the Discord Developer Portal',
+      tokenValid: true,
+    },
+  ],
+  [
+    GatewayCloseCodes.InvalidIntents,
+    { reason: 'Invalid gateway intents were requested', tokenValid: true },
+  ],
+  [
+    GatewayCloseCodes.InvalidShard,
+    { reason: 'Invalid gateway shard', tokenValid: true },
+  ],
+  [
+    GatewayCloseCodes.ShardingRequired,
+    { reason: 'This bot has grown large enough to require sharding', tokenValid: true },
+  ],
+  [
+    GatewayCloseCodes.InvalidAPIVersion,
+    { reason: 'Unsupported gateway API version', tokenValid: true },
+  ],
+]);
+
+export type DiscordGatewayFatalClose = {
+  code: number;
+  reason: string;
+  tokenValid: boolean;
+};
 
 export type DiscordGatewayConnection = {
   botId: string;
@@ -34,23 +74,23 @@ export type DiscordGatewayConnection = {
 export type DiscordGatewayHandlers = {
   onMessage: (activity: DiscordActivity) => void | Promise<void>;
   onMessageEdit?: (activity: DiscordActivity) => void | Promise<void>;
+  onMessageDelete?: (
+    event: DiscordMessageDeleteEvent,
+  ) => void | Promise<void>;
   onPollVote?: (event: DiscordPollVoteEvent) => void | Promise<void>;
+  onTyping?: (event: DiscordTypingEvent) => void | Promise<void>;
+  onFatalClose?: (info: DiscordGatewayFatalClose) => void | Promise<void>;
 };
 
-/**
- * Opens a persistent Gateway (WebSocket) connection for one bot and routes
- * inbound events through the matching handler as normalized payloads:
- * `MESSAGE_CREATE`/`MESSAGE_UPDATE` → `DiscordActivity`,
- * `MESSAGE_POLL_VOTE_ADD`/`MESSAGE_POLL_VOTE_REMOVE` → `DiscordPollVoteEvent`.
- * The @discordjs/ws manager owns heartbeat / resume / reconnect; we only
- * translate payloads and surface lifecycle logs.
- */
 export const connectGateway = async ({
   botId,
   token,
   onMessage,
   onMessageEdit,
+  onMessageDelete,
   onPollVote,
+  onTyping,
+  onFatalClose,
 }: { botId: string; token: string } & DiscordGatewayHandlers): Promise<DiscordGatewayConnection> => {
   const rest = new REST({ version: '10' }).setToken(token);
 
@@ -59,9 +99,7 @@ export const connectGateway = async ({
     intents: DISCORD_INTENTS,
     rest,
   });
-
-  // Runs a handler, swallowing/logging failures so one bad event can't tear
-  // down the shard's dispatch loop.
+  
   const safely = <T>(
     label: string,
     handler: ((arg: T) => void | Promise<void>) | undefined,
@@ -97,11 +135,22 @@ export const connectGateway = async ({
           mapMessageCreateToActivity(payload.d),
         );
         break;
+      case GatewayDispatchEvents.MessageDelete:
+      case GatewayDispatchEvents.MessageDeleteBulk:
+        safely(
+          'onMessageDelete',
+          onMessageDelete,
+          mapMessageDeleteToEvent(payload.d),
+        );
+        break;
       case GatewayDispatchEvents.MessagePollVoteAdd:
         safely('onPollVote', onPollVote, mapPollVoteToEvent(payload.d, true));
         break;
       case GatewayDispatchEvents.MessagePollVoteRemove:
         safely('onPollVote', onPollVote, mapPollVoteToEvent(payload.d, false));
+        break;
+      case GatewayDispatchEvents.TypingStart:
+        safely('onTyping', onTyping, mapTypingStartToEvent(payload.d));
         break;
       default:
         break;
@@ -115,9 +164,19 @@ export const connectGateway = async ({
   });
 
   manager.on(WebSocketShardEvents.Closed, (code, shardId) => {
-    debugDiscord(
-      `Gateway closed for bot ${botId} (shard ${shardId}), code ${code}`,
+    const fatal = FATAL_CLOSE_CODES.get(code);
+
+    if (!fatal) {
+      debugDiscord(
+        `Gateway closed for bot ${botId} (shard ${shardId}), code ${code}`,
+      );
+      return;
+    }
+
+    debugError(
+      `Gateway closed permanently for bot ${botId} (shard ${shardId}), code ${code}: ${fatal.reason}`,
     );
+    safely('onFatalClose', onFatalClose, { code, ...fatal });
   });
 
   await manager.connect();

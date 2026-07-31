@@ -16,6 +16,7 @@ import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
+import { useEnsureSalesBoardSelection } from '@/deals/boards/hooks/useEnsureSalesBoardSelection';
 
 export const SalesIndexPage = () => {
   const { t } = useTranslation('sales');
@@ -27,18 +28,20 @@ export const SalesIndexPage = () => {
   if (boardId) settingsSearchParams.set('activeBoardId', boardId);
   if (pipelineId) settingsSearchParams.set('pipelineId', pipelineId);
 
+  useEnsureSalesBoardSelection();
+
   return (
     <div className="flex h-full overflow-hidden w-full">
       <div className="flex flex-col h-full w-full overflow-hidden">
         <PageHeader>
-          <PageHeader.Start>
-            <Breadcrumb>
-              <Breadcrumb.List className="gap-1">
-                <Breadcrumb.Item>
+          <PageHeader.Start className="flex-auto min-w-0">
+            <Breadcrumb className="min-w-0">
+              <Breadcrumb.List className="gap-1 flex-nowrap min-w-0">
+                <Breadcrumb.Item className="shrink-0">
                   <Button variant="ghost" asChild>
                     <Link to="/sales/deal">
                       <IconSandbox />
-                      {t('sales-pipeline')}
+                      {t('sales-pipeline', 'Sales Pipeline')}
                     </Link>
                   </Button>
                 </Breadcrumb.Item>
@@ -56,7 +59,7 @@ export const SalesIndexPage = () => {
                 to={`/settings/sales/deals?${settingsSearchParams.toString()}`}
               >
                 <IconSettings />
-                {t('go-to-settings')}
+                {t('go-to-settings', 'Go to Settings')}
               </Link>
             </Button>
           </PageHeader.End>
