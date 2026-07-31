@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 
 import { Checkbox, Form, Input } from 'erxes-ui';
 
+import { PasswordInput } from '@/settings/components/PasswordInput';
 import { UPLOAD_SERVICE_DATA } from '@/settings/file-upload/constants/serviceData';
 import {
   DynamicFieldsT,
@@ -77,7 +78,11 @@ export function DynamicServiceConfigFields({
                         {fieldData.label}
                       </Form.Label>
                       <Form.Control>
-                        <Input type={'text'} {...field} />
+                        {fieldData.type === 'password' ? (
+                          <PasswordInput {...field} />
+                        ) : (
+                          <Input type="text" {...field} />
+                        )}
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
