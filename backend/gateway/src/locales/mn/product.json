@@ -278,5 +278,17 @@
     "similarity-saved": "Ижил төстэй хадгалагдлаа",
     "similarity-removed": "Ижил төстэй устгагдлаа",
     "check-required-fields": "Шаардлагатай талбаруудыг бөглөнө үү"
+  },
+  "bulk": {
+    "change-category": "Ангилал солих",
+    "category-changed_one": "{{count}} бүтээгдэхүүнийг шинэ ангилалд шилжүүллээ",
+    "category-changed_other": "{{count}} бүтээгдэхүүнийг шинэ ангилалд шилжүүллээ",
+    "category-change-failed_one": "{{count}} бүтээгдэхүүнийг шилжүүлж чадсангүй",
+    "category-change-failed_other": "{{count}} бүтээгдэхүүнийг шилжүүлж чадсангүй",
+    "deleted-skipped_one": "Устгасан {{count}} бүтээгдэхүүнийг алгаслаа",
+    "deleted-skipped_other": "Устгасан {{count}} бүтээгдэхүүнийг алгаслаа",
+    "no-movable-products": "Устгасан бүтээгдэхүүнийг өөр ангилалд шилжүүлэх боломжгүй",
+    "confirm-change-category_one": "Сонгосон {{count}} бүтээгдэхүүнийг энэ ангилалд шилжүүлэх үү? Одоогийн ангиллыг нь орлуулна.",
+    "confirm-change-category_other": "Сонгосон {{count}} бүтээгдэхүүнийг энэ ангилалд шилжүүлэх үү? Одоогийн ангиллыг нь орлуулна."
   }
 }

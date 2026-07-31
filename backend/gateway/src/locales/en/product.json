@@ -280,5 +280,17 @@
     "similarity-saved": "Similarity saved",
     "similarity-removed": "Similarity removed",
     "check-required-fields": "Please fill in the required fields"
+  },
+  "bulk": {
+    "change-category": "Change category",
+    "category-changed_one": "{{count}} product moved to the new category",
+    "category-changed_other": "{{count}} products moved to the new category",
+    "category-change-failed_one": "{{count}} product could not be moved",
+    "category-change-failed_other": "{{count}} products could not be moved",
+    "deleted-skipped_one": "{{count}} deleted product was skipped",
+    "deleted-skipped_other": "{{count}} deleted products were skipped",
+    "no-movable-products": "Deleted products cannot be moved to another category",
+    "confirm-change-category_one": "Move the {{count}} selected product to this category? Its current category will be replaced.",
+    "confirm-change-category_other": "Move the {{count}} selected products to this category? Their current categories will be replaced."
   }
 }

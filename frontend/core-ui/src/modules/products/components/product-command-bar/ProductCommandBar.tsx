@@ -7,6 +7,7 @@ import { Can, Export, IProduct, PrintDocument, TagsSelect } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
 import { ProductsRestore } from './restore/productRestore';
 import { ProductMerge } from './ProductMerge';
+import { ProductsChangeCategory } from './ProductsChangeCategory';
 
 const updateProductsTagCache = (
   cache: ApolloCache<unknown>,
@@ -71,6 +72,14 @@ export const ProductCommandBar = () => {
                   });
                 },
               })}
+            />
+          </>
+        </Can>
+        <Can action="productsUpdate">
+          <>
+            <Separator.Inline />
+            <ProductsChangeCategory
+              products={selectedRows.map((row: Row<IProduct>) => row.original)}
             />
           </>
         </Can>
