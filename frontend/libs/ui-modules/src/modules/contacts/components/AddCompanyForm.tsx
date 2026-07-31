@@ -12,6 +12,8 @@ import {
   toast,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useDebounce } from 'use-debounce';
 import { z } from 'zod';
 import {
   COMPANY_BUSINESS_TYPES,
@@ -19,6 +21,7 @@ import {
 } from '../constants/companyConstants';
 import { ICompany } from '../types';
 import { useAddCompany } from '../hooks/useAddCompany';
+import { useCompanyNameByRegister } from '../hooks/useCompanyNameByRegister';
 import { SelectCompany } from './SelectCompany';
 import { SelectMember } from '../../team-members/components/SelectMember';
 
@@ -81,6 +84,20 @@ export function AddCompanyForm({
       description: '',
     },
   });
+
+  const [debouncedCode] = useDebounce(form.watch('code')?.trim() || '', 500);
+  const { companyName: registeredName, loading: checkingRegister } =
+    useCompanyNameByRegister(debouncedCode);
+
+  useEffect(() => {
+    if (!registeredName) return;
+
+    const currentName = form.getValues('primaryName')?.trim();
+    if (currentName === registeredName) return;
+    if (registeredName.includes('**') && currentName) return;
+
+    form.setValue('primaryName', registeredName, { shouldValidate: true });
+  }, [registeredName, form]);
 
   function onSubmit(data: FormValues) {
     const { phone, industry, code, primaryName, ...rest } = data;
@@ -171,6 +188,11 @@ export function AddCompanyForm({
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
+                    {checkingRegister && (
+                      <Form.Description>
+                        Looking up the register number...
+                      </Form.Description>
+                    )}
                     <Form.Message />
                   </Form.Item>
                 )}
