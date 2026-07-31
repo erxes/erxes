@@ -67,6 +67,7 @@ export const GET_BRANCHES_MAIN = gql`
         _id
         title
         code
+        parentId
         order
         userCount
       }
