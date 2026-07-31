@@ -10,6 +10,7 @@ interface SalesBoardSelection {
   pipelineId: string | null;
 }
 
+/** Resolves a valid board and pipeline selection from the current URL values. */
 export const resolveSalesBoardSelection = (
   boards: SalesBoardSelectionSource[],
   boardId: string | null,
