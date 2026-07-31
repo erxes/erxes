@@ -36,8 +36,8 @@ export const MainNavigationBar = () => {
       : undefined;
   const hasNavigationPanel = Boolean(
     isSettings ||
-      activeNavigationGroup?.contents.length ||
-      activeNavigationGroup?.subGroups.length,
+    activeNavigationGroup?.contents.length ||
+    activeNavigationGroup?.subGroups.length,
   );
 
   useEffect(() => {
