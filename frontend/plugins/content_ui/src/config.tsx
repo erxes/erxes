@@ -21,7 +21,7 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
-  modules: [    
+  modules: [
     {
       name: 'cms',
       icon: IconBooks,
