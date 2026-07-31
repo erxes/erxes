@@ -53,11 +53,13 @@ const SortableVisitedPageTab = ({
   closeLabel,
   closeAllLabel,
   closeShortcutLabel,
+  hideTabsLabel,
   icon: Icon,
   isActive,
   label,
   onClose,
   onCloseAll,
+  onHideTabs,
   pathname,
 }: Readonly<{
   canClose: boolean;
@@ -65,11 +67,13 @@ const SortableVisitedPageTab = ({
   closeLabel: string;
   closeAllLabel: string;
   closeShortcutLabel: string;
+  hideTabsLabel: string;
   icon: ElementType;
   isActive: boolean;
   label: string;
   onClose: () => void;
   onCloseAll: () => void;
+  onHideTabs: () => void;
   pathname: string;
 }>) => {
   const tabRef = useRef<HTMLDivElement | null>(null);
@@ -157,6 +161,10 @@ const SortableVisitedPageTab = ({
         <ContextMenu.Item onSelect={onCloseAll}>
           <IconX />
           {closeAllLabel}
+        </ContextMenu.Item>
+        <ContextMenu.Item onSelect={onHideTabs}>
+          <IconLayoutNavbarCollapse />
+          {hideTabsLabel}
         </ContextMenu.Item>
       </ContextMenu.Content>
     </ContextMenu>
@@ -381,11 +389,13 @@ export const VisitedPageTabs = () => {
         closeAllLabel={t('navigation.close-all-tabs')}
         closeLabel={closeLabel}
         closeShortcutLabel={closeShortcutLabel}
+        hideTabsLabel={t('navigation.hide-tabs-row')}
         icon={Icon}
         isActive={isActive}
         label={label}
         onClose={() => closeVisitedPageTab(tab.pathname)}
         onCloseAll={closeAllVisitedPageTabs}
+        onHideTabs={() => setTabsVisible(false)}
         pathname={tab.pathname}
       />
     );
