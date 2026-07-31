@@ -150,6 +150,7 @@ const userEditParams = `
 const clientPortalCustomerEditParams = `
   firstName: String,
   lastName: String,
+  avatar: String,
   primaryEmail: String,
   emails: [String],
   primaryPhone: String,
