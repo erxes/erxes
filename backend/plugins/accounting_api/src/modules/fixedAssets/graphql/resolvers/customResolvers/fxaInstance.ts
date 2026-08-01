@@ -26,8 +26,7 @@ export const FxaInstance = {
     context: IContext,
   ) {
     const detail = await getLatestAdjustmentDetail(instance, context);
-    const accumulatedDepreciation =
-      detail?.closingAccumulatedDepreciation || 0;
+    const accumulatedDepreciation = detail?.closingAccumulatedDepreciation || 0;
 
     return (instance.originalCost || 0) - accumulatedDepreciation;
   },

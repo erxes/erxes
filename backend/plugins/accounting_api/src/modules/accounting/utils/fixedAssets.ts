@@ -1,10 +1,7 @@
 import { nanoid } from 'nanoid';
 import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import {
-  ADJ_FXA_STATUSES,
-  IAdjustFxaDetail,
-} from '../@types/adjustFixedAsset';
+import { ADJ_FXA_STATUSES, IAdjustFxaDetail } from '../@types/adjustFixedAsset';
 import {
   JOURNALS,
   TR_DETAIL_FOLLOW_TYPES,
@@ -246,7 +243,8 @@ const buildIncomeInstanceDoc = ({
         : nanoid(6)),
     sequence: input.sequence,
     status: FXA_INSTANCE_STATUSES.ACTIVE,
-    originalCost: detail?.unitPrice || input.originalCost || detail?.amount || 0,
+    originalCost:
+      detail?.unitPrice || input.originalCost || detail?.amount || 0,
     depreciationMethod: fixedAsset?.depreciationMethod,
     usefulLife: fixedAsset?.usefulLife,
     salvageValue: fixedAsset?.salvageValue,

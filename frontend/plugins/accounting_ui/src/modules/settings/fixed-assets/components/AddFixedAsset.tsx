@@ -28,7 +28,11 @@ export const AddFixedAsset = () => {
   );
 };
 
-const AddFixedAssetForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+const AddFixedAssetForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TFixedAssetForm>({
     resolver: zodResolver(fixedAssetSchema),
     defaultValues: FIXED_ASSET_DEFAULT_VALUES,

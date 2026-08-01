@@ -148,119 +148,119 @@ export const FixedAssetForm = ({
                 </Form.Item>
               )}
             />
-        <Form.Field
-          control={form.control}
-          name="depreciationMethod"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Элэгдлийн арга</Form.Label>
-              <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Элэгдлийн арга сонгох" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
-                      <Select.Item key={method.value} value={method.value}>
-                        {method.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="usefulLife"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Ашиглах хугацаа</Form.Label>
-              <Form.Control>
-                <NumberInput field={field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="salvageValue"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Үлдэх өртөг</Form.Label>
-              <Form.Control>
-                <NumberInput field={field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="taxDepreciationMethod"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Татварын элэгдлийн арга</Form.Label>
-              <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Татварын элэгдлийн арга сонгох" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
-                      <Select.Item key={method.value} value={method.value}>
-                        {method.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="taxUsefulLife"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Татварын ашиглах хугацаа</Form.Label>
-              <Form.Control>
-                <NumberInput field={field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="taxSalvageValue"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Татварын үлдэх өртөг</Form.Label>
-              <Form.Control>
-                <NumberInput field={field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item className="col-span-1 md:col-span-3">
-              <Form.Label>Тайлбар</Form.Label>
-              <Form.Control>
-                <Textarea {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+            <Form.Field
+              control={form.control}
+              name="depreciationMethod"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Элэгдлийн арга</Form.Label>
+                  <Form.Control>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder="Элэгдлийн арга сонгох" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
+                          <Select.Item key={method.value} value={method.value}>
+                            {method.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="usefulLife"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Ашиглах хугацаа</Form.Label>
+                  <Form.Control>
+                    <NumberInput field={field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="salvageValue"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Үлдэх өртөг</Form.Label>
+                  <Form.Control>
+                    <NumberInput field={field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="taxDepreciationMethod"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Татварын элэгдлийн арга</Form.Label>
+                  <Form.Control>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder="Татварын элэгдлийн арга сонгох" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
+                          <Select.Item key={method.value} value={method.value}>
+                            {method.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="taxUsefulLife"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Татварын ашиглах хугацаа</Form.Label>
+                  <Form.Control>
+                    <NumberInput field={field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="taxSalvageValue"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Татварын үлдэх өртөг</Form.Label>
+                  <Form.Control>
+                    <NumberInput field={field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <Form.Item className="col-span-1 md:col-span-3">
+                  <Form.Label>Тайлбар</Form.Label>
+                  <Form.Control>
+                    <Textarea {...field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
           </div>
         </div>
         <Sheet.Footer className="shrink-0 border-t bg-background">

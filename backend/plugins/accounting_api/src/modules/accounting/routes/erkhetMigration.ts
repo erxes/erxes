@@ -353,9 +353,8 @@ const fetchReferenceMaps = async (
       return byAssetAndCode;
     }
 
-    byAssetAndCode[instance.fixedAssetId] = byAssetAndCode[
-      instance.fixedAssetId
-    ] || {};
+    byAssetAndCode[instance.fixedAssetId] =
+      byAssetAndCode[instance.fixedAssetId] || {};
     byAssetAndCode[instance.fixedAssetId][instance.code] = [
       ...(byAssetAndCode[instance.fixedAssetId][instance.code] || []),
       instance._id,
@@ -555,7 +554,9 @@ const resolveFxaInstances = (
       fixedAssetId: fixedAssetCode
         ? maps.fixedAssetsByCode[fixedAssetCode]
         : instance.fixedAssetId,
-      branchId: branchCode ? maps.branchesByCode[branchCode] : instance.branchId,
+      branchId: branchCode
+        ? maps.branchesByCode[branchCode]
+        : instance.branchId,
       departmentId: departmentCode
         ? maps.departmentsByCode[departmentCode]
         : instance.departmentId,
@@ -621,9 +622,7 @@ const resolveTransactionFollowInfos = (
     accumulatedDepreciationAccountCode &&
     !maps.accountsByCode[accumulatedDepreciationAccountCode]
   ) {
-    throw new Error(
-      `Account not found: ${accumulatedDepreciationAccountCode}`,
-    );
+    throw new Error(`Account not found: ${accumulatedDepreciationAccountCode}`);
   }
   if (lossAccountCode && !maps.accountsByCode[lossAccountCode]) {
     throw new Error(`Account not found: ${lossAccountCode}`);
