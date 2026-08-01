@@ -24,10 +24,12 @@ export type IUIConfig = {
   path: string;
   icon?: React.ElementType;
   i18n?: boolean;
+  i18nNamespace?: string;
   hasFloatingWidget?: boolean;
   settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {
     name: string;
+    defaultPath?: string;
     icon: React.ElementType;
     content: () => React.ReactNode;
     subGroup?: () => React.ReactNode;
@@ -37,6 +39,7 @@ export type IUIConfig = {
     relationWidgets?: {
       name: string;
       icon?: React.ElementType;
+      label?: string;
     }[];
     customerDetailWidgets?: {
       name: string;

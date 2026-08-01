@@ -1,8 +1,12 @@
 import { IContext } from '~/connectionResolvers';
 import { IClientPortal } from '@/clientportal/types/clientPortal';
 import { getTokiConnection } from '@/clientportal/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const clientPortalMutations = {
+ export const clientPortalMutations: Record<
+   string,
+   Resolver<any, any, IContext>
+ > = {
   async clientPortalAdd(
     _root: unknown,
     { name }: { name: string },
@@ -110,4 +114,9 @@ export const clientPortalMutations = {
 
     return invoiceResponse.json();
   },
+};
+
+
+clientPortalMutations.clientPortalCheckTokiInvoice.wrapperConfig = {
+  forClientPortal: true,
 };

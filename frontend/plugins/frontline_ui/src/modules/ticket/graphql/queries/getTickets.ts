@@ -13,6 +13,7 @@ export const GET_TICKETS = gql`
         labelIds
         tagIds
         assigneeId
+        assignedMembers
         userId
         startDate
         targetDate

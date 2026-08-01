@@ -11,6 +11,7 @@ export const ADD_CONVERSATION_MESSAGE = gql`
     $extraInfo: JSON
     $responseTemplateId: String
     $poll: ConversationPollInput
+    $replyToMessageId: String
   ) {
     conversationMessageAdd(
       conversationId: $conversationId
@@ -22,6 +23,7 @@ export const ADD_CONVERSATION_MESSAGE = gql`
       extraInfo: $extraInfo
       responseTemplateId: $responseTemplateId
       poll: $poll
+      replyToMessageId: $replyToMessageId
     ) {
       _id
     }

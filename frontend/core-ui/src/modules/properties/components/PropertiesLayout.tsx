@@ -1,5 +1,5 @@
-import { PropertiesSidebar } from './PropertiesSidebar';
 import { ScrollArea } from 'erxes-ui';
+import { PropertiesSidebar } from './PropertiesSidebar';
 
 export const PropertiesLayout = ({
   children,

@@ -24,6 +24,12 @@ const Remotes: Record<
   pos: PosRemoteEntry,
 };
 
+const RemoteEntryErrorFallback = () => {
+  const { t } = useTranslation('sales');
+
+  return <div>{t('error', 'Error')} </div>;
+};
+
 const AutomationRemoteEntries = ({
   moduleName,
   ...props
@@ -32,7 +38,7 @@ const AutomationRemoteEntries = ({
 
   return (
     <Suspense fallback={<Spinner />}>
-      <ErrorBoundary FallbackComponent={() => <div>Error </div>}>
+      <ErrorBoundary FallbackComponent={RemoteEntryErrorFallback}>
         <RemoteComponent {...props} />
       </ErrorBoundary>
     </Suspense>

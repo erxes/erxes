@@ -13,6 +13,7 @@ export interface IDiscordBotHealth {
   lastVerifiedAt?: Date;
   lastError?: string;
   backfillPending?: boolean;
+  missingIntents?: string[];
 }
 
 export interface IDiscordBot {

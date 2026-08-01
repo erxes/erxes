@@ -68,9 +68,6 @@ const buildFacebookMessengerTextPayload = ({
   return payload;
 };
 
-/**
- * conversation notrification receiver ids
- */
 export const dispatchConversationToService = async (
   subdomain: string,
   serviceName: string,
@@ -91,7 +88,6 @@ export const dispatchConversationToService = async (
         break;
 
       case 'mobinetSms':
-        // TODO: Implement Mobinet SMS logic
         break;
 
       case 'messenger':
@@ -270,10 +266,6 @@ export const conversationNotifReceivers = (
   }
   return userIds;
 };
-/**
- * Using this subscription to track conversation detail's assignee, tag, status
- * changes
- */
 export const publishConversationsChanged = async (
   subdomain: string,
   _ids: string[],
@@ -290,9 +282,6 @@ export const publishConversationsChanged = async (
   return _ids;
 };
 
-/**
- * Publish admin's message
- */
 export const publishMessage = async (
   models: IModels,
   message: IMessageDocument,
@@ -436,11 +425,6 @@ export const sendNotifications = async (
         }
       }
 
-      // Navigation-critical payload: the new mobile app deep-links into the
-      // existing conversation thread using `data.conversationId`. The legacy
-      // `type`/`id` keys are kept for backward compatibility with older app
-      // versions and other consumers. FCM requires every `data` value to be a
-      // string, so optional ids are stringified and only added when present.
       if (!conversation._id) {
         debugError(
           'Skipping mobile chat notification: conversation id is unavailable',
@@ -499,16 +483,6 @@ const getConversationById = async (models: IModels, selector) => {
 };
 
 export const conversationMutations = {
-  /**
-   * Relays an agent's "is typing…" presence from the inbox composer to the
-   * conversation's channel. Generic + best-effort: it resolves the integration
-   * and hands off to that service via `dispatchConversationToService` with
-   * `action: 'typing'`. Only the Discord broker implements this today; every
-   * other service no-ops until it adds a `typing` handler — so extending this to
-   * Facebook/Instagram/etc. later is purely additive in that broker, with no
-   * change here or on the client. Never surfaces an error (typing is presence,
-   * not delivery), so a failure can't disrupt composing.
-   */
   async conversationAgentTyping(
     _root,
     {
@@ -550,9 +524,6 @@ export const conversationMutations = {
     }
   },
 
-  /**
-   * Create new message in conversation
-   */
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
@@ -574,6 +545,7 @@ export const conversationMutations = {
         attachments = [],
         extraInfo,
         poll,
+        replyToMessageId,
       } = doc;
       const { _id: userId } = user;
 
@@ -605,7 +577,6 @@ export const conversationMutations = {
 
       const email = customer.primaryEmail;
 
-      // Send auto-reply email for lead forms
       if (!internal && kind === 'lead' && email) {
         await sendTRPCMessage({
           subdomain,
@@ -667,6 +638,7 @@ export const conversationMutations = {
             attachments,
             extraInfo,
             poll,
+            replyToMessageId,
             userId,
           }),
           integrationId,
@@ -696,10 +668,6 @@ export const conversationMutations = {
           );
         }
 
-        // A service may return a `displayContent` to persist on the message
-        // instead of the raw composer payload — e.g. Discord rewrites its
-        // `{@discord:ID}` mention tokens into readable `@Name` for the bubble —
-        // and `extraData` for structured content (e.g. a created Discord poll).
         const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
           ...doc,
           ...(displayContent ? { content: displayContent } : {}),
@@ -725,17 +693,14 @@ export const conversationMutations = {
         return dbMessage;
       }
 
-      //  Fallback: always save message locally if not already handled
       const message = await models.ConversationMessages.addMessage(doc, userId);
       const dbMessage = await models.ConversationMessages.getMessage(
         message._id,
       );
 
       if (internal) {
-        // Internal message: only publish to admins
         publishMessage(models, dbMessage);
       } else {
-        // Normal message: publish to both admin and client
         await markAutomatedReplyHumanActive({
           models,
           conversation,
@@ -765,9 +730,6 @@ export const conversationMutations = {
     );
   },
 
-  /**
-   * Assign employee to conversation
-   */
   async conversationsAssign(
     _root,
     {
@@ -782,7 +744,6 @@ export const conversationMutations = {
         assignedUserId,
       );
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
 
     await sendNotifications(subdomain, {
@@ -805,9 +766,6 @@ export const conversationMutations = {
     return conversations;
   },
 
-  /**
-   * Unassign employee from conversation
-   */
   async conversationsUnassign(
     _root,
     { _ids }: { _ids: string[] },
@@ -830,9 +788,6 @@ export const conversationMutations = {
     return updatedConversations;
   },
 
-  /**
-   * Change conversation status
-   */
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
@@ -854,9 +809,6 @@ export const conversationMutations = {
 
     return updatedConversations;
   },
-  /**
-   * Resolve all conversations
-   */
   async conversationsResolve(
     _root,
     params: { ids: string[] },
@@ -880,9 +832,6 @@ export const conversationMutations = {
     return result.modifiedCount || 0;
   },
 
-  /**
-   * Conversation mark as read
-   */
   async conversationMarkAsRead(
     _root,
     { _id }: { _id: string },

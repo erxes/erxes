@@ -6,6 +6,7 @@ import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 
 interface MoveDealDropdownProps {
   deal: IDeal;
@@ -32,7 +33,11 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
           stageId,
         },
       });
-      toast({ title: t('deal-moved-successfully'), variant: 'success' });
+      toast({
+        title: t('deal-moved-successfully'),
+        variant: 'success',
+        ...DEAL_TOAST_OPTIONS,
+      });
       setOpen(false);
     } finally {
       setIsMoving(false);

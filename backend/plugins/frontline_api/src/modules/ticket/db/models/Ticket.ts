@@ -56,6 +56,8 @@ export const loadTicketClass = (
       if (params.pipelineId) query.pipelineId = params.pipelineId;
       if (params.statusId) query.statusId = params.statusId;
       if (params.assigneeId) query.assigneeId = params.assigneeId;
+      if (params.assignedMembers)
+        query.assignedMembers = { $in: params.assignedMembers };
       if (params.priority) query.priority = params.priority;
       if (params.labelIds) query.labelIds = { $in: params.labelIds };
       if (params.tagIds) query.tagIds = { $in: params.tagIds };

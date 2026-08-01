@@ -1,9 +1,8 @@
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { ticketDetailSheetState } from '../states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '../hooks/useTicketDetailSheet';
 import { ITicket } from '../types';
 
 import { useTicketRemove } from '../hooks/useRemoveTicket';
@@ -14,7 +13,7 @@ export const TicketsMoreColumnCell = ({
   cell: Cell<ITicket, unknown>;
 }) => {
   const { t } = useTranslation('frontline');
-  const [, setActiveTicket] = useAtom(ticketDetailSheetState);
+  const [, setActiveTicket] = useTicketDetailSheet();
   const { _id } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();

@@ -7,12 +7,13 @@ import { UseFormReturn } from 'react-hook-form';
 import { IPaymentDocument } from '../../../payment/types/Payment';
 
 const CONFIGS_QUERY = gql`
-  query KhanbankConfigs($page: Int, $perPage: Int) {
-    khanbankConfigs(page: $page, perPage: $perPage) {
+  query KhanbankConfigsList($page: Int, $perPage: Int) {
+    khanbankConfigsList(page: $page, perPage: $perPage) {
       list {
         _id
         name
       }
+      totalCount
     }
   }
 `;

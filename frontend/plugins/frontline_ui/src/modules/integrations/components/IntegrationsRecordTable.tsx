@@ -15,7 +15,10 @@ import {
 } from 'erxes-ui';
 import { useApolloClient, useMutation } from '@apollo/client';
 import { IIntegrationDetail } from '../types/Integration';
-import { useIntegrations } from '../hooks/useIntegrations';
+import {
+  INTEGRATIONS_PER_PAGE,
+  useIntegrations,
+} from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
 import { useState } from 'react';
@@ -29,15 +32,19 @@ import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
 
 export const IntegrationsRecordTable = () => {
+  const { t } = useTranslation('frontline');
   const params = useParams();
   const isDiscord =
     params?.integrationType === IntegrationType.DISCORD_MESSENGER;
   const columns = useIntegrationTypeColumns(isDiscord);
+  const integrationName =
+    INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name;
 
-  const { integrations, loading, handleFetchMore } = useIntegrations({
+  const { integrations, loading, pageInfo, handleFetchMore } = useIntegrations({
     variables: {
       kind: params?.integrationType,
       channelId: params?.id,
+      ...(isDiscord ? { limit: INTEGRATIONS_PER_PAGE } : {}),
     },
     skip: !params?.integrationType,
     errorPolicy: 'all',
@@ -53,25 +60,33 @@ export const IntegrationsRecordTable = () => {
             </div>
           </Empty.Media>
           <Empty.Title>
-            No{' '}
-            {
-              INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]
-                ?.name
-            }{' '}
-            found
+            {t('no-integration-found', {
+              defaultValue: 'No {{name}} found',
+              name: integrationName,
+            })}
           </Empty.Title>
           <Empty.Description>
-            Get started by adding your first{' '}
-            {
-              INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]
-                ?.name
-            }
-            .
+            {t('get-started-adding-integration', {
+              defaultValue: 'Get started by adding your first {{name}}.',
+              name: integrationName,
+            })}
           </Empty.Description>
         </Empty.Header>
       </Empty>
     );
   }
+
+  const table = (
+    <RecordTable className="w-full">
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+        {loading && <RecordTable.RowSkeleton rows={40} />}
+        <RecordTable.RowList />
+        <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+      </RecordTable.Body>
+    </RecordTable>
+  );
 
   return (
     <RecordTable.Provider
@@ -81,21 +96,18 @@ export const IntegrationsRecordTable = () => {
         isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
       }
     >
-      <RecordTable.Scroll>
-        <RecordTable className="w-full">
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
+      {isDiscord ? (
+        <RecordTable.CursorProvider
+          hasPreviousPage={pageInfo?.hasPreviousPage}
+          hasNextPage={pageInfo?.hasNextPage}
+          dataLength={integrations?.length}
+          sessionKey={`frontline_integrations_${params?.integrationType}_${params?.id}`}
+        >
+          {table}
+        </RecordTable.CursorProvider>
+      ) : (
+        <RecordTable.Scroll>{table}</RecordTable.Scroll>
+      )}
       {isDiscord && <IntegrationsCommandBar />}
     </RecordTable.Provider>
   );
@@ -113,7 +125,11 @@ const IntegrationsCommandBar = () => {
 
   const handleDelete = () => {
     confirm({
-      message: `Delete ${ids.length} selected integration(s)? This can't be undone.`,
+      message: t('confirm-delete-selected-integrations', {
+        defaultValue:
+          "Delete {{count}} selected integrations? This can't be undone.",
+        count: ids.length,
+      }),
     }).then(async () => {
       let failed = 0;
       for (const id of ids) {
@@ -125,23 +141,44 @@ const IntegrationsCommandBar = () => {
       }
 
       table.resetRowSelection();
-      await client
-        .refetchQueries({ include: ['Integrations'] })
-        .catch(() => undefined);
+
+      let refreshFailed = false;
+      try {
+        const results = await client.refetchQueries({
+          include: ['Integrations'],
+        });
+        refreshFailed = results.some(
+          (result) => result.error || result.errors?.length,
+        );
+      } catch {
+        refreshFailed = true;
+      }
 
       const succeeded = ids.length - failed;
-      toast(
+      const description = [
         failed
-          ? {
-              title: t('error'),
-              description: `${succeeded} removed, ${failed} failed`,
-              variant: 'destructive',
-            }
-          : {
-              title: t('success'),
-              variant: 'success',
-              description: `${succeeded} integration(s) removed`,
-            },
+          ? t('integrations-removed-with-failures', {
+              defaultValue: '{{succeeded}} removed, {{failed}} failed',
+              succeeded,
+              failed,
+            })
+          : t('integrations-removed', {
+              defaultValue: '{{count}} integrations removed',
+              count: succeeded,
+            }),
+        refreshFailed &&
+          t('integrations-refresh-failed', {
+            defaultValue:
+              'Could not refresh the list. Reload the page to see the latest data.',
+          }),
+      ]
+        .filter(Boolean)
+        .join(' ');
+
+      toast(
+        failed || refreshFailed
+          ? { title: t('error'), description, variant: 'destructive' }
+          : { title: t('success'), description, variant: 'success' },
       );
     });
   };
@@ -248,7 +285,7 @@ export const useIntegrationTypeColumns = (
               className="text-xs capitalize mx-auto"
               variant={status ? 'success' : 'destructive'}
             >
-              {status ? 'Active' : 'Inactive'}
+              {status ? t('active', 'Active') : t('inactive', 'Inactive')}
             </Badge>
           </RecordTableInlineCell>
         );

@@ -15,6 +15,7 @@ import {
   useUpload,
 } from 'erxes-ui';
 import {
+  IconArrowBackUp,
   IconArrowUp,
   IconCommand,
   IconCornerDownLeft,
@@ -42,7 +43,11 @@ import {
   MentionInEditor,
 } from 'ui-modules';
 import { Block } from '@blocknote/core';
-import { useDiscordConversationParticipants } from '@/integrations/discord/hooks/useDiscordSetup';
+import {
+  useDiscordChannelMemberSearch,
+  useDiscordConversationParticipants,
+} from '@/integrations/discord/hooks/useDiscordSetup';
+import { discordReplyToState } from '@/integrations/discord/states/discordReplyToState';
 import { IntegrationType } from '@/types/Integration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
@@ -54,9 +59,6 @@ import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 
-// Replace mention inline nodes with a plain-text Discord token so the user id
-// survives HTML serialization + stripping on the way to Discord. The backend
-// converts `{@discord:ID}` into Discord's `<@ID>` ping.
 const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
   blocks?.map((block) =>
     Array.isArray(block?.content)
@@ -89,26 +91,65 @@ export const MessageInput = ({
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
+  const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
 
-  // Discord participants power the type-`@`-to-mention menu in the composer.
   const discordParticipants = useDiscordConversationParticipants(
     conversationId,
     !isDiscord || !conversationId,
   );
-  const discordMentionItems = useMemo<EditorMentionItem[]>(
-    () =>
-      discordParticipants.map((participant) => ({
-        id: participant.userId,
-        fullName: participant.name || 'Discord user',
-        avatar: participant.avatar,
-      })),
-    [discordParticipants],
+  const { search: searchDiscordMembers, status: discordMemberStatus } =
+    useDiscordChannelMemberSearch(
+      conversationId,
+      !isDiscord || !conversationId,
+    );
+  const discordMentionItems = useMemo<EditorMentionItem[]>(() => {
+    const byUserId = new Map<string, EditorMentionItem>();
+    for (const person of discordParticipants) {
+      if (person.userId && !byUserId.has(person.userId)) {
+        byUserId.set(person.userId, {
+          id: person.userId,
+          fullName: person.name || 'Discord user',
+          avatar: person.avatar,
+        });
+      }
+    }
+    return [...byUserId.values()];
+  }, [discordParticipants]);
+  const searchDiscordMentionItems = useCallback(
+    async (query: string): Promise<EditorMentionItem[]> => {
+      const found = await searchDiscordMembers(query);
+
+      return found
+        .filter((person) => person.userId)
+        .map((person) => ({
+          id: person.userId,
+          fullName: person.name || 'Discord user',
+          avatar: person.avatar,
+        }));
+    },
+    [searchDiscordMembers],
   );
+  const discordMentionNote = useMemo(() => {
+    switch (discordMemberStatus) {
+      case 'TRUNCATED':
+        return 'Too many matches — keep typing to narrow down';
+      case 'FORBIDDEN':
+        return 'Bot cannot read this channel — showing people who have chatted';
+      case 'ERROR':
+        return 'Member search unavailable — showing people who have chatted';
+      default:
+        return undefined;
+    }
+  }, [discordMemberStatus]);
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
     setOnlyInternal(isLead);
     setIsInternalNote(isLead);
   }, [integration?.kind, conversationId, setOnlyInternal, setIsInternalNote]);
+
+  useEffect(() => {
+    setDiscordReplyTo(null);
+  }, [conversationId, setDiscordReplyTo]);
 
   const { channels: availableChannels } = useGetChannels();
   const [searchValue, setSearchValue] = useState('');
@@ -130,11 +171,6 @@ export const MessageInput = ({
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
 
-  // Relay the agent's "is typing…" to the channel while composing a reply.
-  // Discord-only for now (the generic backend mutation no-ops for integrations
-  // that don't implement typing yet). Heartbeat at 10s stays under the backend's
-  // 15s self-cap so the indicator stays lit while typing; it's cleared on blur
-  // and when the reply is sent. Internal notes never leak to the customer.
   const [notifyAgentTyping] = useMutation(CONVERSATION_AGENT_TYPING);
   const pingAgentTyping = useThrottledCallback(
     () => {
@@ -340,10 +376,6 @@ export const MessageInput = ({
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
 
-    // For a Discord reply, encode each mention node as a plain-text token
-    // `{@discord:USER_ID}` (angle brackets don't survive HTML stripping); the
-    // backend turns it into Discord's `<@USER_ID>` ping. mentionedUserIds is for
-    // teammate notifications, so it's cleared for Discord replies.
     const outgoingBlocks =
       isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
 
@@ -368,6 +400,9 @@ export const MessageInput = ({
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
         responseTemplateId: responseTemplateId,
+        ...(isDiscord && !isInternalNote && discordReplyTo
+          ? { replyToMessageId: discordReplyTo.messageId }
+          : {}),
       },
       onCompleted: () => {
         toast({ title: t('message-sent'), variant: 'default' });
@@ -380,6 +415,7 @@ export const MessageInput = ({
         setAttachmentPreview(null);
         setShowSuggestions(false);
         setResponseTemplateId(null);
+        setDiscordReplyTo(null);
       },
       refetchQueries: ['Conversations'],
       onError: (err) =>
@@ -394,6 +430,8 @@ export const MessageInput = ({
     mentionedUserIds,
     isInternalNote,
     isDiscord,
+    discordReplyTo,
+    setDiscordReplyTo,
     messageExtraInfo,
     attachments,
     editor,
@@ -402,8 +440,6 @@ export const MessageInput = ({
     responseTemplateId,
   ]);
 
-  // Polls go straight to Discord (no text body); resolve `true` so the composer
-  // dialog closes + resets only on a successful send.
   const handleSendPoll = useCallback(
     async (poll: PollDraft): Promise<boolean> => {
       if (!conversationId) return false;
@@ -452,6 +488,25 @@ export const MessageInput = ({
           />
         )}
 
+        {isDiscord && !isInternalNote && discordReplyTo && (
+          <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
+            <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
+              <IconArrowBackUp className="size-4 flex-none" />
+              <span className="truncate">
+                Replying to: {discordReplyTo.preview}
+              </span>
+            </div>
+            <button
+              type="button"
+              aria-label="Cancel reply"
+              onClick={() => setDiscordReplyTo(null)}
+              className="flex-none text-muted-foreground hover:text-foreground"
+            >
+              <IconX size={14} aria-hidden="true" />
+            </button>
+          </div>
+        )}
+
         <BlockEditor
           editor={editor}
           onChange={handleChange}
@@ -475,6 +530,8 @@ export const MessageInput = ({
             <MentionInEditor
               editor={editor}
               participants={discordMentionItems}
+              searchItems={searchDiscordMentionItems}
+              statusNote={discordMentionNote}
             />
           )}
         </BlockEditor>

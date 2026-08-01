@@ -45,6 +45,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'sales',
+    defaultPath: 'sales/deals',
     icon: IconBriefcase,
     content: () => (
       <Suspense fallback={<div />}>
@@ -84,6 +85,7 @@ export const CONFIG: IUIConfig = {
       {
         name: 'posOrders',
         icon: IconReceipt,
+        label: 'POS orders',
       },
     ],
     propertyInputs: {

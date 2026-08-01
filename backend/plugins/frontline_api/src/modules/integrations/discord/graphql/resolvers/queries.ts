@@ -6,11 +6,15 @@ import {
   getErrorMessage,
   getGuild,
   hasMessageContentIntent,
+  hasServerMembersIntent,
   listBotGuilds,
   listGuildChannels,
+  normalizeMemberQuery,
   sanitizeToken,
 } from '@/integrations/discord/utils';
 import { debugError } from '@/integrations/discord/debuggers';
+import { DISCORD_INBOX_KIND } from '@/integrations/discord/constants';
+import { getChannelMemberViewers } from '@/integrations/discord/channelAccess';
 
 export const discordQueries = {
   discordBots: (_root: undefined, _args: unknown, { models }: IContext) =>
@@ -46,6 +50,7 @@ export const discordQueries = {
         botUsername: botUser?.username,
         applicationId: appInfo?.id || botUser?.id,
         hasMessageContentIntent: hasMessageContentIntent(appInfo?.flags),
+        hasServerMembersIntent: hasServerMembersIntent(appInfo?.flags),
       };
     } catch (e) {
       return { valid: false, error: (e as Error).message };
@@ -284,6 +289,40 @@ export const discordQueries = {
     return [...new Set(bots.map((bot) => bot.channelId).filter(Boolean))];
   },
 
+  discordNamePresets: async (
+    _root: undefined,
+    { channelId }: { channelId: string },
+    { models }: IContext,
+  ) => {
+    if (!channelId) {
+      return [];
+    }
+
+    const names: string[] = await models.Integrations.find({
+      kind: DISCORD_INBOX_KIND,
+      channelId,
+    }).distinct('name');
+
+    const presets = new Set<string>();
+    for (const name of names) {
+      const trimmed = (name || '').trim();
+      if (!trimmed) {
+        continue;
+      }
+
+      const separatorIndex = trimmed.indexOf(' - #');
+      const prefix = (
+        separatorIndex === -1 ? trimmed : trimmed.slice(0, separatorIndex)
+      ).trim();
+
+      if (prefix) {
+        presets.add(prefix);
+      }
+    }
+
+    return [...presets].sort((a, b) => a.localeCompare(b));
+  },
+
   discordConversationParticipants: async (
     _root: undefined,
     { conversationId }: { conversationId: string },
@@ -320,5 +359,46 @@ export const discordQueries = {
           'Discord user',
         avatar: customer.profilePic,
       }));
+  },
+
+  discordChannelMembers: async (
+    _root: undefined,
+    { conversationId, query }: { conversationId: string; query: string },
+    { models }: IContext,
+  ) => {
+    const unavailable = {
+      members: [],
+      status: 'ERROR' as const,
+      truncated: false,
+    };
+
+    if (!normalizeMemberQuery(query)) {
+      return { members: [], status: 'OK' as const, truncated: false };
+    }
+
+    const conversation = await models.DiscordConversations.findOne({
+      erxesApiId: conversationId,
+    });
+
+    if (!conversation?.channelId || !conversation.guildId) {
+      return unavailable;
+    }
+
+    const bot = await models.DiscordBots.findOne({
+      erxesApiId: conversation.integrationId,
+    }).sort({ createdAt: -1 });
+
+    if (!bot?.token) {
+      return unavailable;
+    }
+
+    const { viewers, status, truncated } = await getChannelMemberViewers(
+      bot.token,
+      conversation.channelId,
+      conversation.guildId,
+      query,
+    );
+
+    return { members: viewers, status, truncated };
   },
 };

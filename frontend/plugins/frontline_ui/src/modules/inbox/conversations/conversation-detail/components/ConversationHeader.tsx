@@ -76,14 +76,22 @@ export const ConversationHeader = () => {
   );
 };
 
-// The conversation's profile. For a Discord channel in group mode the
-// conversation represents the channel (not one person), so show a letter-avatar
-// of the channel name and the channel name as the title; otherwise the normal
-// customer profile. Non-Discord inboxes are unaffected.
 const ConversationHeaderProfile = () => {
   const { _id, integration, customer, customerId } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
-  const channel = useDiscordConversationChannel(_id, !_id || !isDiscord);
+  const { channel, loading } = useDiscordConversationChannel(
+    _id,
+    !_id || !isDiscord,
+  );
+
+  if (isDiscord && loading && !channel?.channelName) {
+    return (
+      <div className="flex items-center gap-2 flex-none">
+        <Skeleton className="size-6 rounded-full" />
+        <Skeleton className="w-32 h-4" />
+      </div>
+    );
+  }
 
   if (isDiscord && channel?.channelName) {
     const letter = channel.channelName.trim().charAt(0).toUpperCase();

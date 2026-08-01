@@ -8,6 +8,8 @@ export const COMPANY_INLINE = gql`
       primaryName
       names
       primaryEmail
+      primaryPhone
+      code
     }
   }
 `;

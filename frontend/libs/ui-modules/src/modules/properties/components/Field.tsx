@@ -57,7 +57,12 @@ export const Field = (props: FieldProps) => {
   };
 
   return (
-    <FieldLabel field={field} id={`${id}_${field._id}`} inCell={props.inCell}>
+    <FieldLabel
+      field={field}
+      id={`${id}_${field._id}`}
+      inCell={props.inCell}
+      value={props.value}
+    >
       {(() => {
         switch (field.type) {
           case 'text':
@@ -142,6 +147,7 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
       field={field}
       id={`${id}_${field._id}_${propertyIndex}`}
       inCell={props.inCell}
+      value={props.value}
     >
       {(() => {
         switch (field.type) {

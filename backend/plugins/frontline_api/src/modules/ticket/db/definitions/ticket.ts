@@ -29,6 +29,7 @@ export const ticketSchema = new Schema(
     },
     priority: { type: Number, label: 'Priority', default: 0 },
     assigneeId: { type: String, label: 'Assignee' },
+    assignedMembers: { type: [String], label: 'Assigned Members' },
     createdBy: { type: String, label: 'Created By' },
     attachments: { type: [attachmentSchema], label: 'Attachments' },
     labelIds: { type: [String], label: 'Labels' },

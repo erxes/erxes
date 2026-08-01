@@ -13,6 +13,7 @@ import {
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IUser, TNotification } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import { IDeal } from '@/deals/types/deals';
@@ -33,6 +34,7 @@ const SalesDealNotificationContent = ({
   contentTypeId,
   fromUser,
 }: TNotification) => {
+  const { t } = useTranslation('sales');
   const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
     GET_DEAL_DETAIL,
     {
@@ -44,7 +46,7 @@ const SalesDealNotificationContent = ({
   if (error) {
     return (
       <NotificationContentUnavailable
-        title="Failed to load deal"
+        title={t('failed-to-load-deal', 'Failed to load deal')}
         description={error.message}
       />
     );
@@ -53,8 +55,14 @@ const SalesDealNotificationContent = ({
   if (!contentTypeId) {
     return (
       <NotificationContentUnavailable
-        title="Notification content unavailable"
-        description="This sales notification is missing a linked deal."
+        title={t(
+          'notification-content-unavailable',
+          'Notification content unavailable',
+        )}
+        description={t(
+          'notification-missing-deal',
+          'This sales notification is missing a linked deal.',
+        )}
       />
     );
   }
@@ -71,7 +79,7 @@ const SalesDealNotificationContent = ({
         />
       </div>
 
-      <p className="font-bold text-lg text-foreground">Deal</p>
+      <p className="font-bold text-lg text-foreground">{t('deal', 'Deal')}</p>
 
       <div className="flex flex-col items-center gap-2 text-center">
         <div className="flex items-center gap-2">
@@ -90,7 +98,7 @@ const SalesDealNotificationContent = ({
         </div>
 
         <p className="flex flex-wrap items-baseline justify-center gap-1 text-foreground">
-          <span>{action || 'has updated deal'}</span>
+          <span>{action || t('has-updated-deal', 'has updated deal')}</span>
           {loading ? (
             <Skeleton className="inline-block w-24 h-4 align-middle" />
           ) : (
@@ -111,7 +119,7 @@ const SalesDealNotificationContent = ({
         <Button variant="secondary" asChild>
           <Link to={buildDealPath(deal)}>
             <IconExternalLink className="size-4" />
-            Open deal
+            {t('open-deal', 'Open deal')}
           </Link>
         </Button>
       )}
@@ -140,6 +148,7 @@ const NotificationContentUnavailable = ({
 };
 
 const NotificationsWidgets = (props: TNotification) => {
+  const { t } = useTranslation('sales');
   const [, moduleName] = (props.contentType || '').replace(':', '.').split('.');
 
   if (moduleName === 'deal') {
@@ -148,8 +157,14 @@ const NotificationsWidgets = (props: TNotification) => {
 
   return (
     <NotificationContentUnavailable
-      title="Notification content unavailable"
-      description="This sales notification does not have a linked detail view yet."
+      title={t(
+        'notification-content-unavailable',
+        'Notification content unavailable',
+      )}
+      description={t(
+        'notification-no-detail-view',
+        'This sales notification does not have a linked detail view yet.',
+      )}
     />
   );
 };

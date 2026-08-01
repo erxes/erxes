@@ -1,4 +1,16 @@
 import {
+  IconArchive,
+  IconArrowBack,
+  IconCalendarTime,
+  IconCopy,
+  IconEdit,
+  IconSandbox,
+  IconSettings,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import {
   Badge,
   Combobox,
   Command,
@@ -13,18 +25,12 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { Cell, ColumnDef } from '@tanstack/react-table';
-import {
-  IconArchive,
-  IconArrowBack,
-  IconCalendarTime,
-  IconCopy,
-  IconEdit,
-  IconSandbox,
-  IconSettings,
-  IconTrash,
-  IconUser,
-} from '@tabler/icons-react';
+import { TFunction } from 'i18next';
+import { useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+
 import {
   usePipelineArchive,
   usePipelineCopy,
@@ -32,12 +38,8 @@ import {
   usePipelineRemove,
   usePipelines,
 } from '@/deals/boards/hooks/usePipelines';
+import { PipelineCommandBar } from '@/deals/pipelines/components/PipelineCommandBar';
 import { IPipeline } from '@/deals/types/pipelines';
-import { PipelineCommandBar } from './PipelineCommandBar';
-import React from 'react';
-import { useNavigate } from 'react-router';
-import { useTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
 
 export const PipelineMoreColumnCell = ({
   cell,
@@ -56,7 +58,7 @@ export const PipelineMoreColumnCell = ({
   const { archivePipeline } = usePipelineArchive();
   const { _id, status } = cell.row.original;
   const { t } = useTranslation('sales');
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const runAction = (action: () => void) => {
     setMenuOpen(false);
@@ -186,72 +188,74 @@ export const PipelineMoreColumnCell = ({
   );
 };
 
+const PipelineNameColumnCell = ({
+  cell,
+}: {
+  cell: Cell<IPipeline & { hasChildren: boolean; type?: string }, unknown>;
+}) => {
+  const { pipelineEdit, loading } = usePipelineEdit();
+  const { _id, name, type } = cell.row.original;
+  const [open, setOpen] = useState(false);
+  const [editedName, setEditedName] = useState(name);
+
+  const onSave = () => {
+    if (name !== editedName) {
+      pipelineEdit({
+        variables: {
+          id: _id,
+          type,
+          name: editedName,
+        },
+      });
+    }
+  };
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditedName(event.currentTarget.value);
+  };
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          onSave();
+        }
+      }}
+    >
+      <RecordTableInlineCell.Trigger>
+        <RecordTableTree.Trigger
+          order=""
+          name={cell.getValue() as string}
+          hasChildren={cell.row.original.hasChildren}
+        >
+          {cell.getValue() as string}
+        </RecordTableTree.Trigger>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content>
+        <Input value={editedName} onChange={onChange} disabled={loading} />
+      </RecordTableInlineCell.Content>
+    </Popover>
+  );
+};
+
 export const pipelinesColumns: (
   t: TFunction,
 ) => ColumnDef<IPipeline & { hasChildren: boolean; type?: string }>[] = (t) => [
-  RecordTable.checkboxColumn as ColumnDef<
-    IPipeline & { hasChildren: boolean; type?: string }
-  >,
   {
     id: 'more',
     cell: PipelineMoreColumnCell,
     size: 33,
   },
+  RecordTable.checkboxColumn as ColumnDef<
+    IPipeline & { hasChildren: boolean; type?: string }
+  >,
   {
     id: 'name',
     header: () => t('name'),
     accessorKey: 'name',
-    cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { pipelineEdit, loading } = usePipelineEdit();
-      const { _id, name, type } = cell.row.original;
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [open, setOpen] = React.useState<boolean>(false);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [_name, setName] = React.useState<string>(name);
-
-      const onSave = () => {
-        if (name !== _name) {
-          pipelineEdit({
-            variables: {
-              id: _id,
-              type: type,
-              name: _name,
-            },
-          });
-        }
-      };
-
-      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-        setName(el.currentTarget.value);
-      };
-
-      return (
-        <Popover
-          open={open}
-          onOpenChange={(open) => {
-            setOpen(open);
-            if (!open) {
-              onSave();
-            }
-          }}
-        >
-          <RecordTableInlineCell.Trigger>
-            <RecordTableTree.Trigger
-              // order={cell.row.original.order || ''}
-              order=""
-              name={cell.getValue() as string}
-              hasChildren={cell.row.original.hasChildren}
-            >
-              {cell.getValue() as string}
-            </RecordTableTree.Trigger>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input value={_name} onChange={onChange} disabled={loading} />
-          </RecordTableInlineCell.Content>
-        </Popover>
-      );
-    },
+    cell: PipelineNameColumnCell,
     size: 300,
   },
   {
@@ -322,6 +326,7 @@ const PipelineRecordTable = () => {
         type: contentType || '',
         searchValue: searchValue ?? undefined,
         boardId: queries.activeBoardId || '',
+        isAll: true,
       },
     });
 
@@ -334,12 +339,12 @@ const PipelineRecordTable = () => {
         columns={pipelinesColumns(t)}
         data={pipelines || []}
         className="m-3"
-        stickyColumns={['checkbox', 'more', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
         <PipelineCommandBar />
         <RecordTableTree id="pipelines-list" ordered>
           <RecordTable.Scroll>
-            <RecordTable className="w-full">
+            <RecordTable>
               <RecordTable.Header />
               <RecordTable.Body>
                 <RecordTable.RowList Row={RecordTableTree.Row} />

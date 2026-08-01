@@ -5,7 +5,6 @@ import mongoose, {
   Schema,
 } from 'mongoose';
 import { nanoid } from 'nanoid';
-import { installRevertCaptureHooks } from './revertCapture';
 
 import {
   buildCursorQuery,
@@ -96,6 +95,7 @@ export const cursorPaginate = async <T extends Document>({
   model,
   params,
   query,
+  formatter,
 }: CursorPaginateParams<T>): Promise<CursorResult<T>> => {
   const { limit = 20, cursor, direction = 'forward', orderBy = {} } = params;
 
@@ -103,12 +103,14 @@ export const cursorPaginate = async <T extends Document>({
     throw new Error('Limit must be between 1 and 100');
   }
 
-  const baseQuery = { ...query };
-
-  if (cursor) {
-    const cursorQuery = buildCursorQuery(cursor, orderBy, direction);
-    Object.assign(baseQuery, cursorQuery);
-  }
+  const baseQuery: FilterQuery<T> = cursor
+    ? {
+        $and: [
+          query || {},
+          buildCursorQuery(cursor, orderBy, direction, formatter),
+        ],
+      }
+    : { ...(query || {}) };
 
   const sortFields = Object.keys(orderBy);
   const sortOrder: Record<string, 1 | -1> = {};
@@ -119,8 +121,8 @@ export const cursorPaginate = async <T extends Document>({
       direction === 'forward'
         ? normalizedOrder
         : normalizedOrder === 1
-          ? -1
-          : 1;
+        ? -1
+        : 1;
   }
 
   sortOrder._id = (direction === 'forward' ? 1 : -1) as 1 | -1;
@@ -265,11 +267,6 @@ export const checkCollectionCodeDuplication = async (
 export const schemaWrapper = (schema: Schema) => {
   schema.add({ _id: mongooseStringRandomId });
   schema.add({ processId: { type: String, optional: true } });
-
-  // Dynamic point-in-time-revert capture: auto-journal destructive writes for
-  // every wrapped schema with no per-model code. Always on — every schema is
-  // journaled from boot so no change is ever silently left unrecoverable.
-  installRevertCaptureHooks(schema);
 
   return schema;
 };

@@ -5,7 +5,6 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { processProductRows } from './processProductRows';
 import { IModels } from '~/connectionResolvers';
-import { getCustomPropertyHeaders } from '~/meta/import-export/utils';
 
 const productImportMap = {
   product: {
@@ -17,48 +16,24 @@ const productImportMap = {
       { label: 'Description', key: 'description' },
       { label: 'Unit Price', key: 'unitPrice' },
       { label: 'UOM', key: 'uom' },
-      {
-        label: 'Category',
-        key: 'categoryName',
-        aliases: [
-          'categoryName',
-          'categryName',
-          'Category Name',
-          'Category ID',
-          'categoryId',
-        ],
-      },
+      { label: 'Category ID', key: 'categoryId' },
       { label: 'Vendor ID', key: 'vendorId' },
       { label: 'Status', key: 'status' },
-      {
-        label: 'Tags',
-        key: 'tags',
-        aliases: ['tags', 'tagIds', 'Tags'],
-      },
-      { label: 'Type', key: 'type' },
-      { label: 'Barcodes', key: 'barcodes' },
-      { label: 'Barcode Description', key: 'barcodeDescription' },
-      { label: 'Image', key: 'imageUrl' },
-      { label: 'Additional Images', key: 'imageUrls' },
+      { label: 'Tags', key: 'tags' },
     ],
-    propertiesType: 'core:product',
     processRows: (models: IModels, rows: any[]) =>
       processProductRows(models, rows),
   },
 };
-
 export const productImportHandlers = {
   getImportHeaders: async (
     { collectionName }: { collectionName: string },
-    { models }: TCoreModuleProducerContext<IModels>,
+    { subdomain }: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
     const handler = productImportMap[collectionName];
     if (!handler)
       throw new Error(`Import headers handler not found for ${collectionName}`);
-    return [
-      ...handler.headers,
-      ...(await getCustomPropertyHeaders(models, handler.propertiesType)),
-    ];
+    return handler.headers;
   },
   insertImportRows: async (
     { collectionName, rows }: TInsertImportRowsInput,

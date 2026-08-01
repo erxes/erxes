@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { QueryHookOptions } from '@apollo/client';
 import {
   useActivityLogs,
@@ -21,6 +21,11 @@ type ActivityLogFormRootProps = {
   customActivities?: ActivityLogCustomActivity[];
   options?: QueryHookOptions<ActivityLogsQueryData>;
   showExactDate?: boolean;
+  activityType?: string;
+  excludeActivityType?: string;
+  dateFrom?: Date | string;
+  dateTo?: Date | string;
+  onTotalCountChange?: (totalCount: number) => void;
   children: React.ReactNode;
 };
 
@@ -32,6 +37,11 @@ const ActivityLogsRoot = ({
   customActivities,
   options,
   showExactDate,
+  activityType,
+  excludeActivityType,
+  dateFrom,
+  dateTo,
+  onTotalCountChange,
   children,
 }: ActivityLogFormRootProps) => {
   const {
@@ -48,9 +58,19 @@ const ActivityLogsRoot = ({
       action,
       limit,
       variant,
+      activityType,
+      excludeActivityType,
+      dateFrom,
+      dateTo,
     },
     options,
   );
+
+  useEffect(() => {
+    if (!loading) {
+      onTotalCountChange?.(totalCount);
+    }
+  }, [loading, totalCount, onTotalCountChange]);
 
   if (loading && activityLogs.length === 0) {
     return <ActivityLogLoading />;
@@ -88,17 +108,9 @@ const ActivityLogsContent = ({ emptyMessage }: { emptyMessage?: string }) => {
   );
 };
 
-// Legacy props interface for backward compatibility
-type LegacyProps = {
-  targetId: string;
-  action?: string;
-  limit?: number;
-  variant?: 'forward' | 'backward';
-  customActivities?: ActivityLogCustomActivity[];
+type LegacyProps = Omit<ActivityLogFormRootProps, 'children'> & {
   showInternalNotes?: boolean;
   emptyMessage?: string;
-  options?: QueryHookOptions<ActivityLogsQueryData>;
-  showExactDate?: boolean;
 };
 
 // Legacy component wrapper
@@ -112,6 +124,11 @@ const ActivityLogsLegacy = ({
   emptyMessage,
   options,
   showExactDate,
+  activityType,
+  excludeActivityType,
+  dateFrom,
+  dateTo,
+  onTotalCountChange,
 }: LegacyProps) => {
   const mergedActivities = [
     ...(showInternalNotes ? [internalNoteCustomActivity] : []),
@@ -128,6 +145,11 @@ const ActivityLogsLegacy = ({
       customActivities={mergedActivities}
       options={options}
       showExactDate={showExactDate}
+      activityType={activityType}
+      excludeActivityType={excludeActivityType}
+      dateFrom={dateFrom}
+      dateTo={dateTo}
+      onTotalCountChange={onTotalCountChange}
     >
       <ActivityLogsWrapper>
         <ActivityLogsContent emptyMessage={emptyMessage} />

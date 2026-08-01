@@ -50,6 +50,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'frontline',
+    defaultPath: 'frontline/inbox',
     icon: IconStackFront,
     content: () => (
       <Suspense fallback={<div />}>
@@ -67,10 +68,12 @@ export const CONFIG: IUIConfig = {
       {
         name: 'conversation',
         icon: IconMail,
+        label: 'Conversations',
       },
       {
         name: 'ticket',
         icon: IconTicket,
+        label: 'Tickets',
       },
     ],
     propertyInputs: {

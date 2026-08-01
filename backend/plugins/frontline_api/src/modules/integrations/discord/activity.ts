@@ -4,22 +4,22 @@ import {
   APIEmbedThumbnail,
   APIEmbedVideo,
   APIPoll,
+  GatewayMessageDeleteBulkDispatchData,
+  GatewayMessageDeleteDispatchData,
   GatewayMessagePollVoteDispatchData,
+  GatewayTypingStartDispatchData,
 } from 'discord-api-types/v10';
 import {
   DiscordActivity,
   DiscordEmbed,
   DiscordMention,
+  DiscordMessageDeleteEvent,
   DiscordPoll,
   DiscordPollVoteEvent,
+  DiscordTypingEvent,
   TDiscordMessagePayload,
 } from '@/integrations/discord/@types/activity';
 
-// Flattens the Gateway's nested `poll` object into our `DiscordPoll`. Discord
-// nests an answer's label/emoji under `poll_media`, and vote tallies under
-// `results.answer_counts` (absent until the first vote). Returns `undefined`
-// for non-poll messages so callers can branch on its presence. Exported so the
-// outbound reply path can normalize the poll Discord echoes back on creation.
 export const normalizeDiscordPoll = (poll?: APIPoll): DiscordPoll | undefined => {
   if (!poll) {
     return undefined;
@@ -48,13 +48,9 @@ export const normalizeDiscordPoll = (poll?: APIPoll): DiscordPoll | undefined =>
 
 type TEmbedMedia = APIEmbedImage | APIEmbedThumbnail | APIEmbedVideo;
 
-// Discord sends an embed image/thumbnail/video both as the origin `url` and a
-// CDN-cached `proxy_url`; prefer the proxy (avoids hotlink/referrer breakage and
-// mixed-content issues) but fall back to the origin.
 const embedMediaUrl = (media?: TEmbedMedia) =>
   media ? media.proxy_url || media.url || undefined : undefined;
 
-/** Normalize an embed image/thumbnail/video into our `{ url, width, height }`. */
 const normalizeEmbedMedia = (media?: TEmbedMedia) =>
   media
     ? {
@@ -64,9 +60,6 @@ const normalizeEmbedMedia = (media?: TEmbedMedia) =>
       }
     : undefined;
 
-// Flattens the Gateway's nested `embeds[]` into our `DiscordEmbed[]`. Discord's
-// color is a 24-bit int; we render it as `#rrggbb`. Returns `undefined` when a
-// message has no embeds so callers can branch on its presence.
 export const normalizeDiscordEmbeds = (
   embeds?: APIEmbed[],
 ): DiscordEmbed[] | undefined => {
@@ -113,11 +106,7 @@ export const normalizeDiscordEmbeds = (
   }));
 };
 
-/**
- * Normalizes a raw Gateway `MESSAGE_CREATE` payload into a `DiscordActivity`.
- * Pure + transport-agnostic so it is trivially unit-testable without a live
- * Gateway connection.
- */
+
 export const mapMessageCreateToActivity = (
   payload: TDiscordMessagePayload,
 ): DiscordActivity => {
@@ -132,19 +121,12 @@ export const mapMessageCreateToActivity = (
     author: {
       id: author?.id ?? '',
       username: author?.username || author?.global_name || author?.id || '',
-      // Discord marks bot users with `bot: true`; webhook messages carry a
-      // `webhook_id`. Either means "not a human sender".
       bot: Boolean(author?.bot) || Boolean(payload?.webhook_id),
     },
     content: payload?.content || '',
-    // Discord message type; see DiscordActivity.type. Kept so system messages
-    // (member-join, pins, thread-created, …) can be filtered at ingest.
     type: typeof payload?.type === 'number' ? payload.type : undefined,
     poll: normalizeDiscordPoll(payload?.poll),
     embeds: normalizeDiscordEmbeds(payload?.embeds),
-    // Discord attaches the mentioned users (with their display names) on every
-    // message, so we capture them here to resolve `<@ID>` tokens without an
-    // extra REST call. Prefer the guild nickname, then global name, then handle.
     mentions: (payload?.mentions || []).map((user) => ({
       id: user?.id,
       name:
@@ -153,10 +135,6 @@ export const mapMessageCreateToActivity = (
         user?.username ||
         user?.id,
     })),
-    // Keep the real MIME `content_type` as `type` (consistent with the inbox
-    // composer): the frontend decides image-vs-file via `type.startsWith('image')`
-    // and can pick per-type icons. Carry `filename`/`size` so files render as a
-    // proper download card (name + human-readable size).
     attachments: (payload?.attachments || []).map((att) => ({
       type: att?.content_type || 'application/octet-stream',
       url: att?.url || '',
@@ -167,13 +145,9 @@ export const mapMessageCreateToActivity = (
   };
 };
 
-// Discord encodes a user mention as `<@ID>` (or `<@!ID>` for the nickname form).
-// Inbound content carries these raw ids; this rewrites them to a readable
-// `@Name` for display in the inbox, using the names from the message payload's
-// `mentions` array. Ids we don't have a name for are left untouched.
 const USER_MENTION_RE = /<@!?(\d+)>/g;
 
-/** Rewrite raw `<@ID>` mention tokens in content to readable `@Name`. */
+
 export const resolveDiscordMentions = (
   content: string,
   mentions: DiscordMention[] = [],
@@ -189,25 +163,14 @@ export const resolveDiscordMentions = (
     return name ? `@${name}` : full;
   });
 };
-
-// Discord message types that carry real user content and belong in the inbox:
-// DEFAULT (0) and REPLY (19). Everything else is a system message with no user
-// text — member-join "just landed" (7), pins (6), boosts (8–11), channel/thread
-// notices (4,5,18), etc. Allow-listing (rather than deny-listing) also
-// future-proofs against new system types Discord adds later. Slash/context
-// command outputs are authored by the app, so they're already caught by the
-// bot filter below.
 const CONTENT_MESSAGE_TYPES = new Set([0, 19]);
 
-/**
- * Whether an inbound message should be ignored: our own bot's messages, other
- * bots, or webhooks (the Discord equivalent of Facebook's `is_echo` filter), or
- * a system message (member-join, pins, thread-created, …) that has no user
- * content — those would otherwise render as an empty bubble in the inbox.
- */
-export const isIgnorableActivity = (activity: DiscordActivity): boolean => {
+export const isIgnorableActivity = (
+  activity: DiscordActivity,
+  { allowBotAuthor = false }: { allowBotAuthor?: boolean } = {},
+): boolean => {
   return (
-    activity.author.bot ||
+    (!allowBotAuthor && activity.author.bot) ||
     !activity.messageId ||
     !activity.channelId ||
     (typeof activity.type === 'number' &&
@@ -215,10 +178,7 @@ export const isIgnorableActivity = (activity: DiscordActivity): boolean => {
   );
 };
 
-/**
- * Normalizes a raw `MESSAGE_POLL_VOTE_ADD` / `MESSAGE_POLL_VOTE_REMOVE` payload
- * into a `DiscordPollVoteEvent`. `added` is set by the caller per dispatch type.
- */
+
 export const mapPollVoteToEvent = (
   payload: GatewayMessagePollVoteDispatchData,
   added: boolean,
@@ -232,3 +192,41 @@ export const mapPollVoteToEvent = (
   added,
   raw: payload,
 });
+
+
+export const mapTypingStartToEvent = (
+  payload: GatewayTypingStartDispatchData,
+): DiscordTypingEvent => {
+  const user = payload?.member?.user;
+
+  return {
+    source: 'discord',
+    channelId: payload?.channel_id,
+    guildId: payload?.guild_id,
+    userId: payload?.user_id,
+    username:
+      payload?.member?.nick || user?.global_name || user?.username || undefined,
+    bot: Boolean(user?.bot),
+    timestamp: payload?.timestamp
+      ? new Date(payload.timestamp * 1000)
+      : new Date(),
+  };
+};
+
+export const mapMessageDeleteToEvent = (
+  payload:
+    | GatewayMessageDeleteDispatchData
+    | GatewayMessageDeleteBulkDispatchData,
+): DiscordMessageDeleteEvent => {
+  const ids =
+    'ids' in payload
+      ? payload.ids
+      : [(payload as GatewayMessageDeleteDispatchData).id];
+
+  return {
+    source: 'discord',
+    messageIds: (ids || []).filter(Boolean),
+    channelId: payload?.channel_id,
+    guildId: payload?.guild_id,
+  };
+};

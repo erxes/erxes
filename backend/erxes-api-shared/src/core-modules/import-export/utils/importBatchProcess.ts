@@ -158,7 +158,7 @@ const createImportErrorRowWriter = async ({
             const normalizedRow: ImportErrorRow = { error: errorMessage };
 
             const values = csvHeaders.map((header) => {
-              const lookupKey = headerToKeyMap[header] || header;
+              const lookupKey = keyToHeaderMap[header] || header;
               const value = row?.[lookupKey];
               normalizedRow[lookupKey] = value;
               return escapeCsvField(value);
@@ -376,24 +376,28 @@ export const createImportBatchProcessor = (
               const normalizedHeaderText = String(headerText || '').trim();
 
               if (normalizedHeaderText) {
-                const matchedHeader = importHeaders.find((h) => {
-                  const candidates = [h.label, h.key, ...(h.aliases || [])].map(
-                    (candidate) => String(candidate || '').trim(),
-                  );
+                const matchedHeader = importHeaders.find(
+                  (h) => {
+                    const candidates = [
+                      h.label,
+                      h.key,
+                      ...(h.aliases || []),
+                    ].map((candidate) => String(candidate || '').trim());
 
-                  if (candidates.includes(normalizedHeaderText)) {
-                    return true;
-                  }
+                    if (candidates.includes(normalizedHeaderText)) {
+                      return true;
+                    }
 
-                  return (
-                    h.type === 'customProperty' &&
-                    candidates.some(
-                      (candidate) =>
-                        candidate &&
-                        normalizedHeaderText.includes(`[${candidate}]`),
-                    )
-                  );
-                });
+                    return (
+                      h.type === 'customProperty' &&
+                      candidates.some(
+                        (candidate) =>
+                          candidate &&
+                          normalizedHeaderText.includes(`[${candidate}]`),
+                      )
+                    );
+                  },
+                );
                 if (matchedHeader) {
                   columnToKeyMap[index] = matchedHeader.key;
                   keyToHeaderMap[matchedHeader.key] = normalizedHeaderText;
@@ -535,7 +539,7 @@ export const createImportBatchProcessor = (
                     moduleName,
                     collectionName,
                     rows: batch,
-                    userId,
+                    userId
                   },
                 },
                 context,
@@ -680,9 +684,8 @@ export const createImportBatchProcessor = (
       await coreClient.updateImportProgress(subdomain, importId, {
         status: 'failed',
         lastProcessedRow: dataRowIndex,
-        errorMessage: `${errorCode}: ${
-          error?.message || 'Import worker failed'
-        }`,
+        errorMessage: `${errorCode}: ${error?.message || 'Import worker failed'
+          }`,
         terminalError: {
           code: terminalError.code,
           stage: terminalError.stage,

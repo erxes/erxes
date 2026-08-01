@@ -36,6 +36,7 @@ export interface ReportCardProps {
 export interface TagData {
   _id: string;
   name: string;
+  group?: string;
   count: number;
   percentage: number;
 }

@@ -60,6 +60,10 @@ const findFirstFormError = (errors: FieldErrors<TPipelineForm>) => {
   return undefined;
 };
 
+// A stage without an id was never rendered, so it cannot be fixed by the user.
+const removeGhostStages = (stages: TPipelineForm['stages']) =>
+  (stages || []).filter((stage) => Boolean(stage?._id));
+
 const removeEmptyPaymentTypes = (paymentTypes: TPipelineForm['paymentTypes']) =>
   (paymentTypes || []).filter((paymentType) =>
     [
@@ -145,6 +149,13 @@ export const usePipelineFormSubmit = ({
         methods.setValue('paymentTypes', populatedPaymentTypes, {
           shouldDirty: true,
         });
+      }
+
+      const stages = methods.getValues('stages');
+      const populatedStages = removeGhostStages(stages);
+
+      if (populatedStages.length !== (stages || []).length) {
+        methods.setValue('stages', populatedStages, { shouldDirty: true });
       }
 
       void methods.handleSubmit(submitHandler, onInvalid)(event);
