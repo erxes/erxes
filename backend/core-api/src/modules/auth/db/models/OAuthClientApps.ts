@@ -24,6 +24,7 @@ const normalizeRedirectUrls = (redirectUrls?: string[]) => {
     ...new Set((redirectUrls || []).map((url) => url.trim()).filter(Boolean)),
   ];
 };
+/** Normalize and deduplicate operation grants before persistence. */
 const normalizeAllowedPublicOperationIds = (operationIds?: string[]) => {
   return [
     ...new Set((operationIds || []).map((id) => id.trim()).filter(Boolean)),
@@ -95,7 +96,9 @@ export const loadOAuthClientAppClass = (
           throw new Error('Could not generate unique client id');
         }
 
-        const clientId = `${slugifyClientName(normalizedName)}-${generateClientId()}`;
+        const clientId = `${slugifyClientName(
+          normalizedName,
+        )}-${generateClientId()}`;
 
         try {
           return await models.OAuthClientApps.create({

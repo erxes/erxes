@@ -9,6 +9,7 @@ let operationRegistry: ReadonlyMap<
   Readonly<IPublicApiOperation>
 > = new Map();
 
+/** Validate a published operation before admitting it to the runtime registry. */
 const validateOperation = (operation: IPublicApiOperation) => {
   if (!OPERATION_ID_PATTERN.test(operation.id)) {
     throw new Error(`Invalid public API operation id: ${operation.id}`);
@@ -34,15 +35,11 @@ const validateOperation = (operation: IPublicApiOperation) => {
   const [definition] = operationDefinitions;
 
   if (definition.name?.value !== operation.operationName) {
-    throw new Error(
-      `Public API operation name mismatch for ${operation.id}`,
-    );
+    throw new Error(`Public API operation name mismatch for ${operation.id}`);
   }
 
   if (definition.operation !== operation.kind) {
-    throw new Error(
-      `Public API operation kind mismatch for ${operation.id}`,
-    );
+    throw new Error(`Public API operation kind mismatch for ${operation.id}`);
   }
 
   visit(document, {
@@ -56,6 +53,7 @@ const validateOperation = (operation: IPublicApiOperation) => {
   });
 };
 
+/** Atomically rebuild the runtime registry from active plugin metadata. */
 export const refreshPublicApiRegistry = async () => {
   const operations = await getPublicApiOperations();
   const nextRegistry = new Map<string, Readonly<IPublicApiOperation>>();
@@ -79,5 +77,6 @@ export const refreshPublicApiRegistry = async () => {
   operationRegistry = nextRegistry;
 };
 
+/** Resolve a published operation by its stable public identifier. */
 export const getPublicApiOperation = (operationId: string) =>
   operationRegistry.get(operationId);

@@ -42,6 +42,7 @@ const checkOAuthClientReadPermission = async (
     await checkPermission('appsManage');
   }
 };
+/** Reject OAuth client grants for operations that are not currently published. */
 const validatePublicOperationIds = async (operationIds?: string[]) => {
   const normalizedIds = [
     ...new Set((operationIds || []).map((id) => id.trim()).filter(Boolean)),

@@ -1,9 +1,7 @@
-import type {
-  IPublicApiConfig,
-  IPublicApiOperation,
-} from '../core-types';
+import type { IPublicApiConfig, IPublicApiOperation } from '../core-types';
 import { getActivePlugins, getPlugin } from './service-discovery';
 
+/** Collect the public API operations published by active plugins. */
 export const getPublicApiOperations = async (): Promise<
   IPublicApiOperation[]
 > => {

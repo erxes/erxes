@@ -21,7 +21,7 @@ export const isDev = NODE_ENV === 'development';
 
 export const keyForConfig = (name: string) => `erxesservice:config:${name}`;
 
-export const getPlugins = async (): Promise<string[]> => {
+export const getPlugins = (): string[] => {
   const enabledServices = (process.env.ENABLED_PLUGINS || '')
     .split(',')
     .map((plugin) => plugin.trim())

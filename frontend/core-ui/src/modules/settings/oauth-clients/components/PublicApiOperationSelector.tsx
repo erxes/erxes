@@ -4,6 +4,24 @@ import { useTranslation } from 'react-i18next';
 import type { TOAuthClientsForm } from '../hooks/useOAuthClientsForm';
 import { usePublicApiOperations } from '../hooks/usePublicApiOperations';
 
+/** Return the selected operation IDs after one checkbox transition. */
+const getUpdatedOperationIds = (
+  selectedIds: string[],
+  operationId: string,
+  checked: boolean,
+) => {
+  if (!checked) {
+    return selectedIds.filter((id) => id !== operationId);
+  }
+
+  if (selectedIds.includes(operationId)) {
+    return selectedIds;
+  }
+
+  return [...selectedIds, operationId];
+};
+
+/** Render the published-operation allowlist for an OAuth client. */
 export const PublicApiOperationSelector = () => {
   const form = useFormContext<TOAuthClientsForm>();
   const { operations, loading, error } = usePublicApiOperations();
@@ -16,7 +34,7 @@ export const PublicApiOperationSelector = () => {
       control={form.control}
       name="allowedPublicOperationIds"
       render={({ field }) => {
-        const selectedIds = field.value || [];
+        const selectedIds = field.value ?? [];
 
         return (
           <Form.Item>
@@ -56,11 +74,11 @@ export const PublicApiOperationSelector = () => {
                         checked={selectedIds.includes(operation.id)}
                         onCheckedChange={(checked) =>
                           field.onChange(
-                            checked
-                              ? selectedIds.includes(operation.id)
-                                ? selectedIds
-                                : [...selectedIds, operation.id]
-                              : selectedIds.filter((id) => id !== operation.id),
+                            getUpdatedOperationIds(
+                              selectedIds,
+                              operation.id,
+                              checked === true,
+                            ),
                           )
                         }
                       />

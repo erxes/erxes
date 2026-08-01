@@ -167,8 +167,8 @@ const getOAuthActionScopeMap = async () => {
         const actionScopes = action.oauthScopes?.length
           ? action.oauthScopes
           : action.oauthScope
-            ? [action.oauthScope]
-            : [];
+          ? [action.oauthScope]
+          : [];
 
         if (actionScopes.length) {
           scopeMap[action.name] = actionScopes;
@@ -181,13 +181,12 @@ const getOAuthActionScopeMap = async () => {
 };
 
 const checkOAuthScope = async (action: string, user?: IUserDocument) => {
-  const oauthScopes = (
-    (user || {}) as IUserDocument & {
-      oauthScopes?: string[];
-    }
-  ).oauthScopes;
+  const oauthPrincipal = (user || {}) as IUserDocument & {
+    oauthClientId?: string;
+    oauthScopes?: string[];
+  };
 
-  if (!oauthScopes?.length) {
+  if (!oauthPrincipal.oauthClientId) {
     return;
   }
 
@@ -196,7 +195,7 @@ const checkOAuthScope = async (action: string, user?: IUserDocument) => {
 
   if (
     actionScopes.length === 0 ||
-    !actionScopes.some((scope) => oauthScopes.includes(scope))
+    !actionScopes.some((scope) => oauthPrincipal.oauthScopes?.includes(scope))
   ) {
     throw new ExpectedError('OAuth scope required', 'FORBIDDEN');
   }
