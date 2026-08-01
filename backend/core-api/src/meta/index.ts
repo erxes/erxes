@@ -5,6 +5,7 @@ import { tags } from './tags';
 import { properties } from './properties';
 import { references } from './references';
 import { templates } from './templates';
+import { publicApi } from './publicApi';
 
 export default {
   permissions,
@@ -14,4 +15,5 @@ export default {
   properties,
   references,
   templates,
+  publicApi,
 };

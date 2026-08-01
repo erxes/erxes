@@ -7,4 +7,5 @@ export const OAUTH_CLIENTS_FORM_SCHEMA = z.object({
   type: z.enum(['public', 'confidential']),
   accessTokenLifetime: z.enum(['trio', 'half', 'year']).optional(),
   redirectUrls: z.array(z.string().trim()).default([]),
+  allowedPublicOperationIds: z.array(z.string()).default([]),
 });

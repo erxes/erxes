@@ -2,7 +2,8 @@ import { IContext } from '~/connectionResolvers';
 import type {
   OAuthClientAccessTokenLifetime,
   OAuthClientAppType,
-} from '@/auth/db/definitions/oauthClientApps';
+} from 'erxes-api-shared/core-modules';
+import { getPublicApiOperations } from 'erxes-api-shared/utils';
 
 type OAuthClientAppMutationArgs = {
   _id?: string;
@@ -12,6 +13,7 @@ type OAuthClientAppMutationArgs = {
   type: OAuthClientAppType;
   accessTokenLifetime?: OAuthClientAccessTokenLifetime;
   redirectUrls?: string[];
+  allowedPublicOperationIds?: string[];
 };
 
 const buildOAuthClientQuery = (searchValue?: string) => {
@@ -39,6 +41,22 @@ const checkOAuthClientReadPermission = async (
 
     await checkPermission('appsManage');
   }
+};
+const validatePublicOperationIds = async (operationIds?: string[]) => {
+  const normalizedIds = [
+    ...new Set((operationIds || []).map((id) => id.trim()).filter(Boolean)),
+  ];
+  const publishedOperations = await getPublicApiOperations();
+  const publishedIds = new Set(
+    publishedOperations.map((operation) => operation.id),
+  );
+  const unpublishedId = normalizedIds.find((id) => !publishedIds.has(id));
+
+  if (unpublishedId) {
+    throw new Error(`Public API operation is not published: ${unpublishedId}`);
+  }
+
+  return normalizedIds;
 };
 
 export const oauthClientAppQueries = {
@@ -76,6 +94,16 @@ export const oauthClientAppQueries = {
 
     return models.OAuthClientApps.findOne({ _id });
   },
+
+  async publicApiOperations(
+    _parent: undefined,
+    _args: undefined,
+    { checkPermission }: IContext,
+  ) {
+    await checkPermission('appsManage');
+
+    return getPublicApiOperations();
+  },
 };
 
 export const oauthClientAppMutations = {
@@ -86,7 +114,12 @@ export const oauthClientAppMutations = {
   ) {
     await checkPermission('appsManage');
 
-    return models.OAuthClientApps.createOAuthClientApp(params);
+    return models.OAuthClientApps.createOAuthClientApp({
+      ...params,
+      allowedPublicOperationIds: await validatePublicOperationIds(
+        params.allowedPublicOperationIds,
+      ),
+    });
   },
 
   async oauthClientAppsEdit(
@@ -96,7 +129,12 @@ export const oauthClientAppMutations = {
   ) {
     await checkPermission('appsManage');
 
-    return models.OAuthClientApps.updateOAuthClientApp(_id, doc);
+    return models.OAuthClientApps.updateOAuthClientApp(_id, {
+      ...doc,
+      allowedPublicOperationIds: await validatePublicOperationIds(
+        doc.allowedPublicOperationIds,
+      ),
+    });
   },
 
   async oauthClientAppsRevoke(

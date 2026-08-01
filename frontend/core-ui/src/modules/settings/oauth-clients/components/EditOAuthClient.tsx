@@ -37,6 +37,8 @@ export const EditOAuthClient = () => {
     type: editingOAuthClient?.type,
     accessTokenLifetime: getDefaultAccessTokenLifetime(editingOAuthClient),
     redirectUrls: editingOAuthClient?.redirectUrls || [],
+    allowedPublicOperationIds:
+      editingOAuthClient?.allowedPublicOperationIds || [],
   });
   const [revealedSecret, setRevealedSecret] = React.useState<{
     clientName: string;
@@ -52,6 +54,8 @@ export const EditOAuthClient = () => {
         type: editingOAuthClient.type,
         accessTokenLifetime: getDefaultAccessTokenLifetime(editingOAuthClient),
         redirectUrls: editingOAuthClient.redirectUrls || [],
+        allowedPublicOperationIds:
+          editingOAuthClient.allowedPublicOperationIds || [],
       });
     }
   }, [editingOAuthClient, reset]);

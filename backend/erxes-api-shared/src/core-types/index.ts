@@ -16,3 +16,4 @@ export * from './modules/relations/relations';
 export * from './modules/logs/logs';
 export * from './modules/automations/automations';
 export * from './modules/saas/organization';
+export * from './modules/public-api/publicApi';

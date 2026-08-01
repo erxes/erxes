@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { restartRouter } from '~/apollo-router';
 import { retryGetProxyTargets } from '~/proxy/targets';
+import { refreshPublicApiRegistry } from '~/public-api/registry';
 
 let routerUpdateInFlight: Promise<void> | undefined;
 
@@ -18,6 +19,7 @@ const updateApolloRouter = async () => {
     clearServiceDiscoveryCache();
     global.currentTargets = await retryGetProxyTargets();
     await restartRouter(global.currentTargets);
+    await refreshPublicApiRegistry();
   })();
 
   try {

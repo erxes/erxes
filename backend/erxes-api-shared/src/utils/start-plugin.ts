@@ -32,7 +32,11 @@ import {
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
-import { IMainContext, IPermissionConfig } from '../core-types';
+import {
+  IMainContext,
+  IPermissionConfig,
+  IPublicApiConfig,
+} from '../core-types';
 import {
   generateApolloContext,
   startBeforeResolvers,
@@ -82,6 +86,7 @@ type IMeta = {
   references?: TRecordReferencesConfig;
   permissions?: IPermissionConfig;
   beforeResolvers?: BeforeResolversConfig;
+  publicApi?: IPublicApiConfig;
   importExport?: ImportExportConfigs;
   relations?: {
     subscribedTypes: string[];

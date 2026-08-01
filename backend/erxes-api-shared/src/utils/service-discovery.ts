@@ -22,13 +22,15 @@ export const isDev = NODE_ENV === 'development';
 export const keyForConfig = (name: string) => `erxesservice:config:${name}`;
 
 export const getPlugins = async (): Promise<string[]> => {
-  const enabledServices: any[] =
-    process.env.ENABLED_PLUGINS?.split(',').map((plugin) => `${plugin}`) || [];
+  const enabledServices = (process.env.ENABLED_PLUGINS || '')
+    .split(',')
+    .map((plugin) => plugin.trim())
+    .filter(Boolean);
 
-  const enabledApiPlugins: any[] =
-    process.env.ENABLED_PLUGINS_ONLY_API?.split(',').map(
-      (plugin) => `${plugin}`,
-    ) || [];
+  const enabledApiPlugins = (process.env.ENABLED_PLUGINS_ONLY_API || '')
+    .split(',')
+    .map((plugin) => plugin.trim())
+    .filter(Boolean);
 
   return ['core', ...enabledServices, ...enabledApiPlugins];
 };

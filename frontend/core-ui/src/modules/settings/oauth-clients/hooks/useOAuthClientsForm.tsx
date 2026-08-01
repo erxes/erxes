@@ -14,6 +14,7 @@ export const useOAuthClientsForm = (
       name: '',
       type: 'public',
       redirectUrls: [],
+      allowedPublicOperationIds: [],
       ...defaultValues,
     },
     resolver: zodResolver(OAUTH_CLIENTS_FORM_SCHEMA),

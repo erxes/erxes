@@ -1,5 +1,5 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
-import { IOAuthClientAppDocument } from '@/auth/db/definitions/oauthClientApps';
+import { IOAuthClientAppDocument } from 'erxes-api-shared/core-modules';
 import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,

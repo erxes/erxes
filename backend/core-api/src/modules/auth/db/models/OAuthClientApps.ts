@@ -1,19 +1,20 @@
 import crypto from 'crypto';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  EventDispatcherReturn,
+  IOAuthClientAppDocument,
+  OAuthClientAccessTokenLifetime,
+  OAuthClientAppType,
+  oauthClientAppSchema,
+} from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import type {
-  OAuthClientAccessTokenLifetime,
-  IOAuthClientAppDocument,
-  OAuthClientAppType,
-} from '@/auth/db/definitions/oauthClientApps';
-import { oauthClientAppSchema } from '@/auth/db/definitions/oauthClientApps';
 
 type OAuthClientAppDoc = {
   name: string;
   logo?: string;
   description?: string;
   redirectUrls?: string[];
+  allowedPublicOperationIds?: string[];
   type: OAuthClientAppType;
   accessTokenLifetime?: OAuthClientAccessTokenLifetime;
 };
@@ -21,6 +22,11 @@ type OAuthClientAppDoc = {
 const normalizeRedirectUrls = (redirectUrls?: string[]) => {
   return [
     ...new Set((redirectUrls || []).map((url) => url.trim()).filter(Boolean)),
+  ];
+};
+const normalizeAllowedPublicOperationIds = (operationIds?: string[]) => {
+  return [
+    ...new Set((operationIds || []).map((id) => id.trim()).filter(Boolean)),
   ];
 };
 
@@ -79,6 +85,9 @@ export const loadOAuthClientAppClass = (
     public static async createOAuthClientApp(doc: OAuthClientAppDoc) {
       const normalizedName = doc.name.trim();
       const redirectUrls = normalizeRedirectUrls(doc.redirectUrls);
+      const allowedPublicOperationIds = normalizeAllowedPublicOperationIds(
+        doc.allowedPublicOperationIds,
+      );
       const secret = doc.type === 'confidential' ? generateSecret() : undefined;
 
       const createWithUniqueId = async (attempt = 0): Promise<any> => {
@@ -100,6 +109,7 @@ export const loadOAuthClientAppClass = (
                 ? getConfidentialAccessTokenLifetime(doc.accessTokenLifetime)
                 : undefined,
             redirectUrls,
+            allowedPublicOperationIds,
             secretHash: secret ? hashSecret(secret) : undefined,
             status: 'active',
           });
@@ -143,6 +153,9 @@ export const loadOAuthClientAppClass = (
         description: doc.description?.trim() || undefined,
         type: nextType,
         redirectUrls: normalizeRedirectUrls(doc.redirectUrls),
+        allowedPublicOperationIds: normalizeAllowedPublicOperationIds(
+          doc.allowedPublicOperationIds,
+        ),
       };
 
       if (nextType === 'confidential') {

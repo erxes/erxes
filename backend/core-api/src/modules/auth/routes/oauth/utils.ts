@@ -10,7 +10,7 @@ import {
 import { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { IModels } from '~/connectionResolvers';
-import type { OAuthClientAccessTokenLifetime } from '@/auth/db/definitions/oauthClientApps';
+import type { OAuthClientAccessTokenLifetime } from 'erxes-api-shared/core-modules';
 import {
   ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL,
   ACCESS_TOKEN_EXPIRES_IN_PUBLIC,

@@ -11,6 +11,7 @@ const GET_OAUTH_CLIENTS = gql`
       type
       accessTokenLifetime
       redirectUrls
+      allowedPublicOperationIds
       status
       lastUsedAt
       createdAt
