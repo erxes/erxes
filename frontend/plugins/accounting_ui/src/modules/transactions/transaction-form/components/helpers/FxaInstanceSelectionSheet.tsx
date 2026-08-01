@@ -8,7 +8,7 @@ import {
   Sheet,
   Table,
 } from 'erxes-ui';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
@@ -67,6 +67,11 @@ const getSelectedCountsByAsset = (
 const getTotalCount = (countsByAsset: Record<string, number>) =>
   Object.values(countsByAsset).reduce((sum, count) => sum + count, 0);
 
+const getUniqueIds = (ids: string[]) => Array.from(new Set(ids));
+
+const getFlatSelectedIds = (idsByDetailId: Record<string, string[]>) =>
+  getUniqueIds(Object.values(idsByDetailId).flat());
+
 export const FxaInstanceSelectionSheet = ({
   form,
   journalIndex,
@@ -78,6 +83,8 @@ export const FxaInstanceSelectionSheet = ({
   detailIndex?: number;
   compact?: boolean;
 }) => {
+  const [open, setOpen] = useState(false);
+  const ignoreNextCloseRef = useRef(false);
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -89,7 +96,28 @@ export const FxaInstanceSelectionSheet = ({
   );
   const expectedByAsset = getExpectedCountsByAsset(details);
   const expectedCount = getTotalCount(expectedByAsset);
-  const selectedIds: string[] = trDoc?.extraData?.fxaInstanceIds || [];
+  const selectedIdsByDetailId: Record<string, string[]> =
+    trDoc?.extraData?.fxaInstanceIdsByDetailId || {};
+  const hasDetailSelectionMap = Object.keys(selectedIdsByDetailId).length > 0;
+  const detailId = detail?._id || '';
+  const flatSelectedIds: string[] = getUniqueIds(
+    trDoc?.extraData?.fxaInstanceIds || [],
+  );
+  const selectedIds: string[] = detailId
+    ? hasDetailSelectionMap
+      ? selectedIdsByDetailId[detailId] || []
+      : flatSelectedIds
+    : flatSelectedIds;
+  const otherDetailSelectedIds = new Set(
+    hasDetailSelectionMap
+      ? Object.entries(selectedIdsByDetailId)
+          .filter(([key]) => key !== detailId)
+          .flatMap(([, ids]) => ids)
+      : [],
+  );
+  const querySelectedIds = detailId
+    ? getUniqueIds([...selectedIds, ...flatSelectedIds])
+    : flatSelectedIds;
   const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedFixedAssetId = detail?.fixedAssetId;
   const { data: activeInstancesData } = useQuery<{
@@ -97,12 +125,14 @@ export const FxaInstanceSelectionSheet = ({
   }>(FXA_INSTANCES_QUERY, {
     variables: { fixedAssetIds, status: 'active' },
     skip: !fixedAssetIds.length,
+    fetchPolicy: 'network-only',
   });
   const { data: selectedInstancesData } = useQuery<{
     fxaInstances: IFxaInstance[];
   }>(FXA_INSTANCES_QUERY, {
-    variables: { ids: selectedIds },
-    skip: !selectedIds.length,
+    variables: { ids: querySelectedIds },
+    skip: !querySelectedIds.length,
+    fetchPolicy: 'network-only',
   });
   const { data: transactionInstancesData } = useQuery<{
     fxaInstances: IFxaInstance[];
@@ -113,6 +143,7 @@ export const FxaInstanceSelectionSheet = ({
       disposalTransactionId: trDoc?._id,
     },
     skip: !fixedAssetIds.length || !trDoc?._id,
+    fetchPolicy: 'network-only',
   });
   const instances = useMemo(() => {
     const instancesById = new Map<string, IFxaInstance>();
@@ -142,7 +173,7 @@ export const FxaInstanceSelectionSheet = ({
   useEffect(() => {
     if (
       !activeInstancesData ||
-      (selectedIds.length && !selectedInstancesData)
+      (querySelectedIds.length && !selectedInstancesData)
     ) {
       return;
     }
@@ -151,25 +182,29 @@ export const FxaInstanceSelectionSheet = ({
     const nextSelectedIds = selectedIds.filter((id) => availableIds.has(id));
 
     if (nextSelectedIds.length !== selectedIds.length) {
-      form.setValue(
-        `trDocs.${journalIndex}.extraData.fxaInstanceIds`,
-        nextSelectedIds,
-      );
+      updateSelectedIds(nextSelectedIds);
     }
   }, [
     activeInstancesData,
     form,
     instances,
     journalIndex,
+    querySelectedIds,
     selectedIds,
     selectedInstancesData,
   ]);
 
-  const visibleInstances = selectedFixedAssetId
-    ? instances.filter(
-        (instance) => instance.fixedAssetId === selectedFixedAssetId,
-      )
-    : instances;
+  const visibleInstances = (
+    selectedFixedAssetId
+      ? instances.filter(
+          (instance) => instance.fixedAssetId === selectedFixedAssetId,
+        )
+      : instances
+  ).filter(
+    (instance) =>
+      selectedIdSet.has(instance._id) ||
+      !otherDetailSelectedIds.has(instance._id),
+  );
   const selectedByAsset = getSelectedCountsByAsset(instances, selectedIds);
   const selectedCount = selectedFixedAssetId
     ? selectedByAsset[selectedFixedAssetId] || 0
@@ -199,27 +234,58 @@ export const FxaInstanceSelectionSheet = ({
     );
   };
 
+  const updateSelectedIds = (nextSelectedIds: string[]) => {
+    const uniqueNextSelectedIds = getUniqueIds(nextSelectedIds);
+    ignoreNextCloseRef.current = true;
+
+    window.setTimeout(() => {
+      ignoreNextCloseRef.current = false;
+    }, 0);
+
+    if (!detailId) {
+      form.setValue(
+        `trDocs.${journalIndex}.extraData.fxaInstanceIds`,
+        uniqueNextSelectedIds,
+      );
+      return;
+    }
+
+    const nextSelectedIdsByDetailId = {
+      ...selectedIdsByDetailId,
+      [detailId]: uniqueNextSelectedIds,
+    };
+    const flatIds = getFlatSelectedIds(nextSelectedIdsByDetailId);
+
+    form.setValue(
+      `trDocs.${journalIndex}.extraData.fxaInstanceIdsByDetailId`,
+      nextSelectedIdsByDetailId,
+    );
+    form.setValue(`trDocs.${journalIndex}.extraData.fxaInstanceIds`, flatIds);
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen && ignoreNextCloseRef.current) {
+      return;
+    }
+
+    setOpen(nextOpen);
+  };
+
   const toggleInstance = (instance: IFxaInstance, checked: boolean) => {
     if (checked) {
       if (selectedIdSet.has(instance._id)) {
         return;
       }
 
-      form.setValue(`trDocs.${journalIndex}.extraData.fxaInstanceIds`, [
-        ...selectedIds,
-        instance._id,
-      ]);
+      updateSelectedIds([...selectedIds, instance._id]);
       return;
     }
 
-    form.setValue(
-      `trDocs.${journalIndex}.extraData.fxaInstanceIds`,
-      selectedIds.filter((id) => id !== instance._id),
-    );
+    updateSelectedIds(selectedIds.filter((id) => id !== instance._id));
   };
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <Sheet.Trigger asChild>
         <Button
           type="button"

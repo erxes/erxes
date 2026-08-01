@@ -30,16 +30,28 @@ type TFxaDisposalSummary = {
 const getDetailInstances = (
   detail: TFxaDetail,
   instances: TFxaDisposalInstance[],
+  instanceIdsByDetailId?: Record<string, string[]>,
 ) =>
-  instances.filter((instance) => instance.fixedAssetId === detail.fixedAssetId);
+  instanceIdsByDetailId?.[detail._id || '']?.length
+    ? instances.filter((instance) =>
+        instanceIdsByDetailId[detail._id || ''].includes(instance._id),
+      )
+    : instances.filter(
+        (instance) => instance.fixedAssetId === detail.fixedAssetId,
+      );
 
 const buildSummary = (
   details: TFxaDetail[],
   instances: TFxaDisposalInstance[] = [],
+  instanceIdsByDetailId?: Record<string, string[]>,
 ) =>
   details
     .map((detail) => {
-      const detailInstances = getDetailInstances(detail, instances);
+      const detailInstances = getDetailInstances(
+        detail,
+        instances,
+        instanceIdsByDetailId,
+      );
 
       return {
         detailId: detail._id,
@@ -137,7 +149,7 @@ const buildFollowDetails = ({
             ? fixNum(summary[amountKey] / summary.count)
             : 0,
           amount: summary[amountKey],
-        }) as ITrDetail,
+        } as ITrDetail),
     );
 
 const buildFollowTr = ({
@@ -182,6 +194,8 @@ export const useFxaDisposalFollowTrs = ({
   }) as ITransaction;
   const setFollowTrDocs = useSetAtom(followTrDocsState);
   const selectedIds = trDoc?.extraData?.fxaInstanceIds || [];
+  const selectedIdsByDetailId =
+    trDoc?.extraData?.fxaInstanceIdsByDetailId || {};
   const { data } = useQuery<{ fxaInstances: TFxaDisposalInstance[] }>(
     FXA_INSTANCES_QUERY,
     {
@@ -198,6 +212,7 @@ export const useFxaDisposalFollowTrs = ({
     const summaries = buildSummary(
       (trDoc?.details || []) as TFxaDetail[],
       data?.fxaInstances || [],
+      selectedIdsByDetailId,
     );
 
     const currentDetails = (trDoc?.details || []) as TFxaDetail[];
@@ -265,6 +280,7 @@ export const useFxaDisposalFollowTrs = ({
     journalIndex,
     JSON.stringify(trDoc?.details || []),
     JSON.stringify(selectedIds),
+    JSON.stringify(selectedIdsByDetailId),
     setFollowTrDocs,
     trDoc,
   ]);

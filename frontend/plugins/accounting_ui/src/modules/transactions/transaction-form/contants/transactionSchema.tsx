@@ -412,6 +412,7 @@ export const fxaInstanceInputSchema = z.object({
 export const fxaExtraDataSchema = z.object({
   fxaInstances: undefed(z.array(fxaInstanceInputSchema)),
   fxaInstanceIds: undefed(z.array(z.string())),
+  fxaInstanceIdsByDetailId: undefed(z.record(z.array(z.string()))),
 });
 
 export const transactionFxaIncomeSchema = z

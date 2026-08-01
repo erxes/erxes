@@ -53,6 +53,7 @@ type TFixedAssetSnapshot = Pick<
 type TFxaTransactionExtraData = {
   fxaInstances?: TFxaInstanceInput[];
   fxaInstanceIds?: string[];
+  fxaInstanceIdsByDetailId?: Record<string, string[]>;
 };
 
 type TFxaMoveFollowInfos = {
@@ -93,6 +94,27 @@ const getFxaDisposalFollowInfos = (
 
 const getFxaInstanceInputs = (transaction: ITransactionDocument) =>
   getFxaExtraData(transaction).fxaInstances || [];
+
+const getUniqueFxaInstanceIds = (ids: string[]) => Array.from(new Set(ids));
+
+const getFxaInstanceIdsByDetailId = (
+  transaction: ITransaction | ITransactionDocument,
+) => getFxaExtraData(transaction).fxaInstanceIdsByDetailId || {};
+
+const getFlatSelectedFxaInstanceIds = (
+  transaction: ITransaction | ITransactionDocument,
+) => {
+  const idsByDetailId = getFxaInstanceIdsByDetailId(transaction);
+  const mappedIds = Object.values(idsByDetailId).flat();
+
+  if (mappedIds.length) {
+    return getUniqueFxaInstanceIds(mappedIds);
+  }
+
+  return getUniqueFxaInstanceIds(
+    getFxaExtraData(transaction).fxaInstanceIds || [],
+  );
+};
 
 const getMapTotalCount = (countsByAsset: Map<string, number>) =>
   Array.from(countsByAsset.values()).reduce((sum, count) => sum + count, 0);
@@ -642,8 +664,7 @@ const getSelectedInstanceIds = async (
   models: IModels,
   transaction: ITransaction | ITransactionDocument,
 ) => {
-  const selectedIds = getFxaExtraData(transaction).fxaInstanceIds || [];
-  const uniqueIds = Array.from(new Set(selectedIds));
+  const uniqueIds = getFlatSelectedFxaInstanceIds(transaction);
   const expectedByAsset = getExpectedInstanceCountsByAsset(transaction);
   const expectedCount = getMapTotalCount(expectedByAsset);
 
@@ -698,6 +719,10 @@ const getFxaDisposalSummaries = async (
 ) => {
   const instanceIds = await getSelectedInstanceIds(models, transaction);
   const instances = await models.FxaInstances.findByIds(instanceIds);
+  const instancesById = new Map(
+    instances.map((instance) => [instance._id, instance]),
+  );
+  const instanceIdsByDetailId = getFxaInstanceIdsByDetailId(transaction);
   const adjustmentDetails = await getLatestAdjustmentDetailsByInstanceId(
     models,
     instanceIds,
@@ -705,9 +730,18 @@ const getFxaDisposalSummaries = async (
 
   return (transaction.details || [])
     .map((detail) => {
-      const detailInstances = instances.filter(
-        (instance) => instance.fixedAssetId === detail.fixedAssetId,
-      );
+      const detailInstanceIds = detail._id
+        ? instanceIdsByDetailId[detail._id] || []
+        : [];
+      const detailInstances = detailInstanceIds.length
+        ? detailInstanceIds
+            .map((instanceId) => instancesById.get(instanceId))
+            .filter(
+              (instance): instance is (typeof instances)[number] => !!instance,
+            )
+        : instances.filter(
+            (instance) => instance.fixedAssetId === detail.fixedAssetId,
+          );
       const accumulatedDepreciation = fixNum(
         detailInstances.reduce(
           (sum, instance) =>
