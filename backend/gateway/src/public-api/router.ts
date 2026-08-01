@@ -113,7 +113,7 @@ const resolvePublicApiOperation = (
 /** Validate the public variables envelope and bounded list limit. */
 const getVariablesValidationError = (
   variables: unknown,
-): PublicApiHttpError | undefined => {
+): PublicApiHttpError | null => {
   if (
     variables !== undefined &&
     (typeof variables !== 'object' ||
@@ -127,7 +127,7 @@ const getVariablesValidationError = (
     ?.limit;
 
   if (requestedLimit === undefined) {
-    return;
+    return null;
   }
 
   if (
@@ -138,6 +138,8 @@ const getVariablesValidationError = (
   ) {
     return { statusCode: 400, message: 'limit must be between 1 and 100' };
   }
+
+  return null;
 };
 
 /** Send a normalized validation or authorization response. */
