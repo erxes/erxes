@@ -1,17 +1,22 @@
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
+  Button,
+  CommandBar,
   Combobox,
   Command,
   Popover,
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
-  Table,
+  Separator,
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
 import { useMemo } from 'react';
+import {
+  SettingsRowsTable,
+  moreColumn,
+} from '~/modules/settings/components/SettingsRowsTable';
 import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
 import { useFixedAssetRemove } from '../hooks/useFixedAssetMutations';
 import { useFixedAssets } from '../hooks/useFixedAssets';
@@ -79,9 +84,8 @@ const getFixedAssetColumns = (
   categoriesById: Record<string, IFixedAssetCategory>,
 ): ColumnDef<IFixedAsset>[] => [
   {
-    id: 'more',
+    ...moreColumn,
     cell: FixedAssetMoreCell,
-    size: 33,
   },
   RecordTable.checkboxColumn as ColumnDef<IFixedAsset>,
   {
@@ -140,33 +144,48 @@ const getFixedAssetColumns = (
   },
 ];
 
-const InitialSkeleton = ({
-  columns,
-  rows = 10,
-}: {
-  columns: ColumnDef<IFixedAsset>[];
-  rows?: number;
-}) => {
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
-    [rows],
-  );
+const FixedAssetsCommandbar = () => {
+  const { table } = RecordTable.useRecordTable();
 
   return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {columns.map((column, index) => (
-            <Table.Cell
-              key={`${rowKey}-${column.id ?? index}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
+    <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value onClose={() => table.setRowSelection({})}>
+          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+        </CommandBar.Value>
+        <Separator.Inline />
+        <FixedAssetsDelete />
+      </CommandBar.Bar>
+    </CommandBar>
+  );
+};
+
+const FixedAssetsDelete = () => {
+  const { table } = RecordTable.useRecordTable();
+  const { confirm } = useConfirm();
+  const { removeFixedAsset, loading } = useFixedAssetRemove();
+
+  const handleDelete = () =>
+    confirm({
+      message: 'Эдгээр үндсэн хөрөнгийг устгах уу?',
+      options: {
+        okLabel: 'Устгах',
+        cancelLabel: 'Болих',
+      },
+    }).then(() => {
+      table.getFilteredSelectedRowModel().rows.forEach((row) => {
+        removeFixedAsset({
+          variables: { _id: row.original._id },
+          onCompleted: () => table.setRowSelection({}),
+        });
+      });
+    });
+
+  return (
+    <Button variant="secondary" disabled={loading} onClick={handleDelete}>
+      <IconTrash />
+      Устгах
+    </Button>
   );
 };
 
@@ -188,22 +207,15 @@ export const FixedAssetsTable = () => {
     () => getFixedAssetColumns(categoriesById),
     [categoriesById],
   );
-  const isInitialLoading = loading && !fixedAssets?.length;
 
   return (
-    <RecordTable.Provider
+    <SettingsRowsTable
       columns={columns}
-      data={isInitialLoading ? [] : fixedAssets || []}
+      data={fixedAssets || []}
+      loading={loading}
       stickyColumns={['more', 'checkbox', 'code']}
       className="m-3"
-    >
-      <RecordTable>
-        <RecordTable.Header />
-        <RecordTable.Body>
-          <RecordTable.RowList />
-          {isInitialLoading && <InitialSkeleton columns={columns} rows={10} />}
-        </RecordTable.Body>
-      </RecordTable>
-    </RecordTable.Provider>
+      Commandbar={FixedAssetsCommandbar}
+    />
   );
 };

@@ -41,24 +41,26 @@ export const FixedAssetCategoryForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="py-4 grid grid-cols-1 md:grid-cols-3 gap-5"
+        className="flex flex-col flex-1 bg-background min-h-0"
       >
-        <Form.Field
-          control={form.control}
-          name="parentId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Эцэг бүлэг</Form.Label>
-              <SelectFixedAssetCategory
-                recordId={field.value}
-                selected={field.value}
-                onSelect={field.onChange}
-                nullable
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        <div className="flex-1 min-h-0 overflow-y-auto p-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <Form.Field
+              control={form.control}
+              name="parentId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Эцэг бүлэг</Form.Label>
+                  <SelectFixedAssetCategory
+                    recordId={field.value}
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    nullable
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
         <Form.Field
           control={form.control}
           name="code"
@@ -198,7 +200,9 @@ export const FixedAssetCategoryForm = ({
             </Form.Item>
           )}
         />
-        <Sheet.Footer className="col-span-1 md:col-span-3 mt-4">
+          </div>
+        </div>
+        <Sheet.Footer className="shrink-0 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" type="button" size="lg">
               Болих

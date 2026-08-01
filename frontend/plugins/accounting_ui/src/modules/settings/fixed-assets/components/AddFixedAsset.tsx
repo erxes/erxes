@@ -1,41 +1,34 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, ScrollArea, Sheet } from 'erxes-ui';
+import { Button, Sheet } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { FIXED_ASSET_DEFAULT_VALUES } from '../constants/defaultValues';
 import { fixedAssetSchema } from '../constants/schema';
 import { useFixedAssetAdd } from '../hooks/useFixedAssetMutations';
 import { TFixedAssetForm } from '../types/FixedAsset';
 import { FixedAssetForm } from './FixedAssetForm';
 
-export const AddFixedAsset = () => (
-  <Sheet>
-    <Sheet.Trigger asChild>
-      <Button>
-        <IconPlus />
-        Хөрөнгө нэмэх
-      </Button>
-    </Sheet.Trigger>
-    <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none md:max-w-4xl">
-      <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-        <Sheet.Title>Үндсэн хөрөнгө нэмэх</Sheet.Title>
-        <Sheet.Close />
-        <Sheet.Description className="sr-only">
-          Үндсэн хөрөнгө нэмэх
-        </Sheet.Description>
-      </Sheet.Header>
-      <Sheet.Content className="overflow-hidden flex-auto">
-        <ScrollArea className="h-full">
-          <div className="p-5">
-            <AddFixedAssetForm />
-          </div>
-        </ScrollArea>
-      </Sheet.Content>
-    </Sheet.View>
-  </Sheet>
-);
+export const AddFixedAsset = () => {
+  const [open, setOpen] = useState(false);
 
-const AddFixedAssetForm = () => {
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          Хөрөнгө нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="Үндсэн хөрөнгө нэмэх" className="md:max-w-4xl">
+        <AddFixedAssetForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
+  );
+};
+
+const AddFixedAssetForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   const form = useForm<TFixedAssetForm>({
     resolver: zodResolver(fixedAssetSchema),
     defaultValues: FIXED_ASSET_DEFAULT_VALUES,
@@ -45,7 +38,10 @@ const AddFixedAssetForm = () => {
   const handleSubmit = (data: TFixedAssetForm) => {
     addFixedAsset({
       variables: data,
-      onCompleted: () => form.reset(),
+      onCompleted: () => {
+        form.reset();
+        setOpen(false);
+      },
     });
   };
 

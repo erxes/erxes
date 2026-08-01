@@ -1,7 +1,7 @@
-import { AccountingDialog } from '@/layout/components/Dialog';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, DatePicker, Dialog, Form, Spinner, Textarea } from 'erxes-ui';
+import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -16,20 +16,17 @@ export const AddAdjustFixedAsset = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           {t('add-fixed-asset-adjustment')}
         </Button>
-      </Dialog.Trigger>
-      <AccountingDialog
-        title={t('add-fixed-asset-adjustment')}
-        description={t('fixed-asset-adjustment-description')}
-      >
+      </Sheet.Trigger>
+      <AccountingSheet title={t('add-fixed-asset-adjustment')}>
         <AddAdjustFixedAssetForm setOpen={setOpen} />
-      </AccountingDialog>
-    </Dialog>
+      </AccountingSheet>
+    </Sheet>
   );
 };
 
@@ -61,55 +58,57 @@ const AddAdjustFixedAssetForm = ({
   return (
     <Form {...form}>
       <form
-        className="p-6 flex-auto overflow-auto"
+        className="flex flex-col flex-1 min-h-0 bg-background"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h3 className="text-lg font-bold">
-          {`${t('create')} ${t('fixed-asset-adjustment')}`}
-        </h3>
-        <Form.Field
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('date')}</Form.Label>
-              <Form.Control>
-                <DatePicker
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="h-8 flex w-full"
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
+          <Form.Field
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('date')}</Form.Label>
+                <Form.Control>
+                  <DatePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    className="h-8 flex w-full"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
 
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>{t('description')}</Form.Label>
-              <Form.Control>
-                <Textarea placeholder={t('enter-description')} {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+          <Form.Field
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('description')}</Form.Label>
+                <Form.Control>
+                  <Textarea placeholder={t('enter-description')} {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </div>
 
-        <Dialog.Footer className="col-span-2 mt-4">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              {t('cancel')}
-            </Button>
-          </Dialog.Close>
+        <Sheet.Footer className="px-5 border-t bg-background shrink-0">
+          <Button
+            variant="outline"
+            type="button"
+            size="lg"
+            onClick={() => setOpen(false)}
+          >
+            {t('cancel')}
+          </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
             {t('save')}
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

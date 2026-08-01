@@ -23,52 +23,56 @@ export const FixedAssetAccountConfigForm = ({
   <Form {...form}>
     <form
       onSubmit={form.handleSubmit(handleSubmit)}
-      className="py-4 grid grid-cols-2 gap-5"
+      className="flex flex-col flex-1 bg-background min-h-0"
     >
-      <Form.Field
-        control={form.control}
-        name="accountId"
-        render={({ field }) => (
-          <Form.Item className="col-span-2">
-            <Form.Label>Үндсэн хөрөнгийн өртгийн данс</Form.Label>
-            <SelectAccount.FormItem
-              mode="single"
-              value={field.value}
-              onValueChange={(accountId) => {
-                field.onChange(accountId);
-                form.setValue('value.accountId', accountId as string);
-              }}
-              defaultFilter={{
-                journals: [JournalEnum.FIXED_ASSET],
-                permissionMode: 'write',
-              }}
-              placeholder="Хөрөнгийн данс сонгох"
+      <div className="flex-1 min-h-0 overflow-y-auto p-5">
+        <div className="grid grid-cols-2 gap-5">
+          <Form.Field
+            control={form.control}
+            name="accountId"
+            render={({ field }) => (
+              <Form.Item className="col-span-2">
+                <Form.Label>Үндсэн хөрөнгийн өртгийн данс</Form.Label>
+                <SelectAccount.FormItem
+                  mode="single"
+                  value={field.value}
+                  onValueChange={(accountId) => {
+                    field.onChange(accountId);
+                    form.setValue('value.accountId', accountId as string);
+                  }}
+                  defaultFilter={{
+                    journals: [JournalEnum.FIXED_ASSET],
+                    permissionMode: 'write',
+                  }}
+                  placeholder="Хөрөнгийн данс сонгох"
+                />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          {relatedAccountFields.map(([name, label]) => (
+            <Form.Field
+              key={name}
+              control={form.control}
+              name={`value.${name}`}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{label}</Form.Label>
+                  <SelectAccount.FormItem
+                    mode="single"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    defaultFilter={{ permissionMode: 'write' }}
+                    placeholder="Данс сонгох"
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
             />
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      {relatedAccountFields.map(([name, label]) => (
-        <Form.Field
-          key={name}
-          control={form.control}
-          name={`value.${name}`}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{label}</Form.Label>
-              <SelectAccount.FormItem
-                mode="single"
-                value={field.value}
-                onValueChange={field.onChange}
-                defaultFilter={{ permissionMode: 'write' }}
-                placeholder="Данс сонгох"
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      ))}
-      <Sheet.Footer className="col-span-2 mt-4">
+          ))}
+        </div>
+      </div>
+      <Sheet.Footer className="shrink-0 border-t bg-background">
         <Sheet.Close asChild>
           <Button variant="outline" type="button" size="lg">
             Болих

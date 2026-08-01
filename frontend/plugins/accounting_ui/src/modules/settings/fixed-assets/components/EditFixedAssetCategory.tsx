@@ -1,13 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  isDeeplyEqual,
-  ScrollArea,
-  Sheet,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
+import { isDeeplyEqual, Sheet, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { FIXED_ASSET_CATEGORY_DEFAULT_VALUES } from '../constants/defaultValues';
 import { fixedAssetCategorySchema } from '../constants/schema';
 import { useFixedAssetCategoryDetail } from '../hooks/useFixedAssetCategoryDetail';
@@ -25,22 +20,12 @@ export const EditFixedAssetCategory = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none md:max-w-4xl">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>Үндсэн хөрөнгийн бүлэг засах</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            Үндсэн хөрөнгийн бүлэг засах
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <EditFixedAssetCategoryForm />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
+      <AccountingSheet
+        title="Үндсэн хөрөнгийн бүлэг засах"
+        className="md:max-w-4xl"
+      >
+        <EditFixedAssetCategoryForm />
+      </AccountingSheet>
     </Sheet>
   );
 };

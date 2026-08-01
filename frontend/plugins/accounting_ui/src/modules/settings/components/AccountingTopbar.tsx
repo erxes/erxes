@@ -3,6 +3,7 @@ import { AddAccount } from '@/settings/account/components/AddAccount';
 import { AddAccountCategory } from '@/settings/account/account-categories/components/AddAccountCategory';
 import { AddFixedAsset } from '@/settings/fixed-assets/components/AddFixedAsset';
 import { AddFixedAssetCategory } from '@/settings/fixed-assets/components/AddFixedAssetCategory';
+import { AddFixedAssetAccountConfig } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigsTable';
 import { AddVats } from '@/settings/vat/components/AddVats';
 import { AddCtaxs } from '@/settings/ctax/components/AddCtaxs';
 import { AddAccountingConfig } from '../syncSettings/AddAccountingConfig';
@@ -18,6 +19,10 @@ export const AccountingTopbar = () => {
   const fixedAssetPaths = [
     '/settings/accounting/config/fixed-assets/assets',
     '/settings/accounting/fixed-assets/assets',
+  ];
+  const fixedAssetAccountConfigPaths = [
+    '/settings/accounting/config/fixed-assets/accounts-config',
+    '/settings/accounting/fixed-assets/accounts-config',
   ];
 
   if (pathname === '/settings/accounting/config/accounts') {
@@ -48,6 +53,14 @@ export const AccountingTopbar = () => {
     return (
       <div className="flex items-center gap-3">
         <AddFixedAsset />
+      </div>
+    );
+  }
+
+  if (fixedAssetAccountConfigPaths.includes(pathname)) {
+    return (
+      <div className="flex items-center gap-3">
+        <AddFixedAssetAccountConfig />
       </div>
     );
   }

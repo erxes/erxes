@@ -3,18 +3,24 @@ import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   Button,
+  CommandBar,
   Combobox,
   Command,
   Popover,
   RecordTable,
   RecordTableInlineCell,
-  ScrollArea,
+  Separator,
   Sheet,
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AccountsInline } from '@/settings/account/components/AccountsInline';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import {
+  SettingsRowsTable,
+  moreColumn,
+} from '~/modules/settings/components/SettingsRowsTable';
 import {
   FIXED_ASSET_ACCOUNT_CONFIG_DEFAULT_VALUES,
   fixedAssetAccountConfigSchema,
@@ -77,10 +83,10 @@ const getColumns = (
   onEdit: (config: IFixedAssetAccountConfig) => void,
 ): ColumnDef<IFixedAssetAccountConfig>[] => [
   {
-    id: 'more',
+    ...moreColumn,
     cell: (props) => <AccountConfigMoreCell {...props} onEdit={onEdit} />,
-    size: 33,
   },
+  RecordTable.checkboxColumn as ColumnDef<IFixedAssetAccountConfig>,
   {
     id: 'accountId',
     accessorKey: 'accountId',
@@ -179,74 +185,94 @@ const AccountConfigSheet = ({
   );
 };
 
+const FixedAssetAccountConfigsCommandbar = () => {
+  const { table } = RecordTable.useRecordTable();
+
+  return (
+    <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value onClose={() => table.setRowSelection({})}>
+          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+        </CommandBar.Value>
+        <Separator.Inline />
+        <FixedAssetAccountConfigsDelete />
+      </CommandBar.Bar>
+    </CommandBar>
+  );
+};
+
+const FixedAssetAccountConfigsDelete = () => {
+  const { table } = RecordTable.useRecordTable();
+  const { confirm } = useConfirm();
+  const { remove, removing } = useFixedAssetAccountConfigMutations();
+
+  const handleDelete = () =>
+    confirm({
+      message: 'Эдгээр дансны багцыг устгах уу?',
+      options: { okLabel: 'Устгах', cancelLabel: 'Болих' },
+    }).then(() => {
+      table.getFilteredSelectedRowModel().rows.forEach((row) => {
+        remove({
+          variables: { _id: row.original._id },
+          onCompleted: () => table.setRowSelection({}),
+        });
+      });
+    });
+
+  return (
+    <Button variant="secondary" disabled={removing} onClick={handleDelete}>
+      <IconTrash />
+      Устгах
+    </Button>
+  );
+};
+
 export const FixedAssetAccountConfigsTable = () => {
-  const { configs } = useFixedAssetAccountConfigs();
+  const { configs, loading } = useFixedAssetAccountConfigs();
   const [selectedConfig, setSelectedConfig] =
     useState<IFixedAssetAccountConfig>();
-  const [isAddOpen, setIsAddOpen] = useState(false);
   const columns = getColumns((config) => setSelectedConfig(config));
 
   return (
     <>
-      <RecordTable.Provider
+      <SettingsRowsTable
         columns={columns}
         data={configs || []}
-        stickyColumns={['more', 'accountId']}
+        loading={loading}
+        stickyColumns={['more', 'checkbox', 'accountId']}
         className="m-3"
-      >
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.RowList />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Provider>
-      <Sheet open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <Sheet.Trigger asChild>
-          <Button
-            className="absolute top-3 right-3"
-            onClick={() => setIsAddOpen(true)}
-          >
-            <IconPlus /> Дансны багц нэмэх
-          </Button>
-        </Sheet.Trigger>
-        <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none">
-          <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-            <Sheet.Title>Дансны багц нэмэх</Sheet.Title>
-            <Sheet.Close />
-          </Sheet.Header>
-          <Sheet.Content className="overflow-hidden flex-auto">
-            <ScrollArea className="h-full">
-              <div className="p-5">
-                <AccountConfigSheet onClose={() => setIsAddOpen(false)} />
-              </div>
-            </ScrollArea>
-          </Sheet.Content>
-        </Sheet.View>
-      </Sheet>
+        Commandbar={FixedAssetAccountConfigsCommandbar}
+      />
       <Sheet
         open={Boolean(selectedConfig)}
         onOpenChange={(open) => !open && setSelectedConfig(undefined)}
       >
-        <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none">
-          <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-            <Sheet.Title>Дансны багц засах</Sheet.Title>
-            <Sheet.Close />
-          </Sheet.Header>
-          <Sheet.Content className="overflow-hidden flex-auto">
-            <ScrollArea className="h-full">
-              <div className="p-5">
-                {selectedConfig && (
-                  <AccountConfigSheet
-                    config={selectedConfig}
-                    onClose={() => setSelectedConfig(undefined)}
-                  />
-                )}
-              </div>
-            </ScrollArea>
-          </Sheet.Content>
-        </Sheet.View>
+        <AccountingSheet title="Дансны багц засах" className="md:max-w-3xl">
+          {selectedConfig && (
+            <AccountConfigSheet
+              config={selectedConfig}
+              onClose={() => setSelectedConfig(undefined)}
+            />
+          )}
+        </AccountingSheet>
       </Sheet>
     </>
+  );
+};
+
+export const AddFixedAssetAccountConfig = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button onClick={() => setOpen(true)}>
+          <IconPlus /> Дансны багц нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="Дансны багц нэмэх" className="md:max-w-3xl">
+        <AccountConfigSheet onClose={() => setOpen(false)} />
+      </AccountingSheet>
+    </Sheet>
   );
 };
