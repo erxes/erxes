@@ -21,7 +21,7 @@ export const isDev = NODE_ENV === 'development';
 
 export const keyForConfig = (name: string) => `erxesservice:config:${name}`;
 
-export const getPlugins = (): string[] => {
+export const getPlugins = (): Promise<string[]> => {
   const enabledServices = (process.env.ENABLED_PLUGINS || '')
     .split(',')
     .map((plugin) => plugin.trim())
@@ -32,7 +32,7 @@ export const getPlugins = (): string[] => {
     .map((plugin) => plugin.trim())
     .filter(Boolean);
 
-  return ['core', ...enabledServices, ...enabledApiPlugins];
+  return Promise.resolve(['core', ...enabledServices, ...enabledApiPlugins]);
 };
 
 const ACTIVE_PLUGINS_KEY = 'erxes-active-plugins';
