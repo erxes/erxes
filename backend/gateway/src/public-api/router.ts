@@ -90,7 +90,7 @@ const resolvePublicApiOperation = (
     };
   }
 
-  const operation = getPublicApiOperation(body.operationId);
+  const operation = getPublicApiOperation(body.operationId.trim());
 
   if (!operation) {
     return {
