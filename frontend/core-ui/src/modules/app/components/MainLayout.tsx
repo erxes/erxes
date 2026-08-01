@@ -1,4 +1,5 @@
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
+import { MobileNavigationTrigger } from '@/navigation/components/MobileNavigationTrigger';
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
 import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
@@ -24,10 +25,14 @@ const NavigationWorkspace = () => {
         {!isMobile && <NavigationPanel />}
         <div
           className={cn(
-            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem]',
-            !tabsVisible && '[--visited-page-tabs-open-button-space:2.75rem]',
+            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2rem] peer-data-[state=collapsed]:[--navigation-top-controls-space:2rem]',
+            isMobile &&
+              '[--navigation-panel-toggle-space:2.5rem] [--navigation-top-controls-space:2.25rem]',
+            !tabsVisible &&
+              '[--visited-page-tabs-open-button-space:2.75rem] [--navigation-top-controls-space:2.25rem]',
           )}
         >
+          <MobileNavigationTrigger />
           <VisitedPageTabsOpenButton />
           <FloatingWidgets />
           <Outlet />
@@ -53,7 +58,7 @@ export const DefaultLayout = () => {
       onOpenChange={setSidebarOpen}
       sidebarKeyboardShortcut={false}
       sidebarWidth="13rem"
-      sidebarWidthIcon="3.5rem"
+      sidebarWidthIcon="3rem"
     >
       <VisitedPageTabs />
       <Sidebar
