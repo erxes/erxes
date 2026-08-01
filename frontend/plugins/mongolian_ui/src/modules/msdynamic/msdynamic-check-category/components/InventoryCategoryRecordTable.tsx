@@ -35,6 +35,7 @@ export const InventoryCategoryRecordTable = () => {
       data={data}
       className="h-full w-full overflow-y-auto px-2"
       stickyColumns={['checkbox']}
+      tableId="mongolian_msdynamic_check_category_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

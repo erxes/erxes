@@ -24,6 +24,7 @@ export const PutResponseMoreColumnCell = ({
 
 export const putResponseMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: PutResponseMoreColumnCell,
   size: 33,
 };
