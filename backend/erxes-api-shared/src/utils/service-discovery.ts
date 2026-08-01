@@ -28,6 +28,7 @@ const parsePluginNames = (value: string): string[] =>
     .map((plugin) => plugin.trim())
     .filter(Boolean);
 
+/** Return core plus the normalized UI and API plugin configuration. */
 export const getPlugins = (): Promise<string[]> => {
   const enabledServices = parsePluginNames(process.env.ENABLED_PLUGINS || '');
   const enabledApiPlugins = parsePluginNames(
