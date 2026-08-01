@@ -21,16 +21,18 @@ export const isDev = NODE_ENV === 'development';
 
 export const keyForConfig = (name: string) => `erxesservice:config:${name}`;
 
-export const getPlugins = (): Promise<string[]> => {
-  const enabledServices = (process.env.ENABLED_PLUGINS || '')
+/** Parse normalized plugin names from a comma-separated environment value. */
+const parsePluginNames = (value: string): string[] =>
+  value
     .split(',')
     .map((plugin) => plugin.trim())
     .filter(Boolean);
 
-  const enabledApiPlugins = (process.env.ENABLED_PLUGINS_ONLY_API || '')
-    .split(',')
-    .map((plugin) => plugin.trim())
-    .filter(Boolean);
+export const getPlugins = (): Promise<string[]> => {
+  const enabledServices = parsePluginNames(process.env.ENABLED_PLUGINS || '');
+  const enabledApiPlugins = parsePluginNames(
+    process.env.ENABLED_PLUGINS_ONLY_API || '',
+  );
 
   return Promise.resolve(['core', ...enabledServices, ...enabledApiPlugins]);
 };
@@ -67,6 +69,10 @@ export const getAvailablePlugins = async (
     const charges = organizationInfo.charge as IOrganizationCharge;
 
     const plugins: string[] = [];
+    const enabledPluginNames = new Set([
+      ...parsePluginNames(ENABLED_PLUGINS),
+      ...parsePluginNames(ENABLED_API_PLUGINS),
+    ]);
 
     Object.keys(charges).forEach((key) => {
       if (
@@ -75,10 +81,7 @@ export const getAvailablePlugins = async (
       ) {
         const pluginName = key.split(':')[0];
 
-        const enabledPluginsArray = ENABLED_PLUGINS.split(',');
-        enabledPluginsArray.push(...ENABLED_API_PLUGINS.split(','));
-
-        if (enabledPluginsArray.includes(pluginName)) {
+        if (enabledPluginNames.has(pluginName)) {
           plugins.push(pluginName);
         }
       }
