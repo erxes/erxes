@@ -286,9 +286,6 @@ export const FxaIncomeDetailInstancesSheet = ({
             </Table.Header>
             <Table.Body>
               {instances.map(({ instance, instanceIndex }) => {
-                const fieldName = (name: string) =>
-                  `trDocs.${journalIndex}.extraData.fxaInstances.${instanceIndex}.${name}` as never;
-
                 return (
                   <Table.Row key={instance.tempId || instanceIndex}>
                     <Table.Cell>
@@ -297,7 +294,7 @@ export const FxaIncomeDetailInstancesSheet = ({
                     <Table.Cell>
                       <Form.Field
                         control={form.control}
-                        name={fieldName('code')}
+                        name={`trDocs.${journalIndex}.extraData.fxaInstances.${instanceIndex}.code`}
                         render={({ field }) => (
                           <Input
                             value={field.value || ''}
@@ -309,7 +306,7 @@ export const FxaIncomeDetailInstancesSheet = ({
                     <Table.Cell>
                       <Form.Field
                         control={form.control}
-                        name={fieldName('responsibleUserId')}
+                        name={`trDocs.${journalIndex}.extraData.fxaInstances.${instanceIndex}.responsibleUserId`}
                         render={({ field }) => (
                           <SelectMember.FormItem
                             mode="single"
@@ -322,7 +319,7 @@ export const FxaIncomeDetailInstancesSheet = ({
                     <Table.Cell>
                       <Form.Field
                         control={form.control}
-                        name={fieldName('originalCost')}
+                        name={`trDocs.${journalIndex}.extraData.fxaInstances.${instanceIndex}.originalCost`}
                         render={({ field }) => (
                           <InputNumber
                             value={field.value ?? 0}

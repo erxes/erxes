@@ -94,6 +94,48 @@ const getFxaDisposalFollowInfos = (
 const getFxaInstanceInputs = (transaction: ITransactionDocument) =>
   getFxaExtraData(transaction).fxaInstances || [];
 
+const getMapTotalCount = (countsByAsset: Map<string, number>) =>
+  Array.from(countsByAsset.values()).reduce((sum, count) => sum + count, 0);
+
+const getExpectedInstanceCountsByAsset = (
+  transaction: ITransaction | ITransactionDocument,
+) => {
+  const expectedByAsset = new Map<string, number>();
+
+  for (const detail of transaction.details || []) {
+    if (!detail.fixedAssetId) {
+      continue;
+    }
+
+    expectedByAsset.set(
+      detail.fixedAssetId,
+      (expectedByAsset.get(detail.fixedAssetId) || 0) +
+        Math.max(0, Math.trunc(detail.count || 0)),
+    );
+  }
+
+  return expectedByAsset;
+};
+
+const getSelectedInstanceCountsByAsset = (
+  instances: Array<{ fixedAssetId?: string }>,
+) => {
+  const selectedByAsset = new Map<string, number>();
+
+  for (const instance of instances) {
+    if (!instance.fixedAssetId) {
+      continue;
+    }
+
+    selectedByAsset.set(
+      instance.fixedAssetId,
+      (selectedByAsset.get(instance.fixedAssetId) || 0) + 1,
+    );
+  }
+
+  return selectedByAsset;
+};
+
 const getDetailId = (detail: { _id?: string }) => detail._id?.toString() || '';
 
 const getFixedAssetIdsFromInputs = (inputs: TFxaInstanceInput[]) =>
@@ -288,7 +330,9 @@ const syncMigrationOpeningDepreciation = async (
       $set: {
         date: transaction.date || new Date(),
         beginDate: transaction.date || new Date(),
-        description: `Erkhet opening depreciation ${transaction.number || transaction._id}`,
+        description: `Erkhet opening depreciation ${
+          transaction.number || transaction._id
+        }`,
         status: ADJ_FXA_STATUSES.COMPLETE,
         modifiedBy: userId,
         updatedAt: new Date(),
@@ -599,26 +643,9 @@ const getSelectedInstanceIds = async (
   transaction: ITransaction | ITransactionDocument,
 ) => {
   const selectedIds = getFxaExtraData(transaction).fxaInstanceIds || [];
-
   const uniqueIds = Array.from(new Set(selectedIds));
-  const expectedByAsset = new Map<string, number>();
-
-  for (const detail of transaction.details || []) {
-    if (!detail.fixedAssetId) {
-      continue;
-    }
-
-    expectedByAsset.set(
-      detail.fixedAssetId,
-      (expectedByAsset.get(detail.fixedAssetId) || 0) +
-        Math.max(0, Math.trunc(detail.count || 0)),
-    );
-  }
-
-  const expectedCount = Array.from(expectedByAsset.values()).reduce(
-    (sum, count) => sum + count,
-    0,
-  );
+  const expectedByAsset = getExpectedInstanceCountsByAsset(transaction);
+  const expectedCount = getMapTotalCount(expectedByAsset);
 
   if (expectedCount !== uniqueIds.length) {
     throw new Error('Selected fixed asset instances must match detail counts');
@@ -634,13 +661,7 @@ const getSelectedInstanceIds = async (
     throw new Error('Selected fixed asset instances are not available');
   }
 
-  const selectedByAsset = new Map<string, number>();
-  for (const instance of instances) {
-    selectedByAsset.set(
-      instance.fixedAssetId,
-      (selectedByAsset.get(instance.fixedAssetId) || 0) + 1,
-    );
-  }
+  const selectedByAsset = getSelectedInstanceCountsByAsset(instances);
 
   for (const [fixedAssetId, count] of expectedByAsset) {
     if ((selectedByAsset.get(fixedAssetId) || 0) !== count) {

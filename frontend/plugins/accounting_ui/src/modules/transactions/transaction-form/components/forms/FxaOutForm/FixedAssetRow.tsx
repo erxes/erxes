@@ -7,12 +7,8 @@ import {
   RecordTableInlineCell,
   Table,
 } from 'erxes-ui';
-import { type Path, useWatch } from 'react-hook-form';
-import {
-  ITransactionGroupForm,
-  TAddTransactionGroup,
-  TFxaDetail,
-} from '../../../types/JournalForms';
+import { useWatch } from 'react-hook-form';
+import { ITransactionGroupForm, TFxaDetail } from '../../../types/JournalForms';
 import { FxaInstanceSelectionSheet } from '../../helpers/FxaInstanceSelectionSheet';
 
 export const FixedAssetRow = ({
@@ -28,8 +24,6 @@ export const FixedAssetRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
   }) as TFxaDetail;
-  const fieldName = (name: string) =>
-    `trDocs.${journalIndex}.details.${detailIndex}.${name}` as Path<TAddTransactionGroup>;
 
   return (
     <Table.Row className="overflow-hidden h-cell hover:bg-background!">
@@ -56,7 +50,7 @@ export const FixedAssetRow = ({
           <RecordTableInlineCell className="justify-center">
             <Form.Field
               control={form.control}
-              name={fieldName('checked')}
+              name={`trDocs.${journalIndex}.details.${detailIndex}.checked`}
               render={({ field }) => (
                 <Checkbox
                   checked={field.value}
@@ -75,7 +69,7 @@ export const FixedAssetRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={fieldName('fixedAssetId')}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetId`}
             render={({ field }) => (
               <SelectFixedAsset.FormItem
                 mode="single"
@@ -96,7 +90,7 @@ export const FixedAssetRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={fieldName('count')}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.count`}
             render={({ field }) => (
               <InputNumber
                 value={field.value ?? 0}
@@ -114,7 +108,7 @@ export const FixedAssetRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={fieldName('unitPrice')}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
             render={({ field }) => (
               <InputNumber value={field.value ?? 0} disabled />
             )}
@@ -129,7 +123,7 @@ export const FixedAssetRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={fieldName('amount')}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
             render={({ field }) => (
               <InputNumber value={field.value ?? 0} disabled />
             )}

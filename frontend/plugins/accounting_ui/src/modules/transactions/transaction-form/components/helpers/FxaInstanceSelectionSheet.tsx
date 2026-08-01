@@ -39,6 +39,34 @@ const AmountCell = ({ amount }: { amount?: number }) => (
   />
 );
 
+const getExpectedCountsByAsset = (details: TFxaDetail[]) =>
+  details.reduce<Record<string, number>>((result, detail) => {
+    if (detail.fixedAssetId) {
+      result[detail.fixedAssetId] =
+        (result[detail.fixedAssetId] || 0) + Math.max(0, detail.count || 0);
+    }
+
+    return result;
+  }, {});
+
+const getSelectedCountsByAsset = (
+  instances: IFxaInstance[],
+  selectedIds: string[],
+) => {
+  const selectedIdSet = new Set(selectedIds);
+
+  return instances.reduce<Record<string, number>>((result, instance) => {
+    if (selectedIdSet.has(instance._id)) {
+      result[instance.fixedAssetId] = (result[instance.fixedAssetId] || 0) + 1;
+    }
+
+    return result;
+  }, {});
+};
+
+const getTotalCount = (countsByAsset: Record<string, number>) =>
+  Object.values(countsByAsset).reduce((sum, count) => sum + count, 0);
+
 export const FxaInstanceSelectionSheet = ({
   form,
   journalIndex,
@@ -59,21 +87,10 @@ export const FxaInstanceSelectionSheet = ({
   const fixedAssetIds = Array.from(
     new Set(details.map((detail) => detail.fixedAssetId).filter(Boolean)),
   );
-  const expectedByAsset = details.reduce<Record<string, number>>(
-    (result, detail) => {
-      if (detail.fixedAssetId) {
-        result[detail.fixedAssetId] =
-          (result[detail.fixedAssetId] || 0) + Math.max(0, detail.count || 0);
-      }
-      return result;
-    },
-    {},
-  );
-  const expectedCount = Object.values(expectedByAsset).reduce(
-    (sum, count) => sum + count,
-    0,
-  );
+  const expectedByAsset = getExpectedCountsByAsset(details);
+  const expectedCount = getTotalCount(expectedByAsset);
   const selectedIds: string[] = trDoc?.extraData?.fxaInstanceIds || [];
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedFixedAssetId = detail?.fixedAssetId;
   const { data: activeInstancesData } = useQuery<{
     fxaInstances: IFxaInstance[];
@@ -153,16 +170,7 @@ export const FxaInstanceSelectionSheet = ({
         (instance) => instance.fixedAssetId === selectedFixedAssetId,
       )
     : instances;
-  const selectedByAsset = instances.reduce<Record<string, number>>(
-    (result, instance) => {
-      if (selectedIds.includes(instance._id)) {
-        result[instance.fixedAssetId] =
-          (result[instance.fixedAssetId] || 0) + 1;
-      }
-      return result;
-    },
-    {},
-  );
+  const selectedByAsset = getSelectedCountsByAsset(instances, selectedIds);
   const selectedCount = selectedFixedAssetId
     ? selectedByAsset[selectedFixedAssetId] || 0
     : selectedIds.length;
@@ -193,7 +201,7 @@ export const FxaInstanceSelectionSheet = ({
 
   const toggleInstance = (instance: IFxaInstance, checked: boolean) => {
     if (checked) {
-      if (selectedIds.includes(instance._id)) {
+      if (selectedIdSet.has(instance._id)) {
         return;
       }
 
@@ -256,8 +264,8 @@ export const FxaInstanceSelectionSheet = ({
             </Table.Header>
             <Table.Body>
               {visibleInstances.map((instance) => {
-                const selected = selectedIds.includes(instance._id);
-                const selectedCount =
+                const selected = selectedIdSet.has(instance._id);
+                const selectedAssetCount =
                   selectedByAsset[instance.fixedAssetId] || 0;
                 const limit = expectedByAsset[instance.fixedAssetId] || 0;
                 const fixedAsset = fixedAssetsById.get(instance.fixedAssetId);
@@ -267,7 +275,7 @@ export const FxaInstanceSelectionSheet = ({
                     <Table.Cell>
                       <Checkbox
                         checked={selected}
-                        disabled={!selected && selectedCount >= limit}
+                        disabled={!selected && selectedAssetCount >= limit}
                         onCheckedChange={(checked) =>
                           toggleInstance(instance, Boolean(checked))
                         }
