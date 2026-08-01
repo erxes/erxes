@@ -520,7 +520,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       ? maps.departmentsByCode[departmentCode] || detail.departmentId
       : detail.departmentId,
     followInfos: {
-      ...(detail.followInfos || {}),
+      ...detail.followInfos || {},
       accountCode,
       branchCode,
       productCode,
@@ -567,7 +567,7 @@ const resolveFxaInstances = (
   });
 
 const resolveFxaInstanceIds = (
-  refs: string[] = [],
+  refs: string[],
   doc: ITransaction,
   maps: TReferenceMaps,
 ) => {
@@ -629,7 +629,7 @@ const resolveTransactionFollowInfos = (
   }
 
   return {
-    ...(doc.followInfos || {}),
+    ...doc.followInfos || {},
     moveInBranchId: moveInBranchCode
       ? maps.branchesByCode[moveInBranchCode]
       : doc.followInfos?.moveInBranchId,
@@ -709,7 +709,7 @@ const normalizeBatchDocs = async (
       contentType: doc.contentType || ERKHET_CONTENT_TYPE,
       contentId: doc.contentId || batch.externalPtrId,
       extraData: {
-        ...(doc.extraData || {}),
+        ...doc.extraData || {},
         fxaInstances: resolveFxaInstances(fxaInstances, maps),
         fxaInstanceIds: resolveFxaInstanceIds(fxaInstanceIds, doc, maps),
         migrationSource: 'erkhet',

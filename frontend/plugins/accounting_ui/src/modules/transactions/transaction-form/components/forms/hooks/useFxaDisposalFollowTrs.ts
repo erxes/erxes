@@ -34,7 +34,7 @@ const getDetailInstances = (
   instances.filter((instance) => instance.fixedAssetId === detail.fixedAssetId);
 
 const buildSummary = (
-  details: TFxaDetail[] = [],
+  details: TFxaDetail[],
   instances: TFxaDisposalInstance[] = [],
 ) =>
   details
@@ -72,7 +72,7 @@ const buildSummary = (
     .filter((summary) => summary.fixedAssetId && summary.count > 0);
 
 const buildMainDetails = (
-  details: TFxaDetail[] = [],
+  details: TFxaDetail[],
   summaries: TFxaDisposalSummary[],
 ) =>
   details.map((detail) => {

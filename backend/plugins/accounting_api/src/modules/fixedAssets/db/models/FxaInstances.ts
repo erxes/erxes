@@ -327,7 +327,7 @@ export const loadFxaInstanceClass = () => {
         {
           ...update,
           $unset: {
-            ...(update.$unset || {}),
+            ...update.$unset || {},
             transactionId: '',
           },
         },

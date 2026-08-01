@@ -193,8 +193,6 @@ const upsertSafeRemainderItem = async ({
   await SafeRemainderItems.updateOne(selector, {
     $set: doc,
   });
-
-  return;
 };
 
 const command = async () => {
