@@ -47,6 +47,14 @@
         "command": "NODE_ENV=development pnpm dev"
       }
     },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/backend/plugins/accounting_api"],
+      "options": {
+        "jestConfig": "backend/plugins/accounting_api/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
     "docker-build": {
       "dependsOn": [
         "build"
