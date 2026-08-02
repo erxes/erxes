@@ -78,15 +78,12 @@ export const ItineraryRecordTable = ({
   );
   const columns = useMemo(
     () =>
-      itineraryColumns(
-        {
-          onEditClick: handleEditClick,
-          branchId,
-          branchLanguages,
-          mainLanguage,
-        },
-        t,
-      ),
+      itineraryColumns({
+        onEditClick: handleEditClick,
+        branchId,
+        branchLanguages,
+        mainLanguage,
+      }, t),
     [branchId, branchLanguages, handleEditClick, mainLanguage, t],
   );
   const rowData = itineraries || [];

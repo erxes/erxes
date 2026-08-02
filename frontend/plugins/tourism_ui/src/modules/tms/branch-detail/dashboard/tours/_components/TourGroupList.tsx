@@ -41,22 +41,19 @@ export const TourGroupList = ({
   const groupedTours = useMemo(() => flattenGroups(groups), [groups]);
   const columns = useMemo(
     () =>
-      GroupedTourColumns(
-        {
-          onEdit: (id) => setEditTourId(id),
-          onAddTour: (row) => {
-            if (!row.groupCode || !row.templateTourId) {
-              return;
-            }
+      GroupedTourColumns({
+        onEdit: (id) => setEditTourId(id),
+        onAddTour: (row) => {
+          if (!row.groupCode || !row.templateTourId) {
+            return;
+          }
 
-            setAddTourContext({
-              groupCode: row.groupCode,
-              templateTourId: row.templateTourId,
-            });
-          },
+          setAddTourContext({
+            groupCode: row.groupCode,
+            templateTourId: row.templateTourId,
+          });
         },
-        t,
-      ),
+      }, t),
     [t],
   );
   const tableOptions: TableOptions<TourGroupRow> = useMemo(

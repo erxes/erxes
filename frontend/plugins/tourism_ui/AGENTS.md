@@ -27,12 +27,12 @@
 
 ## Architecture
 
-| Area       | Path                                                      | Responsibility                                                          |
-| ---------- | --------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Federation | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes tourism, TMS, PMS, and settings entries.                        |
-| Routes     | `frontend/plugins/tourism_ui/src/modules/main/Main.tsx`   | Mounts combined tourism routes.                                         |
-| TMS        | `frontend/plugins/tourism_ui/src/modules/tms`             | Owns branches, tours, itineraries, elements, categories, and amenities. |
-| PMS        | `frontend/plugins/tourism_ui/src/modules/pms`             | Owns property-management UI.                                            |
+| Area | Path | Responsibility |
+| --- | --- | --- |
+| Federation | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes tourism, TMS, PMS, and settings entries. |
+| Routes | `frontend/plugins/tourism_ui/src/modules/main/Main.tsx` | Mounts combined tourism routes. |
+| TMS | `frontend/plugins/tourism_ui/src/modules/tms` | Owns branches, tours, itineraries, elements, categories, and amenities. |
+| PMS | `frontend/plugins/tourism_ui/src/modules/pms` | Owns property-management UI. |
 
 ## Contracts
 
