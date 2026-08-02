@@ -45,7 +45,7 @@ export const eventLogHandler = async (
     if (status === 'success') {
       const resultDoc = Array.isArray(result) ? result[0] : result;
 
-      handleAfterProcess(subdomain, {
+      await handleAfterProcess(subdomain, {
         source,
         action: resultDoc?.action || action,
         contentType,
