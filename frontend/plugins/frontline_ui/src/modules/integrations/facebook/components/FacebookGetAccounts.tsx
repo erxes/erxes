@@ -24,7 +24,6 @@ import { useFacebookPages } from '../hooks/useFacebookPages';
 import { useFbAuthPopup } from '../hooks/useFbAuthPopup';
 import { useFbIntegrationContext } from '../contexts/FbIntegrationContext';
 
-
 const FacebookAccountRow = ({
   account,
   selectedAccount,
@@ -34,7 +33,9 @@ const FacebookAccountRow = ({
   selectedAccount: string | undefined;
   onSelect: (id: string) => void;
 }) => {
-  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(account._id);
+  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(
+    account._id,
+  );
   return (
     <Command.Item
       key={account._id}

@@ -44,7 +44,6 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
   );
 
   const handleRepair = () => {
-
     if (isUnhealthy) {
       reauth();
     } else {

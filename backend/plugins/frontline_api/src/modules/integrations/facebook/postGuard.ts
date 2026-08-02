@@ -83,7 +83,10 @@ export const assertPostRateLimit = async (
   }
 
   if (count > limit) {
-    const minutes = Math.max(1, Math.ceil((ttl > 0 ? ttl : WINDOW_SECONDS) / 60));
+    const minutes = Math.max(
+      1,
+      Math.ceil((ttl > 0 ? ttl : WINDOW_SECONDS) / 60),
+    );
 
     throw new Error(
       `Posting limit reached for this page (${limit} posts per hour). ` +
