@@ -13,7 +13,7 @@ import { useRecordTable } from './RecordTableProvider';
 
 const SELECTOR_WIDTH = 32;
 
-const resolveSelectorSlot = (visibleHeaders: Header<any, unknown>[]) => {
+const resolveSelectorSlot = (visibleHeaders: Header<unknown, unknown>[]) => {
   let offset = 0;
 
   for (const header of visibleHeaders) {

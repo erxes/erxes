@@ -50,7 +50,7 @@ const SortableColumnItem = ({
   column,
   isLastVisible,
 }: {
-  column: Column<any, unknown>;
+  column: Column<unknown, unknown>;
   isLastVisible: boolean;
 }) => {
   const isPinned = !!column.getIsPinned();
