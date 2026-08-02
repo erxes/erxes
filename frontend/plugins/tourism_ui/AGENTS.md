@@ -62,7 +62,6 @@
 
 ## Validation
 
-- `pnpm nx lint tourism_ui`
 - `pnpm nx build tourism_ui`
 - Open branch amenities, categories, elements, itineraries, tour groups, and
   tours and verify column preferences persist after reload.
@@ -70,6 +69,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-03` — `Resolve tourism table review findings`
+
+- **Summary:** Reduced category table JSX nesting and corrected validation guidance to use available project tooling.
+- **Affected areas:** `src/modules/tms/branch-detail/dashboard/category`, validation documentation
+- **Contracts changed:** `None`
 
 ### `2026-08-03` — `Standardize tourism table column selectors`
 

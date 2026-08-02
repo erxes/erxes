@@ -16,6 +16,18 @@ interface CategoryRecordTableProps {
   mainLanguage?: string;
 }
 
+const CategoryTableContent = ({ loading }: { loading: boolean }) => (
+  <RecordTable.Scroll>
+    <RecordTable>
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.RowList Row={RecordTableTree.Row} />
+        {loading && <RecordTable.RowSkeleton rows={10} />}
+      </RecordTable.Body>
+    </RecordTable>
+  </RecordTable.Scroll>
+);
+
 export const CategoryRecordTable = ({
   branchId,
   branchLanguages,
@@ -65,15 +77,7 @@ export const CategoryRecordTable = ({
       tableId="tourism_categories_record_table"
     >
       <RecordTableTree id="tour-categories" ordered>
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList Row={RecordTableTree.Row} />
-              {loading && <RecordTable.RowSkeleton rows={10} />}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
+        <CategoryTableContent loading={loading} />
       </RecordTableTree>
       <CategoryCommandBar />
     </RecordTable.Provider>
