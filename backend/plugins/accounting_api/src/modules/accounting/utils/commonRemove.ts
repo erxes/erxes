@@ -3,12 +3,10 @@ import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '../@types/transaction';
 import { removeSyncProductsInventory } from './utils';
 import { TR_FOLLOW_TYPES } from '../@types/constants';
-import {
-  removeFxaIncomeInstances,
-  TFxaIncomeInstanceRemoveOptions,
-} from './fxaIncome';
+import { removeFxaIncomeInstances } from './fxaIncome';
 import { removeFxaDisposalInstances } from './fxaOut';
 import { removeFxaMoveInstances } from './fxaMove';
+import { TFxaIncomeInstanceRemoveOptions } from './fixedAssets';
 
 export type TCommonRemoveOptions = TFxaIncomeInstanceRemoveOptions;
 
