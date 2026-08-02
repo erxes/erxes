@@ -27,12 +27,12 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| --- | --- | --- |
-| Federation | `frontend/plugins/insurance_ui/module-federation.config.ts` | Exposes configuration, insurance entries, settings, and widgets. |
-| Routes | `frontend/plugins/insurance_ui/src/modules/insurance/Main.tsx` | Mounts insurance feature routes. |
-| Features | `frontend/plugins/insurance_ui/src/modules/insurance` | Owns insurance pages, components, hooks, GraphQL, and types. |
-| Shared UI | `frontend/plugins/insurance_ui/src/modules/insurance/components/shared` | Owns reusable insurance table and column factories. |
+| Area       | Path                                                                    | Responsibility                                                   |
+| ---------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Federation | `frontend/plugins/insurance_ui/module-federation.config.ts`             | Exposes configuration, insurance entries, settings, and widgets. |
+| Routes     | `frontend/plugins/insurance_ui/src/modules/insurance/Main.tsx`          | Mounts insurance feature routes.                                 |
+| Features   | `frontend/plugins/insurance_ui/src/modules/insurance`                   | Owns insurance pages, components, hooks, GraphQL, and types.     |
+| Shared UI  | `frontend/plugins/insurance_ui/src/modules/insurance/components/shared` | Owns reusable insurance table and column factories.              |
 
 ## Contracts
 

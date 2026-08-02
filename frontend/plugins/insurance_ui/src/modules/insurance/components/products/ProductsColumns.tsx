@@ -39,7 +39,9 @@ export const createProductsColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconPackage} label={labels.name} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconPackage} label={labels.name} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -52,7 +54,10 @@ export const createProductsColumns = (
     id: 'insuranceType',
     accessorKey: 'insuranceType',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label={labels.insuranceType} />
+      <RecordTable.InlineHead
+        icon={IconCategory}
+        label={labels.insuranceType}
+      />
     ),
     cell: ({ cell }) => {
       return (
@@ -68,13 +73,18 @@ export const createProductsColumns = (
     id: 'coveredRisks',
     accessorKey: 'coveredRisks',
     header: () => (
-      <RecordTable.InlineHead icon={IconShieldCheck} label={labels.coveredRisks} />
+      <RecordTable.InlineHead
+        icon={IconShieldCheck}
+        label={labels.coveredRisks}
+      />
     ),
     cell: ({ cell }) => {
       const risks = cell.row.original.coveredRisks || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{risks.length} {labels.risks}</Badge>
+          <Badge variant="secondary">
+            {risks.length} {labels.risks}
+          </Badge>
         </RecordTableInlineCell>
       );
     },
@@ -83,7 +93,10 @@ export const createProductsColumns = (
     id: 'riskDetails',
     accessorKey: 'riskDetails',
     header: () => (
-      <RecordTable.InlineHead icon={IconShieldCheck} label={labels.riskDetails} />
+      <RecordTable.InlineHead
+        icon={IconShieldCheck}
+        label={labels.riskDetails}
+      />
     ),
     cell: ({ cell }) => {
       const risks = cell.row.original.coveredRisks || [];

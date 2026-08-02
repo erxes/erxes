@@ -63,7 +63,10 @@ export const createVendorsColumns = (labels: {
     id: 'products',
     accessorKey: 'offeredProducts',
     header: () => (
-      <RecordTable.InlineHead icon={IconPackage} label={labels.offeredProducts} />
+      <RecordTable.InlineHead
+        icon={IconPackage}
+        label={labels.offeredProducts}
+      />
     ),
     cell: ({ cell }) => {
       const products = cell.row.original.offeredProducts || [];
