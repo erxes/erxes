@@ -17,7 +17,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { Link } from 'react-router-dom';
-import { forwardRef, type ComponentProps } from 'react';
+import { forwardRef, type ComponentProps, type ForwardedRef } from 'react';
 
 export const CallQueueRecordTable = ({
   basePath = '/frontline/calls/dashboard',
@@ -109,9 +109,17 @@ type CallQueueTriggerProps = Omit<ComponentProps<typeof Link>, 'to'> & {
   queueChairman: string;
 };
 
-/** Renders the queue link while forwarding HoverCard trigger behavior. */
-const CallQueueTrigger = forwardRef<HTMLAnchorElement, CallQueueTriggerProps>(
-  ({ basePath, queue, queueChairman, className, ...props }, ref) => (
+function CallQueueTriggerComponent(
+  {
+    basePath,
+    queue,
+    queueChairman,
+    className,
+    ...props
+  }: CallQueueTriggerProps,
+  ref: ForwardedRef<HTMLAnchorElement>,
+) {
+  return (
     <Link
       {...props}
       ref={ref}
@@ -124,12 +132,13 @@ const CallQueueTrigger = forwardRef<HTMLAnchorElement, CallQueueTriggerProps>(
         </Badge>
       </RecordTableInlineCell>
     </Link>
-  ),
-);
+  );
+}
+
+const CallQueueTrigger = forwardRef(CallQueueTriggerComponent);
 CallQueueTrigger.displayName = 'CallQueueTrigger';
 
-/** Renders one answered or abandoned queue-rate summary. */
-const CallQueueRate = ({
+function CallQueueRate({
   label,
   totalCalls,
   value,
@@ -139,7 +148,7 @@ const CallQueueRate = ({
   totalCalls: number;
   value: number;
   variant: 'destructive' | 'success';
-}) => {
+}) {
   const { t } = useTranslation('frontline');
   const roundedValue = Math.round(value);
 
@@ -152,30 +161,30 @@ const CallQueueRate = ({
       <legend className="text-accent-foreground text-xs">{label}</legend>
     </div>
   );
-};
+}
 
-/** Renders a label and value row in the queue hover summary. */
-const CallQueueStat = ({
+function CallQueueStat({
   label,
   value,
 }: {
   label: string;
   value: string | number;
-}) => (
-  <p className="text-sm flex items-center gap-1 justify-between">
-    <legend className="text-accent-foreground">{label}</legend>
-    <span className="font-medium">{value}</span>
-  </p>
-);
+}) {
+  return (
+    <p className="text-sm flex items-center gap-1 justify-between">
+      <legend className="text-accent-foreground">{label}</legend>
+      <span className="font-medium">{value}</span>
+    </p>
+  );
+}
 
-/** Renders the queue name and its detailed call-statistics hover card. */
-const CallQueueSummaryCell = ({
+function CallQueueSummaryCell({
   basePath,
   item,
 }: {
   basePath: string;
   item: ICallQueueListItem;
-}) => {
+}) {
   const { t } = useTranslation('frontline');
   const {
     queue,
@@ -237,10 +246,9 @@ const CallQueueSummaryCell = ({
       </HoverCard.Content>
     </HoverCard>
   );
-};
+}
 
-/** Builds translated columns for the call-queue statistics table. */
-const useGetColumns = (basePath: string): ColumnDef<ICallQueueListItem>[] => {
+function useGetColumns(basePath: string): ColumnDef<ICallQueueListItem>[] {
   const { t } = useTranslation('frontline');
   return [
     {
@@ -327,4 +335,4 @@ const useGetColumns = (basePath: string): ColumnDef<ICallQueueListItem>[] => {
       ),
     },
   ];
-};
+}

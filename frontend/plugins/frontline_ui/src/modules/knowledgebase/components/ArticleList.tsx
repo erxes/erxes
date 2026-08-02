@@ -27,20 +27,18 @@ interface ArticleListProps {
   readonly onCreateArticle: () => void;
 }
 
-/** Renders the translated article-title column header. */
-const ArticleTitleHeader = () => {
+function ArticleTitleHeader() {
   const { t } = useTranslation('frontline');
   return <RecordTable.InlineHead icon={IconFileText} label={t('col-name')} />;
-};
+}
 
-/** Renders an article title that opens the selected article for editing. */
-const ArticleTitleCell = ({
+function ArticleTitleCell({
   article,
   onEditArticle,
 }: {
   article: Article;
   onEditArticle: (article: Article) => void;
-}) => {
+}) {
   const { t } = useTranslation('frontline');
 
   return (
@@ -52,16 +50,14 @@ const ArticleTitleCell = ({
       {article.title || t('kb-untitled')}
     </Button>
   );
-};
+}
 
-/** Renders the translated article-status column header. */
-const ArticleStatusHeader = () => {
+function ArticleStatusHeader() {
   const { t } = useTranslation('frontline');
   return <RecordTable.InlineHead icon={IconEye} label={t('status')} />;
-};
+}
 
-/** Renders the normalized visual state for an article. */
-const ArticleStatusCell = ({ article }: { article: Article }) => {
+function ArticleStatusCell({ article }: { article: Article }) {
   const status = String(article.status || 'unknown').toLowerCase();
   const isPublished = status.includes('publish');
   const isDraft = status.includes('draft');
@@ -90,22 +86,19 @@ const ArticleStatusCell = ({ article }: { article: Article }) => {
       </span>
     </div>
   );
-};
+}
 
-/** Renders the translated article-owner column header. */
-const ArticleOwnerHeader = () => {
+function ArticleOwnerHeader() {
   const { t } = useTranslation('frontline');
   return <RecordTable.InlineHead icon={IconUser} label={t('kb-owner')} />;
-};
+}
 
-/** Renders the translated article-created-date column header. */
-const ArticleCreatedHeader = () => {
+function ArticleCreatedHeader() {
   const { t } = useTranslation('frontline');
   return <RecordTable.InlineHead icon={IconCalendar} label={t('kb-created')} />;
-};
+}
 
-/** Formats an article creation date in the active application locale. */
-const ArticleCreatedDateCell = ({ article }: { article: Article }) => {
+function ArticleCreatedDateCell({ article }: { article: Article }) {
   const { t, i18n } = useTranslation('frontline');
 
   if (!article.createdDate) {
@@ -126,57 +119,57 @@ const ArticleCreatedDateCell = ({ article }: { article: Article }) => {
       })}
     </div>
   );
-};
+}
 
-/** Builds the typed column definitions for the knowledge-base article list. */
-const getArticleColumns = (
+function getArticleColumns(
   onEditArticle: (article: Article) => void,
-): ColumnDef<Article>[] => [
-  RecordTable.checkboxColumn as ColumnDef<Article>,
-  {
-    id: 'title',
-    accessorKey: 'title',
-    size: 220,
-    header: ArticleTitleHeader,
-    cell: ({ row }) => (
-      <ArticleTitleCell article={row.original} onEditArticle={onEditArticle} />
-    ),
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    size: 220,
-    header: ArticleStatusHeader,
-    cell: ({ row }) => <ArticleStatusCell article={row.original} />,
-  },
-  {
-    id: 'createdUser',
-    accessorKey: 'createdUser',
-    size: 220,
-    header: ArticleOwnerHeader,
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2 opacity-80 ml-2">
-        {row.original.createdUser?.username || '-'}
-      </div>
-    ),
-  },
-  {
-    id: 'createdDate',
-    accessorKey: 'createdDate',
-    size: 180,
-    header: ArticleCreatedHeader,
-    cell: ({ row }) => <ArticleCreatedDateCell article={row.original} />,
-  },
-];
+): ColumnDef<Article>[] {
+  return [
+    RecordTable.checkboxColumn as ColumnDef<Article>,
+    {
+      id: 'title',
+      accessorKey: 'title',
+      size: 220,
+      header: ArticleTitleHeader,
+      cell: ({ row }) => (
+        <ArticleTitleCell article={row.original} onEditArticle={onEditArticle} />
+      ),
+    },
+    {
+      id: 'status',
+      accessorKey: 'status',
+      size: 220,
+      header: ArticleStatusHeader,
+      cell: ({ row }) => <ArticleStatusCell article={row.original} />,
+    },
+    {
+      id: 'createdUser',
+      accessorKey: 'createdUser',
+      size: 220,
+      header: ArticleOwnerHeader,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2 opacity-80 ml-2">
+          {row.original.createdUser?.username || '-'}
+        </div>
+      ),
+    },
+    {
+      id: 'createdDate',
+      accessorKey: 'createdDate',
+      size: 180,
+      header: ArticleCreatedHeader,
+      cell: ({ row }) => <ArticleCreatedDateCell article={row.original} />,
+    },
+  ];
+}
 
-/** Provides bulk edit and deletion actions for selected articles. */
-const ArticleCommandBar = ({
+function ArticleCommandBar({
   onEditArticle,
   refetch,
 }: {
   onEditArticle: (article: Article) => void;
   refetch: () => void;
-}) => {
+}) {
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const [removeArticle] = useMutation(REMOVE_ARTICLE);
@@ -186,15 +179,13 @@ const ArticleCommandBar = ({
     .rows.map((row) => row.original as Article);
   const articleIds = selectedArticles.map((article) => article._id);
 
-  /** Opens the only selected article for editing. */
-  const handleEdit = () => {
+  function handleEdit() {
     if (selectedArticles.length === 1) {
       onEditArticle(selectedArticles[0]);
     }
-  };
+  }
 
-  /** Confirms deletion, settles all mutations, then refreshes the table. */
-  const handleDelete = async () => {
+  async function handleDelete() {
     if (articleIds.length === 0) {
       return;
     }
@@ -225,7 +216,7 @@ const ArticleCommandBar = ({
         variant: 'destructive',
       });
     }
-  };
+  }
 
   return (
     <CommandBar open={selectedArticles.length > 0}>
@@ -254,7 +245,7 @@ const ArticleCommandBar = ({
       </CommandBar.Bar>
     </CommandBar>
   );
-};
+}
 
 export function ArticleList({
   onEditArticle,

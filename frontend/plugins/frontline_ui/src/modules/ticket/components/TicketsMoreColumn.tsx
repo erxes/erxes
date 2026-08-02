@@ -14,14 +14,13 @@ import { ITicket } from '../types';
 
 import { useTicketRemove } from '../hooks/useRemoveTicket';
 
-/** Renders the action items within the ticket row popover. */
-const TicketActionsList = ({
+function TicketActionsList({
   onEdit,
   onDelete,
 }: {
   onEdit: () => void;
   onDelete: () => void;
-}) => {
+}) {
   const { t } = useTranslation('frontline');
 
   return (
@@ -34,14 +33,13 @@ const TicketActionsList = ({
       </Command.Item>
     </Command.List>
   );
-};
+}
 
-/** Renders edit and delete actions for a ticket record-table row. */
-export const TicketsMoreColumnCell = ({
+export function TicketsMoreColumnCell({
   cell,
 }: {
   cell: Cell<ITicket, unknown>;
-}) => {
+}) {
   const { t } = useTranslation('frontline');
   const [, setActiveTicket] = useTicketDetailSheet();
   const { _id } = cell.row.original;
@@ -49,13 +47,11 @@ export const TicketsMoreColumnCell = ({
   const { toast } = useToast();
   const { removeTicket } = useTicketRemove();
 
-  /** Opens the selected ticket in the detail sheet. */
-  const handleEdit = () => {
+  function handleEdit() {
     setActiveTicket(_id);
-  };
+  }
 
-  /** Confirms and removes the selected ticket. */
-  const handleDelete = () => {
+  function handleDelete() {
     if (!_id) {
       toast({
         title: t('error'),
@@ -84,7 +80,7 @@ export const TicketsMoreColumnCell = ({
         });
       }
     });
-  };
+  }
   return (
     <Popover>
       <Popover.Trigger asChild>
@@ -97,7 +93,7 @@ export const TicketsMoreColumnCell = ({
       </Combobox.Content>
     </Popover>
   );
-};
+}
 
 export const ticketsMoreColumn = {
   id: 'more',
