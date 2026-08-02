@@ -65,7 +65,6 @@
 
 ## Validation
 
-- `pnpm nx lint frontline_ui`
 - `pnpm nx build frontline_ui`
 - Open forms, integrations, call queues, call agents, tickets,
   knowledge-base articles, report lists, and Facebook automation bots and
