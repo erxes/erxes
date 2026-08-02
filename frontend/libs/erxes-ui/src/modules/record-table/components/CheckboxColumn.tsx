@@ -37,13 +37,7 @@ const startDragSelection = (
   );
 };
 
-const CheckboxCell = ({
-  row,
-  table,
-}: {
-  row: Row<any>;
-  table: Table<any>;
-}) => (
+const CheckboxCell = ({ row, table }: { row: Row<any>; table: Table<any> }) => (
   <div
     className="flex items-center justify-center size-full"
     onPointerDown={(event) => {
