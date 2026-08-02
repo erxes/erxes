@@ -1,3 +1,4 @@
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import {
   ADJ_FXA_STATUSES,
@@ -12,7 +13,8 @@ import {
 } from '../definitions/fixedAsset';
 import { IModels } from '~/connectionResolvers';
 
-export interface IAdjustFixedAssetModel extends Model<IAdjustFixedAssetDocument> {
+export interface IAdjustFixedAssetModel
+  extends Model<IAdjustFixedAssetDocument> {
   getAdjustFixedAsset(_id: string): Promise<IAdjustFixedAssetDocument>;
   createAdjustFixedAsset(
     doc: IAdjustFixedAsset,
@@ -56,13 +58,30 @@ export const loadAdjustFixedAssetClass = (models: IModels) => {
       doc: Partial<IAdjustFixedAsset>,
     ) {
       await models.AdjustFixedAssets.getAdjustFixedAsset(_id);
+      const $set: Record<string, unknown> = { updatedAt: new Date() };
+      const $unset: Record<string, string> = {};
+
+      for (const [field, value] of Object.entries(doc)) {
+        if (value === undefined) {
+          $unset[field] = '';
+          continue;
+        }
+
+        $set[field] = value;
+      }
 
       await models.AdjustFixedAssets.updateOne(
         { _id },
-        { $set: { ...doc, updatedAt: new Date() } },
+        Object.keys($unset).length ? { $set, $unset } : { $set },
       );
 
-      return models.AdjustFixedAssets.getAdjustFixedAsset(_id);
+      const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(_id);
+
+      graphqlPubsub.publish(`accountingAdjustFixedAssetChanged:${_id}`, {
+        accountingAdjustFixedAssetChanged: adjust,
+      });
+
+      return adjust;
     }
 
     public static async removeAdjustFixedAsset(_id: string) {

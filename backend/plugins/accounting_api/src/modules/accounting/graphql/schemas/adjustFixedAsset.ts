@@ -106,7 +106,10 @@ export const queries = `
 
 export const mutations = `
   adjustFixedAssetAdd(${adjustFixedAssetParams}): AdjustFixedAsset
+  adjustFixedAssetPublish(adjustId: String!): AdjustFixedAsset
+  adjustFixedAssetCancel(adjustId: String!): AdjustFixedAsset
   adjustFixedAssetRemove(adjustId: String!): String
+  adjustFixedAssetClear(adjustId: String!): AdjustFixedAsset
   adjustFixedAssetRun(adjustId: String!): AdjustFixedAsset
   adjustFixedAssetTransaction(adjustId: String!, expenseAccountId: String!): AdjustFixedAsset
 `;

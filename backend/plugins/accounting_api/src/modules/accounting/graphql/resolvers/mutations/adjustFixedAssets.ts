@@ -4,8 +4,11 @@ import {
   ADJ_FXA_STATUSES,
 } from '@/accounting/@types/adjustFixedAsset';
 import {
+  cancelAdjustFixedAsset,
   checkValidFixedAssetDate,
+  clearAdjustFixedAsset,
   createAdjustFixedAssetTransaction,
+  publishAdjustFixedAsset,
   runAdjustFixedAsset,
 } from '../../../utils/adjustFixedAssets';
 
@@ -37,6 +40,42 @@ export const AdjustFixedAssets = {
     await checkPermission('removeAdjustInventories');
 
     return models.AdjustFixedAssets.removeAdjustFixedAsset(adjustId);
+  },
+
+  async adjustFixedAssetPublish(
+    _root: undefined,
+    { adjustId }: { adjustId: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('publishAdjustInventories');
+
+    const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
+
+    return publishAdjustFixedAsset(models, user._id, adjust);
+  },
+
+  async adjustFixedAssetCancel(
+    _root: undefined,
+    { adjustId }: { adjustId: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('cancelAdjustInventories');
+
+    const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
+
+    return cancelAdjustFixedAsset(models, user._id, adjust);
+  },
+
+  async adjustFixedAssetClear(
+    _root: undefined,
+    { adjustId }: { adjustId: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('clearAdjustInventories');
+
+    const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
+
+    return clearAdjustFixedAsset(models, user._id, adjust);
   },
 
   async adjustFixedAssetRun(

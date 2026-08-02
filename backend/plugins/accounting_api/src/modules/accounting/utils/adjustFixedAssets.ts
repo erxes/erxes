@@ -4,9 +4,19 @@ import {
   IAdjustFixedAssetDocument,
   IAdjustFxaDetail,
 } from '../@types/adjustFixedAsset';
-import { JOURNALS, TR_SIDES, TR_STATUSES } from '../@types/constants';
+import {
+  JOURNALS,
+  TR_INVENTORY_STATUS_TYPES,
+  TR_SIDES,
+  TR_STATUSES,
+} from '../@types/constants';
 import { ITransaction } from '../@types/transaction';
-import { FXA_INSTANCE_STATUSES } from '~/modules/fixedAssets/@types/constants';
+import {
+  FXA_INSTANCE_STATUSES,
+  FXA_LOG_EVENT_TYPES,
+} from '~/modules/fixedAssets/@types/constants';
+import { IFxaInstanceDocument } from '~/modules/fixedAssets/@types/fxaInstance';
+import { IFxaInstanceLogDocument } from '~/modules/fixedAssets/@types/fxaInstanceLog';
 
 const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -25,6 +35,18 @@ type TDepreciationInput = {
   openingAccumulatedDepreciation?: number;
 };
 
+type TDailyValidationResult = {
+  successDate?: Date;
+  error?: string;
+};
+
+type TFxaSnapshot = {
+  branchId?: string;
+  departmentId?: string;
+  responsibleUserId?: string;
+  status?: string;
+};
+
 const getPureDate = (value: Date) => {
   const date = new Date(value);
   date.setHours(0, 0, 0, 0);
@@ -36,6 +58,9 @@ const addDays = (date: Date, days: number) => {
   next.setDate(next.getDate() + days);
   return next;
 };
+
+const isSamePureDate = (left: Date, right: Date) =>
+  getPureDate(left).getTime() === getPureDate(right).getTime();
 
 const calculateStraightLineDepreciation = ({
   originalCost,
@@ -68,7 +93,9 @@ const calculateStraightLineDepreciation = ({
     const closingBookValue = originalCost - accumulated - dailyAmount;
 
     if (closingBookValue < 0) {
-      error = `Depreciation makes book value negative on ${currentDate.toISOString().slice(0, 10)}`;
+      error = `Depreciation makes book value negative on ${currentDate
+        .toISOString()
+        .slice(0, 10)}`;
       break;
     }
 
@@ -79,7 +106,9 @@ const calculateStraightLineDepreciation = ({
       );
       amount += remainingAmount;
       accumulated += remainingAmount;
-      warning = `Depreciation reached salvage value on ${currentDate.toISOString().slice(0, 10)}`;
+      warning = `Depreciation reached salvage value on ${currentDate
+        .toISOString()
+        .slice(0, 10)}`;
       break;
     }
 
@@ -108,6 +137,33 @@ const getPreviousAdjustment = async (
   })
     .sort({ date: -1 })
     .lean();
+};
+
+const getIncompleteBeforeAdjustment = async (
+  models: IModels,
+  adjust: Pick<IAdjustFixedAssetDocument, '_id' | 'date'>,
+) => {
+  return models.AdjustFixedAssets.findOne({
+    _id: { $ne: adjust._id },
+    date: { $lt: getPureDate(adjust.date) },
+    status: {
+      $nin: [ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH],
+    },
+  })
+    .sort({ date: 1 })
+    .lean();
+};
+
+const getFirstAcquisitionDate = async (models: IModels, endDate: Date) => {
+  const firstInstance = await models.FxaInstances.findOne({
+    acquisitionDate: { $lte: endDate },
+  })
+    .sort({ acquisitionDate: 1 })
+    .lean();
+
+  return firstInstance?.acquisitionDate
+    ? getPureDate(firstInstance.acquisitionDate)
+    : undefined;
 };
 
 const getPreviousDetailMap = async (models: IModels, adjustId?: string) => {
@@ -161,6 +217,264 @@ const getInstanceAccountMap = async (
   );
 };
 
+const getUncompletedFixedAssetTransaction = async (
+  models: IModels,
+  beginDate: Date,
+  endDate: Date,
+) => {
+  return models.Transactions.findOne({
+    date: { $gte: beginDate, $lt: endDate },
+    'details.fixedAssetId': { $exists: true, $ne: '' },
+    status: { $nin: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+  })
+    .sort({ date: 1 })
+    .lean();
+};
+
+const getFxaPeriodLogs = async (
+  models: IModels,
+  beginDate: Date,
+  endDate: Date,
+) => {
+  return models.FxaInstanceLogs.find({
+    eventDate: { $gte: beginDate, $lte: endDate },
+  })
+    .sort({ eventDate: 1, createdAt: 1 })
+    .lean();
+};
+
+const getFirstTerminalLogDate = (
+  logs: IFxaInstanceLogDocument[],
+  instanceId: string,
+) => {
+  const terminalLog = logs.find(
+    (log) =>
+      log.fxaInstanceId === instanceId &&
+      [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE].includes(
+        log.eventType,
+      ),
+  );
+
+  return terminalLog?.eventDate
+    ? getPureDate(terminalLog.eventDate)
+    : undefined;
+};
+
+const getInstanceSnapshotAtDate = (
+  instance: IFxaInstanceDocument,
+  logs: IFxaInstanceLogDocument[],
+  date: Date,
+): TFxaSnapshot => {
+  const snapshot: TFxaSnapshot = {
+    branchId: instance.branchId,
+    departmentId: instance.departmentId,
+    responsibleUserId: instance.responsibleUserId,
+    status: FXA_INSTANCE_STATUSES.ACTIVE,
+  };
+
+  for (const log of logs) {
+    if (
+      log.fxaInstanceId !== instance._id ||
+      getPureDate(log.eventDate).getTime() > date.getTime()
+    ) {
+      continue;
+    }
+
+    snapshot.branchId = log.toBranchId || snapshot.branchId;
+    snapshot.departmentId = log.toDepartmentId || snapshot.departmentId;
+    snapshot.responsibleUserId =
+      log.toResponsibleUserId || snapshot.responsibleUserId;
+    snapshot.status = log.toStatus || snapshot.status;
+  }
+
+  return snapshot;
+};
+
+const isInstanceActiveOnDate = (
+  instance: IFxaInstanceDocument,
+  logs: IFxaInstanceLogDocument[],
+  date: Date,
+) => {
+  const acquisitionDate = instance.acquisitionDate
+    ? getPureDate(instance.acquisitionDate)
+    : undefined;
+
+  if (!acquisitionDate || acquisitionDate > date) {
+    return false;
+  }
+
+  const terminalDate = getFirstTerminalLogDate(logs, instance._id);
+
+  return !terminalDate || terminalDate >= date;
+};
+
+const validateFxaLog = (log: IFxaInstanceLogDocument) => {
+  if (!log.fxaInstanceId) {
+    return 'Fixed asset instance log is missing instance id.';
+  }
+
+  if (!log.eventType || !FXA_LOG_EVENT_TYPES.ALL.includes(log.eventType)) {
+    return `Fixed asset instance log has invalid event type. Instance: ${log.fxaInstanceId}`;
+  }
+
+  if (!log.eventDate) {
+    return `Fixed asset instance log is missing event date. Instance: ${log.fxaInstanceId}`;
+  }
+
+  if (
+    log.eventType === FXA_LOG_EVENT_TYPES.ACQUISITION &&
+    !log.transactionDetailId
+  ) {
+    return `Fixed asset acquisition log is missing transaction detail. Instance: ${log.fxaInstanceId}`;
+  }
+
+  if (log.eventType === FXA_LOG_EVENT_TYPES.MOVE && !log.toBranchId) {
+    return `Fixed asset move log is missing destination branch. Instance: ${log.fxaInstanceId}`;
+  }
+
+  if (
+    [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE].includes(
+      log.eventType,
+    ) &&
+    !log.toStatus
+  ) {
+    return `Fixed asset disposal/sale log is missing target status. Instance: ${log.fxaInstanceId}`;
+  }
+
+  return '';
+};
+
+const validateInstanceForDepreciation = ({
+  accountId,
+  fixedAsset,
+  instance,
+}: {
+  accountId?: string;
+  fixedAsset?: {
+    depreciationMethod?: string;
+    usefulLife?: number;
+  };
+  instance: IFxaInstanceDocument;
+}) => {
+  const originalCost = instance.originalCost || 0;
+  const usefulLife = instance.usefulLife || fixedAsset?.usefulLife;
+  const depreciationMethod =
+    instance.depreciationMethod ||
+    fixedAsset?.depreciationMethod ||
+    'straightLine';
+
+  if (originalCost <= 0) {
+    return `Fixed asset original cost is missing. Instance: ${instance._id}`;
+  }
+
+  if (!usefulLife || usefulLife <= 0) {
+    return `Fixed asset useful life is missing. Instance: ${instance._id}`;
+  }
+
+  if (!accountId) {
+    return `Fixed asset account is missing. Instance: ${instance._id}`;
+  }
+
+  if (depreciationMethod !== 'straightLine') {
+    return `Only straight-line depreciation is supported for adjustment. Instance: ${instance._id}`;
+  }
+
+  return '';
+};
+
+const validateFxaAdjustmentByDay = async ({
+  adjustId,
+  accountByInstanceId,
+  beginDate,
+  endDate,
+  fixedAssetById,
+  instances,
+  logs,
+  models,
+  userId,
+}: {
+  adjustId: string;
+  accountByInstanceId: Map<string, string | undefined>;
+  beginDate: Date;
+  endDate: Date;
+  fixedAssetById: Map<
+    string,
+    { depreciationMethod?: string; usefulLife?: number }
+  >;
+  instances: IFxaInstanceDocument[];
+  logs: IFxaInstanceLogDocument[];
+  models: IModels;
+  userId: string;
+}): Promise<TDailyValidationResult> => {
+  const undatedLog = logs.find((log) => !log.eventDate);
+
+  if (undatedLog) {
+    return {
+      successDate: addDays(beginDate, -1),
+      error: validateFxaLog(undatedLog),
+    };
+  }
+
+  let currentDate = beginDate;
+
+  while (currentDate <= endDate) {
+    const nextDate = addDays(currentDate, 1);
+    const uncompletedTr = await getUncompletedFixedAssetTransaction(
+      models,
+      currentDate,
+      nextDate,
+    );
+
+    if (uncompletedTr) {
+      return {
+        successDate: addDays(currentDate, -1),
+        error: `Fixed asset transaction must be in an active accounting status before adjusting. Transaction: ${
+          uncompletedTr.number || uncompletedTr._id
+        } (${uncompletedTr.status || 'unknown'})`,
+      };
+    }
+
+    for (const log of logs.filter((item) =>
+      isSamePureDate(item.eventDate, currentDate),
+    )) {
+      const error = validateFxaLog(log);
+
+      if (error) {
+        return { successDate: addDays(currentDate, -1), error };
+      }
+    }
+
+    for (const instance of instances) {
+      if (!isInstanceActiveOnDate(instance, logs, currentDate)) {
+        continue;
+      }
+
+      const error = validateInstanceForDepreciation({
+        accountId: accountByInstanceId.get(instance._id),
+        fixedAsset: fixedAssetById.get(instance.fixedAssetId),
+        instance,
+      });
+
+      if (error) {
+        return { successDate: addDays(currentDate, -1), error };
+      }
+    }
+
+    await models.AdjustFixedAssets.updateAdjustFixedAsset(adjustId, {
+      checkedAt: new Date(),
+      successDate: currentDate,
+      status: ADJ_FXA_STATUSES.RUNNING,
+      error: '',
+      warning: '',
+      modifiedBy: userId,
+    });
+
+    currentDate = nextDate;
+  }
+
+  return {};
+};
+
 export const checkValidFixedAssetDate = async (
   models: IModels,
   adjust: Pick<IAdjustFixedAssetDocument, '_id' | 'date'>,
@@ -176,17 +490,136 @@ export const checkValidFixedAssetDate = async (
     throw new Error('A later fixed asset adjustment already exists.');
   }
 
+  const incompleteBeforeAdjust = await getIncompleteBeforeAdjustment(
+    models,
+    adjust,
+  );
+
+  if (incompleteBeforeAdjust) {
+    throw new Error('An earlier fixed asset adjustment is not completed yet.');
+  }
+
   const beforeAdjust = await getPreviousAdjustment(
     models,
     adjust as IAdjustFixedAssetDocument,
   );
+  const beginDate = beforeAdjust?.date
+    ? addDays(getPureDate(beforeAdjust.date), 1)
+    : await getFirstAcquisitionDate(models, date);
+
+  if (!beginDate) {
+    throw new Error(
+      'No fixed asset acquisition found before this adjustment date.',
+    );
+  }
 
   return {
-    beginDate: beforeAdjust?.date
-      ? addDays(getPureDate(beforeAdjust.date), 1)
-      : date,
+    beginDate,
     beforeAdjust,
   };
+};
+
+export const clearAdjustFixedAsset = async (
+  models: IModels,
+  userId: string,
+  adjust: IAdjustFixedAssetDocument,
+) => {
+  if (
+    ![
+      ADJ_FXA_STATUSES.DRAFT,
+      ADJ_FXA_STATUSES.PROCESS,
+      ADJ_FXA_STATUSES.COMPLETE,
+    ].includes(adjust.status)
+  ) {
+    throw new Error('This fixed asset adjustment cannot be cleared.');
+  }
+
+  const { beginDate } = await checkValidFixedAssetDate(models, adjust);
+
+  await models.AdjustFxaDetails.deleteMany({ adjustId: adjust._id });
+
+  return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
+    beginDate,
+    successDate: undefined,
+    checkedAt: undefined,
+    status: ADJ_FXA_STATUSES.DRAFT,
+    error: '',
+    warning: '',
+    modifiedBy: userId,
+  });
+};
+
+const getModifiedFixedAssetTransaction = async (
+  models: IModels,
+  adjust: IAdjustFixedAssetDocument,
+) => {
+  if (!adjust.beginDate || !adjust.successDate || !adjust.checkedAt) {
+    return null;
+  }
+
+  return models.Transactions.findOne({
+    date: { $gte: adjust.beginDate, $lte: adjust.successDate },
+    'details.fixedAssetId': { $exists: true, $ne: '' },
+    $or: [
+      {
+        updatedAt: { $exists: false },
+        createdAt: { $gte: adjust.checkedAt },
+      },
+      { updatedAt: { $gte: adjust.checkedAt } },
+    ],
+  }).lean();
+};
+
+export const publishAdjustFixedAsset = async (
+  models: IModels,
+  userId: string,
+  adjust: IAdjustFixedAssetDocument,
+) => {
+  if (adjust.status === ADJ_FXA_STATUSES.PUBLISH) {
+    throw new Error('This fixed asset adjustment is already published.');
+  }
+
+  if (adjust.status !== ADJ_FXA_STATUSES.COMPLETE) {
+    throw new Error('This fixed asset adjustment cannot be published yet.');
+  }
+
+  const modifiedTransaction = await getModifiedFixedAssetTransaction(
+    models,
+    adjust,
+  );
+
+  if (modifiedTransaction) {
+    await models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
+      status: ADJ_FXA_STATUSES.PROCESS,
+      modifiedBy: '',
+    });
+
+    throw new Error(
+      'This fixed asset adjustment cannot be published yet. Cause: modified some transactions',
+    );
+  }
+
+  return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
+    status: ADJ_FXA_STATUSES.PUBLISH,
+    modifiedBy: userId,
+  });
+};
+
+export const cancelAdjustFixedAsset = async (
+  models: IModels,
+  userId: string,
+  adjust: IAdjustFixedAssetDocument,
+) => {
+  if (adjust.status !== ADJ_FXA_STATUSES.PUBLISH) {
+    throw new Error(
+      'This fixed asset adjustment cannot be cancelled before publishing.',
+    );
+  }
+
+  return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
+    status: ADJ_FXA_STATUSES.DRAFT,
+    modifiedBy: userId,
+  });
 };
 
 export const runAdjustFixedAsset = async (
@@ -200,10 +633,9 @@ export const runAdjustFixedAsset = async (
   );
   const endDate = getPureDate(adjust.date);
   const previousDetails = await getPreviousDetailMap(models, beforeAdjust?._id);
-  const instances = await models.FxaInstances.findAdjustable({
-    status: FXA_INSTANCE_STATUSES.ACTIVE,
-    endDate,
-  });
+  const instances = await models.FxaInstances.find({
+    acquisitionDate: { $lte: endDate },
+  }).lean();
   const fixedAssets = await models.FixedAssets.find({
     _id: { $in: instances.map((instance) => instance.fixedAssetId) },
   }).lean();
@@ -211,11 +643,43 @@ export const runAdjustFixedAsset = async (
     fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
   );
   const accountByInstanceId = await getInstanceAccountMap(models, instances);
+  const logs = await getFxaPeriodLogs(models, beginDate, endDate);
+  const validationResult = await validateFxaAdjustmentByDay({
+    adjustId: adjust._id,
+    accountByInstanceId,
+    beginDate,
+    endDate,
+    fixedAssetById,
+    instances,
+    logs,
+    models,
+    userId,
+  });
   const details: IAdjustFxaDetail[] = [];
+
+  if (validationResult.error) {
+    await models.AdjustFxaDetails.replaceAdjustFxaDetails({
+      adjustId: adjust._id,
+      details,
+    });
+
+    return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
+      beginDate,
+      successDate: validationResult.successDate,
+      checkedAt: new Date(),
+      status: ADJ_FXA_STATUSES.PROCESS,
+      error: validationResult.error,
+      warning: '',
+      modifiedBy: userId,
+    });
+  }
 
   for (const instance of instances) {
     const fixedAsset = fixedAssetById.get(instance.fixedAssetId);
     const previousDetail = previousDetails.get(instance._id);
+    const terminalDate = getFirstTerminalLogDate(logs, instance._id);
+    const depreciationEndDate =
+      terminalDate && terminalDate < endDate ? terminalDate : endDate;
     const startDate = previousDetail?.closingBookValue
       ? beginDate
       : getPureDate(
@@ -224,7 +688,7 @@ export const runAdjustFixedAsset = async (
             beginDate,
         );
 
-    if (startDate > endDate) {
+    if (startDate > depreciationEndDate) {
       continue;
     }
 
@@ -243,9 +707,14 @@ export const runAdjustFixedAsset = async (
       salvageValue,
       usefulLife: instance.usefulLife || fixedAsset?.usefulLife,
       startDate,
-      endDate,
+      endDate: depreciationEndDate,
       openingAccumulatedDepreciation,
     });
+    const snapshot = getInstanceSnapshotAtDate(
+      instance,
+      logs,
+      depreciationEndDate,
+    );
 
     details.push({
       adjustId: adjust._id,
@@ -253,8 +722,8 @@ export const runAdjustFixedAsset = async (
       fixedAssetId: instance.fixedAssetId,
       categoryId: instance.categoryId || fixedAsset?.categoryId,
       accountId,
-      branchId: instance.branchId,
-      departmentId: instance.departmentId,
+      branchId: snapshot.branchId,
+      departmentId: snapshot.departmentId,
       originalCost,
       salvageValue,
       openingBookValue,
