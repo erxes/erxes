@@ -17,10 +17,10 @@ import { TourSideTab } from './TourOrdersSidePanel';
 function TourGroupTableContent({
   loading,
   length,
-}: {
+}: Readonly<{
   loading: boolean;
   length: number;
-}) {
+}>) {
   return (
     <RecordTableTree id="tour-groups-list" ordered length={length}>
       <RecordTable.Scroll>

@@ -16,7 +16,7 @@ interface CategoryRecordTableProps {
   mainLanguage?: string;
 }
 
-function CategoryTableContent({ loading }: { loading: boolean }) {
+function CategoryTableContent({ loading }: Readonly<{ loading: boolean }>) {
   return (
     <RecordTable.Scroll>
       <RecordTable>

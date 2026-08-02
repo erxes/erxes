@@ -72,7 +72,7 @@
 
 ### `2026-08-03` — `Resolve tourism table review findings`
 
-- **Summary:** Reduced category and tour-group table JSX nesting and corrected validation guidance to use available project tooling.
+- **Summary:** Reduced category and tour-group table JSX nesting, marked component props read-only, and corrected validation guidance to use available project tooling.
 - **Affected areas:** `src/modules/tms/branch-detail/dashboard`, validation documentation
 - **Contracts changed:** `None`
 
