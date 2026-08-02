@@ -143,10 +143,10 @@ export const FormsMoreColumnCell = ({
   const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
-  const [, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </DropdownMenu.Trigger>
@@ -192,11 +192,11 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
-    header: () => {
+    header: function FormPageNameHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
     },
-    cell: ({ cell }) => {
+    cell: function FormPageNameCell({ cell }) {
       const navigate = useNavigate();
 
       return (
@@ -216,7 +216,7 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'status',
     id: 'status',
-    header: () => {
+    header: function FormPageStatusHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
     },
@@ -230,12 +230,12 @@ export const formColumns: ColumnDef<IForm>[] = [
   },
   {
     accessorKey: 'channelId',
-    header: () => {
+    header: function FormPageChannelHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
     },
     id: 'channelId',
-    cell: ({ cell }) => {
+    cell: function FormPageChannelCell({ cell }) {
       const { t } = useTranslation('frontline');
       const { channel, _id, name, type } = cell.row.original;
       const { editForm } = useFormEdit();
@@ -277,7 +277,7 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'tagIds',
     id: 'tagIds',
-    header: () => {
+    header: function FormPageTagsHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('tags')} icon={IconTag} />;
     },
@@ -296,7 +296,7 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdUserId',
     id: 'createdUserId',
-    header: () => {
+    header: function FormPageCreatedByHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
     },
@@ -311,7 +311,7 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdDate',
     id: 'createdDate',
-    header: () => {
+    header: function FormPageCreatedAtHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
     },

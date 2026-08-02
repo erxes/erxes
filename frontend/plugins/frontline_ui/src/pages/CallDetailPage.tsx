@@ -27,7 +27,7 @@ import {
   ICallQueueAgent,
   ICallQueueRealtimeSnapshot,
 } from '@/integrations/call/types/callTypes';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   formatSeconds,
   safeFormatDate,
@@ -440,6 +440,28 @@ type TalkingCall = {
   bridge_time?: string | Date;
 };
 
+const TalkingCallDurationCell = ({
+  value,
+}: {
+  value?: string | Date;
+}) => {
+  const startDate = useMemo(() => {
+    if (!value) {
+      return null;
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }, [value]);
+  const duration = useCallDurationFromDate(startDate);
+
+  return (
+    <RecordTableInlineCell className="font-medium">
+      {startDate ? duration : '-'}
+    </RecordTableInlineCell>
+  );
+};
+
 export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
   const { t } = useTranslation('frontline');
 
@@ -468,14 +490,11 @@ export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
     {
       accessorKey: 'bridge_time',
       header: () => <RecordTable.InlineHead label={t('duration')} />,
-      cell: ({ cell }) => {
-        const duration = useCallDurationFromDate(cell.getValue() as Date);
-        return (
-          <RecordTableInlineCell className="font-medium">
-            {duration}
-          </RecordTableInlineCell>
-        );
-      },
+      cell: ({ cell }) => (
+        <TalkingCallDurationCell
+          value={cell.getValue() as string | Date | undefined}
+        />
+      ),
     },
   ];
 };

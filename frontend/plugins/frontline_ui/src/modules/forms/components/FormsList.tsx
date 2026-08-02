@@ -113,9 +113,9 @@ export const FormsMoreColumnCell = ({
   const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
-  const [, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </DropdownMenu.Trigger>
@@ -156,7 +156,7 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
-    header: () => {
+    header: function FormNameHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
     },
@@ -178,7 +178,7 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'status',
     id: 'status',
-    header: () => {
+    header: function FormStatusHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
     },
@@ -197,11 +197,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'channelId',
     id: 'channelId',
-    header: () => {
+    header: function FormChannelHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
     },
-    cell: ({ cell }) => {
+    cell: function FormChannelCell({ cell }) {
       const { t } = useTranslation('frontline');
       return (
         <RecordTableInlineCell>
@@ -216,7 +216,7 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'tagIds',
     id: 'tagIds',
-    header: () => {
+    header: function FormTagsHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('tags')} icon={IconTag} />;
     },
@@ -235,7 +235,7 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdUserId',
     id: 'createdUserId',
-    header: () => {
+    header: function FormCreatedByHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
     },
@@ -250,7 +250,7 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdDate',
     id: 'createdDate',
-    header: () => {
+    header: function FormCreatedAtHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
     },

@@ -39,8 +39,8 @@
 
 ### Provides
 
-- Module Federation exposes for configuration, Frontline, settings,
-  knowledge base, selectors, and widgets.
+- Module Federation exposes configuration, Frontline, settings, knowledge-base,
+  selector, and widget modules.
 - Navigation modules under `frontline`, `frontline/ticket`, and
   `frontline/knowledgebase`.
 
@@ -74,6 +74,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-03` — `Resolve table-selector review findings`
+
+- **Summary:** Hardened translated form columns, call-duration rendering, call-queue cells, and knowledge-base article table behavior.
+- **Affected areas:** `src/modules/forms`, `src/modules/integrations/call`, `src/modules/knowledgebase`, `src/pages/CallDetailPage.tsx`
+- **Contracts changed:** `None`
 
 ### `2026-08-03` — `Standardize Frontline table column selectors`
 
