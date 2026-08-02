@@ -154,9 +154,7 @@ const SortableMenuRow = React.memo(
         useSortable({
           id: original?._id,
           disabled:
-            isDraggingAny && activeId
-              ? !isDraggingItem && !isSibling
-              : false,
+            isDraggingAny && activeId ? !isDraggingItem && !isSibling : false,
         });
 
       const setRowRef = useCallback(
