@@ -10,6 +10,7 @@ import { InsuranceVendor } from '~/modules/insurance/types';
 import { createCreatedAtColumn } from '../shared';
 import { VendorsMoreColumn } from './VendorsMoreColumn';
 
+/** Builds vendor table columns from labels translated by the owning component. */
 export const createVendorsColumns = (labels: {
   vendor: string;
   products: string;
