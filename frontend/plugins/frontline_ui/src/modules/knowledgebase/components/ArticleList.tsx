@@ -132,7 +132,10 @@ function getArticleColumns(
       size: 220,
       header: ArticleTitleHeader,
       cell: ({ row }) => (
-        <ArticleTitleCell article={row.original} onEditArticle={onEditArticle} />
+        <ArticleTitleCell
+          article={row.original}
+          onEditArticle={onEditArticle}
+        />
       ),
     },
     {
