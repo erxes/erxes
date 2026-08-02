@@ -27,12 +27,12 @@
 
 ## Architecture
 
-| Area       | Path                                                       | Responsibility                                |
-| ---------- | ---------------------------------------------------------- | --------------------------------------------- |
-| Federation | `frontend/plugins/payment_ui/module-federation.config.ts`  | Exposes configuration, settings, and widgets. |
-| Payment    | `frontend/plugins/payment_ui/src/modules/payment`          | Owns invoice and payment module UI.           |
-| Settings   | `frontend/plugins/payment_ui/src/modules/settings/payment` | Owns payment-method settings UI.              |
-| Widgets    | `frontend/plugins/payment_ui/src/widgets`                  | Owns payment extension widgets.               |
+| Area | Path | Responsibility |
+| --- | --- | --- |
+| Federation | `frontend/plugins/payment_ui/module-federation.config.ts` | Exposes configuration, settings, and widgets. |
+| Payment | `frontend/plugins/payment_ui/src/modules/payment` | Owns invoice and payment module UI. |
+| Settings | `frontend/plugins/payment_ui/src/modules/settings/payment` | Owns payment-method settings UI. |
+| Widgets | `frontend/plugins/payment_ui/src/widgets` | Owns payment extension widgets. |
 
 ## Contracts
 
