@@ -16,8 +16,7 @@ import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
 
-/** Renders the created-date header with an optional pretranslated label. */
-const CreatedAtHeader = ({ label }: { label?: string }) => {
+function CreatedAtHeader({ label }: { label?: string }) {
   const { t } = useTranslation('insurance');
   return (
     <RecordTable.InlineHead
@@ -25,7 +24,7 @@ const CreatedAtHeader = ({ label }: { label?: string }) => {
       label={label ?? t('created-at')}
     />
   );
-};
+}
 
 // Generic more column factory
 export const createEntityMoreColumn = <T,>(
