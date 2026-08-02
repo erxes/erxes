@@ -18,7 +18,6 @@ type TFxaIncomeInstanceMatch = Pick<
   '_id' | 'fixedAssetId' | 'code' | 'sequence'
 > & {
   transactionDetailId?: string;
-  acquisitionTrDetailId?: string;
 };
 
 type TFxaOptionalLocationUpdate = {
@@ -32,22 +31,11 @@ export interface IFxaInstanceModel extends Model<IFxaInstanceDocument> {
   getCodeSequence(code: string, fixedAssetCode: string): number;
   getSequenceState(
     fixedAssets: TFxaSequenceAsset[],
-    excludeTransactionId?: string,
   ): Promise<TFxaSequenceState>;
-  buildIncomeSelector(
-    transactionId: string,
-    detailIds?: string[],
-  ): Record<string, unknown>;
   findIncomeInstances(
-    transactionId: string,
-    detailIds?: string[],
+    instanceIds: string[],
   ): Promise<TFxaIncomeInstanceMatch[]>;
   removeByIds(instanceIds: string[]): Promise<void>;
-  findAvailableSelected(
-    instanceIds: string[],
-    transactionId: string,
-    activeStatus: string,
-  ): Promise<IFxaInstanceDocument[]>;
   findByIds(instanceIds: string[]): Promise<IFxaInstanceDocument[]>;
   listByFilter(
     filter: Record<string, unknown>,
@@ -72,15 +60,12 @@ export interface IFxaInstanceModel extends Model<IFxaInstanceDocument> {
   applyDisposal(params: {
     instanceId: string;
     status: string;
-    transactionId: string;
-    date: Date;
     userId: string;
   }): Promise<void>;
   applyMove(params: {
     instanceId: string;
     branchId: string;
     departmentId?: string;
-    transactionId: string;
     userId: string;
   }): Promise<void>;
 }
@@ -122,7 +107,6 @@ export const loadFxaInstanceClass = () => {
     public static async getSequenceState(
       this: IFxaInstanceModel,
       fixedAssets: TFxaSequenceAsset[],
-      excludeTransactionId?: string,
     ) {
       const maxSequences = new Map<string, number>();
       const usedSequences = new Map<string, Set<number>>();
@@ -131,11 +115,6 @@ export const loadFxaInstanceClass = () => {
         const selector: Record<string, unknown> = {
           fixedAssetId: fixedAsset._id,
         };
-
-        if (excludeTransactionId) {
-          selector.acquisitionTransactionId = { $ne: excludeTransactionId };
-          selector.transactionId = { $ne: excludeTransactionId };
-        }
 
         const instances = await this.find(selector)
           .select({ code: 1, sequence: 1 })
@@ -165,32 +144,15 @@ export const loadFxaInstanceClass = () => {
       return { maxSequences, usedSequences };
     }
 
-    public static buildIncomeSelector(
-      this: IFxaInstanceModel,
-      transactionId: string,
-      detailIds?: string[],
-    ) {
-      const selector: Record<string, unknown> = {
-        acquisitionTransactionId: transactionId,
-      };
-      const filteredDetailIds = (detailIds || []).filter(Boolean);
-
-      if (filteredDetailIds.length) {
-        selector.$or = [
-          { acquisitionTrDetailId: { $in: filteredDetailIds } },
-          { transactionDetailId: { $in: filteredDetailIds } },
-        ];
-      }
-
-      return selector;
-    }
-
     public static async findIncomeInstances(
       this: IFxaInstanceModel,
-      transactionId: string,
-      detailIds?: string[],
+      instanceIds: string[],
     ) {
-      return this.find(this.buildIncomeSelector(transactionId, detailIds))
+      if (!instanceIds.length) {
+        return [];
+      }
+
+      return this.find({ _id: { $in: instanceIds } })
         .sort({ fixedAssetId: 1, transactionDetailId: 1, sequence: 1, code: 1 })
         .select({
           _id: 1,
@@ -198,7 +160,6 @@ export const loadFxaInstanceClass = () => {
           code: 1,
           sequence: 1,
           transactionDetailId: 1,
-          acquisitionTrDetailId: 1,
         })
         .lean();
     }
@@ -212,22 +173,6 @@ export const loadFxaInstanceClass = () => {
       }
 
       await this.deleteMany({ _id: { $in: instanceIds } });
-    }
-
-    public static async findAvailableSelected(
-      this: IFxaInstanceModel,
-      instanceIds: string[],
-      transactionId: string,
-      activeStatus: string,
-    ) {
-      return this.find({
-        _id: { $in: instanceIds },
-        $or: [
-          { status: activeStatus },
-          { transactionId },
-          { disposalTransactionId: transactionId },
-        ],
-      }).lean();
     }
 
     public static async findByIds(
@@ -305,12 +250,6 @@ export const loadFxaInstanceClass = () => {
             status,
             updatedAt: new Date(),
           },
-          $unset: {
-            transactionId: '',
-            disposalDate: '',
-            disposalTransactionId: '',
-            disposalTrDetailId: '',
-          },
         },
       );
     }
@@ -320,17 +259,9 @@ export const loadFxaInstanceClass = () => {
       instanceId: string,
       fields: TFxaOptionalLocationUpdate,
     ) {
-      const update = buildOptionalFieldUpdate(fields);
-
       await this.updateOne(
         { _id: instanceId },
-        {
-          ...update,
-          $unset: {
-            ...update.$unset,
-            transactionId: '',
-          },
-        },
+        buildOptionalFieldUpdate(fields),
       );
     }
 
@@ -339,14 +270,10 @@ export const loadFxaInstanceClass = () => {
       {
         instanceId,
         status,
-        transactionId,
-        date,
         userId,
       }: {
         instanceId: string;
         status: string;
-        transactionId: string;
-        date: Date;
         userId: string;
       },
     ) {
@@ -355,9 +282,6 @@ export const loadFxaInstanceClass = () => {
         {
           $set: {
             status,
-            transactionId,
-            disposalDate: date,
-            disposalTransactionId: transactionId,
             modifiedBy: userId,
             updatedAt: new Date(),
           },
@@ -371,13 +295,11 @@ export const loadFxaInstanceClass = () => {
         instanceId,
         branchId,
         departmentId,
-        transactionId,
         userId,
       }: {
         instanceId: string;
         branchId: string;
         departmentId?: string;
-        transactionId: string;
         userId: string;
       },
     ) {
@@ -387,7 +309,6 @@ export const loadFxaInstanceClass = () => {
           $set: {
             branchId,
             departmentId,
-            transactionId,
             modifiedBy: userId,
             updatedAt: new Date(),
           },

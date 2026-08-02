@@ -21,15 +21,8 @@ export interface IFxaInstance {
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
-  locationId?: string;
 
-  transactionId?: string;
   transactionDetailId?: string;
-  acquisitionTransactionId?: string;
-  acquisitionTrDetailId?: string;
-  disposalDate?: Date;
-  disposalTransactionId?: string;
-  disposalTrDetailId?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

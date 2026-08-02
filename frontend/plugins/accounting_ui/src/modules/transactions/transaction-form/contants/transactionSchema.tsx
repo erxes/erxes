@@ -402,7 +402,6 @@ export const fxaInstanceInputSchema = z.object({
   branchId: undefed(z.string()),
   departmentId: undefed(z.string()),
   responsibleUserId: undefed(z.string()),
-  locationId: undefed(z.string()),
   originalCost: undefed(z.number()),
   depreciationStartDate: undefed(z.date()),
 });

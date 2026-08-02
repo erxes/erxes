@@ -23,15 +23,8 @@ export const types = `
     branchId: String
     departmentId: String
     responsibleUserId: String
-    locationId: String
 
-    transactionId: String
     transactionDetailId: String
-    acquisitionTransactionId: String
-    acquisitionTrDetailId: String
-    disposalDate: Date
-    disposalTransactionId: String
-    disposalTrDetailId: String
 
     createdAt: Date
     updatedAt: Date

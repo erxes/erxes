@@ -1,5 +1,6 @@
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { FXA_LOG_EVENT_TYPES } from '@/fixedAssets/@types/constants';
 
 const fixedAssets = {
   fxaInstances: async (
@@ -45,13 +46,30 @@ const fixedAssets = {
       filter.departmentId = departmentId;
     }
 
-    const transactionFilters = [
-      transactionId ? { transactionId } : undefined,
-      disposalTransactionId ? { disposalTransactionId } : undefined,
-    ].filter(Boolean);
+    const transactionIds = Array.from(
+      new Set([transactionId, disposalTransactionId].filter(Boolean)),
+    );
 
-    if (transactionFilters.length) {
-      filter.$or = transactionFilters;
+    if (transactionIds.length) {
+      const logsByTransaction = await Promise.all(
+        transactionIds.map((id) =>
+          models.FxaInstanceLogs.findByTransaction(id || '', [
+            FXA_LOG_EVENT_TYPES.ACQUISITION,
+            FXA_LOG_EVENT_TYPES.DISPOSAL,
+            FXA_LOG_EVENT_TYPES.SALE,
+            FXA_LOG_EVENT_TYPES.MOVE,
+          ]),
+        ),
+      );
+      const transactionInstanceIds = Array.from(
+        new Set(logsByTransaction.flat().map((log) => log.fxaInstanceId)),
+      );
+
+      if (!transactionInstanceIds.length) {
+        return [];
+      }
+
+      filter._id = { $in: transactionInstanceIds };
     }
 
     return models.FxaInstances.listByFilter(filter);

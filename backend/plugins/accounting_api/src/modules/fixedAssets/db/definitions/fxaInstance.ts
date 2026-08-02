@@ -81,41 +81,11 @@ export const fxaInstanceSchema = new Schema({
     label: 'Responsible user',
     index: true,
   },
-  // Одоогийн ашиглалтын байршил
-  locationId: { type: String, optional: true, label: 'Location' },
-  // Энэ instance-ийг үүсгэсэн эсвэл сүүлд холбосон гүйлгээ
-  transactionId: { type: String, optional: true, label: 'Transaction' },
-  // Энэ instance-ийг үүсгэсэн эсвэл сүүлд холбосон гүйлгээний мөр
+  // Анх орлогодсон accounting transaction detail-ийн холбоос
   transactionDetailId: {
     type: String,
     optional: true,
     label: 'Transaction detail',
-  },
-  // Анх орлогодсон гүйлгээ
-  acquisitionTransactionId: {
-    type: String,
-    optional: true,
-    label: 'Acquisition transaction',
-  },
-  // Анх орлогодсон гүйлгээний мөр
-  acquisitionTrDetailId: {
-    type: String,
-    optional: true,
-    label: 'Acquisition transaction detail',
-  },
-  // Зарлага, борлуулалт, данснаас хасалт хийсэн огноо
-  disposalDate: { type: Date, optional: true, label: 'Disposal date' },
-  // Зарлага, борлуулалт, данснаас хасалтын гүйлгээ
-  disposalTransactionId: {
-    type: String,
-    optional: true,
-    label: 'Disposal transaction',
-  },
-  // Зарлага, борлуулалт, данснаас хасалтын гүйлгээний мөр
-  disposalTrDetailId: {
-    type: String,
-    optional: true,
-    label: 'Disposal transaction detail',
   },
   // Бүртгэл үүсгэсэн хэрэглэгч
   createdBy: { type: String, optional: true, label: 'Created user' },
@@ -136,4 +106,4 @@ fxaInstanceSchema.index(
   },
 );
 fxaInstanceSchema.index({ branchId: 1, departmentId: 1, status: 1 });
-fxaInstanceSchema.index({ transactionId: 1, transactionDetailId: 1 });
+fxaInstanceSchema.index({ transactionDetailId: 1 });

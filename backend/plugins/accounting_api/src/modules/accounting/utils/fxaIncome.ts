@@ -40,12 +40,10 @@ const assignMissingInstanceSequences = async (
   models: IModels,
   inputs: TFxaInstanceInput[],
   fixedAssetsById: Map<string, TFixedAssetSnapshot>,
-  transactionId?: string,
 ) => {
   const { maxSequences, usedSequences } =
     await models.FxaInstances.getSequenceState(
       Array.from(fixedAssetsById.values()),
-      transactionId,
     );
 
   for (const input of inputs) {
@@ -65,7 +63,11 @@ const assignMissingInstanceSequences = async (
     const parsedSequence = Math.max(assetCodeSequence, idCodeSequence);
     let sequence = input._id ? input.sequence || parsedSequence || 0 : 0;
 
-    if (!sequence || used.has(sequence)) {
+    if (input._id && sequence) {
+      used.delete(sequence);
+    }
+
+    if (!sequence || (!input._id && used.has(sequence))) {
       sequence = (maxSequences.get(input.fixedAssetId) || 0) + 1;
     }
 
@@ -175,12 +177,32 @@ const buildIncomeInstanceDoc = ({
     departmentId:
       input.departmentId || detail?.departmentId || transaction.departmentId,
     responsibleUserId: input.responsibleUserId,
-    locationId: input.locationId,
-    transactionId: transaction._id,
     transactionDetailId,
-    acquisitionTransactionId: transaction._id,
-    acquisitionTrDetailId: transactionDetailId,
   };
+};
+
+const findAcquisitionInstances = async (
+  models: IModels,
+  transaction: ITransactionDocument,
+  detailIds?: string[],
+) => {
+  const logs = await models.FxaInstanceLogs.findByTransaction(
+    transaction._id,
+    FXA_LOG_EVENT_TYPES.ACQUISITION,
+  );
+  const filteredDetailIds = new Set((detailIds || []).filter(Boolean));
+  const instanceIds = logs
+    .filter(
+      (log) =>
+        !filteredDetailIds.size ||
+        (log.transactionDetailId &&
+          filteredDetailIds.has(log.transactionDetailId)),
+    )
+    .map((log) => log.fxaInstanceId);
+
+  return models.FxaInstances.findIncomeInstances(
+    Array.from(new Set(instanceIds)),
+  );
 };
 
 const buildMigrationAdjustmentId = (transactionId: string) =>
@@ -261,8 +283,9 @@ export const removeFxaIncomeInstances = async (
   transaction: ITransactionDocument,
   options: TFxaIncomeInstanceRemoveOptions = {},
 ) => {
-  const instances = await models.FxaInstances.findIncomeInstances(
-    transaction._id,
+  const instances = await findAcquisitionInstances(
+    models,
+    transaction,
     options.detailIds,
   );
 
@@ -282,9 +305,7 @@ const matchFxaIncomeInputsToExisting = async (
   transaction: ITransactionDocument,
   inputs: TFxaInstanceInput[],
 ) => {
-  const existingInstances = await models.FxaInstances.findIncomeInstances(
-    transaction._id,
-  );
+  const existingInstances = await findAcquisitionInstances(models, transaction);
   const existingById = new Map(
     existingInstances.map((instance) => [instance._id, instance]),
   );
@@ -294,7 +315,7 @@ const matchFxaIncomeInputsToExisting = async (
   for (const instance of existingInstances) {
     const key = getIncomeInstanceMatchKey(
       instance.fixedAssetId,
-      instance.acquisitionTrDetailId || instance.transactionDetailId,
+      instance.transactionDetailId,
     );
     existingByKey.set(key, [...(existingByKey.get(key) || []), instance]);
   }
@@ -344,12 +365,7 @@ export const syncFxaIncomeInstances = async (
   const date = transaction.date || new Date();
   const fixedAssetsById = await getFixedAssetsById(models, inputs);
   const migrationAdjustmentDetails: IAdjustFxaDetail[] = [];
-  await assignMissingInstanceSequences(
-    models,
-    inputs,
-    fixedAssetsById,
-    transaction._id,
-  );
+  await assignMissingInstanceSequences(models, inputs, fixedAssetsById);
 
   await removeFxaIncomeInstanceIds(models, removedInstanceIds);
   await models.FxaInstanceLogs.deleteByTransaction(

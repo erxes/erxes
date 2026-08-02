@@ -132,7 +132,6 @@ export const syncFxaMoveInstances = async (
       instanceId: instance._id,
       branchId: destinationBranchId,
       departmentId: destinationDepartmentId,
-      transactionId: transaction._id,
       userId,
     });
 

@@ -34,28 +34,10 @@ export const removeFxaDisposalInstances = async (
     FXA_LOG_EVENT_TYPES.DISPOSAL,
     FXA_LOG_EVENT_TYPES.SALE,
   ]);
-  const restoredInstanceIds = new Set<string>();
-
   for (const log of logs) {
     await models.FxaInstances.restoreDisposalInstance({
       instanceId: log.fxaInstanceId,
       status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
-    });
-    restoredInstanceIds.add(log.fxaInstanceId);
-  }
-
-  const linkedInstances = await models.FxaInstances.listByFilter({
-    disposalTransactionId: transaction._id,
-  });
-
-  for (const instance of linkedInstances) {
-    if (restoredInstanceIds.has(instance._id)) {
-      continue;
-    }
-
-    await models.FxaInstances.restoreDisposalInstance({
-      instanceId: instance._id,
-      status: FXA_INSTANCE_STATUSES.ACTIVE,
     });
   }
 
@@ -279,8 +261,6 @@ export const syncFxaDisposalInstances = async (
     await models.FxaInstances.applyDisposal({
       instanceId: instance._id,
       status,
-      transactionId: transaction._id,
-      date,
       userId,
     });
 

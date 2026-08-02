@@ -38,7 +38,6 @@ type TFxaIncomeInstance = {
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
-  locationId?: string;
   originalCost?: number;
 };
 
@@ -98,7 +97,6 @@ const buildIncomeInstance = ({
     departmentId:
       existing?.departmentId || detail.departmentId || trDoc.departmentId,
     responsibleUserId: existing?.responsibleUserId || '',
-    locationId: existing?.locationId || '',
     originalCost: detail.unitPrice || existing?.originalCost || 0,
   };
 };

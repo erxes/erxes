@@ -1,6 +1,9 @@
 import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { FXA_INSTANCE_STATUSES } from '@/fixedAssets/@types/constants';
+import {
+  FXA_INSTANCE_STATUSES,
+  FXA_LOG_EVENT_TYPES,
+} from '@/fixedAssets/@types/constants';
 import { IFixedAsset } from '@/fixedAssets/@types/fixedAsset';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
 
@@ -14,7 +17,6 @@ export type TFxaInstanceInput = {
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
-  locationId?: string;
   originalCost?: number;
   depreciationStartDate?: Date;
   openingAccumulatedDepreciation?: number;
@@ -159,17 +161,28 @@ export const getSelectedInstanceIds = async (
     throw new Error('Selected fixed asset instances must match detail counts');
   }
 
-  const instances = await models.FxaInstances.findAvailableSelected(
-    uniqueIds,
-    transaction._id || '',
-    FXA_INSTANCE_STATUSES.ACTIVE,
+  const instances = await models.FxaInstances.findByIds(uniqueIds);
+  const transactionLogs = transaction._id
+    ? await models.FxaInstanceLogs.findByTransaction(transaction._id, [
+        FXA_LOG_EVENT_TYPES.DISPOSAL,
+        FXA_LOG_EVENT_TYPES.SALE,
+        FXA_LOG_EVENT_TYPES.MOVE,
+      ])
+    : [];
+  const transactionInstanceIds = new Set(
+    transactionLogs.map((log) => log.fxaInstanceId),
+  );
+  const availableInstances = instances.filter(
+    (instance) =>
+      instance.status === FXA_INSTANCE_STATUSES.ACTIVE ||
+      transactionInstanceIds.has(instance._id),
   );
 
-  if (instances.length !== uniqueIds.length) {
+  if (availableInstances.length !== uniqueIds.length) {
     throw new Error('Selected fixed asset instances are not available');
   }
 
-  const selectedByAsset = getSelectedInstanceCountsByAsset(instances);
+  const selectedByAsset = getSelectedInstanceCountsByAsset(availableInstances);
 
   for (const [fixedAssetId, count] of expectedByAsset) {
     if ((selectedByAsset.get(fixedAssetId) || 0) !== count) {
