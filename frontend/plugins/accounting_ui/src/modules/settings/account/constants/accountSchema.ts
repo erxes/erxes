@@ -1,10 +1,6 @@
 import { CurrencyCode } from 'erxes-ui';
 import { z } from 'zod';
-import {
-  AccountKind,
-  AccountStatus,
-  JournalEnum,
-} from '../types/Account';
+import { AccountKind, AccountStatus, JournalEnum } from '../types/Account';
 import { undefed } from '~/modules/types/utils';
 
 export const accountSchema = z
@@ -21,10 +17,12 @@ export const accountSchema = z
     isTemp: z.boolean(),
     isOutBalance: z.boolean(),
     status: z.nativeEnum(AccountStatus).optional(),
-    extra: z.object({
-      bank: undefed(z.string()),
-      bankAccount: undefed(z.string()),
-    }).nullish(),
+    extra: z
+      .object({
+        bank: undefed(z.string()),
+        bankAccount: undefed(z.string()),
+      })
+      .nullish(),
   })
   .superRefine((data, ctx) => {
     if (data.journal === JournalEnum.BANK) {
