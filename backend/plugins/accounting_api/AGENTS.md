@@ -27,12 +27,12 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| ---- | ---- | -------------- |
-| Runtime | `src/main.ts` | Starts the accounting API plugin service. |
-| Accounting transactions | `src/modules/accounting` | Owns transaction schemas, models, GraphQL resolvers, routes, and journal utilities. |
-| Fixed assets | `src/modules/fixedAssets` | Owns fixed asset master data, instances, logs, and adjustment models. |
-| Erkhet migration | `src/modules/accounting/routes/erkhetMigration.ts` | Validates migration batches, resolves external codes to erxes IDs, and imports transactions. |
+| Area                    | Path                                               | Responsibility                                                                               |
+| ----------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Runtime                 | `src/main.ts`                                      | Starts the accounting API plugin service.                                                    |
+| Accounting transactions | `src/modules/accounting`                           | Owns transaction schemas, models, GraphQL resolvers, routes, and journal utilities.          |
+| Fixed assets            | `src/modules/fixedAssets`                          | Owns fixed asset master data, instances, logs, and adjustment models.                        |
+| Erkhet migration        | `src/modules/accounting/routes/erkhetMigration.ts` | Validates migration batches, resolves external codes to erxes IDs, and imports transactions. |
 
 ## Contracts
 
