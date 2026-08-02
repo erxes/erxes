@@ -76,7 +76,7 @@
 
 ### `2026-08-03` — `Resolve table-selector review findings`
 
-- **Summary:** Hardened translated form columns, call-duration rendering, call-queue cells, ticket actions, and knowledge-base article table behavior.
+- **Summary:** Hardened translated form columns, call-duration rendering, call-queue cells, ticket actions, knowledge-base article behavior, and component prop immutability.
 - **Affected areas:** `src/modules/forms`, `src/modules/integrations/call`, `src/modules/knowledgebase`, `src/modules/ticket`, `src/pages/CallDetailPage.tsx`
 - **Contracts changed:** `None`
 

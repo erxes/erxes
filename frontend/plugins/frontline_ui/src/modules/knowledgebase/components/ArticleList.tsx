@@ -35,10 +35,10 @@ function ArticleTitleHeader() {
 function ArticleTitleCell({
   article,
   onEditArticle,
-}: {
+}: Readonly<{
   article: Article;
   onEditArticle: (article: Article) => void;
-}) {
+}>) {
   const { t } = useTranslation('frontline');
 
   return (
@@ -57,7 +57,7 @@ function ArticleStatusHeader() {
   return <RecordTable.InlineHead icon={IconEye} label={t('status')} />;
 }
 
-function ArticleStatusCell({ article }: { article: Article }) {
+function ArticleStatusCell({ article }: Readonly<{ article: Article }>) {
   const status = String(article.status || 'unknown').toLowerCase();
   const isPublished = status.includes('publish');
   const isDraft = status.includes('draft');
@@ -98,7 +98,9 @@ function ArticleCreatedHeader() {
   return <RecordTable.InlineHead icon={IconCalendar} label={t('kb-created')} />;
 }
 
-function ArticleCreatedDateCell({ article }: { article: Article }) {
+function ArticleCreatedDateCell({
+  article,
+}: Readonly<{ article: Article }>) {
   const { t, i18n } = useTranslation('frontline');
 
   if (!article.createdDate) {
@@ -169,10 +171,10 @@ function getArticleColumns(
 function ArticleCommandBar({
   onEditArticle,
   refetch,
-}: {
+}: Readonly<{
   onEditArticle: (article: Article) => void;
   refetch: () => void;
-}) {
+}>) {
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const [removeArticle] = useMutation(REMOVE_ARTICLE);
