@@ -29,6 +29,7 @@ export const ProductsRecordTable = ({
       data={insuranceProducts || []}
       loading={loading}
       sessionKey="products-cursor"
+      tableId="insurance_products_record_table"
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconPackage size={64} />,

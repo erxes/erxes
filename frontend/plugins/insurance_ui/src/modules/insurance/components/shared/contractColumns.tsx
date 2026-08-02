@@ -25,11 +25,11 @@ type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
 
 // Shared column definitions for contract tables
 export const createMoreColumn = (
-  size: number = 33,
+  size = 33,
 ): ColumnDef<InsuranceContract> => ({
   id: 'more',
   accessorKey: 'more',
-  header: '',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ({ cell }) => <ContractMoreColumn cell={cell} />,
   size,
 });

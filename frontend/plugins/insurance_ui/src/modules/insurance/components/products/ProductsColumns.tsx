@@ -26,7 +26,7 @@ export const createProductsColumns = (
   {
     id: 'more',
     accessorKey: 'more',
-    header: '',
+    header: () => <RecordTable.ColumnSelector />,
     cell: ({ cell }) => (
       <ProductsMoreColumn cell={cell} onEdit={onEdit} onDelete={onDelete} />
     ),

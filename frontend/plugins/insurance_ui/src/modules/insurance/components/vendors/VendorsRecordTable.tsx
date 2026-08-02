@@ -14,6 +14,7 @@ export const VendorsRecordTable = () => {
       data={vendors || []}
       loading={loading}
       sessionKey="vendors-cursor"
+      tableId="insurance_vendors_record_table"
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconBuilding size={64} />,

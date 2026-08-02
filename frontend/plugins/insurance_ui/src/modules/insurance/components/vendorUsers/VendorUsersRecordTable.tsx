@@ -45,6 +45,7 @@ export const VendorUsersRecordTable = ({ vendorId }: VendorUsersRecordTableProps
         data={vendorUsers || []}
         className="m-3"
         stickyColumns={['more', 'checkbox', 'name']}
+        tableId="insurance_vendor_users_record_table"
       >
         <RecordTable.CursorProvider
           hasPreviousPage={false}

@@ -18,7 +18,7 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
   {
     id: 'more',
     accessorKey: 'more',
-    header: '',
+    header: () => <RecordTable.ColumnSelector />,
     cell: ({ cell }) => <VendorsMoreColumn cell={cell} />,
     size: 33,
   },
