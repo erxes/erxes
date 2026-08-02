@@ -73,7 +73,7 @@
 
 ### `2026-08-03` — `Resolve insurance table review findings`
 
-- **Summary:** Moved translated labels out of TanStack callbacks and consolidated shared created-date column rendering.
+- **Summary:** Moved translated labels out of TanStack callbacks, consolidated shared created-date rendering, and marked component props read-only.
 - **Affected areas:** `src/modules/insurance/components/products`, `src/modules/insurance/components/vendors`, `src/modules/insurance/components/shared`
 - **Contracts changed:** `None`
 

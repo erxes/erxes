@@ -16,7 +16,7 @@ import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
 
-function CreatedAtHeader({ label }: { label?: string }) {
+function CreatedAtHeader({ label }: Readonly<{ label?: string }>) {
   const { t } = useTranslation('insurance');
   return (
     <RecordTable.InlineHead
