@@ -98,9 +98,7 @@ function ArticleCreatedHeader() {
   return <RecordTable.InlineHead icon={IconCalendar} label={t('kb-created')} />;
 }
 
-function ArticleCreatedDateCell({
-  article,
-}: Readonly<{ article: Article }>) {
+function ArticleCreatedDateCell({ article }: Readonly<{ article: Article }>) {
   const { t, i18n } = useTranslation('frontline');
 
   if (!article.createdDate) {
