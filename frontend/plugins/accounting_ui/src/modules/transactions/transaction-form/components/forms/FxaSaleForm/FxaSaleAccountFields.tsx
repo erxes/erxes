@@ -52,7 +52,7 @@ export const FxaSaleAccountFields = ({
               onValueChange={field.onChange}
               defaultFilter={{
                 journals: [JournalEnum.FIXED_ASSET],
-                permissionMode: 'write'
+                permissionMode: 'write',
               }}
             />
           </Form.Control>
@@ -73,7 +73,7 @@ export const FxaSaleAccountFields = ({
                 onValueChange={field.onChange}
                 defaultFilter={{
                   journals: [JournalEnum.FXA_FOLLOW],
-                  permissionMode: 'write'
+                  permissionMode: 'write',
                 }}
               />
             </Form.Control>
@@ -94,7 +94,7 @@ export const FxaSaleAccountFields = ({
               onValueChange={field.onChange}
               defaultFilter={{
                 journals: [JournalEnum.FXA_FOLLOW],
-                permissionMode: 'write'
+                permissionMode: 'write',
               }}
             />
           </Form.Control>
