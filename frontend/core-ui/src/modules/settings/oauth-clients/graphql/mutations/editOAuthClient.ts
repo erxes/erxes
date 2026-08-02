@@ -9,6 +9,7 @@ const EDIT_OAUTH_CLIENT = gql`
     $type: OAuthClientAppType!
     $accessTokenLifetime: OAuthClientAccessTokenLifetime
     $redirectUrls: [String!]
+    $allowedPublicOperationIds: [String!]
   ) {
     oauthClientAppsEdit(
       _id: $_id
@@ -18,6 +19,7 @@ const EDIT_OAUTH_CLIENT = gql`
       type: $type
       accessTokenLifetime: $accessTokenLifetime
       redirectUrls: $redirectUrls
+      allowedPublicOperationIds: $allowedPublicOperationIds
     ) {
       _id
       name
@@ -27,6 +29,7 @@ const EDIT_OAUTH_CLIENT = gql`
       type
       accessTokenLifetime
       redirectUrls
+      allowedPublicOperationIds
       status
       lastUsedAt
       createdAt

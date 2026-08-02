@@ -209,5 +209,12 @@
     "error": "Алдаа",
     "confirm-delete-field": "Энэ талбарыг устгахдаа итгэлтэй байна уу?",
     "confirm-delete-group": "Энэ талбарын бүлгийг устгахдаа итгэлтэй байна уу?"
+  },
+  "oauth-clients": {
+    "public-operations": "Нийтийн үйлдлүүд",
+    "public-operations-description": "Энэ клиент /public/graphql-ээр дуудах боломжтой нийтлэгдсэн үйлдлүүдийг сонгоно уу.",
+    "loading-public-operations": "Нийтийн үйлдлүүдийг ачаалж байна",
+    "public-operations-load-failed": "Нийтийн үйлдлүүдийг ачаалж чадсангүй",
+    "no-public-operations": "Нийтлэгдсэн нийтийн үйлдэл алга"
   }
 }

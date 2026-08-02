@@ -15,16 +15,42 @@ import { generateModels, IModels } from '../connectionResolver';
 
 dotenv.config();
 
+export interface GatewayPrincipal {
+  _id?: string;
+  loginToken?: string;
+  sessionCode?: string | string[];
+  oauthClientId?: string;
+  oauthScopes?: string[];
+  oauthAllowedPublicOperationIds?: string[];
+  [key: string]: unknown;
+}
+
+interface OAuthAccessTokenPayload extends jwt.JwtPayload {
+  typ?: string;
+  user?: { _id?: string };
+  clientId?: string;
+  subdomain?: string;
+  scope?: string;
+}
+
+export type GatewayRequest = Request & {
+  user?: GatewayPrincipal;
+  cpUser?: GatewayPrincipal;
+  clientPortal?: GatewayPrincipal;
+};
+
 const DEBUG_GATEWAY_AUTH = process.env.DEBUG_GATEWAY_AUTH === 'true';
 
 const shouldDebugAuth = (req: Request) =>
-  DEBUG_GATEWAY_AUTH && req.originalUrl.startsWith('/graphql');
+  DEBUG_GATEWAY_AUTH &&
+  (req.originalUrl.startsWith('/graphql') ||
+    req.originalUrl.startsWith('/public/graphql'));
 
 const hashToken = (token: string) =>
   createHash('sha256').update(token).digest('hex').slice(0, 12);
 
 const debugAuth = (
-  req: Request & { user?: any; cpUser?: any; clientPortal?: any },
+  req: GatewayRequest,
   event: string,
   extra: Record<string, unknown> = {},
 ) => {
@@ -64,7 +90,7 @@ const getBearerToken = (req: Request) => {
 
 // skipcq: JS-R1005 — legacy middleware complexity
 export default async function userMiddleware(
-  req: Request & { user?: any; cpUser?: any; clientPortal?: any },
+  req: GatewayRequest,
   res: Response,
   next: NextFunction,
 ) {
@@ -186,19 +212,6 @@ export default async function userMiddleware(
         { $set: { lastUsedAt: new Date() } },
       );
 
-      // Forward the app as an authenticated system principal so plugin
-      // resolvers behind login/permission wrappers accept machine calls.
-      // Mirrors the JWT path's setUserHeader below; without this a valid
-      // app token authenticates the request but every wrapped mutation
-      // still fails "Login required".
-      if (!req.user) {
-        req.user = {
-          _id: `app:${appInDb._id}`,
-          username: appInDb.name,
-          isOwner: appInDb.allowAllPermission === true,
-        } as any;
-        setUserHeader(req.headers, req.user);
-      }
     } catch (e) {
       console.error(e);
       debugAuth(req, 'app-token-error', {
@@ -315,62 +328,88 @@ export default async function userMiddleware(
   }
 
   try {
-    // verify user token and retrieve stored user information
-    const decoded: any = jwt.verify(
+    const decodedValue = jwt.verify(
       token,
       process.env.JWT_TOKEN_SECRET || 'SECRET',
     );
-    const user = decoded.user;
 
-    if (!user?._id) {
+    if (typeof decodedValue === 'string') {
+      return next();
+    }
+
+    const decoded = decodedValue as OAuthAccessTokenPayload;
+    const tokenUser = decoded.user;
+
+    if (typeof tokenUser?._id !== 'string') {
       debugAuth(req, 'decoded-user-missing-id', {
         subdomain,
         tokenHash: hashToken(token),
-        decodedKeys: Object.keys(decoded || {}),
+        decodedKeys: Object.keys(decoded),
         durationMs: Date.now() - startedAt,
       });
       return next();
     }
 
+    const userId = tokenUser._id;
     const userDoc = await models.Users.findOne(
-      { _id: user._id },
+      { _id: userId },
       '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions',
     ).lean();
 
     if (!userDoc) {
       debugAuth(req, 'user-not-found', {
         subdomain,
-        userId: user._id,
+        userId,
         tokenHash: hashToken(token),
         durationMs: Date.now() - startedAt,
       });
       return next();
     }
 
-    const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
+    const validatedToken = await redis.get(`user_token_${userId}_${token}`);
 
-    // invalid token access.
     if (!validatedToken) {
       debugAuth(req, 'redis-user-token-missing', {
         subdomain,
-        userId: user._id,
+        userId,
         tokenHash: hashToken(token),
         durationMs: Date.now() - startedAt,
       });
       return next();
     }
 
-    // save user in request
-    req.user = { ...userDoc };
-    req.user.loginToken = token;
-    req.user.sessionCode = req.headers.sessioncode || '';
+    const authenticatedUser: GatewayPrincipal = {
+      ...userDoc,
+      loginToken: token,
+      sessionCode: req.headers.sessioncode || '',
+    };
 
     if (decoded.typ === 'oauth_access') {
-      req.user.oauthClientId = decoded.clientId || '';
-      req.user.oauthScopes = String(decoded.scope || '')
+      const clientId =
+        typeof decoded.clientId === 'string' ? decoded.clientId : '';
+      const tokenSubdomain =
+        typeof decoded.subdomain === 'string' ? decoded.subdomain : '';
+
+      if (!clientId || tokenSubdomain !== subdomain) {
+        return res.status(401).json({ error: 'Invalid OAuth access token' });
+      }
+
+      const oauthClient = await models.OAuthClientApps.findOne(
+        { clientId, status: 'active' },
+        'allowedPublicOperationIds',
+      ).lean();
+
+      if (!oauthClient) {
+        return res.status(401).json({ error: 'OAuth client is not active' });
+      }
+
+      authenticatedUser.oauthClientId = clientId;
+      authenticatedUser.oauthScopes = String(decoded.scope || '')
         .split(/\s|,/)
         .map((scope) => scope.trim())
         .filter(Boolean);
+      authenticatedUser.oauthAllowedPublicOperationIds =
+        oauthClient.allowedPublicOperationIds || [];
     }
 
     const hostname = await redis.get('hostname');
@@ -379,10 +418,11 @@ export default async function userMiddleware(
       redis.set('hostname', process.env.DOMAIN || 'http://localhost:3001');
     }
 
-    setUserHeader(req.headers, req.user);
+    req.user = authenticatedUser;
+    setUserHeader(req.headers, authenticatedUser);
     debugAuth(req, 'user-header-set', {
       subdomain,
-      userId: req.user._id,
+      userId: authenticatedUser._id,
       tokenHash: hashToken(token),
       durationMs: Date.now() - startedAt,
     });

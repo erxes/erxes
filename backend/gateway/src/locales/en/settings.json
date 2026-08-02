@@ -217,5 +217,12 @@
     "error": "Error",
     "confirm-delete-field": "Are you sure you want to delete this field?",
     "confirm-delete-group": "Are you sure you want to delete this field group?"
+  },
+  "oauth-clients": {
+    "public-operations": "Public operations",
+    "public-operations-description": "Choose which published operations this client may call through /public/graphql.",
+    "loading-public-operations": "Loading public operations",
+    "public-operations-load-failed": "Failed to load public operations",
+    "no-public-operations": "No public operations are published"
   }
 }

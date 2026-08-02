@@ -1,5 +1,4 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
-import { IOAuthClientAppDocument } from '@/auth/db/definitions/oauthClientApps';
 import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
@@ -94,6 +93,7 @@ import {
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
+  IOAuthClientAppDocument,
   INotificationDocument,
   notificationSchema,
   NotificationSettings,

@@ -3,6 +3,7 @@ import { Form, Input, Select, StringArrayInput, Textarea } from 'erxes-ui';
 import { TOAuthClientsForm } from '../hooks/useOAuthClientsForm';
 import { OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS } from '../types';
 import { OAuthClientLogoUpload } from './OAuthClientLogoUpload';
+import { PublicApiOperationSelector } from './PublicApiOperationSelector';
 
 export const OAuthClientForm = () => {
   const form = useFormContext<TOAuthClientsForm>();
@@ -162,6 +163,8 @@ export const OAuthClientForm = () => {
           </Form.Item>
         )}
       />
+
+      <PublicApiOperationSelector />
     </div>
   );
 };

@@ -12,6 +12,7 @@ export interface IOAuthClientAppDocument extends Document {
   type: OAuthClientAppType;
   accessTokenLifetime?: OAuthClientAccessTokenLifetime;
   redirectUrls: string[];
+  allowedPublicOperationIds: string[];
   secretHash?: string;
   status: OAuthClientAppStatus;
   lastUsedAt?: Date;
@@ -46,6 +47,11 @@ export const oauthClientAppSchema = new Schema(
     redirectUrls: {
       type: [String],
       label: 'Redirect urls',
+      default: [],
+    },
+    allowedPublicOperationIds: {
+      type: [String],
+      label: 'Allowed public operation ids',
       default: [],
     },
     secretHash: { type: String, label: 'Secret hash' },

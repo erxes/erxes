@@ -20,11 +20,20 @@ export interface IOAuthClientApp {
   type: OAuthClientAppType;
   accessTokenLifetime?: OAuthClientAccessTokenLifetime;
   redirectUrls: string[];
+  allowedPublicOperationIds: string[];
   status: OAuthClientAppStatus;
   lastUsedAt?: string;
   createdAt: string;
   updatedAt?: string;
   generatedSecret?: string;
+}
+
+export interface IPublicApiOperation {
+  id: string;
+  name: string;
+  description: string;
+  operationName: string;
+  kind: 'query' | 'mutation';
 }
 
 export interface IOAuthClientAppData {

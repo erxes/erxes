@@ -1,5 +1,7 @@
 import {
   appSchema,
+  IOAuthClientAppDocument,
+  oauthClientAppSchema,
   clientPortalSchema,
   cpUserSchema,
   permissionSchema,
@@ -22,6 +24,7 @@ export interface IModels {
   Users: any;
   Permissions: any;
   Apps: any;
+  OAuthClientApps: mongoose.Model<IOAuthClientAppDocument>;
   Clients: any;
   Roles: any;
   ClientPortals: any;
@@ -39,6 +42,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Users = db.model('users', userSchema);
   models.Permissions = db.model('permissions', permissionSchema);
   models.Apps = db.model('app_tokens', appSchema);
+  models.OAuthClientApps = db.model<IOAuthClientAppDocument>(
+    'oauth_client_apps',
+    oauthClientAppSchema,
+  );
   models.ClientPortals =
     db.models.client_portals || db.model('client_portals', clientPortalSchema);
 

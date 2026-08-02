@@ -41,6 +41,8 @@ import {
   stopSubscriptionServer,
 } from './subscription';
 import { isValidLocaleParams, resolveLocale } from '~/util/locales';
+import { applyPublicApi } from '~/public-api/router';
+import { refreshPublicApiRegistry } from '~/public-api/registry';
 
 dotenv.config();
 
@@ -103,6 +105,19 @@ const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
 app.use(gatewayRateLimiter);
 
 app.use(async (req, res, next) => {
+  if (req.path === '/public/graphql') {
+    return cors({
+      credentials: false,
+      origin: true,
+      methods: ['POST'],
+      allowedHeaders: [
+        'Authorization',
+        'Content-Type',
+        'X-Erxes-Process-Id',
+      ],
+    })(req, res, next);
+  }
+
   const appToken = req.headers['x-app-api-token'] as string;
   // const clientPortalToken = req.headers['x-app-token'] as string;
 
@@ -233,6 +248,8 @@ async function start() {
     console.log('Starting the router...');
     await startRouter(global.currentTargets);
     console.log('Router started successfully');
+    await refreshPublicApiRegistry();
+    applyPublicApi(app);
 
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);

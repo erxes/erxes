@@ -32,11 +32,20 @@ export const types = `
     type: OAuthClientAppType
     accessTokenLifetime: OAuthClientAccessTokenLifetime
     redirectUrls: [String]
+    allowedPublicOperationIds: [String]
     status: OAuthClientAppStatus
     lastUsedAt: Date
     createdAt: Date
     updatedAt: Date
     generatedSecret: String
+  }
+
+  type PublicApiOperation {
+    id: String!
+    name: String!
+    description: String!
+    operationName: String!
+    kind: String!
   }
 `;
 
@@ -45,6 +54,7 @@ export const queries = `
   oauthClientApps(searchValue: String, page: Int, perPage: Int): [OAuthClientApp]
   oauthClientAppsTotalCount(searchValue: String): Int
   oauthClientAppDetail(_id: String!): OAuthClientApp
+  publicApiOperations: [PublicApiOperation!]!
 `;
 
 export const mutations = `
@@ -61,6 +71,7 @@ export const mutations = `
     type: OAuthClientAppType!
     accessTokenLifetime: OAuthClientAccessTokenLifetime
     redirectUrls: [String!]
+    allowedPublicOperationIds: [String!]
   ): OAuthClientApp
   oauthClientAppsEdit(
     _id: String!
@@ -70,6 +81,7 @@ export const mutations = `
     type: OAuthClientAppType!
     accessTokenLifetime: OAuthClientAccessTokenLifetime
     redirectUrls: [String!]
+    allowedPublicOperationIds: [String!]
   ): OAuthClientApp
   oauthClientAppsRevoke(_id: String!): OAuthClientApp
   oauthClientAppsRemove(_id: String!): JSON
