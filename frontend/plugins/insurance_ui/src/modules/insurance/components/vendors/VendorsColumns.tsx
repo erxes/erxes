@@ -1,4 +1,4 @@
-import { IconBuilding, IconPackage, IconCalendar } from '@tabler/icons-react';
+import { IconBuilding, IconPackage } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
@@ -6,15 +6,17 @@ import {
   RecordTableInlineCell,
   Badge,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { InsuranceVendor } from '~/modules/insurance/types';
+import { createCreatedAtColumn } from '../shared';
 import { VendorsMoreColumn } from './VendorsMoreColumn';
 
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString('mn-MN');
-};
-
-export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
+export const createVendorsColumns = (labels: {
+  vendor: string;
+  products: string;
+  productsOffered: string;
+  offeredProducts: string;
+  createdAt: string;
+}): ColumnDef<InsuranceVendor>[] => [
   {
     id: 'more',
     accessorKey: 'more',
@@ -29,10 +31,9 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuilding} label={labels.vendor} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -44,16 +45,16 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
   {
     id: 'productsCount',
     accessorKey: 'offeredProducts',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconPackage} label={t('products')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconPackage} label={labels.products} />
+    ),
     cell: ({ cell }) => {
-      const { t } = useTranslation('insurance');
       const products = cell.row.original.offeredProducts || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{products.length} {t('products-offered')}</Badge>
+          <Badge variant="secondary">
+            {products.length} {labels.productsOffered}
+          </Badge>
         </RecordTableInlineCell>
       );
     },
@@ -61,10 +62,9 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
   {
     id: 'products',
     accessorKey: 'offeredProducts',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconPackage} label={t('offered-products')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconPackage} label={labels.offeredProducts} />
+    ),
     cell: ({ cell }) => {
       const products = cell.row.original.offeredProducts || [];
       const productNames = products
@@ -79,19 +79,5 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
       );
     },
   },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
-    },
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  createCreatedAtColumn<InsuranceVendor>(labels.createdAt),
 ];

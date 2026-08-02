@@ -72,6 +72,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-03` — `Resolve insurance table review findings`
+
+- **Summary:** Moved translated labels out of TanStack callbacks and consolidated shared created-date column rendering.
+- **Affected areas:** `src/modules/insurance/components/products`, `src/modules/insurance/components/vendors`, `src/modules/insurance/components/shared`
+- **Contracts changed:** `None`
+
 ### `2026-08-03` — `Standardize insurance table column selectors`
 
 - **Summary:** Added persisted selectors to all qualifying insurance record tables and their shared column factories.

@@ -19,8 +19,16 @@ export const ProductsRecordTable = ({
   const { insuranceProducts, loading } = useInsuranceProducts();
 
   const columns = useMemo(
-    () => createProductsColumns(onEdit, onDelete),
-    [onEdit, onDelete],
+    () =>
+      createProductsColumns(onEdit, onDelete, {
+        name: t('name'),
+        insuranceType: t('insurance-type'),
+        coveredRisks: t('covered-risks'),
+        risks: t('risks'),
+        riskDetails: t('risk-details'),
+        createdAt: t('created-at'),
+      }),
+    [onEdit, onDelete, t],
   );
 
   return (

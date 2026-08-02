@@ -16,6 +16,16 @@ import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
 
+const CreatedAtHeader = ({ label }: { label?: string }) => {
+  const { t } = useTranslation('insurance');
+  return (
+    <RecordTable.InlineHead
+      icon={IconCalendar}
+      label={label ?? t('created-at')}
+    />
+  );
+};
+
 // Generic more column factory
 export const createEntityMoreColumn = <T,>(
   MoreComponent: React.ComponentType<{ cell: Cell<T, unknown> }>,
@@ -64,13 +74,10 @@ export const createDescriptionColumn = <T,>(
 });
 
 // Created at column
-export const createCreatedAtColumn = <T,>(): ColumnDef<T> => ({
+export const createCreatedAtColumn = <T,>(label?: string): ColumnDef<T> => ({
   id: 'createdAt',
   accessorKey: 'createdAt',
-  header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
-  },
+  header: () => <CreatedAtHeader label={label} />,
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />
