@@ -3,10 +3,11 @@ import { GET_FB_ACCOUNTS } from '../graphql/queries/fbAccounts';
 
 export const useFacebookAccounts = (integrationKind?: string) => {
   const { data, loading, error, refetch } = useQuery<{
+    // accessToken is intentionally absent: the resolver projects credentials
+    // out and the browser must never see them.
     facebookGetAccounts: {
       _id: string;
       name: string;
-      accessToken: string;
       pageId: string | null;
       pageName: string | null;
     }[];

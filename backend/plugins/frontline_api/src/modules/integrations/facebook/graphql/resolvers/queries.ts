@@ -133,7 +133,7 @@ export const facebookQueries = {
     return models.FacebookAccounts.find(selector, { token: 0, tokenSecret: 0 });
   },
 
-  async facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
+  facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
     // facebookPageTokensMap holds page access tokens; never expose it.
     return models.FacebookIntegrations.find(
       { kind },
@@ -141,7 +141,7 @@ export const facebookQueries = {
     );
   },
 
-  async facebookGetIntegrationDetail(
+  facebookGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
     { models }: IContext,

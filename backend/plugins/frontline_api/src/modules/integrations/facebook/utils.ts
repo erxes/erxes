@@ -78,21 +78,24 @@ export const uploadUnpublishedPhoto = async (
   pageTokens: { [key: string]: string },
   imageUrl: string,
 ): Promise<{ id: string }> => {
-  let pageAccessToken;
+  // getPageAccessTokenFromMap returns undefined rather than throwing — check
+  // explicitly so the caller gets a clear error instead of a confusing
+  // Facebook OAuth failure.
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
 
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
+  if (!pageAccessToken) {
     throw new Error('Page access token not found');
   }
 
   try {
-    const response: any = await graphRequest.post(
+    const response = (await graphRequest.post(
       `${pageId}/photos`,
       pageAccessToken,
-      { url: imageUrl, published: false },
-    );
+      {
+        url: imageUrl,
+        published: false,
+      },
+    )) as { id: string };
 
     return response;
   } catch (e) {
@@ -108,12 +111,10 @@ export const createPagePost = async (
   link?: string,
   attachedMediaIds?: string[],
 ): Promise<{ id: string }> => {
-  let pageAccessToken;
+  // Explicit check — getPageAccessTokenFromMap returns undefined, not a throw.
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
 
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
+  if (!pageAccessToken) {
     throw new Error('Page access token not found');
   }
 

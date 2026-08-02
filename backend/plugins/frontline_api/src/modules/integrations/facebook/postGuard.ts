@@ -16,7 +16,14 @@ import { IModels } from '~/connectionResolvers';
 const DEFAULT_LIMIT_PER_HOUR = 30;
 const WINDOW_SECONDS = 3600;
 
-const rateLimitKey = (pageId: string) => `facebook:post:rate:${pageId}`;
+/**
+ * Redis key for a page's hourly posting counter, scoped by subdomain per the
+ * multi-tenant guidelines. Page IDs are globally unique, so the subdomain adds
+ * isolation for the edge case of one page connected in two orgs — each org
+ * then gets its own budget.
+ */
+const rateLimitKey = (subdomain: string, pageId: string) =>
+  `facebook:post:rate:${subdomain}:${pageId}`;
 
 export interface IPostAuditEntry {
   erxesApiId: string;
@@ -25,7 +32,7 @@ export interface IPostAuditEntry {
   status: 'published' | 'blocked' | 'failed';
   userId?: string;
   postId?: string;
-  permalinkUrl?: string;
+  permalinkUrl?: string | null;
   error?: string;
 }
 
@@ -40,6 +47,7 @@ export interface IPostAuditEntry {
  */
 export const assertPostRateLimit = async (
   models: IModels,
+  subdomain: string,
   pageId: string,
 ): Promise<void> => {
   const configured = await getConfig(
@@ -48,7 +56,7 @@ export const assertPostRateLimit = async (
     `${DEFAULT_LIMIT_PER_HOUR}`,
   );
 
-  const limit = parseInt(`${configured}`, 10);
+  const limit = Number.parseInt(`${configured}`, 10);
 
   if (!Number.isFinite(limit) || limit <= 0) {
     return;
@@ -58,7 +66,7 @@ export const assertPostRateLimit = async (
   let ttl: number;
 
   try {
-    const key = rateLimitKey(pageId);
+    const key = rateLimitKey(subdomain, pageId);
 
     count = await redis.incr(key);
 

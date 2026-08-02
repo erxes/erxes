@@ -7,9 +7,11 @@ import { IReplyParams } from '@/integrations/facebook/@types/utils';
 import {
   createPagePost,
   getPostDetails,
+  graphRequest,
   sendReply,
   uploadUnpublishedPhoto,
 } from '@/integrations/facebook/utils';
+import { debugError } from '@/integrations/facebook/debuggers';
 import {
   assertPostRateLimit,
   logPostAttempt,
@@ -132,7 +134,7 @@ export const facebookMutations = {
       link?: string;
       imageUrls?: string[];
     },
-    { models, user }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const integration = await models.FacebookIntegrations.findOne({
       erxesApiId,
@@ -163,7 +165,7 @@ export const facebookMutations = {
 
     // Bounds a runaway caller before it can get the shared Meta app flagged.
     try {
-      await assertPostRateLimit(models, pageId);
+      await assertPostRateLimit(models, subdomain, pageId);
     } catch (e) {
       await logPostAttempt(models, {
         erxesApiId,
@@ -178,13 +180,12 @@ export const facebookMutations = {
     }
 
     let response: { id: string };
+    const stagedMediaIds: string[] = [];
 
     try {
       // Carousel flow: stage each image as an unpublished photo, then create
       // one feed post referencing them all. A failed upload aborts the post —
       // publishing a partial carousel would be worse than failing loudly.
-      const mediaIds: string[] = [];
-
       for (const url of images) {
         const uploaded = await uploadUnpublishedPhoto(
           pageId,
@@ -192,7 +193,7 @@ export const facebookMutations = {
           url,
         );
 
-        mediaIds.push(uploaded.id);
+        stagedMediaIds.push(uploaded.id);
       }
 
       response = await createPagePost(
@@ -200,9 +201,24 @@ export const facebookMutations = {
         integration.facebookPageTokensMap || {},
         message,
         link,
-        mediaIds,
+        stagedMediaIds,
       );
     } catch (e) {
+      // Best-effort cleanup so aborted carousels do not accumulate unpublished
+      // photos in the page's library. Facebook garbage-collects these
+      // eventually; this just does it promptly. Never masks the real error.
+      const cleanupToken = (integration.facebookPageTokensMap || {})[pageId];
+
+      for (const mediaId of stagedMediaIds) {
+        try {
+          await graphRequest.delete(mediaId, cleanupToken);
+        } catch (cleanupError) {
+          debugError(
+            `Failed to clean up staged photo ${mediaId}: ${cleanupError.message}`,
+          );
+        }
+      }
+
       await logPostAttempt(models, {
         erxesApiId,
         pageId,
@@ -215,13 +231,22 @@ export const facebookMutations = {
       throw e;
     }
 
-    const details = await getPostDetails(
-      pageId,
-      integration.facebookPageTokensMap || {},
-      response.id,
-    );
+    // The post IS published past this point. The permalink is a nicety — its
+    // lookup must neither fail the mutation nor lose the audit record (a
+    // thrown error here would make the user retry and double-post).
+    let permalinkUrl: string | null = null;
 
-    const permalinkUrl = details ? details.permalink_url : null;
+    try {
+      const details = await getPostDetails(
+        pageId,
+        integration.facebookPageTokensMap || {},
+        response.id,
+      );
+
+      permalinkUrl = details ? details.permalink_url : null;
+    } catch (e) {
+      debugError(`Permalink lookup failed for ${response.id}: ${e.message}`);
+    }
 
     await logPostAttempt(models, {
       erxesApiId,

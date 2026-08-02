@@ -27,7 +27,17 @@ const readKindFromState = (state?: string): string | undefined => {
 
   const match = /[?&]kind=([^&]+)/.exec(state);
 
-  return match ? decodeURIComponent(match[1]) : undefined;
+  if (!match) {
+    return undefined;
+  }
+
+  // `state` comes back from an external redirect; a malformed percent-sequence
+  // must not turn the OAuth callback into a 500.
+  try {
+    return decodeURIComponent(match[1]);
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const loginMiddleware = async (req, res) => {
@@ -127,6 +137,9 @@ export const loginMiddleware = async (req, res) => {
         name,
         kind: 'facebook',
         uid: userAccount.id,
+        // Must be stamped at creation too — a first-time connect through the
+        // posting app would otherwise produce an app-unscoped account.
+        appId: app.appId,
       });
       accountId = newAccount._id;
     }

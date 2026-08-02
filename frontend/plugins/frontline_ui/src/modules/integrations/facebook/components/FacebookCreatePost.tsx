@@ -79,7 +79,7 @@ export const FacebookCreatePostForm = ({
         message: data.message,
         link: data.link || undefined,
       },
-      onCompleted: (response: any) => {
+      onCompleted: (response) => {
         setPermalinkUrl(response?.facebookCreatePost?.permalinkUrl || null);
         toast({ title: t('post-published') });
         form.reset({ pageId: data.pageId, message: '', link: '' });
