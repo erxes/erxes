@@ -16,6 +16,7 @@ interface CategoryRecordTableProps {
   mainLanguage?: string;
 }
 
+/** Renders the category tree table body without excessive JSX nesting. */
 const CategoryTableContent = ({ loading }: { loading: boolean }) => (
   <RecordTable.Scroll>
     <RecordTable>
