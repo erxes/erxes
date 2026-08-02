@@ -1,13 +1,6 @@
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import {
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  useConfirm,
-  useToast,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useTicketDetailSheet } from '../hooks/useTicketDetailSheet';
 import { ITicket } from '../types';

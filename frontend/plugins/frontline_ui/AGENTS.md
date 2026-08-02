@@ -28,12 +28,12 @@
 
 ## Architecture
 
-| Area       | Path                                                          | Responsibility                                        |
-| ---------- | ------------------------------------------------------------- | ----------------------------------------------------- |
-| Federation | `frontend/plugins/frontline_ui/module-federation.config.ts`   | Exposes Frontline entries, settings, and widgets.     |
-| Routes     | `frontend/plugins/frontline_ui/src/modules/FrontlineMain.tsx` | Mounts primary Frontline routes.                      |
-| Features   | `frontend/plugins/frontline_ui/src/modules`                   | Owns feature UI, GraphQL documents, hooks, and state. |
-| Widgets    | `frontend/plugins/frontline_ui/src/widgets`                   | Owns Frontline extension widgets.                     |
+| Area | Path | Responsibility |
+| --- | --- | --- |
+| Federation | `frontend/plugins/frontline_ui/module-federation.config.ts` | Exposes Frontline entries, settings, and widgets. |
+| Routes | `frontend/plugins/frontline_ui/src/modules/FrontlineMain.tsx` | Mounts primary Frontline routes. |
+| Features | `frontend/plugins/frontline_ui/src/modules` | Owns feature UI, GraphQL documents, hooks, and state. |
+| Widgets | `frontend/plugins/frontline_ui/src/widgets` | Owns Frontline extension widgets. |
 
 ## Contracts
 
