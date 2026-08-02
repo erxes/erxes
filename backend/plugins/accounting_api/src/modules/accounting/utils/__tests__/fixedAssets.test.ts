@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import {
   JOURNALS,
   TR_FOLLOW_TYPES,

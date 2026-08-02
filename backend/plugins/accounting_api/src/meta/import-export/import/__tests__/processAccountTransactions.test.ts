@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { JOURNALS } from '~/modules/accounting/@types/constants';
 import { processTransactionRows } from '../processAccountTransactions';
@@ -42,7 +44,11 @@ const makeModels = () => ({
 type TModels = ReturnType<typeof makeModels>;
 
 const mockRelatedData = () => {
-  (sendTRPCMessage as jest.Mock).mockImplementation(async ({ module }) => {
+  const mockedSendTRPCMessage = sendTRPCMessage as jest.MockedFunction<
+    typeof sendTRPCMessage
+  >;
+
+  mockedSendTRPCMessage.mockImplementation(async ({ module }) => {
     if (module === 'branches') {
       return [{ _id: 'branch-1', code: 'BR01' }];
     }

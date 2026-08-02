@@ -1,6 +1,5 @@
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
-import { ADJ_FXA_STATUSES, IAdjustFxaDetail } from '../@types/adjustFixedAsset';
 import {
   FXA_INSTANCE_STATUSES,
   FXA_LOG_EVENT_TYPES,
@@ -205,51 +204,6 @@ const findAcquisitionInstances = async (
   );
 };
 
-const buildMigrationAdjustmentId = (transactionId: string) =>
-  `erkhet-fxa-opening-${transactionId}`;
-
-const syncMigrationOpeningDepreciation = async (
-  models: IModels,
-  userId: string,
-  transaction: ITransactionDocument,
-  details: IAdjustFxaDetail[],
-) => {
-  const adjustId = buildMigrationAdjustmentId(transaction._id);
-
-  if (!details.length) {
-    await models.AdjustFxaDetails.deleteMany({ adjustId });
-    await models.AdjustFixedAssets.deleteOne({ _id: adjustId });
-    return;
-  }
-
-  await models.AdjustFixedAssets.updateOne(
-    { _id: adjustId },
-    {
-      $set: {
-        date: transaction.date || new Date(),
-        beginDate: transaction.date || new Date(),
-        description: `Erkhet opening depreciation ${
-          transaction.number || transaction._id
-        }`,
-        status: ADJ_FXA_STATUSES.COMPLETE,
-        modifiedBy: userId,
-        updatedAt: new Date(),
-      },
-      $setOnInsert: {
-        _id: adjustId,
-        createdBy: userId,
-        createdAt: new Date(),
-      },
-    },
-    { upsert: true },
-  );
-
-  await models.AdjustFxaDetails.replaceAdjustFxaDetails({
-    adjustId,
-    details,
-  });
-};
-
 const removeFxaIncomeInstanceIds = async (
   models: IModels,
   instanceIds: string[],
@@ -364,7 +318,6 @@ export const syncFxaIncomeInstances = async (
   );
   const date = transaction.date || new Date();
   const fixedAssetsById = await getFixedAssetsById(models, inputs);
-  const migrationAdjustmentDetails: IAdjustFxaDetail[] = [];
   await assignMissingInstanceSequences(models, inputs, fixedAssetsById);
 
   await removeFxaIncomeInstanceIds(models, removedInstanceIds);
@@ -419,44 +372,7 @@ export const syncFxaIncomeInstances = async (
       createdBy: userId,
       createdAt: new Date(),
     });
-
-    const openingAccumulatedDepreciation =
-      input.openingAccumulatedDepreciation || 0;
-
-    if (openingAccumulatedDepreciation > 0) {
-      const originalCost = instance.originalCost || 0;
-      const bookValue = Math.max(
-        originalCost - openingAccumulatedDepreciation,
-        0,
-      );
-
-      migrationAdjustmentDetails.push({
-        adjustId: buildMigrationAdjustmentId(transaction._id),
-        fxaInstanceId: instance._id,
-        fixedAssetId,
-        categoryId: instance.categoryId,
-        branchId: instance.branchId,
-        departmentId: instance.departmentId,
-        originalCost,
-        salvageValue: instance.salvageValue,
-        openingBookValue: bookValue,
-        openingAccumulatedDepreciation,
-        depreciationAmount: 0,
-        bookDepreciationAmount: 0,
-        closingAccumulatedDepreciation: openingAccumulatedDepreciation,
-        closingBookValue: bookValue,
-        transactionId: transaction._id,
-        transactionDetailId: instance.transactionDetailId,
-      });
-    }
   }
-
-  await syncMigrationOpeningDepreciation(
-    models,
-    userId,
-    transaction,
-    migrationAdjustmentDetails,
-  );
 
   transaction.extraData = {
     ...transaction.extraData,

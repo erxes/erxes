@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { nanoid } from 'nanoid';
 import { IModels, generateModels } from '~/connectionResolvers';
-import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  ITransaction,
+  ITransactionDocument,
+  ITrDetail,
+} from '../@types/transaction';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -13,6 +18,7 @@ type ErkhetTransactionBatch = {
 type ErkhetTransactionsRequest = {
   userId?: string;
   dryRun?: boolean;
+  rawSave?: boolean;
   skipAccountPermission?: boolean;
   batches?: ErkhetTransactionBatch[];
 };
@@ -722,12 +728,64 @@ const normalizeBatchDocs = async (
   });
 };
 
+const cleanRawTransactionDoc = (doc: ITransaction) => {
+  const cleanDoc = { ...doc };
+
+  delete cleanDoc._id;
+  delete cleanDoc.ptrId;
+  delete cleanDoc.parentId;
+  delete cleanDoc.ptrNumber;
+
+  return cleanDoc;
+};
+
+const saveRawBatch = async ({
+  models,
+  trDocs,
+  oldTr,
+  userId,
+}: {
+  models: IModels;
+  trDocs: ITransaction[];
+  oldTr?: ITransactionDocument | null;
+  userId: string;
+}) => {
+  const ptrId = oldTr?.ptrId || nanoid();
+  const parentId = oldTr?.parentId || nanoid();
+  const ptrNumber = oldTr?.ptrNumber || trDocs[0]?.number || '';
+
+  if (oldTr?.parentId) {
+    await models.Transactions.deleteMany({ parentId: oldTr.parentId });
+  }
+
+  const transactions: ITransactionDocument[] = [];
+
+  for (const doc of trDocs) {
+    const cleanDoc = cleanRawTransactionDoc(doc);
+    const transaction = await models.Transactions.createTransaction(
+      {
+        ...cleanDoc,
+        ptrId,
+        parentId,
+        ptrNumber,
+        number: cleanDoc.number || ptrNumber,
+      },
+      userId,
+    );
+
+    transactions.push(transaction);
+  }
+
+  return transactions;
+};
+
 const saveBatch = async ({
   models,
   batch,
   userId,
   skipAccountPermission,
   dryRun,
+  rawSave,
   subdomain,
 }: {
   subdomain: string;
@@ -736,6 +794,7 @@ const saveBatch = async ({
   userId: string;
   skipAccountPermission: boolean;
   dryRun: boolean;
+  rawSave: boolean;
 }) => {
   validateBatch(batch);
 
@@ -751,6 +810,22 @@ const saveBatch = async ({
       action: oldTr ? 'update' : 'create',
       parentId: oldTr?.parentId,
       count: trDocs.length,
+    };
+  }
+
+  if (rawSave) {
+    const transactions = await saveRawBatch({
+      models,
+      trDocs,
+      oldTr,
+      userId,
+    });
+
+    return {
+      action: oldTr ? 'updated' : 'created',
+      parentId: transactions[0]?.parentId || oldTr?.parentId,
+      ptrId: transactions[0]?.ptrId || oldTr?.ptrId,
+      count: transactions.length,
     };
   }
 
@@ -801,6 +876,7 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
           userId,
           skipAccountPermission: body.skipAccountPermission !== false,
           dryRun: Boolean(body.dryRun),
+          rawSave: body.rawSave !== false,
           subdomain,
         });
 
