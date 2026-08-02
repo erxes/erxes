@@ -40,6 +40,15 @@ export const graphRequest = {
   },
 };
 
+// Note: returns undefined when the page has no stored token — callers must
+// check the result rather than rely on a throw. Defined before its callers.
+export const getPageAccessTokenFromMap = (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+): string => {
+  return pageTokens?.[pageId];
+};
+
 export const getPostDetails = async (
   pageId: string,
   pageTokens: { [key: string]: string },
@@ -388,13 +397,6 @@ export const refreshPageAccessToken = async (
   );
 
   return facebookPageTokensMap;
-};
-
-export const getPageAccessTokenFromMap = (
-  pageId: string,
-  pageTokens: { [key: string]: string },
-): string => {
-  return pageTokens?.[pageId];
 };
 
 export const subscribePage = async (

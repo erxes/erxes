@@ -35,7 +35,7 @@ const readKindFromState = (state?: string): string | undefined => {
   // must not turn the OAuth callback into a 500.
   try {
     return decodeURIComponent(match[1]);
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };
