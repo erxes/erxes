@@ -13,8 +13,7 @@ import {
 } from '../definitions/fixedAsset';
 import { IModels } from '~/connectionResolvers';
 
-export interface IAdjustFixedAssetModel
-  extends Model<IAdjustFixedAssetDocument> {
+export interface IAdjustFixedAssetModel extends Model<IAdjustFixedAssetDocument> {
   getAdjustFixedAsset(_id: string): Promise<IAdjustFixedAssetDocument>;
   createAdjustFixedAsset(
     doc: IAdjustFixedAsset,
