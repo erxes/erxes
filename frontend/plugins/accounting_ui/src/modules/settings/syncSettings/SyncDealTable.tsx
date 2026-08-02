@@ -43,5 +43,10 @@ export const columns: ColumnDef<IConfig>[] = [
 ];
 
 export const SettingSyncDealTable = () => (
-  <SyncConfigTable code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL} columns={columns} />
+  <SyncConfigTable
+    code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL}
+    columns={columns}
+    tableId="accounting_sync_deal_record_table"
+    showColumnSelector
+  />
 );

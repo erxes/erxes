@@ -22,7 +22,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
 import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
-import { TR_JOURNAL_LABELS, TR_SIDES, TR_STATUS_LABELS, TrJournalEnum } from '../types/constants';
+import {
+  TR_JOURNAL_LABELS,
+  TR_SIDES,
+  TR_STATUS_LABELS,
+  TrJournalEnum,
+} from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
 
 const NumberCell = ({ row }: any) => {
@@ -210,6 +215,7 @@ const TransactionMoreColumnCell = ({
 
 const transactionMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TransactionMoreColumnCell,
   size: 33,
 };

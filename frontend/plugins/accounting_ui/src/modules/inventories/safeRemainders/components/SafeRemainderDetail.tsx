@@ -225,6 +225,7 @@ export const SafeRemainderDetail = () => {
               columns={safeRemDetailTableColumns}
               data={safeRemainderItems || []}
               stickyColumns={[]}
+              tableId="accounting_safe_remainder_detail_record_table"
               className="m-3"
               onClickCapture={() =>
                 setHotkeyScope(AccountingHotkeyScope.SafeRemainderPage)
@@ -232,7 +233,7 @@ export const SafeRemainderDetail = () => {
             >
               <RecordTable.Scroll>
                 <RecordTable>
-                  <RecordTable.Header />
+                  <RecordTable.Header showColumnSelector />
                   <RecordTable.Body>
                     <RecordTable.RowList />
                     {!detailsLoading &&
@@ -268,11 +269,12 @@ export const SafeRemainderDetail = () => {
                 ) || []
               }
               stickyColumns={[]}
+              tableId="accounting_safe_remainder_income_record_table"
               className="m-3"
             >
               <RecordTable.Scroll>
                 <RecordTable>
-                  <RecordTable.Header />
+                  <RecordTable.Header showColumnSelector />
                   <RecordTable.Body>
                     <RecordTable.RowList />
                     {!detailsLoading &&
@@ -308,11 +310,12 @@ export const SafeRemainderDetail = () => {
                 ) || []
               }
               stickyColumns={[]}
+              tableId="accounting_safe_remainder_out_record_table"
               className="m-3"
             >
               <RecordTable.Scroll>
                 <RecordTable>
-                  <RecordTable.Header />
+                  <RecordTable.Header showColumnSelector />
                   <RecordTable.Body>
                     <RecordTable.RowList />
                     {!detailsLoading &&
@@ -348,11 +351,12 @@ export const SafeRemainderDetail = () => {
                 ) || []
               }
               stickyColumns={[]}
+              tableId="accounting_safe_remainder_sale_record_table"
               className="m-3"
             >
               <RecordTable.Scroll>
                 <RecordTable>
-                  <RecordTable.Header />
+                  <RecordTable.Header showColumnSelector />
                   <RecordTable.Body>
                     <RecordTable.RowList />
                     {!detailsLoading &&

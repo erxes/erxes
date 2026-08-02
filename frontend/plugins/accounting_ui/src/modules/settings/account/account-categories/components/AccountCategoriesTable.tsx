@@ -78,6 +78,7 @@ export const AccountCategoriesTable = () => {
             })) || []
       }
       stickyColumns={['more', 'checkbox', 'code']}
+      tableId="accounting_account_categories_record_table"
     >
       <RecordTableTree id="product-categories" ordered>
         <RecordTable.Scroll>
@@ -227,6 +228,7 @@ const AccountCategoryParentCell = ({
 
 const accountCategoryMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: AccountCategoryMoreColumnCell,
   size: 33,
 };

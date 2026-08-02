@@ -1,4 +1,4 @@
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import {
   Combobox,
   Command,
@@ -17,6 +17,7 @@ interface SettingsRowsTableProps<TData> {
   totalCount?: number;
   handleFetchMore?: () => void;
   Commandbar: React.ComponentType;
+  tableId: string;
 }
 
 export const SettingsRowsTable = <TData,>({
@@ -26,6 +27,7 @@ export const SettingsRowsTable = <TData,>({
   totalCount,
   handleFetchMore,
   Commandbar,
+  tableId,
 }: SettingsRowsTableProps<TData>) => {
   const isInitialLoading = loading && !data?.length;
 
@@ -33,6 +35,8 @@ export const SettingsRowsTable = <TData,>({
     <RecordTable.Provider
       columns={columns}
       data={isInitialLoading ? [] : data || []}
+      stickyColumns={['more', 'checkbox']}
+      tableId={tableId}
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -103,12 +107,10 @@ export const getSharedRowColumns = <T,>(
   },
 ];
 
-export const MoreActionsCell = <T,>({
-  cell: _cell,
+export const MoreActionsCell = ({
   onEdit,
   onDelete,
 }: {
-  cell: Cell<T, unknown>;
   onEdit: () => void;
   onDelete: () => void;
 }) => {
@@ -141,5 +143,6 @@ export const MoreActionsCell = <T,>({
 
 export const moreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   size: 33,
 };
