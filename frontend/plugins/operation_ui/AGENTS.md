@@ -27,12 +27,12 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| --- | --- | --- |
-| Federation | `frontend/plugins/operation_ui/module-federation.config.ts` | Exposes operation entries, settings, and widgets. |
-| Routes | `frontend/plugins/operation_ui/src/modules/OperationMain.tsx` | Mounts operation routes. |
-| Features | `frontend/plugins/operation_ui/src/modules` | Owns task, project, team, cycle, template, and activity UI. |
-| Widgets | `frontend/plugins/operation_ui/src/widgets` | Owns operation extension widgets. |
+| Area       | Path                                                          | Responsibility                                              |
+| ---------- | ------------------------------------------------------------- | ----------------------------------------------------------- |
+| Federation | `frontend/plugins/operation_ui/module-federation.config.ts`   | Exposes operation entries, settings, and widgets.           |
+| Routes     | `frontend/plugins/operation_ui/src/modules/OperationMain.tsx` | Mounts operation routes.                                    |
+| Features   | `frontend/plugins/operation_ui/src/modules`                   | Owns task, project, team, cycle, template, and activity UI. |
+| Widgets    | `frontend/plugins/operation_ui/src/widgets`                   | Owns operation extension widgets.                           |
 
 ## Contracts
 
