@@ -275,6 +275,7 @@ export const removeFxaIncomeInstances = async (
     instances.map((instance) => instance._id),
     options.validateOnly,
   );
+};
 
 const matchFxaIncomeInputsToExisting = async (
   models: IModels,

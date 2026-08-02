@@ -255,6 +255,7 @@ export const createFxaDisposalFollowTrs = async (
   }
 
   return followTrs;
+};
 
 export const syncFxaDisposalInstances = async (
   models: IModels,
