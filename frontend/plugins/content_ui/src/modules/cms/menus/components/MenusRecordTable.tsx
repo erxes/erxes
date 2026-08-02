@@ -136,12 +136,11 @@ const SortableMenuRow = React.memo(
         style,
         activeId,
         activeParentId,
-        isDraggingAny: _isDraggingAny,
+        isDraggingAny,
         ...props
       },
       ref,
     ) => {
-      void _isDraggingAny;
       const isDraggingItem = activeId === original?._id;
       const isDescendant = activeId && original?.path?.includes(activeId);
 
@@ -154,7 +153,10 @@ const SortableMenuRow = React.memo(
       const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({
           id: original?._id,
-          disabled: activeId ? !isDraggingItem && !isSibling : false,
+          disabled:
+            isDraggingAny && activeId
+              ? !isDraggingItem && !isSibling
+              : false,
         });
 
       const setRowRef = useCallback(

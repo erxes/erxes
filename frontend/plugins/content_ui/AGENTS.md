@@ -62,7 +62,6 @@
 
 ## Validation
 
-- `pnpm nx lint content_ui`
 - `pnpm nx build content_ui`
 - Open CMS categories, custom types, menus, pages, posts, and tags and verify
   column visibility and order persist after reload.
@@ -70,6 +69,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-03` — `Resolve CMS table review findings`
+
+- **Summary:** Used the menu drag-state prop directly instead of discarding it with the `void` operator.
+- **Affected areas:** `src/modules/cms/menus/components/MenusRecordTable.tsx`
+- **Contracts changed:** `None`
 
 ### `2026-08-03` — `Standardize CMS table column selectors`
 
