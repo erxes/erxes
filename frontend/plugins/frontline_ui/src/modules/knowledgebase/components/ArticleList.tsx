@@ -19,10 +19,7 @@ interface ArticleListProps {
   readonly onCreateArticle: () => void;
 }
 
-export function ArticleList({
-  onEditArticle,
-  onCreateArticle,
-}: ArticleListProps) {
+export function ArticleList({ onEditArticle }: ArticleListProps) {
   const { t } = useTranslation('frontline');
   const [searchParams] = useSearchParams();
   const categoryId = searchParams.get('categoryId') || '';
@@ -41,11 +38,6 @@ export function ArticleList({
 
   // Derived state (no setState, no useEffect)
   const articleList = useMemo(() => articles ?? [], [articles]);
-
-  // Create article
-  const handleCreateArticle = () => {
-    onEditArticle(null);
-  };
 
   const handleEditArticle = (article: any) => {
     onEditArticle(article);
@@ -141,7 +133,7 @@ export function ArticleList({
               })}
             </div>
           );
-        } catch (error) {
+        } catch {
           return <div className="opacity-80 ml-2">{t('kb-invalid-date')}</div>;
         }
       },
@@ -320,10 +312,11 @@ export function ArticleList({
           columns={articleColumns}
           data={filtered}
           stickyColumns={['checkbox']}
+          tableId="frontline_knowledgebase_articles_record_table"
         >
           <ArticleCommandBar />
           <RecordTable>
-            <RecordTable.Header />
+            <RecordTable.Header showColumnSelector />
             <RecordTable.Body>
               {loading ? (
                 <RecordTable.RowSkeleton rows={10} />

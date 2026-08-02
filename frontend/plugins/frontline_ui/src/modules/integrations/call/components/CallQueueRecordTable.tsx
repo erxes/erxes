@@ -38,10 +38,11 @@ export const CallQueueRecordTable = ({
       data={callQueueList || (loading ? [{}] : [])}
       className="m-3"
       stickyColumns={['queue']}
+      tableId="frontline_call_queue_record_table"
     >
       <RecordTable.Scroll>
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             {loading ? (
               <RecordTable.RowSkeleton rows={6} />

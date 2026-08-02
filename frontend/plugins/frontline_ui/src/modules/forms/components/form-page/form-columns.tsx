@@ -42,7 +42,7 @@ export function FormToggleStatus({
   setOpen: (open: boolean) => void;
 }) {
   const { t } = useTranslation('frontline');
-  const { toggleStatus, loading } = useFormToggleStatus();
+  const { toggleStatus } = useFormToggleStatus();
 
   const onSelect = () => {
     toggleStatus({
@@ -85,7 +85,7 @@ export const MoveFormToChannel = ({
   type: string;
 }) => {
   const { t } = useTranslation('frontline');
-  const { editForm, loading } = useFormEdit();
+  const { editForm } = useFormEdit();
 
   const onSelect = (id: string) => {
     editForm({
@@ -143,7 +143,7 @@ export const FormsMoreColumnCell = ({
   const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
-  const [open, setOpen] = useState(false);
+  const [, setOpen] = useState(false);
 
   return (
     <DropdownMenu>
@@ -181,6 +181,7 @@ export const FormsMoreColumnCell = ({
 
 export const MoreColumn: ColumnDef<IForm> = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   size: 33,
   cell: FormsMoreColumnCell,
 };
@@ -192,7 +193,6 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'name',
     id: 'name',
     header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
     },
@@ -217,7 +217,6 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'status',
     id: 'status',
     header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
     },
@@ -232,16 +231,13 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'channelId',
     header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
     },
     id: 'channelId',
     cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
       const { channel, _id, name, type } = cell.row.original;
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { editForm } = useFormEdit();
 
       const onValueChange = (value: string | string[]) => {
@@ -282,7 +278,6 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'tagIds',
     id: 'tagIds',
     header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('tags')} icon={IconTag} />;
     },
@@ -302,7 +297,6 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'createdUserId',
     id: 'createdUserId',
     header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
     },
@@ -318,7 +312,6 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'createdDate',
     id: 'createdDate',
     header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
     },

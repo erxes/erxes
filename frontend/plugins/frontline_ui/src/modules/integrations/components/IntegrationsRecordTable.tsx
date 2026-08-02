@@ -92,6 +92,7 @@ export const IntegrationsRecordTable = () => {
     <RecordTable.Provider
       columns={columns}
       data={(integrations || []).filter((integration) => integration)}
+      tableId={`frontline_${params?.integrationType}_integrations_record_table`}
       stickyColumns={
         isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
       }
@@ -247,11 +248,7 @@ const NameField = ({
   );
 };
 
-export const BrandField = ({
-  cell,
-}: {
-  cell: CellContext<IIntegrationDetail, unknown>;
-}) => {
+export const BrandField = () => {
   return null;
 };
 
@@ -260,7 +257,7 @@ export const useIntegrationTypeColumns = (
 ): ColumnDef<IIntegrationDetail>[] => {
   const { t } = useTranslation('frontline');
   return [
-    integrationMoreColumn(),
+    integrationMoreColumn(withSelection),
     ...(withSelection
       ? [RecordTable.checkboxColumn as ColumnDef<IIntegrationDetail>]
       : []),
