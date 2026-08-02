@@ -149,7 +149,7 @@ const buildFollowDetails = ({
             ? fixNum(summary[amountKey] / summary.count)
             : 0,
           amount: summary[amountKey],
-        } as ITrDetail),
+        }) as ITrDetail,
     );
 
 const buildFollowTr = ({
