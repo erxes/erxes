@@ -38,8 +38,8 @@
 
 ### Provides
 
-- Module Federation exposes for configuration, operation, settings, relation,
-  notification, and automation widgets.
+- Module Federation exposes configuration, operation, settings, relation,
+  notification, and automation widget modules.
 - Navigation modules rooted at `/operation`.
 
 ### Consumes
@@ -62,13 +62,18 @@
 
 ## Validation
 
-- `pnpm nx lint operation_ui`
 - `pnpm nx build operation_ui`
 - Open a team's cycles table and verify column preferences persist after reload.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-03` — `Resolve cycle table documentation findings`
+
+- **Summary:** Clarified Module Federation ownership and removed validation commands not defined by the project.
+- **Affected areas:** Plugin documentation
+- **Contracts changed:** `None`
 
 ### `2026-08-03` — `Standardize cycle table column selector`
 

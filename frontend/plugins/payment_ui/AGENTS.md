@@ -62,7 +62,6 @@
 
 ## Validation
 
-- `pnpm nx lint payment_ui`
 - `pnpm nx build payment_ui`
 - Open invoices and payment settings and verify column preferences persist
   after reload.
@@ -70,6 +69,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-03` — `Align payment validation documentation`
+
+- **Summary:** Removed validation commands not defined by the payment UI project.
+- **Affected areas:** Plugin documentation
+- **Contracts changed:** `None`
 
 ### `2026-08-03` — `Standardize payment table column selectors`
 
