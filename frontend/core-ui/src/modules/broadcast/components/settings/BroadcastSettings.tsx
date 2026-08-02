@@ -34,13 +34,16 @@ export const BroadcastSettings = () => {
   useEffect(() => {
     if (!configs) return;
 
-    const values = BROADCAST_CONFIG_CODES.reduce((acc, name) => {
-      const config = configs.find((c: { code: string }) => c.code === name);
+    const values = BROADCAST_CONFIG_CODES.reduce(
+      (acc, name) => {
+        const config = configs.find((c: { code: string }) => c.code === name);
 
-      if (config) acc[name] = config.value;
+        if (config) acc[name] = config.value;
 
-      return acc;
-    }, {} as Record<string, any>);
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
 
     form.reset(values);
   }, [configs]);

@@ -25,8 +25,8 @@ export const SendEmailNodeContent = ({
   const from = alignedFrom
     ? `${sender || ''} <${alignedFrom}>`.trim()
     : type === 'default'
-    ? 'COMPANY EMAIL'
-    : fromEmailPlaceHolder;
+      ? 'COMPANY EMAIL'
+      : fromEmailPlaceHolder;
 
   const replyTo = alignedFrom ? fromEmailPlaceHolder : replyToEmail;
 
