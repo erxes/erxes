@@ -4,11 +4,11 @@ import { ITransactionDocument } from '../@types/transaction';
 import { removeSyncProductsInventory } from './utils';
 import { TR_FOLLOW_TYPES } from '../@types/constants';
 import {
-  removeFxaDisposalInstances,
   removeFxaIncomeInstances,
-  removeFxaMoveInstances,
   TFxaIncomeInstanceRemoveOptions,
-} from './fixedAssets';
+} from './fxaIncome';
+import { removeFxaDisposalInstances } from './fxaOut';
+import { removeFxaMoveInstances } from './fxaMove';
 
 export type TCommonRemoveOptions = TFxaIncomeInstanceRemoveOptions;
 

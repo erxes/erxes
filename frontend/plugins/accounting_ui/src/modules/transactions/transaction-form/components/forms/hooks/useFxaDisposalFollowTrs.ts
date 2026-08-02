@@ -130,7 +130,7 @@ const buildFollowDetails = ({
   summaries,
 }: {
   accountId?: string;
-  amountKey: 'accumulatedDepreciation' | 'bookValue';
+  amountKey: 'originalCost' | 'accumulatedDepreciation' | 'bookValue';
   originType: string;
   summaries: TFxaDisposalSummary[];
 }) =>
@@ -157,12 +157,14 @@ const buildFollowTr = ({
   journal,
   originType,
   ptrId,
+  side = TR_SIDES.DEBIT,
   trDoc,
 }: {
   details: ITrDetail[];
   journal: TrJournalEnum;
   originType: string;
   ptrId: string;
+  side?: string;
   trDoc: ITransaction;
 }) =>
   fixSumDtCt({
@@ -172,7 +174,7 @@ const buildFollowTr = ({
     ptrId,
     parentId: trDoc.parentId,
     journal,
-    side: TR_SIDES.DEBIT,
+    side,
     branchId: trDoc.branchId,
     departmentId: trDoc.departmentId,
     customerId: trDoc.customerId,
@@ -182,11 +184,15 @@ const buildFollowTr = ({
   });
 
 export const useFxaDisposalFollowTrs = ({
+  createFollowTrs = true,
   form,
   journalIndex,
+  updateMainDetails = true,
 }: {
+  createFollowTrs?: boolean;
   form: ITransactionGroupForm;
   journalIndex: number;
+  updateMainDetails?: boolean;
 }) => {
   const trDoc = useWatch({
     control: form.control,
@@ -218,8 +224,15 @@ export const useFxaDisposalFollowTrs = ({
     const currentDetails = (trDoc?.details || []) as TFxaDetail[];
     const nextDetails = buildMainDetails(currentDetails, summaries);
 
-    if (hasMainDetailsChanged(currentDetails, nextDetails)) {
+    if (
+      updateMainDetails &&
+      hasMainDetailsChanged(currentDetails, nextDetails)
+    ) {
       form.setValue(`trDocs.${journalIndex}.details`, nextDetails);
+    }
+
+    if (!createFollowTrs) {
+      return;
     }
 
     setFollowTrDocs((prev) => {
@@ -228,12 +241,21 @@ export const useFxaDisposalFollowTrs = ({
         (followTr) =>
           !(
             followTr.originId === trDoc._id &&
-            ['fxaOutDepreciation', 'fxaOutLoss'].includes(
+            ['fxaOutCost', 'fxaOutDepreciation', 'fxaOutLoss'].includes(
               followTr.originType || '',
             )
           ),
       );
 
+      const costDetails =
+        trDoc.journal === TrJournalEnum.FXA_SALE
+          ? buildFollowDetails({
+              accountId: trDoc.followInfos?.fixedAssetAccountId,
+              amountKey: 'originalCost',
+              originType: 'fxaOutCost',
+              summaries,
+            })
+          : [];
       const depreciationDetails = buildFollowDetails({
         accountId: trDoc.followInfos?.accumulatedDepreciationAccountId,
         amountKey: 'accumulatedDepreciation',
@@ -250,6 +272,18 @@ export const useFxaDisposalFollowTrs = ({
 
       return [
         ...remaining,
+        ...(costDetails.length
+          ? [
+              buildFollowTr({
+                details: costDetails,
+                journal: TrJournalEnum.FXA_OUT_COST,
+                originType: 'fxaOutCost',
+                ptrId,
+                side: TR_SIDES.CREDIT,
+                trDoc,
+              }),
+            ]
+          : []),
         ...(depreciationDetails.length
           ? [
               buildFollowTr({
@@ -275,6 +309,7 @@ export const useFxaDisposalFollowTrs = ({
       ];
     });
   }, [
+    createFollowTrs,
     data,
     form,
     journalIndex,
@@ -283,5 +318,6 @@ export const useFxaDisposalFollowTrs = ({
     JSON.stringify(selectedIdsByDetailId),
     setFollowTrDocs,
     trDoc,
+    updateMainDetails,
   ]);
 };

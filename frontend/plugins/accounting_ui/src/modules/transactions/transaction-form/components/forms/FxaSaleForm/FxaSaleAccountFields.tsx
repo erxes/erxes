@@ -1,17 +1,42 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
+import { IAccount } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 
 export const FxaSaleAccountFields = ({
   form,
   index,
+  onFixedAssetAccountChange,
+  showFixedAssetAccount = false,
   showGainAccount = true,
 }: {
   form: ITransactionGroupForm;
   index: number;
+  onFixedAssetAccountChange?: (account: IAccount) => void;
+  showFixedAssetAccount?: boolean;
   showGainAccount?: boolean;
 }) => (
   <>
+    {showFixedAssetAccount && (
+      <Form.Field
+        control={form.control}
+        name={`trDocs.${index}.followInfos.fixedAssetAccountId`}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Хөрөнгийн данс</Form.Label>
+            <Form.Control>
+              <SelectAccount
+                value={field.value || ''}
+                onValueChange={field.onChange}
+                onCallback={onFixedAssetAccountChange}
+                defaultFilter={{ permissionMode: 'write' }}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    )}
     <Form.Field
       control={form.control}
       name={`trDocs.${index}.followInfos.accumulatedDepreciationAccountId`}

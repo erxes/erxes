@@ -1,4 +1,3 @@
-import { JournalEnum } from '@/settings/account/types/Account';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
   AccountField,
@@ -23,8 +22,12 @@ export const FxaSaleForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
-  const onAccountChange = useFxaAccountConfig(form, index);
-  useFxaDisposalFollowTrs({ form, journalIndex: index });
+  const onFixedAssetAccountChange = useFxaAccountConfig(form, index);
+  useFxaDisposalFollowTrs({
+    form,
+    journalIndex: index,
+    updateMainDetails: false,
+  });
 
   return (
     <>
@@ -32,17 +35,21 @@ export const FxaSaleForm = ({
         <AccountField
           form={form}
           index={index}
-          filter={{ journals: [JournalEnum.FIXED_ASSET] }}
           allDetails
-          labelTxt="Хөрөнгийн данс"
-          onAccountChange={onAccountChange}
+          labelTxt="Борлуулалтын орлогын данс"
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
         <AssignToField form={form} index={index} />
         <DescriptionField form={form} index={index} />
-        <FxaSaleAccountFields form={form} index={index} />
+        <FxaSaleAccountFields
+          form={form}
+          index={index}
+          onFixedAssetAccountChange={onFixedAssetAccountChange}
+          showFixedAssetAccount
+          showGainAccount={false}
+        />
         <VatForm
           form={form}
           journalIndex={index}

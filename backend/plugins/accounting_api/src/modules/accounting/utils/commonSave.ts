@@ -9,12 +9,12 @@ import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
 import { commonRemove } from './commonRemove';
+import { syncFxaIncomeInstances } from './fxaIncome';
+import { createFxaDisposalFollowTrs, syncFxaDisposalInstances } from './fxaOut';
+import { createFxaMoveInFollowTr, syncFxaMoveInstances } from './fxaMove';
 import {
-  createFxaDisposalFollowTrs,
   prepareFxaDisposalTransaction,
-  syncFxaDisposalInstances,
-  syncFxaIncomeInstances,
-  syncFxaMoveInstances,
+  prepareFxaInstanceTransaction,
 } from './fixedAssets';
 import {
   FXA_INSTANCE_STATUSES,
@@ -210,8 +210,9 @@ async function handleInvMove(
     { ...doc, side: TR_SIDES.CREDIT },
     oldTr,
   );
-  const { invMoveInTr, oldFollowInTr } =
-    await invMoveInTrsClass.doTrs(transaction);
+  const { invMoveInTr, oldFollowInTr } = await invMoveInTrsClass.doTrs(
+    transaction,
+  );
 
   await syncProductsInventory(subdomain, transaction, oldTr, -1);
   await syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1);
@@ -359,16 +360,18 @@ async function handleFxaMove(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
+  const preparedDoc = await prepareFxaInstanceTransaction(models, doc);
   const transaction = await createOrUpdateTr(
     models,
     userId,
-    { ...doc, side: TR_SIDES.CREDIT },
+    { ...preparedDoc, side: TR_SIDES.CREDIT },
     oldTr,
   );
 
   await syncFxaMoveInstances(models, userId, transaction);
+  const moveInTr = await createFxaMoveInFollowTr(models, userId, transaction);
 
-  return { mainTr: transaction, otherTrs: [] };
+  return { mainTr: transaction, otherTrs: [moveInTr] };
 }
 
 async function handleFxaSale(
@@ -380,7 +383,9 @@ async function handleFxaSale(
 ) {
   const taxTrsClass = new TaxTrs(models, userId, doc, 'ct', false);
   await taxTrsClass.checkTaxValidation();
-  const preparedDoc = await prepareFxaDisposalTransaction(models, doc);
+  const preparedDoc = await prepareFxaDisposalTransaction(models, doc, {
+    updateDetails: false,
+  });
 
   const transaction = await createOrUpdateTr(
     models,
