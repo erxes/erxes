@@ -1,4 +1,10 @@
-import { Button, CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
+import {
+  Button,
+  CommandBar,
+  RecordTable,
+  Separator,
+  useConfirm,
+} from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -124,10 +130,7 @@ const getArticleColumns = (
     size: 220,
     header: ArticleTitleHeader,
     cell: ({ row }) => (
-      <ArticleTitleCell
-        article={row.original}
-        onEditArticle={onEditArticle}
-      />
+      <ArticleTitleCell article={row.original} onEditArticle={onEditArticle} />
     ),
   },
   {
@@ -265,12 +268,12 @@ export function ArticleList({
         status === 'all'
           ? true
           : status === 'draft'
-          ? st.includes('draft')
-          : status === 'published'
-          ? st.includes('publish')
-          : status === 'archived'
-          ? st.includes('archived')
-          : true;
+            ? st.includes('draft')
+            : status === 'published'
+              ? st.includes('publish')
+              : status === 'archived'
+                ? st.includes('archived')
+                : true;
 
       return textOk && statusOk;
     });
@@ -346,11 +349,11 @@ export function ArticleList({
               : t('kb-no-articles')}
           </div>
           <div className="mt-1 text-sm opacity-70 mb-4">
-            {q.trim()
-              ? t('kb-adjust-search')
-              : t('kb-create-first-article')}
+            {q.trim() ? t('kb-adjust-search') : t('kb-create-first-article')}
           </div>
-          {!q.trim() && <Button onClick={onCreateArticle}>{t('create')}</Button>}
+          {!q.trim() && (
+            <Button onClick={onCreateArticle}>{t('create')}</Button>
+          )}
         </div>
       ) : (
         <RecordTable.Provider
@@ -359,10 +362,7 @@ export function ArticleList({
           stickyColumns={['checkbox']}
           tableId="frontline_knowledgebase_articles_record_table"
         >
-          <ArticleCommandBar
-            onEditArticle={onEditArticle}
-            refetch={refetch}
-          />
+          <ArticleCommandBar onEditArticle={onEditArticle} refetch={refetch} />
           <RecordTable>
             <RecordTable.Header showColumnSelector />
             <RecordTable.Body>

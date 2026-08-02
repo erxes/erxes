@@ -144,7 +144,13 @@ const CallQueueRate = ({
   );
 };
 
-const CallQueueStat = ({ label, value }: { label: string; value: string | number }) => (
+const CallQueueStat = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) => (
   <p className="text-sm flex items-center gap-1 justify-between">
     <legend className="text-accent-foreground">{label}</legend>
     <span className="font-medium">{value}</span>
@@ -224,82 +230,88 @@ const CallQueueSummaryCell = ({
 const useGetColumns = (basePath: string): ColumnDef<ICallQueueListItem>[] => {
   const { t } = useTranslation('frontline');
   return [
-  {
-    header: t('queue'),
-    accessorKey: 'queue',
-    size: 240,
-    cell: ({ row }) => (
-      <CallQueueSummaryCell basePath={basePath} item={row.original} />
-    ),
-  },
-  {
-    header: t('abandoned-rate'),
-    accessorKey: 'abandonedRate',
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        <ProgressChart
-          value={cell.getValue() as number}
-          variant="destructive"
-        />
-        {t('pct-of-total', { pct: Math.round(cell.getValue() as number), total: cell.row.original.totalCalls })}
-      </RecordTableInlineCell>
-    ),
-  },
+    {
+      header: t('queue'),
+      accessorKey: 'queue',
+      size: 240,
+      cell: ({ row }) => (
+        <CallQueueSummaryCell basePath={basePath} item={row.original} />
+      ),
+    },
+    {
+      header: t('abandoned-rate'),
+      accessorKey: 'abandonedRate',
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          <ProgressChart
+            value={cell.getValue() as number}
+            variant="destructive"
+          />
+          {t('pct-of-total', {
+            pct: Math.round(cell.getValue() as number),
+            total: cell.row.original.totalCalls,
+          })}
+        </RecordTableInlineCell>
+      ),
+    },
 
-  {
-    header: t('answered-rate'),
-    accessorKey: 'answeredRate',
-    cell: ({ cell, row }) => (
-      <RecordTableInlineCell className="font-medium">
-        <ProgressChart value={cell.getValue() as number} variant="success" />
-        {t('pct-of-total', { pct: Math.round(cell.getValue() as number), total: row.original.totalCalls })}
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    header: t('answered-calls'),
-    accessorKey: 'answeredCalls',
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    header: t('abandoned-calls'),
-    accessorKey: 'abandonedCalls',
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    header: t('total-calls'),
-    accessorKey: 'totalCalls',
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    header: t('average-wait-time'),
-    accessorKey: 'avgWait',
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {formatSeconds(cell.getValue() as number)}
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    header: t('average-talk-time'),
-    accessorKey: 'avgTalk',
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {formatSeconds(cell.getValue() as number)}
-      </RecordTableInlineCell>
-    ),
-  },
+    {
+      header: t('answered-rate'),
+      accessorKey: 'answeredRate',
+      cell: ({ cell, row }) => (
+        <RecordTableInlineCell className="font-medium">
+          <ProgressChart value={cell.getValue() as number} variant="success" />
+          {t('pct-of-total', {
+            pct: Math.round(cell.getValue() as number),
+            total: row.original.totalCalls,
+          })}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      header: t('answered-calls'),
+      accessorKey: 'answeredCalls',
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      header: t('abandoned-calls'),
+      accessorKey: 'abandonedCalls',
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      header: t('total-calls'),
+      accessorKey: 'totalCalls',
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      header: t('average-wait-time'),
+      accessorKey: 'avgWait',
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {formatSeconds(cell.getValue() as number)}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      header: t('average-talk-time'),
+      accessorKey: 'avgTalk',
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {formatSeconds(cell.getValue() as number)}
+        </RecordTableInlineCell>
+      ),
+    },
   ];
 };

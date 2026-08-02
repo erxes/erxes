@@ -180,7 +180,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'status',
     header: function FormStatusHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
+      return (
+        <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -199,7 +201,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'channelId',
     header: function FormChannelHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
+      return (
+        <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />
+      );
     },
     cell: function FormChannelCell({ cell }) {
       const { t } = useTranslation('frontline');
@@ -252,7 +256,12 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'createdDate',
     header: function FormCreatedAtHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-at')}
+          icon={IconCalendarEvent}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (

@@ -417,10 +417,7 @@ export const CallDetailWaiting = ({
       <h5 className="font-mono text-xs uppercase font-semibold">
         {t('waiting')}
       </h5>
-      <RecordTable.Provider
-        columns={useWaitingColumns()}
-        data={waitingList}
-      >
+      <RecordTable.Provider columns={useWaitingColumns()} data={waitingList}>
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
@@ -440,11 +437,7 @@ type TalkingCall = {
   bridge_time?: string | Date;
 };
 
-const TalkingCallDurationCell = ({
-  value,
-}: {
-  value?: string | Date;
-}) => {
+const TalkingCallDurationCell = ({ value }: { value?: string | Date }) => {
   const startDate = useMemo(() => {
     if (!value) {
       return null;
@@ -510,10 +503,7 @@ export const CallDetailTalking = ({
       <h5 className="font-mono text-xs uppercase font-semibold">
         {t('talking')}
       </h5>
-      <RecordTable.Provider
-        columns={useTalkingColumns()}
-        data={talkingList}
-      >
+      <RecordTable.Provider columns={useTalkingColumns()} data={talkingList}>
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
