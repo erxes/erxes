@@ -14,6 +14,29 @@ import { ITicket } from '../types';
 
 import { useTicketRemove } from '../hooks/useRemoveTicket';
 
+/** Renders the action items within the ticket row popover. */
+const TicketActionsList = ({
+  onEdit,
+  onDelete,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <Command.List>
+      <Command.Item value="edit" onSelect={onEdit}>
+        <IconEdit /> {t('edit')}
+      </Command.Item>
+      <Command.Item value="delete" onSelect={onDelete}>
+        <IconTrash /> {t('delete')}
+      </Command.Item>
+    </Command.List>
+  );
+};
+
+/** Renders edit and delete actions for a ticket record-table row. */
 export const TicketsMoreColumnCell = ({
   cell,
 }: {
@@ -26,9 +49,12 @@ export const TicketsMoreColumnCell = ({
   const { toast } = useToast();
   const { removeTicket } = useTicketRemove();
 
-  const handleEdit = (ticketId: string) => {
-    setActiveTicket(ticketId);
+  /** Opens the selected ticket in the detail sheet. */
+  const handleEdit = () => {
+    setActiveTicket(_id);
   };
+
+  /** Confirms and removes the selected ticket. */
   const handleDelete = () => {
     if (!_id) {
       toast({
@@ -49,10 +75,11 @@ export const TicketsMoreColumnCell = ({
           variant: 'success',
           description: t('ticket-deleted-successfully'),
         });
-      } catch (e: any) {
+      } catch (error: unknown) {
         toast({
           title: t('error'),
-          description: e.message,
+          description:
+            error instanceof Error ? error.message : t('something-went-wrong'),
           variant: 'destructive',
         });
       }
@@ -65,14 +92,7 @@ export const TicketsMoreColumnCell = ({
       </Popover.Trigger>
       <Combobox.Content>
         <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> {t('edit')}
-            </Command.Item>
-            <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> {t('delete')}
-            </Command.Item>
-          </Command.List>
+          <TicketActionsList onEdit={handleEdit} onDelete={handleDelete} />
         </Command>
       </Combobox.Content>
     </Popover>
