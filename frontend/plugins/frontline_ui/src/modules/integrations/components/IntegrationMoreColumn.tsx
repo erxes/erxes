@@ -130,9 +130,7 @@ export const integrationMoreColumn = (
   showColumnSelector = false,
 ): ColumnDef<IIntegrationDetail> => ({
   id: 'more',
-  header: showColumnSelector
-    ? () => <RecordTable.ColumnSelector />
-    : undefined,
+  header: showColumnSelector ? () => <RecordTable.ColumnSelector /> : undefined,
   cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
     <IntegrationMoreColumnCell cell={cell} />
   ),
