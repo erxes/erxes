@@ -1,34 +1,52 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
-import { ColumnDef, Row } from '@tanstack/react-table';
+import { ColumnDef, Row, Table } from '@tanstack/react-table';
 
-// A pointer drag is a single global interaction, so this transient state lives
-// at module scope rather than being threaded through the table context.
 const dragSelection = {
-  active: false,
+  owner: null as Table<any> | null,
   selecting: false,
-  suppressClickOn: null as string | null,
+  suppressClickOn: null as { table: Table<any>; rowId: string } | null,
+  previousUserSelect: '',
 };
+
+const DRAG_END_EVENTS = ['pointerup', 'pointercancel', 'blur'] as const;
 
 const endDragSelection = () => {
-  dragSelection.active = false;
-  document.body.style.userSelect = '';
+  dragSelection.owner = null;
+  document.body.style.userSelect = dragSelection.previousUserSelect;
+  DRAG_END_EVENTS.forEach((event) =>
+    window.removeEventListener(event, endDragSelection),
+  );
 };
 
-const startDragSelection = (selecting: boolean, rowId: string) => {
-  dragSelection.active = true;
+const startDragSelection = (
+  selecting: boolean,
+  row: Row<any>,
+  table: Table<any>,
+) => {
+  if (dragSelection.owner) {
+    endDragSelection();
+  }
+
+  dragSelection.owner = table;
   dragSelection.selecting = selecting;
-  dragSelection.suppressClickOn = rowId;
-  // Shift + drag would otherwise paint a text selection across the rows.
+  dragSelection.suppressClickOn = { table, rowId: row.id };
+  dragSelection.previousUserSelect = document.body.style.userSelect;
   document.body.style.userSelect = 'none';
-  window.addEventListener('pointerup', endDragSelection, { once: true });
+  DRAG_END_EVENTS.forEach((event) =>
+    window.addEventListener(event, endDragSelection),
+  );
 };
 
-const CheckboxCell = ({ row }: { row: Row<any> }) => (
+const CheckboxCell = ({
+  row,
+  table,
+}: {
+  row: Row<any>;
+  table: Table<any>;
+}) => (
   <div
     className="flex items-center justify-center size-full"
     onPointerDown={(event) => {
-      // A fresh press always precedes that element's click, so this also clears
-      // a suppression left dangling by a drag that ended on another row.
       dragSelection.suppressClickOn = null;
 
       if (!event.shiftKey || event.button !== 0) {
@@ -37,21 +55,20 @@ const CheckboxCell = ({ row }: { row: Row<any> }) => (
 
       event.preventDefault();
       const selecting = !row.getIsSelected();
-      startDragSelection(selecting, row.id);
+      startDragSelection(selecting, row, table);
       row.toggleSelected(selecting);
     }}
     onPointerEnter={(event) => {
-      // event.buttons guards against a drag left dangling by a missed pointerup.
-      if (!dragSelection.active || event.buttons !== 1) {
+      if (dragSelection.owner !== table || event.buttons !== 1) {
         return;
       }
 
       row.toggleSelected(dragSelection.selecting);
     }}
     onClickCapture={(event) => {
-      // pointerdown already applied the change; swallow the click that Radix
-      // would otherwise turn into a second toggle of the row we started on.
-      if (dragSelection.suppressClickOn !== row.id) {
+      const suppressed = dragSelection.suppressClickOn;
+
+      if (suppressed?.table !== table || suppressed.rowId !== row.id) {
         return;
       }
 
@@ -85,5 +102,5 @@ export const checkboxColumn: ColumnDef<any> = {
     );
   },
   size: 33,
-  cell: ({ row }) => <CheckboxCell row={row} />,
+  cell: ({ row, table }) => <CheckboxCell row={row} table={table} />,
 };
