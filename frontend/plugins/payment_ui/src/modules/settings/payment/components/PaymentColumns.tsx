@@ -83,7 +83,12 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
     accessorKey: 'kind',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('payment-method-label')} icon={IconSettings} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('payment-method-label')}
+          icon={IconSettings}
+        />
+      );
     },
     cell: ({ cell }) => {
       const kind = cell.getValue() as string;
@@ -165,7 +170,12 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
     accessorKey: 'createdAt',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-at')}
+          icon={IconCalendarPlus}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
