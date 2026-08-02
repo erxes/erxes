@@ -16,18 +16,19 @@ interface CategoryRecordTableProps {
   mainLanguage?: string;
 }
 
-/** Renders the category tree table body without excessive JSX nesting. */
-const CategoryTableContent = ({ loading }: { loading: boolean }) => (
-  <RecordTable.Scroll>
-    <RecordTable>
-      <RecordTable.Header />
-      <RecordTable.Body>
-        <RecordTable.RowList Row={RecordTableTree.Row} />
-        {loading && <RecordTable.RowSkeleton rows={10} />}
-      </RecordTable.Body>
-    </RecordTable>
-  </RecordTable.Scroll>
-);
+function CategoryTableContent({ loading }: { loading: boolean }) {
+  return (
+    <RecordTable.Scroll>
+      <RecordTable>
+        <RecordTable.Header />
+        <RecordTable.Body>
+          <RecordTable.RowList Row={RecordTableTree.Row} />
+          {loading && <RecordTable.RowSkeleton rows={10} />}
+        </RecordTable.Body>
+      </RecordTable>
+    </RecordTable.Scroll>
+  );
+}
 
 export const CategoryRecordTable = ({
   branchId,

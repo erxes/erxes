@@ -14,26 +14,27 @@ import { flattenGroups } from './TourGroupUtils';
 import { TourEditForm } from './TourEditForm';
 import { TourSideTab } from './TourOrdersSidePanel';
 
-/** Renders the tour group tree table without excessive JSX nesting. */
-const TourGroupTableContent = ({
+function TourGroupTableContent({
   loading,
   length,
 }: {
   loading: boolean;
   length: number;
-}) => (
-  <RecordTableTree id="tour-groups-list" ordered length={length}>
-    <RecordTable.Scroll>
-      <RecordTable>
-        <RecordTable.Header />
-        <RecordTable.Body>
-          {loading && <RecordTable.RowSkeleton rows={30} />}
-          <RecordTable.RowList Row={RecordTableTree.Row} />
-        </RecordTable.Body>
-      </RecordTable>
-    </RecordTable.Scroll>
-  </RecordTableTree>
-);
+}) {
+  return (
+    <RecordTableTree id="tour-groups-list" ordered length={length}>
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            {loading && <RecordTable.RowSkeleton rows={30} />}
+            <RecordTable.RowList Row={RecordTableTree.Row} />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
+    </RecordTableTree>
+  );
+}
 
 export const TourGroupList = ({
   branchId,
