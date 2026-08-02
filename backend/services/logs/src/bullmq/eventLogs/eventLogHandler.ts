@@ -44,24 +44,37 @@ export const eventLogHandler = async (
 
     if (status === 'success') {
       const resultDoc = Array.isArray(result) ? result[0] : result;
-
+    
       await handleAfterProcess(subdomain, {
         source,
         action: resultDoc?.action || action,
         contentType,
         payload: { ...payload, userId, processId },
-      }).catch((err) => {
-        models.Logs.insertOne({
-          source: 'afterProcess',
-          action: AFTER_PROCESS_CONSTANTS[`${source}.${action}`],
-          payload: { ...resultDoc?.payload, userId },
-          createdAt: new Date(),
-          userId,
-          status: LOG_STATUSES.FAILED,
-          processId,
-        });
+      }).catch(async (err) => {
+        try {
+          await models.Logs.insertOne({
+            source: 'afterProcess',
+            action: AFTER_PROCESS_CONSTANTS[`${source}.${action}`],
+            payload: { ...resultDoc?.payload, userId },
+            createdAt: new Date(),
+            userId,
+            status: LOG_STATUSES.FAILED,
+            processId,
+          });
+        } catch (insertErr) {
+          console.error(
+            `Failed to persist afterProcess failure log: ${
+              insertErr instanceof Error
+                ? insertErr.message
+                : String(insertErr)
+            }`,
+          );
+        }
+    
         console.error(
-          `Error occurred during afterProcess job ${jobId}: ${err.message}`,
+          `Error occurred during afterProcess job ${jobId}: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
         );
       });
     }
