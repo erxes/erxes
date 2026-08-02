@@ -83,6 +83,7 @@ export const TourGroupList = ({
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
       tableOptions={tableOptions}
+      tableId="tourism_tour_groups_record_table"
     >
       <RecordTableTree
         id="tour-groups-list"

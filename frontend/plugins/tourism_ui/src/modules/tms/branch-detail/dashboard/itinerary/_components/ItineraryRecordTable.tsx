@@ -105,6 +105,7 @@ export const ItineraryRecordTable = ({
         data={rowData}
         className="h-full"
         stickyColumns={['more', 'checkbox', 'name']}
+        tableId="tourism_itineraries_record_table"
       >
         <ItineraryCommandBar
           branchId={branchId}
