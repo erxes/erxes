@@ -437,6 +437,7 @@ type TalkingCall = {
   bridge_time?: string | Date;
 };
 
+/** Normalizes a call bridge timestamp and renders its live duration safely. */
 const TalkingCallDurationCell = ({ value }: { value?: string | Date }) => {
   const startDate = useMemo(() => {
     if (!value) {

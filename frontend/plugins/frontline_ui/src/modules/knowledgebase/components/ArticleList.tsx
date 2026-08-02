@@ -3,6 +3,7 @@ import {
   CommandBar,
   RecordTable,
   Separator,
+  toast,
   useConfirm,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
@@ -26,11 +27,13 @@ interface ArticleListProps {
   readonly onCreateArticle: () => void;
 }
 
+/** Renders the translated article-title column header. */
 const ArticleTitleHeader = () => {
   const { t } = useTranslation('frontline');
   return <RecordTable.InlineHead icon={IconFileText} label={t('col-name')} />;
 };
 
+/** Renders an article title that opens the selected article for editing. */
 const ArticleTitleCell = ({
   article,
   onEditArticle,
@@ -51,11 +54,13 @@ const ArticleTitleCell = ({
   );
 };
 
+/** Renders the translated article-status column header. */
 const ArticleStatusHeader = () => {
   const { t } = useTranslation('frontline');
   return <RecordTable.InlineHead icon={IconEye} label={t('status')} />;
 };
 
+/** Renders the normalized visual state for an article. */
 const ArticleStatusCell = ({ article }: { article: Article }) => {
   const status = String(article.status || 'unknown').toLowerCase();
   const isPublished = status.includes('publish');
@@ -87,18 +92,21 @@ const ArticleStatusCell = ({ article }: { article: Article }) => {
   );
 };
 
+/** Renders the translated article-owner column header. */
 const ArticleOwnerHeader = () => {
   const { t } = useTranslation('frontline');
   return <RecordTable.InlineHead icon={IconUser} label={t('kb-owner')} />;
 };
 
+/** Renders the translated article-created-date column header. */
 const ArticleCreatedHeader = () => {
   const { t } = useTranslation('frontline');
   return <RecordTable.InlineHead icon={IconCalendar} label={t('kb-created')} />;
 };
 
+/** Formats an article creation date in the active application locale. */
 const ArticleCreatedDateCell = ({ article }: { article: Article }) => {
-  const { t } = useTranslation('frontline');
+  const { t, i18n } = useTranslation('frontline');
 
   if (!article.createdDate) {
     return <div className="opacity-80 ml-2">-</div>;
@@ -111,7 +119,7 @@ const ArticleCreatedDateCell = ({ article }: { article: Article }) => {
 
   return (
     <div className="opacity-80 ml-2">
-      {date.toLocaleDateString('en-US', {
+      {date.toLocaleDateString(i18n.resolvedLanguage ?? i18n.language, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -120,6 +128,7 @@ const ArticleCreatedDateCell = ({ article }: { article: Article }) => {
   );
 };
 
+/** Builds the typed column definitions for the knowledge-base article list. */
 const getArticleColumns = (
   onEditArticle: (article: Article) => void,
 ): ColumnDef<Article>[] => [
@@ -160,6 +169,7 @@ const getArticleColumns = (
   },
 ];
 
+/** Provides bulk edit and deletion actions for selected articles. */
 const ArticleCommandBar = ({
   onEditArticle,
   refetch,
@@ -176,12 +186,14 @@ const ArticleCommandBar = ({
     .rows.map((row) => row.original as Article);
   const articleIds = selectedArticles.map((article) => article._id);
 
+  /** Opens the only selected article for editing. */
   const handleEdit = () => {
     if (selectedArticles.length === 1) {
       onEditArticle(selectedArticles[0]);
     }
   };
 
+  /** Confirms deletion, settles all mutations, then refreshes the table. */
   const handleDelete = async () => {
     if (articleIds.length === 0) {
       return;
@@ -197,12 +209,21 @@ const ArticleCommandBar = ({
           description: t('kb-action-permanent'),
         },
       });
-      await Promise.all(
-        articleIds.map((id) => removeArticle({ variables: { _id: id } })),
-      );
-      refetch();
     } catch {
       return;
+    }
+
+    const results = await Promise.allSettled(
+      articleIds.map((id) => removeArticle({ variables: { _id: id } })),
+    );
+    refetch();
+
+    if (results.some((result) => result.status === 'rejected')) {
+      toast({
+        title: t('error'),
+        description: t('something-went-wrong'),
+        variant: 'destructive',
+      });
     }
   };
 

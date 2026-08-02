@@ -12,10 +12,12 @@ import {
   Badge,
   ChartContainer,
   HoverCard,
+  cn,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { Link } from 'react-router-dom';
+import { forwardRef, type ComponentProps } from 'react';
 
 export const CallQueueRecordTable = ({
   basePath = '/frontline/calls/dashboard',
@@ -101,24 +103,32 @@ export const ProgressChart = ({
   );
 };
 
-const CallQueueTrigger = ({
-  basePath,
-  queue,
-  queueChairman,
-}: {
+type CallQueueTriggerProps = Omit<ComponentProps<typeof Link>, 'to'> & {
   basePath: string;
   queue: string;
   queueChairman: string;
-}) => (
-  <Link to={`${basePath}/${queue}`} className="block">
-    <RecordTableInlineCell>
-      <Badge variant="secondary">
-        {queue} - {queueChairman}
-      </Badge>
-    </RecordTableInlineCell>
-  </Link>
-);
+};
 
+/** Renders the queue link while forwarding HoverCard trigger behavior. */
+const CallQueueTrigger = forwardRef<HTMLAnchorElement, CallQueueTriggerProps>(
+  ({ basePath, queue, queueChairman, className, ...props }, ref) => (
+    <Link
+      {...props}
+      ref={ref}
+      to={`${basePath}/${queue}`}
+      className={cn('block', className)}
+    >
+      <RecordTableInlineCell>
+        <Badge variant="secondary">
+          {queue} - {queueChairman}
+        </Badge>
+      </RecordTableInlineCell>
+    </Link>
+  ),
+);
+CallQueueTrigger.displayName = 'CallQueueTrigger';
+
+/** Renders one answered or abandoned queue-rate summary. */
 const CallQueueRate = ({
   label,
   totalCalls,
@@ -144,6 +154,7 @@ const CallQueueRate = ({
   );
 };
 
+/** Renders a label and value row in the queue hover summary. */
 const CallQueueStat = ({
   label,
   value,
@@ -157,6 +168,7 @@ const CallQueueStat = ({
   </p>
 );
 
+/** Renders the queue name and its detailed call-statistics hover card. */
 const CallQueueSummaryCell = ({
   basePath,
   item,
@@ -227,6 +239,7 @@ const CallQueueSummaryCell = ({
   );
 };
 
+/** Builds translated columns for the call-queue statistics table. */
 const useGetColumns = (basePath: string): ColumnDef<ICallQueueListItem>[] => {
   const { t } = useTranslation('frontline');
   return [
