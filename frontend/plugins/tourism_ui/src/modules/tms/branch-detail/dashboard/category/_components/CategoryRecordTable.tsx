@@ -58,7 +58,12 @@ export const CategoryRecordTable = ({
 
   return (
     <RecordTable.Provider
-      columns={categoryColumns(categoryObject, branchLanguages, mainLanguage, t)}
+      columns={categoryColumns(
+        categoryObject,
+        branchLanguages,
+        mainLanguage,
+        t,
+      )}
       data={categoriesWithChildren || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
