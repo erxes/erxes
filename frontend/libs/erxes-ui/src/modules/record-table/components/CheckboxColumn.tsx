@@ -5,14 +5,13 @@ const dragSelection = {
   owner: null as Table<any> | null,
   selecting: false,
   suppressClickOn: null as { table: Table<any>; rowId: string } | null,
-  previousUserSelect: '',
 };
 
 const DRAG_END_EVENTS = ['pointerup', 'pointercancel', 'blur'] as const;
 
 const endDragSelection = () => {
   dragSelection.owner = null;
-  document.body.style.userSelect = dragSelection.previousUserSelect;
+  document.body.style.userSelect = '';
   DRAG_END_EVENTS.forEach((event) =>
     window.removeEventListener(event, endDragSelection),
   );
@@ -23,14 +22,9 @@ const startDragSelection = (
   row: Row<any>,
   table: Table<any>,
 ) => {
-  if (dragSelection.owner) {
-    endDragSelection();
-  }
-
   dragSelection.owner = table;
   dragSelection.selecting = selecting;
   dragSelection.suppressClickOn = { table, rowId: row.id };
-  dragSelection.previousUserSelect = document.body.style.userSelect;
   document.body.style.userSelect = 'none';
   DRAG_END_EVENTS.forEach((event) =>
     window.addEventListener(event, endDragSelection),
