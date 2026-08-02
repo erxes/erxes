@@ -14,6 +14,27 @@ import { flattenGroups } from './TourGroupUtils';
 import { TourEditForm } from './TourEditForm';
 import { TourSideTab } from './TourOrdersSidePanel';
 
+/** Renders the tour group tree table without excessive JSX nesting. */
+const TourGroupTableContent = ({
+  loading,
+  length,
+}: {
+  loading: boolean;
+  length: number;
+}) => (
+  <RecordTableTree id="tour-groups-list" ordered length={length}>
+    <RecordTable.Scroll>
+      <RecordTable>
+        <RecordTable.Header />
+        <RecordTable.Body>
+          {loading && <RecordTable.RowSkeleton rows={30} />}
+          <RecordTable.RowList Row={RecordTableTree.Row} />
+        </RecordTable.Body>
+      </RecordTable>
+    </RecordTable.Scroll>
+  </RecordTableTree>
+);
+
 export const TourGroupList = ({
   branchId,
   branchLanguages,
@@ -88,21 +109,7 @@ export const TourGroupList = ({
       tableOptions={tableOptions}
       tableId="tourism_tour_groups_record_table"
     >
-      <RecordTableTree
-        id="tour-groups-list"
-        ordered
-        length={groupedTours.length}
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              {loading && <RecordTable.RowSkeleton rows={30} />}
-              <RecordTable.RowList Row={RecordTableTree.Row} />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTableTree>
+      <TourGroupTableContent loading={loading} length={groupedTours.length} />
       <TourCommandBar
         branchId={branchId}
         branchLanguages={branchLanguages}

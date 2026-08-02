@@ -72,8 +72,8 @@
 
 ### `2026-08-03` — `Resolve tourism table review findings`
 
-- **Summary:** Reduced category table JSX nesting and corrected validation guidance to use available project tooling.
-- **Affected areas:** `src/modules/tms/branch-detail/dashboard/category`, validation documentation
+- **Summary:** Reduced category and tour-group table JSX nesting and corrected validation guidance to use available project tooling.
+- **Affected areas:** `src/modules/tms/branch-detail/dashboard`, validation documentation
 - **Contracts changed:** `None`
 
 ### `2026-08-03` — `Standardize tourism table column selectors`
