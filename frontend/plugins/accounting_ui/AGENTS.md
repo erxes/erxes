@@ -135,3 +135,13 @@
 - Smoke-test the affected route directly, including loading, empty, success,
   error, mutation-feedback, and persisted table-state behavior where
   applicable.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-03` — Add fixed-asset detail column selector
+
+- **Summary:** Added persistent column selection to the seven-column fixed-asset adjustment detail table.
+- **Affected areas:** `src/modules/adjustments/fxa/components/AdjustFixedAssetDetail.tsx`
+- **Contracts changed:** None

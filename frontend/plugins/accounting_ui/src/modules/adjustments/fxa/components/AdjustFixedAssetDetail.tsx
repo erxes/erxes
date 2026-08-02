@@ -123,11 +123,12 @@ export const AdjustFixedAssetDetail = () => {
         columns={adjustFxaDetailColumns}
         data={adjustFxaDetails}
         stickyColumns={[]}
+        tableId="accounting_adjust_fixed_asset_detail_record_table"
         className="m-3"
       >
         <RecordTable.Scroll>
           <RecordTable>
-            <RecordTable.Header />
+            <RecordTable.Header showColumnSelector />
             <RecordTable.Body>
               <RecordTable.RowList />
               {!detailsLoading &&
