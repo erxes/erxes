@@ -13,9 +13,7 @@ interface VendorUsersRecordTableProps {
   vendorId?: string;
 }
 
-export const VendorUsersRecordTable = ({
-  vendorId,
-}: VendorUsersRecordTableProps) => {
+export const VendorUsersRecordTable = ({ vendorId }: VendorUsersRecordTableProps) => {
   const { t } = useTranslation('insurance');
   const { vendorUsers, loading, refetch } = useVendorUsers(vendorId);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -37,7 +35,7 @@ export const VendorUsersRecordTable = ({
 
   const columns = useMemo(
     () => createVendorUsersColumns(handleEdit, refetch),
-    [refetch],
+    [refetch]
   );
 
   return (
@@ -70,9 +68,7 @@ export const VendorUsersRecordTable = ({
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">
-                    {t('no-users-yet')}
-                  </h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-users-yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
                     {vendorId
                       ? t('no-vendor-users-description')
