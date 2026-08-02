@@ -63,7 +63,6 @@
 
 ## Validation
 
-- `pnpm nx lint insurance_ui`
 - `pnpm nx build insurance_ui`
 - Open each insurance list and verify column visibility and order persist after
   reload.
