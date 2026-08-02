@@ -53,7 +53,12 @@ export const createProductsColumns = (
     accessorKey: 'insuranceType',
     header: () => {
       const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('insurance-type')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCategory}
+          label={t('insurance-type')}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -70,14 +75,21 @@ export const createProductsColumns = (
     accessorKey: 'coveredRisks',
     header: () => {
       const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('covered-risks')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconShieldCheck}
+          label={t('covered-risks')}
+        />
+      );
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('insurance');
       const risks = cell.row.original.coveredRisks || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{risks.length} {t('risks')}</Badge>
+          <Badge variant="secondary">
+            {risks.length} {t('risks')}
+          </Badge>
         </RecordTableInlineCell>
       );
     },
@@ -87,7 +99,12 @@ export const createProductsColumns = (
     accessorKey: 'riskDetails',
     header: () => {
       const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('risk-details')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconShieldCheck}
+          label={t('risk-details')}
+        />
+      );
     },
     cell: ({ cell }) => {
       const risks = cell.row.original.coveredRisks || [];
@@ -109,7 +126,9 @@ export const createProductsColumns = (
     accessorKey: 'createdAt',
     header: () => {
       const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
+      return (
+        <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
+      );
     },
     cell: ({ cell }) => {
       return (

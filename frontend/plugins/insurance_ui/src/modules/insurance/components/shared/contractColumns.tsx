@@ -24,9 +24,7 @@ import { formatCurrency, formatDate } from './formatters';
 type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
 
 // Shared column definitions for contract tables
-export const createMoreColumn = (
-  size = 33,
-): ColumnDef<InsuranceContract> => ({
+export const createMoreColumn = (size = 33): ColumnDef<InsuranceContract> => ({
   id: 'more',
   accessorKey: 'more',
   header: () => <RecordTable.ColumnSelector />,
@@ -39,7 +37,9 @@ export const contractNumberColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'contractNumber',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconFileText} label={t('contract-no')} />;
+    return (
+      <RecordTable.InlineHead icon={IconFileText} label={t('contract-no')} />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -104,7 +104,9 @@ export const chargedAmountColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'chargedAmount',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('amount')} />;
+    return (
+      <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('amount')} />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -118,7 +120,9 @@ export const startDateColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'startDate',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />;
+    return (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -146,7 +150,9 @@ export const paymentStatusColumn: ColumnDef<InsuranceContract> = {
   accessorKey: 'paymentStatus',
   header: () => {
     const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('status')} />;
+    return (
+      <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('status')} />
+    );
   },
   cell: ({ cell }) => {
     const { t } = useTranslation('insurance');
@@ -156,7 +162,9 @@ export const paymentStatusColumn: ColumnDef<InsuranceContract> = {
         {status === 'paid' ? (
           <Badge className="bg-green-100 text-green-800">{t('paid')}</Badge>
         ) : (
-          <Badge className="bg-yellow-100 text-yellow-800">{t('pending')}</Badge>
+          <Badge className="bg-yellow-100 text-yellow-800">
+            {t('pending')}
+          </Badge>
         )}
       </RecordTableInlineCell>
     );
