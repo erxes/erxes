@@ -1,9 +1,7 @@
 import { CustomerType } from 'ui-modules';
 import { z } from 'zod';
 import { TR_SIDES, TR_STATUSES, TrJournalEnum } from '../../types/constants';
-
-export const undefed = <T extends z.ZodTypeAny>(schema: T) =>
-  z.preprocess((val) => (val === null ? undefined : val), schema.optional());
+import { undefed } from '~/modules/types/utils';
 
 // #region common:
 export const vatSchema = z.object({

@@ -14,6 +14,7 @@ export const ACCOUNT_JOURNALS = {
   INVENTORY: 'inventory',
   INV_FOLLOW: 'invFollow',
   FIXED_ASSET: 'fixedAsset',
+  FXA_FOLLOW: 'fxaFollow',
   ALL: [
     'main',
     'tax',
@@ -24,6 +25,7 @@ export const ACCOUNT_JOURNALS = {
     'inventory',
     'invFollow',
     'fixedAsset',
+    'fxaFollow',
   ],
 };
 

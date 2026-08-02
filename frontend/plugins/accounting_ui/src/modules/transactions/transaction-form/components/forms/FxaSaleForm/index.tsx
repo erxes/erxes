@@ -14,6 +14,7 @@ import { FixedAssetForm } from './FixedAssetForm';
 import { FxaSaleAccountFields } from './FxaSaleAccountFields';
 import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
 import { useFxaDisposalFollowTrs } from '../hooks/useFxaDisposalFollowTrs';
+import { JournalEnum } from '~/modules/settings/account/types/Account';
 
 export const FxaSaleForm = ({
   form,
@@ -37,6 +38,9 @@ export const FxaSaleForm = ({
           index={index}
           allDetails
           labelTxt="Борлуулалтын орлогын данс"
+          filter={{
+            journals: [JournalEnum.FXA_FOLLOW],
+          }}
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />

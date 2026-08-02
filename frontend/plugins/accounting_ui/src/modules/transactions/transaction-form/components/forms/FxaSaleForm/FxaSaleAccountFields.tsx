@@ -1,5 +1,5 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { IAccount } from '@/settings/account/types/Account';
+import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 
@@ -29,7 +29,10 @@ export const FxaSaleAccountFields = ({
                 value={field.value || ''}
                 onValueChange={field.onChange}
                 onCallback={onFixedAssetAccountChange}
-                defaultFilter={{ permissionMode: 'write' }}
+                defaultFilter={{
+                  journals: [JournalEnum.FIXED_ASSET],
+                  permissionMode: 'write',
+                }}
               />
             </Form.Control>
             <Form.Message />
@@ -47,7 +50,10 @@ export const FxaSaleAccountFields = ({
             <SelectAccount
               value={field.value || ''}
               onValueChange={field.onChange}
-              defaultFilter={{ permissionMode: 'write' }}
+              defaultFilter={{
+                journals: [JournalEnum.FIXED_ASSET],
+                permissionMode: 'write'
+              }}
             />
           </Form.Control>
           <Form.Message />
@@ -65,7 +71,10 @@ export const FxaSaleAccountFields = ({
               <SelectAccount
                 value={field.value || ''}
                 onValueChange={field.onChange}
-                defaultFilter={{ permissionMode: 'write' }}
+                defaultFilter={{
+                  journals: [JournalEnum.FXA_FOLLOW],
+                  permissionMode: 'write'
+                }}
               />
             </Form.Control>
             <Form.Message />
@@ -83,7 +92,10 @@ export const FxaSaleAccountFields = ({
             <SelectAccount
               value={field.value || ''}
               onValueChange={field.onChange}
-              defaultFilter={{ permissionMode: 'write' }}
+              defaultFilter={{
+                journals: [JournalEnum.FXA_FOLLOW],
+                permissionMode: 'write'
+              }}
             />
           </Form.Control>
           <Form.Message />

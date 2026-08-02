@@ -1,11 +1,6 @@
 import { z } from 'zod';
 import { FIXED_ASSET_DEPRECIATION_METHOD_VALUES } from './depreciationMethods';
-
-const undefed = <T extends z.ZodTypeAny>(schema: T) =>
-  z.preprocess(
-    (value) => (value === null ? undefined : value),
-    schema.optional(),
-  );
+import { undefed } from '~/modules/types/utils';
 
 export const fixedAssetCategorySchema = z.object({
   code: z.string().min(1),
