@@ -22,6 +22,7 @@ import {
 } from './FacebookIntegrationForm';
 import { useFacebookPages } from '../hooks/useFacebookPages';
 import { useFbAuthPopup } from '../hooks/useFbAuthPopup';
+import { useFbIntegrationContext } from '../contexts/FbIntegrationContext';
 
 
 const FacebookAccountRow = ({
@@ -64,7 +65,12 @@ const FacebookAccountRow = ({
 
 export const FacebookGetAccounts = () => {
   const { t } = useTranslation('frontline');
-  const { facebookGetAccounts, loading, refetch } = useFacebookAccounts();
+  const { isPost } = useFbIntegrationContext();
+  // Page posting may run on a separate Meta app; the connect flow has to name
+  // the kind so the right app authorizes and the right accounts are listed.
+  const integrationKind = isPost ? 'facebook-post' : 'facebook-messenger';
+  const { facebookGetAccounts, loading, refetch } =
+    useFacebookAccounts(integrationKind);
   const [selectedAccount, setSelectedAccount] = useAtom(
     selectedFacebookAccountAtom,
   );
@@ -80,7 +86,7 @@ export const FacebookGetAccounts = () => {
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
     popupWindow(
-      `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin`,
+      `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=${integrationKind}`,
       'Facebook Login',
       660,
       750,

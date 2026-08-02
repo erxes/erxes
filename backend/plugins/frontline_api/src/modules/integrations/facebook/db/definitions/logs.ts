@@ -8,3 +8,8 @@ export const logSchema = new Schema({
   specialValue: { type: String },
   createdAt: { type: Date },
 });
+
+// Logs (including the post audit trail) are operational evidence, not business
+// data — expire them so the collection cannot grow unbounded. 180 days
+// comfortably covers a Meta App Review appeal window.
+logSchema.index({ createdAt: 1 }, { expireAfterSeconds: 180 * 24 * 3600 });

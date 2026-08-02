@@ -1,4 +1,8 @@
-import { getConfig } from '@/integrations/facebook/commonUtils';
+import {
+  facebookAccountSelector,
+  getConfig,
+  resolveFacebookApp,
+} from '@/integrations/facebook/commonUtils';
 import {
   debugFacebook,
   debugRequest,
@@ -10,12 +14,31 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { generateModels } from '~/connectionResolvers';
 
+/**
+ * The integration kind is known when the popup is opened, but Facebook's
+ * callback only carries `code` and `state`. We therefore round-trip the kind
+ * through `state` so the callback resolves the same Meta app that issued the
+ * authorization — mixing them would exchange the code against the wrong app.
+ */
+const readKindFromState = (state?: string): string | undefined => {
+  if (!state) {
+    return undefined;
+  }
+
+  const match = /[?&]kind=([^&]+)/.exec(state);
+
+  return match ? decodeURIComponent(match[1]) : undefined;
+};
+
 export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
-  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
+  const kind =
+    (req.query.kind as string) || readKindFromState(req.query.state as string);
+
+  const app = await resolveFacebookApp(models, kind);
+
   const FACEBOOK_PERMISSIONS = await getConfig(
     models,
     'FACEBOOK_PERMISSIONS',
@@ -30,8 +53,8 @@ export const loginMiddleware = async (req, res) => {
     `${API_DOMAIN}/pl:frontline/facebook/fblogin`,
   );
   const conf = {
-    client_id: FACEBOOK_APP_ID,
-    client_secret: FACEBOOK_APP_SECRET,
+    client_id: app.appId,
+    client_secret: app.appSecret,
     scope: FACEBOOK_PERMISSIONS + ',pages_read_engagement,pages_show_list',
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
@@ -39,11 +62,15 @@ export const loginMiddleware = async (req, res) => {
   debugRequest(debugFacebook, req);
 
   if (!req.query.code) {
+    const state = kind
+      ? `${API_DOMAIN}/pl:frontline/facebook?kind=${encodeURIComponent(kind)}`
+      : `${API_DOMAIN}/pl:frontline/facebook`;
+
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: `${API_DOMAIN}/pl:frontline/facebook`,
+      state,
     });
 
     if (!req.query.error) {
@@ -75,14 +102,16 @@ export const loginMiddleware = async (req, res) => {
       access_token,
     );
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
-    const account = await models.FacebookAccounts.findOne({
-      uid: userAccount.id,
-    });
+    // Scoped by app: a user token is only valid for the app that minted it, so
+    // connecting posting must not overwrite the Messenger account's token.
+    const account = await models.FacebookAccounts.findOne(
+      facebookAccountSelector(userAccount.id, app),
+    );
     let accountId: string;
     if (account) {
       await models.FacebookAccounts.updateOne(
         { _id: account._id },
-        { $set: { token: access_token } },
+        { $set: { token: access_token, appId: app.appId } },
       );
       const integrations = await models.FacebookIntegrations.find({
         accountId: account._id,

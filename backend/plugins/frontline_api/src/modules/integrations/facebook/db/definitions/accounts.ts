@@ -23,5 +23,11 @@ export const accountSchema = schemaWrapper(
     },
     name: { type: String },
     uid: { type: String },
+    // Meta app that minted `token`. Absent on accounts created before page
+    // posting could run on its own app; those belong to the main app.
+    appId: {
+      type: String,
+      optional: true,
+    },
   }),
 );

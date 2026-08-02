@@ -849,7 +849,6 @@
   "top-converting-source": "Хамгийн их хөрвүүлэлттэй эх сурвалж",
   "source-name-percent": "{{name}} · {{percent}}%",
   "percent-share": "{{percent}}% хувь",
-  "total-tickets": "Нийт тикет",
   "name-label": "Нэр",
   "state-label": "Байдал",
   "status-label": "Төлөв",
@@ -1178,5 +1177,16 @@
   "ringtone-blocked": "Хөтөч дуут дохиог хаасан байна. Дууг идэвхжүүлэхийн тулд хуудсан дээр дарна уу.",
   "mic-permission-denied": "Микрофоны зөвшөөрөл хаалттай байна. Хөтчийн тохиргооноос микрофон ашиглахыг зөвшөөрнө үү.",
   "hold": "Хүлээлгэх",
-  "unhold": "Үргэлжлүүлэх"
+  "unhold": "Үргэлжлүүлэх",
+  "create-post": "Пост үүсгэх",
+  "create-facebook-post": "Facebook пост үүсгэх",
+  "facebook-page": "Facebook хуудас",
+  "post-message": "Мессеж",
+  "post-message-placeholder": "Юу нийтлэх вэ?",
+  "post-link": "Холбоос (заавал биш)",
+  "publish": "Нийтлэх",
+  "posting": "Нийтэлж байна...",
+  "post-published": "Пост нийтлэгдлээ",
+  "view-on-facebook": "Facebook дээр үзэх",
+  "no-connected-pages": "Энэ холболтод Facebook хуудас холбогдоогүй байна."
 }

@@ -8,7 +8,12 @@ import {
   createPagePost,
   getPostDetails,
   sendReply,
+  uploadUnpublishedPhoto,
 } from '@/integrations/facebook/utils';
+import {
+  assertPostRateLimit,
+  logPostAttempt,
+} from '@/integrations/facebook/postGuard';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { TCreateBotInputDoc } from '../../db/models/Bots';
 export const facebookMutations = {
@@ -119,8 +124,15 @@ export const facebookMutations = {
       pageId,
       message,
       link,
-    }: { erxesApiId: string; pageId: string; message: string; link?: string },
-    { models }: IContext,
+      imageUrls,
+    }: {
+      erxesApiId: string;
+      pageId: string;
+      message: string;
+      link?: string;
+      imageUrls?: string[];
+    },
+    { models, user }: IContext,
   ) {
     const integration = await models.FacebookIntegrations.findOne({
       erxesApiId,
@@ -134,12 +146,74 @@ export const facebookMutations = {
       throw new Error('Page is not connected to this integration');
     }
 
-    const response = await createPagePost(
-      pageId,
-      integration.facebookPageTokensMap || {},
-      message,
-      link,
-    );
+    const images = (imageUrls || []).map((u) => `${u}`.trim()).filter(Boolean);
+
+    // Facebook rejects feed posts with more than 10 attached_media entries.
+    if (images.length > 10) {
+      throw new Error('A post can include at most 10 images');
+    }
+
+    for (const url of images) {
+      if (!/^https:\/\//.test(url)) {
+        throw new Error('Image URLs must be public https:// links');
+      }
+    }
+
+    const userId = user?._id;
+
+    // Bounds a runaway caller before it can get the shared Meta app flagged.
+    try {
+      await assertPostRateLimit(models, pageId);
+    } catch (e) {
+      await logPostAttempt(models, {
+        erxesApiId,
+        pageId,
+        message,
+        userId,
+        status: 'blocked',
+        error: e.message,
+      });
+
+      throw e;
+    }
+
+    let response: { id: string };
+
+    try {
+      // Carousel flow: stage each image as an unpublished photo, then create
+      // one feed post referencing them all. A failed upload aborts the post —
+      // publishing a partial carousel would be worse than failing loudly.
+      const mediaIds: string[] = [];
+
+      for (const url of images) {
+        const uploaded = await uploadUnpublishedPhoto(
+          pageId,
+          integration.facebookPageTokensMap || {},
+          url,
+        );
+
+        mediaIds.push(uploaded.id);
+      }
+
+      response = await createPagePost(
+        pageId,
+        integration.facebookPageTokensMap || {},
+        message,
+        link,
+        mediaIds,
+      );
+    } catch (e) {
+      await logPostAttempt(models, {
+        erxesApiId,
+        pageId,
+        message,
+        userId,
+        status: 'failed',
+        error: e.message,
+      });
+
+      throw e;
+    }
 
     const details = await getPostDetails(
       pageId,
@@ -147,9 +221,21 @@ export const facebookMutations = {
       response.id,
     );
 
+    const permalinkUrl = details ? details.permalink_url : null;
+
+    await logPostAttempt(models, {
+      erxesApiId,
+      pageId,
+      message,
+      userId,
+      status: 'published',
+      postId: response.id,
+      permalinkUrl,
+    });
+
     return {
       postId: response.id,
-      permalinkUrl: details ? details.permalink_url : null,
+      permalinkUrl,
     };
   },
   async facebookMessengerAddBot(_root, args, { models, user }: IContext) {

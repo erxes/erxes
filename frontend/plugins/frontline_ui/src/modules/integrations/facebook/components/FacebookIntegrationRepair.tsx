@@ -35,8 +35,10 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
     });
   };
 
+  // Re-auth must name the kind so it targets the same Meta app that issued the
+  // original token — page posting may run on an app of its own.
   const { reauth, loading: authLoading } = useIntegrationReauth(
-    '/pl:frontline/facebook/fblogin',
+    `/pl:frontline/facebook/fblogin?kind=${integrationType || 'facebook-messenger'}`,
     FACEBOOK_AUTH_SUCCESS_MESSAGE,
     runRepair,
   );

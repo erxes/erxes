@@ -67,11 +67,16 @@ export const getPostDetails = async (
   }
 };
 
-export const createPagePost = async (
+/**
+ * Uploads a photo to the page WITHOUT publishing it, returning its media id.
+ * Used to build multi-image (carousel) feed posts: each image is staged here,
+ * then referenced from the feed post via attached_media. The image must be a
+ * publicly reachable URL — Facebook fetches it server-side.
+ */
+export const uploadUnpublishedPhoto = async (
   pageId: string,
   pageTokens: { [key: string]: string },
-  message: string,
-  link?: string,
+  imageUrl: string,
 ): Promise<{ id: string }> => {
   let pageAccessToken;
 
@@ -82,10 +87,49 @@ export const createPagePost = async (
     throw new Error('Page access token not found');
   }
 
-  const doc: { message: string; link?: string } = { message };
+  try {
+    const response: any = await graphRequest.post(
+      `${pageId}/photos`,
+      pageAccessToken,
+      { url: imageUrl, published: false },
+    );
+
+    return response;
+  } catch (e) {
+    debugError(`Error occurred while uploading facebook photo: ${e.message}`);
+    throw new Error(e.message);
+  }
+};
+
+export const createPagePost = async (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  message: string,
+  link?: string,
+  attachedMediaIds?: string[],
+): Promise<{ id: string }> => {
+  let pageAccessToken;
+
+  try {
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+  } catch (e) {
+    debugError(`Error occurred while getting page access token: ${e.message}`);
+    throw new Error('Page access token not found');
+  }
+
+  const doc: { [key: string]: string } = { message };
 
   if (link) {
     doc.link = link;
+  }
+
+  // Multi-image (carousel) post: reference photos staged by
+  // uploadUnpublishedPhoto. Facebook expects one attached_media[i] form field
+  // per image, each a JSON object naming the media id.
+  for (let i = 0; i < (attachedMediaIds || []).length; i++) {
+    doc[`attached_media[${i}]`] = JSON.stringify({
+      media_fbid: (attachedMediaIds as string[])[i],
+    });
   }
 
   try {
