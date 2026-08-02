@@ -134,7 +134,7 @@ export const useMenusColumns = (
     },
     {
       id: 'more',
-      header: () => <span className="sr-only">{t('more')}</span>,
+      header: () => <RecordTable.ColumnSelector />,
       cell: ({ row }) => (
         <MoreCell row={row} onEdit={onEdit} refetch={refetch} />
       ),

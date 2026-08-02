@@ -109,6 +109,7 @@ export const CategoriesRecordTable = ({
               data={treeCategories}
               className="h-full"
               stickyColumns={['more', 'checkbox', 'name']}
+              tableId="content_categories_record_table"
             >
               <RecordTable.CursorProvider
                 hasPreviousPage={hasPreviousPage}
