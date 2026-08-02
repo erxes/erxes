@@ -1,7 +1,11 @@
 import { deliverEmail, getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { createDeliveryLogPort } from '~/utils/email/deliveryLog';
 import {
+  createDeliveryLogPort,
+  createSuppressionPort,
+} from '~/utils/email/ports';
+import {
+  getBroadcastAlignedFrom,
   getBroadcastCacheKey,
   getBroadcastEmailConfig,
   toOutboundEmail,
@@ -306,12 +310,10 @@ export const sendEngageEmail = async (
   const configSet = await getConfigSet(models);
 
   try {
-    await deliverEmail({
+    const outcome = await deliverEmail({
       cacheKey: getBroadcastCacheKey(models),
       config: await getBroadcastEmailConfig(models),
-      // `data.fromEmail` is the sender. It used to be omitted here, which left
-      // the configuration set sitting in the `from` slot and produced a `From`
-      // header that was not an address at all.
+
       message: toOutboundEmail(
         prepareEmailParams(
           subdomain,
@@ -320,16 +322,23 @@ export const sendEngageEmail = async (
           data.fromEmail,
           configSet,
         ),
+        { alignedFrom: await getBroadcastAlignedFrom(models) },
       ),
       log: createDeliveryLogPort(models),
+      suppression: createSuppressionPort(models),
       meta: {
         source: 'broadcast',
         sourceId: data.engageMessageId,
         userId: data.createdBy,
+        subdomain,
       },
     });
 
-    console.log(`Sent email to: ${customer?.primaryEmail}`);
+    console.log(
+      outcome.skipped
+        ? `Skipped suppressed address: ${customer?.primaryEmail}`
+        : `Sent email to: ${customer?.primaryEmail}`,
+    );
   } catch (e) {
     console.log(
       `Error occurred while sending email to ${customer?.primaryEmail}: ${e.message}`,

@@ -1,15 +1,11 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
-import { isSenderAllowed } from '~/utils/email/senders';
+import { isSenderAllowed, resolveAlignedFrom } from '~/utils/email/senders';
+import { createSuppressionPort } from '~/utils/email/ports';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
-/**
- * Lets services without their own database reach the org's email records and
- * sender rules. The automations service is the caller today; it holds no models
- * and must not re-implement either.
- */
 export const emailTrpcRouter = t.router({
   emailDeliveries: t.router({
     create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
@@ -34,6 +30,24 @@ export const emailTrpcRouter = t.router({
       }),
   }),
 
+  emailSuppression: t.router({
+    blocked: t.procedure
+      .input(
+        z.object({
+          emails: z.array(z.string()),
+          source: z.string().optional(),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        return await createSuppressionPort(models).blocked(
+          input.emails,
+          input.source,
+        );
+      }),
+  }),
+
   emailSenders: t.router({
     isAllowed: t.procedure
       .input(z.object({ email: z.string() }))
@@ -42,5 +56,11 @@ export const emailTrpcRouter = t.router({
 
         return await isSenderAllowed(models, input.email);
       }),
+
+    alignedFrom: t.procedure.query(async ({ ctx }) => {
+      const { models } = ctx;
+
+      return await resolveAlignedFrom(models);
+    }),
   }),
 });

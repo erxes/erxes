@@ -1,8 +1,9 @@
 import { ICustomer } from '@/broadcast/@types';
 import dotenv from 'dotenv';
 import { IAttachment } from 'erxes-api-shared/core-types';
-import { getEnv, isValidURL, randomAlphanumeric } from 'erxes-api-shared/utils';
+import { isValidURL, randomAlphanumeric } from 'erxes-api-shared/utils';
 import validator from 'validator';
+import { coreUrl, readFileUrl as fileUrl } from '~/utils/email/links';
 
 dotenv.config();
 
@@ -11,13 +12,7 @@ export const readFileUrl = (value: string, subdomain: string) => {
     return value;
   }
 
-  const DOMAIN = getEnv({
-    name: 'DOMAIN',
-  });
-
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
-
-  return `${domain}/gateway/read-file?key=${encodeURIComponent(value)}`;
+  return fileUrl(subdomain, value);
 };
 
 const prepareAttachments = (
@@ -55,20 +50,12 @@ export const prepareEmailHeader = (
   engageMessageId?: string,
   configSet?: string,
 ) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' })
-    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-    : 'http://localhost:4000';
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
-  const callbackUrl = `${domain}/pl:core`;
-
+  // `Subdomain` is not set here: `deliverEmail` adds it to every send path.
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
     CustomerId: customerId,
     MailMessageId: randomAlphanumeric(),
-    Host: callbackUrl,
-    // SendGrid posts every account's events to one webhook URL, so on SaaS the
-    // event itself has to say which organization it belongs to.
-    Subdomain: subdomain,
+    Host: coreUrl(subdomain),
   };
 
   if (engageMessageId) {

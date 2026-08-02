@@ -1,4 +1,5 @@
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
+import { useEmailLane } from '@/settings/email-addresses/contexts/EmailLanes';
 import {
   IconCalendarPlus,
   IconChartBar,
@@ -23,6 +24,7 @@ import {
   useQueryState,
   PopoverScoped,
   FullNameValue,
+  ValidationStatus,
 } from 'erxes-ui';
 import { useState } from 'react';
 import {
@@ -41,6 +43,32 @@ import { TFunction } from 'i18next';
 import { customerMoreColumn } from './CustomerMoreColumn';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
+
+/**
+ * The address's own standing, not the stored validation field: `proven` is what
+ * a delivery proved, `suppressed` what a bounce or complaint closed. The stored
+ * field is left alone as history — nothing writes it any more.
+ */
+const LANE_AS_STATUS: Record<string, ValidationStatus | undefined> = {
+  proven: ValidationStatus.Valid,
+  suppressed: ValidationStatus.Invalid,
+  unknown: undefined,
+};
+
+const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
+  const laneOf = useEmailLane();
+
+  return (
+    <CustomerEmails
+      primaryEmail={customer.primaryEmail || ''}
+      _id={customer._id}
+      emailValidationStatus={LANE_AS_STATUS[laneOf(customer.primaryEmail)]}
+      emails={customer.emails || []}
+      scope={ContactsHotKeyScope.CustomersTableInlinePopover}
+      Trigger={RecordTableInlineCell.Trigger}
+    />
+  );
+};
 
 export const createCustomersColumns = (
   t: TFunction,
@@ -119,20 +147,7 @@ export const createCustomersColumns = (
     header: () => (
       <RecordTable.InlineHead label={t('customer.emails')} icon={IconMail} />
     ),
-    cell: ({ cell }) => {
-      const { primaryEmail, _id, emailValidationStatus, emails } =
-        cell.row.original;
-      return (
-        <CustomerEmails
-          primaryEmail={primaryEmail || ''}
-          _id={_id}
-          emailValidationStatus={emailValidationStatus}
-          emails={emails || []}
-          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
-          Trigger={RecordTableInlineCell.Trigger}
-        />
-      );
-    },
+    cell: ({ cell }) => <CustomerEmailsCell customer={cell.row.original} />,
     size: 250,
   },
   {

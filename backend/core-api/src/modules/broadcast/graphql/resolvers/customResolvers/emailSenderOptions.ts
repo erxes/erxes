@@ -3,6 +3,7 @@ import { TEmailScope } from '~/utils/email/scope';
 import {
   listAuthenticatedDomains,
   listSingleSenders,
+  resolveAlignedFrom,
 } from '~/utils/email/senders';
 
 export interface IEmailSenderOptionsRoot {
@@ -40,5 +41,13 @@ export default {
     const domains = await listAuthenticatedDomains(models, root._scope);
 
     return domains.some((domain) => domain.status === 'verified');
+  },
+
+  async alignedFrom(
+    root: IEmailSenderOptionsRoot,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return await resolveAlignedFrom(models, root._scope);
   },
 };

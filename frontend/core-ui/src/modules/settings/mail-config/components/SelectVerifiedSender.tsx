@@ -1,21 +1,20 @@
-import { VerifiedSenderSendgridForm } from '@/settings/mail-config/components/VerifiedSenderSendgridForm';
+import { AddSenderDialog } from '@/settings/mail-config/components/AddSenderDialog';
 import { useSenderCreation } from '@/settings/mail-config/hooks/useSenderCreation';
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { IconMailCheck, IconMailPlus } from '@tabler/icons-react';
 import { Button, Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
-import validator from 'validator';
 
 /**
- * Picks one of the provider's verified sender addresses, and lets a new one be
- * verified without leaving the form. Senders still waiting on their
- * confirmation link are left out — the provider rejects mail from them, so
- * offering them here would only produce failed sends.
+ * Picks one of the confirmed sender addresses, and lets a new one be added
+ * without leaving the form. Addresses still waiting on their confirmation link
+ * are left out — they are not usable yet, so offering them here would only
+ * produce failed sends.
  */
 export const SelectVerifiedSender = ({
   value,
   onChange,
-  placeholder = 'Select a verified sender',
+  placeholder = 'Select a sender',
 }: {
   value?: string;
   onChange: (value: string) => void;
@@ -25,63 +24,15 @@ export const SelectVerifiedSender = ({
   const [search, setSearch] = useState('');
 
   const { singleSenders, loading } = useSenderOptions();
-  const {
-    needsForm,
-    addByEmail,
-    sendgridFormOpen,
-    setSendgridFormOpen,
-    openSendgridForm,
-  } = useSenderCreation();
+  const { formOpen, setFormOpen, openForm } = useSenderCreation();
 
-  const verified = singleSenders.filter(
+  const confirmed = singleSenders.filter(
     (sender) => sender.status === 'verified',
   );
 
-  const startSendgridForm = () => {
+  const handleAdd = () => {
     setOpen(false);
-    openSendgridForm();
-  };
-
-  /**
-   * Kept out of the list and below a separator: adding a sender is a different
-   * kind of action from picking one, and it should stay reachable without
-   * scrolling past every existing sender.
-   */
-  const renderAddAction = () => {
-    if (needsForm) {
-      return (
-        <Button
-          variant="ghost"
-          className="w-full justify-start font-normal"
-          onClick={startSendgridForm}
-        >
-          <IconMailPlus />
-          Verify a new sender
-        </Button>
-      );
-    }
-
-    const isValid = validator.isEmail(search);
-
-    if (!search || verified.some((sender) => sender.value === search)) {
-      return (
-        <p className="px-2 py-1.5 text-sm text-muted-foreground">
-          Type an email above to verify a new sender.
-        </p>
-      );
-    }
-
-    return (
-      <Button
-        variant="ghost"
-        className="w-full justify-start font-normal"
-        disabled={!isValid}
-        onClick={() => addByEmail(search, () => setSearch(''))}
-      >
-        <IconMailPlus />
-        Verify "{search}"
-      </Button>
-    );
+    openForm();
   };
 
   return (
@@ -99,20 +50,18 @@ export const SelectVerifiedSender = ({
             <Command.Input
               value={search}
               onValueChange={setSearch}
-              placeholder={
-                needsForm ? 'Search senders...' : 'Search or add email...'
-              }
+              placeholder="Search senders..."
             />
             <Command.List className="max-h-[300px] overflow-y-auto">
               <Combobox.Empty loading={loading} />
 
-              {!loading && verified.length === 0 && (
+              {!loading && confirmed.length === 0 && (
                 <div className="p-4 text-center text-muted-foreground text-sm">
-                  No verified senders yet.
+                  No confirmed senders yet.
                 </div>
               )}
 
-              {verified.map((sender) => (
+              {confirmed.map((sender) => (
                 <Command.Item
                   key={sender.id}
                   value={sender.value}
@@ -136,19 +85,26 @@ export const SelectVerifiedSender = ({
             {!loading && (
               <>
                 <Command.Separator />
-                <div className="p-1">{renderAddAction()}</div>
+                {/* Kept below a separator: adding a sender is a different kind
+                    of action from picking one, and it should stay reachable
+                    without scrolling past every existing sender. */}
+                <div className="p-1">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start font-normal"
+                    onClick={handleAdd}
+                  >
+                    <IconMailPlus />
+                    Add a sender address
+                  </Button>
+                </div>
               </>
             )}
           </Command>
         </Combobox.Content>
       </Popover>
 
-      {needsForm && (
-        <VerifiedSenderSendgridForm
-          open={sendgridFormOpen}
-          onOpenChange={setSendgridFormOpen}
-        />
-      )}
+      <AddSenderDialog open={formOpen} onOpenChange={setFormOpen} />
     </>
   );
 };

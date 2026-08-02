@@ -2,75 +2,45 @@ import { Request, Response, Router } from 'express';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { routeErrorHandling } from '../utils';
+import { applyTemplate } from '~/utils/common';
 
-/**
- * Campaign mail carries `cid` (a customer), notification mail carries `uid` (a
- * team member). Both end up in the same place, so one endpoint serves both.
- */
 const unsubscribe = async (models: IModels, query: Request['query']) => {
   const customerId = String(query.cid || '');
   const userId = String(query.uid || '');
 
   if (customerId) {
-    await models.Customers.updateOne(
+    const customer = await models.Customers.findOneAndUpdate(
       { _id: customerId },
       { $set: { isSubscribed: 'No' } },
     );
+
+    // The flag stops this contact; suppressing the address stops every other
+    // record that carries it too.
+    for (const email of [
+      customer?.primaryEmail,
+      ...(customer?.emails || []),
+    ].filter(Boolean)) {
+      await models.EmailAddresses.suppress(email as string, 'unsubscribe');
+    }
 
     return true;
   }
 
   if (userId) {
-    await models.Users.updateOne(
+    const user = await models.Users.findOneAndUpdate(
       { _id: userId },
       { $set: { isSubscribed: 'No' } },
     );
+
+    if (user?.email) {
+      await models.EmailAddresses.suppress(user.email, 'unsubscribe');
+    }
 
     return true;
   }
 
   return false;
 };
-
-const page = (title: string, message: string) => `
-  <!doctype html>
-  <html>
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>${title}</title>
-    </head>
-    <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tr>
-          <td align="center" style="padding: 60px 20px;">
-            <table border="0" cellpadding="0" cellspacing="0" width="480" style="background-color: #ffffff; border-radius: 8px;">
-              <tr>
-                <td style="padding: 40px; text-align: center;">
-                  <h1 style="margin: 0 0 12px; font-size: 20px;">${title}</h1>
-                  <div style="color: #666; font-size: 14px; line-height: 1.5;">${message}</div>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </body>
-  </html>
-`;
-
-const confirmPage = (action: string) =>
-  page(
-    'Unsubscribe',
-    `
-      <p>Stop receiving these emails?</p>
-      <form method="POST" action="${action}">
-        <button type="submit" style="margin-top: 8px; padding: 10px 20px; font-size: 14px; color: #ffffff; background-color: #5629b6; border: 0; border-radius: 6px; cursor: pointer;">
-          Unsubscribe
-        </button>
-      </form>
-    `,
-  );
 
 const router: Router = Router();
 
@@ -82,7 +52,22 @@ const router: Router = Router();
 router.get(
   '/',
   routeErrorHandling(async (req: Request, res: Response) => {
-    return res.send(confirmPage(req.originalUrl));
+    return res.send(
+      await applyTemplate(
+        {
+          title: 'Unsubscribe',
+          body: `
+            <p style="margin: 0 0 20px;">Stop receiving these emails?</p>
+            <form method="POST" action="${req.originalUrl}">
+              <button type="submit" style="padding: 10px 32px; font-size: 14px; color: #ffffff; background-color: #5629b6; border: 0; border-radius: 300px; cursor: pointer;">
+                Unsubscribe
+              </button>
+            </form>
+          `,
+        },
+        'emailActionPage',
+      ),
+    );
   }),
 );
 
@@ -98,11 +83,25 @@ router.post(
     const done = await unsubscribe(models, req.query);
 
     if (!done) {
-      return res.status(400).send(page('Unsubscribe', 'This link is invalid.'));
+      return res.status(400).send(
+        await applyTemplate(
+          {
+            title: 'Unsubscribe',
+            body: '<p style="margin: 0;">This link is invalid.</p>',
+          },
+          'emailActionPage',
+        ),
+      );
     }
 
     return res.send(
-      page('Unsubscribed', 'You will no longer receive these emails.'),
+      await applyTemplate(
+        {
+          title: 'Unsubscribed',
+          body: '<p style="margin: 0;">You will no longer receive these emails.</p>',
+        },
+        'emailActionPage',
+      ),
     );
   }),
 );

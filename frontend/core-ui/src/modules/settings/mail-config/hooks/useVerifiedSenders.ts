@@ -11,7 +11,7 @@ export type TEmailProvider = 'SES' | 'sendgrid' | 'custom';
 
 export interface IEmailSender {
   id: string;
-  /** `single` is one verified address; `domain` lets any address below it send. */
+  /** `single` is one confirmed address; `domain` lets any address below it send. */
   type: 'single' | 'domain';
   value: string;
   name?: string;
@@ -25,6 +25,11 @@ export interface IEmailSenderOptions {
   supportsDynamicSender: boolean;
   /** What the "company email" sender option resolves to, as the server sees it. */
   defaultSenderEmail: string;
+  /**
+   * The address messages actually go out as, when the deployment rewrites it.
+   * `null` means the chosen address is used as-is.
+   */
+  alignedFrom: string | null;
   /** True when this scope ends up on the very same credentials as mail config. */
   sameAsMailConfig: boolean;
   senders: IEmailSender[];
@@ -33,7 +38,6 @@ export interface IEmailSenderOptions {
 export interface IVerifySenderInput {
   email: string;
   name?: string;
-  replyTo?: string;
 }
 
 const EMPTY_OPTIONS: IEmailSenderOptions = {
@@ -41,6 +45,7 @@ const EMPTY_OPTIONS: IEmailSenderOptions = {
   supportsSenderVerification: false,
   supportsDynamicSender: false,
   defaultSenderEmail: '',
+  alignedFrom: null,
   sameAsMailConfig: false,
   senders: [],
 };

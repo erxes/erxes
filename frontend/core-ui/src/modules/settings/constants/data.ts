@@ -200,7 +200,7 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Logs,
     },
     {
-      name: 'Email logs',
+      name: 'Email delivery',
       icon: IconMail,
       path: SettingsWorkspacePath.EmailDeliveries,
     },

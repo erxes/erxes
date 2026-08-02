@@ -95,6 +95,7 @@ import {
   IAutomationExecutionDocument,
   IEmailAddressDocument,
   IEmailDeliveryDocument,
+  IEmailRampDocument,
   IEmailSenderDocument,
   INotificationDocument,
   notificationSchema,
@@ -226,15 +227,19 @@ import {
 import {
   IEmailAddressModel,
   loadEmailAddressClass,
-} from './modules/organization/team-member/db/models/EmailAddresses';
+} from './modules/notifications/db/models/EmailAddresses';
 import {
   IEmailDeliveryModel,
   loadEmailDeliveryClass,
-} from './modules/organization/team-member/db/models/EmailDeliveries';
+} from './modules/notifications/db/models/EmailDeliveries';
+import {
+  IEmailRampModel,
+  loadEmailRampClass,
+} from './modules/notifications/db/models/EmailRamp';
 import {
   IEmailSenderModel,
   loadEmailSenderClass,
-} from './modules/organization/team-member/db/models/EmailSenders';
+} from './modules/notifications/db/models/EmailSenders';
 import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
 import {
   IOrgWhiteLabelModel,
@@ -336,6 +341,7 @@ export interface IModels {
   Notifications: Model<INotificationDocument>;
   EmailAddresses: IEmailAddressModel;
   EmailDeliveries: IEmailDeliveryModel;
+  EmailRamp: IEmailRampModel;
   EmailSenders: IEmailSenderModel;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
@@ -628,6 +634,11 @@ export const loadClasses = (
   models.EmailSenders = db.model<IEmailSenderDocument, IEmailSenderModel>(
     'email_senders',
     loadEmailSenderClass(models),
+  );
+
+  models.EmailRamp = db.model<IEmailRampDocument, IEmailRampModel>(
+    'email_ramp',
+    loadEmailRampClass(models),
   );
 
   models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(

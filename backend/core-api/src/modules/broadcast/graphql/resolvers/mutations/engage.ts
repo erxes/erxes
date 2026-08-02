@@ -13,7 +13,7 @@ import {
 import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { TEmailScope } from '~/utils/email/scope';
-import { createDeliveryLogPort } from '~/utils/email/deliveryLog';
+import { createDeliveryLogPort } from '~/utils/email/ports';
 import { removeVerifiedSender, verifySender } from '~/utils/email/senders';
 
 export const engageMutations = {
@@ -156,11 +156,9 @@ export const engageMutations = {
   async engageMessageVerifyEmail(
     _root: undefined,
     { scope, ...input }: ISingleSenderInput & { scope?: TEmailScope },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    // SES only needs the address; SendGrid additionally stores a name and the
-    // organization's postal address, which `verifySender` fills in from config.
-    const response = await verifySender(models, input, scope);
+    const response = await verifySender(models, subdomain, input, scope);
 
     return JSON.stringify(response);
   },
@@ -229,7 +227,7 @@ export const engageMutations = {
           html: replacedContent || content,
         },
         log: createDeliveryLogPort(models),
-        meta: { source: 'broadcast', userId: fromUser?._id },
+        meta: { source: 'broadcast', userId: fromUser?._id, subdomain },
       });
 
       return JSON.stringify(response);

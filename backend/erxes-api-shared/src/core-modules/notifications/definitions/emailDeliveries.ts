@@ -1,12 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
-/** Result of handing the message to the provider. Always known. */
 export type TEmailHandoffStatus = 'queued' | 'sent' | 'failed';
 
-/**
- * Derived from provider webhooks, so it only ever exists for providers that
- * push events. SMTP deliveries leave this undefined forever.
- */
 export type TEmailDeliveryStatus =
   | 'delivered'
   | 'opened'
@@ -21,13 +16,10 @@ export interface IEmailDeliveryDocument extends Document {
   notificationId?: string;
   userId?: string;
 
-  /**
-   * What produced this email and the record it came from. Free-form so plugins
-   * can introduce their own sources without editing this schema. Core uses
-   * 'automation', 'broadcast' and 'transactional'.
-   */
   source?: string;
   sourceId?: string;
+
+  lane?: 'proven' | 'unknown';
 
   toEmails: string[];
   ccEmails?: string[];
@@ -77,6 +69,11 @@ export const emailDeliverySchema = new Schema({
 
   sourceId: {
     type: String,
+  },
+
+  lane: {
+    type: String,
+    enum: ['proven', 'unknown'],
   },
 
   toEmails: {
@@ -193,3 +190,4 @@ emailDeliverySchema.index({ userId: 1, createdAt: -1 });
 emailDeliverySchema.index({ status: 1, createdAt: -1 });
 emailDeliverySchema.index({ provider: 1, status: 1 });
 emailDeliverySchema.index({ source: 1, sourceId: 1 });
+emailDeliverySchema.index({ createdAt: -1, lane: 1 });

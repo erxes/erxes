@@ -210,6 +210,7 @@ export const types = `
     supportsSenderVerification: Boolean
     supportsDynamicSender: Boolean
     defaultSenderEmail: String
+    alignedFrom: String
     sameAsMailConfig: Boolean
     senders: [EmailSender]
   }

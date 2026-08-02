@@ -8,12 +8,14 @@ import {
   IEmailProviderConfig,
   ISender,
   ISingleSenderInput,
+  randomAlphanumeric,
   resolveDefaultSenderEmail,
   resolveEmailProviderName,
   TEmailProviderName,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { getPostalAddress } from '~/utils/email/postalAddress';
+import { sendEmail } from '~/utils/email';
+import { senderConfirmUrl } from '~/utils/email/links';
 import {
   getScopedCacheKey,
   getScopedEmailConfig,
@@ -33,10 +35,6 @@ export interface IEmailSenderOptions {
   provider: TEmailProviderName;
   supportsSenderVerification: boolean;
   defaultSenderEmail: string;
-  /**
-   * True when this scope resolves to exactly the transactional credentials, so
-   * the UI can say the separation it appears to offer is not in effect.
-   */
   sameAsMailConfig: boolean;
 }
 
@@ -57,12 +55,6 @@ const checkSameMailConfigEach = async (
   );
 };
 
-/**
- * What the sender pickers need before they touch the provider: which provider
- * is configured and what the "company email" option resolves to. Answering this
- * server-side keeps the org's credentials off the wire — the settings query
- * returns every config value, secrets included, which no sender picker needs.
- */
 export const getEmailSenderOptions = async (
   models: IModels,
   scope: TEmailScope = 'transactional',
@@ -76,21 +68,11 @@ export const getEmailSenderOptions = async (
     // A plain SMTP relay keeps no sender registry, so there is nothing to
     // verify against.
     supportsSenderVerification: provider !== 'custom',
-    defaultSenderEmail: resolveDefaultSenderEmail({
-      isSaas: getEnv({ name: 'VERSION' }) === 'saas',
-      companyEmailFrom: await getConfig('COMPANY_EMAIL_FROM', '', models),
-      fallbackEmail: getEnv({ name: 'DEFAULT_AWS_EMAIL' }),
-    }),
+    defaultSenderEmail: await getDefaultSenderEmail(models),
     sameAsMailConfig: await checkSameMailConfigEach(scope, config, models),
   };
 };
 
-/**
- * Which scope's claims apply. A claim proves the organization registered the
- * address on a particular provider account — so while broadcast runs on the
- * mail config's credentials, that account *is* the transactional one, and a
- * separate set of claims would only hide senders the org already verified.
- */
 const resolveClaimScope = async (
   models: IModels,
   scope: TEmailScope,
@@ -109,9 +91,7 @@ const emptyWhenUnavailable = async (
   read: () => Promise<ISender[]>,
 ): Promise<ISender[]> => {
   try {
-    const senders = await read();
-    console.log(JSON.stringify({ senders }));
-    return senders;
+    return await read();
   } catch (error) {
     if (
       error instanceof EmailProviderNotSupportedError ||
@@ -124,39 +104,25 @@ const emptyWhenUnavailable = async (
   }
 };
 
-/**
- * Single senders this organization registered, asked for by id so the shared
- * account's other senders never come back at all.
- */
 export const listSingleSenders = async (
   models: IModels,
   scope: TEmailScope = 'transactional',
 ): Promise<ISender[]> => {
-  const claims = await models.EmailSenders.listActive(
+  const claims = await models.EmailSenders.listClaimed(
     await resolveClaimScope(models, scope),
   );
 
-  const ids = claims
-    .map((claim) => claim.providerId)
-    .filter((id): id is string => !!id);
-
-  if (!ids.length) {
-    return [];
-  }
-
-  return await emptyWhenUnavailable(async () =>
-    (await getProvider(models, scope)).listSingleSenders(ids),
-  );
+  return claims
+    .filter((claim) => claim.type !== 'domain')
+    .map((claim) => ({
+      id: claim._id,
+      type: 'single' as const,
+      value: claim.email,
+      name: claim.name,
+      status: claim.state === 'active' ? 'verified' : 'pending',
+    }));
 };
 
-/**
- * Domains this organization is entitled to send from.
- *
- * A self-hosted install owns its provider account, so every domain on it is
- * already the install's own. On SaaS the account is shared, and a domain
- * authenticated there says nothing about which tenant controls it — only the
- * claim does, exactly as with single senders.
- */
 export const listAuthenticatedDomains = async (
   models: IModels,
   scope: TEmailScope = 'transactional',
@@ -185,10 +151,24 @@ export const listAuthenticatedDomains = async (
   return await read(domains);
 };
 
-/**
- * `null` means "unrestricted" — the provider keeps no sender registry — and must
- * not be read as "none verified".
- */
+export const getDefaultSenderEmail = async (models: IModels) =>
+  resolveDefaultSenderEmail({
+    isSaas: getEnv({ name: 'VERSION' }) === 'saas',
+    companyEmailFrom: await getConfig('COMPANY_EMAIL_FROM', '', models),
+    fallbackEmail: getEnv({ name: 'DEFAULT_AWS_EMAIL' }),
+  });
+
+export const resolveAlignedFrom = async (
+  models: IModels,
+  scope: TEmailScope = 'transactional',
+): Promise<string | null> => {
+  const hasDomain = await models.EmailSenders.hasActiveDomain(
+    await resolveClaimScope(models, scope),
+  );
+
+  return hasDomain ? null : (await getDefaultSenderEmail(models)) || null;
+};
+
 export const getVerifiedSenderEmails = async (
   models: IModels,
   scope: TEmailScope = 'transactional',
@@ -209,27 +189,12 @@ export const getVerifiedSenderEmails = async (
     .map((sender) => sender.value);
 };
 
-const listClaimedAddresses = async (models: IModels, scope: TEmailScope) => {
-  const claims = await models.EmailSenders.listActive(
-    await resolveClaimScope(models, scope),
-  );
-
-  return new Set(claims.map((claim) => claim.email.toLowerCase()));
-};
-
 const isVerified = (senders: ISender[], value: string) =>
   senders.some(
     (sender) =>
       sender.status === 'verified' && sender.value.toLowerCase() === value,
   );
 
-/**
- * Whether the address may be used as a `From`: a single sender this
- * organization registered, or one under an authenticated domain.
- *
- * Domains must match exactly — as a suffix, an authenticated `bank.mn` would
- * also let `notbank.mn` through.
- */
 export const isSenderAllowed = async (
   models: IModels,
   email: string,
@@ -246,13 +211,11 @@ export const isSenderAllowed = async (
 
   const address = email.trim().toLowerCase();
 
-  // Checked first so the usual case costs one provider call, not two.
-  const claimed = await listClaimedAddresses(models, scope);
+  const claims = await models.EmailSenders.listActive(
+    await resolveClaimScope(models, scope),
+  );
 
-  if (
-    claimed.has(address) &&
-    isVerified(await listSingleSenders(models, scope), address)
-  ) {
+  if (claims.some((claim) => claim.email.toLowerCase() === address)) {
     return true;
   }
 
@@ -264,39 +227,55 @@ export const isSenderAllowed = async (
 
 export const verifySender = async (
   models: IModels,
+  subdomain: string,
   input: ISingleSenderInput,
   scope: TEmailScope = 'transactional',
 ): Promise<ISender> => {
-  const provider = await getProvider(models, scope);
+  const email = input.email.trim().toLowerCase();
+  const token = randomAlphanumeric(32);
 
-  // The postal address belongs to the organization, not to each sender, so it
-  // is read from config rather than typed again on every verification.
-  const sender = await provider.verifySingleSender({
-    ...input,
-    ...(await getPostalAddress(models)),
-  });
-
-  // Records that this organization asked for the address, which is what later
-  // separates it from every other organization on the same provider account.
-  await models.EmailSenders.claimSender({
-    email: sender.value,
-    name: sender.name,
+  const claim = await models.EmailSenders.claimSender({
+    email,
+    name: input.name,
     type: 'single',
     scope: await resolveClaimScope(models, scope),
-    providerId: sender.id,
+    state: 'pending',
+    verificationToken: token,
   });
 
-  return sender;
+  await sendEmail(
+    subdomain,
+    {
+      toEmails: [email],
+      title: 'Confirm this address for erxes',
+      template: {
+        name: 'senderConfirmation',
+        data: {
+          email,
+          organizationName:
+            (await getConfig('COMPANY_EMAIL_FROM_NAME', '', models)) ||
+            subdomain,
+          link: senderConfirmUrl(subdomain, token),
+          year: new Date().getFullYear(),
+        },
+      },
+    },
+    models,
+  );
+
+  return {
+    id: claim?._id || email,
+    type: 'single',
+    value: email,
+    name: input.name,
+    status: 'pending',
+  };
 };
 
-/**
- * Drops this organization's claim on the address.
- *
- * The provider record is deliberately left alone: the account is shared, so
- * another organization may well be sending from that same sender, and deleting
- * it would cut them off. An orphaned provider record is harmless — nothing can
- * use it here once the claim is gone.
- */
+export const confirmSender = async (models: IModels, token: string) =>
+  await models.EmailSenders.confirmByToken(token);
+
+/** Only the claim; a shared provider record may belong to another org too. */
 export const removeVerifiedSender = async (
   models: IModels,
   email: string,

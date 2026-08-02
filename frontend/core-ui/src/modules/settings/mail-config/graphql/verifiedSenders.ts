@@ -11,6 +11,7 @@ export const SENDER_OPTIONS = gql`
       supportsSenderVerification
       supportsDynamicSender
       defaultSenderEmail
+      alignedFrom
       sameAsMailConfig
       senders {
         id
@@ -24,18 +25,8 @@ export const SENDER_OPTIONS = gql`
 `;
 
 export const VERIFY_SENDER = gql`
-  mutation VerifySender(
-    $email: String!
-    $name: String
-    $replyTo: String
-    $scope: String
-  ) {
-    engageMessageVerifyEmail(
-      email: $email
-      name: $name
-      replyTo: $replyTo
-      scope: $scope
-    )
+  mutation VerifySender($email: String!, $name: String, $scope: String) {
+    engageMessageVerifyEmail(email: $email, name: $name, scope: $scope)
   }
 `;
 

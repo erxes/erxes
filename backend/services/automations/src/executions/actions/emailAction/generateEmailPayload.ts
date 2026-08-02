@@ -112,6 +112,7 @@ export const generateEmailPayload = async ({
   return {
     title: subject,
     fromEmail: formatFromEmail(sender, fromUserEmail),
+    replyTo: config.replyToEmail || undefined,
     toEmails: filteredToEmails,
     ccEmails: filteredCcEmails,
     customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, '-'),

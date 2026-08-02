@@ -1,6 +1,7 @@
 import { getConfig } from '@/organization/settings/utils/configs';
 import { IEmailParams } from '@/organization/types';
 import {
+  alignSender,
   deliverEmail,
   getEnv,
   loadEmailProviderConfig,
@@ -8,7 +9,11 @@ import {
 import * as Handlebars from 'handlebars';
 import { IModels } from '~/connectionResolvers';
 import { applyTemplate } from '~/utils/common';
-import { createDeliveryLogPort } from '~/utils/email/deliveryLog';
+import {
+  createDeliveryLogPort,
+  createSuppressionPort,
+} from '~/utils/email/ports';
+import { resolveAlignedFrom } from '~/utils/email/senders';
 
 export const sendEmail = async (
   subdomain: string,
@@ -79,6 +84,8 @@ export const sendEmail = async (
   }
 
   const log = models ? createDeliveryLogPort(models) : undefined;
+  const suppression = models ? createSuppressionPort(models) : undefined;
+  const alignedFrom = models ? await resolveAlignedFrom(models) : null;
 
   for (const toEmail of toEmails) {
     if (modifier) {
@@ -104,22 +111,25 @@ export const sendEmail = async (
       html = Handlebars.compile(customHtml)(customHtmlData || {});
     }
 
-    const from =
+    const requested =
       fromEmail ||
       (hasCompanyFromEmail
         ? `Noreply <${COMPANY_EMAIL_FROM}>`
         : 'noreply@erxes.io');
 
-    if (!from) {
-      throw new Error(`"From" email address is missing: ${from}`);
+    if (!requested) {
+      throw new Error(`"From" email address is missing: ${requested}`);
     }
 
+    const { from, replyTo } = alignSender(requested, undefined, alignedFrom);
+
     try {
-      await deliverEmail({
+      const outcome = await deliverEmail({
         cacheKey: subdomain,
         config: providerConfig,
         message: {
           from,
+          replyTo,
           to: [toEmail],
           subject: title || '',
           html: html || '',
@@ -131,13 +141,19 @@ export const sendEmail = async (
           })),
         },
         log,
+        suppression,
         meta: {
           source: 'transactional',
           userId,
+          subdomain,
         },
       });
 
-      console.log(`Email sent successfully: ${toEmail} from ${from}`);
+      console.log(
+        outcome.skipped
+          ? `Email skipped, address is suppressed: ${toEmail}`
+          : `Email sent successfully: ${toEmail} from ${from}`,
+      );
     } catch (e) {
       console.log(`Error sending email: ${e.message}`);
     }

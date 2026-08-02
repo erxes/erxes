@@ -130,7 +130,7 @@
     "default-email-service": "Default email service",
     "default-email-service-desc": "Choose your email service name. The default email service is SES.",
     "postal-address": "Postal address",
-    "postal-address-desc": "Your organization's physical address. Anti-spam law requires it on marketing email, and your provider stores it on every verified sender.",
+    "postal-address-desc": "Your organization's physical address. Anti-spam law requires it in the footer of marketing email.",
     "postal-city": "City",
     "postal-country": "Country",
     "postal-address-missing": "Set a postal address — marketing email is required by law to carry one, and campaigns are sent without it until you do.",

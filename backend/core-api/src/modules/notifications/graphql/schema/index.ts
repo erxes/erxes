@@ -102,6 +102,51 @@ export const types = `
     clicked: [String]
   }
 
+  type EmailAddress {
+    _id: String
+    email: String
+    lane: String
+
+    lastSentAt: Date
+    lastDeliveredAt: Date
+    deliveredCount: Int
+
+    softBounceCount: Int
+    lastSoftBounceAt: Date
+
+    suppressedAt: Date
+    suppressionReason: String
+    suppressedBy: String
+
+    releasedAt: Date
+    releasedBy: String
+    releaseNote: String
+
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  type EmailRampStatus {
+    tier: Int
+    tiers: [Int]
+    dailyBudget: Int
+    usedToday: Int
+    haltedAt: Date
+    haltReason: String
+    lastRate: Float
+    lastEvaluatedAt: Date
+    advanceRate: Float
+    dropRate: Float
+    haltRate: Float
+    windowDays: Int
+  }
+
+  type EmailAddressesList {
+    list:[EmailAddress]
+    totalCount: Int
+    pageInfo: PageInfo
+  }
+
   type EmailDeliveriesList {
     list:[EmailDelivery]
     totalCount: Int
@@ -179,6 +224,13 @@ const EMAIL_DELIVERIES_QUERY_PARAMS = `
   createdAtTo:Date
 `;
 
+const EMAIL_ADDRESSES_QUERY_PARAMS = `
+  lane:String,
+  suppressionReason:String,
+  searchValue:String,
+  emails:[String]
+`;
+
 export const queries = `
   pluginsNotifications: [NotificationPluginType]
   notifications(${GQL_CURSOR_PARAM_DEFS},${NOTIFICATIONS_QUERIES_PARAMS}):NotificationsList
@@ -187,9 +239,13 @@ export const queries = `
   notificationSettings: NotificationSettings
   emailDeliveries(${GQL_CURSOR_PARAM_DEFS},${EMAIL_DELIVERIES_QUERY_PARAMS}):EmailDeliveriesList
   emailDeliveryDetail(_id:String!):EmailDelivery
+  emailAddresses(${GQL_CURSOR_PARAM_DEFS},${EMAIL_ADDRESSES_QUERY_PARAMS}):EmailAddressesList
+  emailRampStatus:EmailRampStatus
 `;
 
 export const mutations = `
+  emailAddressRelease(email:String!, note:String!):String
+  emailRampRelease(note:String!):EmailRampStatus
   archiveNotification(_id:String!):String
   archiveNotifications(ids:[String], archiveAll:Boolean, filters:NotificationFilters):String
   markNotificationAsRead(_id:String!):JSON

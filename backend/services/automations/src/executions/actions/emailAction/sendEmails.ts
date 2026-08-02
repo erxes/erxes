@@ -1,10 +1,13 @@
 import {
+  alignSender,
   deliverEmail,
   getEnv,
   loadEmailProviderConfig,
+  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { debugError } from '../../../debugger';
 import { createDeliveryLogPort } from '../../../utils/emailDeliveryLog';
+import { createSuppressionPort } from '../../../utils/emailSuppression';
 import { getConfig } from '../../../utils/utils';
 
 export const sendEmails = async (
@@ -16,6 +19,7 @@ export const sendEmails = async (
     payload: {
       title: string;
       fromEmail: string;
+      replyTo?: string;
       toEmails: string[];
       ccEmails: string[];
       customHtml: string;
@@ -27,6 +31,7 @@ export const sendEmails = async (
     toEmails = [],
     ccEmails = [],
     fromEmail,
+    replyTo: requestedReplyTo,
     title,
     customHtml,
   } = payload;
@@ -43,11 +48,26 @@ export const sendEmails = async (
     throw new Error('Node environment is required');
   }
 
-  const from = fromEmail || COMPANY_EMAIL_FROM;
+  const requested = fromEmail || COMPANY_EMAIL_FROM;
 
-  if (!from) {
-    throw new Error(`"From" email address is missing: ${from}`);
+  if (!requested) {
+    throw new Error(`"From" email address is missing: ${requested}`);
   }
+
+  const alignedFrom = await sendTRPCMessage({
+    subdomain,
+    method: 'query',
+    pluginName: 'core',
+    module: 'emailSenders',
+    action: 'alignedFrom',
+    input: {},
+  });
+
+  const { from, replyTo } = alignSender(
+    requested,
+    requestedReplyTo,
+    alignedFrom,
+  );
 
   let config;
 
@@ -66,20 +86,33 @@ export const sendEmails = async (
       config,
       message: {
         from,
+        replyTo,
         to: toEmails,
         cc: ccEmails.length ? ccEmails : undefined,
         subject: title,
         html: customHtml,
       },
       log: createDeliveryLogPort(subdomain),
-      meta: { source: 'automation', sourceId: executionId },
+      suppression: createSuppressionPort(subdomain),
+      meta: { source: 'automation', sourceId: executionId, subdomain },
     });
+
+    if (result.skipped) {
+      return {
+        from,
+        toEmails,
+        ccEmails: ccEmails.length ? ccEmails : undefined,
+        skipped: true,
+        suppressed: result.suppressed,
+      };
+    }
 
     return {
       from,
       messageId: result.messageId,
       toEmails,
       ccEmails: ccEmails.length ? ccEmails : undefined,
+      suppressed: result.suppressed,
     };
   } catch (error) {
     debugError(error);

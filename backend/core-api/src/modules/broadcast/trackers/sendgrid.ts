@@ -9,11 +9,6 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 
-/**
- * How each SendGrid event maps onto what erxes already records. The names on
- * the right are the SES event names the stats and suppression paths were built
- * around, so both providers end up counted the same way.
- */
 const EVENT_MAP: Record<
   string,
   { sesType: string; field?: string; suppress?: boolean }
@@ -26,11 +21,6 @@ const EVENT_MAP: Record<
   spamreport: { sesType: 'complaint', field: 'complained', suppress: true },
 };
 
-/**
- * SendGrid reports a full mailbox and a mailbox that does not exist under the
- * same `bounce` event, separating them only by `type`. Treating both as
- * permanent would close addresses whose owner was merely over quota that day.
- */
 const isHardBounce = (event: ISendgridEvent) => {
   const name = String(event.event);
 
@@ -87,10 +77,6 @@ const recordDelivery = async (
   );
 };
 
-/**
- * Campaign statistics and the per-recipient report predate the delivery log and
- * are what the broadcast UI reads, so SendGrid has to feed them too.
- */
 const recordCampaign = async (models: IModels, event: ISendgridEvent) => {
   const engageMessageId = event.EngageMessageId as string | undefined;
 
@@ -122,11 +108,6 @@ const recordCampaign = async (models: IModels, event: ISendgridEvent) => {
   await models.DeliveryReports.create({ ...report, status: sesType });
 };
 
-/**
- * Updates what this organization knows about the address itself, which is what
- * later decides whether it may be mailed again. Everything else the webhook
- * writes is per-message; this is the part that outlives the message.
- */
 const recordAddress = async (models: IModels, event: ISendgridEvent) => {
   const name = String(event.event);
   const email = event.email;
@@ -167,8 +148,6 @@ const handleEvent = async (models: IModels, event: ISendgridEvent) => {
   await recordCampaign(models, event);
   await recordAddress(models, event);
 
-  // A temporary failure is not a reason to stop mailing someone, so only the
-  // permanent verdicts reach the customer's own subscription flag.
   if (mapped.suppress && event.CustomerId && isPermanent(event)) {
     await models.Customers.updateSubscriptionStatus({
       _id: event.CustomerId as string,
@@ -177,20 +156,16 @@ const handleEvent = async (models: IModels, event: ISendgridEvent) => {
   }
 };
 
-/**
- * Events arrive in batches that may span organizations, because a shared
- * provider account has one webhook URL for every tenant on it. Each event
- * carries the subdomain it was sent from; a self-hosted install owns its
- * account, so its own host answers instead.
- */
 export const sendgridTracker = async (req: Request, res: Response) => {
   const requestSubdomain = getSubdomain(req);
 
-  const publicKey = await getConfig(
-    'SENDGRID_WEBHOOK_PUBLIC_KEY',
-    '',
-    await generateModels(requestSubdomain),
-  );
+  const publicKey =
+    getEnv({ name: 'SENDGRID_WEBHOOK_PUBLIC_KEY' }) ||
+    (await getConfig(
+      'SENDGRID_WEBHOOK_PUBLIC_KEY',
+      '',
+      await generateModels(requestSubdomain),
+    ));
 
   const verified = verifySendgridSignature({
     publicKey,
@@ -204,17 +179,24 @@ export const sendgridTracker = async (req: Request, res: Response) => {
   }
 
   const events: ISendgridEvent[] = Array.isArray(req.body) ? req.body : [];
+  const isShared = !!getEnv({ name: 'SENDGRID_WEBHOOK_PUBLIC_KEY' });
 
   for (const event of events) {
     try {
-      const models = await generateModels(
-        (event.Subdomain as string) || requestSubdomain,
-      );
+      const subdomain = (event.Subdomain as string) || requestSubdomain;
+
+      if (isShared && !event.Subdomain) {
+        console.error(
+          `SendGrid event without a subdomain, skipped: ${event.sg_event_id}`,
+        );
+
+        continue;
+      }
+
+      const models = await generateModels(subdomain);
 
       await handleEvent(models, event);
     } catch (error) {
-      // One unusable event must not drop the rest of the batch, and SendGrid
-      // retries the whole batch on a non-2xx.
       console.error(`Failed to handle SendGrid event: ${error.message}`);
     }
   }

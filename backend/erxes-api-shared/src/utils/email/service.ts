@@ -6,12 +6,9 @@ import {
   TEmailProviderName,
 } from './types';
 
-/**
- * Custom arg / header name the provider echoes back on delivery webhooks. The
- * existing SES SNS tracker already reads this exact header, so SES keeps
- * working untouched.
- */
 export const EMAIL_DELIVERY_ID_KEY = 'EmailDeliveryId';
+
+export const EMAIL_SUBDOMAIN_KEY = 'Subdomain';
 
 export interface IDeliveryLogInput {
   toEmails: string[];
@@ -34,21 +31,22 @@ export interface IDeliveryLogPatch {
   error?: string;
 }
 
-/**
- * How a service persists delivery rows. core-api backs this with its own
- * models; the automations service goes through tRPC. Keeping it a port is what
- * lets the send path live in shared code without knowing about mongoose.
- */
 export interface IDeliveryLogPort {
   create(input: IDeliveryLogInput): Promise<string | undefined>;
   update(id: string, patch: IDeliveryLogPatch): Promise<void>;
 }
 
-/**
- * The delivery log's provider values predate the provider layer and use their
- * own casing, so translate here rather than leaking either naming into the
- * other.
- */
+/** Backed like the delivery log: models in core-api, tRPC elsewhere. */
+export interface ISuppressionPort {
+  blocked(emails: string[], source?: string): Promise<string[]>;
+}
+
+export interface ISendOutcome extends ISentEmail {
+  deliveryId?: string;
+  skipped?: boolean;
+  suppressed?: string[];
+}
+
 export const toDeliveryLogProvider = (
   name: TEmailProviderName,
 ): 'sendgrid' | 'smtp' | 'ses' => {
@@ -66,43 +64,73 @@ export const toDeliveryLogProvider = (
 const toErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
-/**
- * The single way email leaves erxes. Resolves the tenant's provider, records a
- * delivery row before handing off so webhooks have something to attach to, then
- * writes back the handoff result.
- *
- * Logging is best effort: a logging failure degrades tracking, it never blocks
- * the send.
- */
 export const deliverEmail = async ({
   cacheKey,
   config,
   message,
   log,
+  suppression,
   meta,
 }: {
   cacheKey: string;
   config: IEmailProviderConfig;
   message: IOutboundEmail;
   log?: IDeliveryLogPort;
+  suppression?: ISuppressionPort;
   meta?: {
     source?: string;
     sourceId?: string;
     userId?: string;
     notificationId?: string;
+    /** Which tenant this belongs to, for the webhook to route the events back. */
+    subdomain?: string;
   };
-}): Promise<ISentEmail & { deliveryId?: string }> => {
+}): Promise<ISendOutcome> => {
   const provider = getEmailProvider(cacheKey, config);
+
+  let recipients = message;
+  let suppressed: string[] = [];
+
+  if (suppression) {
+    suppressed = await suppression.blocked(
+      [...message.to, ...(message.cc || [])],
+      meta?.source,
+    );
+
+    if (suppressed.length) {
+      const closed = new Set(suppressed);
+      const to = message.to.filter((email) => !closed.has(email));
+
+      // Nothing was handed off, so there is no delivery row to attach a webhook
+      // to and nothing to count as sent.
+      if (!to.length) {
+        return {
+          messageId: '',
+          provider: provider.name,
+          accepted: [],
+          rejected: [],
+          skipped: true,
+          suppressed,
+        };
+      }
+
+      recipients = {
+        ...message,
+        to,
+        cc: (message.cc || []).filter((email) => !closed.has(email)),
+      };
+    }
+  }
 
   let deliveryId: string | undefined;
 
   if (log) {
     try {
       deliveryId = await log.create({
-        toEmails: message.to,
-        ccEmails: message.cc,
-        from: message.from,
-        subject: message.subject,
+        toEmails: recipients.to,
+        ccEmails: recipients.cc,
+        from: recipients.from,
+        subject: recipients.subject,
         provider: provider.name,
         source: meta?.source,
         sourceId: meta?.sourceId,
@@ -116,15 +144,17 @@ export const deliverEmail = async ({
     }
   }
 
-  const outbound: IOutboundEmail = deliveryId
+  const tracking = {
+    ...(deliveryId ? { [EMAIL_DELIVERY_ID_KEY]: deliveryId } : {}),
+    ...(meta?.subdomain ? { [EMAIL_SUBDOMAIN_KEY]: meta.subdomain } : {}),
+  };
+
+  const outbound: IOutboundEmail = Object.keys(tracking).length
     ? {
-        ...message,
-        customArgs: {
-          ...(message.customArgs || {}),
-          [EMAIL_DELIVERY_ID_KEY]: deliveryId,
-        },
+        ...recipients,
+        customArgs: { ...(recipients.customArgs || {}), ...tracking },
       }
-    : message;
+    : recipients;
 
   try {
     const result = await provider.send(outbound);
@@ -144,7 +174,11 @@ export const deliverEmail = async ({
         });
     }
 
-    return { ...result, deliveryId };
+    return {
+      ...result,
+      deliveryId,
+      suppressed: suppressed.length ? suppressed : undefined,
+    };
   } catch (error) {
     if (log && deliveryId) {
       await log

@@ -1,4 +1,4 @@
-import { VerifiedSenderSendgridForm } from '@/settings/mail-config/components/VerifiedSenderSendgridForm';
+import { AddSenderDialog } from '@/settings/mail-config/components/AddSenderDialog';
 import { useSenderCreation } from '@/settings/mail-config/hooks/useSenderCreation';
 import {
   IEmailSender,
@@ -16,21 +16,20 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
-import validator from 'validator';
 
 const SenderBadge = ({ sender }: { sender: IEmailSender }) => (
   <Badge variant={sender.status === 'verified' ? 'default' : 'secondary'}>
     {sender.value}
     {sender.status !== 'verified' && (
-      <span className="ml-1 opacity-70">({sender.status})</span>
+      <span className="ml-1 opacity-70">(unconfirmed)</span>
     )}
   </Badge>
 );
 
 /**
- * Sender identities for the organization's configured email provider. Rendered
- * both in mail settings and in broadcast settings, so it reads the provider
- * itself rather than being told which one is active.
+ * Addresses the organization has confirmed it holds. Rendered both in mail
+ * settings and in broadcast settings, so it reads the provider itself rather
+ * than being told which one is active.
  */
 export const VerifiedSenders = () => {
   const [open, setOpen] = useState(false);
@@ -43,13 +42,7 @@ export const VerifiedSenders = () => {
     loading,
   } = useSenderOptions();
   const { removeVerifiedSender } = useRemoveVerifiedSender();
-  const {
-    needsForm,
-    addByEmail,
-    sendgridFormOpen,
-    setSendgridFormOpen,
-    openSendgridForm: startSendgridForm,
-  } = useSenderCreation();
+  const { formOpen, setFormOpen, openForm } = useSenderCreation();
 
   // A plain SMTP relay accepts whatever the server allows, so there is no
   // sender list to show or manage. Waits for the answer first — the loading
@@ -59,62 +52,15 @@ export const VerifiedSenders = () => {
     return null;
   }
 
-  const handleAddSes = (email: string) =>
-    addByEmail(email, () => {
-      setSearch('');
-      setOpen(false);
-    });
-
   const handleRemove = (email: string) => {
     confirm({
       message: `Are you sure you want to remove this sender?`,
     }).then(() => removeVerifiedSender(email));
   };
 
-  const openSendgridForm = () => {
+  const handleAdd = () => {
     setOpen(false);
-    startSendgridForm();
-  };
-
-  /**
-   * Kept out of the list and below a separator: adding a sender is a different
-   * kind of action from removing one, and the two must not look alike.
-   */
-  const renderAddAction = () => {
-    if (needsForm) {
-      return (
-        <Button
-          variant="ghost"
-          className="w-full justify-start font-normal"
-          onClick={openSendgridForm}
-        >
-          <IconMailPlus />
-          Verify a new sender
-        </Button>
-      );
-    }
-
-    const isValid = validator.isEmail(search);
-
-    if (!search || senders.some((sender) => sender.value === search)) {
-      return (
-        <p className="px-2 py-1.5 text-sm text-muted-foreground">
-          Type an email above to verify a new sender.
-        </p>
-      );
-    }
-
-    return (
-      <Button
-        variant="ghost"
-        className="w-full justify-start font-normal"
-        disabled={!isValid}
-        onClick={() => handleAddSes(search)}
-      >
-        <IconMailPlus />
-        Verify "{search}"
-      </Button>
-    );
+    openForm();
   };
 
   return (
@@ -144,7 +90,7 @@ export const VerifiedSenders = () => {
         <Combobox.Content className="p-0 min-w-[312px]" align="start">
           <Command>
             <Command.Input
-              placeholder={needsForm ? 'Search senders' : 'Search or add email'}
+              placeholder="Search senders"
               value={search}
               onValueChange={setSearch}
             />
@@ -172,7 +118,7 @@ export const VerifiedSenders = () => {
                   <span className="flex-1">{sender.value}</span>
                   {sender.status !== 'verified' && (
                     <span className="text-muted-foreground text-xs">
-                      {sender.status}
+                      awaiting confirmation
                     </span>
                   )}
                 </Command.Item>
@@ -182,19 +128,26 @@ export const VerifiedSenders = () => {
             {!loading && (
               <>
                 <Command.Separator />
-                <div className="p-1">{renderAddAction()}</div>
+                <div className="p-1">
+                  {/* Kept below a separator: adding a sender is a different kind
+                      of action from removing one, and the two must not look
+                      alike. */}
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start font-normal"
+                    onClick={handleAdd}
+                  >
+                    <IconMailPlus />
+                    Add a sender address
+                  </Button>
+                </div>
               </>
             )}
           </Command>
         </Combobox.Content>
       </Popover>
 
-      {needsForm && (
-        <VerifiedSenderSendgridForm
-          open={sendgridFormOpen}
-          onOpenChange={setSendgridFormOpen}
-        />
-      )}
+      <AddSenderDialog open={formOpen} onOpenChange={setFormOpen} />
     </>
   );
 };

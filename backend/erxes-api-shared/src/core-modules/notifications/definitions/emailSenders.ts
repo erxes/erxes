@@ -1,33 +1,21 @@
 import { Document, Schema } from 'mongoose';
 
-/**
- * Whether this organization may still use the sender. Kept separate from the
- * provider's own verified/pending state: the provider says whether a message
- * would be accepted, this says whether the organization is entitled to ask.
- */
-export type TEmailSenderState = 'active' | 'revoked' | 'suspended';
+export type TEmailSenderState = 'pending' | 'active' | 'revoked' | 'suspended';
 
-/**
- * A sender this organization registered.
- *
- * The provider account is shared by every organization on the deployment, so
- * its sender list cannot answer "may this organization send as that address" —
- * one organization verifying `info@example.com` would otherwise hand it to all
- * the others. These records are the per-organization claim, and they live in
- * the organization's own database, which is what scopes them.
- */
 export interface IEmailSenderDocument extends Document {
   _id: string;
 
   email: string;
   name?: string;
   type: 'single' | 'domain';
-  /** Which credential set it was registered against. */
   scope: string;
 
   state: TEmailSenderState;
-  /** Provider-side identifier, kept for reconciliation. */
   providerId?: string;
+
+  verifiedAt?: Date;
+  verificationToken?: string;
+  verificationSentAt?: Date;
 
   createdAt: Date;
   updatedAt: Date;
@@ -60,13 +48,26 @@ export const emailSenderSchema = new Schema({
 
   state: {
     type: String,
-    enum: ['active', 'revoked', 'suspended'],
-    default: 'active',
+    enum: ['pending', 'active', 'revoked', 'suspended'],
+    default: 'pending',
     index: true,
   },
 
   providerId: {
     type: String,
+  },
+
+  verifiedAt: {
+    type: Date,
+  },
+
+  verificationToken: {
+    type: String,
+    index: true,
+  },
+
+  verificationSentAt: {
+    type: Date,
   },
 
   createdAt: {

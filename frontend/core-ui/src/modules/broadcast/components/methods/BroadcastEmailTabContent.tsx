@@ -1,14 +1,13 @@
+import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
+import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { BlockEditor, useBlockEditor } from 'erxes-ui';
 import { useEffect } from 'react';
 import { MembersInline } from 'ui-modules';
 
-export const BroadcastTabPreviewEmailContent = ({
-  message,
-}: {
-  message: any;
-}) => {
+const EmailPreview = ({ message }: { message: any }) => {
   const { fromEmail, fromUserId, email } = message || {};
-  const { sender, subject, content } = email || {};
+  const { sender, subject, content, replyTo } = email || {};
+  const { alignedFrom } = useSenderOptions();
   const editor = useBlockEditor();
 
   useEffect(() => {
@@ -37,19 +36,31 @@ export const BroadcastTabPreviewEmailContent = ({
 
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">From:</span>
-          {/* Campaigns created before senders were pickable only carry a user. */}
-          {fromEmail ? (
-            <span className="font-semibold">{fromEmail}</span>
+          {/* Shows what recipients actually see. Where the send path rewrites
+              the From, the picked address is the reply destination, and naming
+              it here would claim a sender the message never had. */}
+          {alignedFrom ? (
+            <span className="font-semibold">
+              {sender} &lt;{alignedFrom}&gt;
+            </span>
+          ) : fromEmail ? (
+            <span className="font-semibold">
+              {sender ? `${sender} <${fromEmail}>` : fromEmail}
+            </span>
           ) : (
+            /* Campaigns created before senders were pickable only carry a user. */
             <MembersInline memberIds={[fromUserId]} className="font-semibold" />
           )}
-          {sender && (
-            <>
-              <span className="text-sm text-muted-foreground">as</span>
-              <span className="font-semibold">{sender}</span>
-            </>
-          )}
         </div>
+
+        {(alignedFrom ? fromEmail : replyTo) && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Reply to:</span>
+            <span className="font-semibold">
+              {alignedFrom ? fromEmail : replyTo}
+            </span>
+          </div>
+        )}
       </div>
 
       <BlockEditor
@@ -60,3 +71,13 @@ export const BroadcastTabPreviewEmailContent = ({
     </div>
   );
 };
+
+export const BroadcastTabPreviewEmailContent = ({
+  message,
+}: {
+  message: any;
+}) => (
+  <EmailSenderScopeProvider scope="broadcast">
+    <EmailPreview message={message} />
+  </EmailSenderScopeProvider>
+);

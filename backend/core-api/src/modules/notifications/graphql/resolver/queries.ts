@@ -1,4 +1,5 @@
 import {
+  IEmailAddressDocument,
   IEmailDeliveryDocument,
   INotificationDocument,
 } from 'erxes-api-shared/core-modules';
@@ -8,11 +9,14 @@ import {
   escapeRegExp,
   getPlugin,
   getPlugins,
+  normalizeEmail,
 } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CORE_NOTIFICATION_MODULES } from '~/modules/notifications/constants';
 import { generateNotificationsFilter } from '~/modules/notifications/graphql/resolver/utils';
+import { TEmailLane } from 'erxes-api-shared/core-modules';
+import { getStatus } from '~/utils/email/ramp';
 
 const generateOrderByNotifications = (orderBy?: any) => {
   const sort: any = { isRead: 1, createdAt: -1 };
@@ -33,11 +37,6 @@ const generateOrderByNotifications = (orderBy?: any) => {
 };
 
 export const notificationQueries = {
-  /**
-   * Sent mail, newest first. The list view asks for a handful of fields; the
-   * bodies and raw provider responses only come out through
-   * `emailDeliveryDetail`.
-   */
   async emailDeliveries(
     _root: undefined,
     params: {
@@ -196,5 +195,55 @@ export const notificationQueries = {
     { models, user }: IContext,
   ) {
     return models.NotificationSettings.findOne({ userId: user._id }).lean();
+  },
+
+  async emailAddresses(
+    _root: undefined,
+    params: {
+      lane?: TEmailLane;
+      suppressionReason?: string;
+      searchValue?: string;
+      emails?: string[];
+    } & ICursorPaginateParams,
+    { models }: IContext,
+  ) {
+    const { lane, suppressionReason, searchValue, emails } = params;
+
+    const query: FilterQuery<IEmailAddressDocument> = {};
+
+    // Asking for a known set: what a list of records needs to show each row's
+    // standing without a query per row.
+    if (emails?.length) {
+      query.email = { $in: emails.map(normalizeEmail) };
+    }
+
+    if (lane) {
+      Object.assign(query, models.EmailAddresses.laneFilter(lane));
+    }
+
+    if (suppressionReason) {
+      query.suppressionReason = suppressionReason;
+    }
+
+    if (searchValue) {
+      query.email = new RegExp(escapeRegExp(searchValue), 'i');
+    }
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<IEmailAddressDocument>({
+        model: models.EmailAddresses,
+        params,
+        query,
+      });
+
+    return { list, totalCount, pageInfo };
+  },
+
+  async emailRampStatus(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return await getStatus(models);
   },
 };

@@ -19,6 +19,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
+import { coreUrl, engageTrackerUrl } from '~/utils/email/links';
 import { generateCustomerSelector } from './engage';
 
 export const isUsingElk = () => {
@@ -54,8 +55,6 @@ export const subscribeEngage = async (models: IModels) => {
     'erxes',
   );
 
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-
   try {
     const topicArn = await snsApi.createTopic({ Name: configSet }).promise();
 
@@ -67,7 +66,7 @@ export const subscribeEngage = async (models: IModels) => {
       .subscribe({
         TopicArn: topicArn.TopicArn,
         Protocol: 'https',
-        Endpoint: `${DOMAIN}/gateway/pl:core/service/engage/tracker`,
+        Endpoint: engageTrackerUrl(),
       })
       .promise();
 
@@ -300,10 +299,8 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
 export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getPlugins();
 
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
   const editor: any = new EditorAttributeUtil(
-    `${DOMAIN}/gateway/pl:core`,
+    coreUrl(subdomain),
     services,
     subdomain,
   );
@@ -577,15 +574,15 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
-  const customerFields =
-    await editorAttributeUtil.getCustomerFields(emailContent);
+  const customerFields = await editorAttributeUtil.getCustomerFields(
+    emailContent,
+  );
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
 
   // Ensure email & phone are valid based on the engage message method
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
-    customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
   }
   if (engageMessage.method === 'sms') {
     customersSelector.primaryPhone = exists;
@@ -746,8 +743,9 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds =
-    await models.Customers.find(customersSelector).distinct('_id');
+  const erxesCustomerIds = await models.Customers.find(
+    customersSelector,
+  ).distinct('_id');
 
   const cpUserIds = await models.CPUser.find({
     clientPortalId: cpId,

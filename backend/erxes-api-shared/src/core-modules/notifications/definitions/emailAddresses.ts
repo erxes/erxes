@@ -4,16 +4,15 @@ export type TEmailSuppressionReason =
   | 'hard_bounce'
   | 'complaint'
   | 'unsubscribe'
+  | 'screened'
   | 'manual';
 
-/**
- * What this organization has learned about an address by mailing it.
- *
- * Deliberately carries no TTL. `email_deliveries` expires after 90 days because
- * it is an event stream; this is the conclusion drawn from those events and has
- * to outlive them, or a suppressed address quietly frees itself once the events
- * that closed it expire.
- */
+export type TEmailLane = 'proven' | 'unknown' | 'suppressed';
+
+export const EMAIL_LANES: TEmailLane[] = ['proven', 'unknown', 'suppressed'];
+
+export type TMailKind = 'marketing' | 'transactional';
+
 export interface IEmailAddressDocument extends Document {
   _id: string;
   email: string;
@@ -29,6 +28,10 @@ export interface IEmailAddressDocument extends Document {
   suppressedAt?: Date;
   suppressionReason?: TEmailSuppressionReason;
   suppressedBy?: string;
+
+  releasedAt?: Date;
+  releasedBy?: string;
+  releaseNote?: string;
 
   createdAt: Date;
   updatedAt: Date;
@@ -69,11 +72,23 @@ export const emailAddressSchema = new Schema({
 
   suppressionReason: {
     type: String,
-    enum: ['hard_bounce', 'complaint', 'unsubscribe', 'manual'],
+    enum: ['hard_bounce', 'complaint', 'unsubscribe', 'screened', 'manual'],
   },
 
   /** Only set when a person did it, so the decision can be traced back. */
   suppressedBy: {
+    type: String,
+  },
+
+  releasedAt: {
+    type: Date,
+  },
+
+  releasedBy: {
+    type: String,
+  },
+
+  releaseNote: {
     type: String,
   },
 
