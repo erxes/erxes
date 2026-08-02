@@ -27,12 +27,12 @@
 
 ## Architecture
 
-| Area        | Path                                                      | Responsibility                                            |
-| ----------- | --------------------------------------------------------- | --------------------------------------------------------- |
-| Federation  | `frontend/plugins/content_ui/module-federation.config.ts` | Exposes plugin configuration and the CMS entry point.     |
-| Routes      | `frontend/plugins/content_ui/src/modules/cms/Main.tsx`    | Mounts CMS and Web Builder routes.                        |
-| CMS         | `frontend/plugins/content_ui/src/modules/cms`             | Owns CMS pages, GraphQL documents, state, and components. |
-| Web Builder | `frontend/plugins/content_ui/src/modules/web-builder`     | Owns visual website-building UI.                          |
+| Area | Path | Responsibility |
+| --- | --- | --- |
+| Federation | `frontend/plugins/content_ui/module-federation.config.ts` | Exposes plugin configuration and the CMS entry point. |
+| Routes | `frontend/plugins/content_ui/src/modules/cms/Main.tsx` | Mounts CMS and Web Builder routes. |
+| CMS | `frontend/plugins/content_ui/src/modules/cms` | Owns CMS pages, GraphQL documents, state, and components. |
+| Web Builder | `frontend/plugins/content_ui/src/modules/web-builder` | Owns visual website-building UI. |
 
 ## Contracts
 
