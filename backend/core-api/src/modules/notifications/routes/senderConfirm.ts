@@ -17,22 +17,14 @@ const escapeHtml = (value: string) =>
 
 router.get(
   '/',
-  routeErrorHandling(async (req: Request, res: Response) => {
-    const params = new URLSearchParams();
-
-    if (req.query.token) {
-      params.set('token', String(req.query.token));
-    }
-
-    const action = `${req.baseUrl}${req.path}?${params.toString()}`;
-
+  routeErrorHandling(async (_req: Request, res: Response) => {
     return res.send(
       await applyTemplate(
         {
           title: 'Confirm sender address',
           body: `
             <p style="margin: 0 0 20px;">Allow replies to mail sent through erxes to arrive at this address?</p>
-            <form method="POST" action="${action}">
+            <form method="POST">
               <button type="submit" style="padding: 10px 32px; font-size: 14px; color: #ffffff; background-color: #5629b6; border: 0; border-radius: 300px; cursor: pointer;">
                 Confirm
               </button>
