@@ -212,7 +212,8 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
 
     if (selectedKind === PaymentKind.QUICKQR) {
       defaultValues.type =
-        defaultValues.type || (payment.config?.isCompany ? 'company' : 'person');
+        defaultValues.type ||
+        (payment.config?.isCompany ? 'company' : 'person');
       defaultValues.city = defaultValues.city || '11000';
     }
 

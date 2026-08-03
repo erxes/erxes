@@ -94,16 +94,15 @@ const QuickQrForm: React.FC<Props> = ({ payment, form }) => {
           <Form.Item>
             <Form.Label>{t('type')} *</Form.Label>
             <Form.Control>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value placeholder={t('select-type')} />
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Group>
-                    <Select.Item value="company">{t('mcc-company')}</Select.Item>
+                    <Select.Item value="company">
+                      {t('mcc-company')}
+                    </Select.Item>
                     <Select.Item value="person">{t('mcc-person')}</Select.Item>
                   </Select.Group>
                 </Select.Content>
@@ -128,10 +127,7 @@ const QuickQrForm: React.FC<Props> = ({ payment, form }) => {
               <Form.Item>
                 <Form.Label>{t('mcc-code')} *</Form.Label>
                 <Form.Control>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
                       <Select.Value placeholder={t('select-mcc-code')} />
                     </Select.Trigger>
@@ -157,10 +153,7 @@ const QuickQrForm: React.FC<Props> = ({ payment, form }) => {
               <Form.Item>
                 <Form.Label>{t('city')} *</Form.Label>
                 <Form.Control>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
                       <Select.Value placeholder={t('select-city')} />
                     </Select.Trigger>

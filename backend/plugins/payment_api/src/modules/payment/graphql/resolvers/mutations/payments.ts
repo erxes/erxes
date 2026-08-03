@@ -132,8 +132,15 @@ const mutations = {
 
   async paymentEdit(_root: any, args: any, { models }: IContext) {
     const { _id, input } = args;
-    const { name, status, kind, config, currency, sendEmailOnPayment, dealConfig } =
-      input;
+    const {
+      name,
+      status,
+      kind,
+      config,
+      currency,
+      sendEmailOnPayment,
+      dealConfig,
+    } = input;
 
     const paymentConfig = validatePaymentKind(kind);
 

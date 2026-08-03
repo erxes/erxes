@@ -39,10 +39,7 @@ const resolveUserId = async (
   return owners?.length ? String(owners[0]._id) : undefined;
 };
 
-const buildDealDoc = (
-  invoice: Record<string, any>,
-  stageId: string,
-): IDeal => {
+const buildDealDoc = (invoice: Record<string, any>, stageId: string): IDeal => {
   const data =
     invoice?.data && typeof invoice.data === 'object' ? invoice.data : {};
 

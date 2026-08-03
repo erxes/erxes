@@ -18,7 +18,10 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
+    const invoice = await models.Invoices.createInvoice(
+      { ...input },
+      subdomain,
+    );
 
     return buildInvoiceUrl(subdomain, invoice._id);
   },
@@ -46,7 +49,10 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
+    const invoice = await models.Invoices.createInvoice(
+      { ...input },
+      subdomain,
+    );
 
     return buildInvoiceUrl(subdomain, invoice._id);
   },
@@ -125,7 +131,12 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
 
       const payment = await resolvePaymentForInvoice(models, invoice);
 
-      enqueuePaidInvoiceCallback(subdomain, invoice, payment, 'cpInvoicesCheck');
+      enqueuePaidInvoiceCallback(
+        subdomain,
+        invoice,
+        payment,
+        'cpInvoicesCheck',
+      );
 
       if (invoice.callback) {
         // Fire callback – do not await

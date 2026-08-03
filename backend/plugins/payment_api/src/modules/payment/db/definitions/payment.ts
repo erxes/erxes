@@ -16,7 +16,11 @@ export const paymentSchema = schemaWrapper(
         default: PAYMENT_METHOD_STATUS.ACTIVE,
       },
       config: { type: Object, label: 'Config' },
-      sendEmailOnPayment: { type: Boolean, label: 'Send email on payment', default: true },
+      sendEmailOnPayment: {
+        type: Boolean,
+        label: 'Send email on payment',
+        default: true,
+      },
       dealConfig: {
         type: new Schema(
           {
