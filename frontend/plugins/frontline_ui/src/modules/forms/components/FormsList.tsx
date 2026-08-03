@@ -187,7 +187,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
+      return (
+        <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -207,7 +209,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
+      return (
+        <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />
+      );
     },
     cell: ({ cell }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -264,7 +268,12 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-at')}
+          icon={IconCalendarEvent}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
