@@ -17,6 +17,14 @@
   "packages": "Packages",
   "products-types": "Products types",
   "unavailable": "Unavailable",
+  "category-delete": {
+    "blocked-title": "Categories cannot be deleted",
+    "blocked-description": "The following categories contain products or sub-categories and cannot be deleted: {{categories}}. Move or delete their contents first.",
+    "skipped-title": "Some categories will be skipped",
+    "skipped-description": "The following categories contain products or sub-categories and will not be deleted: {{categories}}. Empty selected categories can still be deleted.",
+    "check-failed-title": "Unable to check categories",
+    "check-failed-description": "Category dependencies could not be checked. Please try again."
+  },
   "add": {
     "create-product": "Create Product",
     "add-uom": "Add UOM",
