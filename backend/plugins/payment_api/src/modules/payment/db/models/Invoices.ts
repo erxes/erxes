@@ -130,7 +130,7 @@ export const loadInvoiceClass = (models: IModels) => {
               },
               update: {
                 $set: {
-                  status: statusChecks[index] === 'paid' ? 'paid' : 'pending',
+                  status: statusChecks[index],
                 },
               },
             },
@@ -164,6 +164,15 @@ export const loadInvoiceClass = (models: IModels) => {
       ]);
 
       if (totalAmount.length === 0) {
+        const failed = await models.Transactions.exists({
+          invoiceId: _id,
+          status: PAYMENT_STATUS.FAILED,
+        });
+
+        if (failed) {
+          return PAYMENT_STATUS.FAILED;
+        }
+
         return PAYMENT_STATUS.PENDING;
       }
 
