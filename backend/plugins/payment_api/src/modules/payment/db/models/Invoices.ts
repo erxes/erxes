@@ -30,7 +30,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       return invoice;
     }
-    
+
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
       console.log('[createInvoice] called');
       if (!doc.amount || doc.amount === 0) {
