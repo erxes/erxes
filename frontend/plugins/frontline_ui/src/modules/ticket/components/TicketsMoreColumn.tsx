@@ -17,10 +17,10 @@ import { useTicketRemove } from '../hooks/useRemoveTicket';
 function TicketActionsList({
   onEdit,
   onDelete,
-}: {
+}: Readonly<{
   onEdit: () => void;
   onDelete: () => void;
-}) {
+}>) {
   const { t } = useTranslation('frontline');
 
   return (
@@ -37,9 +37,9 @@ function TicketActionsList({
 
 export function TicketsMoreColumnCell({
   cell,
-}: {
+}: Readonly<{
   cell: Cell<ITicket, unknown>;
-}) {
+}>) {
   const { t } = useTranslation('frontline');
   const [, setActiveTicket] = useTicketDetailSheet();
   const { _id } = cell.row.original;

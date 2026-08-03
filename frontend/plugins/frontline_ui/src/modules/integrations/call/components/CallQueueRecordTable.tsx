@@ -143,12 +143,12 @@ function CallQueueRate({
   totalCalls,
   value,
   variant,
-}: {
+}: Readonly<{
   label: string;
   totalCalls: number;
   value: number;
   variant: 'destructive' | 'success';
-}) {
+}>) {
   const { t } = useTranslation('frontline');
   const roundedValue = Math.round(value);
 
@@ -166,10 +166,10 @@ function CallQueueRate({
 function CallQueueStat({
   label,
   value,
-}: {
+}: Readonly<{
   label: string;
   value: string | number;
-}) {
+}>) {
   return (
     <p className="text-sm flex items-center gap-1 justify-between">
       <legend className="text-accent-foreground">{label}</legend>
@@ -181,10 +181,10 @@ function CallQueueStat({
 function CallQueueSummaryCell({
   basePath,
   item,
-}: {
+}: Readonly<{
   basePath: string;
   item: ICallQueueListItem;
-}) {
+}>) {
   const { t } = useTranslation('frontline');
   const {
     queue,

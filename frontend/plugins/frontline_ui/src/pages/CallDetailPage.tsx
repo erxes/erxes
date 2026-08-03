@@ -437,7 +437,9 @@ type TalkingCall = {
   bridge_time?: string | Date;
 };
 
-function TalkingCallDurationCell({ value }: { value?: string | Date }) {
+function TalkingCallDurationCell({
+  value,
+}: Readonly<{ value?: string | Date }>) {
   const startDate = useMemo(() => {
     if (!value) {
       return null;
