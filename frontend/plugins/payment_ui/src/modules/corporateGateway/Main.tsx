@@ -1,11 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import {
-  Combobox,
-  Filter,
-  Input,
-  PageSubHeader,
-  useQueryState,
-} from 'erxes-ui';
+import { IconSearch } from '@tabler/icons-react';
+import { Input, PageSubHeader, useQueryState } from 'erxes-ui';
 import { GatewayTotalCount } from './components/GatewayTotalCount';
 import { GatewayGlobalCommandBar } from './components/GatewayGlobalCommandBar';
 import { GolomtSection } from './golomtbank/settings/GolomtSection';
@@ -18,26 +13,18 @@ const CorporateGatewayMain = () => {
 
   return (
     <>
-      <Filter id="corporate-gateway">
-        <PageSubHeader>
-          <Filter.Bar>
-            <Filter.Popover scope="corporate-gateway-page">
-              <Filter.Trigger isFiltered={!!searchValue} />
-              <Combobox.Content>
-                <div className="p-3">
-                  <Input
-                    autoFocus
-                    placeholder={t('filter-by-name')}
-                    value={searchValue || ''}
-                    onChange={(e) => setSearchValue(e.target.value || null)}
-                  />
-                </div>
-              </Combobox.Content>
-            </Filter.Popover>
-            <GatewayTotalCount />
-          </Filter.Bar>
-        </PageSubHeader>
-      </Filter>
+      <PageSubHeader>
+        <div className="relative w-64">
+          <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <Input
+            className="pl-8"
+            placeholder={t('filter-by-name')}
+            value={searchValue || ''}
+            onChange={(e) => setSearchValue(e.target.value || null)}
+          />
+        </div>
+        <GatewayTotalCount />
+      </PageSubHeader>
 
       <div className="flex-1 overflow-auto p-3 space-y-3">
         <GolomtSection searchValue={searchValue || ''} />

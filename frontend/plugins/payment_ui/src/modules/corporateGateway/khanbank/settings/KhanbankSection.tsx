@@ -80,7 +80,7 @@ export const KhanbankSection = ({ searchValue }: { searchValue: string }) => {
         <Collapsible.Trigger asChild>
           <div className="group flex items-center justify-between border-b pr-3 h-14 rounded-t-md cursor-pointer hover:bg-accent-foreground/10 transition-colors">
             <div className="flex items-center gap-3 px-3 flex-1 min-w-0">
-              <Collapsible.TriggerIcon />
+              <Collapsible.TriggerIcon className="size-3.5" />
               <img
                 src={`${REACT_APP_API_URL}/pl:payment/static/images/payments/khanbank.png`}
                 alt={KHANBANK_PAYMENT.name}
@@ -136,7 +136,7 @@ export const KhanbankSection = ({ searchValue }: { searchValue: string }) => {
                 </RecordTable.Body>
               </RecordTable>
             ) : (
-              <div className="flex flex-col items-center justify-center text-center py-6">
+              <div className="flex flex-col items-center justify-center text-center py-10">
                 <div className="mb-1">
                   <IconBuildingBank size={24} className="text-muted-foreground" />
                 </div>
