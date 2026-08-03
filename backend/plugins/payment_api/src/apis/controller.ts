@@ -19,16 +19,23 @@ import { tdbCallbackHandler } from '~/apis/tdb/api';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS, PAYMENTS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
+import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
 
 export const callbackHandler = async (req, res) => {
+  console.log('[CALLBACK] Incoming request', {
+    path: req.path,
+    method: req.method,
+    query: req.query,
+    body: req.body,
+  });
   const { route, body, query } = req;
 
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
   const kind = query.kind || route.path.split('/').slice(-1).pop();
-
+  console.log('[CALLBACK] kind =', kind);
   if (!kind) {
     return res.status(400).send('kind is required');
   }
@@ -68,6 +75,10 @@ export const callbackHandler = async (req, res) => {
         break;
       case PAYMENTS.tdb.kind:
         transaction = await tdbCallbackHandler(models, subdomain, data);
+        break;
+      case PAYMENTS.toki.kind:
+        console.log('[CALLBACK] Dispatching to tokiCallbackHandler');
+        transaction = await tokiCallbackHandler(models, data);
         break;
       default:
         return res.status(400).send('Invalid kind');
@@ -170,7 +181,7 @@ export const callbackHandler = async (req, res) => {
             }
           }
 
-          if(invoice.redirectUri) {
+          if (invoice.redirectUri) {
             return res.redirect(invoice.redirectUri);
           }
         } catch (e) {
