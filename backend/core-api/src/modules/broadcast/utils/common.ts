@@ -45,10 +45,7 @@ interface IEngageParams {
   user;
 }
 
-export const subscribeEngage = async (
-  models: IModels,
-  subdomain: string,
-) => {
+export const subscribeEngage = async (models: IModels, subdomain: string) => {
   const snsApi = await getApi(models, 'sns');
   const sesApi = await getApi(models, 'ses');
   const configSet = await getValueAsString(
