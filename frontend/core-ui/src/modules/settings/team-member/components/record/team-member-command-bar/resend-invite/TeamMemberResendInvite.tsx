@@ -1,7 +1,7 @@
 import { useResendInvites } from '@/settings/team-member/hooks/useResendInvite';
 import { EStatus, IUser } from '@/settings/team-member/types';
 import { IconRefresh } from '@tabler/icons-react';
-import { Button, RecordTable, Separator, Spinner, useToast } from 'erxes-ui';
+import { Button, RecordTable, Spinner, useToast } from 'erxes-ui';
 import { Can } from 'ui-modules';
 
 export const TeamMemberResendInvite = ({
@@ -42,9 +42,9 @@ export const TeamMemberResendInvite = ({
 
   return (
     <Can action="teamMembersInvite">
-      <Separator.Inline />
       <Button
-        variant="secondary"
+        variant="ghost"
+        className="w-full justify-start"
         disabled={loading || pendingEmails.length === 0}
         onClick={handleResend}
       >

@@ -15,8 +15,8 @@ export const TeamMemberDelete = ({
   return (
     <Can action="teamMembersRemove">
       <Button
-        variant="secondary"
-        className="text-destructive"
+        variant="ghost"
+        className="w-full justify-start text-destructive"
         onClick={() =>
           confirm({
             message: `Are you sure you want to delete the ${teamMemberIds.length} selected team member?`,
@@ -29,10 +29,13 @@ export const TeamMemberDelete = ({
                 variant: 'success',
                 description: 'Team member deleted successfully',
               });
-            } catch (e: any) {
+            } catch (error) {
               toast({
                 title: 'Error',
-                description: e.message,
+                description:
+                  error instanceof Error
+                    ? error.message
+                    : 'Something went wrong',
                 variant: 'destructive',
               });
             }

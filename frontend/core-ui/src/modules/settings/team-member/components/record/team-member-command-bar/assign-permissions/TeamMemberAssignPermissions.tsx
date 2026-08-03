@@ -87,7 +87,7 @@ export const TeamMemberAssignPermissions = ({
     <Can action="permissionsManage">
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <Button variant="secondary">
+          <Button variant="ghost" className="w-full justify-start">
             <IconShieldCheck />
             Assign Permissions
           </Button>

@@ -1,14 +1,7 @@
 import { useTeamMemberDeactivate } from '@/settings/team-member/hooks/useTeamMemberDeactivate';
 import { IUser } from '@/settings/team-member/types';
 import { IconToggleLeft } from '@tabler/icons-react';
-import {
-  Button,
-  RecordTable,
-  Separator,
-  Spinner,
-  useConfirm,
-  useToast,
-} from 'erxes-ui';
+import { Button, RecordTable, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { Can, currentUserState } from 'ui-modules';
 
@@ -34,9 +27,9 @@ export const TeamMemberDeactivate = ({
 
   return (
     <Can action="teamMembersRemove">
-      <Separator.Inline />
       <Button
-        variant="secondary"
+        variant="ghost"
+        className="w-full justify-start"
         disabled={loading || teamMemberIds.length === 0}
         onClick={() =>
           confirm({
