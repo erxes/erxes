@@ -17,7 +17,7 @@ import {
   Separator,
   toast,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can, Export, IProduct, PrintDocument, TagsSelect } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
@@ -59,12 +59,34 @@ export const ProductCommandBar = () => {
   const [mergeOpen, setMergeOpen] = useState(false);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const products = selectedRows.map((row: Row<IProduct>) => row.original);
-  const productIds = products.map((product) => product._id);
+  const products = useMemo(
+    () => selectedRows.map((row: Row<IProduct>) => row.original),
+    [selectedRows],
+  );
+  const productIds = useMemo(
+    () => products.map((product) => product._id),
+    [products],
+  );
 
-  const deletedProductIds = products
-    .filter((product) => product.status === 'deleted')
-    .map((product) => product._id);
+  const deletedProductIds = useMemo(
+    () =>
+      products
+        .filter((product) => product.status === 'deleted')
+        .map((product) => product._id),
+    [products],
+  );
+
+  const tagsValue = useMemo(
+    () => intersection(products.map((product) => product.tagIds ?? [])) || [],
+    [products],
+  );
+
+  const closeActionsPopover = () => {
+    setOpen(false);
+    setTimeout(() => {
+      setCurrentContent('main');
+    }, 100);
+  };
 
   return (
     <CommandBar open={selectedRows.length > 0}>
@@ -92,11 +114,12 @@ export const ProductCommandBar = () => {
         <Separator.Inline />
         <Popover
           open={open}
-          onOpenChange={(open) => {
-            setOpen(open);
-            setTimeout(() => {
-              setCurrentContent('main');
-            }, 100);
+          onOpenChange={(nextOpen) => {
+            if (nextOpen) {
+              setOpen(true);
+              return;
+            }
+            closeActionsPopover();
           }}
         >
           <Popover.Trigger asChild>
@@ -131,7 +154,7 @@ export const ProductCommandBar = () => {
                     <ProductMergeTrigger
                       productCount={selectedRows.length}
                       onOpen={() => {
-                        setOpen(false);
+                        closeActionsPopover();
                         setMergeOpen(true);
                       }}
                     />
@@ -177,11 +200,7 @@ export const ProductCommandBar = () => {
               <TagsSelect.Provider
                 type="core:product"
                 mode="multiple"
-                value={
-                  intersection(
-                    products.map((product) => product.tagIds ?? []),
-                  ) || []
-                }
+                value={tagsValue}
                 targetIds={productIds}
                 options={(newSelectedTagIds) => ({
                   update: (cache) =>
@@ -205,7 +224,7 @@ export const ProductCommandBar = () => {
             {currentContent === 'category' && (
               <ProductsChangeCategoryContent
                 products={products}
-                setOpen={setOpen}
+                setOpen={closeActionsPopover}
               />
             )}
           </Popover.Content>

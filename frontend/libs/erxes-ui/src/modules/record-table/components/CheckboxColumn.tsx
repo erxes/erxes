@@ -2,9 +2,9 @@ import { Checkbox } from 'erxes-ui/components/checkbox';
 import { ColumnDef, Row, Table } from '@tanstack/react-table';
 
 const dragSelection = {
-  owner: null as Table<any> | null,
+  owner: null as Table<unknown> | null,
   selecting: false,
-  suppressClickOn: null as { table: Table<any>; rowId: string } | null,
+  suppressClickOn: null as { table: Table<unknown>; rowId: string } | null,
 };
 
 const DRAG_END_EVENTS = ['pointerup', 'pointercancel', 'blur'] as const;
@@ -17,21 +17,28 @@ const endDragSelection = () => {
   );
 };
 
-const startDragSelection = (
+const startDragSelection = <TData,>(
   selecting: boolean,
-  row: Row<any>,
-  table: Table<any>,
+  row: Row<TData>,
+  table: Table<TData>,
 ) => {
-  dragSelection.owner = table;
+  const owner = table as unknown as Table<unknown>;
+  dragSelection.owner = owner;
   dragSelection.selecting = selecting;
-  dragSelection.suppressClickOn = { table, rowId: row.id };
+  dragSelection.suppressClickOn = { table: owner, rowId: row.id };
   document.body.style.userSelect = 'none';
   DRAG_END_EVENTS.forEach((event) =>
     window.addEventListener(event, endDragSelection),
   );
 };
 
-const CheckboxCell = ({ row, table }: { row: Row<any>; table: Table<any> }) => (
+const CheckboxCell = <TData,>({
+  row,
+  table,
+}: {
+  row: Row<TData>;
+  table: Table<TData>;
+}) => (
   <div
     className="flex items-center justify-center size-full"
     onPointerDown={(event) => {
@@ -47,7 +54,10 @@ const CheckboxCell = ({ row, table }: { row: Row<any>; table: Table<any> }) => (
       row.toggleSelected(selecting);
     }}
     onPointerEnter={(event) => {
-      if (dragSelection.owner !== table || event.buttons !== 1) {
+      if (
+        dragSelection.owner !== (table as unknown as Table<unknown>) ||
+        event.buttons !== 1
+      ) {
         return;
       }
 
@@ -56,7 +66,10 @@ const CheckboxCell = ({ row, table }: { row: Row<any>; table: Table<any> }) => (
     onClickCapture={(event) => {
       const suppressed = dragSelection.suppressClickOn;
 
-      if (suppressed?.table !== table || suppressed.rowId !== row.id) {
+      if (
+        suppressed?.table !== (table as unknown as Table<unknown>) ||
+        suppressed.rowId !== row.id
+      ) {
         return;
       }
 
