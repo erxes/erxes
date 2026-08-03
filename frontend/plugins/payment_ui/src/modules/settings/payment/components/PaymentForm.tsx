@@ -24,7 +24,7 @@ import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { paymentKind } from '~/modules/payment/utils';
 import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 import KhanbankForm from '~/modules/settings/payment/components/KhanbankForm';
-
+import CorporateGolomtBankForm from '~/modules/settings/payment/components/CorporateGolomtBankForm';
 type Props = {
   payment: any;
   onCancel: () => void;
@@ -75,6 +75,13 @@ const khanbankSchema = z.object({
   configId: z.string().min(1, 'Configuration is required'),
   accountNumber: z.string().min(1, 'Account is required'),
   ibanAcctNo: z.string().optional(),
+});
+const corporateGolomtSchema = z.object({
+  kind: z.string().min(1, 'Payment method is required'),
+  name: z.string().min(1, 'Name is required'),
+  status: z.enum(['active', 'inactive']),
+  configId: z.string().min(1, 'Configuration is required'),
+  accountId: z.string().min(1, 'Account is required'),
 });
 
 // Dynamic schema generator based on payment kind
@@ -144,6 +151,9 @@ const createPaymentSchema = (selectedKind: string) => {
   }
   if (selectedKind === PaymentKind.KHANBANK) {
     return khanbankSchema;
+  }
+  if (selectedKind === PaymentKind.CORPORATE_GOLOMTBANK) {
+    return corporateGolomtSchema;
   }
   return baseSchema.extend(dynamicFields);
 };
@@ -319,6 +329,15 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     }
 
     return <KhanbankForm payment={payment} form={form} Form={Form} />;
+  };
+  const renderCorporateGolomt = () => {
+    if (selectedKind !== PaymentKind.CORPORATE_GOLOMTBANK) {
+      return null;
+    }
+
+    return (
+      <CorporateGolomtBankForm payment={payment} form={form} Form={Form} />
+    );
   };
 
   return (
@@ -510,7 +529,9 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                         <Input
                           {...field}
                           type={fieldConfig.type || 'text'}
-                          placeholder={`Enter ${t(fieldConfig.label).toLowerCase()}`}
+                          placeholder={`Enter ${t(
+                            fieldConfig.label,
+                          ).toLowerCase()}`}
                           autoComplete={
                             fieldConfig.type === 'password' ? '' : 'off'
                           }
@@ -523,6 +544,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
 
               {renderQuickQr()}
               {renderKhanbank()}
+              {renderCorporateGolomt()}
             </div>
           </ScrollArea>
         </Sheet.Content>
@@ -544,8 +566,8 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
             {isSubmitting
               ? t('saving')
               : payment
-                ? t('update-payment-method')
-                : t('save-payment-method')}
+              ? t('update-payment-method')
+              : t('save-payment-method')}
           </Button>
         </Sheet.Footer>
       </form>
