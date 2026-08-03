@@ -1,12 +1,25 @@
 export const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
-/** Splits `Name <a@b.c>` into its parts; a bare address has no name. */
 export const parseAddress = (value: string) => {
   const match = /^\s*(.*?)\s*<([^>]+)>\s*$/.exec(value || '');
 
   return match
     ? { name: match[1].replace(/^"|"$/g, ''), address: match[2].trim() }
     : { name: '', address: (value || '').trim() };
+};
+
+const SPECIALS = /[()<>@,;:\\".[\]]/;
+
+const quoteName = (name: string) => {
+  const clean = name.replace(/[\r\n]/g, ' ').trim();
+
+  if (!clean) {
+    return '';
+  }
+
+  return SPECIALS.test(clean)
+    ? `"${clean.replace(/(["\\])/g, '\\$1')}"`
+    : clean;
 };
 
 export const alignSender = (
@@ -23,7 +36,7 @@ export const alignSender = (
   const { name, address } = parseAddress(requested);
 
   return {
-    from: `${name || address} <${alignedFrom}>`,
+    from: `${quoteName(name) || address} <${alignedFrom}>`,
     replyTo: reply || (address === alignedFrom ? undefined : address),
   };
 };

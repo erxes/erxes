@@ -1,5 +1,4 @@
 export interface IEmailRampStatus {
-  /** Index into `tiers`. */
   tier: number;
   tiers: number[];
   dailyBudget: number;
@@ -8,7 +7,6 @@ export interface IEmailRampStatus {
   haltedAt?: string;
   haltReason?: string;
 
-  /** Bounce and complaint rate over the window, as a percentage. */
   lastRate?: number;
   lastEvaluatedAt?: string;
 

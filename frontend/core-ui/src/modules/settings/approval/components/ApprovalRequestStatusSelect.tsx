@@ -12,11 +12,6 @@ const STATUS_FILTERS: ApprovalRequestStatusFilter[] = [
 
 const DEFAULT_STATUS: ApprovalRequestStatusFilter = 'pending';
 
-/**
- * Held in the URL rather than in component state so the header select and the
- * table below it can each read it without the page having to pass it between
- * them — and so a filtered view survives a refresh or a shared link.
- */
 export const useApprovalRequestStatus = () => {
   const [queryParams, setQueryParams] = useMultiQueryState<{ status: string }>([
     'status',
@@ -29,7 +24,6 @@ export const useApprovalRequestStatus = () => {
     : DEFAULT_STATUS;
 
   const setStatus = (next: ApprovalRequestStatusFilter) =>
-    // Keep the default out of the URL
     setQueryParams({ status: next === DEFAULT_STATUS ? null : next });
 
   return { status, setStatus };

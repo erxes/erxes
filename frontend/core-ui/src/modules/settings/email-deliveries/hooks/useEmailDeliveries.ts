@@ -26,8 +26,6 @@ export const useEmailDeliveries = () => {
     sessionKey: EMAIL_DELIVERIES_CURSOR_SESSION_KEY,
   });
 
-  // The date filter stores either a preset name ("today") or an explicit range,
-  // so it has to be expanded into real dates before it reaches the server.
   const createdAtRange = parseDateRangeFromString(
     searchParams.get('createdAt'),
   );
@@ -92,10 +90,6 @@ export const useEmailDeliveries = () => {
   };
 };
 
-/**
- * Fetched only once the sheet opens, so the table never carries message bodies
- * or raw provider responses.
- */
 export const useEmailDeliveryDetail = (id: string) => {
   const { data, loading, error } = useQuery<{
     emailDeliveryDetail: IEmailDelivery;

@@ -2,13 +2,7 @@ export type TEmailProviderName = 'SES' | 'sendgrid' | 'custom';
 
 export interface IEmailAttachment {
   filename: string;
-  /**
-   * Absolute URL the provider can fetch from. nodemailer-based providers pass
-   * this through as-is; the SendGrid Web API has no equivalent, so the file is
-   * downloaded and base64 encoded before sending.
-   */
   path?: string;
-  /** Base64 encoded file body. Takes precedence over `path` when both are set. */
   content?: string;
   contentType?: string;
 }
@@ -24,11 +18,6 @@ export interface IOutboundEmail {
   text?: string;
   attachments?: IEmailAttachment[];
   headers?: Record<string, string>;
-  /**
-   * Metadata echoed back on delivery webhooks. SendGrid carries it natively as
-   * `custom_args`; SES has no equivalent, so the SES provider folds it into
-   * custom headers that the SNS tracker already reads.
-   */
   customArgs?: Record<string, string>;
 }
 
@@ -53,10 +42,8 @@ export type TSenderStatus = 'pending' | 'verified' | 'failed';
 export type TSenderType = 'single' | 'domain';
 
 export interface ISender {
-  /** Provider-side identifier. For SES this is the email address or domain. */
   id: string;
   type: TSenderType;
-  /** The email address for `single`, the domain name for `domain`. */
   value: string;
   name?: string;
   status: TSenderStatus;
@@ -67,7 +54,6 @@ export interface ISingleSenderInput {
   email: string;
   name?: string;
   replyTo?: string;
-  /** SendGrid requires a physical postal address on every verified sender. */
   address?: string;
   city?: string;
   country?: string;
@@ -96,14 +82,6 @@ export interface IEmailProvider {
 
   send(message: IOutboundEmail): Promise<ISentEmail>;
 
-  /**
-   * Kept apart because each is a separate call, and callers rarely want both.
-   *
-   * `ids` and `domains` ask the provider for those senders specifically.
-   * Listing everything and filtering afterwards would both pull other
-   * organizations' senders over the wire and silently drop any that fall
-   * beyond the provider's first page.
-   */
   listSingleSenders(ids?: string[]): Promise<ISender[]>;
   listAuthenticatedDomains(domains?: string[]): Promise<ISender[]>;
 

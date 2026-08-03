@@ -6,11 +6,6 @@ const EmailLanesContext = createContext<(email?: string) => TEmailLane>(
   () => 'unknown',
 );
 
-/**
- * Standings for a whole list, fetched once. A record table asks for every
- * address it is about to show rather than one query per row, so the lookup has
- * to live above the rows.
- */
 export const EmailLanesProvider = ({
   emails,
   children,

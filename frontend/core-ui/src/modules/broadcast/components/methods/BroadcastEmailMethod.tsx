@@ -51,11 +51,6 @@ const BroadcastEmailFields = () => {
 
   const senderName = watch('email.sender');
 
-  /**
-   * The picked address is the reply destination when the `From` is rewritten,
-   * and the `From` itself otherwise — so it is the same stored field either
-   * way, only labelled for what it actually becomes.
-   */
   const pickedIsReplyTo = !!alignedFrom;
 
   return (
@@ -73,11 +68,6 @@ const BroadcastEmailFields = () => {
               <Form.Control>
                 <Input {...field} placeholder="Sales team" />
               </Form.Control>
-              {/*
-                Without an authenticated domain the message can only be signed
-                for the platform address, so the `From` is not a choice — it is
-                the name typed here and nothing else.
-              */}
               {alignedFrom && (
                 <Form.Description>
                   {senderName
@@ -132,12 +122,6 @@ const BroadcastEmailFields = () => {
           />
         )}
 
-        {/*
-          Two fields rather than one with a switched `name`: react-hook-form
-          keeps a controller bound to the name it first registered, so a name
-          that changes when the query resolves leaves the input reading a stale
-          value while the form holds the right one.
-        */}
         {pickedIsReplyTo ? (
           <ReplyToField name="fromEmail" required />
         ) : (

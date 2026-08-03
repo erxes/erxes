@@ -65,8 +65,6 @@ export const getEmailSenderOptions = async (
 
   return {
     provider,
-    // A plain SMTP relay keeps no sender registry, so there is nothing to
-    // verify against.
     supportsSenderVerification: provider !== 'custom',
     defaultSenderEmail: await getDefaultSenderEmail(models),
     sameAsMailConfig: await checkSameMailConfigEach(scope, config, models),
@@ -86,7 +84,6 @@ const resolveClaimScope = async (
   return sameAsMailConfig ? 'transactional' : scope;
 };
 
-/** An unconfigured or registry-less provider has nothing to list, not an error. */
 const emptyWhenUnavailable = async (
   read: () => Promise<ISender[]>,
 ): Promise<ISender[]> => {
@@ -275,7 +272,6 @@ export const verifySender = async (
 export const confirmSender = async (models: IModels, token: string) =>
   await models.EmailSenders.confirmByToken(token);
 
-/** Only the claim; a shared provider record may belong to another org too. */
 export const removeVerifiedSender = async (
   models: IModels,
   email: string,

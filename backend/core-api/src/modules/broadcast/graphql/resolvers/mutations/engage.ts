@@ -141,11 +141,11 @@ export const engageMutations = {
   async broadcastUpdateConfigs(
     _root,
     { configsMap },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastConfigsManage');
 
-    await updateConfigs(models, configsMap);
+    await updateConfigs(models, subdomain, configsMap);
 
     return { status: 'ok' };
   },
@@ -309,25 +309,7 @@ export const engageMutations = {
       throw e;
     }
 
-    const customerIds = await models.Customers.find({
-      primaryEmail: { $in: doc.to },
-    }).distinct('_id');
-
     doc.userId = user._id;
-
-    for (const cusId of customerIds) {
-      await models.EmailDeliveries.create({
-        toEmails: doc.to || [],
-        ccEmails: doc.cc || [],
-        from: doc.from,
-        subject: doc.subject,
-        provider: 'ses',
-        status: 'sent',
-        source: 'broadcast',
-        sourceId: cusId,
-        userId: doc.userId,
-      });
-    }
 
     // TODO: uncomment
     // if (doc.integrationId) {

@@ -8,7 +8,6 @@ export type TEmailDeliveryStatus =
   | 'complained'
   | 'dropped';
 
-/** The fields the list view asks for. */
 export interface IEmailDeliveryRow {
   _id: string;
   createdAt: string;
@@ -22,7 +21,6 @@ export interface IEmailDeliveryRow {
   error?: string;
 }
 
-/** Everything, fetched only when the detail sheet opens. */
 export interface IEmailDelivery extends IEmailDeliveryRow {
   updatedAt?: string;
   ccEmails?: string[];

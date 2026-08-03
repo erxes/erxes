@@ -3,10 +3,6 @@ import { IconPlayerPlay } from '@tabler/icons-react';
 import { Button, Dialog, Input, Label } from 'erxes-ui';
 import { useState } from 'react';
 
-/**
- * Resuming hands the same traffic back to the provider, so it asks what was
- * actually dealt with. The note is the only record of that decision.
- */
 export const ResumeSendingDialog = ({
   reason,
   open,
@@ -28,9 +24,9 @@ export const ResumeSendingDialog = ({
   };
 
   const onSubmit = async () => {
-    await resume(note.trim());
-
-    close(false);
+    if (await resume(note.trim())) {
+      close(false);
+    }
   };
 
   return (

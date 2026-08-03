@@ -175,5 +175,3 @@ export const engageTracker = async (req: Request, res: Response) => {
   }
 };
 
-// Sender verification now goes through the provider layer in
-// `~/utils/email/senders`, so that it works the same on SES and SendGrid.

@@ -1,11 +1,6 @@
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { IconAlertTriangle } from '@tabler/icons-react';
 
-/**
- * "Use own credentials" is selected but the values resolve to the mail config's
- * anyway, so campaigns are not actually separated from transactional mail. Says
- * so rather than letting the setting imply an isolation that is not in effect.
- */
 export const BroadcastCredentialsNotice = () => {
   const { sameAsMailConfig, loading } = useSenderOptions();
 

@@ -24,11 +24,6 @@ export default {
     return await listSingleSenders(models, root._scope);
   },
 
-  /**
-   * A free-form "from" address only works when an authenticated domain covers
-   * it. Providers with no sender registry accept whatever the relay allows, so
-   * they qualify too.
-   */
   async supportsDynamicSender(
     root: IEmailSenderOptionsRoot,
     _args: undefined,

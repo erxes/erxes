@@ -25,19 +25,16 @@ export interface IEmailDeliveryDocument extends Document {
   ccEmails?: string[];
   from?: string;
   subject: string;
-  /** Bodies live on the source record; only stored when explicitly asked for. */
   content?: string;
 
   provider: 'sendgrid' | 'smtp' | 'ses';
   messageId?: string;
-  /** Raw provider reply, stored verbatim and never parsed. */
   providerResponse?: string;
 
   status: TEmailHandoffStatus;
   sentAt?: Date;
   error?: string;
 
-  /** Refused by the provider during handoff, before any delivery attempt. */
   rejected: string[];
 
   deliveryStatus?: TEmailDeliveryStatus;
@@ -174,8 +171,6 @@ export const emailDeliverySchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    // Delivery rows are operational, not archival. Expire them so the
-    // collection stays bounded without an external cleanup job.
     expires: RETENTION_SECONDS,
   },
 

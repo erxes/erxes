@@ -14,10 +14,6 @@ export const useEmailRampStatus = () => {
   return { status: data?.emailRampStatus, loading, error };
 };
 
-/**
- * The mutation returns the whole status, so Apollo writes the new tier and
- * cleared halt straight into the cache the panel is already reading.
- */
 export const useResumeSending = () => {
   const { toast } = useToast();
 
@@ -40,7 +36,7 @@ export const useResumeSending = () => {
         toast({ title: 'Sending resumed', variant: 'success' }),
       onError: (error) =>
         toast({ title: error.message, variant: 'destructive' }),
-    });
+    }).then((result) => Boolean(result.data?.emailRampRelease));
 
   return { resume, loading };
 };

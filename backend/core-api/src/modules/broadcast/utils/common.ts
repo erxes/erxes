@@ -45,7 +45,10 @@ interface IEngageParams {
   user;
 }
 
-export const subscribeEngage = async (models: IModels) => {
+export const subscribeEngage = async (
+  models: IModels,
+  subdomain: string,
+) => {
   const snsApi = await getApi(models, 'sns');
   const sesApi = await getApi(models, 'ses');
   const configSet = await getValueAsString(
@@ -66,7 +69,7 @@ export const subscribeEngage = async (models: IModels) => {
       .subscribe({
         TopicArn: topicArn.TopicArn,
         Protocol: 'https',
-        Endpoint: engageTrackerUrl(),
+        Endpoint: engageTrackerUrl(subdomain),
       })
       .promise();
 
@@ -120,6 +123,7 @@ export const subscribeEngage = async (models: IModels) => {
 
 export const updateConfigs = async (
   models: IModels,
+  subdomain: string,
   configsMap,
 ): Promise<void> => {
   const prevSESConfigs = await models.EngageMessages.broadcastConfigs();
@@ -129,7 +133,7 @@ export const updateConfigs = async (
   const updatedSESConfigs = await models.EngageMessages.broadcastConfigs();
 
   if (JSON.stringify(prevSESConfigs) !== JSON.stringify(updatedSESConfigs)) {
-    await subscribeEngage(models);
+    await subscribeEngage(models, subdomain);
   }
 };
 

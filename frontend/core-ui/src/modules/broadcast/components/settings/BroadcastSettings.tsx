@@ -5,6 +5,7 @@ import {
   BROADCAST_CONFIG_CODES,
   BROADCAST_MODE_FIELD,
   BROADCAST_PROVIDER_FIELD,
+  TBroadcastEmailSettings,
   useBroadcastEmailCredentials,
 } from '@/broadcast/hooks/useBroadcastEmailCredentials';
 import { useConfig } from '@/settings/file-upload/hook/useConfigs';
@@ -22,7 +23,7 @@ const MODE_OPTIONS = [
 const PROVIDER_OPTIONS = ['SES', 'sendgrid', 'custom'];
 
 export const BroadcastSettings = () => {
-  const form = useForm();
+  const form = useForm<TBroadcastEmailSettings>();
 
   const { configs } = useConfig();
 
@@ -40,7 +41,7 @@ export const BroadcastSettings = () => {
       if (config) acc[name] = config.value;
 
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Partial<TBroadcastEmailSettings>);
 
     form.reset(values);
   }, [configs]);
@@ -88,6 +89,7 @@ export const BroadcastSettings = () => {
     name: string,
     label: string,
     options: Array<{ value: string; label: string }>,
+    fallbackValue: string = options[0].value,
   ) => (
     <Form.Field
       key={name}
@@ -97,7 +99,7 @@ export const BroadcastSettings = () => {
         <Form.Item>
           <Form.Label>{label}</Form.Label>
           <Select
-            value={field.value || options[0].value}
+            value={field.value || fallbackValue}
             onValueChange={(value) => handleSelectChange(name, value)}
           >
             <Form.Control>
@@ -122,7 +124,12 @@ export const BroadcastSettings = () => {
     <Form {...form}>
       <form className="w-full h-full grid grid-cols-2 gap-4">
         {showCredentials &&
-          renderSelect(BROADCAST_MODE_FIELD, 'Email credentials', MODE_OPTIONS)}
+          renderSelect(
+            BROADCAST_MODE_FIELD,
+            'Email credentials',
+            MODE_OPTIONS,
+            usesOwnCredentials ? 'custom' : 'default',
+          )}
 
         {showCredentials && usesOwnCredentials && (
           <>
@@ -141,10 +148,6 @@ export const BroadcastSettings = () => {
           renderInput(name, label, type),
         )}
 
-        {/*
-          Campaigns may run on their own provider account, so everything below
-          has to read those credentials rather than the mail config's.
-        */}
         <EmailSenderScopeProvider scope="broadcast">
           <Form.Item>
             <Form.Label>Verified emails</Form.Label>

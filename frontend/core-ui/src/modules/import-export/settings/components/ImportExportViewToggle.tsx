@@ -7,10 +7,6 @@ const VIEWS = [
   { value: ImportExportSettingsPath.Export, label: 'Export' },
 ];
 
-/**
- * These two views are separate routes rather than a query param, so the toggle
- * navigates instead of setting state.
- */
 export const ImportExportViewToggle = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -23,8 +19,6 @@ export const ImportExportViewToggle = () => {
     <ToggleGroup
       type="single"
       value={value}
-      // Radix reports an empty value when the pressed item is toggled off, and
-      // one of the two views always has to be showing.
       onValueChange={(next) => next && navigate(next)}
       variant="outline"
       className="h-8"

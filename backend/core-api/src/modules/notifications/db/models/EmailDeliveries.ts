@@ -14,7 +14,6 @@ import { IModels } from '~/connectionResolvers';
 export interface IFailureRate {
   sent: number;
   failed: number;
-  /** Percentage. */
   rate: number;
 }
 
@@ -30,14 +29,9 @@ export interface IEmailDeliveryModel extends Model<IEmailDeliveriesDocument> {
 
 export const loadEmailDeliveryClass = (models: IModels) => {
   class EmailDelivery {
-    /**
-     * Every send arrives here — core's path directly, automations over tRPC —
-     * so each recipient's history is stamped here rather than at the callers.
-     */
     public static async createEmailDelivery(doc: IEmailDeliveries) {
       const recipients = [...(doc.toEmails || []), ...(doc.ccEmails || [])];
 
-      // Read before `recordSent` writes, or every address looks freshly mailed.
       const lane = await models.EmailAddresses.messageLane(recipients);
 
       const delivery = await models.EmailDeliveries.create({ ...doc, lane });
@@ -57,7 +51,6 @@ export const loadEmailDeliveryClass = (models: IModels) => {
       );
     }
 
-    /** Only the handoff result; later events arrive through the webhook. */
     public static async recordHandoff(_id: string, patch: IDeliveryLogPatch) {
       return models.EmailDeliveries.updateOne(
         { _id },
@@ -65,7 +58,6 @@ export const loadEmailDeliveryClass = (models: IModels) => {
       );
     }
 
-    /** Bounces and complaints as a share of what was handed off. */
     public static async measureFailureRate(since: Date, lane?: TEmailLane) {
       const [row] = await models.EmailDeliveries.aggregate([
         {
@@ -78,7 +70,14 @@ export const loadEmailDeliveryClass = (models: IModels) => {
         {
           $group: {
             _id: null,
-            sent: { $sum: { $size: { $ifNull: ['$toEmails', []] } } },
+            sent: {
+              $sum: {
+                $add: [
+                  { $size: { $ifNull: ['$toEmails', []] } },
+                  { $size: { $ifNull: ['$ccEmails', []] } },
+                ],
+              },
+            },
             failed: {
               $sum: {
                 $add: [

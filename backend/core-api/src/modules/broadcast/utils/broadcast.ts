@@ -81,10 +81,6 @@ const prepareCustomers = ({
   targetType: string;
   targetIds: string[];
 }) => {
-  // Address quality is decided by what mailing them has actually produced —
-  // suppression and the ramp, both on the send path. `emailValidationStatus`
-  // used to gate this and no longer does: nothing in v3 ever sets it to
-  // `valid`, so it excluded every address added since the migration.
   const query: FilterQuery<ICustomer> = {
     primaryEmail: { $exists: true, $nin: [null, '', undefined] },
     $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
@@ -215,7 +211,7 @@ const sendBroadcastEmail = async ({
   const queuedRun = started?.runCount;
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    addBroadcastWorkerQueue({
+    await addBroadcastWorkerQueue({
       queueName: 'broadcast_processor',
       data: {
         method,
@@ -226,10 +222,9 @@ const sendBroadcastEmail = async ({
           configSet,
           subdomain,
           queuedRun,
+          batchIndex,
         },
       },
-      // The run is part of the id so a restart never reuses a previous run's
-      // job, which BullMQ would otherwise drop as a duplicate.
       jobId: `${_id}_run${queuedRun}_batch${batchIndex}`,
     });
   }
@@ -363,7 +358,7 @@ const sendBroadcastNotification = async ({
   );
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    addBroadcastWorkerQueue({
+    await addBroadcastWorkerQueue({
       queueName: 'broadcast_processor',
       data: {
         method,

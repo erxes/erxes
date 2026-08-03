@@ -47,12 +47,6 @@ const providerCache = new Map<
   { fingerprint: string; provider: IEmailProvider }
 >();
 
-/**
- * Returns a cached provider for the given tenant, rebuilding it whenever the
- * tenant's mail config changes. The cache is keyed by subdomain because the
- * existing broadcast transporter caches a single module-level instance, which
- * hands one tenant's SES credentials to every other tenant in the process.
- */
 export const getEmailProvider = (
   cacheKey: string,
   config: IEmailProviderConfig,

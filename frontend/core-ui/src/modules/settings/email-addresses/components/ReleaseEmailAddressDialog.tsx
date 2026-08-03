@@ -13,11 +13,6 @@ const reasonLabel = (reason?: TEmailSuppressionReason) =>
   EMAIL_SUPPRESSION_REASON_OPTIONS.find((option) => option.value === reason)
     ?.label ?? 'an unrecorded reason';
 
-/**
- * Reopening undoes a protection that something the provider told us put in
- * place, so it asks for the address to be typed out and for a reason to be
- * given. Both exist to make the click deliberate rather than reversible.
- */
 export const ReleaseEmailAddressDialog = ({
   address,
   open,

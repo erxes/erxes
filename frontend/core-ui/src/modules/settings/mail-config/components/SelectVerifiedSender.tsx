@@ -5,12 +5,6 @@ import { IconMailCheck, IconMailPlus } from '@tabler/icons-react';
 import { Button, Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
 
-/**
- * Picks one of the confirmed sender addresses, and lets a new one be added
- * without leaving the form. Addresses still waiting on their confirmation link
- * are left out — they are not usable yet, so offering them here would only
- * produce failed sends.
- */
 export const SelectVerifiedSender = ({
   value,
   onChange,
@@ -85,9 +79,6 @@ export const SelectVerifiedSender = ({
             {!loading && (
               <>
                 <Command.Separator />
-                {/* Kept below a separator: adding a sender is a different kind
-                    of action from picking one, and it should stay reachable
-                    without scrolling past every existing sender. */}
                 <div className="p-1">
                   <Button
                     variant="ghost"

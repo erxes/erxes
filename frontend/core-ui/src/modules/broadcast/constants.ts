@@ -170,11 +170,6 @@ export const BROADCAST_MESSAGE_KIND = [
   { value: 'manual', label: 'Manual' },
 ];
 
-/**
- * Provider credentials for campaigns, named `BROADCAST_` + the matching mail
- * config code. The backend reads them off that prefix, so a field added to mail
- * config only needs its twin listed here.
- */
 export const BROADCAST_PROVIDER_FIELDS: Record<
   string,
   Array<{ name: string; label: string; type?: string }>

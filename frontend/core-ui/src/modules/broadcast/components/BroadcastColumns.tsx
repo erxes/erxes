@@ -222,7 +222,6 @@ export const broadcastColumns: ColumnDef<any>[] = [
 
       return (
         <RecordTableInlineCell>
-          {/* Campaigns created before senders were pickable only carry a user. */}
           {fromEmail ? (
             fromEmail
           ) : (

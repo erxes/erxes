@@ -1,11 +1,6 @@
 import { getConfigs } from '@/organization/settings/utils/configs';
 import { IModels } from '~/connectionResolvers';
 
-/**
- * The organization's physical postal address, carried in the campaign footer.
- * CAN-SPAM requires one on commercial email, and its absence is a spam signal
- * on its own.
- */
 export interface IPostalAddress {
   address: string;
   city: string;
@@ -24,7 +19,6 @@ export const getPostalAddress = async (
   };
 };
 
-/** Empty when nothing is configured, so callers can leave the footer out. */
 export const formatPostalAddress = ({
   address,
   city,

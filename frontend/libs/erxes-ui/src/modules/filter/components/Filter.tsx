@@ -202,18 +202,11 @@ const FilterCommandItem = React.forwardRef<
   );
 });
 
-/**
- * Takes the popover back to the filter list. Rendered for every non-root view
- * so that picking a filter is never a one-way trip — without it the only way
- * out is to close the popover and open it again.
- */
 const FilterBackButton = () => {
   const { id } = useFilterContext();
   const setView = useSetAtom(filterPopoverViewState(id));
 
   return (
-    // Sits outside the view's own Command, so it is a plain button rather than
-    // a Command.Item — cmdk primitives need that context to work.
     <button
       type="button"
       onClick={() => setView('root')}
@@ -225,11 +218,6 @@ const FilterBackButton = () => {
   );
 };
 
-/**
- * Set once a view is rendering. Shared selects such as `SelectMember.FilterView`
- * wrap their own `Filter.View` around the same key the caller already opened, so
- * without this the nested one would draw a second back button.
- */
 const FilterViewNesting = React.createContext(false);
 
 const FilterView = ({
@@ -250,7 +238,6 @@ const FilterView = ({
     return null;
   }
 
-  // Dialogs close on their own, and the root view has nowhere to go back to.
   if (inDialog || filterKey === 'root' || isNested) {
     return children;
   }

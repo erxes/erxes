@@ -36,7 +36,6 @@ export const sendEmail = async (
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
-  // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
     return;
   }
@@ -56,8 +55,6 @@ export const sendEmail = async (
     getConfig(code, defaultValue, models),
   );
 
-  // SaaS has always gone out through SendGrid regardless of the tenant's
-  // configured provider, and callers can still force it per message.
   if (transportMethod === 'sendgrid' || VERSION === 'saas') {
     providerConfig.DEFAULT_EMAIL_SERVICE = 'sendgrid';
   }

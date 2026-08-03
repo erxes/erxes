@@ -20,8 +20,6 @@ export const SendEmailNodeContent = ({
 
   const { alignedFrom } = useSenderOptions();
 
-  // Where the `From` is rewritten, the picked address is the reply destination
-  // and naming it here would claim a sender the message never had.
   const from = alignedFrom
     ? `${sender || ''} <${alignedFrom}>`.trim()
     : type === 'default'

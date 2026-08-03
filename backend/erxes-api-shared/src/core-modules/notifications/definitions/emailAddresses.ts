@@ -18,7 +18,6 @@ export interface IEmailAddressDocument extends Document {
   email: string;
 
   lastSentAt?: Date;
-  /** Proof the mailbox accepted mail at that moment. */
   lastDeliveredAt?: Date;
   deliveredCount: number;
 
@@ -75,7 +74,6 @@ export const emailAddressSchema = new Schema({
     enum: ['hard_bounce', 'complaint', 'unsubscribe', 'screened', 'manual'],
   },
 
-  /** Only set when a person did it, so the decision can be traced back. */
   suppressedBy: {
     type: String,
   },

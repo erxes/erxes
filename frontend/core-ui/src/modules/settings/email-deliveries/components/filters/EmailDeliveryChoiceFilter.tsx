@@ -7,10 +7,6 @@ type TOption = {
   readonly icon: React.ComponentType<{ className?: string }>;
 };
 
-/**
- * The three list filters are all "pick one of a fixed set", so they share one
- * implementation rather than three near-identical files.
- */
 export const EmailDeliveryChoiceFilter = ({
   queryKey,
   options,

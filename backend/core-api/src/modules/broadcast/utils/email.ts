@@ -50,7 +50,6 @@ export const prepareEmailHeader = (
   engageMessageId?: string,
   configSet?: string,
 ) => {
-  // `Subdomain` is not set here: `deliverEmail` adds it to every send path.
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
     CustomerId: customerId,

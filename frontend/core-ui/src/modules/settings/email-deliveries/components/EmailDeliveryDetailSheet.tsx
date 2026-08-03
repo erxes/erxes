@@ -72,7 +72,6 @@ const EmailDeliveryDetail = ({ id }: { id: string }) => {
           <p className="mb-1 text-sm text-muted-foreground">
             Provider response
           </p>
-          {/* Stored verbatim and never parsed, so it is shown as-is. */}
           <pre className="overflow-x-auto rounded-md bg-muted p-3 text-xs">
             {detail.providerResponse}
           </pre>

@@ -4,11 +4,6 @@ import { toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-/**
- * The name is required because it is what recipients actually see: where the
- * address cannot be used as the `From`, the name is all that identifies who
- * sent the message.
- */
 const SENDER_SCHEMA = z.object({
   name: z.string().min(1, 'Sender name is required'),
   email: z.string().email('Enter a valid email'),

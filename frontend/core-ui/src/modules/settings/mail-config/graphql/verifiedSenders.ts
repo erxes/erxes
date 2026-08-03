@@ -1,9 +1,5 @@
 import { gql } from '@apollo/client';
 
-/**
- * Only the fields a sender picker needs. The generic `configs` query would also
- * carry the org's provider credentials, which has no business on these screens.
- */
 export const SENDER_OPTIONS = gql`
   query EmailSenderOptions($scope: String) {
     emailSenderOptions(scope: $scope) {

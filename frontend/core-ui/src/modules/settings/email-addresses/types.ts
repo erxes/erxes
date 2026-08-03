@@ -9,7 +9,6 @@ export type TEmailSuppressionReason =
 export interface IEmailAddress {
   _id: string;
   email: string;
-  /** Derived by the server from the fields below; never stored. */
   lane: TEmailLane;
 
   lastSentAt?: string;

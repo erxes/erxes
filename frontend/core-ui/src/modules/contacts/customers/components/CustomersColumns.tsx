@@ -44,11 +44,6 @@ import { customerMoreColumn } from './CustomerMoreColumn';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
 
-/**
- * The address's own standing, not the stored validation field: `proven` is what
- * a delivery proved, `suppressed` what a bounce or complaint closed. The stored
- * field is left alone as history — nothing writes it any more.
- */
 const LANE_AS_STATUS: Record<string, ValidationStatus | undefined> = {
   proven: ValidationStatus.Valid,
   suppressed: ValidationStatus.Invalid,

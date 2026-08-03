@@ -47,8 +47,10 @@ export const notificationQueries = {
       createdAtFrom?: Date;
       createdAtTo?: Date;
     } & ICursorPaginateParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastUpdate');
+
     const {
       status,
       source,
@@ -95,8 +97,10 @@ export const notificationQueries = {
   async emailDeliveryDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastUpdate');
+
     return await models.EmailDeliveries.findOne({ _id });
   },
 
@@ -210,11 +214,10 @@ export const notificationQueries = {
     const { lane, suppressionReason, searchValue, emails } = params;
 
     const query: FilterQuery<IEmailAddressDocument> = {};
+    const emailConditions: FilterQuery<IEmailAddressDocument>[] = [];
 
-    // Asking for a known set: what a list of records needs to show each row's
-    // standing without a query per row.
     if (emails?.length) {
-      query.email = { $in: emails.map(normalizeEmail) };
+      emailConditions.push({ email: { $in: emails.map(normalizeEmail) } });
     }
 
     if (lane) {
@@ -226,7 +229,13 @@ export const notificationQueries = {
     }
 
     if (searchValue) {
-      query.email = new RegExp(escapeRegExp(searchValue), 'i');
+      emailConditions.push({
+        email: new RegExp(escapeRegExp(searchValue), 'i'),
+      });
+    }
+
+    if (emailConditions.length) {
+      query.$and = emailConditions;
     }
 
     const { list, totalCount, pageInfo } =

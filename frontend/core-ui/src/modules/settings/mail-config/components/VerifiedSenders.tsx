@@ -26,11 +26,6 @@ const SenderBadge = ({ sender }: { sender: IEmailSender }) => (
   </Badge>
 );
 
-/**
- * Addresses the organization has confirmed it holds. Rendered both in mail
- * settings and in broadcast settings, so it reads the provider itself rather
- * than being told which one is active.
- */
 export const VerifiedSenders = () => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -44,10 +39,6 @@ export const VerifiedSenders = () => {
   const { removeVerifiedSender } = useRemoveVerifiedSender();
   const { formOpen, setFormOpen, openForm } = useSenderCreation();
 
-  // A plain SMTP relay accepts whatever the server allows, so there is no
-  // sender list to show or manage. Waits for the answer first — the loading
-  // defaults say "unsupported", so bailing out early would blank the field on
-  // every render and then pop it back in.
   if (!loading && !supportsSenderVerification) {
     return null;
   }
@@ -129,9 +120,6 @@ export const VerifiedSenders = () => {
               <>
                 <Command.Separator />
                 <div className="p-1">
-                  {/* Kept below a separator: adding a sender is a different kind
-                      of action from removing one, and the two must not look
-                      alike. */}
                   <Button
                     variant="ghost"
                     className="w-full justify-start font-normal"

@@ -80,10 +80,6 @@ export const useEmailAddresses = () => {
   };
 };
 
-/**
- * Reopens an address that was closed. Refetches rather than patching the cache
- * because releasing usually moves the row out of the filter it was found under.
- */
 export const useReleaseEmailAddress = () => {
   const { toast } = useToast();
 

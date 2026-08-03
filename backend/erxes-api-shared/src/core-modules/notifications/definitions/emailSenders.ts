@@ -81,5 +81,4 @@ export const emailSenderSchema = new Schema({
   },
 });
 
-// One claim per address per credential set.
 emailSenderSchema.index({ scope: 1, email: 1 }, { unique: true });

@@ -81,7 +81,6 @@ export const emailDeliveryColumns: ColumnDef<IEmailDeliveryRow>[] = [
           {status ? (
             <Badge variant={DELIVERY_VARIANTS[status]}>{status}</Badge>
           ) : (
-            // SMTP relays push no events, so there is nothing to report here.
             <span className="text-muted-foreground">—</span>
           )}
         </RecordTableInlineCell>

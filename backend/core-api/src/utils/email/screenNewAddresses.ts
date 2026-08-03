@@ -13,7 +13,7 @@ export const screenNewAddresses = async (
         await models.EmailAddresses.suppress(email, 'screened');
       }
     } catch (error) {
-      console.error(`Failed to screen ${email}: ${error.message}`);
+      console.error(`Failed to screen an email address: ${error.message}`);
     }
   }
 };

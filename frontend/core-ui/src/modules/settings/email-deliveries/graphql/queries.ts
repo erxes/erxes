@@ -5,10 +5,6 @@ import {
   GQL_PAGE_INFO,
 } from 'erxes-ui';
 
-/**
- * Only what the table renders. Bodies and raw provider responses can be large,
- * so they are left to the detail query.
- */
 export const EMAIL_DELIVERIES = gql`
   query EmailDeliveries(
     $status: String

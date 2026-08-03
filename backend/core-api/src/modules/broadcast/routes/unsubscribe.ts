@@ -14,8 +14,6 @@ const unsubscribe = async (models: IModels, query: Request['query']) => {
       { $set: { isSubscribed: 'No' } },
     );
 
-    // The flag stops this contact; suppressing the address stops every other
-    // record that carries it too.
     for (const email of [
       customer?.primaryEmail,
       ...(customer?.emails || []),
@@ -44,21 +42,28 @@ const unsubscribe = async (models: IModels, query: Request['query']) => {
 
 const router: Router = Router();
 
-/**
- * Deliberately does not unsubscribe anyone. Corporate mail scanners follow
- * every link in a message before the recipient ever sees it, so a GET that
- * acted would unsubscribe people who never clicked. The button below posts.
- */
 router.get(
   '/',
   routeErrorHandling(async (req: Request, res: Response) => {
+    const params = new URLSearchParams();
+
+    if (req.query.cid) {
+      params.set('cid', String(req.query.cid));
+    }
+
+    if (req.query.uid) {
+      params.set('uid', String(req.query.uid));
+    }
+
+    const action = `${req.baseUrl}${req.path}?${params.toString()}`;
+
     return res.send(
       await applyTemplate(
         {
           title: 'Unsubscribe',
           body: `
             <p style="margin: 0 0 20px;">Stop receiving these emails?</p>
-            <form method="POST" action="${req.originalUrl}">
+            <form method="POST" action="${action}">
               <button type="submit" style="padding: 10px 32px; font-size: 14px; color: #ffffff; background-color: #5629b6; border: 0; border-radius: 300px; cursor: pointer;">
                 Unsubscribe
               </button>
@@ -71,10 +76,6 @@ router.get(
   }),
 );
 
-/**
- * Also what `List-Unsubscribe-Post` calls, which is why it must go through
- * without a confirmation step of its own.
- */
 router.post(
   '/',
   routeErrorHandling(async (req: Request, res: Response) => {

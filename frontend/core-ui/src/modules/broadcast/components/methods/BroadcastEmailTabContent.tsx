@@ -4,7 +4,18 @@ import { BlockEditor, useBlockEditor } from 'erxes-ui';
 import { useEffect } from 'react';
 import { MembersInline } from 'ui-modules';
 
-const EmailPreview = ({ message }: { message: any }) => {
+type TEmailPreviewMessage = {
+  fromEmail?: string;
+  fromUserId?: string;
+  email?: {
+    sender?: string;
+    subject?: string;
+    content?: string;
+    replyTo?: string;
+  };
+};
+
+const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
   const { fromEmail, fromUserId, email } = message || {};
   const { sender, subject, content, replyTo } = email || {};
   const { alignedFrom } = useSenderOptions();
@@ -12,6 +23,10 @@ const EmailPreview = ({ message }: { message: any }) => {
 
   useEffect(() => {
     const loadInitialContent = async () => {
+      if (!content) {
+        return;
+      }
+
       let blocks;
 
       try {
@@ -36,9 +51,6 @@ const EmailPreview = ({ message }: { message: any }) => {
 
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">From:</span>
-          {/* Shows what recipients actually see. Where the send path rewrites
-              the From, the picked address is the reply destination, and naming
-              it here would claim a sender the message never had. */}
           {alignedFrom ? (
             <span className="font-semibold">
               {sender} &lt;{alignedFrom}&gt;
@@ -48,8 +60,10 @@ const EmailPreview = ({ message }: { message: any }) => {
               {sender ? `${sender} <${fromEmail}>` : fromEmail}
             </span>
           ) : (
-            /* Campaigns created before senders were pickable only carry a user. */
-            <MembersInline memberIds={[fromUserId]} className="font-semibold" />
+            <MembersInline
+              memberIds={fromUserId ? [fromUserId] : []}
+              className="font-semibold"
+            />
           )}
         </div>
 
@@ -75,7 +89,7 @@ const EmailPreview = ({ message }: { message: any }) => {
 export const BroadcastTabPreviewEmailContent = ({
   message,
 }: {
-  message: any;
+  message?: TEmailPreviewMessage;
 }) => (
   <EmailSenderScopeProvider scope="broadcast">
     <EmailPreview message={message} />

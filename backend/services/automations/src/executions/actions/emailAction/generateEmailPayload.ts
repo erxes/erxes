@@ -35,8 +35,6 @@ export const generateEmailPayload = async ({
 
   const isSaasVersion = version === 'saas';
   const isDefaultSender = senderType === 'default' || !senderType;
-  // A picked verified sender arrives as a literal address in the same field the
-  // custom placeholder uses, so both resolve through the same path.
   const isPickedSender = senderType === 'custom' || senderType === 'verified';
   const normalizedFromEmailPlaceHolder = normalizeEmailActionPlaceholders(
     fromEmailPlaceHolder || '',
@@ -49,8 +47,6 @@ export const generateEmailPayload = async ({
   let fromUserEmail = '';
 
   if (isDefaultSender) {
-    // Shared with the settings UI so it can show which address this resolves
-    // to; the picker must never offer a sender this path would refuse.
     fromUserEmail = resolveDefaultSenderEmail({
       isSaas: isSaasVersion,
       companyEmailFrom: await getConfig(subdomain, 'COMPANY_EMAIL_FROM', ''),
@@ -70,7 +66,6 @@ export const generateEmailPayload = async ({
     fromUserEmail = emails[0];
   }
 
-  // Refuse early rather than building a payload the provider will reject.
   await assertSenderAllowed(subdomain, fromUserEmail);
 
   const templateContent = renderEmailContent(config?.content, config?.html);

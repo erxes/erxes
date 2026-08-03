@@ -4,14 +4,6 @@ import { useQuery } from '@apollo/client';
 import { ICursorListResponse } from 'erxes-ui';
 import { useMemo } from 'react';
 
-/**
- * The standing of a known set of addresses, in one request.
- *
- * Resolving it per record would mean a query per row; a list asks once for
- * everything it is about to show. Addresses that were never mailed have no
- * record at all, which reads as `unknown` — the same thing the server would
- * derive for them.
- */
 export const useEmailLanes = (emails: string[]) => {
   const wanted = useMemo(
     () => [...new Set(emails.filter(Boolean).map((e) => e.toLowerCase()))],

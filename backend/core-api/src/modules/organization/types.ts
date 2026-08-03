@@ -24,7 +24,6 @@ export interface IEmailDeliveries {
   provider: 'sendgrid' | 'smtp' | 'ses';
   status?: 'queued' | 'sent' | 'failed';
   messageId?: string;
-  /** What produced this email, e.g. 'automation' | 'broadcast' | 'transactional'. */
   source?: string;
   sourceId?: string;
   userId?: string;

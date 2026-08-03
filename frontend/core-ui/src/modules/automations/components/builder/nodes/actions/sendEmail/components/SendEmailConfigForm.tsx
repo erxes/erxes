@@ -84,11 +84,6 @@ export const SendEmailConfigForm = ({
               <Form.Control>
                 <Input {...field} placeholder="Sales team" />
               </Form.Control>
-              {/*
-                Without an authenticated domain the message can only be signed
-                for the platform address, so the `From` is not a choice — it is
-                the name typed here and nothing else.
-              */}
               {alignedFrom && (
                 <Form.Description>
                   {senderName
@@ -205,14 +200,6 @@ export const SendEmailConfigForm = ({
           </>
         )}
 
-        {/*
-          Where the `From` is rewritten, the picked address is what replies come
-          back to — so it is the same stored field, under the label for what it
-          actually becomes. Two fields rather than one with a switched `name`:
-          react-hook-form keeps a controller bound to the name it first
-          registered, so a name that changes when the query resolves leaves the
-          input reading a stale value.
-        */}
         <ReplyToField
           control={form.control}
           name={alignedFrom ? 'fromEmailPlaceHolder' : 'replyToEmail'}

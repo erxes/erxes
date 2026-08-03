@@ -496,8 +496,6 @@ export const emailHtmlWrapper = (html: string, config?: Config) => {
       </tr>`
     : '';
 
-  // Commercial email has to name the sender's physical address; it is left out
-  // rather than faked when the organization has not configured one.
   const postalAddressRow = postalAddress
     ? `<tr>
         <td style="padding: 0 10px 10px; color: #ccc; text-align: center; font-size: 12px;">

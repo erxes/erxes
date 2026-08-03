@@ -61,5 +61,3 @@ export const BROADCAST_SET_LIVE = gql`
   }
 `;
 
-// Sender verification moved to `@/settings/mail-config` so that mail settings
-// and broadcast settings share one provider-aware implementation.

@@ -1,11 +1,9 @@
 import fetch from 'node-fetch';
 import { IEmailAttachment } from './types';
 
-/**
- * SendGrid's Web API accepts only inline base64 bodies, so URL-backed
- * attachments have to be downloaded first. nodemailer-based providers skip
- * this entirely and hand the URL straight through.
- */
+const DOWNLOAD_TIMEOUT_MS = 15000;
+const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+
 export const toBase64Attachment = async (
   attachment: IEmailAttachment,
 ): Promise<{ filename: string; content: string; type?: string }> => {
@@ -23,7 +21,16 @@ export const toBase64Attachment = async (
     );
   }
 
-  const response = await fetch(attachment.path);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
+
+  let response;
+
+  try {
+    response = await fetch(attachment.path, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -31,7 +38,25 @@ export const toBase64Attachment = async (
     );
   }
 
+  const declaredSize = Number(response.headers.get('content-length'));
+
+  if (declaredSize && declaredSize > MAX_ATTACHMENT_BYTES) {
+    throw new Error(
+      `Attachment "${attachment.filename}" exceeds the ${
+        MAX_ATTACHMENT_BYTES / (1024 * 1024)
+      }MB limit`,
+    );
+  }
+
   const buffer = await response.buffer();
+
+  if (buffer.byteLength > MAX_ATTACHMENT_BYTES) {
+    throw new Error(
+      `Attachment "${attachment.filename}" exceeds the ${
+        MAX_ATTACHMENT_BYTES / (1024 * 1024)
+      }MB limit`,
+    );
+  }
 
   return {
     filename: attachment.filename,

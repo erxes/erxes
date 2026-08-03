@@ -36,7 +36,6 @@ export interface IDeliveryLogPort {
   update(id: string, patch: IDeliveryLogPatch): Promise<void>;
 }
 
-/** Backed like the delivery log: models in core-api, tRPC elsewhere. */
 export interface ISuppressionPort {
   blocked(emails: string[], source?: string): Promise<string[]>;
 }
@@ -82,7 +81,6 @@ export const deliverEmail = async ({
     sourceId?: string;
     userId?: string;
     notificationId?: string;
-    /** Which tenant this belongs to, for the webhook to route the events back. */
     subdomain?: string;
   };
 }): Promise<ISendOutcome> => {
@@ -93,7 +91,7 @@ export const deliverEmail = async ({
 
   if (suppression) {
     suppressed = await suppression.blocked(
-      [...message.to, ...(message.cc || [])],
+      [...message.to, ...(message.cc || []), ...(message.bcc || [])],
       meta?.source,
     );
 
@@ -101,8 +99,6 @@ export const deliverEmail = async ({
       const closed = new Set(suppressed);
       const to = message.to.filter((email) => !closed.has(email));
 
-      // Nothing was handed off, so there is no delivery row to attach a webhook
-      // to and nothing to count as sent.
       if (!to.length) {
         return {
           messageId: '',
@@ -118,6 +114,7 @@ export const deliverEmail = async ({
         ...message,
         to,
         cc: (message.cc || []).filter((email) => !closed.has(email)),
+        bcc: (message.bcc || []).filter((email) => !closed.has(email)),
       };
     }
   }

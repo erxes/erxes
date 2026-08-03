@@ -10,6 +10,10 @@ import {
   TEmailProviderName,
 } from '../types';
 
+const CONNECTION_TIMEOUT_MS = 15000;
+const GREETING_TIMEOUT_MS = 15000;
+const SOCKET_TIMEOUT_MS = 30000;
+
 export class SmtpEmailProvider implements IEmailProvider {
   public readonly name: TEmailProviderName = 'custom';
 
@@ -21,11 +25,17 @@ export class SmtpEmailProvider implements IEmailProvider {
         ? { user: config.MAIL_USER, pass: config.MAIL_PASS }
         : undefined;
 
+    const port = config.MAIL_PORT ? Number(config.MAIL_PORT) : undefined;
+
     this.transporter = nodemailer.createTransport({
       service: config.MAIL_SERVICE,
       host: config.MAIL_HOST,
-      port: config.MAIL_PORT ? Number(config.MAIL_PORT) : undefined,
+      port,
       auth,
+      ...(auth && port !== 465 ? { requireTLS: true } : {}),
+      connectionTimeout: CONNECTION_TIMEOUT_MS,
+      greetingTimeout: GREETING_TIMEOUT_MS,
+      socketTimeout: SOCKET_TIMEOUT_MS,
     });
   }
 
@@ -58,11 +68,6 @@ export class SmtpEmailProvider implements IEmailProvider {
     };
   }
 
-  /**
-   * A generic SMTP relay has no sender registry — whatever the relay accepts is
-   * what gets delivered. Callers must surface this to the UI rather than
-   * pretending an empty list means "nothing verified yet".
-   */
   public async listSingleSenders(): Promise<ISender[]> {
     throw new EmailProviderNotSupportedError('custom', 'listSingleSenders');
   }

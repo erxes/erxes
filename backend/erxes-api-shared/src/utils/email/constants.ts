@@ -1,10 +1,5 @@
 import { TEmailProviderName } from './types';
 
-/**
- * Every config code the provider layer reads. Consumers fetch these in a
- * single round trip rather than issuing one config lookup per key, which is
- * what the current `sendEmails` implementation does.
- */
 export const EMAIL_PROVIDER_CONFIG_CODES = [
   'DEFAULT_EMAIL_SERVICE',
 

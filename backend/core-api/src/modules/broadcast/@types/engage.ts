@@ -60,7 +60,6 @@ export interface IEngageMessage {
   cpId: string;
   title: string;
   fromEmail?: string;
-  /** Legacy: campaigns created before senders were pickable directly. */
   fromUserId?: string;
   method: string;
   isDraft?: boolean;

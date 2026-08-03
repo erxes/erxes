@@ -20,8 +20,6 @@ export const engageMessageSchema = new Schema(
 
     title: { type: String, label: 'Title', required: true },
     cpId: { type: String, label: 'Client portal ID' },
-    // Campaigns now pick a verified sender directly. `fromUserId` stays for
-    // campaigns created before that, which the send path still falls back to.
     fromEmail: { type: String, label: 'From sender' },
     fromUserId: { type: String, label: 'From user' },
 

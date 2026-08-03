@@ -61,7 +61,6 @@ const claimChunk = async (models: IModels, chunk: any[]) => {
   return allowed;
 };
 
-/** Resumes at the next UTC midnight, when the daily allowance resets. */
 const untilTomorrow = () => {
   const next = new Date();
 
@@ -120,21 +119,24 @@ export const handleEmailProcessor = async (payload) => {
     for (let i = 0; i < customers.length; i += CHUNK_SIZE) {
       const chunk = customers.slice(i, i + CHUNK_SIZE);
       const unsubscribed = await listUnsubscribed(models, chunk);
-      const allowed = await claimChunk(models, chunk);
+      const allowed = await claimChunk(
+        models,
+        chunk.filter((customer) => !unsubscribed.has(String(customer._id))),
+      );
 
       for (const customer of chunk) {
-        if (!allowed.has(String(customer._id))) {
-          deferred.push(customer);
-
-          continue;
-        }
-
         if (unsubscribed.has(String(customer._id))) {
           await models.BroadcastTraces.createTrace(
             engageMessage._id,
             'regular',
             `Skipped customer ${customer._id}: unsubscribed after the campaign started`,
           );
+
+          continue;
+        }
+
+        if (!allowed.has(String(customer._id))) {
+          deferred.push(customer);
 
           continue;
         }
@@ -231,8 +233,6 @@ export const handleEmailProcessor = async (payload) => {
     }
 
     if (deferred.length) {
-      // Counted as another batch so the campaign is not declared finished while
-      // part of its audience is still waiting.
       await models.EngageMessages.updateOne(
         { _id: engageMessage._id },
         { $inc: { 'progress.totalBatches': 1 } },
@@ -244,7 +244,7 @@ export const handleEmailProcessor = async (payload) => {
 
       const resumeCount = (payload.resumeCount || 0) + 1;
 
-      addBroadcastWorkerQueue({
+      await addBroadcastWorkerQueue({
         queueName: 'broadcast_processor',
         data: {
           method: 'email',
@@ -252,15 +252,11 @@ export const handleEmailProcessor = async (payload) => {
             ...payload,
             customers: deferred,
             resumeCount,
-            // Stamped so a batch queued by an earlier run is dropped rather
-            // than mailing the same people a second time.
             queuedRun: campaign?.runCount ?? payload.queuedRun,
           },
         },
-        // The run is part of the id, so restarting a campaign never collides
-        // with a batch the previous run left waiting.
-        jobId: `${engageMessage._id}_run${
-          campaign?.runCount ?? 0
+        jobId: `${engageMessage._id}_run${campaign?.runCount ?? 0}_batch${
+          payload.batchIndex ?? 0
         }_resume${resumeCount}`,
         delay: untilTomorrow(),
       });

@@ -48,10 +48,6 @@ export function CustomerEmails({
         <EmailDisplay {...emailProps} />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
-        {/*
-          The validation status is not editable: an address is judged by what
-          mailing it produced, and a hand-set verdict would override that.
-        */}
         <EmailListField
           recordId={_id}
           {...emailProps}

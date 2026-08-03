@@ -14,6 +14,8 @@ import {
   TEmailProviderName,
 } from '../types';
 
+const REQUEST_TIMEOUT_MS = 15000;
+
 type TSendgridDnsEntry = {
   host: string;
   type: string;
@@ -60,11 +62,6 @@ const toDomainSender = (domain: TSendgridDomain): ISender => ({
   dnsRecords: toDnsRecords(domain.dns),
 });
 
-/**
- * The SDK reports only the HTTP reason — "Bad Request" — while what was
- * actually wrong with the payload sits in the response body. A delivery log
- * saying "Bad Request" tells nobody which field to fix.
- */
 const toSendError = (error: any) => {
   const response = error?.response;
 
@@ -96,13 +93,13 @@ export class SendgridEmailProvider implements IEmailProvider {
     this.apiKey = config.SENDGRID_API_KEY;
     this.subuser = config.SENDGRID_SUBUSER;
 
-    // Required lazily so that deployments not using SendGrid never pay for
-    // loading the SDK.
-    const sendgridMail = require('@sendgrid/mail');
+    const { MailService } = require('@sendgrid/mail');
 
-    sendgridMail.setApiKey(this.apiKey);
+    const mailer = new MailService();
 
-    this.mailer = sendgridMail;
+    mailer.setApiKey(this.apiKey);
+
+    this.mailer = mailer;
   }
 
   public async send(message: IOutboundEmail): Promise<ISentEmail> {
@@ -146,7 +143,6 @@ export class SendgridEmailProvider implements IEmailProvider {
   }
 
   public async listSingleSenders(ids?: string[]): Promise<ISender[]> {
-    // `id` takes a single value, so asking for several means one call each.
     const paths = ids?.length
       ? ids.map((id) => `/verified_senders?id=${encodeURIComponent(id)}`)
       : ['/verified_senders'];
@@ -163,7 +159,6 @@ export class SendgridEmailProvider implements IEmailProvider {
   public async listAuthenticatedDomains(
     domains?: string[],
   ): Promise<ISender[]> {
-    // `domain` takes a single value, so asking for several means one call each.
     const paths = domains?.length
       ? domains.map(
           (domain) =>
@@ -203,7 +198,7 @@ export class SendgridEmailProvider implements IEmailProvider {
   }
 
   public async removeSender(id: string): Promise<void> {
-    await this.request('DELETE', `/verified_senders/${id}`);
+    await this.request('DELETE', `/verified_senders/${encodeURIComponent(id)}`);
   }
 
   public async authenticateDomain(domain: string): Promise<ISender> {
@@ -212,8 +207,6 @@ export class SendgridEmailProvider implements IEmailProvider {
       '/whitelabel/domains',
       {
         domain,
-        // Lets SendGrid manage the DKIM keys behind CNAMEs, so the customer
-        // never has to rotate a TXT record by hand.
         automatic_security: true,
       },
     );
@@ -222,11 +215,13 @@ export class SendgridEmailProvider implements IEmailProvider {
   }
 
   public async validateDomain(id: string): Promise<ISender> {
-    await this.request('POST', `/whitelabel/domains/${id}/validate`);
+    const encodedId = encodeURIComponent(id);
+
+    await this.request('POST', `/whitelabel/domains/${encodedId}/validate`);
 
     const domain = await this.request<TSendgridDomain>(
       'GET',
-      `/whitelabel/domains/${id}`,
+      `/whitelabel/domains/${encodedId}`,
     );
 
     return toDomainSender(domain);
@@ -242,17 +237,25 @@ export class SendgridEmailProvider implements IEmailProvider {
       'Content-Type': 'application/json',
     };
 
-    // Scopes every management call to the tenant's subuser, so one tenant can
-    // never read or delete another tenant's senders.
     if (this.subuser) {
       headers['on-behalf-of'] = this.subuser;
     }
 
-    const response = await fetch(`${SENDGRID_API_BASE_URL}${path}`, {
-      method,
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    let response;
+
+    try {
+      response = await fetch(`${SENDGRID_API_BASE_URL}${path}`, {
+        method,
+        headers,
+        body: body === undefined ? undefined : JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
 
     if (!response.ok) {
       throw new EmailProviderRequestError(

@@ -33,7 +33,7 @@ export class SesEmailProvider implements IEmailProvider {
   public readonly name: TEmailProviderName = 'SES';
 
   private client: AWS.SES;
-  private configSet: string;
+  private configSet?: string;
   private transporter: nodemailer.Transporter;
 
   constructor(config: IEmailProviderConfig) {
@@ -55,11 +55,8 @@ export class SesEmailProvider implements IEmailProvider {
       throw new EmailProviderConfigError('SES', missing);
     }
 
-    this.configSet = config.AWS_SES_CONFIG_SET || 'erxes';
+    this.configSet = config.AWS_SES_CONFIG_SET;
 
-    // Scoped to this instance on purpose. Mutating the global `AWS.config`
-    // leaks one tenant's credentials into every other AWS client in the
-    // process.
     this.client = new AWS.SES({
       apiVersion: '2010-12-01',
       region: config.AWS_REGION,
@@ -67,10 +64,6 @@ export class SesEmailProvider implements IEmailProvider {
       secretAccessKey: config.AWS_SES_SECRET_ACCESS_KEY,
     });
 
-    // @types/nodemailer describes the SES client structurally around the v3
-    // SDK, where `sendRawEmail` returns a promise. aws-sdk v2 returns an
-    // `AWS.Request` instead, so the shapes do not line up even though
-    // nodemailer handles the v2 client fine at runtime.
     this.transporter = nodemailer.createTransport({
       SES: this.client,
     } as nodemailer.TransportOptions);
@@ -78,12 +71,12 @@ export class SesEmailProvider implements IEmailProvider {
 
   public async send(message: IOutboundEmail): Promise<ISentEmail> {
     const headers: Record<string, string> = {
-      'X-SES-CONFIGURATION-SET': this.configSet,
+      ...(this.configSet
+        ? { 'X-SES-CONFIGURATION-SET': this.configSet }
+        : {}),
       ...(message.headers || {}),
     };
 
-    // SES has no first-class metadata channel, so custom args ride along as
-    // headers. The SNS tracker already reads delivery metadata this way.
     for (const [key, value] of Object.entries(message.customArgs || {})) {
       headers[key] = value;
     }
@@ -117,45 +110,74 @@ export class SesEmailProvider implements IEmailProvider {
   }
 
   public async listSingleSenders(ids?: string[]): Promise<ISender[]> {
-    // SES identities are the addresses themselves, so given ids there is
-    // nothing to enumerate first.
-    const emails =
-      ids ??
-      (
-        await this.client
-          .listIdentities({ IdentityType: 'EmailAddress' })
-          .promise()
-      ).Identities ??
-      [];
+    const emails = ids ?? (await this.listAllIdentities('EmailAddress'));
 
     if (!emails.length) {
       return [];
     }
 
-    const attributes = await this.client
-      .getIdentityVerificationAttributes({ Identities: emails })
-      .promise();
+    const statuses = await this.getVerificationStatuses(emails);
 
     return emails.map((email) => ({
       id: email,
       type: 'single' as const,
       value: email,
-      status: toSenderStatus(
-        attributes.VerificationAttributes?.[email]?.VerificationStatus,
-      ),
+      status: toSenderStatus(statuses[email]),
     }));
   }
 
   public async listAuthenticatedDomains(
     domains?: string[],
   ): Promise<ISender[]> {
-    const names =
-      domains ??
-      (await this.client.listIdentities({ IdentityType: 'Domain' }).promise())
-        .Identities ??
-      [];
+    const names = domains ?? (await this.listAllIdentities('Domain'));
 
     return Promise.all(names.map((domain) => this.getDomainSender(domain)));
+  }
+
+  private async listAllIdentities(
+    identityType: 'EmailAddress' | 'Domain',
+  ): Promise<string[]> {
+    const identities: string[] = [];
+
+    let nextToken: string | undefined;
+
+    do {
+      const page = await this.client
+        .listIdentities({
+          IdentityType: identityType,
+          MaxItems: 100,
+          NextToken: nextToken,
+        })
+        .promise();
+
+      identities.push(...(page.Identities ?? []));
+
+      nextToken = page.NextToken;
+    } while (nextToken);
+
+    return identities;
+  }
+
+  private async getVerificationStatuses(
+    identities: string[],
+  ): Promise<Record<string, string | undefined>> {
+    const statuses: Record<string, string | undefined> = {};
+
+    for (let i = 0; i < identities.length; i += 100) {
+      const attributes = await this.client
+        .getIdentityVerificationAttributes({
+          Identities: identities.slice(i, i + 100),
+        })
+        .promise();
+
+      for (const [identity, attribute] of Object.entries(
+        attributes.VerificationAttributes ?? {},
+      )) {
+        statuses[identity] = attribute.VerificationStatus;
+      }
+    }
+
+    return statuses;
   }
 
   public async verifySingleSender(input: ISingleSenderInput): Promise<ISender> {

@@ -52,7 +52,6 @@ interface TInput {
   label?: string;
   description?: string;
   options?: string[];
-  /** Overrides the index-based column span the form falls back to. */
   className?: string;
 }
 

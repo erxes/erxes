@@ -77,8 +77,11 @@ const looksRandom = (localPart: string) => {
 };
 
 const MX_CACHE_SECONDS = 24 * 60 * 60;
+const MX_TIMEOUT_MS = 5000;
 
-const hasMxRecord = async (domain: string): Promise<boolean> => {
+const AUTHORITATIVE_DNS_ERRORS = new Set(['ENOTFOUND', 'ENODATA']);
+
+const hasMxRecord = async (domain: string): Promise<boolean | undefined> => {
   const key = `email:mx:${domain}`;
   const cached = await redis.get(key);
 
@@ -86,11 +89,22 @@ const hasMxRecord = async (domain: string): Promise<boolean> => {
     return cached === '1';
   }
 
-  let found = false;
+  let found: boolean;
 
   try {
-    found = (await dns.resolveMx(domain)).some((record) => !!record.exchange);
-  } catch {
+    const records = await Promise.race([
+      dns.resolveMx(domain),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('mx_timeout')), MX_TIMEOUT_MS),
+      ),
+    ]);
+
+    found = records.some((record) => !!record.exchange);
+  } catch (error) {
+    if (!AUTHORITATIVE_DNS_ERRORS.has(error.code)) {
+      return undefined;
+    }
+
     found = false;
   }
 
@@ -112,7 +126,7 @@ export const screenAddress = async (email: string): Promise<IIntakeVerdict> => {
     return { ok: false, reason: 'disposable' };
   }
 
-  if (!(await hasMxRecord(domain))) {
+  if ((await hasMxRecord(domain)) === false) {
     return { ok: false, reason: 'no_mx' };
   }
 

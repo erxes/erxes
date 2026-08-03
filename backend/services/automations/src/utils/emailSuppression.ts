@@ -1,20 +1,25 @@
 import { ISuppressionPort, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { debugError } from '../debugger';
 
-/**
- * Suppression lives with core's `email_addresses`; this service holds no models
- * and must not decide on its own who may be mailed.
- */
 export const createSuppressionPort = (subdomain: string): ISuppressionPort => ({
   async blocked(emails, source) {
-    return (
-      (await sendTRPCMessage({
-        subdomain,
-        method: 'query',
-        pluginName: 'core',
-        module: 'emailSuppression',
-        action: 'blocked',
-        input: { emails, source },
-      })) || []
-    );
+    const result: { emails: string[] } | undefined = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'core',
+      module: 'emailSuppression',
+      action: 'blocked',
+      input: { emails, source },
+    });
+
+    if (!result) {
+      debugError(
+        `Could not read email suppression from core for source "${source}": treating every recipient as allowed`,
+      );
+
+      return [];
+    }
+
+    return result.emails;
   },
 });

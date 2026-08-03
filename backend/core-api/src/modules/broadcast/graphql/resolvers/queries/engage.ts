@@ -15,7 +15,11 @@ import {
 } from '~/utils/email/senders';
 import { TEmailScope } from '~/utils/email/scope';
 import { ICursorPaginateParams, IUser } from 'erxes-api-shared/core-types';
-import { cursorPaginate, getCustomerName } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getCustomerName,
+} from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -248,25 +252,16 @@ export const engageQueries = {
       isActive: true,
     };
 
-    // `null` means the configured provider keeps no sender registry (plain
-    // SMTP), in which case every member is an eligible sender.
     const verifiedEmails = isVerified
       ? await getVerifiedSenderEmails(models, 'broadcast')
       : null;
 
-    if (verifiedEmails) {
-      query.email = { $in: verifiedEmails };
-    }
-
-    if (searchValue) {
-      query.email = { $regex: searchValue, $options: '$i' };
-    }
-
-    if (verifiedEmails && searchValue) {
+    if (verifiedEmails || searchValue) {
       query.email = {
-        $in: verifiedEmails,
-        $regex: searchValue,
-        $options: 'i',
+        ...(verifiedEmails ? { $in: verifiedEmails } : {}),
+        ...(searchValue
+          ? { $regex: escapeRegExp(searchValue), $options: 'i' }
+          : {}),
       };
     }
 
@@ -326,12 +321,6 @@ export const engageQueries = {
 
     return { list: data, totalCount };
   },
-  /**
-   * Config-only answer about the org's mail setup. Anything needing the
-   * provider's API is resolved lazily by the `EmailSenderOptions` field
-   * resolvers, so a caller that only wants to know which provider is configured
-   * never triggers an outbound request.
-   */
   async emailSenderOptions(
     _root: undefined,
     { scope }: { scope?: TEmailScope },
@@ -339,7 +328,6 @@ export const engageQueries = {
   ) {
     const options = await getEmailSenderOptions(models, scope);
 
-    // Carried onto the root so the field resolvers reach the same credentials.
     return { ...options, _scope: scope };
   },
 
@@ -357,8 +345,6 @@ export const engageQueries = {
       'broadcast',
     );
 
-    // `null` means the configured provider keeps no sender registry (plain
-    // SMTP), in which case every member's address is usable as a sender.
     if (!allVerifiedEmails) {
       return userEmails;
     }

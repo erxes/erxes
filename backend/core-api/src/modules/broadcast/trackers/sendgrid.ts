@@ -25,18 +25,15 @@ const isHardBounce = (event: ISendgridEvent) => {
   const name = String(event.event);
 
   if (name === 'dropped') {
-    // SendGrid refused it against what it already knows about the address.
     return true;
   }
 
   return name === 'bounce' && String(event.type || 'bounce') !== 'blocked';
 };
 
-/** A verdict there is no coming back from: the address is gone, or unwanted. */
 const isPermanent = (event: ISendgridEvent) =>
   String(event.event) === 'spamreport' || isHardBounce(event);
 
-/** The delivery row's own status, which is a narrower set than the events. */
 const DELIVERY_STATUS: Record<string, string> = {
   delivered: 'delivered',
   open: 'opened',
@@ -64,14 +61,10 @@ const recordDelivery = async (
     {
       $set: {
         ...(status ? { deliveryStatus: status } : {}),
-        // What the receiving server actually said. The address record keeps
-        // only the current verdict, so the per-send explanation lives here.
         ...(event.reason ? { providerResponse: String(event.reason) } : {}),
         deliveryStatusAt: new Date(),
         updatedAt: new Date(),
       },
-      // Providers retry, and a recipient may open the same mail twice; the
-      // address belongs in the list once either way.
       ...(field && event.email ? { $addToSet: { [field]: event.email } } : {}),
     },
   );
@@ -93,7 +86,6 @@ const recordCampaign = async (models: IModels, event: ISendgridEvent) => {
     email: event.email,
   };
 
-  // SendGrid delivers at least once, so the same event can arrive twice.
   const exists = await models.DeliveryReports.findOne({
     ...report,
     status: sesType,

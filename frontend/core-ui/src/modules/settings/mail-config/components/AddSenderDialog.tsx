@@ -57,11 +57,6 @@ export const AddSenderDialog = ({
         )}
 
         <FormProvider {...form}>
-          {/*
-            The dialog is portalled out of the DOM but stays in the React tree,
-            so a submit here would also reach the form this dialog was opened
-            from — pressing Enter would save the mail config instead.
-          */}
           <form
             onSubmit={(event) => {
               event.stopPropagation();

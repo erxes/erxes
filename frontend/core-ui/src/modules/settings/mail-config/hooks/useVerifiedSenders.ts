@@ -11,7 +11,6 @@ export type TEmailProvider = 'SES' | 'sendgrid' | 'custom';
 
 export interface IEmailSender {
   id: string;
-  /** `single` is one confirmed address; `domain` lets any address below it send. */
   type: 'single' | 'domain';
   value: string;
   name?: string;
@@ -21,16 +20,9 @@ export interface IEmailSender {
 export interface IEmailSenderOptions {
   provider: TEmailProvider;
   supportsSenderVerification: boolean;
-  /** True when a free-form "from" address can actually be delivered. */
   supportsDynamicSender: boolean;
-  /** What the "company email" sender option resolves to, as the server sees it. */
   defaultSenderEmail: string;
-  /**
-   * The address messages actually go out as, when the deployment rewrites it.
-   * `null` means the chosen address is used as-is.
-   */
   alignedFrom: string | null;
-  /** True when this scope ends up on the very same credentials as mail config. */
   sameAsMailConfig: boolean;
   senders: IEmailSender[];
 }
@@ -50,13 +42,6 @@ const EMPTY_OPTIONS: IEmailSenderOptions = {
   senders: [],
 };
 
-/**
- * Everything the sender pickers need, in one request. The rules behind these
- * flags — which providers keep a sender registry, what "company email" resolves
- * to, whether a free-form address can be delivered — are decided server-side,
- * next to the send path that enforces them, so the UI cannot drift into
- * offering a sender the backend would refuse.
- */
 export const useSenderOptions = () => {
   const scope = useEmailSenderScope();
 

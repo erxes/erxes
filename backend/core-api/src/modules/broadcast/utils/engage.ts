@@ -170,10 +170,6 @@ export const checkCustomerExists = async (
   return customers.length > 0;
 };
 
-/**
- * The address a campaign goes out from. Campaigns created before senders were
- * pickable directly only carry a user id, so those still resolve through it.
- */
 export const resolveCampaignFromEmail = async (
   models: IModels,
   campaign: Pick<IEngageMessage, 'fromEmail' | 'fromUserId'>,
@@ -215,14 +211,10 @@ export const checkCampaignDoc = async (
       throw new Error('From sender must be specified');
     }
 
-    // Campaigns may run on their own credentials, so the check has to be
-    // against the account they will actually go out on.
     if (!(await isSenderAllowed(models, fromEmail, 'broadcast'))) {
       throw new Error(`"${fromEmail}" is not a verified sender`);
     }
 
-    // Providers reject the whole message over this, so a campaign that stored
-    // it would only fail once it was already running.
     const { replyTo } = doc.email || {};
 
     if (replyTo && !isEmailAddress(replyTo)) {

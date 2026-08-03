@@ -1,10 +1,6 @@
 import { getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
-/**
- * Read from the environment, never org settings: these protect the shared
- * provider account, so an organization must not be able to widen them.
- */
 const num = (name: string, fallback: number) =>
   Number(getEnv({ name })) || fallback;
 
@@ -34,10 +30,6 @@ const dailyBudget = (tier: number) => {
   return tiers[Math.min(Math.max(tier, 0), tiers.length - 1)];
 };
 
-/**
- * A release says the cause was dealt with, so mail that predates it stops
- * counting — otherwise the rate that halted sending would halt it again.
- */
 const windowStart = (since?: Date) => {
   const { windowDays } = getRampConfig();
   const start = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000);
@@ -45,10 +37,6 @@ const windowStart = (since?: Date) => {
   return since && since > start ? since : start;
 };
 
-/**
- * Moves the tier and trips the breaker. Cheap to call on every send: it only
- * re-measures once the last reading has gone stale.
- */
 export const evaluate = async (models: IModels, force = false) => {
   const { advanceRate, dropRate, haltRate, checkMinutes, windowDays } =
     getRampConfig();
@@ -81,8 +69,6 @@ export const evaluate = async (models: IModels, force = false) => {
     lastRate: overall.rate,
   };
 
-  // Tier movement watches unproven mail only: proven traffic barely ever fails,
-  // so mixing it in would dilute the signal.
   if (unknown.sent > 0) {
     if (unknown.rate >= dropRate && ramp.tier > 0) {
       patch.tier = ramp.tier - 1;
@@ -97,7 +83,6 @@ export const evaluate = async (models: IModels, force = false) => {
 
   await models.EmailRamp.recordEvaluation(patch);
 
-  // Halting watches everything, because that is what the provider sees.
   if (!ramp.haltedAt && overall.sent > 0 && overall.rate >= haltRate) {
     await models.EmailRamp.halt(
       `Bounce and complaint rate reached ${overall.rate.toFixed(
@@ -109,11 +94,6 @@ export const evaluate = async (models: IModels, force = false) => {
   return await models.EmailRamp.current();
 };
 
-/**
- * While halted, only addresses that recently accepted mail may still be written
- * to: they cannot make the rate worse, and stopping them would break password
- * resets without helping recovery.
- */
 export const listHalted = async (models: IModels, emails: string[]) => {
   if (!emails.length) {
     return new Set<string>();
@@ -130,10 +110,6 @@ export const listHalted = async (models: IModels, emails: string[]) => {
   return new Set(emails.filter((email) => !proven.has(email)));
 };
 
-/**
- * Takes up to `want` addresses out of today's allowance and reports how many
- * were granted. A caller granted less than it asked for must hold the rest back.
- */
 export const claim = async (models: IModels, want: number) => {
   if (want <= 0) {
     return 0;
@@ -145,16 +121,27 @@ export const claim = async (models: IModels, want: number) => {
     return 0;
   }
 
-  const take = Math.min(
-    want,
-    Math.max(0, dailyBudget(ramp.tier) - ramp.usedToday),
-  );
+  const limit = dailyBudget(ramp.tier);
 
-  if (take > 0) {
-    await models.EmailRamp.consume(take);
+  let take = Math.min(want, Math.max(0, limit - ramp.usedToday));
+
+  while (take > 0) {
+    if (await models.EmailRamp.consume(take, limit)) {
+      return take;
+    }
+
+    const fresh = await models.EmailRamp.current();
+
+    const room = Math.max(0, limit - (fresh?.usedToday ?? limit));
+
+    if (room >= take) {
+      return 0;
+    }
+
+    take = Math.min(take, room);
   }
 
-  return take;
+  return 0;
 };
 
 export const getStatus = async (models: IModels) => {

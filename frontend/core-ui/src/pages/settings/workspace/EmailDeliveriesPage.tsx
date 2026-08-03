@@ -20,8 +20,6 @@ export function EmailDeliveriesPage() {
         <EmailDeliveryViewToggle />
       </SettingsBreadcrumbs>
 
-      {/* Each list filters on its own keys, so the bars cannot be shared, and
-          the limits view has nothing to filter. */}
       {view !== 'limits' && (
         <PageSubHeader>
           {view === 'addresses' ? (
