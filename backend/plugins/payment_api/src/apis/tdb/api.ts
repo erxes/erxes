@@ -89,7 +89,6 @@ export const tdbCallbackHandler = async (
     if (status === PAYMENT_STATUS.PENDING) {
       return transaction;
     }
-
     await models.Transactions.updateOne(
       { _id: transaction._id },
       {
@@ -164,7 +163,6 @@ export class TDBAPI extends BaseAPI {
     }).then((r) => r.json());
 
     const status = (response?.order?.status || '').toUpperCase();
-
     switch (status) {
       case 'FULLYPAID':
       case 'PARTPAID':
@@ -172,6 +170,11 @@ export class TDBAPI extends BaseAPI {
       case 'PAID':
         return PAYMENT_STATUS.PAID;
 
+      case 'CLOSED':
+      case 'DECLINED':
+      case 'REFUSED':
+      case 'REJECTED':
+      case 'VOIDED':
       case 'EXPIRED':
         return PAYMENT_STATUS.FAILED;
 
