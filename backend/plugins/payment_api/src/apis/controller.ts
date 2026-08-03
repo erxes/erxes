@@ -24,11 +24,11 @@ import redis from '~/utils/redis';
 
 export const callbackHandler = async (req, res) => {
   console.log('[CALLBACK] Incoming request', {
-  path: req.path,
-  method: req.method,
-  query: req.query,
-  body: req.body,
-});
+    path: req.path,
+    method: req.method,
+    query: req.query,
+    body: req.body,
+  });
   const { route, body, query } = req;
 
   const subdomain = getSubdomain(req);
