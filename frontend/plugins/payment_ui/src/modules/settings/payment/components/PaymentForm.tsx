@@ -566,8 +566,8 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
             {isSubmitting
               ? t('saving')
               : payment
-              ? t('update-payment-method')
-              : t('save-payment-method')}
+                ? t('update-payment-method')
+                : t('save-payment-method')}
           </Button>
         </Sheet.Footer>
       </form>

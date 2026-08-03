@@ -38,11 +38,7 @@ type Props = {
   Form: typeof import('erxes-ui/components/form').Form;
 };
 
-const CorporateGolomtBankForm: React.FC<Props> = ({
-  payment,
-  form,
-  Form,
-}) => {
+const CorporateGolomtBankForm: React.FC<Props> = ({ payment, form, Form }) => {
   const { t } = useTranslation('payment');
 
   const { register, watch, setValue, control } = form;
@@ -58,9 +54,7 @@ const CorporateGolomtBankForm: React.FC<Props> = ({
 
   const configs = data?.golomtBankConfigsList?.list ?? [];
 
-  const selectedConfig = configs.find(
-    (config) => config._id === configId,
-  );
+  const selectedConfig = configs.find((config) => config._id === configId);
 
   React.useEffect(() => {
     if (!payment?.config) {
@@ -108,10 +102,7 @@ const CorporateGolomtBankForm: React.FC<Props> = ({
             <Form.Label>{t('config')} *</Form.Label>
 
             <Form.Control>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value placeholder={t('select-config')} />
                 </Select.Trigger>
@@ -119,10 +110,7 @@ const CorporateGolomtBankForm: React.FC<Props> = ({
                 <Select.Content>
                   <Select.Group>
                     {configs.map((config) => (
-                      <Select.Item
-                        key={config._id}
-                        value={config._id}
-                      >
+                      <Select.Item key={config._id} value={config._id}>
                         {config.name}
                       </Select.Item>
                     ))}
@@ -139,10 +127,7 @@ const CorporateGolomtBankForm: React.FC<Props> = ({
           <Form.Label>{t('account')}</Form.Label>
 
           <Form.Control>
-            <Input
-              value={selectedConfig?.accountId ?? ''}
-              readOnly
-            />
+            <Input value={selectedConfig?.accountId ?? ''} readOnly />
           </Form.Control>
         </Form.Item>
       )}
