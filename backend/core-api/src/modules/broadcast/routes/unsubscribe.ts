@@ -44,26 +44,14 @@ const router: Router = Router();
 
 router.get(
   '/',
-  routeErrorHandling(async (req: Request, res: Response) => {
-    const params = new URLSearchParams();
-
-    if (req.query.cid) {
-      params.set('cid', String(req.query.cid));
-    }
-
-    if (req.query.uid) {
-      params.set('uid', String(req.query.uid));
-    }
-
-    const action = `${req.baseUrl}${req.path}?${params.toString()}`;
-
+  routeErrorHandling(async (_req: Request, res: Response) => {
     return res.send(
       await applyTemplate(
         {
           title: 'Unsubscribe',
           body: `
             <p style="margin: 0 0 20px;">Stop receiving these emails?</p>
-            <form method="POST" action="${action}">
+            <form method="POST">
               <button type="submit" style="padding: 10px 32px; font-size: 14px; color: #ffffff; background-color: #5629b6; border: 0; border-radius: 300px; cursor: pointer;">
                 Unsubscribe
               </button>
