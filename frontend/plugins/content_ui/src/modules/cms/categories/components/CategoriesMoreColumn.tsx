@@ -34,8 +34,10 @@ export const CategoryMoreColumnCell = ({
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { removeSingleCategory, loading } =
-    useRemoveCategories(clientPortalId, onRefetch || (() => undefined));
+  const { removeSingleCategory, loading } = useRemoveCategories(
+    clientPortalId,
+    onRefetch || (() => undefined),
+  );
 
   const handleEdit = () => {
     const category = cell.row.original;
