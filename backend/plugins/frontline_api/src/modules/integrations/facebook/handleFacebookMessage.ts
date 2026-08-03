@@ -155,6 +155,15 @@ export const handleFacebookMessage = async (
 
     const tag = extraInfo?.tag || '';
 
+
+    const trimmedTag = tag.trim();
+    const messagingParams: { messaging_type: string; tag?: string } = {
+      messaging_type: trimmedTag ? 'MESSAGE_TAG' : 'RESPONSE',
+    };
+    if (trimmedTag) {
+      messagingParams.tag = trimmedTag;
+    }
+
     // Extract image URLs from the content
     const images = (content.match(/<img[^>]* src="([^"]*)"/g) || []).map(
       (img) => img.match(/src="([^"]*)"/)[1],
@@ -189,7 +198,7 @@ export const handleFacebookMessage = async (
           {
             recipient: { id: senderId },
             message: { text: strippedContent },
-            tag,
+            ...messagingParams,
           },
           conversation.recipientId,
           integrationId,
@@ -218,7 +227,7 @@ export const handleFacebookMessage = async (
           {
             recipient: { id: senderId },
             message,
-            tag,
+            ...messagingParams,
           },
           conversation.recipientId,
           integrationId,

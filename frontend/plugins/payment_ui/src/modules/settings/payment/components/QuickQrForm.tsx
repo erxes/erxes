@@ -1,7 +1,7 @@
-import { Input, Select, Switch } from 'erxes-ui';
+import { Form, Input, Select, Switch } from 'erxes-ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { UseFormReturn } from 'react-hook-form';
+import { FieldValues, UseFormReturn } from 'react-hook-form';
 import SelectDistrict from '~/modules/settings/payment/components/SelectDistrict';
 import { BANK_CODES, CITIES, MCC_CODES } from '~/modules/payment/constants';
 import {
@@ -33,11 +33,10 @@ export type QuickQrFormValues = {
 
 type Props = {
   payment?: IPaymentDocument;
-  form: UseFormReturn<any>; // ← IMPORTANT: matches PaymentForm
-  Form: typeof import('erxes-ui/components/form').Form;
+  form: UseFormReturn<FieldValues>;
 };
 
-const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
+const QuickQrForm: React.FC<Props> = ({ payment, form }) => {
   const { t } = useTranslation('payment');
   const { register, watch, setValue, control } = form;
 

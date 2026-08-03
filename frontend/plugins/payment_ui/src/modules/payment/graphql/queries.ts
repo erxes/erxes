@@ -25,6 +25,13 @@ query payments($status: String, $kind: String) {
     kind
     status
     config
+    sendEmailOnPayment
+    dealConfig {
+      enabled
+      boardId
+      pipelineId
+      stageId
+    }
     createdAt
   }
 }
