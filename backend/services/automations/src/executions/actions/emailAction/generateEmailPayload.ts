@@ -31,7 +31,7 @@ export const generateEmailPayload = async ({
 }) => {
   const { fromEmailPlaceHolder, sender, type: senderType } = config;
   const version = getEnv({ name: 'VERSION' });
-  const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
+  const DEFAULT_FROM_EMAIL = getEnv({ name: 'DEFAULT_FROM_EMAIL' });
 
   const isSaasVersion = version === 'saas';
   const isDefaultSender = senderType === 'default' || !senderType;
@@ -50,7 +50,7 @@ export const generateEmailPayload = async ({
     fromUserEmail = resolveDefaultSenderEmail({
       isSaas: isSaasVersion,
       companyEmailFrom: await getConfig(subdomain, 'COMPANY_EMAIL_FROM', ''),
-      fallbackEmail: DEFAULT_AWS_EMAIL,
+      fallbackEmail: DEFAULT_FROM_EMAIL,
     });
   }
 

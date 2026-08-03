@@ -152,7 +152,7 @@ export const getDefaultSenderEmail = async (models: IModels) =>
   resolveDefaultSenderEmail({
     isSaas: getEnv({ name: 'VERSION' }) === 'saas',
     companyEmailFrom: await getConfig('COMPANY_EMAIL_FROM', '', models),
-    fallbackEmail: getEnv({ name: 'DEFAULT_AWS_EMAIL' }),
+    fallbackEmail: getEnv({ name: 'DEFAULT_FROM_EMAIL' }),
   });
 
 export const resolveAlignedFrom = async (
