@@ -11,9 +11,9 @@ import { basename, extname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { Db } from 'mongodb';
-import { nanoid } from 'nanoid';
 import { Agent, fetch, type Response } from 'undici';
 
+import { generateId } from './generateId';
 import {
   ErxesAttachment,
   MediaImportFailure,
@@ -72,7 +72,7 @@ const createLocalUpload = async (): Promise<UploadFile> => {
   await mkdir(uploadsDirectory, { recursive: true });
 
   return async ({ filePath, fileName }) => {
-    const storedFileName = `${nanoid()}-${fileName}`;
+    const storedFileName = `${generateId()}-${fileName}`;
     await copyFile(filePath, join(uploadsDirectory, storedFileName));
     return storedFileName;
   };

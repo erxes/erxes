@@ -12,12 +12,16 @@ WORKDIR /app
 
 RUN npm install -g pnpm@9
 
-# Runtime deps for the migration scripts. Versions pinned to the repo root
-# package.json (mongodb / dotenv / tsx).
-RUN printf '%s' '{"name":"saas-migrations-runtime","private":true,"dependencies":{"mongodb":"^6.18.0","dotenv":"^16.4.7","tsx":"^4.19.3"}}' > package.json \
+# Runtime deps for the migration scripts. mongodb / dotenv / tsx are pinned to
+# the repo root package.json; fast-xml-parser / undici are pinned to
+# backend/saas-migrations/package.json (used by the WordPress content import).
+RUN printf '%s' '{"name":"saas-migrations-runtime","private":true,"dependencies":{"mongodb":"^6.18.0","dotenv":"^16.4.7","tsx":"^4.19.3","fast-xml-parser":"5.10.1","undici":"6.27.0"}}' > package.json \
     && pnpm install --prod --shamefully-hoist --no-frozen-lockfile
 
 COPY backend/saas-migrations ./saas-migrations
+# Drop any node_modules that came along in the build context: pnpm's symlinks
+# point outside the image and would shadow the hoisted /app/node_modules.
+RUN rm -rf ./saas-migrations/node_modules ./saas-migrations/dist
 
 ENV NODE_ENV=production
 # Safe by default: do nothing destructive unless explicitly overridden to "0".
