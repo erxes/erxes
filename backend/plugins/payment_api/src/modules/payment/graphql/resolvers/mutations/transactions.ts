@@ -7,7 +7,7 @@ const mutations: Record<string, Resolver> = {
     args: any,
     { models, subdomain }: IContext,
   ) {
-     console.log('[MUTATION] paymentTransactionsAdd called', args.input);
+    console.log('[MUTATION] paymentTransactionsAdd called', args.input);
     const { input } = args;
     const invoice = await models.Invoices.getInvoice(
       { _id: input.invoiceId },
@@ -29,6 +29,11 @@ const mutations: Record<string, Resolver> = {
     args: any,
     { models, subdomain }: IContext,
   ) {
+    console.log('[MUTATION] cpPaymentTransactionsAdd', {
+      subdomain,
+      input: args.input,
+    });
+
     const { input } = args;
     const invoice = await models.Invoices.getInvoice(
       { _id: input.invoiceId },
