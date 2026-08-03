@@ -138,7 +138,10 @@ export const KhanbankSection = ({ searchValue }: { searchValue: string }) => {
             ) : (
               <div className="flex flex-col items-center justify-center text-center py-10">
                 <div className="mb-1">
-                  <IconBuildingBank size={24} className="text-muted-foreground" />
+                  <IconBuildingBank
+                    size={24}
+                    className="text-muted-foreground"
+                  />
                 </div>
                 <h3 className="text-sm font-semibold">{t('no-configs')}</h3>
                 <p className="mt-1 text-xs text-muted-foreground">

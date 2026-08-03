@@ -94,7 +94,9 @@ export const khanbankColumns = (
     accessorKey: 'description',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('description')} icon={IconHash} />;
+      return (
+        <RecordTable.InlineHead label={t('description')} icon={IconHash} />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -107,7 +109,9 @@ export const khanbankColumns = (
     accessorKey: 'consumerKey',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('consumer-key')} icon={IconKey} />;
+      return (
+        <RecordTable.InlineHead label={t('consumer-key')} icon={IconKey} />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

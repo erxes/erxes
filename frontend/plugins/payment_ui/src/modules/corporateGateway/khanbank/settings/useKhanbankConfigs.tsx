@@ -48,10 +48,8 @@ export const useKhanbankConfigs = () => {
     totalCount,
     loading,
     saving: adding || editing,
-    addConfig: (variables: Record<string, any>) =>
-      addMutation({ variables }),
-    editConfig: (variables: Record<string, any>) =>
-      editMutation({ variables }),
+    addConfig: (variables: Record<string, any>) => addMutation({ variables }),
+    editConfig: (variables: Record<string, any>) => editMutation({ variables }),
     removeConfig: (_id: string) => removeMutation({ variables: { _id } }),
     refetch,
   };

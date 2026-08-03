@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { useSetAtom } from 'jotai';
-import { addConfig, configsList, editConfig, removeConfig } from '../configs/graphql';
+import {
+  addConfig,
+  configsList,
+  editConfig,
+  removeConfig,
+} from '../configs/graphql';
 import { tdbConfigsCountAtom } from '~/modules/corporateGateway/states/gatewayCounts';
 import { ITdbConfig } from '../configs/types';
 
@@ -44,10 +49,8 @@ export const useTdbConfigs = () => {
     totalCount,
     loading,
     saving: adding || editing,
-    addConfig: (variables: Record<string, any>) =>
-      addMutation({ variables }),
-    editConfig: (variables: Record<string, any>) =>
-      editMutation({ variables }),
+    addConfig: (variables: Record<string, any>) => addMutation({ variables }),
+    editConfig: (variables: Record<string, any>) => editMutation({ variables }),
     removeConfig: (_id: string) => removeMutation({ variables: { _id } }),
     refetch,
   };
