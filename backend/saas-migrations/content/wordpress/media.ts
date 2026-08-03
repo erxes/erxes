@@ -47,6 +47,9 @@ interface UploadRuntime {
   disconnect?: () => void;
 }
 
+
+const PROGRESS_INTERVAL = 25;
+
 const MIME_BY_EXTENSION: Record<string, string> = {
   '.avif': 'image/avif',
   '.doc': 'application/msword',
@@ -593,6 +596,27 @@ export const importWordPressMedia = async ({
   const uploadRuntime = await createUploadRuntime(db);
   const directory = await mkdtemp(join(tmpdir(), 'erxes-wordpress-'));
   let nextIndex = 0;
+  let completed = 0;
+
+  const alreadyImported = plan.media.length - pending.length;
+
+  console.log(
+    `Media: transferring ${pending.length} file(s) with concurrency ${concurrency}${
+      alreadyImported > 0 ? `, ${alreadyImported} already imported` : ''
+    }`,
+  );
+
+  const reportProgress = (): void => {
+    completed += 1;
+
+    if (completed % PROGRESS_INTERVAL !== 0 && completed !== pending.length) {
+      return;
+    }
+
+    console.log(
+      `Media: ${completed}/${pending.length} transferred, ${failures.length} failed`,
+    );
+  };
 
   const worker = async (): Promise<void> => {
     while (nextIndex < pending.length) {
@@ -645,6 +669,8 @@ export const importWordPressMedia = async ({
           message: formatMediaImportError(error),
         });
       }
+
+      reportProgress();
     }
   };
 
