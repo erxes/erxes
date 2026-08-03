@@ -40,8 +40,6 @@ export const graphRequest = {
   },
 };
 
-// Note: returns undefined when the page has no stored token — callers must
-// check the result rather than rely on a throw. Defined before its callers.
 export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
@@ -76,20 +74,11 @@ export const getPostDetails = async (
   }
 };
 
-/**
- * Uploads a photo to the page WITHOUT publishing it, returning its media id.
- * Used to build multi-image (carousel) feed posts: each image is staged here,
- * then referenced from the feed post via attached_media. The image must be a
- * publicly reachable URL — Facebook fetches it server-side.
- */
 export const uploadUnpublishedPhoto = async (
   pageId: string,
   pageTokens: { [key: string]: string },
   imageUrl: string,
 ): Promise<{ id: string }> => {
-  // getPageAccessTokenFromMap returns undefined rather than throwing — check
-  // explicitly so the caller gets a clear error instead of a confusing
-  // Facebook OAuth failure.
   const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
 
   if (!pageAccessToken) {
@@ -120,7 +109,6 @@ export const createPagePost = async (
   link?: string,
   attachedMediaIds?: string[],
 ): Promise<{ id: string }> => {
-  // Explicit check — getPageAccessTokenFromMap returns undefined, not a throw.
   const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
 
   if (!pageAccessToken) {
@@ -133,9 +121,6 @@ export const createPagePost = async (
     doc.link = link;
   }
 
-  // Multi-image (carousel) post: reference photos staged by
-  // uploadUnpublishedPhoto. Facebook expects one attached_media[i] form field
-  // per image, each a JSON object naming the media id.
   for (let i = 0; i < (attachedMediaIds || []).length; i++) {
     doc[`attached_media[${i}]`] = JSON.stringify({
       media_fbid: (attachedMediaIds as string[])[i],

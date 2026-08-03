@@ -67,8 +67,6 @@ const FacebookAccountRow = ({
 export const FacebookGetAccounts = () => {
   const { t } = useTranslation('frontline');
   const { isPost } = useFbIntegrationContext();
-  // Page posting may run on a separate Meta app; the connect flow has to name
-  // the kind so the right app authorizes and the right accounts are listed.
   const integrationKind = isPost ? 'facebook-post' : 'facebook-messenger';
   const { facebookGetAccounts, loading, refetch } =
     useFacebookAccounts(integrationKind);

@@ -7,8 +7,6 @@ import {
 } from '@/integrations/facebook/@types/logs';
 
 export interface IFacebookLogModel extends Model<IFacebookLogDocument> {
-  // The implementation is async — the interface must say so, or callers'
-  // `await` is (correctly) flagged as awaiting a non-Promise.
   createLog({
     type,
     value,

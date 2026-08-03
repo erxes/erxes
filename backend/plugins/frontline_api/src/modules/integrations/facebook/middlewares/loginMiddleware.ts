@@ -14,12 +14,6 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { generateModels } from '~/connectionResolvers';
 
-/**
- * The integration kind is known when the popup is opened, but Facebook's
- * callback only carries `code` and `state`. We therefore round-trip the kind
- * through `state` so the callback resolves the same Meta app that issued the
- * authorization — mixing them would exchange the code against the wrong app.
- */
 const readKindFromState = (state?: string): string | undefined => {
   if (!state) {
     return undefined;
@@ -31,8 +25,6 @@ const readKindFromState = (state?: string): string | undefined => {
     return undefined;
   }
 
-  // `state` comes back from an external redirect; a malformed percent-sequence
-  // must not turn the OAuth callback into a 500.
   try {
     return decodeURIComponent(match[1]);
   } catch {
@@ -112,8 +104,6 @@ export const loginMiddleware = async (req, res) => {
       access_token,
     );
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
-    // Scoped by app: a user token is only valid for the app that minted it, so
-    // connecting posting must not overwrite the Messenger account's token.
     const account = await models.FacebookAccounts.findOne(
       facebookAccountSelector(userAccount.id, app),
     );
@@ -137,8 +127,6 @@ export const loginMiddleware = async (req, res) => {
         name,
         kind: 'facebook',
         uid: userAccount.id,
-        // Must be stamped at creation too — a first-time connect through the
-        // posting app would otherwise produce an app-unscoped account.
         appId: app.appId,
       });
       accountId = newAccount._id;

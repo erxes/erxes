@@ -8,7 +8,6 @@ export interface IFacebookAccount {
   scope?: string;
   name: string;
   uid: string;
-  /** Meta app that minted `token`. Absent on pre-split accounts. */
   appId?: string;
 }
 

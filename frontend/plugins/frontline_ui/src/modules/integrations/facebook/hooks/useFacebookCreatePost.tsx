@@ -8,7 +8,6 @@ export interface IFacebookCreatePostResult {
   };
 }
 
-/** Publishes a post (optionally with images) to a connected Facebook page. */
 export const useFacebookCreatePost = () => {
   const [createPost, { loading }] =
     useMutation<IFacebookCreatePostResult>(FACEBOOK_CREATE_POST);

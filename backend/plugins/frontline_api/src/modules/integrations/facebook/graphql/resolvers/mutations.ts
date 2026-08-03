@@ -150,7 +150,6 @@ export const facebookMutations = {
 
     const images = (imageUrls || []).map((u) => `${u}`.trim()).filter(Boolean);
 
-    // Facebook rejects feed posts with more than 10 attached_media entries.
     if (images.length > 10) {
       throw new Error('A post can include at most 10 images');
     }
@@ -163,7 +162,6 @@ export const facebookMutations = {
 
     const userId = user?._id;
 
-    // Bounds a runaway caller before it can get the shared Meta app flagged.
     try {
       await assertPostRateLimit(models, subdomain, pageId);
     } catch (e) {
@@ -183,9 +181,6 @@ export const facebookMutations = {
     const stagedMediaIds: string[] = [];
 
     try {
-      // Carousel flow: stage each image as an unpublished photo, then create
-      // one feed post referencing them all. A failed upload aborts the post —
-      // publishing a partial carousel would be worse than failing loudly.
       for (const url of images) {
         const uploaded = await uploadUnpublishedPhoto(
           pageId,
@@ -204,9 +199,6 @@ export const facebookMutations = {
         stagedMediaIds,
       );
     } catch (e) {
-      // Best-effort cleanup so aborted carousels do not accumulate unpublished
-      // photos in the page's library. Facebook garbage-collects these
-      // eventually; this just does it promptly. Never masks the real error.
       const cleanupToken = (integration.facebookPageTokensMap || {})[pageId];
 
       for (const mediaId of stagedMediaIds) {
@@ -231,9 +223,6 @@ export const facebookMutations = {
       throw e;
     }
 
-    // The post IS published past this point. The permalink is a nicety — its
-    // lookup must neither fail the mutation nor lose the audit record (a
-    // thrown error here would make the user retry and double-post).
     let permalinkUrl: string | null = null;
 
     try {

@@ -107,9 +107,6 @@ export const facebookQueries = {
     { kind, integrationKind }: IKind & { integrationKind?: string },
     { models }: IContext,
   ) {
-    // Accounts are per Meta app once page posting runs on its own app. Offering
-    // a Messenger-app account for a posting connect would mint page tokens from
-    // the wrong app and fail confusingly at publish time.
     const app = await resolveFacebookApp(models, integrationKind);
 
     const selector: Record<string, unknown> = { kind };
@@ -117,7 +114,6 @@ export const facebookQueries = {
     if (app.isSeparate) {
       selector.appId = app.appId;
     } else {
-      // Pre-split accounts carry no appId; treat them as the main app's.
       selector.$or = [
         { appId: { $exists: false } },
         { appId: null },
@@ -126,15 +122,10 @@ export const facebookQueries = {
       ];
     }
 
-    // These resolvers return the raw document as JSON, so credentials must be
-    // projected out explicitly. `token` is a Facebook *user* access token — it
-    // can enumerate the user's pages and mint page tokens — and nothing in the
-    // UI needs it.
     return models.FacebookAccounts.find(selector, { token: 0, tokenSecret: 0 });
   },
 
   facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
-    // facebookPageTokensMap holds page access tokens; never expose it.
     return models.FacebookIntegrations.find(
       { kind },
       { facebookPageTokensMap: 0 },

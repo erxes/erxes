@@ -52,8 +52,6 @@ export const FacebookCreatePostForm = ({
   });
   const { createPost, loading: posting } = useFacebookCreatePost();
 
-  // Permalink of the most recently published post, so the operator can open it
-  // on Facebook without leaving the dialog.
   const [permalinkUrl, setPermalinkUrl] = useState<string | null>(null);
 
   const pages = integrationDetail?.facebookPage || [];
@@ -64,8 +62,6 @@ export const FacebookCreatePostForm = ({
   });
 
   useEffect(() => {
-    // Most integrations connect exactly one page — preselect it so the common
-    // case is a single field to fill in.
     if (pages.length > 0 && !form.getValues('pageId')) {
       form.setValue('pageId', pages[0].pageId);
     }
