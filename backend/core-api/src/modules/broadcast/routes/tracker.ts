@@ -15,6 +15,7 @@ router.post(
 router.post(
   '/sendgrid',
   routeErrorHandling(async (req: Request, res: Response) => {
+    console.log(JSON.stringify(req.body));
     return sendgridTracker(req, res);
   }),
 );
