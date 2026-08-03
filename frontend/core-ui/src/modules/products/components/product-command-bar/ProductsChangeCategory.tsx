@@ -1,16 +1,34 @@
 import { IconCategory } from '@tabler/icons-react';
 import { useApolloClient } from '@apollo/client';
-import { Button, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import { Command, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IProduct, SelectCategory } from 'ui-modules';
 
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
 
-export const ProductsChangeCategory = ({
+export const ProductsChangeCategoryTrigger = ({
+  setCurrentContent,
+}: {
+  setCurrentContent: (content: string) => void;
+}) => {
+  const { t } = useTranslation('product');
+  return (
+    <Command.Item onSelect={() => setCurrentContent('category')}>
+      <IconCategory className="size-4" />
+      <div className="flex items-center">
+        {t('bulk.change-category', { defaultValue: 'Change category' })}
+      </div>
+    </Command.Item>
+  );
+};
+
+export const ProductsChangeCategoryContent = ({
   products,
+  setOpen,
 }: {
   products: IProduct[];
+  setOpen: (open: boolean) => void;
 }) => {
   const { t } = useTranslation('product');
   const { toast } = useToast();
@@ -19,7 +37,6 @@ export const ProductsChangeCategory = ({
   const { productsEdit } = useProductsEdit();
   const client = useApolloClient();
 
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // productsEdit forces status back to 'active', so moving a soft-deleted
@@ -124,27 +141,12 @@ export const ProductsChangeCategory = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Button variant="secondary" disabled={loading || !products.length}>
-          <IconCategory />
-          {t('bulk.change-category', { defaultValue: 'Change category' })}
-        </Button>
-      </Popover.Trigger>
-      <Popover.Content
-        className="p-0 w-96"
-        align="end"
-        side="top"
-        sideOffset={10}
-      >
-        <SelectCategory.Provider
-          mode="single"
-          value=""
-          onValueChange={handleSelect}
-        >
-          <SelectCategory.Content />
-        </SelectCategory.Provider>
-      </Popover.Content>
-    </Popover>
+    <SelectCategory.Provider
+      mode="single"
+      value=""
+      onValueChange={handleSelect}
+    >
+      <SelectCategory.Content />
+    </SelectCategory.Provider>
   );
 };

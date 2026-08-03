@@ -1,11 +1,18 @@
 import { ApolloError } from '@apollo/client';
 import { IconRestore } from '@tabler/icons-react';
 import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import type { ReactNode } from 'react';
 import { useCallback } from 'react';
 import { Can } from 'ui-modules';
 import { useRestoreProducts } from '@/products/product-detail/hooks/useRestoreProduct';
 
-export const ProductsRestore = ({ productIds }: { productIds: string[] }) => {
+export const ProductsRestore = ({
+  productIds,
+  children,
+}: {
+  productIds: string[];
+  children?: (args: { onClick: () => void; disabled: boolean }) => ReactNode;
+}) => {
   const { confirm } = useConfirm();
   const { restoreProducts, loading } = useRestoreProducts();
   const { table } = RecordTable.useRecordTable();
@@ -45,6 +52,14 @@ export const ProductsRestore = ({ productIds }: { productIds: string[] }) => {
       // User cancelled the confirmation
     }
   }, [disabled, confirm, productIds, restoreProducts, toast, table]);
+
+  if (children) {
+    return (
+      <Can action="productsUpdate">
+        <>{children({ onClick: handleClick, disabled })}</>
+      </Can>
+    );
+  }
 
   return (
     <Can action="productsUpdate">
