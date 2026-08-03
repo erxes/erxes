@@ -1,12 +1,14 @@
 import { useTeamMemberRemove } from '@/settings/team-member/hooks/useRemoveTeamMember';
 import { IconTrash } from '@tabler/icons-react';
-import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import { Command, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { Can } from 'ui-modules';
 
 export const TeamMemberDelete = ({
   teamMemberIds,
+  onCompleted,
 }: {
   teamMemberIds: string[];
+  onCompleted: () => void;
 }) => {
   const { confirm } = useConfirm();
   const { removeTeamMember } = useTeamMemberRemove();
@@ -14,16 +16,16 @@ export const TeamMemberDelete = ({
   const { toast } = useToast();
   return (
     <Can action="teamMembersRemove">
-      <Button
-        variant="ghost"
-        className="w-full justify-start text-destructive"
-        onClick={() =>
+      <Command.Item
+        className="text-destructive"
+        onSelect={() =>
           confirm({
             message: `Are you sure you want to delete the ${teamMemberIds.length} selected team member?`,
           }).then(async () => {
             try {
               await removeTeamMember(teamMemberIds);
               table.setRowSelection({});
+              onCompleted();
               toast({
                 title: 'Success',
                 variant: 'success',
@@ -44,7 +46,7 @@ export const TeamMemberDelete = ({
       >
         <IconTrash />
         Delete
-      </Button>
+      </Command.Item>
     </Can>
   );
 };

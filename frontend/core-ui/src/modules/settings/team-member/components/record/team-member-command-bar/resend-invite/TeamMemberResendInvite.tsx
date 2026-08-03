@@ -1,13 +1,15 @@
 import { useResendInvites } from '@/settings/team-member/hooks/useResendInvite';
 import { EStatus, IUser } from '@/settings/team-member/types';
 import { IconRefresh } from '@tabler/icons-react';
-import { Button, RecordTable, Spinner, useToast } from 'erxes-ui';
+import { Command, RecordTable, Spinner, useToast } from 'erxes-ui';
 import { Can } from 'ui-modules';
 
 export const TeamMemberResendInvite = ({
   teamMembers,
+  onCompleted,
 }: {
   teamMembers: IUser[];
+  onCompleted: () => void;
 }) => {
   const { resendMany, loading } = useResendInvites();
   const { table } = RecordTable.useRecordTable();
@@ -27,6 +29,7 @@ export const TeamMemberResendInvite = ({
         description: `${sent} invitation(s) has been resent`,
       });
       table.setRowSelection({});
+      onCompleted();
     }
 
     if (failed > 0) {
@@ -42,15 +45,13 @@ export const TeamMemberResendInvite = ({
 
   return (
     <Can action="teamMembersInvite">
-      <Button
-        variant="ghost"
-        className="w-full justify-start"
+      <Command.Item
         disabled={loading || pendingEmails.length === 0}
-        onClick={handleResend}
+        onSelect={handleResend}
       >
         {loading ? <Spinner size="sm" /> : <IconRefresh />}
         Resend Invite
-      </Button>
+      </Command.Item>
     </Can>
   );
 };

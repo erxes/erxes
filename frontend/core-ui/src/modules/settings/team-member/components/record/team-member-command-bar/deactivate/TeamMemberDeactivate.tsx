@@ -1,14 +1,16 @@
 import { useTeamMemberDeactivate } from '@/settings/team-member/hooks/useTeamMemberDeactivate';
 import { IUser } from '@/settings/team-member/types';
 import { IconToggleLeft } from '@tabler/icons-react';
-import { Button, RecordTable, Spinner, useConfirm, useToast } from 'erxes-ui';
+import { Command, RecordTable, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { Can, currentUserState } from 'ui-modules';
 
 export const TeamMemberDeactivate = ({
   teamMembers,
+  onCompleted,
 }: {
   teamMembers: IUser[];
+  onCompleted: () => void;
 }) => {
   const { confirm } = useConfirm();
   const { deactivateTeamMembers, loading } = useTeamMemberDeactivate();
@@ -27,17 +29,16 @@ export const TeamMemberDeactivate = ({
 
   return (
     <Can action="teamMembersRemove">
-      <Button
-        variant="ghost"
-        className="w-full justify-start"
+      <Command.Item
         disabled={loading || teamMemberIds.length === 0}
-        onClick={() =>
+        onSelect={() =>
           confirm({
             message: `Are you sure you want to deactivate the ${teamMemberIds.length} selected team member?`,
           }).then(async () => {
             try {
               await deactivateTeamMembers(teamMemberIds);
               table.setRowSelection({});
+              onCompleted();
               toast({
                 title: 'Success',
                 variant: 'success',
@@ -58,7 +59,7 @@ export const TeamMemberDeactivate = ({
       >
         {loading ? <Spinner size="sm" /> : <IconToggleLeft />}
         Deactivate
-      </Button>
+      </Command.Item>
     </Can>
   );
 };

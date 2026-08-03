@@ -1,21 +1,40 @@
 import { IUser } from '@/settings/team-member/types';
 import { IconRepeat } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
-import { Button, CommandBar, Popover, RecordTable, Separator } from 'erxes-ui';
+import {
+  Button,
+  Command,
+  CommandBar,
+  Popover,
+  RecordTable,
+  Separator,
+} from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TeamMemberDelete } from './delete/TeamMemberDelete';
-import { TeamMemberAssignPermissions } from './assign-permissions/TeamMemberAssignPermissions';
+import {
+  TeamMemberAssignPermissionsContent,
+  TeamMemberAssignPermissionsTrigger,
+} from './assign-permissions/TeamMemberAssignPermissions';
 import { TeamMemberDeactivate } from './deactivate/TeamMemberDeactivate';
 import { TeamMemberResendInvite } from './resend-invite/TeamMemberResendInvite';
 import { Can, Export } from 'ui-modules';
 
 export const TeamMemberCommandBar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const [open, setOpen] = useState(false);
+  const [currentContent, setCurrentContent] = useState<'main' | 'permissions'>(
+    'main',
+  );
   const { table } = RecordTable.useRecordTable();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const teamMembers = selectedRows.map((row: Row<IUser>) => row.original);
   const teamMemberIds = teamMembers.map(({ _id }) => _id);
+  const closeActions = () => {
+    setOpen(false);
+    setCurrentContent('main');
+  };
 
   return (
     <CommandBar open={selectedRows.length > 0}>
@@ -34,7 +53,15 @@ export const TeamMemberCommandBar = () => {
           />
         </Can>
         <Separator.Inline />
-        <Popover>
+        <Popover
+          open={open}
+          onOpenChange={(nextOpen) => {
+            setOpen(nextOpen);
+            if (!nextOpen) {
+              setCurrentContent('main');
+            }
+          }}
+        >
           <Popover.Trigger asChild>
             <Button variant="secondary">
               <IconRepeat />
@@ -42,18 +69,50 @@ export const TeamMemberCommandBar = () => {
             </Button>
           </Popover.Trigger>
           <Popover.Content
-            className="min-w-64 p-1"
+            className="min-w-[280px] p-0"
             align="end"
             side="top"
             sideOffset={10}
           >
-            <div className="flex flex-col gap-1">
-              <TeamMemberAssignPermissions teamMemberIds={teamMemberIds} />
-              <TeamMemberResendInvite teamMembers={teamMembers} />
-              <TeamMemberDeactivate teamMembers={teamMembers} />
-              <Separator className="my-1" />
-              <TeamMemberDelete teamMemberIds={teamMemberIds} />
-            </div>
+            {currentContent === 'main' && (
+              <Command>
+                <Command.Input />
+                <Command.List className="p-0">
+                  <Command.Group className="p-1">
+                    <TeamMemberAssignPermissionsTrigger
+                      onSelect={() => setCurrentContent('permissions')}
+                    />
+                    <TeamMemberResendInvite
+                      teamMembers={teamMembers}
+                      onCompleted={closeActions}
+                    />
+                    <TeamMemberDeactivate
+                      teamMembers={teamMembers}
+                      onCompleted={closeActions}
+                    />
+                  </Command.Group>
+                  <Command.Separator />
+                  <Command.Group className="p-1">
+                    <TeamMemberDelete
+                      teamMemberIds={teamMemberIds}
+                      onCompleted={closeActions}
+                    />
+                  </Command.Group>
+                </Command.List>
+              </Command>
+            )}
+            {currentContent === 'permissions' && (
+              <TeamMemberAssignPermissionsContent
+                teamMemberIds={teamMemberIds}
+                initialGroupIds={
+                  teamMembers.length === 1
+                    ? teamMembers[0].permissionGroupIds || []
+                    : []
+                }
+                onBack={() => setCurrentContent('main')}
+                onClose={closeActions}
+              />
+            )}
           </Popover.Content>
         </Popover>
       </CommandBar.Bar>
