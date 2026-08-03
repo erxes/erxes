@@ -4,6 +4,10 @@ import { useTrRecords } from '../hooks/useTrRecords';
 import { trRecordColumns } from './TrRecordsTableColumns';
 import { useEffect, useState } from 'react';
 import { TransactionsCommandbar } from './TransactionsCommandBar';
+
+const hasInventoryLikeDetails = (journal?: string) =>
+  journal?.includes('inv') || journal?.includes('fxa');
+
 export const TrRecordTable = () => {
   const { trRecords, loading, handleFetchMore, pageInfo } = useTrRecords();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -12,7 +16,7 @@ export const TrRecordTable = () => {
   const [columns, setColumns] = useState(trRecordColumns);
 
   useEffect(() => {
-    if (!journal?.includes('inv')) {
+    if (!hasInventoryLikeDetails(journal ?? '')) {
       setColumns(trRecordColumns.filter((c) => !c.id?.includes('inv')));
       return;
     }
