@@ -75,7 +75,12 @@
   "delay-helper-description": "The delay starts when the trigger fires. Downstream actions wait until this window completes.",
 
   "sender": "Sender",
+  "sender-name": "Sender name",
+  "from": "From",
+  "reply-to": "Reply to",
+  "no-reply-to": "No reply-to address",
   "use-company-email": "Use company email",
+  "verified-sender-email": "Verified sender",
   "custom-sender-email": "Custom sender email",
   "to": "To",
   "cc": "CC",

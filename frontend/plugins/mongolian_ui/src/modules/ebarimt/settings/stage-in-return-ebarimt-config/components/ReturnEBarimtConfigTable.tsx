@@ -10,7 +10,13 @@ import {
   Command,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { IconClipboardList, IconCode, IconEdit, IconToggleLeft, IconTrash } from '@tabler/icons-react';
+import {
+  IconClipboardList,
+  IconCode,
+  IconEdit,
+  IconToggleLeft,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
@@ -147,7 +153,9 @@ const returnEbarimtColumns: ColumnDef<IReturnEbarimtConfigRow>[] = [
     accessorKey: 'hasVat',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />;
+      return (
+        <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />
+      );
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('mongolian');
@@ -164,7 +172,12 @@ const returnEbarimtColumns: ColumnDef<IReturnEbarimtConfigRow>[] = [
     accessorKey: 'hasCitytax',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('has-citytax')} icon={IconToggleLeft} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('has-citytax')}
+          icon={IconToggleLeft}
+        />
+      );
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('mongolian');
@@ -183,7 +196,12 @@ export const ReturnEBarimtConfigTable = () => {
   const { rows, loading } = useReturnEbarimtConfigRows();
 
   return (
-    <RecordTable.Provider columns={returnEbarimtColumns} data={rows}>
+    <RecordTable.Provider
+      columns={returnEbarimtColumns}
+      data={rows}
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_ebarimt_return_ebarimt_config_record_table"
+    >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />

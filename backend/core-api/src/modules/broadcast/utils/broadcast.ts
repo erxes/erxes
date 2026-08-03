@@ -3,10 +3,9 @@ import { FilterQuery } from 'mongoose';
 import validator from 'validator';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IModels } from '~/connectionResolvers';
-import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 import { IEngageMessageDocument } from '../@types';
-import { generateCustomerSelector } from './engage';
+import { generateCustomerSelector, resolveCampaignFromEmail } from './engage';
 import { addBroadcastWorkerQueue } from './worker';
 
 const CUSTOMER_BATCH_SIZE = 1000;
@@ -44,10 +43,6 @@ const traceExcludedCustomers = async ({
     $or: [
       { primaryEmail: { $in: [null, '', undefined] } },
       { primaryEmail: { $exists: false } },
-      {
-        primaryEmail: { $exists: true, $nin: [null, '', undefined] },
-        emailValidationStatus: { $nin: [EMAIL_VALIDATION_STATUSES.VALID] },
-      },
       { isSubscribed: 'No' },
     ],
   };
@@ -59,27 +54,20 @@ const traceExcludedCustomers = async ({
   const cursor = models.Customers.find(query, {
     _id: 1,
     primaryEmail: 1,
-    emailValidationStatus: 1,
     isSubscribed: 1,
   })
     .batchSize(CUSTOMER_BATCH_SIZE)
     .lean();
 
   for await (const customer of cursor) {
-    let reason: string;
-
-    if (!customer.primaryEmail) {
-      reason = 'no email address';
-    } else if (customer.isSubscribed === 'No') {
-      reason = 'unsubscribed';
-    } else {
-      reason = `email validation status is "${customer.emailValidationStatus || 'not validated'}"`;
-    }
+    const reason = customer.primaryEmail ? 'unsubscribed' : 'no email address';
 
     await models.BroadcastTraces.createTrace(
       engageMessageId,
       'regular',
-      `Skipped customer ${customer._id}: ${reason} (${customer.primaryEmail || 'none'})`,
+      `Skipped customer ${customer._id}: ${reason} (${
+        customer.primaryEmail || 'none'
+      })`,
     );
   }
 };
@@ -95,7 +83,6 @@ const prepareCustomers = ({
 }) => {
   const query: FilterQuery<ICustomer> = {
     primaryEmail: { $exists: true, $nin: [null, '', undefined] },
-    emailValidationStatus: EMAIL_VALIDATION_STATUSES.VALID,
     $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
   };
 
@@ -115,12 +102,12 @@ const sendBroadcastEmail = async ({
   subdomain: string;
   engageMessage: IEngageMessageDocument;
 }) => {
-  const { _id, targetType, targetIds, method, fromUserId } = engageMessage;
+  const { _id, targetType, targetIds, method } = engageMessage;
 
-  const fromUser = await models.Users.findOne({ _id: fromUserId }).lean();
+  const fromEmail = await resolveCampaignFromEmail(models, engageMessage);
 
-  if (!fromUser?.email) {
-    throw new Error('Invalid from user');
+  if (!fromEmail) {
+    throw new Error('Invalid from sender');
   }
 
   const configSet = await getValueAsString(
@@ -172,7 +159,9 @@ const sendBroadcastEmail = async ({
       await models.BroadcastTraces.createTrace(
         _id,
         'regular',
-        `Skipped customer ${customer?._id}: missing or invalid email (${customer?.primaryEmail || 'none'})`,
+        `Skipped customer ${customer?._id}: missing or invalid email (${
+          customer?.primaryEmail || 'none'
+        })`,
       );
       continue;
     }
@@ -204,7 +193,7 @@ const sendBroadcastEmail = async ({
   }
 
   // Write totalBatches BEFORE queuing so workers always see the correct value
-  await models.EngageMessages.updateOne(
+  const started = await models.EngageMessages.findOneAndUpdate(
     { _id },
     {
       $set: {
@@ -216,22 +205,27 @@ const sendBroadcastEmail = async ({
         runCount: 1,
       },
     },
+    { new: true },
   );
 
+  const queuedRun = started?.runCount;
+
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    addBroadcastWorkerQueue({
+    await addBroadcastWorkerQueue({
       queueName: 'broadcast_processor',
       data: {
         method,
         payload: {
           customers: batches[batchIndex],
           engageMessage,
-          fromEmail: fromUser.email,
+          fromEmail,
           configSet,
           subdomain,
+          queuedRun,
+          batchIndex,
         },
       },
-      jobId: `${_id}_batch_${batchIndex}`,
+      jobId: `${_id}_run${queuedRun}_batch${batchIndex}`,
     });
   }
 };
@@ -363,7 +357,7 @@ const sendBroadcastNotification = async ({
   );
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    addBroadcastWorkerQueue({
+    await addBroadcastWorkerQueue({
       queueName: 'broadcast_processor',
       data: {
         method,

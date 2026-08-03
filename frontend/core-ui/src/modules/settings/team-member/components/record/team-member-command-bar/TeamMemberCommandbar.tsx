@@ -1,14 +1,18 @@
+import { IUser } from '@/settings/team-member/types';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { TeamMemberDelete } from './delete/TeamMemberDelete';
 import { TeamMemberAssignPermissions } from './assign-permissions/TeamMemberAssignPermissions';
+import { TeamMemberDeactivate } from './deactivate/TeamMemberDeactivate';
+import { TeamMemberResendInvite } from './resend-invite/TeamMemberResendInvite';
 import { Can, Export } from 'ui-modules';
 
 export const TeamMemberCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const teamMemberIds = selectedRows.map((row: Row<any>) => row.original._id);
+  const teamMembers = selectedRows.map((row: Row<IUser>) => row.original);
+  const teamMemberIds = teamMembers.map(({ _id }) => _id);
 
   return (
     <CommandBar open={selectedRows.length > 0}>
@@ -28,6 +32,8 @@ export const TeamMemberCommandBar = () => {
         </Can>
         <Separator.Inline />
         <TeamMemberAssignPermissions teamMemberIds={teamMemberIds} />
+        <TeamMemberResendInvite teamMembers={teamMembers} />
+        <TeamMemberDeactivate teamMembers={teamMembers} />
         <Separator.Inline />
         <TeamMemberDelete teamMemberIds={teamMemberIds} />
       </CommandBar.Bar>
