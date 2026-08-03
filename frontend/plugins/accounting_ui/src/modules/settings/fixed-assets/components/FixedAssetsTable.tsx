@@ -217,6 +217,7 @@ export const FixedAssetsTable = () => {
       className="m-3"
       Commandbar={FixedAssetsCommandbar}
       tableId="accounting_fixed_assets_record_table"
+      showColumnSelector
     />
   );
 };

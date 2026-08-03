@@ -225,7 +225,6 @@ export const SafeRemainderDetail = () => {
               columns={safeRemDetailTableColumns}
               data={safeRemainderItems || []}
               stickyColumns={[]}
-              tableId="accounting_safe_remainder_detail_record_table"
               className="m-3"
               onClickCapture={() =>
                 setHotkeyScope(AccountingHotkeyScope.SafeRemainderPage)
@@ -233,7 +232,7 @@ export const SafeRemainderDetail = () => {
             >
               <RecordTable.Scroll>
                 <RecordTable>
-                  <RecordTable.Header showColumnSelector />
+                  <RecordTable.Header />
                   <RecordTable.Body>
                     <RecordTable.RowList />
                     {!detailsLoading &&

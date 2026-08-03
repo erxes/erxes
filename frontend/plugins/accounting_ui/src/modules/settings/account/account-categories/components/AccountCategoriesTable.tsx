@@ -228,7 +228,6 @@ const AccountCategoryParentCell = ({
 
 const accountCategoryMoreColumn = {
   id: 'more',
-  header: () => <RecordTable.ColumnSelector />,
   cell: AccountCategoryMoreColumnCell,
   size: 33,
 };

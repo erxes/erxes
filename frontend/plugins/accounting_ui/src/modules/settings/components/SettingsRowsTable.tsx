@@ -18,6 +18,7 @@ interface SettingsRowsTableProps<TData> {
   handleFetchMore?: () => void;
   Commandbar: React.ComponentType;
   tableId: string;
+  showColumnSelector?: boolean;
   stickyColumns?: string[];
   className?: string;
 }
@@ -30,6 +31,7 @@ export const SettingsRowsTable = <TData,>({
   handleFetchMore,
   Commandbar,
   tableId,
+  showColumnSelector = false,
   stickyColumns,
   className,
 }: SettingsRowsTableProps<TData>) => {
@@ -45,7 +47,7 @@ export const SettingsRowsTable = <TData,>({
     >
       <RecordTable.Scroll>
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector={showColumnSelector} />
           <RecordTable.Body>
             <RecordTable.RowList />
             {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
@@ -148,6 +150,5 @@ export const MoreActionsCell = ({
 
 export const moreColumn = {
   id: 'more',
-  header: () => <RecordTable.ColumnSelector />,
   size: 33,
 };

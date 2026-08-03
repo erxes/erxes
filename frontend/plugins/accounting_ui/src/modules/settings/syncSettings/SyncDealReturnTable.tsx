@@ -46,7 +46,5 @@ export const SettingSyncDealReturnTable = () => (
   <SyncConfigTable
     code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN}
     columns={columns}
-    tableId="accounting_sync_deal_return_record_table"
-    showColumnSelector
   />
 );
