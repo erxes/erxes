@@ -85,10 +85,10 @@ export const InventoryRow = ({
     if (loading || !currentCostInfo) return;
 
     const costInfo = currentCostInfo[detail.productId || ''];
+    const nextUnitPrice = costInfo?.unitCost ?? 0;
 
-    if (costInfo === undefined) return;
-
-    form.setValue(getFieldName('unitPrice'), costInfo.unitCost);
+    form.setValue(getFieldName('unitPrice'), nextUnitPrice);
+    form.setValue(getFieldName('amount'), (count ?? 0) * nextUnitPrice);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.productId, loading]);
