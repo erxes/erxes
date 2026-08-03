@@ -3,7 +3,6 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { Spinner } from 'erxes-ui';
 
-import List from './List';
 import SidebarList from '../../components/ConfigsList';
 
 import queries from '../../graphql/queries';
@@ -22,7 +21,6 @@ type Props = {
 
 export default function ListContainer({ loading: externalLoading }: Props) {
   const location = useLocation();
-  const isSettings = location.pathname === '/settings/golomtBank';
 
   const queryParams = Object.fromEntries(
     new URLSearchParams(location.search).entries(),
@@ -72,7 +70,5 @@ export default function ListContainer({ loading: externalLoading }: Props) {
     queryParams,
   };
 
-  const Component = isSettings ? List : SidebarList;
-
-  return <Component {...sharedProps} />;
+  return <SidebarList {...sharedProps} />;
 }

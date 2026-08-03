@@ -10,8 +10,8 @@ export const configs = gql`
 `;
 
 export const configsList = gql`
-  query tdbConfigsList($limit: Int, $cursor: String) {
-    tdbConfigsList(limit: $limit, cursor: $cursor) {
+  query tdbConfigsList($page: Int, $perPage: Int) {
+    tdbConfigsList(page: $page, perPage: $perPage) {
       list {
         ${configFields}
       }
