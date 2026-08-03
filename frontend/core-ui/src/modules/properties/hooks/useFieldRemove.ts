@@ -1,25 +1,13 @@
 import { useMutation } from '@apollo/client';
 import { FIELD_REMOVE } from '../graphql/mutations/propertiesMutations';
 import { toast } from 'erxes-ui';
-import { FIELDS_QUERY } from 'ui-modules';
 
-export const useFieldRemove = ({
-  groupId,
-  contentType,
-}: {
-  groupId: string;
-  contentType: string;
-}) => {
+export const useFieldRemove = () => {
   const [removeField, { loading }] = useMutation(FIELD_REMOVE, {
     onCompleted: () => {
       toast({ title: 'Field removed successfully', variant: 'success' });
     },
-    refetchQueries: [
-      {
-        query: FIELDS_QUERY,
-        variables: { params: { groupId, contentType } },
-      },
-    ],
+    refetchQueries: ['Fields'],
     onError: (error) => {
       toast({
         title: 'Error',

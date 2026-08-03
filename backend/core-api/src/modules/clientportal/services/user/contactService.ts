@@ -64,6 +64,7 @@ export async function syncCustomerContactToCPUsers(
     primaryPhone?: string;
     firstName?: string;
     lastName?: string;
+    avatar?: string;
   },
 ): Promise<void> {
   const set: Record<string, string> = {};
@@ -88,6 +89,10 @@ export async function syncCustomerContactToCPUsers(
 
   if (doc.lastName !== undefined && doc.lastName.trim()) {
     set.lastName = doc.lastName.trim();
+  }
+
+  if (doc.avatar !== undefined) {
+    set.avatar = doc.avatar;
   }
 
   if (Object.keys(set).length === 0) {

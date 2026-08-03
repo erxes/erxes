@@ -19,6 +19,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
+import { coreUrl, engageTrackerUrl } from '~/utils/email/links';
 import { generateCustomerSelector } from './engage';
 
 export const isUsingElk = () => {
@@ -44,7 +45,7 @@ interface IEngageParams {
   user;
 }
 
-export const subscribeEngage = async (models: IModels) => {
+export const subscribeEngage = async (models: IModels, subdomain: string) => {
   const snsApi = await getApi(models, 'sns');
   const sesApi = await getApi(models, 'ses');
   const configSet = await getValueAsString(
@@ -53,8 +54,6 @@ export const subscribeEngage = async (models: IModels) => {
     'AWS_SES_CONFIG_SET',
     'erxes',
   );
-
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   try {
     const topicArn = await snsApi.createTopic({ Name: configSet }).promise();
@@ -67,7 +66,7 @@ export const subscribeEngage = async (models: IModels) => {
       .subscribe({
         TopicArn: topicArn.TopicArn,
         Protocol: 'https',
-        Endpoint: `${DOMAIN}/gateway/pl:core/service/engage/tracker`,
+        Endpoint: engageTrackerUrl(subdomain),
       })
       .promise();
 
@@ -121,6 +120,7 @@ export const subscribeEngage = async (models: IModels) => {
 
 export const updateConfigs = async (
   models: IModels,
+  subdomain: string,
   configsMap,
 ): Promise<void> => {
   const prevSESConfigs = await models.EngageMessages.broadcastConfigs();
@@ -130,7 +130,7 @@ export const updateConfigs = async (
   const updatedSESConfigs = await models.EngageMessages.broadcastConfigs();
 
   if (JSON.stringify(prevSESConfigs) !== JSON.stringify(updatedSESConfigs)) {
-    await subscribeEngage(models);
+    await subscribeEngage(models, subdomain);
   }
 };
 
@@ -300,10 +300,8 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
 export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getPlugins();
 
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
   const editor: any = new EditorAttributeUtil(
-    `${DOMAIN}/gateway/pl:core`,
+    coreUrl(subdomain),
     services,
     subdomain,
   );
@@ -585,7 +583,6 @@ export const prepareEngageCustomers = async (
   // Ensure email & phone are valid based on the engage message method
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
-    customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
   }
   if (engageMessage.method === 'sms') {
     customersSelector.primaryPhone = exists;

@@ -7,5 +7,12 @@
     "migrate": "tsx ./run.ts",
     "migrate:list": "tsx ./run.ts --list",
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "erxes-api-shared": "workspace:*",
+    "@aws-sdk/client-s3": "3.913.0",
+    "fast-xml-parser": "5.10.1",
+    "file-type": "20.5.0",
+    "undici": "6.27.0"
   }
 }

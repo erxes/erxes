@@ -19,6 +19,7 @@
     "@types/graphql": "^14.5.0",
     "@types/ioredis": "^5.0.0",
     "@types/lodash": "^4.17.21",
+    "@types/nodemailer": "^6.4.17",
     "babel-plugin-module-resolver": "^5.0.2",
     "glob": "^11.0.1",
     "tsx": "^4.19.3"
@@ -29,6 +30,7 @@
     "@azure/storage-blob": "^12.29.1",
     "@elastic/elasticsearch": "7",
     "@google-cloud/storage": "^7.17.3",
+    "@sendgrid/mail": "^8.1.5",
     "@sentry/node": "^10.55.0",
     "@sniptt/guards": "^0.2.0",
     "@trpc/client": "^11.0.0",
@@ -55,6 +57,7 @@
     "mongoose": "^8.10.0",
     "nanoid": "^3.3.6",
     "node-fetch": "^2.6.7",
+    "nodemailer": "^6.9.10",
     "strip-ansi": "^6.0.1",
     "tslib": "^2.3.0",
     "zod": "3.23.8"

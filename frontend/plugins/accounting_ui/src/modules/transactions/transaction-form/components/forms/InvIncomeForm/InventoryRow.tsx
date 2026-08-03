@@ -13,15 +13,18 @@ import {
   Table,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useMemo, useState } from 'react';
-import { useWatch } from 'react-hook-form';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { type Path, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
+import { useGetAccLastIncomePrice } from '../../../hooks/useGetInvCostInfo';
 import {
   showAdvancedViewState,
   taxPercentsState,
 } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
+  TAddTransactionGroup,
+  TInvDetail,
   TInvIncomeJournal,
 } from '../../../types/JournalForms';
 import {
@@ -69,6 +72,7 @@ export const InventoryRow = ({
   ]);
 
   const { unitPrice, count, _id } = detail;
+  const initProductId = useRef(detail.productId);
   const hasDuplicateProduct = hasDuplicateProductId(
     trDoc.details,
     detail.productId,
@@ -96,13 +100,13 @@ export const InventoryRow = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
 
-  const getFieldName = (name: string) => {
-    return `trDocs.${journalIndex}.details.${detailIndex}.${name}`;
+  const getFieldName = (name: keyof TInvDetail): Path<TAddTransactionGroup> => {
+    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as Path<TAddTransactionGroup>;
   };
 
   const handleAmountChange = (value: number) => {
     const newUnitPrice = count ? value / count : 0;
-    form.setValue(getFieldName('unitPrice') as any, newUnitPrice);
+    form.setValue(getFieldName('unitPrice'), newUnitPrice);
     if (trDoc.hasVat || trDoc.hasCtax) {
       setTaxAmounts({
         unitPriceWithTax: (newUnitPrice / 100) * (100 + rowPercent),
@@ -113,7 +117,7 @@ export const InventoryRow = ({
 
   const calcAmount = (pCount?: number, pUnitPrice?: number) => {
     const newAmount = (pCount ?? 0) * (pUnitPrice ?? 0);
-    form.setValue(getFieldName('amount') as any, newAmount);
+    form.setValue(getFieldName('amount'), newAmount);
 
     if (trDoc.hasVat || trDoc.hasCtax) {
       setTaxAmounts({
@@ -122,6 +126,26 @@ export const InventoryRow = ({
       });
     }
   };
+
+  const { lastIncomePriceInfo, loading: loadingLastIncomePrice } =
+    useGetAccLastIncomePrice({
+      variables: {
+        productIds: [detail.productId],
+      },
+      skip:
+        !detail.productId ||
+        (initProductId.current && detail.productId === initProductId.current),
+    });
+
+  useEffect(() => {
+    if (loadingLastIncomePrice || !lastIncomePriceInfo || !detail.productId) {
+      return;
+    }
+
+    const nextUnitPrice = lastIncomePriceInfo[detail.productId] ?? 0;
+    calcAmount(count ?? 0, nextUnitPrice);
+    form.setValue(getFieldName('unitPrice'), nextUnitPrice);
+  }, [detail.productId, loadingLastIncomePrice]);
 
   const handleCountChange = (
     value: number,
@@ -146,7 +170,7 @@ export const InventoryRow = ({
     setTaxAmounts({ unitPriceWithTax, amountWithTax });
 
     form.setValue(
-      getFieldName('unitPrice') as any,
+      getFieldName('unitPrice'),
       (unitPriceWithTax / (100 + rowPercent)) * 100,
     );
   };

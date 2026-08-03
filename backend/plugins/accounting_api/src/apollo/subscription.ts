@@ -5,6 +5,7 @@ export default {
   name: 'accounting',
   typeDefs: `
 				accountingAdjustInventoryChanged(adjustId: String!): AdjustInventory
+      accountingAdjustFixedAssetChanged(adjustId: String!): AdjustFixedAsset
       accountingTransactionChanged(parentId: String, userId: String, filter: JSON): JSON
 			`,
   generateResolvers: (graphqlPubsub) => {
@@ -16,6 +17,12 @@ export default {
         subscribe: (_, { adjustId }) =>
           graphqlPubsub.asyncIterator(
             `accountingAdjustInventoryChanged:${adjustId}`,
+          ),
+      },
+      accountingAdjustFixedAssetChanged: {
+        subscribe: (_, { adjustId }) =>
+          graphqlPubsub.asyncIterator(
+            `accountingAdjustFixedAssetChanged:${adjustId}`,
           ),
       },
       accountingTransactionChanged: {

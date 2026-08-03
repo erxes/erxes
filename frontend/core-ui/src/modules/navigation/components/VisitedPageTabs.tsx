@@ -41,7 +41,7 @@ import {
   IconLayoutNavbarCollapse,
   IconX,
 } from '@tabler/icons-react';
-import { Button, cn, ScrollArea, Sidebar, Tabs } from 'erxes-ui';
+import { Button, cn, ContextMenu, ScrollArea, Sidebar, Tabs } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import type { ComponentProps, ElementType, ReactNode } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
@@ -51,21 +51,29 @@ const SortableVisitedPageTab = ({
   canClose,
   closeAriaShortcut,
   closeLabel,
+  closeAllLabel,
   closeShortcutLabel,
+  hideTabsLabel,
   icon: Icon,
   isActive,
   label,
   onClose,
+  onCloseAll,
+  onHideTabs,
   pathname,
 }: Readonly<{
   canClose: boolean;
   closeAriaShortcut: string;
   closeLabel: string;
+  closeAllLabel: string;
   closeShortcutLabel: string;
+  hideTabsLabel: string;
   icon: ElementType;
   isActive: boolean;
   label: string;
   onClose: () => void;
+  onCloseAll: () => void;
+  onHideTabs: () => void;
   pathname: string;
 }>) => {
   const tabRef = useRef<HTMLDivElement | null>(null);
@@ -96,53 +104,70 @@ const SortableVisitedPageTab = ({
     });
   }, [isActive]);
 
-  return (
-    <div
-      ref={setTabRef}
-      className={cn(
-        'group/tab flex h-6 min-w-20 max-w-40 shrink-0 items-center rounded-md border border-transparent text-accent-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
-        isDragging && 'z-10 opacity-40',
-      )}
-      data-active={isActive}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-      }}
-      {...attributes}
-      {...listeners}
+  const tabTrigger = (
+    <Tabs.Trigger
+      value={pathname}
+      title={label}
+      className="h-full min-w-0 flex-1 justify-start gap-1 rounded-md bg-transparent px-1.5 text-[11px] font-medium text-inherit shadow-none hover:bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-inherit data-[state=active]:shadow-none data-[state=active]:hover:bg-transparent"
     >
-      <Tabs.Trigger
-        value={pathname}
-        title={label}
-        className="h-full min-w-0 flex-1 justify-start gap-1 rounded-md bg-transparent px-1.5 text-[11px] font-medium text-inherit shadow-none hover:bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-inherit data-[state=active]:shadow-none data-[state=active]:hover:bg-transparent"
-      >
-        <Icon
+      <Icon
+        className={cn(
+          'size-3 shrink-0 text-muted-foreground',
+          isActive && 'text-primary',
+        )}
+      />
+      <span className="truncate">{label}</span>
+    </Tabs.Trigger>
+  );
+  const closeButton = canClose ? (
+    <Button
+      aria-label={closeLabel}
+      aria-keyshortcuts={isActive ? closeAriaShortcut : undefined}
+      className="mr-0.5 size-4 shrink-0 rounded opacity-0 transition-[background-color,opacity] hover:bg-accent group-hover/tab:opacity-100 group-focus-within/tab:opacity-100 data-[active=true]:opacity-100"
+      data-active={isActive}
+      onClick={onClose}
+      onPointerDown={(event) => event.stopPropagation()}
+      size="icon"
+      title={isActive ? `${closeLabel} (${closeShortcutLabel})` : closeLabel}
+      type="button"
+      variant="ghost"
+    >
+      <IconX className="size-2.5" />
+    </Button>
+  ) : null;
+
+  return (
+    <ContextMenu>
+      <ContextMenu.Trigger asChild>
+        <div
+          ref={setTabRef}
           className={cn(
-            'size-3 shrink-0 text-muted-foreground',
-            isActive && 'text-primary',
+            'group/tab flex h-6 min-w-20 max-w-40 shrink-0 items-center rounded-md border border-transparent text-accent-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
+            isDragging && 'z-10 opacity-40',
           )}
-        />
-        <span className="truncate">{label}</span>
-      </Tabs.Trigger>
-      {canClose && (
-        <Button
-          aria-label={closeLabel}
-          aria-keyshortcuts={isActive ? closeAriaShortcut : undefined}
-          className="mr-0.5 size-4 shrink-0 rounded opacity-0 transition-[background-color,opacity] hover:bg-accent group-hover/tab:opacity-100 group-focus-within/tab:opacity-100 data-[active=true]:opacity-100"
           data-active={isActive}
-          onClick={onClose}
-          onPointerDown={(event) => event.stopPropagation()}
-          size="icon"
-          title={
-            isActive ? `${closeLabel} (${closeShortcutLabel})` : closeLabel
-          }
-          type="button"
-          variant="ghost"
+          style={{
+            transform: CSS.Transform.toString(transform),
+            transition,
+          }}
+          {...attributes}
+          {...listeners}
         >
-          <IconX className="size-2.5" />
-        </Button>
-      )}
-    </div>
+          {tabTrigger}
+          {closeButton}
+        </div>
+      </ContextMenu.Trigger>
+      <ContextMenu.Content>
+        <ContextMenu.Item onSelect={onCloseAll}>
+          <IconX />
+          {closeAllLabel}
+        </ContextMenu.Item>
+        <ContextMenu.Item onSelect={onHideTabs}>
+          <IconLayoutNavbarCollapse />
+          {hideTabsLabel}
+        </ContextMenu.Item>
+      </ContextMenu.Content>
+    </ContextMenu>
   );
 };
 
@@ -361,12 +386,16 @@ export const VisitedPageTabs = () => {
         key={tab.pathname}
         canClose={tabs.length > 1}
         closeAriaShortcut={closeAriaShortcut}
+        closeAllLabel={t('navigation.close-all-tabs')}
         closeLabel={closeLabel}
         closeShortcutLabel={closeShortcutLabel}
+        hideTabsLabel={t('navigation.hide-tabs-row')}
         icon={Icon}
         isActive={isActive}
         label={label}
         onClose={() => closeVisitedPageTab(tab.pathname)}
+        onCloseAll={closeAllVisitedPageTabs}
+        onHideTabs={() => setTabsVisible(false)}
         pathname={tab.pathname}
       />
     );

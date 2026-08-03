@@ -22,6 +22,7 @@ export interface BlockEditorProps {
   disabled?: boolean;
   variant?: 'default' | 'outline';
   sideMenu?: boolean;
+  linkToolbar?: boolean;
 }
 
 export interface IEditorProps {

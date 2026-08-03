@@ -59,6 +59,7 @@ export interface IEngageMessage {
 
   cpId: string;
   title: string;
+  fromEmail?: string;
   fromUserId?: string;
   method: string;
   isDraft?: boolean;

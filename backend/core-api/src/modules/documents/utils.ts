@@ -15,6 +15,42 @@ const toDimension = (value?: number | string) => {
   return num;
 };
 
+const isBlankBlock = (block: any) => {
+  if (!block || block.type !== 'paragraph') {
+    return false;
+  }
+
+  if (!Array.isArray(block.content) || !block.content.length) {
+    return true;
+  }
+
+  return block.content.every(
+    (item: any) => item?.type === 'text' && !String(item.text || '').trim(),
+  );
+};
+
+const trimBlankBlocks = (content: string) => {
+  try {
+    const blocks = JSON.parse(content);
+
+    if (!Array.isArray(blocks)) {
+      return content;
+    }
+
+    let end = blocks.length;
+
+    while (end > 0 && isBlankBlock(blocks[end - 1])) {
+      end -= 1;
+    }
+
+    return end === blocks.length
+      ? content
+      : JSON.stringify(blocks.slice(0, end));
+  } catch {
+    return content;
+  }
+};
+
 export const prepareContent = ({
   contents,
   config,
@@ -28,25 +64,52 @@ export const prepareContent = ({
   const height = toDimension(paperHeight ?? config?.height);
 
   const isRoll = type === 'roll';
+  const isLabel = isRoll && !!height;
+  const isContinuous = isRoll && !height;
 
-  const sizing =
-    isRoll && !height
-      ? 'width: 100%;'
-      : isRoll
-      ? `width: ${width}mm;
+  const sizing = isContinuous
+    ? 'width: 100%;'
+    : isLabel
+    ? `width: ${width}mm;
               height: ${height}mm;
               overflow: hidden;
               break-after: page;
               page-break-after: always;`
-      : `width: ${width}mm;${
-          height ? `\n              min-height: ${height}mm;` : ''
-        }`;
+    : `width: ${width}mm;${
+        height ? `\n              min-height: ${height}mm;` : ''
+      }`;
 
-  const pageStyle = width
+  const pageRule = isLabel
+    ? `
+            @page {
+              size: ${width}mm ${height}mm;
+              margin: 0;
+            }`
+    : isContinuous
     ? `
             @page {
               margin: 0;
+            }`
+    : '';
+
+  const fitStyle = isLabel
+    ? `
+            .label-fit {
+              display: flow-root;
+              width: 100%;
+              text-align: left;
+              overflow-wrap: break-word;
             }
+            .label-fit > :first-child {
+              margin-top: 0 !important;
+            }
+            .label-fit > :last-child {
+              margin-bottom: 0 !important;
+            }`
+    : '';
+
+  const pageStyle = width
+    ? `${pageRule}
             html,
             body {
               margin: 0;
@@ -59,7 +122,7 @@ export const prepareContent = ({
             .label-item:last-child {
               break-after: auto;
               page-break-after: auto;
-            }
+            }${fitStyle}
             img,
             svg {
               max-width: 100%;
@@ -75,11 +138,13 @@ export const prepareContent = ({
   let htmlContents: string[] = [];
 
   for (const content of contents) {
-    const html = blocksToHtml(content, {});
+    const html = blocksToHtml(trimBlankBlocks(content), {});
 
     htmlContents.push(
       width
-        ? `<div class="label-item">${html}</div>`
+        ? `<div class="label-item">${
+            isLabel ? `<div class="label-fit">${html}</div>` : html
+          }</div>`
         : `<div style="margin-bottom: 2mm">${html}</div>`,
     );
   }

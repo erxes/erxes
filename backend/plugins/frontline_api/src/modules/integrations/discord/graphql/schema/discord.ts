@@ -5,6 +5,7 @@ export const types = `
     botUsername: String
     lastVerifiedAt: Date
     lastError: String
+    missingIntents: [String]
   }
 
   type DiscordBot {
@@ -32,6 +33,7 @@ export const types = `
     botUsername: String
     applicationId: String
     hasMessageContentIntent: Boolean
+    hasServerMembersIntent: Boolean
     error: String
   }
 
@@ -70,6 +72,19 @@ export const types = `
     userId: String
     name: String
     avatar: String
+  }
+
+  enum DiscordMemberStatus {
+    OK
+    FORBIDDEN
+    TRUNCATED
+    ERROR
+  }
+
+  type DiscordChannelMembersResult {
+    members: [DiscordParticipant!]!
+    status: DiscordMemberStatus!
+    truncated: Boolean!
   }
 
   # A connected Discord server (guild) with the inbox integrations (one per
@@ -124,13 +139,17 @@ export const queries = `
   discordConversationChannel(conversationId: String!): DiscordConversationChannel
   discordConversationChannels(conversationIds: [String!]!): [DiscordConversationChannel]
   discordConversationParticipants(conversationId: String!): [DiscordParticipant]
+  discordChannelMembers(conversationId: String!, query: String!): DiscordChannelMembersResult
   discordServers: [DiscordServer]
   discordConnectedServers(channelId: String!): [DiscordConnectedServer]
   discordTakenChannels(channelId: String!): [String]
+  discordNamePresets(channelId: String!): [String]
 `;
 
 export const mutations = `
   discordAddBot(${addBotParams}): DiscordBot
   discordUpdateBot(_id: String!, ${updateBotParams}): DiscordBot
   discordRemoveBot(_id: String!): JSON
+  discordEditMessage(conversationId: String!, messageId: String!, content: String!): JSON
+  discordDeleteMessage(conversationId: String!, messageId: String!): JSON
 `;

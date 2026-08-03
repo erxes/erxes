@@ -175,6 +175,7 @@ export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
   facebookRepair(_id: String!): JSON
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
+  facebookCreatePost(erxesApiId: String!, pageId: String!, message: String!, link: String): JSON
   facebookMessengerAddBot(${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerUpdateBot(_id:String,${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerRemoveBot(_id:String):JSON

@@ -15,6 +15,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
       getFirst: $getFirst
     ) {
       _id
+      conversationId
       content
       formWidgetData
       extraData

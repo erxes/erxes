@@ -79,8 +79,8 @@ const SelectCategoryProvider = ({
       Array.isArray(selectedValue)
         ? selectedValue
         : selectedValue
-        ? [selectedValue]
-        : [],
+          ? [selectedValue]
+          : [],
     [selectedValue],
   );
   const handleValueChange = onValueChange || onSelect;
@@ -119,6 +119,12 @@ const SelectCategoryProvider = ({
     if (!category) return;
 
     if (mode === 'single') {
+      if (categoryIds.includes(category._id)) {
+        setSelectedCategories([]);
+        handleValueChange?.('');
+        return;
+      }
+
       setSelectedCategories([category]);
       handleValueChange?.(category._id);
       return;

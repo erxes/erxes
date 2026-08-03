@@ -122,7 +122,7 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Permission denied');
     }
 
-    const removed = await models.Deals.removeDeals([item._id]);
+    await models.Deals.removeDeals([item._id]);
 
     await subscriptionWrapper(models, {
       action: 'delete',
@@ -130,7 +130,7 @@ export const dealMutations: Record<string, Resolver> = {
       oldDeal: item,
     });
 
-    return removed;
+    return item;
   },
 
   /**
@@ -226,8 +226,8 @@ export const dealMutations: Record<string, Resolver> = {
 
   async dealsArchive(
     _root,
-    { stageId, processId }: { stageId: string; processId: string },
-    { user, models, checkPermission }: IContext,
+    { stageId }: { stageId: string; processId: string },
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsArchive');
     const items = await models.Deals.find({
@@ -243,15 +243,16 @@ export const dealMutations: Record<string, Resolver> = {
     const stage = await models.Stages.findOne({ _id: stageId }).lean();
     const pipelineId = stage?.pipelineId;
 
-    items.forEach(async (item) => {
-      await graphqlPubsub.publish('salesDealListChanged', {
-        salesDealListChanged: {
-          pipelineIds: [pipelineId],
-          deal: item,
-          oldDeal: { ...item, status: SALES_STATUSES.ARCHIVED },
-        },
-      });
-    });
+    await Promise.all(
+      items.map((item) =>
+        subscriptionWrapper(models, {
+          action: 'update',
+          deal: { ...item, status: SALES_STATUSES.ARCHIVED } as IDealDocument,
+          oldDeal: item as IDealDocument,
+          pipelineId,
+        }),
+      ),
+    );
 
     return 'ok';
   },

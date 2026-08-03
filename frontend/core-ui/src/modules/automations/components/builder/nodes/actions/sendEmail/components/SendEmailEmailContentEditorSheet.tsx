@@ -2,12 +2,16 @@ import { AutomationVariableBrowser } from '@/automations/components/builder/side
 import { TAutomationVariableSourceNode } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowserTypes';
 import { useEmailDocumentPlaceholder } from '@/automations/components/common/EmailDocumentPlaceholderPicker';
 import { EmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateInEditor';
+import { useSendEmailLinkInsert } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailLinkDialog';
+import { SendEmailLinkToolbar } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailLinkToolbar';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import {
   EmailEditorBlock,
   renderEmailBlocks,
 } from '@/automations/components/builder/nodes/actions/sendEmail/utils/renderEmailBlocks';
+import { insertEmailLink } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailLinkUtils';
 import { BlockEditor, Button, cn, IBlockEditor, Sheet } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
   AttributeInEditor,
@@ -62,12 +66,26 @@ export const SendEmailEmailContentEditorSheet = ({
     });
   const { additionalSlashMenuItems, documentPlaceholderPicker } =
     useEmailDocumentPlaceholder({ editor });
+  const { linkSlashMenuItems, linkDialog } = useSendEmailLinkInsert({
+    editor,
+    variableSourceNodes,
+  });
+  const slashMenuItems = useMemo(
+    () => [...additionalSlashMenuItems, ...linkSlashMenuItems],
+    [additionalSlashMenuItems, linkSlashMenuItems],
+  );
 
   const handleInsertVariable = (payload: TAutomationVariableDragPayload) => {
     insertAutomationVariableInBlockEditor({
       editor,
       payload,
     });
+  };
+
+  const handleInsertVariableAsLink = (
+    payload: TAutomationVariableDragPayload,
+  ) => {
+    insertEmailLink(editor, payload.token, payload.label);
   };
 
   const onSave = () => {
@@ -97,6 +115,7 @@ export const SendEmailEmailContentEditorSheet = ({
               <AutomationVariableBrowser
                 sourceNodes={variableSourceNodes}
                 onInsertVariable={handleInsertVariable}
+                onInsertVariableAsLink={handleInsertVariableAsLink}
                 emptyState={{
                   title: 'No variables available yet',
                   description:
@@ -119,8 +138,10 @@ export const SendEmailEmailContentEditorSheet = ({
             >
               <BlockEditor
                 editor={editor}
-                additionalSlashMenuItems={additionalSlashMenuItems}
+                linkToolbar={false}
+                additionalSlashMenuItems={slashMenuItems}
               >
+                <SendEmailLinkToolbar />
                 <SendEmailContentAttributes
                   contentType={contentType}
                   editor={editor}
@@ -128,6 +149,7 @@ export const SendEmailEmailContentEditorSheet = ({
                 <EmailTemplateInEditor editor={editor} />
               </BlockEditor>
               {documentPlaceholderPicker}
+              {linkDialog}
             </div>
           </div>
         </Sheet.Content>

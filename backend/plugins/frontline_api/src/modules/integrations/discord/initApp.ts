@@ -11,8 +11,10 @@ import {
 } from '@/integrations/discord/gatewayClient';
 import { receiveDiscordMessage } from '@/integrations/discord/controller/receiveMessage';
 import {
+  receiveDiscordMessageDelete,
   receiveDiscordMessageEdit,
   receiveDiscordPollVote,
+  receiveDiscordTyping,
 } from '@/integrations/discord/controller/receiveEvents';
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
 import {
@@ -181,6 +183,17 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
           );
         }
       },
+      onMessageDelete: async (event) => {
+        try {
+          const bot = await resolveBot(event.channelId);
+          if (!bot) return;
+          await receiveDiscordMessageDelete({ models, event });
+        } catch (e) {
+          debugError(
+            `Discord message-delete routing failed: ${(e as Error).message}`,
+          );
+        }
+      },
       onPollVote: async (event) => {
         try {
           const bot = await resolveBot(event.channelId);
@@ -191,6 +204,36 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
             `Discord poll-vote routing failed: ${(e as Error).message}`,
           );
         }
+      },
+      onTyping: async (event) => {
+        try {
+          const bot = await resolveBot(event.channelId);
+          if (!bot) return;
+          await receiveDiscordTyping({ models, bot, event });
+        } catch (e) {
+          debugError(`Discord typing routing failed: ${(e as Error).message}`);
+        }
+      },
+    
+      onFatalClose: async ({ reason, tokenValid }) => {
+        try {
+          await models.DiscordBots.markTokenBroken(token, reason, tokenValid);
+          debugError(`Discord bot ${label} marked broken: ${reason}`);
+        } catch (e) {
+          debugError(
+            `Failed to mark Discord bot ${label} broken: ${getErrorMessage(e)}`,
+          );
+        }
+
+        setImmediate(() => {
+          disconnectDiscordToken(subdomain, token).catch((e) =>
+            debugError(
+              `Failed to drop dead Discord gateway for ${label}: ${getErrorMessage(
+                e,
+              )}`,
+            ),
+          );
+        });
       },
     });
 
@@ -277,6 +320,30 @@ const sweepDiscordOrphanIntegrations = async (
   }
 };
 
+const REVALIDATE_INTERVAL = 10 * 60 * 1000;
+
+const revalidateStaleDiscordTokens = async (models: IModels) => {
+  const cutoff = new Date(Date.now() - REVALIDATE_INTERVAL);
+
+  const stale = await models.DiscordBots.find({
+    'health.status': { $in: ['healthy', 'broken'] },
+    $or: [
+      { 'health.lastVerifiedAt': { $exists: false } },
+      { 'health.lastVerifiedAt': { $lt: cutoff } },
+    ],
+  });
+
+  const tokens = new Set(stale.map((bot) => bot.token).filter(Boolean));
+
+  for (const token of tokens) {
+    try {
+      await models.DiscordBots.revalidateToken(token);
+    } catch (e) {
+      debugError(`Discord token revalidation failed: ${getErrorMessage(e)}`);
+    }
+  }
+};
+
 const computeDesiredDiscordTokens = async (models: IModels) => {
   const bots = await models.DiscordBots.find({ 'health.status': 'healthy' });
   const desired = new Set<string>();
@@ -326,6 +393,8 @@ const reconcileSubdomain = async (subdomain: string) => {
   const models = await generateModels(subdomain);
 
   await sweepDiscordOrphanIntegrations(models, subdomain);
+
+  await revalidateStaleDiscordTokens(models);
 
   const desired = await computeDesiredDiscordTokens(models);
 
@@ -391,7 +460,6 @@ const runOwnerLoop = async (subdomain: string) => {
       try {
         await lock.release();
       } catch {
-        // best-effort; if the lock was already lost the lease expires on its own
       }
     }
   }

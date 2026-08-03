@@ -4,6 +4,7 @@ import { IModels } from '~/connectionResolvers';
 import {
   DiscordMessageAttachment,
   DiscordPollRequest,
+  getDiscordUser,
   getErrorMessage,
   resolveAttachmentUrl,
   sendChannelMessage,
@@ -16,7 +17,7 @@ import {
 } from '@/integrations/discord/activity';
 import { debugError } from '@/integrations/discord/debuggers';
 
-// The composer's poll form shape (question + options + duration in hours).
+
 type TComposerPoll = {
   question?: string;
   options?: unknown[];
@@ -24,10 +25,10 @@ type TComposerPoll = {
   allowMultiselect?: boolean;
 };
 
-// An inbox attachment as the composer sends it (uploaded to erxes storage).
+
 type TInboxAttachment = { url?: string; name?: string; type?: string };
 
-// The payload the inbox relays for agent-side actions (typing + replies).
+
 type TInboxRelayDoc = {
   integrationId?: string;
   conversationId?: string;
@@ -36,11 +37,9 @@ type TInboxRelayDoc = {
   attachments?: TInboxAttachment[];
   poll?: TComposerPoll;
   typing?: boolean;
+  replyToMessageId?: string;
 };
 
-// Maps the composer's poll input into Discord's Create-Message poll object,
-// enforcing Discord's limits (≤300-char question, 1–10 answers ≤55 chars each,
-// 1–768h duration). Returns `undefined` when no poll, throws when malformed.
 const buildPollRequest = (
   poll?: TComposerPoll,
 ): DiscordPollRequest | undefined => {
@@ -69,13 +68,6 @@ const buildPollRequest = (
   };
 };
 
-/**
- * Best-effort presence: mirrors the agent's "is typing…" from the inbox
- * composer into the Discord channel while they compose (and clears it when
- * they stop / blur). Reuses the same indicator the automation path uses, so
- * it looks identical, and the util is idempotent + self-caps. Never throws —
- * typing is presence, not delivery.
- */
 const handleDiscordTypingRelay = async (
   models: IModels,
   doc: TInboxRelayDoc,
@@ -108,19 +100,11 @@ const handleDiscordTypingRelay = async (
   return { status: 'success' };
 };
 
-// The composer encodes a Discord mention as a plain-text token
-// `{@discord:USER_ID}` (angle brackets don't survive HTML stripping).
 const MENTION_TOKEN = /\{@discord:([^}]+)\}/g;
 
-/**
- * Turns the composer's mention tokens into Discord's `<@USER_ID>` ping for
- * the outgoing message, and into a readable `@Name` for the inbox mirror
- * (both the plain-text mirror and the original HTML `content` the message
- * bubble renders — preserving any rich formatting there instead of showing
- * the raw `{@discord:ID}` token the composer sent).
- */
 const resolveMentionsForReply = async (
   models: IModels,
+  token: string,
   text: string,
   content: string,
 ) => {
@@ -131,10 +115,24 @@ const resolveMentionsForReply = async (
   const nameByUserId = new Map<string, string>();
   for (const id of mentionIds) {
     const mentioned = await models.DiscordCustomers.findOne({ userId: id });
-    nameByUserId.set(id, mentioned?.firstName || 'user');
+    let name = mentioned?.firstName;
+
+    if (!name) {
+      try {
+        const user = await getDiscordUser(token, id);
+        name = user?.global_name || user?.username;
+      } catch (e) {
+        debugError(
+          `Failed to resolve Discord mention name for ${id}: ${getErrorMessage(
+            e,
+          )}`,
+        );
+      }
+    }
+
+    nameByUserId.set(id, name || 'user');
   }
 
-  /** Replace a matched mention token with its resolved `@Name`. */
   const toName = (_m: string, id: string) => `@${nameByUserId.get(id) || 'user'}`;
 
   return {
@@ -144,10 +142,6 @@ const resolveMentionsForReply = async (
   };
 };
 
-/**
- * Sends an agent's inbox reply to its Discord channel via REST and mirrors it
- * into the local message store.
- */
 const handleDiscordReplyMessenger = async (
   models: IModels,
   subdomain: string,
@@ -160,11 +154,12 @@ const handleDiscordReplyMessenger = async (
     userId,
     attachments = [],
     poll,
+    replyToMessageId,
   } = doc;
 
   const pollRequest = buildPollRequest(poll);
 
-  // The bot that backs this inbox integration carries the token + channel.
+
   const bot = await models.DiscordBots.findOne({
     erxesApiId: integrationId,
   });
@@ -181,14 +176,8 @@ const handleDiscordReplyMessenger = async (
     throw new Error('Discord conversation not found');
   }
 
-  // Discord channels take plain text / markdown, not the inbox's HTML.
   const text = stripHtml(content).result.trim();
 
-  // Inbox attachments are already uploaded to erxes storage; forward their
-  // URLs to Discord, which fetches + re-uploads them as multipart parts.
-  // The stored `url` is a bare storage key for non-public storage (local /
-  // private cloud), so resolve it to a fetchable `read-file` URL first;
-  // absolute URLs (public cloud) pass through unchanged.
   const files: DiscordMessageAttachment[] = (
     Array.isArray(attachments) ? attachments : []
   )
@@ -199,12 +188,11 @@ const handleDiscordReplyMessenger = async (
     }));
 
   if (!text && files.length === 0 && !pollRequest) {
-    // Nothing to send (empty reply with no attachments or poll).
     return { status: 'success' };
   }
 
   const { discordText, mirrorText, displayContent } =
-    await resolveMentionsForReply(models, text, content);
+    await resolveMentionsForReply(models, bot.token, text, content);
 
   let sent: APIMessage;
   try {
@@ -214,36 +202,23 @@ const handleDiscordReplyMessenger = async (
       content: discordText,
       files: files.length ? files : undefined,
       poll: pollRequest,
+      messageReference: replyToMessageId,
     });
   } catch (e) {
     debugError(`Failed to send Discord reply: ${getErrorMessage(e)}`);
     throw new Error(getErrorMessage(e));
   }
 
-  // The reply is out; stop our local typing-refresh loop (Discord also clears
-  // the indicator when the message posts). Mirrors the automation send path.
   stopTypingIndicator(conversation.channelId);
 
-  // Discord echoes the created poll back (now with answer ids + computed
-  // expiry); normalize it so the inbox stores + renders the same shape as an
-  // inbound poll. Any embeds present on the create response (e.g. a bot-style
-  // rich embed) are captured too — link previews unfurl asynchronously and
-  // arrive later via MESSAGE_UPDATE, refreshed by the edit handler. The Discord
-  // message id is stamped alongside so those later poll-vote / embed events can
-  // find this inbox message and refresh it.
   const createdPoll = normalizeDiscordPoll(sent?.poll);
   const createdEmbeds = normalizeDiscordEmbeds(sent?.embeds);
-  const extraData =
-    createdPoll || createdEmbeds?.length
-      ? {
-          ...(createdPoll && { poll: createdPoll }),
-          ...(createdEmbeds?.length && { embeds: createdEmbeds }),
-          discordMessageId: sent?.id,
-        }
-      : undefined;
+  const extraData = {
+    ...(createdPoll && { poll: createdPoll }),
+    ...(createdEmbeds?.length && { embeds: createdEmbeds }),
+    discordMessageId: sent?.id,
+  };
 
-  // Mirror the agent's reply locally. Keyed by the Discord message id so the
-  // gateway echo of our own message is deduped rather than re-ingested.
   const localMessage = await models.DiscordConversationMessages.create({
     conversationId: conversation._id,
     messageId: sent?.id,
@@ -253,16 +228,10 @@ const handleDiscordReplyMessenger = async (
     userId,
   });
 
-  // A poll-only reply has no text, so use the poll question for the
-  // conversation-list preview (kept off the message body, which renders the
-  // poll card instead of a duplicate question line).
   const previewContent = mirrorText || createdPoll?.question || '';
 
   return {
     status: 'success',
-    // `content` updates the conversation list preview; `displayContent` is the
-    // HTML the inbox persists/renders for the bubble; `extraData` carries the
-    // poll the inbox stores + renders as a poll card.
     data: {
       ...localMessage.toObject(),
       conversationId,
@@ -273,12 +242,6 @@ const handleDiscordReplyMessenger = async (
   };
 };
 
-/**
- * Handles requests coming FROM the inbox (agent replies). The Discord analogue
- * of Facebook's `handleFacebookMessage`. Currently supports `reply-messenger`:
- * an agent reply in the inbox is sent to the Discord channel via REST and
- * mirrored into the local message store.
- */
 export const handleDiscordMessage = async (
   models: IModels,
   msg: { action: string; payload: string },

@@ -6,6 +6,7 @@ import {
   cn,
   IconComponent,
   RelativeDateDisplay,
+  Skeleton,
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
@@ -37,9 +38,11 @@ import { useTranslation } from 'react-i18next';
 export const ConversationItem = ({
   onConversationSelect,
   channelInfo,
+  channelInfoPending,
 }: {
   onConversationSelect: () => void;
   channelInfo?: DiscordConversationChannel;
+  channelInfoPending?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
   const inboxLayout = useAtomValue(inboxLayoutState);
@@ -48,8 +51,6 @@ export const ConversationItem = ({
     useConversationContext();
   const { channel } = integration || {};
 
-  // A Discord conversation represents its channel, not a single person, so show
-  // the channel name as the title and its first letter as the avatar.
   const channelProfileName = channelInfo?.channelName;
   const channelLetter = channelProfileName?.trim()?.[0]?.toUpperCase();
 
@@ -63,10 +64,15 @@ export const ConversationItem = ({
         <CustomersInline.Provider customers={customer ? [customer] : []}>
           <div className="flex w-full gap-3 leading-tight">
             {/* skipcq: JS-0357 */}
-            <ConversationSelector channelLetter={channelLetter} />
+            <ConversationSelector
+              channelLetter={channelLetter}
+              isPending={channelInfoPending}
+            />
             <div className="flex-1 space-y-1">
               <div className="flex items-center">
-                {channelProfileName ? (
+                {channelInfoPending ? (
+                  <Skeleton className="w-40 h-4" />
+                ) : channelProfileName ? (
                   <span className="truncate text-sm font-medium" title={`#${channelProfileName}`}>
                     #{channelProfileName}
                   </span>
@@ -100,8 +106,13 @@ export const ConversationItem = ({
     <ConversationContainer onConversationSelect={onConversationSelect}>
       <CustomersInline.Provider customers={customer ? [customer] : []}>
         {/* skipcq: JS-0357 */}
-        <ConversationSelector channelLetter={channelLetter} />
-        {channelProfileName ? (
+        <ConversationSelector
+          channelLetter={channelLetter}
+          isPending={channelInfoPending}
+        />
+        {channelInfoPending ? (
+          <Skeleton className="w-56 h-4 flex-none" />
+        ) : channelProfileName ? (
           <span
             className="w-56 truncate flex-none text-foreground"
             title={`#${channelProfileName}`}
@@ -262,7 +273,13 @@ const ConversationContainer = ({
   );
 };
 
-const ConversationSelector = ({ channelLetter }: { channelLetter?: string }) => {
+const ConversationSelector = ({
+  channelLetter,
+  isPending,
+}: {
+  channelLetter?: string;
+  isPending?: boolean;
+}) => {
   const [conversationId] = useQueryState<string>('conversationId');
   const { integrationId } = useConversationContext();
 
@@ -276,7 +293,11 @@ const ConversationSelector = ({ channelLetter }: { channelLetter?: string }) => 
       <div className="absolute size-full bg-primary/10 rounded-full" />
       <ConversationCheckbox />
       <div className="transition-opacity duration-200 relative opacity-100 group-hover:opacity-0 peer-data-[state=checked]:opacity-0">
-        {channelLetter ? (
+        {isPending ? (
+          <Skeleton
+            className={cn('rounded-full', conversationId ? 'size-8' : 'size-6')}
+          />
+        ) : channelLetter ? (
           <Avatar size={conversationId ? 'xl' : 'lg'}>
             <Avatar.Fallback className="bg-primary/10 text-primary font-medium">
               {channelLetter}

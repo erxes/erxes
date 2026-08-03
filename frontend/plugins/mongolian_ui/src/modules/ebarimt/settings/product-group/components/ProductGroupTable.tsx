@@ -60,7 +60,12 @@ export const ProductGroupTable = () => {
   const isInitialLoading = loading && productGroupRows.length === 0;
 
   return (
-    <RecordTable.Provider columns={memoizedColumns} data={productGroupRows}>
+    <RecordTable.Provider
+      columns={memoizedColumns}
+      data={productGroupRows}
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_ebarimt_product_group_record_table"
+    >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
@@ -84,9 +89,7 @@ export const ProductGroupTable = () => {
             <Spinner />
           </div>
         )}
-        {!loading && totalCount === 0 && (
-          <ProductGroupEmptyState />
-        )}
+        {!loading && totalCount === 0 && <ProductGroupEmptyState />}
       </RecordTable.CursorProvider>
       <ProductGroupRowsCommandbar />
     </RecordTable.Provider>
@@ -185,6 +188,7 @@ ProductGroupRowMoreColumnCell.displayName = 'ProductGroupRowMoreColumnCell';
 
 const productGroupRowMoreColumn: ColumnDef<IProductGroup> = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ({ cell }) => <ProductGroupRowMoreColumnCell cell={cell} />,
   size: 33,
 };
@@ -206,7 +210,9 @@ export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
     {
       id: 'subProductId',
       accessorKey: 'subProductId',
-      header: () => <RecordTable.InlineHead icon={IconTag} label={t('sub-product')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconTag} label={t('sub-product')} />
+      ),
       cell: ({ cell }) => <ProductGroupSubProductCell cell={cell} />,
       size: 250,
     },
@@ -214,7 +220,10 @@ export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
       id: 'sortNum',
       accessorKey: 'sortNum',
       header: () => (
-        <RecordTable.InlineHead icon={IconSortAscending} label={t('sort-number')} />
+        <RecordTable.InlineHead
+          icon={IconSortAscending}
+          label={t('sort-number')}
+        />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -242,7 +251,9 @@ export const useProductGroupsColumns = (): ColumnDef<IProductGroup>[] => {
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() ? t('active') : t('inactive')} />
+          <TextOverflowTooltip
+            value={cell.getValue() ? t('active') : t('inactive')}
+          />
         </RecordTableInlineCell>
       ),
     },

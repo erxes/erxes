@@ -13,6 +13,7 @@ export const CONFIG: IUIConfig = {
   path: 'tourism',
   navigationGroup: {
     name: 'tourism',
+    defaultPath: 'tourism/pms',
     icon: IconDirections,
     content: () => (
       <Suspense fallback={<div />}>

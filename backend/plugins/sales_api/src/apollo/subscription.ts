@@ -68,7 +68,13 @@ export default {
           const { matchesOld, matchesNew } = payload.matches;
 
           if (matchesOld && !matchesNew) {
-            return { ...payload.salesDealListChanged, action: 'remove' };
+            return {
+              ...payload.salesDealListChanged,
+              action: 'remove',
+              deal:
+                payload.salesDealListChanged.deal ??
+                payload.salesDealListChanged.oldDeal,
+            };
           }
 
           if (!matchesOld && matchesNew) {

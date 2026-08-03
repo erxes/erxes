@@ -61,6 +61,12 @@ export const DISCORD_TAKEN_CHANNELS = gql`
   }
 `;
 
+export const DISCORD_NAME_PRESETS = gql`
+  query DiscordNamePresets($channelId: String!) {
+    discordNamePresets(channelId: $channelId)
+  }
+`;
+
 export const DISCORD_BOT_CHANNELS = gql`
   query DiscordBotChannels($botId: String!) {
     discordBotChannels(botId: $botId) {
@@ -101,6 +107,20 @@ export const DISCORD_CONVERSATION_PARTICIPANTS = gql`
       userId
       name
       avatar
+    }
+  }
+`;
+
+export const DISCORD_CHANNEL_MEMBERS = gql`
+  query DiscordChannelMembers($conversationId: String!, $query: String!) {
+    discordChannelMembers(conversationId: $conversationId, query: $query) {
+      status
+      truncated
+      members {
+        userId
+        name
+        avatar
+      }
     }
   }
 `;

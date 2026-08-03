@@ -124,6 +124,8 @@ export const types = `
 
   type ConversationClientTypingStatusChangedResponse {
     conversationId: String!
+    customerId: String
+    customerName: String
     text: String
   }
 
@@ -246,6 +248,7 @@ export const mutations = `
     contentType: String
     extraInfo: JSON
     poll: ConversationPollInput
+    replyToMessageId: String
   ): ConversationMessage
   conversationMessageEdit(
     _id: String!,
