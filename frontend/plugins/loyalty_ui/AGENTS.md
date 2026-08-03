@@ -75,23 +75,6 @@ round-trip the typed fields. The legacy flat block was removed from `GeneralInfo
 Verified with `npx tsc --noEmit` (0 errors). The loyalty_api contract + engine
 landed earlier (see backend AGENTS.md).
 
----
-
-## Record tables
-
-Every list in this plugin (coupons, vouchers, lotteries, scores, agents,
-pricing) uses `RecordTable` with the same column shape: a `more` utility column
-first, then `RecordTable.checkboxColumn`, then the data columns.
-
-- The `more` column's `header` is `<RecordTable.ColumnSelector />` and its `cell`
-  is the feature's own row menu.
-- `more`, `checkbox`, and `select` are utility columns: excluded from the
-  selector list, never hidden or reordered through it. When a table has a `more`
-  column it must lead both the column array and `stickyColumns`.
-- Pass a unique `tableId` to `RecordTable.Provider` so column visibility, order,
-  pinning, and sizing persist. Prefix ids with `loyalty` and never reuse one
-  across two tables, or they share stored preferences.
-
 ## Validation
 
 `pnpm nx lint loyalty_ui` · `pnpm nx build loyalty_ui` ·

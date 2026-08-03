@@ -37,7 +37,6 @@ export function PricingRecordTable() {
       data={pricing || []}
       columns={pricingColumns(t)}
       stickyColumns={['more', 'checkbox', 'name']}
-      tableId="loyalty_pricing_record_table"
       className="m-3"
     >
       <RecordTable.Scroll>
