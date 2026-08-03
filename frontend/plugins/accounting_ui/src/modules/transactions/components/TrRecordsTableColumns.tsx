@@ -21,8 +21,14 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
+import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
 import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
-import { TR_JOURNAL_LABELS, TR_SIDES, TR_STATUS_LABELS, TrJournalEnum } from '../types/constants';
+import {
+  TR_JOURNAL_LABELS,
+  TR_SIDES,
+  TR_STATUS_LABELS,
+  TrJournalEnum,
+} from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
 
 const NumberCell = ({ row }: any) => {
@@ -64,9 +70,9 @@ const CreditCell = ({ row }: any) => {
   return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
-const AmountProdCell = ({ row, value }: { row: any; value: number }) => {
+const AmountItemCell = ({ row, value }: { row: any; value: number }) => {
   const { details } = row.original;
-  if (!details?.productId) {
+  if (!details?.productId && !details?.fixedAssetId) {
     return undefined;
   }
 
@@ -143,6 +149,21 @@ const AccountCell = ({ row }: any) => {
 
 const ProductCell = ({ row }: any) => {
   const { details } = row.original;
+
+  if (details?.fixedAssetId) {
+    return (
+      <RecordTableInlineCell>
+        <SelectFixedAsset.Provider
+          mode="single"
+          value={details.fixedAssetId}
+          placeholder="-"
+        >
+          <SelectFixedAsset.Value placeholder="-" />
+        </SelectFixedAsset.Provider>
+      </RecordTableInlineCell>
+    );
+  }
+
   if (!details?.productId) {
     return undefined;
   }
@@ -251,7 +272,9 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
   },
   {
     id: 'product-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Бараа/Хөрөнгө" />
+    ),
     accessorKey: 'product-inv',
     cell: ({ row }) => <ProductCell row={row} />,
   },
@@ -262,7 +285,7 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     ),
     accessorKey: 'unitPrice-inv',
     cell: ({ row }) => (
-      <AmountProdCell row={row} value={row.original?.details?.unitPrice ?? 0} />
+      <AmountItemCell row={row} value={row.original?.details?.unitPrice ?? 0} />
     ),
   },
   {
@@ -272,7 +295,7 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     ),
     accessorKey: 'count-inv',
     cell: ({ row }) => (
-      <AmountProdCell row={row} value={row.original?.details?.count ?? 0} />
+      <AmountItemCell row={row} value={row.original?.details?.count ?? 0} />
     ),
   },
   {
