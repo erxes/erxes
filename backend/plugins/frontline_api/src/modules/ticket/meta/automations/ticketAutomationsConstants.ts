@@ -117,7 +117,7 @@ const TICKET_OUTPUT: TAutomationRuntimeOutputDefinition<ITicket> = {
     { key: 'startDate', label: 'Start date' },
     { key: 'targetDate', label: 'Target date' },
     { key: 'statusChangedDate', label: 'Status changed date' },
-    { key: 'link', label: 'Ticket link' },
+    { key: 'link', label: 'Ticket link', isLink: true },
     { key: 'createdAt', label: 'Created at' },
     { key: 'updatedAt', label: 'Updated at' },
   ],

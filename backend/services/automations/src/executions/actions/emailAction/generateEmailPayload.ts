@@ -13,6 +13,7 @@ import {
   formatFromEmail,
   formatIsoDatesInText,
   normalizeEmailActionPlaceholders,
+  stripDeadLinks,
 } from './utils';
 
 export const generateEmailPayload = async ({
@@ -110,6 +111,6 @@ export const generateEmailPayload = async ({
     replyTo: config.replyToEmail || undefined,
     toEmails: filteredToEmails,
     ccEmails: filteredCcEmails,
-    customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, '-'),
+    customHtml: stripDeadLinks(content.replace(/{{\s*([^}]+)\s*}}/g, '-')),
   };
 };
