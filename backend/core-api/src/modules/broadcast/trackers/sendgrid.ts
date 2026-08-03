@@ -167,6 +167,16 @@ export const sendgridTracker = async (req: Request, res: Response) => {
   });
 
   if (!verified) {
+    console.error(
+      `SendGrid webhook rejected: ${
+        !publicKey
+          ? 'no SENDGRID_WEBHOOK_PUBLIC_KEY in env or mail config'
+          : !req.headers[SENDGRID_SIGNATURE_HEADER]
+            ? 'request carried no signature header'
+            : 'signature did not match the configured key'
+      }`,
+    );
+
     return res.status(403).end('invalid signature');
   }
 
