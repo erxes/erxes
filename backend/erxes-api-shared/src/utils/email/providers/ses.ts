@@ -71,9 +71,7 @@ export class SesEmailProvider implements IEmailProvider {
 
   public async send(message: IOutboundEmail): Promise<ISentEmail> {
     const headers: Record<string, string> = {
-      ...(this.configSet
-        ? { 'X-SES-CONFIGURATION-SET': this.configSet }
-        : {}),
+      ...(this.configSet ? { 'X-SES-CONFIGURATION-SET': this.configSet } : {}),
       ...(message.headers || {}),
     };
 

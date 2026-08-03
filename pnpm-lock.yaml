@@ -25662,7 +25662,10 @@ packages:
     engines: { node: '>=10' }
 
   qz-tray@2.2.6:
-    resolution: {integrity: sha512-b9w0vcjHSdKiOq1jL/KXfb3IvgaIc/BeQv9JuJ3nTEoqSUZfIGKLAyKTS+akHSXrR64R0UwEDmw20GvD2di/Pg==}
+    resolution:
+      {
+        integrity: sha512-b9w0vcjHSdKiOq1jL/KXfb3IvgaIc/BeQv9JuJ3nTEoqSUZfIGKLAyKTS+akHSXrR64R0UwEDmw20GvD2di/Pg==,
+      }
 
   radix-ui@1.4.3:
     resolution:
