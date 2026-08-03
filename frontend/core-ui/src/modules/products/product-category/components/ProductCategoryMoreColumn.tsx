@@ -40,7 +40,7 @@ export const CategoryMoreColumnCell = (
               <IconEdit className="w-4 h-4" />
               Edit
             </Command.Item>
-            <CategoriesDelete categoryIds={_id}>
+            <CategoriesDelete categories={[props.row.original]}>
               {({ onClick, disabled }) => (
                 <Command.Item
                   value="delete"

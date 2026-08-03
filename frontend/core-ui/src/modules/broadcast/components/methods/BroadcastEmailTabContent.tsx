@@ -1,18 +1,32 @@
+import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
+import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { BlockEditor, useBlockEditor } from 'erxes-ui';
 import { useEffect } from 'react';
 import { MembersInline } from 'ui-modules';
 
-export const BroadcastTabPreviewEmailContent = ({
-  message,
-}: {
-  message: any;
-}) => {
-  const { fromUserId, email } = message || {};
-  const { sender, subject, content } = email || {};
+type TEmailPreviewMessage = {
+  fromEmail?: string;
+  fromUserId?: string;
+  email?: {
+    sender?: string;
+    subject?: string;
+    content?: string;
+    replyTo?: string;
+  };
+};
+
+const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
+  const { fromEmail, fromUserId, email } = message || {};
+  const { sender, subject, content, replyTo } = email || {};
+  const { alignedFrom } = useSenderOptions();
   const editor = useBlockEditor();
 
   useEffect(() => {
     const loadInitialContent = async () => {
+      if (!content) {
+        return;
+      }
+
       let blocks;
 
       try {
@@ -37,14 +51,30 @@ export const BroadcastTabPreviewEmailContent = ({
 
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">From:</span>
-          <MembersInline memberIds={[fromUserId]} className="font-semibold" />
-          {sender && (
-            <>
-              <span className="text-sm text-muted-foreground">as</span>
-              <span className="font-semibold">{sender}</span>
-            </>
+          {alignedFrom ? (
+            <span className="font-semibold">
+              {sender} &lt;{alignedFrom}&gt;
+            </span>
+          ) : fromEmail ? (
+            <span className="font-semibold">
+              {sender ? `${sender} <${fromEmail}>` : fromEmail}
+            </span>
+          ) : (
+            <MembersInline
+              memberIds={fromUserId ? [fromUserId] : []}
+              className="font-semibold"
+            />
           )}
         </div>
+
+        {(alignedFrom ? fromEmail : replyTo) && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Reply to:</span>
+            <span className="font-semibold">
+              {alignedFrom ? fromEmail : replyTo}
+            </span>
+          </div>
+        )}
       </div>
 
       <BlockEditor
@@ -55,3 +85,13 @@ export const BroadcastTabPreviewEmailContent = ({
     </div>
   );
 };
+
+export const BroadcastTabPreviewEmailContent = ({
+  message,
+}: {
+  message?: TEmailPreviewMessage;
+}) => (
+  <EmailSenderScopeProvider scope="broadcast">
+    <EmailPreview message={message} />
+  </EmailSenderScopeProvider>
+);

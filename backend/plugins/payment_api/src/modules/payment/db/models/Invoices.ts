@@ -32,6 +32,7 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
+      console.log('[createInvoice] called');
       if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
@@ -129,7 +130,7 @@ export const loadInvoiceClass = (models: IModels) => {
               },
               update: {
                 $set: {
-                  status: statusChecks[index] === 'paid' ? 'paid' : 'pending',
+                  status: statusChecks[index],
                 },
               },
             },
@@ -163,6 +164,15 @@ export const loadInvoiceClass = (models: IModels) => {
       ]);
 
       if (totalAmount.length === 0) {
+        const failed = await models.Transactions.exists({
+          invoiceId: _id,
+          status: PAYMENT_STATUS.FAILED,
+        });
+
+        if (failed) {
+          return PAYMENT_STATUS.FAILED;
+        }
+
         return PAYMENT_STATUS.PENDING;
       }
 

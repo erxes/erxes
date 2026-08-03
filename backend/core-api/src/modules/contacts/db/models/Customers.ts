@@ -19,6 +19,7 @@ import {
 } from '../../@types/customer';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
+import { screenNewAddresses } from '~/utils/email/screenNewAddresses';
 
 interface ICustomerFieldsInput {
   primaryEmail?: string;
@@ -237,6 +238,8 @@ export const loadCustomerClass = (
       };
 
       const customer = await models.Customers.create(newDoc);
+
+      await screenNewAddresses(models, doc.emails);
 
       sendDbEventLog({
         action: 'create',

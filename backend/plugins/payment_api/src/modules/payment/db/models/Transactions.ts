@@ -103,21 +103,24 @@ export const loadTransactionClass = (models: IModels) => {
       const api = new ErxesPayment(paymentMethod, subdomain);
 
       try {
-  console.log('[MODEL] Transactions post-save: calling api.createInvoice', {
-    transactionId: transaction._id,
-    paymentKind: transaction.paymentKind,   // use the transaction's own field
-  });
+        console.log(
+          '[MODEL] Transactions post-save: calling api.createInvoice',
+          {
+            transactionId: transaction._id,
+            paymentKind: transaction.paymentKind, // use the transaction's own field
+          },
+        );
 
-  const reponse = await api.createInvoice(transaction.toObject());
-  console.log('[MODEL] api.createInvoice returned', reponse);  // reponse, not response
-  transaction.response = reponse;
-  await transaction.save();
+        const reponse = await api.createInvoice(transaction.toObject());
+        console.log('[MODEL] api.createInvoice returned', reponse); // reponse, not response
+        transaction.response = reponse;
+        await transaction.save();
 
-  return transaction;
-} catch (e) {
-  await models.Transactions.deleteOne({ _id: transaction._id });
-  throw new Error(`Error creating transaction: ${e.message}`);
-}
+        return transaction;
+      } catch (e) {
+        await models.Transactions.deleteOne({ _id: transaction._id });
+        throw new Error(`Error creating transaction: ${e.message}`);
+      }
     }
 
     public static async updateTransaction(_id: string, doc: any) {
@@ -143,7 +146,11 @@ export const loadTransactionClass = (models: IModels) => {
       const payment = await models.PaymentMethods.getPayment(
         transaction.paymentId,
       );
-
+      console.log('[PAYMENT] Selected payment', {
+        paymentId: payment._id,
+        paymentKind: payment.kind,
+        paymentName: payment.name,
+      });
       const api = new ErxesPayment(payment);
 
       try {

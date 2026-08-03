@@ -39,6 +39,18 @@ const AdjustInventoryDetail = lazy(() =>
   })),
 );
 
+const AdjustFixedAssetList = lazy(() =>
+  import('~/pages/AdjustFixedAssetListPage').then((module) => ({
+    default: module.AdjustFixedAssetListPage,
+  })),
+);
+
+const AdjustFixedAssetDetail = lazy(() =>
+  import('~/pages/AdjustFixedAssetDetailPage').then((module) => ({
+    default: module.AdjustFixedAssetDetailPage,
+  })),
+);
+
 const AccountingJournalReports = lazy(() =>
   import('~/pages/JournalReports').then((module) => ({
     default: module.JournalReports,
@@ -105,6 +117,11 @@ const PluginAccounting = () => {
         <Route
           path="/adjustment/inventory/detail"
           element={<AdjustInventoryDetail />}
+        />
+        <Route path="/adjustment/fxa" element={<AdjustFixedAssetList />} />
+        <Route
+          path="/adjustment/fxa/detail"
+          element={<AdjustFixedAssetDetail />}
         />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
         <Route path="/check-sync/*" element={<AccountingCheckSync />} />
