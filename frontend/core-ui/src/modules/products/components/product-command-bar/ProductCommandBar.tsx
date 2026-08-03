@@ -139,12 +139,11 @@ export const ProductCommandBar = () => {
                 <Command.List className="p-0">
                   <Command.Group className="p-1">
                     <Can action="tagsTag">
-                      <Command.Item onSelect={() => setCurrentContent('tags')}>
-                        <IconTags className="size-4" />
-                        <div className="flex items-center">
-                          {t('bulk.tags', 'Tags')}
-                        </div>
-                      </Command.Item>
+                      <Command.ActionItem
+                        icon={IconTags}
+                        label={t('bulk.tags', 'Tags')}
+                        onSelect={() => setCurrentContent('tags')}
+                      />
                     </Can>
                     <Can action="productsUpdate">
                       <ProductsChangeCategoryTrigger
@@ -163,32 +162,26 @@ export const ProductCommandBar = () => {
                   <Command.Group className="p-1">
                     <ProductsDelete productIds={productIds}>
                       {({ onClick, disabled, trailing }) => (
-                        <Command.Item
-                          className="flex justify-between text-destructive"
+                        <Command.ActionItem
+                          className="text-destructive"
+                          icon={IconTrash}
+                          label={t('delete', 'Delete')}
                           onSelect={onClick}
                           disabled={disabled}
-                        >
-                          <div className="flex gap-2 items-center">
-                            <IconTrash className="size-4" />
-                            {t('delete', 'Delete')}
-                          </div>
-                          {trailing}
-                        </Command.Item>
+                          trailing={trailing}
+                        />
                       )}
                     </ProductsDelete>
                     {deletedProductIds.length > 0 && (
                       <ProductsRestore productIds={deletedProductIds}>
                         {({ onClick, disabled }) => (
-                          <Command.Item
+                          <Command.ActionItem
                             className="text-primary"
+                            icon={IconRestore}
+                            label={t('restore', 'Restore')}
                             onSelect={onClick}
                             disabled={disabled}
-                          >
-                            <IconRestore className="size-4" />
-                            <div className="flex items-center">
-                              {t('restore', 'Restore')}
-                            </div>
-                          </Command.Item>
+                          />
                         )}
                       </ProductsRestore>
                     )}

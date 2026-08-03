@@ -14,12 +14,11 @@ export const ProductsChangeCategoryTrigger = ({
 }) => {
   const { t } = useTranslation('product');
   return (
-    <Command.Item onSelect={() => setCurrentContent('category')}>
-      <IconCategory className="size-4" />
-      <div className="flex items-center">
-        {t('bulk.change-category', { defaultValue: 'Change category' })}
-      </div>
-    </Command.Item>
+    <Command.ActionItem
+      icon={IconCategory}
+      label={t('bulk.change-category', { defaultValue: 'Change category' })}
+      onSelect={() => setCurrentContent('category')}
+    />
   );
 };
 
@@ -39,8 +38,6 @@ export const ProductsChangeCategoryContent = ({
 
   const [loading, setLoading] = useState(false);
 
-  // productsEdit forces status back to 'active', so moving a soft-deleted
-  // product would silently restore it. Leave those out of the batch.
   const movableProducts = products.filter(
     (product) => product.status !== 'deleted',
   );
@@ -66,8 +63,6 @@ export const ProductsChangeCategoryContent = ({
     }
 
     try {
-      // Moving is not reversible: once overwritten, there is no record of which
-      // category each product came from.
       await confirm({
         message: t('bulk.confirm-change-category', {
           count: movableProducts.length,
@@ -78,7 +73,6 @@ export const ProductsChangeCategoryContent = ({
         }),
       });
     } catch {
-      // User cancelled the confirmation
       return;
     }
 

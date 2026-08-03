@@ -1,8 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { IconRestore } from '@tabler/icons-react';
 import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
-import type { ReactNode } from 'react';
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { Can } from 'ui-modules';
 import { useRestoreProducts } from '@/products/product-detail/hooks/useRestoreProduct';
 

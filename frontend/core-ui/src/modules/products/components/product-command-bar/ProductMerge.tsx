@@ -120,10 +120,12 @@ export const ProductMergeTrigger = ({
   const { t } = useTranslation('product');
   return (
     <Can action="productsMerge">
-      <Command.Item disabled={productCount !== 2} onSelect={onOpen}>
-        <IconArrowMerge className="size-4" />
-        <div className="flex items-center">{t('merge', 'Merge')}</div>
-      </Command.Item>
+      <Command.ActionItem
+        icon={IconArrowMerge}
+        label={t('merge', 'Merge')}
+        onSelect={onOpen}
+        disabled={productCount !== 2}
+      />
     </Can>
   );
 };
