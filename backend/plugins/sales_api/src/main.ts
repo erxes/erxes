@@ -20,6 +20,7 @@ import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
 import { permissions } from '~/meta/permissions';
 import { salesReferences } from './meta/references';
 import { documents } from './meta/documents';
+import { handleCreateDealFromPayment } from '~/modules/sales/meta/payments/createDealFromPayment';
 
 import { beforeResolvers } from '~/meta/beforeResolvers';
 
@@ -130,6 +131,13 @@ startPlugin({
     payments: {
       transactionCallback: async () => {
         // TODO: implement transaction callback if necessary
+      },
+      createDealFromPayment: async ({ subdomain }, data) => {
+        if (data?.status !== 'paid') {
+          return;
+        }
+
+        return handleCreateDealFromPayment(subdomain, data);
       },
       callback: async ({ subdomain }, data) => {
         const { status, contentType } = data;

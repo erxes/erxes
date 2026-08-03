@@ -3,6 +3,7 @@ import {
   Button,
   Combobox,
   Command,
+  Form,
   Input,
   Popover,
   ScrollArea,
@@ -12,7 +13,6 @@ import {
   toast,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Form } from 'erxes-ui/components/form';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -24,10 +24,19 @@ import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { paymentKind } from '~/modules/payment/utils';
 import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 import KhanbankForm from '~/modules/settings/payment/components/KhanbankForm';
+import { DealConfigForm } from '~/modules/settings/payment/components/DealConfigForm';
 
 type Props = {
   payment: any;
   onCancel: () => void;
+};
+
+const settingsFields = {
+  sendEmailOnPayment: z.boolean().optional(),
+  dealEnabled: z.boolean().optional(),
+  dealBoardId: z.string().optional(),
+  dealPipelineId: z.string().optional(),
+  dealStageId: z.string().optional(),
 };
 
 // Base validation schema
@@ -80,12 +89,12 @@ const khanbankSchema = z.object({
 // Dynamic schema generator based on payment kind
 const createPaymentSchema = (selectedKind: string) => {
   if (!selectedKind) {
-    return baseSchema;
+    return baseSchema.extend(settingsFields);
   }
 
   const payment = paymentKind(selectedKind);
   if (!payment?.fields) {
-    return baseSchema;
+    return baseSchema.extend(settingsFields);
   }
 
   // Create dynamic fields schema
@@ -140,12 +149,12 @@ const createPaymentSchema = (selectedKind: string) => {
   });
 
   if (selectedKind === PaymentKind.QUICKQR) {
-    return quickQrSchema;
+    return quickQrSchema.extend(settingsFields);
   }
   if (selectedKind === PaymentKind.KHANBANK) {
-    return khanbankSchema;
+    return khanbankSchema.extend(settingsFields);
   }
-  return baseSchema.extend(dynamicFields);
+  return baseSchema.extend(dynamicFields).extend(settingsFields);
 };
 
 const PaymentForm = ({ payment, onCancel }: Props) => {
@@ -169,7 +178,16 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
   // Get default values from payment prop
   const getDefaultValues = useMemo(() => {
     if (!payment) {
-      return { kind: '', name: '', status: 'active', sendEmailOnPayment: true };
+      return {
+        kind: '',
+        name: '',
+        status: 'active',
+        sendEmailOnPayment: true,
+        dealEnabled: false,
+        dealBoardId: '',
+        dealPipelineId: '',
+        dealStageId: '',
+      };
     }
 
     const defaultValues: Record<string, any> = {
@@ -177,6 +195,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       name: payment.name || '',
       status: payment.status || 'active',
       sendEmailOnPayment: payment.sendEmailOnPayment !== false,
+      dealEnabled: payment.dealConfig?.enabled || false,
+      dealBoardId: payment.dealConfig?.boardId || '',
+      dealPipelineId: payment.dealConfig?.pipelineId || '',
+      dealStageId: payment.dealConfig?.stageId || '',
     };
 
     // Add payment config values
@@ -189,8 +211,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     }
 
     if (selectedKind === PaymentKind.QUICKQR) {
-      defaultValues.type = 'person';
-      defaultValues.city = '11000';
+      defaultValues.type =
+        defaultValues.type ||
+        (payment.config?.isCompany ? 'company' : 'person');
+      defaultValues.city = defaultValues.city || '11000';
     }
 
     return defaultValues;
@@ -240,6 +264,12 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       kind: data.kind,
       status: data.status,
       sendEmailOnPayment: data.sendEmailOnPayment !== false,
+      dealConfig: {
+        enabled: !!data.dealEnabled,
+        boardId: data.dealEnabled ? data.dealBoardId || '' : '',
+        pipelineId: data.dealEnabled ? data.dealPipelineId || '' : '',
+        stageId: data.dealEnabled ? data.dealStageId || '' : '',
+      },
       config: {},
     };
 
@@ -249,6 +279,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       'name',
       'status',
       'sendEmailOnPayment',
+      'dealEnabled',
+      'dealBoardId',
+      'dealPipelineId',
+      'dealStageId',
     ]);
     Object.entries(data).forEach(([key, value]) => {
       if (!topLevelKeys.has(key)) {
@@ -311,14 +345,14 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       return null;
     }
 
-    return <QuickQrForm payment={payment} form={form} Form={Form} />;
+    return <QuickQrForm payment={payment} form={form} />;
   };
   const renderKhanbank = () => {
     if (selectedKind !== PaymentKind.KHANBANK) {
       return null;
     }
 
-    return <KhanbankForm payment={payment} form={form} Form={Form} />;
+    return <KhanbankForm payment={payment} form={form} />;
   };
 
   return (
@@ -496,6 +530,8 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   </Form.Item>
                 )}
               />
+
+              <DealConfigForm form={form} />
 
               {/* Dynamic Payment-Specific Fields */}
               {currentPaymentKind?.fields.map((fieldConfig) => (
