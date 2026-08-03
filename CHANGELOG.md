@@ -1,3 +1,12 @@
+
+
+## [3.0.68](https://github.com/erxes/erxes/compare/3.0.67...3.0.68) (2026-08-03)
+
+
+### Bug Fixes
+
+* inventory journals with unitPrice ([#8873](https://github.com/erxes/erxes/issues/8873)) ([8973d08](https://github.com/erxes/erxes/commit/8973d086d939a3b2ffe1337c6f5b40266b0aeda1))
+
 # Changelog
 
 ## [3.0.67](https://github.com/erxes/erxes/compare/3.0.66...3.0.67) (2026-08-03)
