@@ -1195,5 +1195,6 @@
   "post-images-uploading": "Uploading images…",
   "post-images-upload-failed": "Image upload failed",
   "post-images-still-uploading": "Wait for the images to finish uploading",
-  "post-images-or-link": "A post can include images or a link preview, not both. Put the URL in the message text instead."
+  "post-images-or-link": "A post can include images or a link preview, not both. Put the URL in the message text instead.",
+  "post-images-bad-filename": "This filename cannot be stored (commas and some symbols are not supported). Rename the file and add it again."
 }

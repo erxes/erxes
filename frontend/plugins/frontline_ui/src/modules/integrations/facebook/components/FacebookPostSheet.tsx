@@ -19,7 +19,6 @@ import {
   Spinner,
   Textarea,
   useErxesUpload,
-  useRemoveFile,
   useToast,
 } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -30,6 +29,8 @@ import { FACEBOOK_POST_SCHEMA } from '../constants/FbPostSchema';
 import { useFacebookCreatePost } from '../hooks/useFacebookCreatePost';
 
 type TForm = z.infer<typeof FACEBOOK_POST_SCHEMA>;
+
+const READABLE_KEY = /^[a-zA-Z0-9/_\-., ()\p{L}\p{M}]+$/u;
 
 const MAX_IMAGES = 10;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
@@ -60,16 +61,25 @@ export const FacebookPostSheet = () => {
     defaultValues: DEFAULTS,
   });
 
-  const onFilesAdded = useCallback(
-    (added: { name: string; url: string }[]) =>
+  const [keyErrors, setKeyErrors] = useState<string[]>([]);
+
+  const onFilesAdded = useCallback((added: { name: string; url: string }[]) => {
+    const usable = added.filter((f) => READABLE_KEY.test(f.url));
+    const unusable = added.filter((f) => !READABLE_KEY.test(f.url));
+
+    if (unusable.length) {
+      setKeyErrors((prev) => [...prev, ...unusable.map((f) => f.name)]);
+    }
+
+    if (usable.length) {
       setImages((prev) =>
-        [...prev, ...added.map((f) => ({ name: f.name, key: f.url }))].slice(
+        [...prev, ...usable.map((f) => ({ name: f.name, key: f.url }))].slice(
           0,
           MAX_IMAGES,
         ),
-      ),
-    [],
-  );
+      );
+    }
+  }, []);
 
   const upload = useErxesUpload({
     allowedMimeTypes: ACCEPTED_IMAGE_TYPES,
@@ -99,6 +109,8 @@ export const FacebookPostSheet = () => {
           upload={upload}
           permalinkUrl={permalinkUrl}
           setPermalinkUrl={setPermalinkUrl}
+          keyErrors={keyErrors}
+          setKeyErrors={setKeyErrors}
         />
       </Sheet.View>
     </Sheet>
@@ -113,6 +125,8 @@ const FacebookPostSheetForm = ({
   upload,
   permalinkUrl,
   setPermalinkUrl,
+  keyErrors,
+  setKeyErrors,
 }: {
   setOpen: (open: boolean) => void;
   form: UseFormReturn<TForm>;
@@ -123,26 +137,44 @@ const FacebookPostSheetForm = ({
   upload: ReturnType<typeof useErxesUpload>;
   permalinkUrl: string | null;
   setPermalinkUrl: (url: string | null) => void;
+  keyErrors: string[];
+  setKeyErrors: React.Dispatch<React.SetStateAction<string[]>>;
 }) => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const { createPost, loading: posting } = useFacebookCreatePost();
-  const { removeFile } = useRemoveFile();
 
-  const failedNames = new Set(upload.errors.map((e) => e.name));
-  const pendingFiles = upload.files.filter((f) => !failedNames.has(f.name));
+  const rejected = [
+    ...upload.errors.map((e) => ({
+      name: e.name,
+      message: e.message || '',
+    })),
+    ...upload.files
+      .filter((f) => f.errors?.length)
+      .map((f) => ({
+        name: f.name,
+        message: f.errors.map((err) => err.message).join(', '),
+      })),
+  ].filter((item, i, all) => all.findIndex((x) => x.name === item.name) === i);
+
+  const rejectedNames = new Set(rejected.map((r) => r.name));
+
+  const allErrors = [
+    ...rejected,
+    ...keyErrors.map((name) => ({
+      name,
+      message: t('post-images-bad-filename'),
+    })),
+  ];
+  const pendingFiles = upload.files.filter((f) => !rejectedNames.has(f.name));
 
   const dismissError = (name: string) => {
     upload.setFiles((prev) => prev.filter((f) => f.name !== name));
     upload.setErrors((prev) => prev.filter((e) => e.name !== name));
+    setKeyErrors((prev) => prev.filter((n) => n !== name));
   };
-
   const discardImage = (index: number) => {
-    const image = images[index];
     setImages((prev) => prev.filter((_, i) => i !== index));
-    if (image) {
-      removeFile(image.key, () => undefined).catch(() => undefined);
-    }
   };
 
   useEffect(() => {
@@ -221,18 +253,6 @@ const FacebookPostSheetForm = ({
       onCompleted: (response) => {
         setPermalinkUrl(response?.facebookCreatePost?.permalinkUrl || null);
         toast({ variant: 'success', title: t('post-published') });
-
-        keys.forEach((key) =>
-          removeFile(key, (status) => {
-            if (status !== 'ok') {
-              // eslint-disable-next-line no-console
-              console.warn('[facebook-post] image cleanup failed', key, status);
-            }
-          }).catch((e) =>
-            // eslint-disable-next-line no-console
-            console.warn('[facebook-post] image cleanup threw', key, e),
-          ),
-        );
 
         setImages([]);
         form.reset({
@@ -367,11 +387,20 @@ const FacebookPostSheetForm = ({
 
                 <div
                   {...upload.getRootProps()}
+                  onClick={upload.open}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      upload.open();
+                    }
+                  }}
                   className={cn(
                     'flex flex-col items-center justify-center gap-1 rounded-md border border-dashed p-6 text-sm text-muted-foreground cursor-pointer transition-colors',
                     upload.isDragActive
                       ? 'border-primary bg-accent'
-                      : 'hover:border-primary/50',
+                      : 'hover:border-primary/50 hover:text-foreground',
                     images.length >= MAX_IMAGES &&
                       'pointer-events-none opacity-50',
                   )}
@@ -388,9 +417,9 @@ const FacebookPostSheetForm = ({
                   </div>
                 )}
 
-                {upload.errors.length > 0 && (
+                {allErrors.length > 0 && (
                   <ul className="flex flex-col gap-1 text-sm text-destructive">
-                    {upload.errors.map((e) => (
+                    {allErrors.map((e) => (
                       <li key={e.name} className="flex items-start gap-2">
                         <span className="flex-auto break-all">
                           {e.name}:{' '}
