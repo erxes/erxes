@@ -26,11 +26,18 @@ export const DownloadResponsesAction = ({
   const [progressOpen, setProgressOpen] = useState(false);
   const [fieldSelectionOpen, setFieldSelectionOpen] = useState(false);
   const filters = { formId };
-  const entityDisplayName = `${formName} responses`;
+  const entityDisplayName = t('form-responses-export-label', {
+    defaultValue: '{{formName}} responses',
+    formName,
+  });
   const { onFieldSelectionConfirm } = useExport({
     entityType: FORM_SUBMISSION_ENTITY_TYPE,
     getFilters: () => filters,
-    confirmMessage: `Create a CSV export of the responses submitted to "${formName}"?`,
+    confirmMessage: t('confirm-form-responses-export', {
+      defaultValue:
+        'Create a CSV export of the responses submitted to "{{formName}}"?',
+      formName,
+    }),
   });
 
   const action = (

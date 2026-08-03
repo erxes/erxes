@@ -82,7 +82,7 @@ export const FormSubmissions = () => {
             <IconAlertTriangle />
           </Empty.Media>
           <Empty.Title>{t('error')}</Empty.Title>
-          <Empty.Description>{error.message}</Empty.Description>
+          <Empty.Description>{t('please-try-again')}</Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Button variant="outline" onClick={() => void refetch()}>
