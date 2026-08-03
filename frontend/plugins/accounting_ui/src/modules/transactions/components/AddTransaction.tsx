@@ -127,9 +127,34 @@ export const AddTransaction = ({
         </AddTransactionItem>
 
         <DropdownMenu.Label>Үндсэн хөрөнгө</DropdownMenu.Label>
-        <AddTransactionItem disabled>Орлого</AddTransactionItem>
-        <AddTransactionItem disabled>Акт</AddTransactionItem>
-        <AddTransactionItem disabled>Хөдөлгөөн</AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.FXA_INCOME}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Орлого
+        </AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.FXA_OUT}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Акт
+        </AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.FXA_MOVE}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Хөдөлгөөн
+        </AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.FXA_SALE}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Борлуулалт
+        </AddTransactionItem>
         <AddTransactionItem disabled>Тохируулга</AddTransactionItem>
       </DropdownMenu.Content>
     </DropdownMenu>

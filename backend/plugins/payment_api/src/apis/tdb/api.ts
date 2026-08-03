@@ -2,14 +2,8 @@ import { IModels } from '~/connectionResolvers';
 import { BaseAPI } from '~/apis/base';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
-import {
-  graphqlPubsub,
-  isEnabled,
-  sendWorkerMessage,
-} from 'erxes-api-shared/utils';
-import { splitType } from 'erxes-api-shared/core-modules';
 
-//  TYPES
+// TYPES
 export interface ITDBConfig {
   username: string;
   password: string;
@@ -92,13 +86,15 @@ export const tdbCallbackHandler = async (
 
     const status = await api.checkInvoice(transaction);
 
-    if (status !== PAYMENT_STATUS.PAID) {
+    if (status === PAYMENT_STATUS.PENDING) {
       return transaction;
     }
-
     await models.Transactions.updateOne(
       { _id: transaction._id },
-      { status, updatedAt: new Date() },
+      {
+        status,
+        updatedAt: new Date(),
+      },
     );
 
     return models.Transactions.getTransaction({ _id: transaction._id });
@@ -119,6 +115,7 @@ export class TDBAPI extends BaseAPI {
         PAYMENTS.tdb.apiUrl ||
         'https://acsmc.tdbmlabs.mn:8000',
     });
+
     this.username = config.username;
     this.password = config.password;
     this.domain = domain;
@@ -129,13 +126,11 @@ export class TDBAPI extends BaseAPI {
   ): Promise<ITDBCreateOrderResponse> {
     const redirectUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.tdb.kind}?transactionId=${transaction._id}`;
 
-    console.log('redirectUrl', redirectUrl)
-
     const payload: ITDBCreateOrderRequest = {
       typeRid: 'purch',
       amount: transaction.amount,
       currency: 'MNT',
-      description: transaction.description || `Invoice`,
+      description: transaction.description || 'Invoice',
       language: 'en',
       hppRedirectUrl: redirectUrl,
     };
@@ -168,12 +163,24 @@ export class TDBAPI extends BaseAPI {
     }).then((r) => r.json());
 
     const status = (response?.order?.status || '').toUpperCase();
+    switch (status) {
+      case 'FULLYPAID':
+      case 'PARTPAID':
+      case 'AUTHORIZED':
+      case 'PAID':
+        return PAYMENT_STATUS.PAID;
 
-    const SUCCESSFUL_STATUSES = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
+      case 'CLOSED':
+      case 'DECLINED':
+      case 'REFUSED':
+      case 'REJECTED':
+      case 'VOIDED':
+      case 'EXPIRED':
+        return PAYMENT_STATUS.FAILED;
 
-    return SUCCESSFUL_STATUSES.includes(status)
-      ? PAYMENT_STATUS.PAID
-      : PAYMENT_STATUS.PENDING;
+      default:
+        return PAYMENT_STATUS.PENDING;
+    }
   }
 
   async manualCheck(transaction: ITransactionDocument): Promise<string> {

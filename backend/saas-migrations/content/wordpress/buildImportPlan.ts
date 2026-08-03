@@ -1,10 +1,9 @@
-import { nanoid } from 'nanoid';
-
 import {
   buildWordPressAcfFieldDefinitions,
   resolveWordPressAcfFieldKey,
   type WordPressAcfFieldDefinition,
 } from './acf';
+import { generateId } from './generateId';
 import {
   createCmsSlug,
   createWordPressCode,
@@ -1138,7 +1137,7 @@ export const buildImportPlan = (
 ): WordPressImportPlan => {
   const { clientPortalId, adminUserId } = options;
   const updatedAt = options.now || new Date();
-  const idGenerator = options.idGenerator || nanoid;
+  const idGenerator = options.idGenerator || generateId;
   const sourceSite = normalizeSourceSite(
     wxr.site.baseBlogUrl || wxr.site.baseSiteUrl || wxr.site.link,
   );

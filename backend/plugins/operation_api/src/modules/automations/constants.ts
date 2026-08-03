@@ -3,6 +3,7 @@ import {
   TAutomationRuntimeOutputDefinition,
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
+import { getEnv } from 'erxes-api-shared/utils';
 import { IMilestone } from '@/milestone/types';
 import { IProject } from '@/project/@types/project';
 import { ITask } from '@/task/@types/task';
@@ -33,6 +34,8 @@ export const OPERATION_COMPLETION_MODES: Record<
 
 type TOperationTaskAutomationTarget = ITask & {
   _id?: string;
+  /** Output source may carry only the target id when the document is not loaded. */
+  targetId?: string;
   number?: number;
   updatedAt?: Date | string;
 };
@@ -157,6 +160,7 @@ const TASK_OUTPUT: TAutomationRuntimeOutputDefinition<TOperationTaskAutomationTa
       { key: 'startDate', label: 'Start date' },
       { key: 'targetDate', label: 'Target date' },
       { key: 'statusChangedDate', label: 'Status changed date' },
+      { key: 'link', label: 'Task link' },
       { key: 'createdAt', label: 'Created at' },
       { key: 'updatedAt', label: 'Updated at' },
     ],
@@ -164,6 +168,17 @@ const TASK_OUTPUT: TAutomationRuntimeOutputDefinition<TOperationTaskAutomationTa
       key: 'properties',
       label: 'Task properties',
       propertyType: OPERATION_TASK_TARGET_TYPE,
+    },
+    resolvers: {
+      link: ({ subdomain, source }) => {
+        const taskId = source._id || source.targetId;
+
+        if (!taskId) {
+          return '';
+        }
+
+        return `${getEnv({ name: 'DOMAIN', subdomain })}/operation/tasks/${taskId}`;
+      },
     },
   };
 

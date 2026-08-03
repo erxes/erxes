@@ -93,7 +93,10 @@ import {
   IActivityLogDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
+  IEmailAddressDocument,
   IEmailDeliveryDocument,
+  IEmailRampDocument,
+  IEmailSenderDocument,
   INotificationDocument,
   notificationSchema,
   NotificationSettings,
@@ -222,9 +225,21 @@ import {
   loadFormSubmissionClass,
 } from './modules/forms/db/models/Forms';
 import {
+  IEmailAddressModel,
+  loadEmailAddressClass,
+} from './modules/notifications/db/models/EmailAddresses';
+import {
   IEmailDeliveryModel,
   loadEmailDeliveryClass,
-} from './modules/organization/team-member/db/models/EmailDeliveries';
+} from './modules/notifications/db/models/EmailDeliveries';
+import {
+  IEmailRampModel,
+  loadEmailRampClass,
+} from './modules/notifications/db/models/EmailRamp';
+import {
+  IEmailSenderModel,
+  loadEmailSenderClass,
+} from './modules/notifications/db/models/EmailSenders';
 import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
 import {
   IOrgWhiteLabelModel,
@@ -324,7 +339,10 @@ export interface IModels {
   Imports: IImportModel;
   Exports: IExportModel;
   Notifications: Model<INotificationDocument>;
+  EmailAddresses: IEmailAddressModel;
   EmailDeliveries: IEmailDeliveryModel;
+  EmailRamp: IEmailRampModel;
+  EmailSenders: IEmailSenderModel;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
   CPComments: ICPCommentsModel;
@@ -603,10 +621,25 @@ export const loadClasses = (
     Model<NotificationSettings>
   >('notification_settings', notificationSettingsSchema);
 
+  models.EmailAddresses = db.model<IEmailAddressDocument, IEmailAddressModel>(
+    'email_addresses',
+    loadEmailAddressClass(models),
+  );
+
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
     IEmailDeliveryModel
   >('email_deliveries', loadEmailDeliveryClass(models));
+
+  models.EmailSenders = db.model<IEmailSenderDocument, IEmailSenderModel>(
+    'email_senders',
+    loadEmailSenderClass(models),
+  );
+
+  models.EmailRamp = db.model<IEmailRampDocument, IEmailRampModel>(
+    'email_ramp',
+    loadEmailRampClass(models),
+  );
 
   models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
     'automations_ai_agents',

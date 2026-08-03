@@ -37,6 +37,7 @@ export const executeEmailAction = async ({
 
     const response = await sendEmails(subdomain, {
       payload,
+      executionId: execution?._id,
     });
 
     await setActivityLog({

@@ -1,14 +1,20 @@
 import { IEngageMessage } from '@/broadcast/@types';
-import { awsRequests } from '@/broadcast/trackers';
 import {
   checkCampaignDoc,
-  createTransporter,
   getEditorAttributeUtil,
   sendBroadcast,
   sendEngageEmail,
   updateConfigs,
 } from '@/broadcast/utils';
+import {
+  getBroadcastCacheKey,
+  getBroadcastEmailConfig,
+} from '@/broadcast/utils/outboundEmail';
+import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { TEmailScope } from '~/utils/email/scope';
+import { createDeliveryLogPort } from '~/utils/email/ports';
+import { removeVerifiedSender, verifySender } from '~/utils/email/senders';
 
 export const engageMutations = {
   /**
@@ -21,11 +27,7 @@ export const engageMutations = {
   ) {
     await checkPermission('broadcastCreate');
 
-    const { isLive, isDraft, fromUserId } = doc || {};
-
-    if (!fromUserId) {
-      doc.fromUserId = user._id;
-    }
+    const { isLive, isDraft } = doc || {};
 
     await checkCampaignDoc(models, doc);
 
@@ -139,11 +141,11 @@ export const engageMutations = {
   async broadcastUpdateConfigs(
     _root,
     { configsMap },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastConfigsManage');
 
-    await updateConfigs(models, configsMap);
+    await updateConfigs(models, subdomain, configsMap);
 
     return { status: 'ok' };
   },
@@ -153,10 +155,10 @@ export const engageMutations = {
    */
   async engageMessageVerifyEmail(
     _root: undefined,
-    { email }: { email: string },
-    { models }: IContext,
+    { scope, ...input }: ISingleSenderInput & { scope?: TEmailScope },
+    { models, subdomain }: IContext,
   ) {
-    const response = await awsRequests.verifyEmail(models, email);
+    const response = await verifySender(models, subdomain, input, scope);
 
     return JSON.stringify(response);
   },
@@ -166,12 +168,12 @@ export const engageMutations = {
    */
   async engageMessageRemoveVerifiedEmail(
     _root: undefined,
-    { email }: { email: string },
+    { email, scope }: { email: string; scope?: TEmailScope },
     { models }: IContext,
   ) {
-    const response = await awsRequests.removeVerifiedEmail(models, email);
+    await removeVerifiedSender(models, email, scope);
 
-    return JSON.stringify(response);
+    return JSON.stringify({ email });
   },
 
   async engageMessageSendTestEmail(
@@ -215,14 +217,19 @@ export const engageMutations = {
     });
 
     try {
-      const transporter = await createTransporter(models);
-      const response = await transporter.sendMail({
-        from,
-        to,
-        subject: title,
-        html: content,
-        content: replacedContent,
+      const response = await deliverEmail({
+        cacheKey: getBroadcastCacheKey(models),
+        config: await getBroadcastEmailConfig(models),
+        message: {
+          from,
+          to: [to],
+          subject: title,
+          html: replacedContent || content,
+        },
+        log: createDeliveryLogPort(models),
+        meta: { source: 'broadcast', userId: fromUser?._id, subdomain },
       });
+
       return JSON.stringify(response);
     } catch (e) {
       console.log(e);
@@ -302,20 +309,7 @@ export const engageMutations = {
       throw e;
     }
 
-    const customerIds = await models.Customers.find({
-      primaryEmail: { $in: doc.to },
-    }).distinct('_id');
-
     doc.userId = user._id;
-
-    for (const cusId of customerIds) {
-      await models.EmailDeliveries.create({
-        ...doc,
-        customerId: cusId,
-        kind: 'transaction',
-        status: 'pending',
-      });
-    }
 
     // TODO: uncomment
     // if (doc.integrationId) {
