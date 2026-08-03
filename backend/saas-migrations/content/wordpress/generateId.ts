@@ -21,3 +21,35 @@ export const generateId = (size: number = DEFAULT_ID_SIZE): string => {
 
   return id;
 };
+
+// The API prefixes every stored file name with `randomAlphanumeric()` from
+// erxes-api-shared, which is nanoid over this 62-character alphabet at the
+// same default length. Uploaded keys have to keep that shape so files written
+// by this migration are indistinguishable from ones the app uploaded.
+const ALPHANUMERIC =
+  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+export const randomAlphanumeric = (size: number = DEFAULT_ID_SIZE): string => {
+  let id = '';
+
+  // 62 is not a power of two, so drawing 6 bits and discarding the two
+  // out-of-range values keeps every character equally likely. This is the same
+  // rejection loop nanoid's customAlphabet uses.
+  while (id.length < size) {
+    const bytes = randomFillSync(new Uint8Array(size));
+
+    for (const byte of bytes) {
+      const index = byte & 63;
+
+      if (index < ALPHANUMERIC.length) {
+        id += ALPHANUMERIC[index];
+
+        if (id.length === size) {
+          break;
+        }
+      }
+    }
+  }
+
+  return id;
+};

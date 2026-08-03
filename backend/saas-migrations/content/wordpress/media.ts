@@ -14,6 +14,7 @@ import { Db } from 'mongodb';
 import { Agent, fetch, type Response } from 'undici';
 
 import { generateId } from './generateId';
+import { createStorageUpload } from './storage';
 import {
   ErxesAttachment,
   MediaImportFailure,
@@ -78,19 +79,16 @@ const createLocalUpload = async (): Promise<UploadFile> => {
   };
 };
 
-const createUploadRuntime = async (): Promise<UploadRuntime> => {
+const createUploadRuntime = async (db: Db): Promise<UploadRuntime> => {
   if (process.env.UPLOAD_SERVICE_TYPE?.toLowerCase() === 'local') {
     return { uploadFile: await createLocalUpload() };
   }
 
-  const [redisModule, uploadModule] = await Promise.all([
-    import('erxes-api-shared/utils/redis'),
-    import('erxes-api-shared/utils/file/upload'),
-  ]);
+  const upload = await createStorageUpload(db);
 
   return {
-    uploadFile: uploadModule.uploadFileToStorage,
-    disconnect: () => redisModule.redis.disconnect(),
+    uploadFile: ({ filePath, fileName, mimetype }) =>
+      upload({ filePath, fileName, mimetype }),
   };
 };
 
@@ -592,7 +590,7 @@ export const importWordPressMedia = async ({
     return { attachments, failures };
   }
 
-  const uploadRuntime = await createUploadRuntime();
+  const uploadRuntime = await createUploadRuntime(db);
   const directory = await mkdtemp(join(tmpdir(), 'erxes-wordpress-'));
   let nextIndex = 0;
 

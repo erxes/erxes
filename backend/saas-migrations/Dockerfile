@@ -13,9 +13,10 @@ WORKDIR /app
 RUN npm install -g pnpm@9
 
 # Runtime deps for the migration scripts. mongodb / dotenv / tsx are pinned to
-# the repo root package.json; fast-xml-parser / undici are pinned to
-# backend/saas-migrations/package.json (used by the WordPress content import).
-RUN printf '%s' '{"name":"saas-migrations-runtime","private":true,"dependencies":{"mongodb":"^6.18.0","dotenv":"^16.4.7","tsx":"^4.19.3","fast-xml-parser":"5.10.1","undici":"6.27.0"}}' > package.json \
+# the repo root package.json; the rest are pinned to
+# backend/saas-migrations/package.json (used by the WordPress content import,
+# including its media upload to S3-compatible storage).
+RUN printf '%s' '{"name":"saas-migrations-runtime","private":true,"dependencies":{"mongodb":"^6.18.0","dotenv":"^16.4.7","tsx":"^4.19.3","@aws-sdk/client-s3":"3.913.0","fast-xml-parser":"5.10.1","file-type":"20.5.0","undici":"6.27.0"}}' > package.json \
     && pnpm install --prod --shamefully-hoist --no-frozen-lockfile
 
 COPY backend/saas-migrations ./saas-migrations
