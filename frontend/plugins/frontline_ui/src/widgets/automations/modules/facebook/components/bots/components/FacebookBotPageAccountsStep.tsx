@@ -72,7 +72,6 @@ const FacebookBotPageAccountsStepContent = ({
   facebookGetAccounts: {
     _id: string;
     name: string;
-    accessToken: string;
     pageId: string | null;
     pageName: string | null;
   }[];

@@ -10,6 +10,7 @@ import {
   graphRequest,
   sendReply,
   uploadUnpublishedPhoto,
+  uploadUnpublishedPhotoFromKey,
 } from '@/integrations/facebook/utils';
 import { debugError } from '@/integrations/facebook/debuggers';
 import {
@@ -127,12 +128,14 @@ export const facebookMutations = {
       message,
       link,
       imageUrls,
+      imageKeys,
     }: {
       erxesApiId: string;
       pageId: string;
       message: string;
       link?: string;
       imageUrls?: string[];
+      imageKeys?: string[];
     },
     { models, subdomain, user }: IContext,
   ) {
@@ -149,9 +152,18 @@ export const facebookMutations = {
     }
 
     const images = (imageUrls || []).map((u) => `${u}`.trim()).filter(Boolean);
+    const uploadedKeys = (imageKeys || [])
+      .map((k) => `${k}`.trim())
+      .filter(Boolean);
 
-    if (images.length > 10) {
+    if (images.length + uploadedKeys.length > 10) {
       throw new Error('A post can include at most 10 images');
+    }
+
+    if ((images.length || uploadedKeys.length) && link) {
+      throw new Error(
+        'A post can include images or a link preview, not both. Put the URL in the message text instead.',
+      );
     }
 
     for (const url of images) {
@@ -186,6 +198,17 @@ export const facebookMutations = {
           pageId,
           integration.facebookPageTokensMap || {},
           url,
+        );
+
+        stagedMediaIds.push(uploaded.id);
+      }
+
+      for (const key of uploadedKeys) {
+        const uploaded = await uploadUnpublishedPhotoFromKey(
+          subdomain,
+          pageId,
+          integration.facebookPageTokensMap || {},
+          key,
         );
 
         stagedMediaIds.push(uploaded.id);

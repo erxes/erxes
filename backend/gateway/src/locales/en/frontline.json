@@ -1188,5 +1188,12 @@
   "posting": "Publishing...",
   "post-published": "Post published",
   "view-on-facebook": "View on Facebook",
-  "no-connected-pages": "No Facebook pages are connected to this integration."
+  "no-connected-pages": "No Facebook pages are connected to this integration.",
+  "post-images": "Images",
+  "post-images-help": "PNG, JPEG or GIF. Up to 10 images, 4 MB each. Two or more become a carousel. A post can carry images or a link preview, not both.",
+  "post-images-drop": "Drag images here, or click to choose",
+  "post-images-uploading": "Uploading images…",
+  "post-images-upload-failed": "Image upload failed",
+  "post-images-still-uploading": "Wait for the images to finish uploading",
+  "post-images-or-link": "A post can include images or a link preview, not both. Put the URL in the message text instead."
 }

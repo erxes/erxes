@@ -74,6 +74,75 @@ export const getPostDetails = async (
   }
 };
 
+export const MAX_POST_IMAGE_BYTES = 4 * 1024 * 1024;
+
+export const uploadUnpublishedPhotoFromKey = async (
+  subdomain: string,
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  fileKey: string,
+): Promise<{ id: string }> => {
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+
+  if (!pageAccessToken) {
+    throw new Error('Page access token not found');
+  }
+
+  if (!fileKey || /^[a-zA-Z]+:\/\//.test(fileKey) || fileKey.includes('..')) {
+    throw new Error('Invalid image reference');
+  }
+
+  const sourceUrl = generateAttachmentUrl(
+    subdomain,
+    encodeURIComponent(fileKey),
+  );
+
+  let bytes: ArrayBuffer;
+
+  try {
+    const file = await fetch(sourceUrl);
+
+    if (!file.ok) {
+      throw new Error(`storage returned ${file.status}`);
+    }
+
+    bytes = await file.arrayBuffer();
+  } catch (e) {
+    debugError(`Error reading uploaded image ${fileKey}: ${e.message}`);
+    throw new Error('Could not read the uploaded image');
+  }
+
+  if (bytes.byteLength > MAX_POST_IMAGE_BYTES) {
+    throw new Error('Each image must be 4 MB or smaller');
+  }
+
+  const form = new FormData();
+  form.append('published', 'false');
+  form.append('access_token', pageAccessToken);
+  form.append('source', new Blob([bytes]), fileKey.split('/').pop() || 'image');
+
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/v7.0/${pageId}/photos`,
+      { method: 'POST', body: form },
+    );
+
+    const result = (await response.json()) as {
+      id?: string;
+      error?: { message?: string };
+    };
+
+    if (!response.ok || !result.id) {
+      throw new Error(result?.error?.message || `HTTP ${response.status}`);
+    }
+
+    return { id: result.id };
+  } catch (e) {
+    debugError(`Error uploading facebook photo bytes: ${e.message}`);
+    throw new Error(e.message);
+  }
+};
+
 export const uploadUnpublishedPhoto = async (
   pageId: string,
   pageTokens: { [key: string]: string },

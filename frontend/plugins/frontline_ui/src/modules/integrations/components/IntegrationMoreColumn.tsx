@@ -51,12 +51,6 @@ const DiscordIntegrationActions = lazy(() =>
   })),
 );
 
-const FacebookCreatePostDialog = lazy(() =>
-  import('../facebook/components/FacebookCreatePost').then((module) => ({
-    default: module.FacebookCreatePostDialog,
-  })),
-);
-
 export const IntegrationMoreColumnCell = ({
   cell,
 }: {
@@ -100,13 +94,6 @@ export const IntegrationMoreColumnCell = ({
             {integrationType === IntegrationType.ERXES_MESSENGER && (
               <Command.Item value="install">
                 <EMInstallScript integrationId={cell.row.original._id} />
-              </Command.Item>
-            )}
-            {integrationType === IntegrationType.FACEBOOK_POST && (
-              <Command.Item value="create-post">
-                <Suspense fallback={<div />}>
-                  <FacebookCreatePostDialog id={_id} />
-                </Suspense>
               </Command.Item>
             )}
             {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
