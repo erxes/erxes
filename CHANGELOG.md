@@ -1,5 +1,36 @@
 # Changelog
 
+## [3.0.67](https://github.com/erxes/erxes/compare/3.0.66...3.0.67) (2026-08-03)
+
+
+### Bug Fixes
+
+* add deactivate and resend invite bulk actions ([#8843](https://github.com/erxes/erxes/issues/8843)) ([89f950f](https://github.com/erxes/erxes/commit/89f950f6c784e41bbbcf078efbdc549f2f3edae4))
+* **contacts:** defer card customer queries ([#8887](https://github.com/erxes/erxes/issues/8887)) ([5b5cad0](https://github.com/erxes/erxes/commit/5b5cad05bec33877033453382f89d9e4ad0cd153))
+* email sender confirm ([#8881](https://github.com/erxes/erxes/issues/8881)) ([cca62bb](https://github.com/erxes/erxes/commit/cca62bb996fd9d45617e2089b713e93ac570e23d))
+* icon was rendering it directly as object instead of JSX element ([fdeb64c](https://github.com/erxes/erxes/commit/fdeb64ca4673b5e7e771f18de5673a03a2d89a1d))
+* improve selector and category flows ([#8840](https://github.com/erxes/erxes/issues/8840)) ([b0f314c](https://github.com/erxes/erxes/commit/b0f314c3af3b06162ea0f129b59aea6870df3ee0))
+* **payment:** preserve failed TDB invoice status  ([5a34268](https://github.com/erxes/erxes/commit/5a342687a583636cecbad059d23489f97994074c))
+* **saas-migrations:** install wordpress import deps in the migration image ([68e89c7](https://github.com/erxes/erxes/commit/68e89c7b18eb6aa7a3ee34553501732f83e70b15))
+* **saas-migrations:** upload wordpress media without erxes-api-shared ([eaec533](https://github.com/erxes/erxes/commit/eaec533336756d321006a3f61afa22a14ec5699b))
+* **sales:** align deal settings layout ([#8879](https://github.com/erxes/erxes/issues/8879)) ([2b4846c](https://github.com/erxes/erxes/commit/2b4846c4308ffc532f6d6dcb9b587b84cc40f962))
+* **sales:** apply date filters to stage forecasts ([#8885](https://github.com/erxes/erxes/issues/8885)) ([6d53728](https://github.com/erxes/erxes/commit/6d5372818b8c8effc7d7ccd693fc2455cbb07313))
+* **sendgrid:** add error logging for rejected webhook signatures ([d7249c8](https://github.com/erxes/erxes/commit/d7249c86a890ed4c081dc27f4c3e184f030b07f0))
+* **tracker:** add logging for incoming SendGrid request body ([dd09617](https://github.com/erxes/erxes/commit/dd096175f3ee858ca579efb521a0549ed9e30a8e))
+
+
+### Features
+
+* **email:** implement link insertion functionality in email actions ([6e0fafd](https://github.com/erxes/erxes/commit/6e0fafd83bd271971e858db074e5ef0d2133d729))
+* **payment:** Add expired status handling for TDB payment check  ([62b0294](https://github.com/erxes/erxes/commit/62b0294294aa9a3e08c8eedf0bd7dc7a7f55e68f))
+* **saas-migrations:** report wordpress media transfer progress ([a3272a6](https://github.com/erxes/erxes/commit/a3272a6ba0579a5999bdf248e03603bfccbb8907))
+* **ticket:** add custom resolvers for ticket links and enhance output definitions ([c296aef](https://github.com/erxes/erxes/commit/c296aef5a5926b5042974942696d1d1d447d4ab4))
+
+
+### Performance Improvements
+
+* **mongolian:** add record table column selector ([#8861](https://github.com/erxes/erxes/issues/8861)) ([036ff47](https://github.com/erxes/erxes/commit/036ff478f7b5287dcf58c974194aae061da3c0d7))
+
 ## [3.0.66](https://github.com/erxes/erxes/compare/3.0.65...3.0.66) (2026-08-03)
 
 
