@@ -86,13 +86,16 @@ export const tdbCallbackHandler = async (
 
     const status = await api.checkInvoice(transaction);
 
-    if (status !== PAYMENT_STATUS.PAID) {
+    if (status === PAYMENT_STATUS.PENDING) {
       return transaction;
     }
 
     await models.Transactions.updateOne(
       { _id: transaction._id },
-      { status, updatedAt: new Date() },
+      {
+        status,
+        updatedAt: new Date(),
+      },
     );
 
     return models.Transactions.getTransaction({ _id: transaction._id });
