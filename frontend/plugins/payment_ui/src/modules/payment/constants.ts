@@ -251,6 +251,12 @@ export const PAYMENT_KINDS = {
     active: true,
     fields: [],
   },
+  [PaymentKind.CORPORATE_GOLOMTBANK]: {
+    name: 'Golomt Corporate Gateway',
+    description: 'connect-golomt-corporate-gateway',
+    active: true,
+    fields: [],
+  },
 };
 
 export const BANK_CODES = [
