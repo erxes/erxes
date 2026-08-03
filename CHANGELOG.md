@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.0.66](https://github.com/erxes/erxes/compare/3.0.65...3.0.66) (2026-08-03)
+
+
+### Features
+
+* implement email delivery system with SES, SMTP, and sender verification ([#8866](https://github.com/erxes/erxes/issues/8866)) ([fc47ac9](https://github.com/erxes/erxes/commit/fc47ac9aacf7ebacbc17ef36301f0db9b773b9b3))
+* **payment:** auto-create sales deal and send QR ticket on paid invoice  ([2c2e10f](https://github.com/erxes/erxes/commit/2c2e10fcbf28fb5319e1531e51d0549ef552260d))
+
+## [3.0.65](https://github.com/erxes/erxes/compare/3.0.64...3.0.65) (2026-08-03)
+
+
+### Bug Fixes
+
+* **payment:** register Toki callback handler in controller ([#8875](https://github.com/erxes/erxes/issues/8875)) ([a11d7c6](https://github.com/erxes/erxes/commit/a11d7c68a9436a2e001e957f4f12b29cb1871b75))
+
+
+### Features
+
+* **accounting:** fixedassets journals ([#8231](https://github.com/erxes/erxes/issues/8231)) ([7e3c028](https://github.com/erxes/erxes/commit/7e3c0288a870e76e6de1ce8668e0c1059e509bc6))
+
 ## [3.0.64](https://github.com/erxes/erxes/compare/3.0.63...3.0.64) (2026-08-01)
 
 

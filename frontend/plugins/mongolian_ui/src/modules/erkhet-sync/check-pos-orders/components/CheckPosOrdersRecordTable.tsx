@@ -20,6 +20,7 @@ export const CheckPosOrdersRecordTable = () => {
       data={checkPosOrders || []}
       className="m-3"
       stickyColumns={['checkbox', 'toSync', 'createdAt']}
+      tableId="mongolian_erkhet_check_pos_orders_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -28,7 +29,7 @@ export const CheckPosOrdersRecordTable = () => {
         sessionKey={CHECK_POS_ORDERS_CURSOR_SESSION_KEY}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}

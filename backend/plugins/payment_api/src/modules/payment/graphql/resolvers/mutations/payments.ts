@@ -132,7 +132,15 @@ const mutations = {
 
   async paymentEdit(_root: any, args: any, { models }: IContext) {
     const { _id, input } = args;
-    const { name, status, kind, config, currency, sendEmailOnPayment } = input;
+    const {
+      name,
+      status,
+      kind,
+      config,
+      currency,
+      sendEmailOnPayment,
+      dealConfig,
+    } = input;
 
     const paymentConfig = validatePaymentKind(kind);
 
@@ -147,18 +155,35 @@ const mutations = {
             config.companyName || config.businessName || 'Default Contact';
         }
 
-        const api = new QPayQuickQrAPI(config);
-        const { isCompany } = config;
+        const existing = await models.PaymentMethods.getPayment(_id);
+        const existingConfig = existing?.config || {};
 
-        const response = isCompany
-          ? await api.updateCompany(config)
-          : await api.updateCustomer(config);
+        const stableConfig = (cfg: Record<string, any> = {}) =>
+          JSON.stringify(
+            Object.entries(cfg)
+              .filter(([key]) => key !== 'merchantId')
+              .sort(([a], [b]) => a.localeCompare(b)),
+          );
 
-        if (!response?.id) {
-          throw new Error('QPay update did not return merchant id');
+        if (
+          existingConfig.merchantId &&
+          stableConfig(config) === stableConfig(existingConfig)
+        ) {
+          config.merchantId = existingConfig.merchantId;
+        } else {
+          const api = new QPayQuickQrAPI(config);
+          const { isCompany } = config;
+
+          const response = isCompany
+            ? await api.updateCompany(config)
+            : await api.updateCustomer(config);
+
+          if (!response?.id) {
+            throw new Error('QPay update did not return merchant id');
+          }
+
+          config.merchantId = response.id;
         }
-
-        config.merchantId = response.id;
       } catch (e: any) {
         throw new Error(extractErrorMessage(e));
       }
@@ -173,6 +198,7 @@ const mutations = {
         ? [currency]
         : paymentConfig.acceptedCurrencies,
       ...(sendEmailOnPayment !== undefined && { sendEmailOnPayment }),
+      ...(dealConfig !== undefined && { dealConfig }),
     };
 
     return await models.PaymentMethods.updatePayment(_id, doc);

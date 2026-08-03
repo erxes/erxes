@@ -17,6 +17,8 @@ interface SettingsRowsTableProps<TData> {
   totalCount?: number;
   handleFetchMore?: () => void;
   Commandbar: React.ComponentType;
+  stickyColumns?: string[];
+  className?: string;
 }
 
 export const SettingsRowsTable = <TData,>({
@@ -26,6 +28,8 @@ export const SettingsRowsTable = <TData,>({
   totalCount,
   handleFetchMore,
   Commandbar,
+  stickyColumns,
+  className,
 }: SettingsRowsTableProps<TData>) => {
   const isInitialLoading = loading && !data?.length;
 
@@ -33,6 +37,8 @@ export const SettingsRowsTable = <TData,>({
     <RecordTable.Provider
       columns={columns}
       data={isInitialLoading ? [] : data || []}
+      stickyColumns={stickyColumns}
+      className={className}
     >
       <RecordTable.Scroll>
         <RecordTable>

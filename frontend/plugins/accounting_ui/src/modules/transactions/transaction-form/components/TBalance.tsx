@@ -85,7 +85,7 @@ export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
     <RecordTable.Provider
       columns={columns}
       data={data || []}
-      stickyColumns={['account']}
+      stickyColumns={['more', 'account']}
       className="m-3"
     >
       <RecordTable.Scroll>

@@ -3,15 +3,23 @@ import {
   IReportQueryParams,
   ISmsDeliveryQueryParams,
 } from '@/broadcast/@types';
-import { awsRequests } from '@/broadcast/trackers';
 import {
   countsByKind,
   countsByStatus,
   countsByTag,
   prepareAvgStats,
 } from '@/broadcast/utils';
+import {
+  getEmailSenderOptions,
+  getVerifiedSenderEmails,
+} from '~/utils/email/senders';
+import { TEmailScope } from '~/utils/email/scope';
 import { ICursorPaginateParams, IUser } from 'erxes-api-shared/core-types';
-import { cursorPaginate, getCustomerName } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getCustomerName,
+} from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -244,21 +252,16 @@ export const engageQueries = {
       isActive: true,
     };
 
-    const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
+    const verifiedEmails = isVerified
+      ? await getVerifiedSenderEmails(models, 'broadcast')
+      : null;
 
-    if (isVerified) {
-      query.email = { $in: verifiedEmails || [] };
-    }
-
-    if (searchValue) {
-      query.email = { $regex: searchValue, $options: '$i' };
-    }
-
-    if (isVerified && searchValue) {
+    if (verifiedEmails || searchValue) {
       query.email = {
-        $in: verifiedEmails || [],
-        $regex: searchValue,
-        $options: 'i',
+        ...(verifiedEmails ? { $in: verifiedEmails } : {}),
+        ...(searchValue
+          ? { $regex: escapeRegExp(searchValue), $options: 'i' }
+          : {}),
       };
     }
 
@@ -318,22 +321,34 @@ export const engageQueries = {
 
     return { list: data, totalCount };
   },
+  async emailSenderOptions(
+    _root: undefined,
+    { scope }: { scope?: TEmailScope },
+    { models }: IContext,
+  ) {
+    const options = await getEmailSenderOptions(models, scope);
+
+    return { ...options, _scope: scope };
+  },
+
   async engageVerifiedEmails(
     _root: undefined,
     _args: undefined,
     { models }: IContext,
-
-  ){
+  ) {
     const users = await models.Users.find({
       isActive: true,
-    })
-    const userEmails = users?.map(u => u.email);
-    const allVerifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+    });
+    const userEmails = users?.map((u) => u.email);
+    const allVerifiedEmails = await getVerifiedSenderEmails(
+      models,
+      'broadcast',
+    );
 
     if (!allVerifiedEmails) {
-      return [];
+      return userEmails;
     }
 
-    return allVerifiedEmails.filter(email => userEmails.includes(email));  }
+    return allVerifiedEmails.filter((email) => userEmails.includes(email));
+  },
 };
