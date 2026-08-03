@@ -2,7 +2,9 @@ import {
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { getEnv } from 'erxes-api-shared/utils';
+import { getEnv, resolveDefaultSenderEmail } from 'erxes-api-shared/utils';
+import { assertSenderAllowed } from '../../../utils/emailSender';
+import { getConfig } from '../../../utils/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
 import { renderEmailContent } from './renderEmailContent';
 import { replaceDocuments } from './replaceDocuments';
@@ -32,8 +34,8 @@ export const generateEmailPayload = async ({
   const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
 
   const isSaasVersion = version === 'saas';
-  const isProduction = getEnv({ name: 'NODE_ENV' }) === 'production';
   const isDefaultSender = senderType === 'default' || !senderType;
+  const isPickedSender = senderType === 'custom' || senderType === 'verified';
   const normalizedFromEmailPlaceHolder = normalizeEmailActionPlaceholders(
     fromEmailPlaceHolder || '',
     targetType,
@@ -44,11 +46,15 @@ export const generateEmailPayload = async ({
   );
   let fromUserEmail = '';
 
-  if (isSaasVersion || isDefaultSender || !isProduction) {
-    fromUserEmail = DEFAULT_AWS_EMAIL;
+  if (isDefaultSender) {
+    fromUserEmail = resolveDefaultSenderEmail({
+      isSaas: isSaasVersion,
+      companyEmailFrom: await getConfig(subdomain, 'COMPANY_EMAIL_FROM', ''),
+      fallbackEmail: DEFAULT_AWS_EMAIL,
+    });
   }
 
-  if (senderType === 'custom' || (!isSaasVersion && !fromUserEmail)) {
+  if (isPickedSender) {
     const emails = await collectEmails(normalizedFromEmailPlaceHolder, {
       subdomain,
       execution,
@@ -59,6 +65,8 @@ export const generateEmailPayload = async ({
     }
     fromUserEmail = emails[0];
   }
+
+  await assertSenderAllowed(subdomain, fromUserEmail);
 
   const templateContent = renderEmailContent(config?.content, config?.html);
 
@@ -99,6 +107,7 @@ export const generateEmailPayload = async ({
   return {
     title: subject,
     fromEmail: formatFromEmail(sender, fromUserEmail),
+    replyTo: config.replyToEmail || undefined,
     toEmails: filteredToEmails,
     ccEmails: filteredCcEmails,
     customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, '-'),

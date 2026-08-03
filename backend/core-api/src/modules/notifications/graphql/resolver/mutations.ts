@@ -1,6 +1,7 @@
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { generateNotificationsFilter } from '~/modules/notifications/graphql/resolver/utils';
+import { release } from '~/utils/email/ramp';
 
 export const notificationMutations = {
   async archiveNotification(
@@ -145,5 +146,27 @@ export const notificationMutations = {
     );
 
     return { success: true };
+  },
+
+  async emailAddressRelease(
+    _root: undefined,
+    { email, note }: { email: string; note: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('broadcastUpdate');
+
+    await models.EmailAddresses.release(email, user._id, note);
+
+    return 'released';
+  },
+
+  async emailRampRelease(
+    _root: undefined,
+    { note }: { note: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('broadcastUpdate');
+
+    return await release(models, user._id, note);
   },
 };
