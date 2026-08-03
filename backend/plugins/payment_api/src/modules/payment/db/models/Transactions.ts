@@ -143,7 +143,11 @@ export const loadTransactionClass = (models: IModels) => {
       const payment = await models.PaymentMethods.getPayment(
         transaction.paymentId,
       );
-
+      console.log('[PAYMENT] Selected payment', {
+        paymentId: payment._id,
+        paymentKind: payment.kind,
+        paymentName: payment.name,
+      });
       const api = new ErxesPayment(payment);
 
       try {

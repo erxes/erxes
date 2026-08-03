@@ -23,6 +23,11 @@ class ErxesPayment {
   private readonly api: any;
 
   constructor(payment: IPaymentDocument, subdomain?: string) {
+    console.log('[ErxesPayment] constructor', {
+    paymentKind: payment.kind,
+    paymentName: payment.name,
+    paymentId: payment._id,
+  });
     this.payment = payment;
 
     const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -54,6 +59,7 @@ class ErxesPayment {
         this.api = new WechatPayAPI(payment.config, this.domain);
         break;
       case 'qpayQuickqr':
+        console.log('[ErxesPayment] Using QPayQuickQrAPI');
         this.api = new QPayQuickQrAPI(payment.config, this.domain);
         break;
       case 'pocket':
@@ -72,6 +78,7 @@ class ErxesPayment {
         this.api = new KhanbankAPI(payment.config, subdomain || '');
         break;
       case 'toki':
+        console.log('[ErxesPayment] Using TokiAPI');
         this.api = new TokiAPI(payment.config, this.domain);
         break;
       case 'tdb':
