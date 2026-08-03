@@ -25,7 +25,7 @@ const NavigationWorkspace = () => {
         {!isMobile && <NavigationPanel />}
         <div
           className={cn(
-            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2rem] peer-data-[state=collapsed]:[--navigation-top-controls-space:2rem]',
+            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem] peer-data-[state=collapsed]:[--navigation-top-controls-space:2rem]',
             isMobile &&
               '[--navigation-panel-toggle-space:2.5rem] [--navigation-top-controls-space:2.25rem]',
             !tabsVisible &&

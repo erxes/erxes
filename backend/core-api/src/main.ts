@@ -19,6 +19,7 @@ import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as http from 'http';
+import { IncomingMessage } from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
@@ -64,6 +65,9 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(
   express.json({
     limit: '15mb',
+    verify: (req: IncomingMessage & { rawBody?: Buffer }, _res, buffer) => {
+      req.rawBody = buffer;
+    },
   }),
 );
 
