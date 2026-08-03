@@ -11,11 +11,13 @@ import { GET_FORM_SUBMISSIONS } from '../graphql/queries';
 const SUBMISSIONS_PER_PAGE = 24;
 
 export const useGetFormSubmissions = (options?: QueryHookOptions) => {
-  const { data, loading, error, fetchMore } = useQuery<
+  const { data, loading, error, fetchMore, refetch } = useQuery<
     ICursorListResponse<IFormSubmission>
   >(GET_FORM_SUBMISSIONS, {
-    fetchPolicy: 'cache-and-network',
     ...options,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'cache-first',
+    notifyOnNetworkStatusChange: true,
     variables: {
       limit: SUBMISSIONS_PER_PAGE,
       ...options?.variables,
@@ -51,10 +53,11 @@ export const useGetFormSubmissions = (options?: QueryHookOptions) => {
 
   return {
     submissions: list || [],
-    totalCount: totalCount || 0,
+    totalCount,
     pageInfo,
     loading,
     error,
     handleFetchMore,
+    refetch,
   };
 };
