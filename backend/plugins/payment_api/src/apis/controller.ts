@@ -162,6 +162,7 @@ export const callbackHandler = async (req, res) => {
 
         enqueuePaidInvoiceCallback(
           subdomain,
+          models,
           invoice,
           payment,
           'paymentCallback',
