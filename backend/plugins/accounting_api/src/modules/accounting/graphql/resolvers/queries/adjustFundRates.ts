@@ -1,7 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import {
-  ICursorPaginateParams,
-} from 'erxes-api-shared/core-types';
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IAdjustFundRateDocument } from '@/accounting/@types/adjustRateFundDetails';
@@ -20,9 +18,7 @@ interface IQueryParams {
   sortDirection?: number;
 }
 
-export const generateFilter = async (
-  params: IQueryParams,
-) => {
+export const generateFilter = async (params: IQueryParams) => {
   const {
     ids,
     date,
