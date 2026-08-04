@@ -137,6 +137,11 @@ export const useSettingsForm = () => {
       defaultPostStatus:
         cms?.defaultPostStatus || DEFAULT_SETTINGS.defaultPostStatus,
       allowComments: cms?.allowComments ?? DEFAULT_SETTINGS.allowComments,
+      autoApproveComments:
+        cms?.autoApproveComments ?? DEFAULT_SETTINGS.autoApproveComments,
+      allowRatings: cms?.allowRatings ?? DEFAULT_SETTINGS.allowRatings,
+      autoApproveRatings:
+        cms?.autoApproveRatings ?? DEFAULT_SETTINGS.autoApproveRatings,
       languages,
       defaultLanguage:
         cms?.language || languages[0] || DEFAULT_SETTINGS.defaultLanguage,
@@ -184,6 +189,9 @@ export const useSettingsForm = () => {
         .filter(Boolean),
       defaultPostStatus: settings.defaultPostStatus,
       allowComments: settings.allowComments,
+      autoApproveComments: settings.autoApproveComments,
+      allowRatings: settings.allowRatings,
+      autoApproveRatings: settings.autoApproveRatings,
       language,
       languages,
       postUrlField: settings.postUrlField,
