@@ -9,7 +9,15 @@ import {
   IconToggleRight,
 } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, Spinner, toast, useQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  Spinner,
+  toast,
+  useQueryState,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { Can } from 'ui-modules';
@@ -149,6 +157,7 @@ export const TeamMemberMoreColumnCell = ({
 
 export const teamMemberMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TeamMemberMoreColumnCell,
   size: 33,
 };
