@@ -74,7 +74,7 @@ export const getPostDetails = async (
   }
 };
 
-export const MAX_POST_IMAGE_BYTES = 4 * 1024 * 1024;
+const MAX_POST_IMAGE_BYTES = 4 * 1024 * 1024;
 
 export const uploadUnpublishedPhotoFromKey = async (
   subdomain: string,
@@ -139,34 +139,6 @@ export const uploadUnpublishedPhotoFromKey = async (
     return { id: result.id };
   } catch (e) {
     debugError(`Error uploading facebook photo bytes: ${e.message}`);
-    throw new Error(e.message);
-  }
-};
-
-export const uploadUnpublishedPhoto = async (
-  pageId: string,
-  pageTokens: { [key: string]: string },
-  imageUrl: string,
-): Promise<{ id: string }> => {
-  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-
-  if (!pageAccessToken) {
-    throw new Error('Page access token not found');
-  }
-
-  try {
-    const response = (await graphRequest.post(
-      `${pageId}/photos`,
-      pageAccessToken,
-      {
-        url: imageUrl,
-        published: false,
-      },
-    )) as { id: string };
-
-    return response;
-  } catch (e) {
-    debugError(`Error occurred while uploading facebook photo: ${e.message}`);
     throw new Error(e.message);
   }
 };

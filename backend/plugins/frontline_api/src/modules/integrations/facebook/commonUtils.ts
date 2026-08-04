@@ -94,13 +94,12 @@ export const resolveFacebookApp = async (
   return { appId: postAppId, appSecret: postAppSecret, isSeparate: true };
 };
 
-export const facebookAccountSelector = (uid: string, app: IFacebookApp) => {
+export const facebookAppSelector = (app: IFacebookApp) => {
   if (app.isSeparate) {
-    return { uid, appId: app.appId };
+    return { appId: app.appId };
   }
 
   return {
-    uid,
     $or: [
       { appId: { $exists: false } },
       { appId: null },
@@ -109,3 +108,8 @@ export const facebookAccountSelector = (uid: string, app: IFacebookApp) => {
     ],
   };
 };
+
+export const facebookAccountSelector = (uid: string, app: IFacebookApp) => ({
+  uid,
+  ...facebookAppSelector(app),
+});

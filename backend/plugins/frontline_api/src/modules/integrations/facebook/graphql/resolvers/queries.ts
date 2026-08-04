@@ -13,7 +13,10 @@ import {
 } from '@/integrations/facebook/@types/utils';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
-import { resolveFacebookApp } from '@/integrations/facebook/commonUtils';
+import {
+  facebookAppSelector,
+  resolveFacebookApp,
+} from '@/integrations/facebook/commonUtils';
 
 const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
@@ -109,20 +112,10 @@ export const facebookQueries = {
   ) {
     const app = await resolveFacebookApp(models, integrationKind);
 
-    const selector: Record<string, unknown> = { kind };
-
-    if (app.isSeparate) {
-      selector.appId = app.appId;
-    } else {
-      selector.$or = [
-        { appId: { $exists: false } },
-        { appId: null },
-        { appId: '' },
-        { appId: app.appId },
-      ];
-    }
-
-    return models.FacebookAccounts.find(selector, { token: 0, tokenSecret: 0 });
+    return models.FacebookAccounts.find(
+      { kind, ...facebookAppSelector(app) },
+      { token: 0, tokenSecret: 0 },
+    );
   },
 
   facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {

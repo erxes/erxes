@@ -6,3 +6,12 @@ export const FACEBOOK_POST_SCHEMA = z.object({
   message: z.string().trim().min(1, 'Message is required'),
   link: z.union([z.string().trim().url('Must be a valid URL'), z.literal('')]),
 });
+
+export type TFacebookPostForm = z.infer<typeof FACEBOOK_POST_SCHEMA>;
+
+export const FACEBOOK_POST_DEFAULT_VALUES: TFacebookPostForm = {
+  integrationId: '',
+  pageId: '',
+  message: '',
+  link: '',
+};

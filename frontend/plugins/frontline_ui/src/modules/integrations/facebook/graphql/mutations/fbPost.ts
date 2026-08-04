@@ -6,7 +6,6 @@ export const FACEBOOK_CREATE_POST = gql`
     $pageId: String!
     $message: String!
     $link: String
-    $imageUrls: [String]
     $imageKeys: [String]
   ) {
     facebookCreatePost(
@@ -14,7 +13,6 @@ export const FACEBOOK_CREATE_POST = gql`
       pageId: $pageId
       message: $message
       link: $link
-      imageUrls: $imageUrls
       imageKeys: $imageKeys
     )
   }

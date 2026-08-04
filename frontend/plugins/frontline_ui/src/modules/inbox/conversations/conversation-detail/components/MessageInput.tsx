@@ -242,11 +242,6 @@ export const MessageInput = ({
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
-    if (document.querySelector('[role="dialog"][data-state="open"]')) {
-      return;
-    }
-
     handleFileUpload(e.dataTransfer.files);
   };
 
@@ -469,17 +464,9 @@ export const MessageInput = ({
 
   if (hideInput) return null;
 
-  const blockDropWhenModalOpen = (e: React.DragEvent<HTMLDivElement>) => {
-    if (document.querySelector('[role="dialog"][data-state="open"]')) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
   return (
-    <div className="p-2 h-full" onDropCapture={blockDropWhenModalOpen}>
+    <div className="p-2 h-full">
       <div
-        onDropCapture={blockDropWhenModalOpen}
         onDrop={handleDrop}
         onKeyDown={handleKeyDown}
         onDragOver={(e) => e.preventDefault()}

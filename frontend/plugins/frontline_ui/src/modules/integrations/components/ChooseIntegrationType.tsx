@@ -59,7 +59,7 @@ export const IntegrationTypeItem = ({ _id, name }: IIntegrationType) => {
       )}
     >
       {trigger}
-      <div className="invisible shrink-0 group-hover/integration-type:visible focus-within:visible [&_button]:size-6 [&_button]:text-muted-foreground hover:[&_button]:bg-transparent hover:[&_button]:text-foreground focus-visible:[&_button]:outline-hidden focus-visible:[&_button]:ring-0">
+      <div className="invisible shrink-0 group-hover/integration-type:visible focus-within:visible">
         <FacebookPostSheet />
       </div>
     </div>

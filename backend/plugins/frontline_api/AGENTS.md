@@ -45,6 +45,13 @@
   customers, conversations, comment conversations, and post conversations.
 - Sends agent replies and bot messages through the Graph Send API, including
   private replies addressed by `comment_id`.
+- Publishes posts to a connected page (`facebookCreatePost`), optionally with up
+  to 10 uploaded images (passed as storage keys) staged as unpublished photos and
+  published as one carousel, under a per-page hourly rate limit and an audit log
+  of every attempt.
+- Resolves the Meta app per integration kind, so page posting can run on its own
+  `FACEBOOK_POST_APP_ID`/`FACEBOOK_POST_APP_SECRET` credentials while Messenger
+  keeps the shared app.
 - Runs Facebook/Instagram/Discord/inbox/ticket automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
 - Boots the Call app, the IMAP poller, and the Discord gateway client from
@@ -66,6 +73,8 @@
 | Channels            | `src/modules/channel/`                        | Channels and channel membership                                        |
 | Integrations        | `src/modules/integrations/<kind>/`            | facebook, instagram, imap, discord, call, trpc                         |
 | FB automation       | `src/modules/integrations/facebook/meta/automation/` | Comment/message triggers and actions, bot message generation    |
+| FB page posting     | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts` | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
+| FB app resolution   | `src/modules/integrations/facebook/commonUtils.ts` | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector` |
 | Ticket              | `src/modules/ticket/`                         | Pipelines, statuses, tickets, activities, notes                        |
 | Forms               | `src/modules/form/`                           | Forms, fields, submissions                                             |
 | Knowledge base      | `src/modules/knowledgebase/`                  | Topics, categories, articles, AI knowledge source                      |
@@ -120,6 +129,15 @@
   genuine token and permission failures may.
 - Schemas are defined with `new Schema(...)` and explicit fields; `schemaWrapper`
   must not be introduced.
+- Page access tokens never leave the service: `facebookGetAccounts` excludes
+  `token`/`tokenSecret` and the integration queries exclude
+  `facebookPageTokensMap`.
+- `facebookCreatePost` resolvers stay thin — validation, photo staging, staged
+  media cleanup, and audit logging belong to `publishPagePost` in
+  `postService.ts`. A post carries images or a link preview, never both.
+- Accounts stored before `appId` existed belong to the shared app; app-scoped
+  queries must go through `facebookAppSelector`/`facebookAccountSelector` so
+  those legacy accounts stay visible.
 - Automation operation and node type names stay prefixed with the plugin and
   module (`frontline:facebook.comments.create`).
 - Facebook/Instagram automations must resolve their integration and bot from the
@@ -138,6 +156,29 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-04` — Drop the unreachable `imageUrls` path from page posting
+
+- **Summary:** `facebookCreatePost` only accepts uploaded image keys, so the
+  never-called URL variant (`uploadUnpublishedPhoto`, its https-only check, and
+  the `imageUrls` argument) is gone, along with a write-only `accountId` in the
+  login middleware.
+- **Affected areas:** `src/modules/integrations/facebook/postService.ts`,
+  `.../utils.ts`, `.../graphql/schema/facebook.ts`,
+  `.../middlewares/loginMiddleware.ts`
+- **Contracts changed:** `facebookCreatePost` no longer accepts `imageUrls`
+
+### `2026-08-04` — Extract the page-post publishing pipeline out of the resolver
+
+- **Summary:** `facebookCreatePost` now delegates to `publishPagePost` in
+  `postService.ts`, which owns image validation, unpublished-photo staging with
+  cleanup, permalink lookup, and audit logging; account queries share one
+  app-scope selector.
+- **Affected areas:**
+  `src/modules/integrations/facebook/postService.ts` (new),
+  `.../graphql/resolvers/mutations.ts`, `.../graphql/resolvers/queries.ts`,
+  `.../commonUtils.ts`, `.../db/definitions/accounts.ts`
+- **Contracts changed:** `None`
 
 ### `2026-08-04` — Stop message-level Graph errors from marking integrations unhealthy
 

@@ -23,9 +23,6 @@ export const accountSchema = schemaWrapper(
     },
     name: { type: String },
     uid: { type: String },
-    appId: {
-      type: String,
-      optional: true,
-    },
+    appId: { type: String },
   }),
 );
