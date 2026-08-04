@@ -14,23 +14,8 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { generateModels } from '~/connectionResolvers';
 
-const readKindFromState = (state?: string): string | undefined => {
-  if (!state) {
-    return undefined;
-  }
-
-  const match = /[?&]kind=([^&]+)/.exec(state);
-
-  if (!match) {
-    return undefined;
-  }
-
-  try {
-    return decodeURIComponent(match[1]);
-  } catch {
-    return undefined;
-  }
-};
+const readKindFromState = (state?: string): string | undefined =>
+  new URLSearchParams(state?.split('?')[1]).get('kind') ?? undefined;
 
 export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
