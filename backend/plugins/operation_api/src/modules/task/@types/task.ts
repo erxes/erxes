@@ -39,7 +39,7 @@ export interface ITask {
   githubPrUrl?: string;
 }
 
-export interface ITaskUpdate extends ITask {
+export interface ITaskUpdate extends Partial<ITask> {
   _id: string;
   number?: number;
 }

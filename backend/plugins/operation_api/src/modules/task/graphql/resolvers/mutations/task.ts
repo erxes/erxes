@@ -1,4 +1,4 @@
-import { ITaskUpdate } from '@/task/@types/task';
+import { ITask, ITaskUpdate } from '@/task/@types/task';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -10,7 +10,7 @@ import {
 export const taskMutations = {
   createTask: async (
     _parent: undefined,
-    params: ITaskUpdate,
+    params: ITask,
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('taskCreate');
