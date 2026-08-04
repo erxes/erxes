@@ -14,6 +14,11 @@ export const OperationSettingsNavigation = () => {
             path={OperationPaths.TeamList}
             name={t('teams')}
           />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix={OperationPaths.Operation}
+            path={OperationPaths.GithubIntegration}
+            name="GitHub Integration"
+          />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
