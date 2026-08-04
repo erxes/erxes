@@ -1,4 +1,4 @@
-import { ReportTable, useQueryState } from "erxes-ui"
+import { ReportTable, useQueryState } from 'erxes-ui';
 
 export const ReportTableHeader = () => {
   const [report] = useQueryState('report');
@@ -26,9 +26,7 @@ export const ReportTableHeader = () => {
       );
 
     case 'ac':
-      return (
-        <></>
-      );
+      return <></>;
 
     case 'invCost':
       return (
@@ -56,7 +54,6 @@ export const ReportTableHeader = () => {
       );
 
     default:
-      return <></>
+      return <></>;
   }
-
-}
+};

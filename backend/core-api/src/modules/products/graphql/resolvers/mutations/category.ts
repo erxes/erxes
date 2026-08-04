@@ -9,8 +9,10 @@ export const categoryMutations = {
   async productCategoriesAdd(
     _parent: undefined,
     doc: IProductCategory,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productCategoriesManage');
+
     return await models.ProductCategories.createProductCategory(doc);
   },
 
@@ -22,8 +24,10 @@ export const categoryMutations = {
   async productCategoriesEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & IProductCategory,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productCategoriesManage');
+
     return await models.ProductCategories.updateProductCategory(_id, doc);
   },
 
@@ -35,8 +39,10 @@ export const categoryMutations = {
   async productCategoriesRemove(
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productCategoriesManage');
+
     return await models.ProductCategories.removeProductCategory(_id);
   },
 };

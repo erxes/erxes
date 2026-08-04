@@ -9,11 +9,15 @@ export interface IBranch {
   managerIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   erxesAppToken: string;
   token: string;
   uiOptions?: any;
   permissionConfig?: any;
   status: string;
+  language?: string;
+  languages?: string[];
 }
 export interface IBranchDocument extends IBranch, Document {
   _id: string;

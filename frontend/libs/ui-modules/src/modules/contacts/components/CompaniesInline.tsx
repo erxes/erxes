@@ -14,6 +14,8 @@ import {
 import { useEffect, useState } from 'react';
 
 import { ICompany } from '../types';
+import { IconBuilding } from '@tabler/icons-react';
+import { getCompanyDisplayName } from '../utils';
 import { useCompaniesInline } from '../hooks/useCompanies';
 
 interface CompaniesInlineProviderProps {
@@ -21,6 +23,7 @@ interface CompaniesInlineProviderProps {
   companyIds?: string[];
   companies?: ICompany[];
   placeholder?: string;
+  hideAvatar?: boolean;
   updateCompanies?: (companies: ICompany[]) => void;
 }
 
@@ -29,6 +32,7 @@ const CompaniesInlineProvider = ({
   placeholder,
   companyIds,
   companies,
+  hideAvatar,
   updateCompanies,
 }: CompaniesInlineProviderProps) => {
   const [_companies, _setCompanies] = useState<ICompany[]>(companies || []);
@@ -42,6 +46,7 @@ const CompaniesInlineProvider = ({
           ? 'Select Companies'
           : placeholder,
         updateCompanies: updateCompanies || _setCompanies,
+        hideAvatar,
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
@@ -67,7 +72,9 @@ const CompanyInlineEffectComponent = ({
   const { companies: detailMissingCompanies } = useCompaniesInline({
     variables: {
       ids: companyIdsWithNoDetails,
+      limit: companyIdsWithNoDetails.length,
     },
+    skip: companyIdsWithNoDetails.length === 0,
   });
 
   useEffect(() => {
@@ -92,7 +99,10 @@ const CompanyInlineEffectComponent = ({
 };
 
 const CompaniesInlineAvatar = ({ className, ...props }: AvatarProps) => {
-  const { companies, loading, companyIds } = useCompaniesInlineContext();
+  const { companies, loading, companyIds, hideAvatar } =
+    useCompaniesInlineContext();
+
+  if (hideAvatar) return null;
 
   if (loading)
     return (
@@ -106,7 +116,8 @@ const CompaniesInlineAvatar = ({ className, ...props }: AvatarProps) => {
     );
 
   const renderAvatar = (company: ICompany) => {
-    const { avatar, primaryName } = company;
+    const { avatar } = company;
+    const displayName = getCompanyDisplayName(company);
 
     return (
       <Tooltip delayDuration={100}>
@@ -122,11 +133,11 @@ const CompaniesInlineAvatar = ({ className, ...props }: AvatarProps) => {
             {...props}
           >
             <Avatar.Image src={avatar} />
-            <Avatar.Fallback>{primaryName?.charAt(0) || ''}</Avatar.Fallback>
+            <Avatar.Fallback>{displayName?.charAt(0) || ''}</Avatar.Fallback>
           </Avatar>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          <p>{primaryName}</p>
+          <p>{displayName}</p>
         </Tooltip.Content>
       </Tooltip>
     );
@@ -157,7 +168,12 @@ const CompaniesInlineAvatar = ({ className, ...props }: AvatarProps) => {
             </Avatar>
           </Tooltip.Trigger>
           <Tooltip.Content>
-            <p>{restMembers.map((c) => c.primaryName).join(', ')}</p>
+            <p>
+              {restMembers
+                .map((c) => getCompanyDisplayName(c))
+                .filter(Boolean)
+                .join(', ')}
+            </p>
           </Tooltip.Content>
         </Tooltip>
       )}
@@ -167,20 +183,27 @@ const CompaniesInlineAvatar = ({ className, ...props }: AvatarProps) => {
 CompaniesInlineAvatar.displayName = 'CompaniesInline.Avatar';
 
 const CompaniesInlineTitle = () => {
-  const { companies, loading, placeholder } = useCompaniesInlineContext();
+  const { companies, loading, placeholder, hideAvatar } =
+    useCompaniesInlineContext();
 
   const getDisplayValue = () => {
     if (companies.length === 0) return undefined;
 
     if (companies.length === 1) {
-      if (!companies[0].primaryName) {
-        return;
-      }
-      return companies[0].primaryName;
+      return getCompanyDisplayName(companies[0]);
     }
 
     return `${companies.length} companies`;
   };
+
+  if (hideAvatar) {
+    return (
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconBuilding className="w-4 h-4 text-gray-400" /> Company(s) +
+        {(companies || []).length}
+      </span>
+    );
+  }
 
   return (
     <Combobox.Value
@@ -197,6 +220,7 @@ const CompaniesInlineRoot = ({
   companies,
   placeholder,
   updateCompanies,
+  hideAvatar,
 }: Omit<CompaniesInlineProviderProps, 'children'>) => {
   return (
     <CompaniesInlineProvider
@@ -204,6 +228,7 @@ const CompaniesInlineRoot = ({
       companies={companies}
       placeholder={placeholder}
       updateCompanies={updateCompanies}
+      hideAvatar={hideAvatar}
     >
       <CompaniesInlineAvatar />
       <CompaniesInlineTitle />
@@ -219,7 +244,7 @@ const CompanyNameBadges = ({
     <div className="flex gap-2 flex-wrap">
       {companies.map((company) => (
         <Badge key={company._id} {...props}>
-          {company.primaryName}
+          {getCompanyDisplayName(company)}
         </Badge>
       ))}
     </div>

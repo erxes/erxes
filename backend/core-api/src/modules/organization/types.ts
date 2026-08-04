@@ -17,19 +17,17 @@ export interface IAttachmentParams {
 
 export interface IEmailDeliveries {
   subject: string;
-  body?: string;
   content?: string;
-  to: string[];
-  cc?: string[];
-  bcc?: string[];
-  attachments?: IAttachmentParams[];
-  from: string;
-  kind: string;
+  toEmails: string[];
+  ccEmails?: string[];
+  from?: string;
+  provider: 'sendgrid' | 'smtp' | 'ses';
+  status?: 'queued' | 'sent' | 'failed';
+  messageId?: string;
+  source?: string;
+  sourceId?: string;
   userId?: string;
-  customerId?: string;
-  status?: string;
-  email?: string;
-  provider?: string;
+  notificationId?: string;
 }
 
 export interface IEmailDeliveriesDocument extends IEmailDeliveries, Document {
@@ -44,8 +42,8 @@ export interface IEmailParams {
   customHtmlData?: any;
   template?: { name?: string; data?: any };
   attachments?: object[];
-  modifier?: (data: any, email: string) => void;
+  modifier?: (data: any, email: string) => Promise<void>;
   transportMethod?: string;
   getOrganizationDetail?: ({ subdomain }: { subdomain: string }) => any;
-  userId: string;
+  userId?: string;
 }

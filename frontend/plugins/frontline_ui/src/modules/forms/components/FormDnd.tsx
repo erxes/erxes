@@ -1,3 +1,4 @@
+import { coordinateGetter } from '@/forms/formUtils';
 import {
   DndContext,
   DragEndEvent,
@@ -7,18 +8,17 @@ import {
   TouchSensor,
   UniqueIdentifier,
   useSensor,
+  useSensors,
 } from '@dnd-kit/core';
-import { useSensors } from '@dnd-kit/core';
-import { coordinateGetter } from '@/forms/formUtils';
 import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { atom, useAtom } from 'jotai';
+import { useCollisionDetectionStrategy } from '../hooks/useCollisionDetectionStrategy';
 import { useFormDnd } from './FormDndProvider';
 import { AddStep, FormDndStep } from './FormDndStep';
-import { useCollisionDetectionStrategy } from '../hooks/useCollisionDetectionStrategy';
 
 const TRASH_ID = 'void';
 
@@ -130,16 +130,31 @@ export function FormDnd() {
     const overContainer = findContainer(overId);
 
     if (overContainer) {
-      const activeIndex = fields[activeContainer].indexOf(active.id);
-      const overIndex = fields[overContainer].indexOf(overId);
+      const overItems = fields[overContainer];
+      const overIndex = overItems.indexOf(overId);
 
-      if (activeIndex !== overIndex) {
-        const newFields = arrayMove(
-          fields[overContainer],
-          activeIndex,
-          overIndex,
-        );
-        setFields({ ...fields, [overContainer]: newFields });
+      if (overItems.includes(active.id)) {
+        // handleDragOver already moved the item into overContainer
+        const activeIndex = overItems.indexOf(active.id);
+        if (activeIndex !== overIndex) {
+          setFields({
+            ...fields,
+            [overContainer]: arrayMove(overItems, activeIndex, overIndex),
+          });
+        }
+      } else {
+        // State is stale — item still in activeContainer; do the full cross-container move
+        const activeItems = fields[activeContainer];
+        const insertAt = overIndex >= 0 ? overIndex + 1 : overItems.length;
+        setFields({
+          ...fields,
+          [activeContainer]: activeItems.filter((item) => item !== active.id),
+          [overContainer]: [
+            ...overItems.slice(0, insertAt),
+            active.id,
+            ...overItems.slice(insertAt),
+          ],
+        });
       }
     }
 

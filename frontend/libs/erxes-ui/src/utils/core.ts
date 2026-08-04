@@ -46,16 +46,16 @@ export const readImage = (
   return url;
 };
 
-export const renderFullName = (data: any, noPhone?: boolean) => {
-  if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
+export const renderFullName = (data: any) => {
+  if(!data) return null;
+
+  if (data.firstName || data.lastName || data.middleName) {
     return (
       (data.firstName || '') +
       ' ' +
       (data.middleName || '') +
       ' ' +
-      (data.lastName || '') +
-      ' ' +
-      ((!noPhone && data.primaryPhone) || '')
+      (data.lastName || '') 
     );
   }
 

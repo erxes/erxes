@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconLabel } from '@tabler/icons-react';
 import { IPos } from '../../types/pos';
 import {
@@ -90,11 +91,12 @@ const SelectPosValue = ({ placeholder }: { placeholder?: string }) => {
 };
 
 const SelectPosCommandItem = ({ pos }: { pos: IPos }) => {
+  const { t } = useTranslation('mongolian');
   const { onSelect, posIds } = useSelectPosContext();
 
   return (
     <Command.Item value={pos._id} onSelect={() => onSelect(pos)}>
-      <PosInline pos={[pos]} placeholder="Unnamed user" />
+      <PosInline pos={[pos]} placeholder={t('unnamed-user')} />
       <Combobox.Check checked={posIds.includes(pos._id)} />
     </Command.Item>
   );
@@ -104,6 +106,7 @@ const SelectPosContent = () => {
   const [search, setSearch] = React.useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { pos: selectedPos } = useSelectPosContext();
+  const { t } = useTranslation('mongolian');
 
   const {
     posList = [],
@@ -121,7 +124,7 @@ const SelectPosContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder="Search pos..."
+        placeholder={t('search-pos')}
         className="h-9"
       />
       <Command.List>
@@ -149,12 +152,15 @@ const SelectPosContent = () => {
   );
 };
 
-export const SelectPosFilterItem = () => (
-  <Filter.Item value="pos">
-    <IconLabel />
-    Pos
-  </Filter.Item>
-);
+export const SelectPosFilterItem = () => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <Filter.Item value="pos">
+      <IconLabel />
+      {t('pos')}
+    </Filter.Item>
+  );
+};
 
 export const SelectPosFilterView = ({
   onValueChange,
@@ -202,12 +208,13 @@ export const SelectPosFilterBar = ({
     queryKey || 'pos',
   );
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter.BarItem queryKey={queryKey || 'pos'}>
       <Filter.BarName>
         <IconLabel />
-        {!iconOnly && 'Pos'}
+        {!iconOnly && t('pos')}
       </Filter.BarName>
 
       <SelectPosProvider

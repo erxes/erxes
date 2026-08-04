@@ -8,6 +8,7 @@ import { usePositionEdit } from '@/settings/structure/hooks/usePositionActions';
 import { usePositionForm } from '@/settings/structure/hooks/usePositionForm';
 import { TPositionForm } from '@/settings/structure/types/position';
 import { PositionForm } from '../PositionForm';
+import { Can } from 'ui-modules';
 
 export const PositionEdit = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,39 +38,38 @@ export const PositionEdit = () => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TPositionForm> = React.useCallback(
-    async (data) => {
-      handleEdit({
-        variables: {
-          id,
-          ...data,
-        },
-        onCompleted: () => {
-          toast({
-            title: 'Success!',
-            variant: 'success',
-            description: 'Position updated successfully',
-          });
-          methods.reset();
-          setOpen(null);
-        },
-        onError: (error) =>
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [handleEdit],
-  );
+  const submitHandler: SubmitHandler<TPositionForm> = (data) => {
+    handleEdit({
+      variables: {
+        ...data,
+        id,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success!',
+          variant: 'success',
+          description: 'Position updated successfully',
+        });
+        methods.reset();
+        setOpen(null);
+      },
+      onError: (error) =>
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
 
   useEffect(() => {
     if (positionDetail) {
       const { __typename, _id, ...rest } = positionDetail;
+      void __typename;
+      void _id;
       reset(rest);
     }
-  }, [positionDetail]);
+  }, [positionDetail, reset]);
 
   return (
     <Sheet
@@ -100,9 +100,11 @@ export const PositionEdit = () => {
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Spinner /> : 'Save'}
-              </Button>
+              <Can action="positionsManage">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? <Spinner /> : 'Save'}
+                </Button>
+              </Can>
             </Sheet.Footer>
           </form>
         </Form>

@@ -4,7 +4,10 @@ import { EBARIMT_PRODUCT_GROUP_REMOVE } from '@/ebarimt/settings/product-group/g
 export const useProductGroupRowsRemove = () => {
   const [removeProductGroup, { loading }] = useMutation(
     EBARIMT_PRODUCT_GROUP_REMOVE,
-    { refetchQueries: ['EbarimtProductGroups'] },
+    {
+      refetchQueries: ['EbarimtProductGroups'],
+      awaitRefetchQueries: true,
+    },
   );
 
   return { removeProductGroup, loading };

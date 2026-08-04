@@ -1,16 +1,15 @@
-import { Button, Form, Input, Sheet, Skeleton, Spinner, toast } from 'erxes-ui';
 import {
   useAddBoardForm,
   useBoardAdd,
   useBoardDetail,
   useBoardEdit,
 } from '@/deals/boards/hooks/useBoards';
-
+import { TBoardForm } from '@/deals/types/boards';
 import { IconPlus } from '@tabler/icons-react';
+import { Button, Form, Input, Sheet, Skeleton, Spinner, toast, useQueryState } from 'erxes-ui';
 import React from 'react';
 import { SubmitHandler } from 'react-hook-form';
-import { TBoardForm } from '@/deals/types/boards';
-import { useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState('boardId');
@@ -36,10 +35,12 @@ export const BoardForm = () => {
   const { addBoard, loading: addLoading } = useBoardAdd();
   const { editBoard, loading: editLoading } = useBoardEdit();
 
+  const { t } = useTranslation('sales');
+
   const submitHandler: SubmitHandler<TBoardForm> = React.useCallback(
     async (data) => {
       const manageBoard = boardId ? editBoard : addBoard;
-      const successTitle = boardId ? 'Updated a board' : 'Created a board';
+      const successTitle = boardId ? t('board-updated') : t('board-created');
 
       manageBoard({
         variables: {
@@ -51,7 +52,7 @@ export const BoardForm = () => {
         },
       });
     },
-    [addBoard, editBoard, boardId, handleClose],
+    [addBoard, editBoard, boardId, handleClose, t],
   );
 
   return (
@@ -82,7 +83,7 @@ export const BoardForm = () => {
           >
             <Sheet.Header>
               <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                {boardId ? 'Edit Board' : 'Add Board'}
+                {boardId ? t('edit-board') : t('add-board')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -95,12 +96,12 @@ export const BoardForm = () => {
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Board Name</Form.Label>
+                      <Form.Label>{t('board-name')}</Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
                           type="text"
-                          placeholder="Enter board name"
+                          placeholder={t('enter-board-name')}
                           className="input"
                           value={field.value || boardDetail?.name || ''}
                         />
@@ -113,10 +114,10 @@ export const BoardForm = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={handleClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={addLoading || editLoading}>
-                {addLoading || editLoading ? <Spinner /> : 'Save'}
+                {addLoading || editLoading ? <Spinner /> : t('save')}
               </Button>
             </Sheet.Footer>
           </form>

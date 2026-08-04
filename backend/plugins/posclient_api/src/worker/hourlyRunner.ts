@@ -5,10 +5,12 @@ import {
   sendTRPCMessage,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
-import { tz } from 'moment-timezone';
 import { generateModels } from '~/connectionResolvers';
 import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
-import { syncRemainders } from '~/modules/posclient/utils/products';
+import {
+  syncDiscounts,
+  syncRemainders,
+} from '~/modules/posclient/utils/products';
 
 export const mainScheduler = async () => {
   const VERSION = getEnv({ name: 'VERSION' });
@@ -17,13 +19,11 @@ export const mainScheduler = async () => {
     const orgs = await getSaasOrganizations();
 
     for (const org of orgs) {
-      sendWorkerQueue('posclient', 'synch-remainder').add('synch-remainder', {
+      sendWorkerQueue('posclient', 'sync-remainder').add('sync-remainder', {
         subdomain: org.subdomain,
         timezone: org.timezone,
       });
     }
-
-    return 'success';
   } else {
     const timezone = await sendTRPCMessage({
       subdomain: 'os',
@@ -38,12 +38,12 @@ export const mainScheduler = async () => {
       defaultValue: 'UTC',
     });
 
-    sendWorkerQueue('posclient', 'synch-remainder').add('synch-remainder', {
+    sendWorkerQueue('posclient', 'sync-remainder').add('sync-remainder', {
       subdomain: 'os',
       timezone,
     });
-    return 'success';
   }
+  return 'success';
 };
 
 export const runner = async (job: Job) => {
@@ -72,8 +72,9 @@ export const runner = async (job: Job) => {
     }
 
     await syncRemainders(subdomain, models, config, products);
+    await syncDiscounts(subdomain, models, products);
     console.log(
-      'Fetched remainder per hour at: ',
+      'Fetched remainder and discounts per hour at: ',
       new Date(),
       ', org: ',
       subdomain,

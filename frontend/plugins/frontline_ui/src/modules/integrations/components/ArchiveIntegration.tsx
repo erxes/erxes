@@ -1,7 +1,8 @@
-import { Button, Spinner, toast, useConfirm } from 'erxes-ui';
+import { Spinner, toast, useConfirm } from 'erxes-ui';
 import { IconArchive } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
 import { ARCHIVE_INTEGRATION } from '@/integrations/graphql/mutations/ArchiveIntegration';
+import { useTranslation } from 'react-i18next';
 
 export const ArchiveIntegration = ({
   _id,
@@ -12,42 +13,43 @@ export const ArchiveIntegration = ({
   name: string;
   isActive: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const [archiveIntegration, { loading }] = useMutation(ARCHIVE_INTEGRATION, {
     refetchQueries: ['Integrations'],
     onCompleted() {
       toast({
-        title: 'Integration archived',
+        title: isActive ? t('integration-archived') : t('integration-unarchived'),
         variant: 'default',
       });
     },
     onError(e) {
       toast({
-        title: 'Failed to archive integration',
+        title: isActive ? t('failed-to-archive-integration') : t('failed-to-unarchive-integration'),
         description: e?.message,
         variant: 'destructive',
       });
     },
   });
 
+  const handleArchive = () => {
+    confirm({
+      message: isActive
+        ? t('confirm-archive-integration', { name })
+        : t('confirm-unarchive-integration', { name }),
+    }).then(() => {
+      archiveIntegration({ variables: { id: _id, status: isActive } });
+    });
+  };
+
   return (
-    <Button
-      variant={'outline'}
-      size="icon"
-      onClick={() =>
-        confirm({
-          message: `Are you sure you want to ${
-            isActive ? 'archive' : 'unarchive'
-          } "${name}" integration?`,
-        }).then(() => {
-          archiveIntegration({
-            variables: { id: _id, status: isActive },
-          });
-        })
-      }
-      disabled={loading}
-    >
-      {loading ? <Spinner size="small" /> : <IconArchive />}
-    </Button>
+    <div onClick={handleArchive} className="flex items-center gap-2 w-full">
+      {loading ? (
+        <Spinner className="size-4 text-primary" />
+      ) : (
+        <IconArchive size={16} />
+      )}
+      {isActive ? t('archive') : t('unarchive')}
+    </div>
   );
 };

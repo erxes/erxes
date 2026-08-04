@@ -9,7 +9,6 @@ import {
   IconX,
   IconBuilding,
 } from '@tabler/icons-react';
-import { SelectCustomer, SelectMember, SelectCompany } from 'ui-modules';
 import {
   useMultiQueryState,
   useFilterQueryState,
@@ -24,15 +23,18 @@ import { usePosByItemsLeadSessionKey } from '../hooks/usePosByItemsLeadSessionKe
 import { PosByItemsTotalCount } from './PosByItemsTotalCount';
 import { PosByItemsHotKeyScope } from '../types/path/PosByItemsHotKeyScope';
 import { useState } from 'react';
-import { SelectPos } from './selects/SelectPos';
+import { useTranslation } from 'react-i18next';
+
 import { SelectTypes } from './selects/SelectTypes';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectExcludeStatus } from './selects/SelectExcludeStatus';
+import { SelectUsers } from './selects/SelectPosUsers';
+import { SelectCategory, SelectCompany, SelectCustomer } from 'ui-modules/modules';
 
 export const PosByItemsFilterPopover = () => {
+  const { t } = useTranslation('sales');
   const [queries] = useMultiQueryState<{
     number: string;
-    pos: string;
     types: string;
     status: string;
     excludeStatus: string;
@@ -40,9 +42,9 @@ export const PosByItemsFilterPopover = () => {
     createdDateRange: string;
     company: string;
     user: string;
+    category: string;
   }>([
     'number',
-    'pos',
     'types',
     'status',
     'paidDateRange',
@@ -50,6 +52,7 @@ export const PosByItemsFilterPopover = () => {
     'excludeStatus',
     'company',
     'user',
+    'category',
   ]);
   const [customer, setCustomer] = useQueryState<string>('customer');
   const [company, setCompany] = useQueryState<string>('company');
@@ -61,56 +64,53 @@ export const PosByItemsFilterPopover = () => {
   return (
     <>
       <Filter.Popover scope={PosByItemsHotKeyScope.PosByItemsPage}>
-        <Filter.Trigger isFiltered={hasFilters}>Filter</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  Number
+                  {t('number')}
                 </Filter.Item>
+                <SelectCategory.FilterItem />
                 <Filter.Item value="customer">
                   <IconCashRegister />
-                  Customer
+                  {t('customer')}
                 </Filter.Item>
                 <Filter.Item value="company">
                   <IconBuilding />
-                  Company
+                  {t('company')}
                 </Filter.Item>
                 <Filter.Item value="user">
                   <IconUser />
-                  Assign to
-                </Filter.Item>
-                <Filter.Item value="pos">
-                  <IconCashRegister />
-                  POS
+                  {t('users')}
                 </Filter.Item>
                 <Filter.Item value="types">
                   <IconTag />
-                  Types
+                  {t('types')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconChecklist />
-                  Status
+                  {t('status')}
                 </Filter.Item>
                 <Filter.Item value="excludeStatus">
                   <IconX />
-                  Exclude Status
+                  {t('exclude-status')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdDateRange">
                   <IconClock />
-                  Created Date Range
+                  {t('created-date-range')}
                 </Filter.Item>
                 <Filter.Item value="paidDateRange">
                   <IconCalendar />
-                  Paid Date Range
+                  {t('paid-date-range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -140,7 +140,7 @@ export const PosByItemsFilterPopover = () => {
             </SelectCompany.Provider>
           </Filter.View>
           <Filter.View filterKey="user">
-            <SelectMember.Provider
+            <SelectUsers.Provider
               mode="single"
               value={user || ''}
               onValueChange={(value) => {
@@ -148,12 +148,10 @@ export const PosByItemsFilterPopover = () => {
                 resetFilterState();
               }}
             >
-              <SelectMember.Content />
-            </SelectMember.Provider>
+              <SelectUsers.Content />
+            </SelectUsers.Provider>
           </Filter.View>
-          <Filter.View filterKey="pos">
-            <SelectPos.FilterView />
-          </Filter.View>
+          <SelectCategory.FilterView />
           <Filter.View filterKey="types">
             <SelectTypes.FilterView />
           </Filter.View>
@@ -175,6 +173,9 @@ export const PosByItemsFilterPopover = () => {
         <Filter.View filterKey="number" inDialog>
           <Filter.DialogStringView filterKey="number" />
         </Filter.View>
+        <Filter.View filterKey="category" inDialog>
+          <SelectCategory.FilterView />
+        </Filter.View>
         <Filter.View filterKey="createdDateRange" inDialog>
           <Filter.DialogDateView filterKey="createdDateRange" />
         </Filter.View>
@@ -187,6 +188,7 @@ export const PosByItemsFilterPopover = () => {
 };
 
 export const PosByItemsFilter = () => {
+  const { t } = useTranslation('sales');
   const [number] = useFilterQueryState<string>('number');
   const { sessionKey } = usePosByItemsLeadSessionKey();
   const [customer, setCustomer] = useQueryState<string>('customer');
@@ -200,7 +202,7 @@ export const PosByItemsFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -209,7 +211,7 @@ export const PosByItemsFilter = () => {
         <Filter.BarItem queryKey={'customer'}>
           <Filter.BarName>
             <IconUser />
-            Customer
+            {t('customer')}
           </Filter.BarName>
           <SelectCustomer.Provider
             mode="single"
@@ -234,7 +236,7 @@ export const PosByItemsFilter = () => {
         <Filter.BarItem queryKey={'company'}>
           <Filter.BarName>
             <IconBuilding />
-            Company
+            {t('company')}
           </Filter.BarName>
           <SelectCompany.Provider
             mode="single"
@@ -259,9 +261,9 @@ export const PosByItemsFilter = () => {
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            Assign To
+            {t('users')}
           </Filter.BarName>
-          <SelectMember.Provider
+          <SelectUsers.Provider
             mode="single"
             value={user || ''}
             onValueChange={(value) => {
@@ -272,31 +274,30 @@ export const PosByItemsFilter = () => {
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey="user">
-                  <SelectMember.Value />
+                  <SelectUsers.Value />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
-                <SelectMember.Content />
+                <SelectUsers.Content />
               </Combobox.Content>
             </Popover>
-          </SelectMember.Provider>
+          </SelectUsers.Provider>
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconClock />
-            Created Date Range
+            {t('created-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="paidDateRange">
           <Filter.BarName>
             <IconCalendar />
-            Paid Date Range
+            {t('paid-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>
-
-        <SelectPos.FilterBar />
+        <SelectCategory.FilterBar />
         <SelectTypes.FilterBar />
         <SelectStatus.FilterBar />
         <SelectExcludeStatus.FilterBar />

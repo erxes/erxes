@@ -1,3 +1,4 @@
+import { AutomationNodeType } from '@/automations/types';
 import {
   IconCalendar,
   IconProgressCheck,
@@ -5,11 +6,11 @@ import {
   IconTags,
 } from '@tabler/icons-react';
 import { Command, Filter, Popover, useMultiQueryState } from 'erxes-ui';
-import { SelectMember, SelectTags, TagsSelect } from 'ui-modules';
-import { AutomationStatusFilter } from './AutomationStatusFilter';
-import { AutomationRecordTableNodeTypeFilter } from './AutomationRecordTableNodeTypeFilter';
-import { AutomationNodeType } from '@/automations/types';
+import { useTranslation } from 'react-i18next';
+import { SelectMember, TagsSelect } from 'ui-modules';
 import { AutomationRecordTableNodeTypeBarItems } from './AutomationRecordTableNodeTypeBarItems';
+import { AutomationRecordTableNodeTypeFilter } from './AutomationRecordTableNodeTypeFilter';
+import { AutomationStatusFilter } from './AutomationStatusFilter';
 
 export const AutomationRecordTableFilterBar = () => {
   const [queries, setQueries] = useMultiQueryState<{
@@ -21,13 +22,14 @@ export const AutomationRecordTableFilterBar = () => {
   }>(['searchValue', 'status', 'tagIds', 'triggerTypes', 'actionTypes']);
 
   const { status, tagIds, searchValue, triggerTypes, actionTypes } = queries;
+  const { t } = useTranslation('automations');
 
   return (
     <Filter.Bar>
       <Filter.BarItem queryKey="searchValue">
         <Filter.BarName>
           <IconSearch />
-          Search
+          {t('search-filter')}
         </Filter.BarName>
 
         <Popover>
@@ -39,7 +41,7 @@ export const AutomationRecordTableFilterBar = () => {
           <Popover.Content className="p-0">
             <Command>
               <Filter.CommandInput
-                placeholder="Search"
+                placeholder={t('search-filter')}
                 variant="secondary"
                 className="bg-background"
                 defaultValue={searchValue || ''}
@@ -56,7 +58,7 @@ export const AutomationRecordTableFilterBar = () => {
       <Filter.BarItem queryKey="status">
         <Filter.BarName>
           <IconProgressCheck />
-          Status
+          {t('status-filter')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
@@ -70,24 +72,27 @@ export const AutomationRecordTableFilterBar = () => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendar />
-          Created At
+          {t('created-at-filter')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
-      <SelectMember.FilterBar label="Created By" queryKey="createdByIds" />
+      <SelectMember.FilterBar label={t('created-by')} queryKey="createdByIds" />
       <Filter.BarItem queryKey="updatedAt">
         <Filter.BarName>
           <IconCalendar />
-          Updated At
+          {t('updated-at-filter')}
         </Filter.BarName>
         <Filter.Date filterKey="updatedAt" />
       </Filter.BarItem>
-      <SelectMember.FilterBar label="Updated By" queryKey="updatedByIds" />
+      <SelectMember.FilterBar
+        label={t('updated-user')}
+        queryKey="updatedByIds"
+      />
       {triggerTypes && triggerTypes.length > 0 && (
         <Filter.BarItem queryKey="triggerTypes">
           <Filter.BarName>
             <IconProgressCheck />
-            Trigger Types
+            {t('trigger-types-filter')}
           </Filter.BarName>
           <Popover>
             <Popover.Trigger>
@@ -128,7 +133,7 @@ export const AutomationRecordTableFilterBar = () => {
       <Filter.BarItem queryKey="tagIds">
         <Filter.BarName>
           <IconTags />
-          Tags
+          {t('tags')}
         </Filter.BarName>
         <TagsSelect.Provider
           type="core:automation"

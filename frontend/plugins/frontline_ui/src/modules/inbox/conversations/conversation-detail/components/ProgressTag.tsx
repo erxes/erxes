@@ -2,49 +2,37 @@ import { useGetConversationTagProgress } from '@/inbox/conversations/conversatio
 import { Button, HoverCard } from 'erxes-ui';
 import { SelectTags } from 'ui-modules';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
-type Status = 'new' | 'open' | 'closed';
+const ALL_STATUSES = ['new', 'open', 'closed', 'resolved'] as const;
+type Status = (typeof ALL_STATUSES)[number];
 
 interface TagStats {
   statuses: Record<Status, number>;
 }
 
-interface ProgressItem {
-  tagId: string;
-  count: number;
-}
-
-type ConversationTagProgress = {
-  [K in Status]: ProgressItem[];
-};
-
-export const ProgressTags = ({ customerId }: { customerId: string }) => {
-  const { conversationTagProgress = [] } = useGetConversationTagProgress({
+export const ProgressTags = ({ customerId }: { customerId?: string }) => {
+  const { t } = useTranslation('frontline');
+  const { conversationTagProgress } = useGetConversationTagProgress({
     variables: { customerId },
     skip: !customerId,
   });
 
-  const tagsStats = (
-    conversationTagProgress as ConversationTagProgress[]
-  ).reduce<Record<string, TagStats>>((acc, progress) => {
-    (Object.entries(progress) as [Status, ProgressItem[]][]).forEach(
-      ([status, items]) => {
-        items?.forEach(({ tagId, count }) => {
-          if (!acc[tagId]) {
-            acc[tagId] = {
-              statuses: {
-                new: 0,
-                open: 0,
-                closed: 0,
-              },
-            };
-          }
-          acc[tagId].statuses[status] += count;
-        });
-      },
-    );
-    return acc;
-  }, {});
+  const tagsStats = ALL_STATUSES.reduce<Record<string, TagStats>>(
+    (acc, status) => {
+      const items = conversationTagProgress?.[status] ?? [];
+      items.forEach(({ tagId, count }) => {
+        if (!acc[tagId]) {
+          acc[tagId] = {
+            statuses: { new: 0, open: 0, closed: 0, resolved: 0 },
+          };
+        }
+        acc[tagId].statuses[status] += count;
+      });
+      return acc;
+    },
+    {},
+  );
 
   const getTotals = (statuses: TagStats['statuses']) => {
     const total = Object.values(statuses).reduce(
@@ -63,7 +51,7 @@ export const ProgressTags = ({ customerId }: { customerId: string }) => {
   if (Object.keys(tagsStats).length === 0) {
     return (
       <div className="p-4 text-sm text-muted-foreground">
-        No tag data available
+        {t('no-tag-data')}
       </div>
     );
   }
@@ -139,7 +127,9 @@ interface StatusDetailsProps {
   percentage: number;
 }
 
-const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => (
+const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => {
+  const { t } = useTranslation('frontline');
+  return (
   <div className="space-y-3">
     {Object.entries(statuses).map(([status, count]) => (
       <div key={status} className="flex justify-between text-sm">
@@ -148,7 +138,7 @@ const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => (
       </div>
     ))}
     <div className="flex justify-between text-sm font-medium border-t pt-2">
-      <span>Total</span>
+      <span>{t('total')}</span>
       <span>{total}</span>
     </div>
     <div className="pt-2">
@@ -160,4 +150,5 @@ const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => (
       </div>
     </div>
   </div>
-);
+  );
+};

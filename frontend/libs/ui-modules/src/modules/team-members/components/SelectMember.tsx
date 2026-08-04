@@ -1,3 +1,5 @@
+import { useSubscription } from '@apollo/client';
+import { IconPlus, IconUser } from '@tabler/icons-react';
 import {
   AvatarProps,
   Button,
@@ -12,20 +14,16 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { IconPlus, IconUser } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import { useUsers } from 'ui-modules/modules';
+import { useDebounce } from 'use-debounce';
 import {
   SelectMemberContext,
   useSelectMemberContext,
 } from '../contexts/SelectMemberContext';
-
+import { USER_STATUS_CHANGED } from '../graphql/subscriptions/userStatusChanged';
 import { IUser } from '../types/TeamMembers';
 import { MembersInline } from './MembersInline';
-import React from 'react';
-import { currentUserState } from 'ui-modules/states';
-import { useAtomValue } from 'jotai';
-import { useDebounce } from 'use-debounce';
-import { useState } from 'react';
-import { useUsers } from 'ui-modules/modules';
 
 const SelectMemberProvider = ({
   children,
@@ -74,7 +72,7 @@ const SelectMemberProvider = ({
     });
     onValueChange?.(newSelectedMemberIds);
   };
-  
+
   const memberIds = !value ? [] : Array.isArray(value) ? value : [value];
   const loading = memberIds.some((id) => !_members.find((m) => m._id === id));
 
@@ -103,6 +101,7 @@ const SelectMemberValue = ({
 }) => {
   const { memberIds, members, setMembers, allowUnassigned } =
     useSelectMemberContext();
+
   return (
     <MembersInline
       memberIds={memberIds}
@@ -140,7 +139,8 @@ const SelectMemberCommandItem = ({ user }: { user: IUser }) => {
 
 const SelectMemberNoAssigneeItem = () => {
   const { onSelect, memberIds } = useSelectMemberContext();
-  const isNoAssigneeSelected = memberIds?.length === 1 && memberIds[0] === 'no-assignee';
+  const isNoAssigneeSelected =
+    memberIds?.length === 1 && memberIds[0] === 'no-assignee';
   return (
     <Command.Item value="no-assignee" onSelect={() => onSelect(null)}>
       <MembersInline
@@ -155,16 +155,46 @@ const SelectMemberNoAssigneeItem = () => {
 
 const SelectMemberContent = () => {
   const [search, setSearch] = useState('');
+  const [inactiveMemberIds, setInactiveMemberIds] = useState<string[]>([]);
   const [debouncedSearch] = useDebounce(search, 500);
-  const currentUser = useAtomValue(currentUserState) as IUser;
   const { memberIds, members, allowUnassigned } = useSelectMemberContext();
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
       searchValue: debouncedSearch,
-      excludeIds: true,
-      ids: [currentUser?._id],
     },
   });
+  useSubscription<{ userStatusChanged?: IUser }>(USER_STATUS_CHANGED, {
+    onData: ({ data }) => {
+      const statusChangedUser = data.data?.userStatusChanged;
+
+      if (!statusChangedUser) return;
+
+      setInactiveMemberIds((currentIds) =>
+        statusChangedUser.isActive === false
+          ? [...new Set([...currentIds, statusChangedUser._id])]
+          : currentIds.filter((id) => id !== statusChangedUser._id),
+      );
+    },
+  });
+
+  const activeMembers = members.filter(
+    ({ _id, isActive }) =>
+      isActive !== false && !inactiveMemberIds.includes(_id),
+  );
+  const filteredMembers = search
+    ? activeMembers.filter((member) => {
+        const q = search.toLowerCase();
+        const fullName = `${member.details?.firstName || ''} ${
+          member.details?.lastName || ''
+        }`.toLowerCase();
+        return (
+          fullName.includes(q) ||
+          (member.details?.fullName || '').toLowerCase().includes(q) ||
+          (member.email || '').toLowerCase().includes(q) ||
+          (member.username || '').toLowerCase().includes(q)
+        );
+      })
+    : activeMembers;
 
   return (
     <Command shouldFilter={false}>
@@ -177,9 +207,9 @@ const SelectMemberContent = () => {
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.length > 0 && (
+        {filteredMembers.length > 0 && (
           <>
-            {members.map((member) => (
+            {filteredMembers.map((member) => (
               <SelectMemberCommandItem key={member._id} user={member} />
             ))}
             <Command.Separator className="my-1" />
@@ -188,9 +218,11 @@ const SelectMemberContent = () => {
         {!loading && allowUnassigned && <SelectMemberNoAssigneeItem />}
 
         {!loading &&
-          [currentUser, ...users]
+          users
             .filter(
-              (user) => !memberIds.find((memberId) => memberId === user._id),
+              (user) =>
+                !inactiveMemberIds.includes(user._id) &&
+                !memberIds.some((memberId) => memberId === user._id),
             )
             .map((user) => (
               <SelectMemberCommandItem key={user._id} user={user} />
@@ -373,7 +405,9 @@ export const SelectMemberFormItem = ({
     <SelectMemberProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        props.mode !== 'multiple' && setOpen(false);
+        if (props.mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
       {...props}
     >
@@ -417,12 +451,15 @@ export const SelectMemberDetail = ({
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           {!value ? (
-            <Combobox.TriggerBase className="font-medium">
-              Add Owner <IconPlus />
+            <Combobox.TriggerBase className={cn('font-medium', className)}>
+              {placeholder || 'Add Owner'} <IconPlus />
             </Combobox.TriggerBase>
           ) : (
-            <Button variant="ghost" className="w-full inline-flex">
-              <SelectMemberValue size={size} />
+            <Button
+              variant="ghost"
+              className={cn('w-full inline-flex', className)}
+            >
+              <SelectMemberValue size={size} placeholder={placeholder} />
             </Button>
           )}
         </Popover.Trigger>
@@ -495,7 +532,10 @@ export const SelectMemberCustomDetail = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase asChild>
-          <Button variant="ghost" className={cn("h-7 w-auto inline-flex", className)}>
+          <Button
+            variant="ghost"
+            className={cn('h-7 w-auto inline-flex', className)}
+          >
             <SelectMemberValue size={size} />
           </Button>
         </Combobox.TriggerBase>

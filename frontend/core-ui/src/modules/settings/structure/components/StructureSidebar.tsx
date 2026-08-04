@@ -1,12 +1,10 @@
-import { Collapsible, Sidebar } from 'erxes-ui';
+import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
-import { PERMISSIONS, SETTINGS_ROUTES } from '../constants/structure-routes';
-import { Permissions } from 'ui-modules';
+import { SETTINGS_ROUTES } from '../constants/structure-routes';
 
 export function StructureSidebar() {
-  const { pathname } = useLocation();
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -16,20 +14,6 @@ export function StructureSidebar() {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-      <Sidebar.Separator />
-      <Permissions.SidebarGroup>
-        <Permissions.SidebarItem to="/settings/structures/permissions" asChild>
-          {Object.entries(PERMISSIONS).map(([path, label]) => {
-            return (
-              <Permissions.SidebarSubItem
-                key={path}
-                label={label}
-                path={path}
-              />
-            );
-          })}
-        </Permissions.SidebarItem>
-      </Permissions.SidebarGroup>
     </Sidebar>
   );
 }

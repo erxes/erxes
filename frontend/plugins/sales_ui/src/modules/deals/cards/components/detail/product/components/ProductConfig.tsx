@@ -1,112 +1,96 @@
-import { Accordion, Form } from 'erxes-ui';
-import {
-  OtherPayments,
-  Payments,
-  SelectCategory,
-  SelectProduct,
-  Token,
-} from 'ui-modules';
+import { SelectCategory, SelectProduct } from 'ui-modules';
 
-import { UseFormReturn } from 'react-hook-form';
-
-interface ProductConfigFormValues {
-  numberSize?: string;
-  isCheckDate?: boolean;
-  isCheckUser?: boolean;
-  isCheckDepartment?: boolean;
-  initialCategoryIds?: string[];
-  excludeCategoryIds?: string[];
-  excludeProductIds?: string[];
-  erxesAppToken?: string;
-}
+import { Form } from 'erxes-ui';
+import { OtherPaymentsField, PaymentIdsField } from '@/payments';
+import type { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import type { TPipelineForm } from '@/deals/types/pipelines';
 
 interface ProductConfigProps {
-  form: UseFormReturn<ProductConfigFormValues>;
+  form: UseFormReturn<TPipelineForm>;
 }
 
-const ProductConfig = ({ form }: ProductConfigProps) => {
+export const ProductConfig = ({ form }: ProductConfigProps) => {
+  const { t } = useTranslation('sales');
   const { control } = form;
 
   return (
-    <div className="flex flex-col gap-6">
-      <Accordion
-        type="multiple"
-        defaultValue={['categories', 'exclusions']}
-        className="w-full"
-      >
-        <Accordion.Item value="categories">
-          <Accordion.Trigger className="text-sm font-semibold uppercase tracking-wide">
-            Initial Product Categories
-          </Accordion.Trigger>
-          <Accordion.Content className="pt-4">
-            <Form.Field
-              control={control}
-              name="initialCategoryIds"
-              render={({ field }) => {
-                return (
-                  <SelectCategory
-                    selected={field.value?.[0] || ''}
-                    onSelect={(id) => {
-                      const current = field.value || [];
-                      const updated = current.includes(id as string)
-                        ? current.filter((i: string) => i !== id)
-                        : [...current, id];
-                      field.onChange(updated);
-                    }}
-                  />
-                );
-              }}
-            />
-          </Accordion.Content>
-        </Accordion.Item>
-
-        <Accordion.Item value="exclusions">
-          <Accordion.Trigger className="text-sm font-semibold uppercase tracking-wide">
-            Pipeline Exclude Products
-          </Accordion.Trigger>
-          <Accordion.Content className="pt-4 space-y-4">
-            <Form.Field
-              control={control}
-              name="excludeCategoryIds"
-              render={({ field }) => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <div className="mb-6">
+          <h3 className="text-base font-semibold text-foreground">
+            {t('initial-product-categories')}
+          </h3>
+        </div>
+        <Form.Field
+          control={control}
+          name="initialCategoryIds"
+          render={({ field }) => {
+            return (
+              <SelectCategory
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={field.onChange}
+                placeholder={t('select-initial-product-categories')}
+              />
+            );
+          }}
+        />
+      </div>
+      <div>
+        <div className="mb-6">
+          <h3 className="text-base font-semibold text-foreground">
+            {t('pipeline-exclude-products')}
+          </h3>
+        </div>
+        <div className="space-y-6">
+          <Form.Field
+            control={control}
+            name="excludeCategoryIds"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label className="text-sm font-medium">
+                  {t('exclude-categories')}
+                </Form.Label>
                 <SelectCategory
-                  selected={field.value?.[0] || ''}
-                  onSelect={(id) => {
-                    const current = field.value || [];
-                    const updated = current.includes(id as string)
-                      ? current.filter((i: string) => i !== id)
-                      : [...current, id];
-                    field.onChange(updated);
-                  }}
+                  mode="multiple"
+                  value={field.value || []}
+                  onValueChange={field.onChange}
+                  placeholder={t('select-categories-to-exclude')}
                 />
-              )}
-            />
-
-            <Form.Field
-              control={control}
-              name="excludeProductIds"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Exclude Products</Form.Label>
-                  <SelectProduct
-                    mode="multiple"
-                    value={field.value || ([] as string[])}
-                    onValueChange={field.onChange}
-                    placeholder="Select products to exclude"
-                  />
-                </Form.Item>
-              )}
-            />
-            <div className="space-y-4">
-              <Payments control={form.control} />
-              <Token control={form.control} />
-              <OtherPayments control={form.control} />
-            </div>
-          </Accordion.Content>
-        </Accordion.Item>
-      </Accordion>
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={control}
+            name="excludeProductIds"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label className="text-sm font-medium">
+                  {t('exclude-products')}
+                </Form.Label>
+                <SelectProduct
+                  mode="multiple"
+                  value={field.value || []}
+                  onValueChange={field.onChange}
+                  placeholder={t('select-products-to-exclude')}
+                />
+              </Form.Item>
+            )}
+          />
+        </div>
+      </div>
+      <div>
+        <div className="mb-6">
+          <h3 className="text-base font-semibold text-foreground">
+            {t('other-configuration')}
+          </h3>
+        </div>
+        <div className="space-y-6">
+          <PaymentIdsField control={form.control} />
+          <OtherPaymentsField control={form.control} />
+        </div>
+      </div>
     </div>
   );
 };
-
-export default ProductConfig;

@@ -1,23 +1,23 @@
-import { IModels } from '~/connectionResolvers';
-import { debugError } from '@/integrations/facebook/debuggers';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { IFacebookCustomer } from '@/integrations/facebook/@types/customers';
+import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import {
   ICommentParams,
   IPostParams,
 } from '@/integrations/facebook/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
-import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
-import { IFacebookCustomer } from '@/integrations/facebook/@types/customers';
-import { getFacebookUser } from '@/integrations/facebook/utils';
-import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { debugError } from '@/integrations/facebook/debuggers';
 import {
-  getPostLink,
+  getFacebookUser,
   getFacebookUserProfilePic,
   getPostDetails,
+  getPostLink,
   uploadMedia,
 } from '@/integrations/facebook/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -45,7 +45,7 @@ export const getOrCreateCustomer = async (
       (await getFacebookUser(models, pageId, facebookPageTokensMap, userId)) ||
       {};
   } catch (e: any) {
-    debugError(`Error during get customer info: ${e.message}`);
+    debugError(`Error during get customer info: ${JSON.stringify(e)}`);
   }
 
   const fbUserProfilePic: string | null = await getFacebookUserProfilePic(
@@ -153,25 +153,32 @@ export const getOrCreateComment = async (
     content: commentParams.message,
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id,
+    integrationId: integration.erxesApiId,
   };
-  if (parentConversation) {
-    await models.FacebookCommentConversationReply.create({
-      ...doc,
-    });
-  } else {
-    await models.FacebookCommentConversation.create({
-      ...doc,
-    });
-  }
+
   let conversation;
-  conversation = await models.FacebookCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
-  });
-  if (conversation === null) {
-    conversation = await models.FacebookCommentConversation.findOne({
-      comment_id: commentParams.parent_id,
-    });
+  let createdReply;
+  let automationTarget;
+
+  if (parentConversation) {
+    createdReply = await models.FacebookCommentConversationReply.create(doc);
+    conversation = parentConversation;
+    automationTarget = {
+      ...createdReply.toObject(),
+      postId: doc.postId,
+      parentId: doc.parentId,
+      integrationId: doc.integrationId,
+      erxesApiId: parentConversation.erxesApiId,
+    };
+  } else {
+    conversation = await models.FacebookCommentConversation.create(doc);
+    automationTarget = conversation.toObject();
   }
+
+  if (!conversation) {
+    throw new Error('Comment conversation not found');
+  }
+
   try {
     const data = {
       action: 'create-or-update-conversation',
@@ -197,26 +204,48 @@ export const getOrCreateComment = async (
       );
     }
   } catch (error) {
-    await models.FacebookCommentConversation.deleteOne({
-      _id: conversation?._id,
-    });
+    if (createdReply) {
+      await models.FacebookCommentConversationReply.deleteOne({
+        _id: createdReply._id,
+      });
+    } else {
+      await models.FacebookCommentConversation.deleteOne({
+        _id: conversation?._id,
+      });
+    }
+
     throw new Error(error.message);
   }
   try {
-    const doc = {
+    const conversationDoc = {
       ...conversation?.toObject(),
       conversationId: conversation.erxesApiId,
     };
-    await pConversationClientMessageInserted(subdomain, doc);
+    const automationDoc = {
+      ...automationTarget,
+      erxesApiId: conversation.erxesApiId,
+      conversationId: conversation.erxesApiId,
+    };
+
+    await pConversationClientMessageInserted(subdomain, conversationDoc);
 
     await graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
         conversationMessageInserted: {
-          ...conversation?.toObject(),
-          conversationId: conversation.erxesApiId,
+          ...conversationDoc,
         },
       },
+    );
+
+    sendAutomationTrigger(
+      subdomain,
+      {
+        type: 'frontline:facebook.comments',
+        targets: [automationDoc],
+        // repeatOptions,
+      },
+      { transport: 'trpc' },
     );
   } catch {
     throw new Error(
@@ -242,15 +271,18 @@ export const generatePostDoc = async (
   } = postParams;
   let generatedMediaUrls: string[] = [];
 
-  const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+  const uploadConfig = await sendTRPCMessage({
     subdomain,
 
     pluginName: 'core',
     method: 'query',
-    module: 'users',
+    module: 'configs',
     action: 'getFileUploadConfigs',
     input: {},
   });
+
+  const { UPLOAD_SERVICE_TYPE } = (uploadConfig as any) || {};
+
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     if (link) {
       if (video_id) {

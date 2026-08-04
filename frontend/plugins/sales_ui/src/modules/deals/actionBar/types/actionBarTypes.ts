@@ -1,4 +1,4 @@
-import { Icon } from "@tabler/icons-react";
+import { Icon } from '@tabler/icons-react';
 
 export interface FilterItem {
   key: string;
@@ -18,11 +18,16 @@ export type SalesFilterState = {
   createdEndDate?: string | null;
   startDateStartDate?: string | null;
   startDateEndDate?: string | null;
+  closeDateStartDate?: string | null;
+  closeDateEndDate?: string | null;
+  stageChangedStartDate?: string | null;
+  stageChangedEndDate?: string | null;
   priority?: string[] | null;
   labelIds?: string[] | null;
   tagIds?: string[] | null;
   awaiting?: boolean | null;
   advanced?: Record<string, any> | null;
+  productId?: string | string[] | null;
 };
 
 export type ProductFilterState = {
@@ -30,4 +35,6 @@ export type ProductFilterState = {
   productCategoryIds?: string[] | null;
   productVendorIds?: string[] | null;
   productTagIds?: string[] | null;
+  branchIds?: string[] | null;
+  departmentIds?: string[] | null;
 };

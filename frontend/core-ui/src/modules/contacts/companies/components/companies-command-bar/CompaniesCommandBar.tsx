@@ -1,6 +1,6 @@
 import { ApolloError } from '@apollo/client';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { TagsSelect } from 'ui-modules';
+import { Can, Export, TagsSelect } from 'ui-modules';
 import { CompaniesDelete } from './CompaniesDelete';
 
 export const CompaniesCommandBar = () => {
@@ -17,51 +17,71 @@ export const CompaniesCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
-        <Separator.Inline />
-        <TagsSelect
-          mode="multiple"
-          variant="secondary"
-          className="shadow-none"
-          value={
-            intersection(
-              table
-                .getFilteredSelectedRowModel()
-                .rows.map((row) => row.original.tagIds),
-            ) || []
-          }
-          type="core:company"
-          targetIds={companyIds}
-          options={(newSelectedTagIds) => ({
-            update: (cache) => {
-              companyIds.forEach((companyId) => {
-                cache.modify({
-                  id: cache.identify({
-                    __typename: 'Company',
-                    _id: companyId,
-                  }),
-                  fields: {
-                    tagIds: () => newSelectedTagIds,
-                  },
-                });
-              });
-            },
-            onError: (e: ApolloError) => {
-              toast({
-                title: 'Error',
-                description: e.message,
-                variant: 'destructive',
-              });
-            },
-          })}
-        />
-
-        {/* <Separator.Inline />
-        <CompaniesMerge
-          companies={selectedRows.map((row) => row.original)}
-          rows={selectedRows}
+        <Can action="tagsTag">
+          <>
+            <Separator.Inline />
+            <TagsSelect
+              mode="multiple"
+              variant="secondary"
+              className="shadow-none"
+              value={
+                intersection(
+                  table
+                    .getFilteredSelectedRowModel()
+                    .rows.map((row) => row.original.tagIds),
+                ) || []
+              }
+              type="core:company"
+              targetIds={companyIds}
+              options={(newSelectedTagIds) => ({
+                update: (cache) => {
+                  companyIds.forEach((companyId) => {
+                    cache.modify({
+                      id: cache.identify({
+                        __typename: 'Company',
+                        _id: companyId,
+                      }),
+                      fields: {
+                        tagIds: () => newSelectedTagIds,
+                      },
+                    });
+                  });
+                },
+                onError: (e: ApolloError) => {
+                  toast({
+                    title: 'Error',
+                    description: e.message,
+                    variant: 'destructive',
+                  });
+                },
+              })}
+            />
+          </>
+        </Can>
+        <Can action="companiesExportManage">
+          <Separator.Inline />
+          <Export
+            pluginName="core"
+            moduleName="contacts"
+            collectionName="companies"
+            buttonVariant="secondary"
+            ids={companyIds}
+          />
+        </Can>
+        {/* <CompaniesMerge
+          companies={table
+            .getFilteredSelectedRowModel()
+            .rows.map((row) => row.original)}
+          // disabled={table.getFilteredSelectedRowModel().rows.length != 2}
+          rows={selectedRows} 
         /> */}
-        <Separator.Inline />
-        <CompaniesDelete companyIds={companyIds} rows={selectedRows} />
+        {/* <Separator.Inline /> */}
+        <Can action="contactsDelete">
+          <>
+            <Separator.Inline />
+            <CompaniesDelete companyIds={companyIds} />
+          </>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

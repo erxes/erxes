@@ -1,6 +1,6 @@
 import { getCoreAutomationActionComponent } from '@/automations/components/builder/nodes/actions/coreAutomationActions';
 import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
-import { ErrorState } from '@/automations/components/common/ErrorState';
+import { AutomationErrorState } from '@/automations/components/common/AutomationErrorState';
 import { TAutomationBuilderActions } from '@/automations/utils/automationFormDefinitions';
 import { Card, Spinner } from 'erxes-ui';
 import { Suspense } from 'react';
@@ -32,7 +32,7 @@ export const AutomationCoreActionSidebarContent = ({
     <Suspense fallback={<Spinner />}>
       <ErrorBoundary
         FallbackComponent={({ resetErrorBoundary }) => (
-          <ErrorState onRetry={resetErrorBoundary} />
+          <AutomationErrorState onRetry={resetErrorBoundary} />
         )}
       >
         <Component

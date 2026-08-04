@@ -1,6 +1,7 @@
 import { GenericCommandList } from 'ui-modules';
 import { LabelBadge } from '~/modules/deals/components/common/filters/LabelBadge';
 import { usePipelineLabels } from '~/modules/deals/pipelines/hooks/usePipelineDetails';
+import { useTranslation } from 'react-i18next';
 
 export const PipelineLabelsCommandList = ({
   searchValue,
@@ -13,6 +14,7 @@ export const PipelineLabelsCommandList = ({
   onSelect: (value: string) => void;
   selectField?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { pipelineLabels, loading } = usePipelineLabels({
     variables: {
       searchValue: searchValue,
@@ -21,7 +23,7 @@ export const PipelineLabelsCommandList = ({
   });
   return (
     <GenericCommandList
-      heading="Pipeline Labels"
+      heading={t('pipeline-labels')}
       items={pipelineLabels || []}
       loading={loading}
       totalCount={pipelineLabels?.length || 0}

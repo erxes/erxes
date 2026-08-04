@@ -27,7 +27,6 @@ export class BaseAPI {
         requestOptions.headers['Content-Type'] = 'application/json';
       }
 
-
       const res = await fetch(
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,

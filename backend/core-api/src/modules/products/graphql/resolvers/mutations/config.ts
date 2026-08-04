@@ -7,8 +7,10 @@ export const configMutations = {
   async productsConfigsUpdate(
     _parent: undefined,
     { configsMap },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productsConfigsManage');
+
     const codes = Object.keys(configsMap);
 
     for (const code of codes) {
@@ -83,16 +85,21 @@ export const configMutations = {
     }
 
     if (defaultUOM) {
-      await models.Uoms.checkUOM({ uom: defaultUOM, subUoms: [] });
-    }
+      // checkUOM normalizes the value (which may be a code, name or _id) to
+      // the canonical UOM code and ensures the UOM exists.
+      const normalizedUom = await models.Uoms.checkUOM({
+        uom: defaultUOM,
+        subUoms: [],
+      });
 
-    if (isRequireUOM && defaultUOM) {
-      await models.Products.updateMany(
-        {
-          $or: [{ uom: { $exists: false } }, { uom: '' }],
-        },
-        { $set: { uom: defaultUOM } },
-      );
+      if (isRequireUOM) {
+        await models.Products.updateMany(
+          {
+            $or: [{ uom: { $exists: false } }, { uom: '' }],
+          },
+          { $set: { uom: normalizedUom } },
+        );
+      }
     }
 
     return ['success'];

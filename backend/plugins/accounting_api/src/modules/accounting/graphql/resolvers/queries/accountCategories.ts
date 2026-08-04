@@ -1,6 +1,5 @@
-import { escapeRegExp } from "erxes-api-shared/utils";
-import { IModels, IContext } from "~/connectionResolvers";
-
+import { escapeRegExp } from 'erxes-api-shared/utils';
+import { IModels, IContext } from '~/connectionResolvers';
 
 const generateFilterCat = async ({
   models,
@@ -53,8 +52,10 @@ const accountCategoryQueries = {
   async accountCategories(
     _root,
     { parentId, withChild, searchValue, status, brand, meta },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAccountCategories');
+
     const filter = await generateFilterCat({
       models,
       status,
@@ -72,8 +73,10 @@ const accountCategoryQueries = {
   async accountCategoriesTotalCount(
     _root,
     { parentId, searchValue, status, withChild, brand, meta },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAccountCategories');
+
     const filter = await generateFilterCat({
       models,
       parentId,
@@ -85,11 +88,15 @@ const accountCategoryQueries = {
     return models.AccountCategories.find(filter).countDocuments();
   },
 
-  async accountCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async accountCategoryDetail(
+    _root,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('readAccountCategories');
+
     return models.AccountCategories.findOne({ _id }).lean();
   },
 };
-
-// checkPermission(accountCategoryQueries, 'accountCategories', 'showAccounts', []);
 
 export default accountCategoryQueries;

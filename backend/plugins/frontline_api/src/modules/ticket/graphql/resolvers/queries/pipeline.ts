@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import {
   TicketsPipelineFilter,
@@ -20,8 +19,10 @@ export const pipelineQueries = {
 
   getTicketPipelines: async (
     _parent: undefined,
-    { filter }: { filter: TicketsPipelineFilter },
-    { models }: IContext,
+    {
+      filter = {} as TicketsPipelineFilter,
+    }: { filter?: TicketsPipelineFilter },
+    { models, user }: IContext,
   ) => {
     const filterQuery: FilterQuery<ITicketPipelineDocument> = {};
 
@@ -41,6 +42,14 @@ export const pipelineQueries = {
       filterQuery.userId = filter.userId;
     }
 
+    if (filter.applyVisibilityFilter) {
+      filterQuery.$or = [
+        { visibility: { $ne: 'private' } },
+        { userId: user._id },
+        { memberIds: user._id },
+      ];
+    }
+
     return await cursorPaginate<ITicketPipelineDocument>({
       model: models.Pipeline,
       params: {
@@ -54,6 +63,3 @@ export const pipelineQueries = {
     });
   },
 };
-
-requireLogin(pipelineQueries, 'getTicketPipeline');
-requireLogin(pipelineQueries, 'getTicketPipelines');

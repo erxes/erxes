@@ -1,13 +1,12 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
-import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosByItemsRecordTable } from '@/pos/pos-by-items/components/PosByItemsRecordTable';
 import { PosByItemsFilter } from '@/pos/pos-by-items/components/PosByItemsFilter';
+import { PosBreadcrumb } from '~/modules/pos/pos/breadcumb/PosBreadcrumb';
+import { useParams } from 'react-router-dom';
 
 export const PosByItemsPage = () => {
   const { posId } = useParams();
-
   return (
     <>
       <PageHeader>
@@ -24,10 +23,14 @@ export const PosByItemsPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <PageSubHeader>
-        <PosByItemsFilter />
-      </PageSubHeader>
-      <PosByItemsRecordTable posId={posId} />
+      <div className="flex overflow-hidden w-full h-full">
+        <div className="flex flex-col overflow-hidden w-full h-full">
+          <PageSubHeader>
+            <PosByItemsFilter />
+          </PageSubHeader>
+          <PosByItemsRecordTable />
+        </div>
+      </div>
     </>
   );
 };

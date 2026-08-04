@@ -5,6 +5,7 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { IBoard } from '@/deals/types/boards';
 import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
@@ -73,16 +74,17 @@ const SelectBoardProvider = ({
 
 // SelectBoard Value Display
 const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('sales');
   const { value, boards, loading } = useSelectBoardContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">Loading boards...</span>;
+    return <span className="text-accent-foreground/80">{t('loading-boards')}</span>;
   }
 
   if (!boards || boards.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select board'}
+        {placeholder || t('select-board')}
       </span>
     );
   }
@@ -92,7 +94,7 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedBoard) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select board'}
+        {placeholder || t('select-board')}
       </span>
     );
   }
@@ -125,13 +127,14 @@ const SelectBoardCommandItem = ({ board }: { board: IBoard }) => {
 
 // SelectBoard Content
 const SelectBoardContent = () => {
+  const { t } = useTranslation('sales');
   const { boards, loading } = useSelectBoardContext();
   return (
     <Command>
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">
-            {loading ? 'Loading boards...' : 'No boards found'}
+            {loading ? t('loading-boards') : t('no-boards-found')}
           </div>
         </Command.Empty>
         {boards?.map((board) => (

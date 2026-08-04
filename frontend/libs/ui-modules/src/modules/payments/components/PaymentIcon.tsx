@@ -7,6 +7,7 @@ import {
   IconBrandVisa,
   IconBrandMastercard,
   IconFile,
+  IconAt,
 } from '@tabler/icons-react';
 
 export const paymentIconOptions = [
@@ -16,6 +17,7 @@ export const paymentIconOptions = [
   { value: 'bank', label: 'SocialPay' },
   { value: 'credit-card', label: 'Credit Card' },
   { value: 'mobile', label: 'Mobile Payment' },
+  { value: 'at', label: 'at' },
 ];
 
 interface PaymentIconProps {
@@ -52,6 +54,8 @@ const PaymentIcon: React.FC<PaymentIconProps> = ({
         );
       case 'sign-alt':
         return <IconFile size={size} className={className} />;
+      case 'at':
+        return <IconAt size={size} className={className} />;
       default:
         return <IconCreditCard size={size} className={className} />;
     }

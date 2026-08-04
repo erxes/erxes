@@ -1,11 +1,12 @@
-import { useMutation } from '@apollo/client';
-import { CREATE_TASK_MUTATION } from '@/task/graphql/mutations/createTask';
-import { useToast } from 'erxes-ui';
-import { useRecordTableCursor } from 'erxes-ui';
 import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
+import { CREATE_TASK_MUTATION } from '@/task/graphql/mutations/createTask';
+import { useMutation } from '@apollo/client';
+import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useCreateTask = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('operation');
   const { setCursor } = useRecordTableCursor({
     sessionKey: TASKS_CURSOR_SESSION_KEY,
   });
@@ -15,15 +16,15 @@ export const useCreateTask = () => {
       // refetchQueries: [GET_TASKS],
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Task created successfully',
+          title: t('success'),
+          description: t('task-created-successfully'),
           variant: 'default',
         });
         setCursor(null);
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });

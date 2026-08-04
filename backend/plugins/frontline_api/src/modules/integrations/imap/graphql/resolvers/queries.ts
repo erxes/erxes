@@ -1,67 +1,60 @@
 import { IContext } from '~/connectionResolvers';
 
+
+export const extractNewContent = (html: string): string | undefined => {
+  const start = html.indexOf('<div dir="ltr">');
+  if (start === -1) return undefined;
+  const end = html.indexOf('</div><br>', start);
+  if (end === -1) return undefined;
+  return html.substring(start, end + '</div><br>'.length);
+};
+
+
+export const extractQuotedReply = (html: string): string | undefined => {
+  const start = html.indexOf('<div class="gmail_quote">');
+  if (start === -1) return undefined;
+  const end = html.lastIndexOf('</div>');
+  if (end === -1) return undefined;
+  return html.substring(start, end);
+};
+
+const sanitiseBody = (body: string): string =>
+  body === '<div dir="ltr">false</div>\n' ? '<div dir="ltr"></div>\n' : body;
+
+const convertEmails = (
+  emails: { name?: string; address?: string }[] | undefined,
+) =>
+  (emails ?? []).map(({ name, address }) => ({ name, email: address }));
+
+
 export const imapQueries = {
   async imapConversationDetail(
     _root,
-    { conversationId },
+    { conversationId }: { conversationId: string },
     { models }: IContext,
   ) {
     const messages = await models.ImapMessages.find({
       inboxConversationId: conversationId,
-    });
-
-    const convertEmails = (emails) =>
-      (emails || []).map((item) => ({ name: item.name, email: item.address }));
-
-    const getNewContentFromMessageBody = (html) => {
-      const startIndex = html.indexOf('<div dir="ltr">');
-
-      if (startIndex !== -1) {
-        const endIndex = html.indexOf('</div><br>', startIndex);
-
-        if (endIndex !== -1) {
-          const extractedContent = html.substring(
-            startIndex,
-            endIndex + '</div><br>'.length,
-          );
-          return extractedContent;
-        }
-      }
-    };
-
-    const getRepliesFromMessageBody = (html) => {
-      const startIndex = html.indexOf('<div class="gmail_quote">');
-
-      if (startIndex !== -1) {
-        const endIndex = html.lastIndexOf('</div>');
-
-        if (endIndex !== -1) {
-          const extractedContent = html.substring(startIndex, endIndex);
-          return extractedContent;
-        }
-      }
-    };
+    }).sort({ createdAt: 1 });
 
     return messages.map((message) => {
-      const msgBody =
-        message.body === '<div dir="ltr">false</div>\n'
-          ? '<div dir="ltr"></div>\n'
-          : message.body;
+      const body = sanitiseBody(message.body ?? '');
       return {
         _id: message._id,
+        createdAt: message.createdAt,
         mailData: {
           messageId: message.messageId,
+          type: message.type,
           from: convertEmails(message.from),
           to: convertEmails(message.to),
           cc: convertEmails(message.cc),
           bcc: convertEmails(message.bcc),
           subject: message.subject,
-          body: msgBody,
-          newContent: getNewContentFromMessageBody(msgBody),
-          replies: getRepliesFromMessageBody(msgBody),
+          body,
+          newContent: extractNewContent(body),
+          replies: extractQuotedReply(body),
           attachments: message.attachments,
         },
-        createdAt: message.createdAt,
       };
     });
   },

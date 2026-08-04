@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
   IAdjustFundRate,
@@ -8,7 +8,9 @@ import { adjustFundRatesSchema } from '../../db/definitions/adjustFundRate';
 
 export interface IAdjustFundRatesModels extends Model<IAdjustFundRateDocument> {
   getAdjustFundRate(_id: string): Promise<IAdjustFundRate>;
-  getAdjustFundRates(selecter: any): Promise<IAdjustFundRate[]>;
+  getAdjustFundRates(
+    selector: FilterQuery<IAdjustFundRateDocument>,
+  ): Promise<IAdjustFundRate[]>;
   createAdjustFundRate(doc: IAdjustFundRate): Promise<IAdjustFundRateDocument>;
   updateAdjustFundRate(
     _id: string,
@@ -26,7 +28,9 @@ export const loadAdjustRatesClass = (models: IModels) => {
       return adjusting;
     }
 
-    public static async getAdjustFundRates(selector: any = {}) {
+    public static async getAdjustFundRates(
+      selector: FilterQuery<IAdjustFundRateDocument> = {},
+    ) {
       return models.AdjustFundRates.find(selector)
         .sort({ createdAt: -1 })
         .lean();

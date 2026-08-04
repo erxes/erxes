@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const UPDATE_STAGES_ORDER = gql`
   mutation salesStagesUpdateOrder($orders: [SalesOrderItem]) {
@@ -23,7 +23,7 @@ export const STAGES_REMOVE = gql`
 `;
 
 export const STAGES_SORT_ITEMS = gql`
-  mutation salesStagesSortItems($stageId: String!, $processId: String, $sortType: String) {
-    salesStagesSortItems(stageId: $stageId, processId: $processId, sortType: $sortType)
+  mutation salesStagesSortItems($stageId: String!, $sortType: String) {
+    salesStagesSortItems(stageId: $stageId, sortType: $sortType)
   }
 `;

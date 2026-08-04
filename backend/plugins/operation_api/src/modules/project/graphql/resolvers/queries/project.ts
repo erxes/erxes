@@ -13,15 +13,23 @@ import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const projectQueries: Record<string, Resolver> = {
-  getProject: async (_parent: undefined, { _id }, { models }: IContext) => {
+  getProject: async (
+    _parent: undefined,
+    { _id },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('projectRead');
+
     return models.Project.getProject(_id);
   },
 
   getProjects: async (
     _parent: undefined,
     { filter }: { filter: IProjectFilter },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('projectRead');
+
     const filterQuery: FilterQuery<IProjectDocument> = {};
 
     if (filter?._ids && filter?._ids?.length) {
@@ -132,16 +140,20 @@ export const projectQueries: Record<string, Resolver> = {
   getConvertedProject: async (
     _parent: undefined,
     { convertedFromId },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('projectRead');
+
     return await models.Project.findOne({ convertedFromId }).lean();
   },
 
   getProjectProgress: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('projectRead');
+
     const result = await models.Task.aggregate([
       {
         $match: {
@@ -239,8 +251,10 @@ export const projectQueries: Record<string, Resolver> = {
   getProjectProgressByMember: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('projectRead');
+
     return models.Task.aggregate([
       {
         $match: {
@@ -378,8 +392,10 @@ export const projectQueries: Record<string, Resolver> = {
   getProjectProgressByTeam: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('projectRead');
+
     return models.Task.aggregate([
       {
         $match: {
@@ -517,8 +533,10 @@ export const projectQueries: Record<string, Resolver> = {
   getProjectProgressChart: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('projectRead');
+
     const project = await models.Project.findOne({ _id }).lean();
 
     if (!project) {

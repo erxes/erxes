@@ -12,10 +12,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@graphql-tools/schema": "^10.0.23",
     "aws-sdk": "^2.1692.0",
+    "bcryptjs": "^3.0.2",
     "debug": "^4.4.0",
     "erxes-api-shared": "workspace:^",
     "fbgraph": "^1.4.4",
-    "moment-timezone": "^0.5.48"
+    "graphql-tag": "^2.12.6",
+    "graphql-ws": "^5.16.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.48",
+    "sha256": "^0.2.0",
+    "ws": "^8.18.2"
   }
 }

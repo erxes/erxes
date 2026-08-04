@@ -1,9 +1,16 @@
 import {
+  CMS_ACCESS_POLICIES,
+  CMS_DEFAULT_ACCESS_POLICY,
   ICMSMenuDocument,
   ICMSPageDocument,
   IContentCMSDocument,
+  MENU_CONTENT_SOURCES,
+  MENU_LINK_TYPES,
 } from '@/cms/@types/cms';
-import { customFieldSchema } from 'erxes-api-shared/core-modules';
+import {
+  attachmentSchema,
+  customFieldSchema,
+} from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import mongoose, { Schema } from 'mongoose';
 
@@ -13,8 +20,30 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     description: { type: String, required: true },
     clientPortalId: { type: String, required: true },
     content: { type: String, required: true },
+    domain: { type: String, optional: true },
+    publicUrl: { type: String, optional: true },
+    metaTitle: { type: String, optional: true },
+    metaDescription: { type: String, optional: true },
+    metaKeywords: { type: [String], optional: true },
+    metaImage: { type: attachmentSchema, optional: true },
+    googleTrackingId: { type: String, optional: true },
+    googleTagManagerId: { type: String, optional: true },
+    customScripts: { type: [String], optional: true },
+    defaultPostStatus: { type: String, optional: true },
+    allowComments: { type: Boolean, optional: true },
+    siteLogo: { type: attachmentSchema, optional: true },
+    favicon: { type: attachmentSchema, optional: true },
     language: { type: String, optional: true },
     languages: { type: [String], optional: true },
+    postUrlField: { type: String, optional: true, default: '_id' },
+    postUrlPrefix: { type: String, optional: true, default: '/posts' },
+    accessPolicy: {
+      type: String,
+      enum: CMS_ACCESS_POLICIES,
+      optional: true,
+      default: CMS_DEFAULT_ACCESS_POLICY,
+    },
+    assignedMemberIds: { type: [String], optional: true, default: [] },
   },
   { timestamps: true },
 );
@@ -23,14 +52,18 @@ export const cmsMenuSchema = new mongoose.Schema<ICMSMenuDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
+    webId: { type: String, optional: true },
     label: { type: String, required: true },
-    objectType: { type: String },
-    objectId: { type: String },
+    contentType: { type: String, optional: true },
+    contentTypeId: { type: String, optional: true },
+    type: { type: String, enum: MENU_CONTENT_SOURCES, optional: true },
+    linkType: { type: String, enum: MENU_LINK_TYPES },
     kind: { type: String, required: true },
     icon: { type: String },
     url: { type: String },
     parentId: { type: String },
     order: { type: Number, required: true },
+    openInNewTab: { type: Boolean, default: false },
     target: { type: String, default: '_self' },
   },
   { timestamps: true },
@@ -40,13 +73,25 @@ export const cmsPageSchema = new mongoose.Schema<ICMSPageDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
+    parentId: { type: String },
     name: { type: String, required: true },
     description: { type: String },
     content: { type: String },
     slug: { type: String, required: true },
     layout: { type: String, required: false },
+    status: { type: String },
     createdUserId: { type: String, ref: 'User' },
     coverImage: { type: String },
+
+    thumbnail: { type: attachmentSchema, label: 'Thumbnail' },
+    pageImages: [{ type: attachmentSchema, label: 'Image Gallery' }],
+    video: { type: attachmentSchema, label: 'Video' },
+    audio: { type: attachmentSchema, label: 'Audio' },
+    documents: [{ type: attachmentSchema, label: 'Documents' }],
+    attachments: [{ type: attachmentSchema, label: 'Attachments' }],
+    pdfAttachment: { type: Object, optional: true, label: 'PDF attachment' },
+    videoUrl: { type: String, label: 'Video URL' },
+
     customFieldsData: { type: [customFieldSchema], optional: true },
     pageItems: [
       {

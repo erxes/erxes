@@ -7,10 +7,12 @@ import {
 } from 'erxes-ui';
 import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
-import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
+import { useTranslation } from 'react-i18next';
 
 export const ChooseChannel = () => {
-  const { channels, loading } = useGetChannels();
+  const { t } = useTranslation('frontline');
+  const { channels, loading } = useGetMyChannels();
 
   if (loading)
     return (
@@ -24,7 +26,7 @@ export const ChooseChannel = () => {
   if (!channels?.length)
     return (
       <div className="text-sm text-accent-foreground ml-3 my-4">
-        No channels found
+        {t('no-channels-found')}
       </div>
     );
 

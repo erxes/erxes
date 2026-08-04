@@ -1,4 +1,10 @@
 import { BadgeProps } from 'erxes-ui';
+import {
+  IconBellRinging,
+  IconDeviceMobile,
+  IconUserCheck,
+  IconUsers,
+} from '@tabler/icons-react';
 
 export const BROADCAST_MESSAGE_KINDS: Record<string, string> = {
   AUTO: 'auto',
@@ -132,7 +138,93 @@ export const BROADCAST_MESSAGE_METHODS = [
   { value: 'notification', label: 'Notification' },
 ];
 
+export const BROADCAST_NOTIFICATION_STATISTIC = {
+  total: {
+    title: 'Targeted',
+    description:
+      'Customers matched by the selected tag who are eligible for this campaign.',
+    icon: IconUsers,
+  },
+  sent: {
+    title: 'Sent',
+    description:
+      'Client portal users who successfully received the notification.',
+    icon: IconUserCheck,
+  },
+  read: {
+    title: 'Read',
+    description:
+      'Recipients who opened and marked the in-app notification as read.',
+    icon: IconBellRinging,
+  },
+  push: {
+    title: 'Push enabled',
+    description:
+      'Campaign was configured to deliver mobile and web push notifications.',
+    icon: IconDeviceMobile,
+  },
+};
+
 export const BROADCAST_MESSAGE_KIND = [
   { value: 'auto', label: 'Auto' },
   { value: 'manual', label: 'Manual' },
+];
+
+export const BROADCAST_PROVIDER_FIELDS: Record<
+  string,
+  Array<{ name: string; label: string; type?: string }>
+> = {
+  SES: [
+    {
+      name: 'BROADCAST_AWS_SES_ACCESS_KEY_ID',
+      label: 'AWS SES Access Key id',
+    },
+    {
+      name: 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
+      label: 'AWS SES Secret Access Key',
+    },
+    { name: 'BROADCAST_AWS_REGION', label: 'AWS Region' },
+    { name: 'BROADCAST_AWS_SES_CONFIG_SET', label: 'AWS SES Config Set' },
+  ],
+  sendgrid: [
+    {
+      name: 'BROADCAST_SENDGRID_API_KEY',
+      label: 'SendGrid API Key',
+      type: 'password',
+    },
+    { name: 'BROADCAST_SENDGRID_SUBUSER', label: 'SendGrid Subuser' },
+  ],
+  custom: [
+    { name: 'BROADCAST_MAIL_SERVICE', label: 'Mail Service Name' },
+    { name: 'BROADCAST_MAIL_HOST', label: 'Host' },
+    { name: 'BROADCAST_MAIL_PORT', label: 'Port' },
+    { name: 'BROADCAST_MAIL_USER', label: 'Username' },
+    { name: 'BROADCAST_MAIL_PASS', label: 'Password', type: 'password' },
+  ],
+};
+
+export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
+  {
+    name: 'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
+    inputType: 'input',
+    type: 'number',
+    label: 'Unverified emails limit',
+    description: '',
+  },
+  {
+    name: 'BROADCAST_ALLOWED_EMAIL_SKIP_LIMIT',
+    inputType: 'input',
+    type: 'number',
+    label: 'Allowed email skip limit',
+    description:
+      'The number of times that each customer can skip to open or click campaign emails. If this limit is exceeded, then the customer will automatically set to unsubscribed mode.',
+  },
+  {
+    name: 'BROADCAST_CUSTOMER_LIMIT_PER_AUTO_SMS_CAMPAIGN',
+    inputType: 'input',
+    type: 'number',
+    label: 'Customer limit per auto SMS campaign',
+    description:
+      'The maximum number of customers that can receive auto SMS campaign per each runtime.',
+  },
 ];

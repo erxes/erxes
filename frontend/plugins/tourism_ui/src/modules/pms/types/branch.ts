@@ -6,20 +6,19 @@ export interface IPmsPaymentType {
   config?: string;
 }
 
-export interface IPmsDiscount extends IPmsPaymentType {}
-
 export interface IPmsUser {
   _id: string;
   details: { avatar: string; fullName: string };
 }
 export interface IPmsUiOptions {
   logo?: string;
-  texts?: string;
+  website?: string;
   colors?: { primary?: string; secondary?: string; third?: string };
 }
 export interface IPmsPipelineConfig {
   boardId: string;
   pipelineId: string;
+  stageId: string;
 }
 
 export interface IPmsBranch {
@@ -29,6 +28,8 @@ export interface IPmsBranch {
   createdAt: Date;
   token: string;
   erxesAppToken?: string;
+  userId: string;
+  departmentId?: string;
   user1Ids?: string[];
   user2Ids?: string[];
   user3Ids?: string[];
@@ -41,8 +42,17 @@ export interface IPmsBranch {
   permissionConfig?: any;
   pipelineConfig?: IPmsPipelineConfig;
   extraProductCategories?: string[];
+  excludeExtraProductCategoryIds?: string[];
+  excludeExtraProductIds?: string[];
   roomCategories?: string[];
-  discount?: IPmsDiscount[];
+  excludeRoomCategoryIds?: string[];
+  excludeRoomIds?: string[];
+  hasAppointment?: boolean;
+  appointmentCategories?: string[];
+  excludeAppointmentCategoryIds?: string[];
+  excludeAppointmentIds?: string[];
+  websiteReservationLock?: boolean;
+  discount?: IPmsPaymentType[];
   time?: string;
   checkintime: string;
   checkouttime: string;

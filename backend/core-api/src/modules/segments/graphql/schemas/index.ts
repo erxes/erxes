@@ -30,6 +30,7 @@ export const types = `
     subSegmentId: String
 
     config: JSON
+    meta: JSON
   }
 
   type Segment @key(fields: "_id") {

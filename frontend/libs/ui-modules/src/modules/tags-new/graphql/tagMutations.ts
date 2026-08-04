@@ -25,7 +25,6 @@ export const ADD_TAG = gql`
       isGroup
       description
       type
-      order
       objectCount
       totalObjectCount
       createdAt

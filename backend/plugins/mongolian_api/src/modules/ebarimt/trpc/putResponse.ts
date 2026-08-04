@@ -2,7 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
-import { getCompanyInfo, getConfig } from '../utils';
+import { getCompanyInfo } from '../utils';
 
 export type EbarimtTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -19,7 +19,7 @@ export const putResponsesTrpcRouter = t.router({
     }),
 
     putDatas: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
+      const { models } = ctx;
       const { contentType, contentId, orderInfo, config } = input;
 
       return await models.PutResponses.putData(
@@ -28,16 +28,16 @@ export const putResponsesTrpcRouter = t.router({
           contentType,
           contentId,
         },
-        { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config },
+        { ...(await models.Configs.getConfigValue('EBARIMT')), ...config },
       );
     }),
 
     returnBill: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
+      const { models } = ctx;
       const { contentType, contentId, number, config, user } = input;
 
       const mainConfig = {
-        ...(await getConfig(subdomain, 'EBARIMT', {})),
+        ...(await models.Configs.getConfigValue('EBARIMT')),
         ...config,
       };
 
@@ -51,7 +51,7 @@ export const putResponsesTrpcRouter = t.router({
     createOrUpdate: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { models } = ctx;
         const { _id, doc } = input;
 
         return await models.PutResponses.updateOne(
@@ -59,6 +59,35 @@ export const putResponsesTrpcRouter = t.router({
           { $set: { ...doc } },
           { upsert: true },
         );
+      }),
+
+    syncPutResponses: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { putResponses = [] } = input;
+
+        const bulkOps: any[] = [];
+
+        for (const putResponse of putResponses) {
+          const { _id, ...doc } = putResponse;
+          bulkOps.push({
+            updateOne: {
+              filter: { _id },
+              update: {
+                $set: {
+                  ...doc,
+                },
+              },
+              upsert: true,
+            },
+          });
+        }
+        if (bulkOps.length) {
+          await models.PutResponses.bulkWrite(bulkOps);
+        }
+
+        return await models.PutResponses.findOne({ _id: { $in: putResponses.map(pr => pr._id) } })
       }),
 
     putHistory: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
@@ -78,17 +107,11 @@ export const putResponsesTrpcRouter = t.router({
         });
       }),
 
-    bulkWrite: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { bulkOps } = input;
-      return await models.PutResponses.bulkWrite(bulkOps);
-    }),
-
     getCompany: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { subdomain } = ctx;
+      const { models } = ctx;
       const { companyRD } = input;
 
-      const config = (await getConfig(subdomain, 'EBARIMT', {})) || {};
+      const config = (await models.Configs.getConfigValue('EBARIMT')) || {};
       const response = await getCompanyInfo({
         checkTaxpayerUrl: config.checkTaxpayerUrl,
         no: companyRD,

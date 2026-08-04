@@ -9,12 +9,16 @@ import {
   TAutomationBuilderTriggers,
   TAutomationBuilderWorkflows,
 } from '@/automations/utils/automationFormDefinitions';
+import { TAutomationEdgeType } from '@/automations/constants/edgeTypes';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { Edge, EdgeProps, Node, ReactFlowInstance } from '@xyflow/react';
 import {
   IAutomationHistory,
   IAutomationHistoryAction,
   IAutomationsActionConfigConstants,
   IAutomationsTriggerConfigConstants,
+  ApprovalLockState,
+  TAiKnowledgeSourceConfig,
   TAutomationAction,
   TAutomationActionProps,
   TAutomationTrigger,
@@ -24,7 +28,25 @@ export interface AutomationConstants {
   triggersConst: IAutomationsTriggerConfigConstants[];
   triggerTypesConst: string[];
   actionsConst: IAutomationsActionConfigConstants[];
-  propertyTypesConst: Array<{ value: string; label: string }>;
+  findObjectTargetsConst: Array<{
+    value: string;
+    label: string;
+    lookupFields: Array<{ value: string; label: string }>;
+    output?: {
+      variables?: Array<{
+        key: string;
+        label: string;
+        exposure?: 'placeholder' | 'reference';
+      }>;
+      propertySource?: {
+        key: string;
+        label: string;
+        propertyType: string;
+      };
+      resolverKeys?: string[];
+    };
+  }>;
+  aiKnowledgeSourcesConst: TAiKnowledgeSourceConfig[];
 }
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;
@@ -33,6 +55,9 @@ export interface ConstantsQueryResponse {
 export type NodeData<TConfig = any> = {
   id: string;
   nodeIndex: number;
+  // Form path of the node's entry when it doesn't live in the root actions
+  // array (e.g. workflow members: `workflows.0.actions.1`)
+  formPath?: string;
   label: string;
   nodeType: AutomationNodeType;
   icon?: string;
@@ -48,6 +73,7 @@ export type NodeData<TConfig = any> = {
   nextActionId?: string;
   actionId?: string;
   workflowId?: string;
+  flowDirection?: TAutomationFlowDirection;
   beforeTitleContent?: (
     id: string,
     type: AutomationNodeType,
@@ -60,21 +86,27 @@ export type WorkflowNodeData = {
   description: string;
   label: string;
   nodeType: string;
+  icon?: string;
+  flowDirection?: TAutomationFlowDirection;
 };
 
 export interface IAutomationDoc {
   name: string;
   status: string;
+  edgeType?: TAutomationEdgeType;
+  flowDirection?: TAutomationFlowDirection;
   triggers: TAutomationTrigger[];
   actions: TAutomationAction[];
   updatedAt?: string;
   createdAt?: string;
+  createdBy?: string;
   updatedBy?: string;
   createdByIds?: string;
   updatedUser?: any;
   createdUser?: any;
   tags?: any[];
   tagIds?: string[];
+  approvalLockState?: ApprovalLockState;
 }
 
 export interface IAutomationNoteDoc {
@@ -96,6 +128,7 @@ export type AutomationDropHandlerParams = {
   actions: TAutomationBuilderActions;
   workflows?: TAutomationBuilderWorkflows;
   getNodes: () => Node<NodeData>[];
+  flowDirection?: TAutomationFlowDirection;
 };
 
 export type TDraggingNode = {
@@ -111,6 +144,9 @@ export type StatusBadgeValue =
   (typeof STATUSES_BADGE_VARIABLES)[keyof typeof STATUSES_BADGE_VARIABLES];
 
 export enum AutomationsHotKeyScope {
+  AutomationsPage = 'automations-page',
+  AutomationCreatePage = 'automation-create-page',
+  AutomationsTableInlinePopover = 'automations-table-inline-popover',
   Builder = 'automation-builder',
   BuilderSideBar = 'automation-builder-sidebar',
   BuilderPanel = 'automation-builder-panel',
@@ -121,6 +157,7 @@ export enum AutomationsHotKeyScope {
 export enum AutomationsPath {
   Index = '/automations',
   Detail = '/edit/:id',
+  Create = '/create',
 }
 
 export enum AutomationNodeType {

@@ -1,18 +1,30 @@
-import * as _ from 'underscore';
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { IConversationDocument } from '@/inbox/@types/conversations';
-import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import {
   IConversationMessageAdd,
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
-import { AUTO_BOT_MESSAGES } from '@/inbox/db/definitions/constants';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IConversationDocument } from '@/inbox/@types/conversations';
+import {
+  AUTOMATED_REPLY_REASON,
+  AUTOMATED_REPLY_STATUS,
+  AUTO_BOT_MESSAGES,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
+import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { sendReply } from '@/integrations/facebook/utils';
+import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
+import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import {
+  graphqlPubsub,
+  sendTRPCMessage,
+  markResolvers,
+} from 'erxes-api-shared/utils';
+import * as _ from 'underscore';
+import { generateModels, IContext, IModels } from '~/connectionResolvers';
+import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
+import strip from 'strip';
 
 interface DispatchConversationData {
   action: string;
@@ -21,9 +33,41 @@ interface DispatchConversationData {
   integrationId: string;
 }
 
-/**
- * conversation notrification receiver ids
- */
+const DEFAULT_HANDOFF_MESSAGE =
+  'A teammate will take over shortly. Automated replies are paused.';
+const DEFAULT_AUTOMATION_ACTIVE_MESSAGE = 'Automated replies are active again.';
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
+const buildFacebookMessengerTextPayload = ({
+  recipientId,
+  text,
+  tag,
+}: {
+  recipientId: string;
+  text: string;
+  tag?: string;
+}) => {
+  const trimmedTag = tag?.trim();
+  const payload: {
+    recipient: { id: string };
+    message: { text: string };
+    messaging_type: string;
+    tag?: string;
+  } = {
+    recipient: { id: recipientId },
+    message: { text },
+    messaging_type: trimmedTag ? 'MESSAGE_TAG' : 'RESPONSE',
+  };
+
+  if (trimmedTag) {
+    payload.tag = trimmedTag;
+  }
+
+  return payload;
+};
+
 export const dispatchConversationToService = async (
   subdomain: string,
   serviceName: string,
@@ -35,14 +79,15 @@ export const dispatchConversationToService = async (
         return await handleFacebookIntegration({ subdomain, data });
 
       case 'instagram':
-        // TODO: Implement Instagram logic
-        break;
+        return await handleInstagramIntegration({ subdomain, data });
+
+      case 'discord':
+        return await handleDiscordIntegration({ subdomain, data });
 
       case 'calls':
         break;
 
       case 'mobinetSms':
-        // TODO: Implement Mobinet SMS logic
         break;
 
       case 'messenger':
@@ -56,6 +101,148 @@ export const dispatchConversationToService = async (
       `Your message was not sent. Error: ${e.message}. Go to integrations list and fix it.`,
     );
   }
+};
+
+const markAutomatedReplyHumanActive = async ({
+  models,
+  conversation,
+  userId,
+}: {
+  models: IModels;
+  conversation: IConversationDocument;
+  userId: string;
+}) => {
+  if (!conversation.automatedReplyControl) {
+    return;
+  }
+
+  await models.Conversations.setAutomatedReplyControl(conversation._id, {
+    status: AUTOMATED_REPLY_STATUS.HUMAN_ACTIVE,
+    reason: AUTOMATED_REPLY_REASON.OPERATOR_REPLY,
+    updatedBy: userId,
+  });
+};
+
+const getAutomatedReplyStatus = (status: string) => {
+  switch (status) {
+    case AUTOMATED_REPLY_STATUS.ACTIVE:
+      return AUTOMATED_REPLY_STATUS.ACTIVE;
+    case AUTOMATED_REPLY_STATUS.HANDOFF_REQUESTED:
+      return AUTOMATED_REPLY_STATUS.HANDOFF_REQUESTED;
+    case AUTOMATED_REPLY_STATUS.HUMAN_ACTIVE:
+      return AUTOMATED_REPLY_STATUS.HUMAN_ACTIVE;
+    default:
+      throw new Error('Invalid automated reply status');
+  }
+};
+
+const getAutomatedReplyReason = (reason?: string) => {
+  if (!reason) {
+    return AUTOMATED_REPLY_REASON.MANUAL;
+  }
+
+  switch (reason) {
+    case AUTOMATED_REPLY_REASON.CUSTOMER_REQUESTED:
+      return AUTOMATED_REPLY_REASON.CUSTOMER_REQUESTED;
+    case AUTOMATED_REPLY_REASON.OPERATOR_REPLY:
+      return AUTOMATED_REPLY_REASON.OPERATOR_REPLY;
+    case AUTOMATED_REPLY_REASON.MANUAL:
+      return AUTOMATED_REPLY_REASON.MANUAL;
+    case AUTOMATED_REPLY_REASON.TIMEOUT_EXPIRED:
+      return AUTOMATED_REPLY_REASON.TIMEOUT_EXPIRED;
+    default:
+      throw new Error('Invalid automated reply reason');
+  }
+};
+
+const sendFacebookAutomatedReplyControlMessage = async ({
+  models,
+  subdomain,
+  conversation,
+  status,
+}: {
+  models: IModels;
+  subdomain: string;
+  conversation: IConversationDocument;
+  status: string;
+}) => {
+  if (!conversation.integrationId) {
+    throw new Error('Conversation integration is required for handoff message');
+  }
+
+  const integration = await models.Integrations.getIntegration({
+    _id: conversation.integrationId,
+  });
+
+  if (integration.kind !== INTEGRATION_KINDS.MESSENGER) {
+    return;
+  }
+
+  const facebookConversation =
+    await models.FacebookConversations.getConversation({
+      erxesApiId: conversation._id,
+    });
+
+  const bot = facebookConversation.botId
+    ? await models.FacebookBots.findOne({ _id: facebookConversation.botId })
+    : await models.FacebookBots.findOne({
+        pageId: facebookConversation.recipientId,
+      });
+
+  if (!bot) {
+    throw new Error('Facebook bot is required for handoff message');
+  }
+
+  const defaultText =
+    status === AUTOMATED_REPLY_STATUS.ACTIVE
+      ? DEFAULT_AUTOMATION_ACTIVE_MESSAGE
+      : DEFAULT_HANDOFF_MESSAGE;
+  const configuredText =
+    status === AUTOMATED_REPLY_STATUS.ACTIVE
+      ? bot.automationActiveMessage
+      : bot.handoffMessage;
+  const text = (configuredText || defaultText).trim() || defaultText;
+
+  const sendHandoffReply = (tag?: string) =>
+    sendReply(
+      models,
+      'me/messages',
+      buildFacebookMessengerTextPayload({
+        recipientId: facebookConversation.senderId,
+        text,
+        tag,
+      }),
+      facebookConversation.recipientId,
+      integration._id,
+    );
+
+  let sendResult;
+
+  try {
+    sendResult = await sendHandoffReply();
+  } catch (error) {
+    const errorMessage = getErrorMessage(error);
+    const shouldRetryWithTag =
+      errorMessage.includes('outside of allowed window') && bot.tag;
+
+    if (!shouldRetryWithTag) {
+      throw new Error(errorMessage);
+    }
+
+    sendResult = await sendHandoffReply(bot.tag);
+  }
+
+  await models.FacebookConversationMessages.addBotMessage(subdomain, {
+    conversationId: facebookConversation._id,
+    botId: bot._id,
+    botData: [{ type: 'text', text }],
+    mid: String(
+      sendResult?.mid ||
+        sendResult?.message_id ||
+        `automation-control-${conversation._id}-${Date.now()}`,
+    ),
+    conversationErxesApiId: conversation._id,
+  });
 };
 
 export const conversationNotifReceivers = (
@@ -79,10 +266,6 @@ export const conversationNotifReceivers = (
   }
   return userIds;
 };
-/**
- * Using this subscription to track conversation detail's assignee, tag, status
- * changes
- */
 export const publishConversationsChanged = async (
   subdomain: string,
   _ids: string[],
@@ -94,16 +277,11 @@ export const publishConversationsChanged = async (
     await graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type },
     });
-
-    await models.Conversations.findOne({ _id });
   }
 
   return _ids;
 };
 
-/**
- * Publish admin's message
- */
 export const publishMessage = async (
   models: IModels,
   message: IMessageDocument,
@@ -131,25 +309,28 @@ export const publishMessage = async (
   }
 };
 
-export const sendNotifications = async ({
-  user,
-  conversations,
-  type,
-  mobile,
-  messageContent,
-}: {
-  user: IUserDocument;
-  conversations: IConversationDocument[];
-  type: string;
-  mobile?: boolean;
-  messageContent?: string;
-}) => {
+export const sendNotifications = async (
+  subdomain: string,
+  {
+    user,
+    conversations,
+    type,
+    mobile,
+    messageContent,
+  }: {
+    user: IUserDocument;
+    conversations: IConversationDocument[];
+    type: string;
+    mobile?: boolean;
+    messageContent?: string;
+  },
+) => {
   for (const conversation of conversations) {
     if (!conversation || !conversation._id) {
       throw new Error('Error: Conversation or Conversation ID is undefined');
     }
 
-    if (!user || !user._id) {
+    if (!user?._id) {
       throw new Error('Error: User or User ID is undefined');
     }
 
@@ -157,9 +338,7 @@ export const sendNotifications = async ({
       createdUser: user,
       link: `/inbox/index?_id=${conversation._id}`,
       title: 'Conversation updated',
-      content: messageContent
-        ? messageContent
-        : conversation.content || 'Conversation updated',
+      content: messageContent || conversation.content || 'Conversation updated',
       notifType: type,
       receivers: conversationNotifReceivers(conversation, user._id),
       action: 'updated conversation',
@@ -186,6 +365,111 @@ export const sendNotifications = async ({
       default:
         break;
     }
+
+    if (mobile) {
+      if (conversation.customerId) {
+        try {
+          const cpUser = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'cpUsers',
+            action: 'get',
+            input: { erxesCustomerId: conversation.customerId },
+            defaultValue: null,
+          });
+
+          if (cpUser?._id && cpUser.clientPortalId) {
+            const clientPortal = await sendTRPCMessage({
+              subdomain,
+              pluginName: 'core',
+              method: 'query',
+              module: 'clientPortals',
+              action: 'get',
+              input: { _id: cpUser.clientPortalId },
+              defaultValue: null,
+            });
+
+            await sendTRPCMessage({
+              subdomain,
+              pluginName: 'core',
+              method: 'mutation',
+              module: 'cpNotifications',
+              action: 'create',
+              input: {
+                cpUserIds: [cpUser._id],
+                clientPortalId: cpUser.clientPortalId,
+                eventType: 'conversationMessage',
+                data: {
+                  title: clientPortal?.name || 'New chat message',
+                  message: strip(doc.content) || 'You have a new message',
+                  type: 'info',
+                  contentType: 'conversation',
+                  contentTypeId: conversation._id,
+                  priority: 'high',
+                  action: 'openConversation',
+                  kind: 'user',
+                  metadata: {
+                    conversationId: conversation._id,
+                    id: conversation._id,
+                    type: 'messenger',
+                  },
+                },
+              },
+            });
+          }
+        } catch (e) {
+          debugError(
+            `Failed to send client portal mobile notification: ${e.message}`,
+          );
+        }
+      }
+
+      if (!conversation._id) {
+        debugError(
+          'Skipping mobile chat notification: conversation id is unavailable',
+        );
+      } else {
+        const data: Record<string, string> = {
+          type: 'messenger',
+          id: String(conversation._id),
+          conversationId: String(conversation._id),
+          notificationType: 'chat_message',
+        };
+
+        if (conversation.integrationId) {
+          data.integrationId = String(conversation.integrationId);
+        }
+
+        if (conversation.customerId) {
+          data.customerId = String(conversation.customerId);
+        }
+
+        try {
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'core',
+            action: 'sendMobileNotification',
+            input: {
+              title: doc.title,
+              body: strip(doc.content),
+              receivers: conversationNotifReceivers(
+                conversation,
+                user._id,
+                false,
+              ),
+              customerId: conversation.customerId,
+              conversationId: conversation._id,
+              data,
+            },
+          });
+        } catch (e) {
+          debugError(`Failed to send mobile notification: ${e.message}`);
+        }
+      }
+    }
   }
 };
 
@@ -199,9 +483,47 @@ const getConversationById = async (models: IModels, selector) => {
 };
 
 export const conversationMutations = {
-  /**
-   * Create new message in conversation
-   */
+  async conversationAgentTyping(
+    _root,
+    {
+      conversationId,
+      typing = true,
+    }: { conversationId: string; typing?: boolean },
+    { models, subdomain }: IContext,
+  ) {
+    try {
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
+      if (!conversation?.integrationId) {
+        return false;
+      }
+
+      const integration = await models.Integrations.getIntegration({
+        _id: conversation.integrationId,
+      });
+      if (!integration?.kind) {
+        return false;
+      }
+
+      const serviceName = integration.kind.split('-')[0];
+
+      await dispatchConversationToService(subdomain, serviceName, {
+        action: 'typing',
+        type: serviceName,
+        payload: JSON.stringify({
+          integrationId: integration._id,
+          conversationId: conversation._id,
+          typing,
+        }),
+        integrationId: integration._id,
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
@@ -217,10 +539,17 @@ export const conversationMutations = {
 
       const { _id: integrationId } = integration;
       const { _id: conversationId } = conversation;
-      const { content = '', internal, attachments = [], extraInfo } = doc;
+      const {
+        content = '',
+        internal,
+        attachments = [],
+        extraInfo,
+        poll,
+        replyToMessageId,
+      } = doc;
       const { _id: userId } = user;
 
-      await sendNotifications({
+      await sendNotifications(subdomain, {
         user,
         conversations: [conversation],
         type: 'conversationAddMessage',
@@ -229,14 +558,18 @@ export const conversationMutations = {
       });
 
       const { kind } = integration;
-      const customer = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'customers',
-        action: 'findOne',
-        input: { query: { _id: conversation.customerId } },
-      });
+
+      const customer = conversation.customerId
+        ? await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'customers',
+            action: 'findOne',
+            input: { _id: conversation.customerId },
+            defaultValue: null,
+          })
+        : null;
 
       if (!customer) {
         throw new Error('Customer not found for the conversation');
@@ -244,7 +577,6 @@ export const conversationMutations = {
 
       const email = customer.primaryEmail;
 
-      // Send auto-reply email for lead forms
       if (!internal && kind === 'lead' && email) {
         await sendTRPCMessage({
           subdomain,
@@ -275,6 +607,20 @@ export const conversationMutations = {
         });
       }
 
+      if (internal) {
+        const message = await models.ConversationMessages.addMessage(
+          doc,
+          userId,
+        );
+        const dbMessage = await models.ConversationMessages.getMessage(
+          message._id,
+        );
+
+        publishMessage(models, dbMessage);
+
+        return dbMessage;
+      }
+
       const serviceName = integration.kind.split('-')[0];
       const actionType = kind?.split('-')[1] || 'unknown';
 
@@ -291,24 +637,45 @@ export const conversationMutations = {
             internal,
             attachments,
             extraInfo,
+            poll,
+            replyToMessageId,
             userId,
           }),
           integrationId,
         },
       );
 
-      // Case: external service handled it, do not save locally
+      if (response?.status === 'error') {
+        throw new Error(
+          response.errorMessage || 'Failed to send message to external service',
+        );
+      }
+
       if (response?.data?.data) {
-        const { conversationId, content } = response.data.data;
-        if (conversationId && content) {
-          await models.Conversations.updateConversation(conversationId, {
-            content: content || '',
-            updatedAt: new Date(),
-          });
+        const {
+          conversationId: responseConversationId,
+          content: responseContent,
+          displayContent,
+          extraData,
+        } = response.data.data;
+        if (responseConversationId && responseContent) {
+          await models.Conversations.updateConversation(
+            responseConversationId,
+            {
+              content: responseContent || '',
+              updatedAt: new Date(),
+            },
+          );
         }
 
+        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
+          ...doc,
+          ...(displayContent ? { content: displayContent } : {}),
+          ...(extraData ? { extraData } : {}),
+        };
+
         const message = await models.ConversationMessages.addMessage(
-          doc,
+          messageDoc,
           userId,
         );
 
@@ -316,28 +683,35 @@ export const conversationMutations = {
           message._id,
         );
 
+        await markAutomatedReplyHumanActive({
+          models,
+          conversation,
+          userId,
+        });
+
         publishMessage(models, dbMessage, conversation.customerId);
         return dbMessage;
       }
 
-      //  Fallback: always save message locally if not already handled
       const message = await models.ConversationMessages.addMessage(doc, userId);
       const dbMessage = await models.ConversationMessages.getMessage(
         message._id,
       );
 
       if (internal) {
-        // Internal message: only publish to admins
         publishMessage(models, dbMessage);
       } else {
-        // Normal message: publish to both admin and client
+        await markAutomatedReplyHumanActive({
+          models,
+          conversation,
+          userId,
+        });
 
         publishMessage(models, dbMessage, conversation.customerId);
       }
 
       return dbMessage;
     } catch (err) {
-      console.error('conversationMessageAdd error:', err);
       throw new Error(`Failed to add message to conversation: ${err.message}`);
     }
   },
@@ -356,9 +730,6 @@ export const conversationMutations = {
     );
   },
 
-  /**
-   * Assign employee to conversation
-   */
   async conversationsAssign(
     _root,
     {
@@ -373,10 +744,9 @@ export const conversationMutations = {
         assignedUserId,
       );
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations,
       type: 'conversationAssigneeChange',
@@ -396,9 +766,6 @@ export const conversationMutations = {
     return conversations;
   },
 
-  /**
-   * Unassign employee from conversation
-   */
   async conversationsUnassign(
     _root,
     { _ids }: { _ids: string[] },
@@ -410,40 +777,31 @@ export const conversationMutations = {
     const updatedConversations =
       await models.Conversations.unassignUserConversation(_ids);
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: oldConversations,
       type: 'unassign',
     });
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, _ids, 'assigneeChanged');
 
     return updatedConversations;
   },
 
-  /**
-   * Change conversation status
-   */
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
     { user, models, subdomain }: IContext,
   ) {
-    await models.Conversations.changeStatusConversation(
-      _ids,
-      status,
-      'OQgac3z4G3I2LW9QPpAtL',
-    );
+    await models.Conversations.changeStatusConversation(_ids, status, user._id);
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, _ids, status);
 
     const updatedConversations = await models.Conversations.find({
       _id: { $in: _ids },
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: updatedConversations,
       type: 'conversationStateChange',
@@ -451,10 +809,6 @@ export const conversationMutations = {
 
     return updatedConversations;
   },
-
-  /**
-   * Resolve all conversations
-   */
   async conversationsResolve(
     _root,
     params: { ids: string[] },
@@ -478,9 +832,6 @@ export const conversationMutations = {
     return result.modifiedCount || 0;
   },
 
-  /**
-   * Conversation mark as read
-   */
   async conversationMarkAsRead(
     _root,
     { _id }: { _id: string },
@@ -502,6 +853,7 @@ export const conversationMutations = {
           text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR,
         },
       ],
+      fromBot: true,
     });
     await graphqlPubsub.publish(
       `conversationMessageInserted:${message.conversationId}`,
@@ -514,6 +866,54 @@ export const conversationMutations = {
       { _id },
       { $set: { operatorStatus } },
     );
+  },
+
+  async conversationSetAutomatedReplyControl(
+    _root,
+    {
+      _id,
+      status,
+      reason,
+      pausedUntil,
+    }: { _id: string; status: string; reason?: string; pausedUntil?: Date },
+    { models, subdomain, user }: IContext,
+  ) {
+    const conversation = await models.Conversations.getConversation(_id);
+
+    if (!conversation.automatedReplyControl) {
+      throw new Error(
+        'Automated reply control is not enabled for this conversation',
+      );
+    }
+
+    const automatedReplyStatus = getAutomatedReplyStatus(status);
+    const automatedReplyReason = getAutomatedReplyReason(reason);
+    const shouldSendHandoffMessage =
+      automatedReplyStatus === AUTOMATED_REPLY_STATUS.HUMAN_ACTIVE &&
+      conversation.automatedReplyControl.status ===
+        AUTOMATED_REPLY_STATUS.ACTIVE;
+    const shouldSendActiveMessage =
+      automatedReplyStatus === AUTOMATED_REPLY_STATUS.ACTIVE &&
+      conversation.automatedReplyControl.status !==
+        AUTOMATED_REPLY_STATUS.ACTIVE;
+
+    if (shouldSendHandoffMessage || shouldSendActiveMessage) {
+      await sendFacebookAutomatedReplyControlMessage({
+        models,
+        subdomain,
+        conversation,
+        status: automatedReplyStatus,
+      });
+    }
+
+    await models.Conversations.setAutomatedReplyControl(_id, {
+      status: automatedReplyStatus,
+      pausedUntil: pausedUntil ? new Date(pausedUntil) : undefined,
+      reason: automatedReplyReason,
+      updatedBy: user?._id,
+    });
+
+    return models.Conversations.getConversation(_id);
   },
 
   async conversationConvertToCard(
@@ -542,3 +942,8 @@ export const conversationMutations = {
     return models.Conversations.getConversation(_id);
   },
 };
+markResolvers(conversationMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

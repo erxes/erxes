@@ -1,6 +1,6 @@
 export const types = `
   extend type Company @key(fields: "_id") {
-      _id: String! @external
+      _id: String @external
   }
 
   input SubmissionFilter {
@@ -42,6 +42,8 @@ export const types = `
     tags: [Tag]
     channelId: String
     integrationId: String
+
+    channel: Channel
   }
 
   type FormSubmission {
@@ -51,6 +53,7 @@ export const types = `
     formFieldId: String
     text: String
     formFieldText: String
+    formFieldType: String
     value: JSON
     submittedAt: Date
   }
@@ -58,6 +61,9 @@ export const types = `
   type Submission @key(fields: "_id") {
     _id: String!
     contentTypeId: String
+    formId: String
+    conversationId: String
+    channelId: String
     customerId: String
     customer: Customer
     createdAt: Date
@@ -122,6 +128,12 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int,
   }
+
+  type SubmissionListResponse {
+    list: [Submission],
+    pageInfo: PageInfo
+    totalCount: Int,
+  }
 `;
 
 const commonFields = `
@@ -168,19 +180,23 @@ export const cursorParams = `
 export const queries = `
   formDetail(_id: String!): Form
   forms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
+  formsMain(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
   formsTotalCount(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams} ): FormsTotalCount
-  formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): [Submission]
-  formSubmissionsTotalCount(${formSubmissionQueryParams},${cursorParams}): Int
-  formSubmissionDetail(contentTypeId: String!): Submission
+  formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): SubmissionListResponse
+  formSubmissionDetail(_id: String!): Submission
 
   formsGetContentTypes: [FormType]
+
+  cpForms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
+  cpFormDetail(_id: String!): Form
+  
 `;
 
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
-  formsRemove(_id: String!): JSON
-  formsToggleStatus(_id: String!): Form
+  formsRemove(_ids: [String]): [String]
+  formsToggleStatus(_ids: [String]!, status: String): Boolean
   formsDuplicate(_id: String!): Form
   formSubmissionsSave(${commonFormSubmissionFields}): Boolean
 
@@ -200,6 +216,13 @@ export const mutations = `
       browserInfo: JSON!
       cachedCustomerId: String
     ): SaveFormResponse
+
+  cpWidgetsSaveLead(
+    formId: String!
+    submissions: [FieldValueInput]
+    browserInfo: JSON!
+    cachedCustomerId: String
+  ): SaveFormResponse
 
 
 `;

@@ -29,6 +29,22 @@ import {
   SelectDepartmentsCreateContainer,
 } from './CreateDepartmentForm';
 
+const cacheSelectedDepartment = (
+  department: IDepartment | undefined,
+  selectedDepartmentIds: string[],
+  setSelectedDepartments: React.Dispatch<React.SetStateAction<IDepartment[]>>,
+) => {
+  if (!department || !selectedDepartmentIds.includes(department._id)) return;
+
+  setSelectedDepartments((previousDepartments) => {
+    if (previousDepartments.some(({ _id }) => _id === department._id)) {
+      return previousDepartments;
+    }
+
+    return [...previousDepartments, department];
+  });
+};
+
 export const SelectDepartmentsProvider = ({
   children,
   value,
@@ -39,7 +55,13 @@ export const SelectDepartmentsProvider = ({
   const [selectedDepartments, setSelectedDepartments] = useState<IDepartment[]>(
     [],
   );
-  const departmentIds = !value ? [] : Array.isArray(value) ? value : [value];
+  let departmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    departmentIds = value;
+  } else if (value) {
+    departmentIds = [value];
+  }
 
   const handleSelectCallback = (department: IDepartment) => {
     if (!department) return;
@@ -51,14 +73,14 @@ export const SelectDepartmentsProvider = ({
     const newSelectedDepartmentIds = isSingleMode
       ? [department._id]
       : isSelected
-      ? multipleValue.filter((d) => d !== department._id)
-      : [...multipleValue, department._id];
+        ? multipleValue.filter((d) => d !== department._id)
+        : [...multipleValue, department._id];
 
     const newSelectedDepartments = isSingleMode
       ? [department]
       : isSelected
-      ? selectedDepartments.filter((d) => d._id !== department._id)
-      : [...selectedDepartments, department];
+        ? selectedDepartments.filter((d) => d._id !== department._id)
+        : [...selectedDepartments, department];
 
     setSelectedDepartments(newSelectedDepartments);
     onValueChange?.(isSingleMode ? department._id : newSelectedDepartmentIds);
@@ -187,7 +209,7 @@ export const SelectDepartmentsItem = ({
   department: IDepartment & { hasChildren: boolean };
 }) => {
   const { onSelect, departmentIds } = useSelectDepartmentsContext();
-  const isSelected = departmentIds?.some((d) => d === department._id);
+  const isSelected = departmentIds?.includes(department._id);
   return (
     <SelectTree.Item
       key={department._id}
@@ -209,6 +231,7 @@ export const SelectDepartmentsItem = ({
 export const DepartmentsList = ({
   placeholder,
   renderAsPlainText,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof DepartmentBadge>, 'onClose'> & {
   placeholder?: string;
@@ -217,9 +240,15 @@ export const DepartmentsList = ({
   const { value, selectedDepartments, setSelectedDepartments, onSelect } =
     useSelectDepartmentsContext();
 
-  const selectedDepartmentIds = Array.isArray(value) ? value : [value];
+  let selectedDepartmentIds: string[] = [];
 
-  if (!value || !value.length) {
+  if (Array.isArray(value)) {
+    selectedDepartmentIds = value;
+  } else if (value) {
+    selectedDepartmentIds = [value];
+  }
+
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 
@@ -232,12 +261,14 @@ export const DepartmentsList = ({
           department={selectedDepartments.find((d) => d._id === departmentId)}
           renderAsPlainText={renderAsPlainText}
           variant={'secondary'}
-          onCompleted={(department) => {
-            if (!department) return;
-            if (selectedDepartmentIds.includes(department._id)) {
-              setSelectedDepartments([...selectedDepartments, department]);
-            }
-          }}
+          className={cn('min-w-0', className)}
+          onCompleted={(department) =>
+            cacheSelectedDepartment(
+              department,
+              selectedDepartmentIds,
+              setSelectedDepartments,
+            )
+          }
           onClose={() =>
             onSelect?.(
               selectedDepartments.find(
@@ -253,12 +284,12 @@ export const DepartmentsList = ({
 };
 
 export const SelectDepartmentsValue = () => {
-  const { selectedDepartments, mode } = useSelectDepartmentsContext();
+  const { departmentIds, mode } = useSelectDepartmentsContext();
 
-  if (selectedDepartments?.length > 1)
+  if ((departmentIds?.length ?? 0) > 1 && mode === 'multiple')
     return (
       <span className="text-muted-foreground">
-        {selectedDepartments.length} departments selected
+        {departmentIds?.length} departments selected
       </span>
     );
 
@@ -326,12 +357,13 @@ const SelectDepartmentsBadgesView = () => {
         <DepartmentBadge
           key={departmentId}
           departmentId={departmentId}
-          onCompleted={(position) => {
-            if (!position) return;
-            if (departmentIds.includes(position._id)) {
-              setSelectedDepartments([...selectedDepartments, position]);
-            }
-          }}
+          onCompleted={(department) =>
+            cacheSelectedDepartment(
+              department,
+              departmentIds || [],
+              setSelectedDepartments,
+            )
+          }
           onClose={() =>
             onSelect?.(
               selectedDepartments.find(
@@ -420,6 +452,35 @@ export const SelectDepartmentsCommandbarItem = ({
         <RecordTableInlineCell.Content className="w-96">
           <SelectDepartmentsContent />
         </RecordTableInlineCell.Content>
+      </Popover>
+    </SelectDepartmentsProvider>
+  );
+};
+
+export const SelectDepartmentsComboboxItem = ({
+  onValueChange,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectDepartmentsProvider>, 'children'> & {
+  className?: string;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  return (
+    <SelectDepartmentsProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <SelectDepartmentsValue />
+        </Combobox.Trigger>
+
+        <Combobox.Content>
+          <SelectDepartmentsContent />
+        </Combobox.Content>
       </Popover>
     </SelectDepartmentsProvider>
   );
@@ -556,6 +617,7 @@ export const SelectDepartments = Object.assign(SelectDepartmentsProvider, {
   Value: SelectDepartmentsValue,
   List: DepartmentsList,
   InlineCell: SelectDepartmentsInlineCell,
+  ComboboxItem: SelectDepartmentsComboboxItem,
   FormItem: SelectDepartmentsFormItem,
   FilterItem: SelectDepartmentsFilterItem,
   FilterView: SelectDepartmentsFilterView,

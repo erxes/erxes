@@ -89,14 +89,23 @@ export const resetLocal = () => {
   })
 }
 
+// Clears remaining client-side storage and refreshes the page.
+// Auth cookies are HttpOnly, so they must be cleared via the logout mutation first.
+export const clearAllSessionData = () => {
+  resetLocal()
+  sessionStorage.clear()
+
+  window.location.reload()
+}
+
 export function hexToHsl(hex: string) {
   // Remove the '#' symbol from the hex code
   hex = hex.replace("#", "")
 
   // Extract the individual RGB components
-  const r = parseInt(hex.substring(0, 2), 16)
-  const g = parseInt(hex.substring(2, 4), 16)
-  const b = parseInt(hex.substring(4, 6), 16)
+  const r = Number.parseInt(hex.substring(0, 2), 16)
+  const g = Number.parseInt(hex.substring(2, 4), 16)
+  const b = Number.parseInt(hex.substring(4, 6), 16)
 
   return rgbToHsl(r, g, b)
 }
@@ -260,10 +269,10 @@ export const getPaymentType = (paymentTypes: IPaymentType[], type: string) =>
 
 export function strToObj(str?: string | { [key: string]: string }) {
   if (!str) return {}
+  if (typeof str === 'object') return { ...str }
   try {
-    const obj = eval("(" + str + ")")
-    return obj
-  } catch (error) {
+    return JSON.parse(str)
+  } catch {
     return {}
   }
 }

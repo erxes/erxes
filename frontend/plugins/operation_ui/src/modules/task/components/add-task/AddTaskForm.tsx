@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { useGetProject } from '@/project/hooks/useGetProject';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
@@ -12,6 +13,8 @@ import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
 import { TAddTask, addTaskSchema } from '@/task/types';
 import { SelectTeam } from '@/team/components/SelectTeam';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
+import { SelectTemplate } from '@/template/components/SelectTemplate';
+import { IOperationTemplate } from '@/template/types';
 import { Block } from '@blocknote/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconChevronRight } from '@tabler/icons-react';
@@ -23,18 +26,18 @@ import {
   Input,
   Separator,
   Sheet,
-  useToast,
   useBlockEditor,
+  useToast,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
-import { currentUserState } from 'ui-modules';
+import { SelectTags, currentUserState } from 'ui-modules';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
-import { SelectTags } from 'ui-modules';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
+  const { t } = useTranslation('operation');
   const { teamId, projectId, cycleId } = useParams<{
     teamId?: string;
     projectId?: string;
@@ -74,7 +77,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
 
   const form = useForm<TAddTask>({
     resolver: zodResolver(addTaskSchema),
-    defaultValues,
+    defaultValues: { ...defaultValues, ...defaultValuesState },
   });
 
   useEffect(() => {
@@ -118,13 +121,35 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     });
   };
 
+  const onTemplateSelect = async (template: IOperationTemplate) => {
+    if (template.defaults) {
+      if (template.defaults.description) {
+        try {
+          const content = JSON.parse(template.defaults.description);
+          editor.replaceBlocks(editor.document, content);
+          setDescriptionContent(content);
+        } catch (e) {
+          console.error('Failed to parse description', e);
+        }
+      }
+
+      const ALLOWED_FIELDS = ['name'];
+
+      Object.keys(template.defaults).forEach((key) => {
+        if (ALLOWED_FIELDS.includes(key)) {
+          form.setValue(key as any, template.defaults[key]);
+        }
+      });
+    }
+  };
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           toast({
             variant: 'destructive',
-            title: 'Error',
+            title: t('error'),
             description: Object.entries(errors)[0][1].message,
           });
         })}
@@ -136,7 +161,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item className="space-y-0">
-                <Form.Label className="sr-only">Team</Form.Label>
+                <Form.Label className="sr-only">{t('team')}</Form.Label>
                 <SelectTeam.FormItem
                   value={field.value || ''}
                   onValueChange={(value) => {
@@ -151,7 +176,13 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
             )}
           />
           <IconChevronRight className="size-4" />
-          <Sheet.Title className="">New task</Sheet.Title>
+          <Sheet.Title className="">{t('new-task')}</Sheet.Title>
+          <div className="ml-auto">
+            <SelectTemplate
+              teamId={_teamId}
+              onSelect={onTemplateSelect}
+            />
+          </div>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
@@ -159,12 +190,12 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">Name</Form.Label>
+                <Form.Label className="sr-only">{t('name')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                    placeholder="Task Name"
+                    placeholder={t('task-name')}
                   />
                 </Form.Control>
               </Form.Item>
@@ -176,7 +207,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Status</Form.Label>
+                  <Form.Label className="sr-only">{t('status')}</Form.Label>
                   <SelectStatusTask.FormItem
                     value={field.value || ''}
                     onValueChange={(value) => field.onChange(value)}
@@ -190,7 +221,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Priority</Form.Label>
+                  <Form.Label className="sr-only">{t('priority')}</Form.Label>
                   <SelectPriority.FormItem
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
@@ -203,7 +234,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Assignee</Form.Label>
+                  <Form.Label className="sr-only">{t('assignee')}</Form.Label>
                   <SelectAssigneeTask.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
@@ -219,7 +250,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Project</Form.Label>
+                  <Form.Label className="sr-only">{t('project')}</Form.Label>
                   <SelectProject.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
@@ -235,7 +266,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Milestone</Form.Label>
+                  <Form.Label className="sr-only">{t('milestone')}</Form.Label>
                   <SelectMilestone.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
@@ -251,7 +282,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Estimate Point</Form.Label>
+                  <Form.Label className="sr-only">{t('estimate-point')}</Form.Label>
                   <SelectEstimatedPoint.FormItem
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
@@ -270,7 +301,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Cycle</Form.Label>
+                  <Form.Label className="sr-only">{t('cycle')}</Form.Label>
                   <SelectCycle.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
@@ -286,10 +317,10 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Start Date</Form.Label>
+                  <Form.Label className="sr-only">{t('start-date')}</Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
-                    placeholder="Start Date"
+                    placeholder={t('start-date')}
                     onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
@@ -300,11 +331,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Target Date</Form.Label>
+                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}
-                    placeholder="Target Date"
+                    placeholder={t('target-date')}
                   />
                 </Form.Item>
               )}
@@ -314,7 +345,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <Form.Label className="sr-only">{t('tags')}</Form.Label>
                   <SelectTags.FormItem
                     tagType="operation:task"
                     mode="multiple"
@@ -347,14 +378,14 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               setDescriptionContent(undefined);
             }}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={createTaskLoading}
           >
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

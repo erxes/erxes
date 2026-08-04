@@ -8,6 +8,7 @@ export interface ILocation {
 }
 export interface GroupDay {
   day: number;
+  title: string;
   images: string[];
   content: string;
   elements: ElementItem[];
@@ -16,6 +17,7 @@ export interface ElementItem {
   elementId: string;
   orderOfDay: number;
 }
+
 export interface IItinerary {
   name: string;
   content: string;
@@ -27,6 +29,7 @@ export interface IItinerary {
   status: string;
   color?: string;
   branchId?: string;
+  language?: string;
 }
 
 export interface IItineraryDocument extends IItinerary, Document {

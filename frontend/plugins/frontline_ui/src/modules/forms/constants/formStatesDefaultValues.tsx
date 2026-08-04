@@ -7,8 +7,10 @@ export const FORM_STORAGE_KEYS = {
 
 export const FORM_STATES_DEFAULT_VALUES = {
   GENERAL: {
+    channelId: '',
     primaryColor: '#4f46e5',
     appearance: 'iframe',
+    loadType: 'embedded',
     title: 'title',
     description: '',
     buttonText: '',

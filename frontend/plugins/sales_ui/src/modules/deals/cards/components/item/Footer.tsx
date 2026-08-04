@@ -1,29 +1,45 @@
-import { IUser } from 'ui-modules';
-import { IconCalendar } from '@tabler/icons-react';
-import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
+import { IconCalendar, IconNumber } from '@tabler/icons-react';
 import dayjs from 'dayjs';
+import { IUser } from 'ui-modules';
+import { CopyText } from 'erxes-ui';
+import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 
 type Props = {
   createdAt: Date;
   id: string;
   assignedUsers?: IUser[];
+  number?: string;
 };
 
-export const ItemFooter = ({ createdAt, assignedUsers = [], id }: Props) => {
+export const ItemFooter = ({
+  number,
+  createdAt,
+  assignedUsers = [],
+  id,
+}: Props) => {
   return (
     <div className="flex justify-between items-center p-2">
       <div className="flex items-center gap-1 text-gray-500 text-xs">
-        <IconCalendar className="w-4 h-4" />
-        <span>{dayjs(createdAt).format('MMM DD, YYYY')}</span>
+        {number ? (
+          <CopyText
+            value={number}
+            className="text-inherit hover:text-foreground"
+          >
+            <IconNumber className="size-4 shrink-0" />
+            <span>{number}</span>
+          </CopyText>
+        ) : (
+          <>
+            <IconCalendar className="w-4 h-4" />
+            <span>{dayjs(createdAt).format('MMM DD, YYYY')}</span>
+          </>
+        )}
       </div>
       <SelectAssigneeDeal
         variant="card"
         mode="multiple"
         value={assignedUsers.map((user) => user?._id) || ['']}
         id={id}
-        teamIds={
-          assignedUsers ? assignedUsers.map((user) => user._id) : undefined
-        }
       />
     </div>
   );

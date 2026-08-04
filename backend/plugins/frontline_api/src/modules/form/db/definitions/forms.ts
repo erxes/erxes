@@ -1,13 +1,12 @@
+import { ruleSchema } from 'erxes-api-shared/core-modules';
 import { IAttachment, IRule } from 'erxes-api-shared/core-types';
-import { schemaWrapper } from 'erxes-api-shared/utils';
+import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { Document, HydratedDocument, Schema } from 'mongoose';
-import { field } from './utils';
 import {
   LEAD_LOAD_TYPES,
   LEAD_SUCCESS_ACTIONS,
 } from '~/modules/inbox/db/definitions/constants';
-import { ruleSchema } from 'erxes-api-shared/core-modules';
-import { mongooseStringRandomId } from 'erxes-api-shared/utils';
+import { field } from './utils';
 
 export interface IForm {
   _id: string;
@@ -96,6 +95,7 @@ export interface IFormSubmission {
   value?: JSON;
   submittedAt?: Date;
   groupId?: string;
+  conversationId?: string;
 }
 
 export interface IFormSubmissionDocument extends IFormSubmission, Document {
@@ -115,6 +115,7 @@ export const formSubmissionSchema = schemaWrapper(
     formId: field({ type: String, optional: true }),
     formFieldId: field({ type: String, optional: true }),
     groupId: field({ type: String, optional: true }),
+    conversationId: field({ type: String, optional: true }),
   }),
 );
 

@@ -8,10 +8,11 @@ import {
   Popover,
   Command,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Row } from '@tanstack/table-core';
 import { ITask } from '@/task/types';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
-import { currentUserState } from 'ui-modules';
+import { Can, currentUserState, Export } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
@@ -38,15 +39,14 @@ import {
   TasksMoveToTeamCommandBarItem,
   TasksMoveToTeamTrigger,
 } from '../task-actions/MoveToTeam';
-import {
-  MakeACopyTrigger,
-} from '../task-actions/MakeACopy';
+import { MakeACopyTrigger } from '../task-actions/MakeACopy';
 import {
   CopyTaskTrigger,
   CopyTaskCommandBarItem,
 } from '../task-actions/CopyTask';
 
 export const TasksCommandBar = () => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const { table } = RecordTable.useRecordTable();
   const currentUser = useAtomValue(currentUserState);
@@ -62,13 +62,26 @@ export const TasksCommandBar = () => {
   const [currentContent, setCurrentContent] = useState<string>('main');
   const isSingleTaskSelected = selectedRows.length === 1;
   const singleTask = isSingleTaskSelected ? selectedRows[0].original : null;
+  const selectedTeamIds = [
+    ...new Set(selectedRows.map((row: Row<ITask>) => row.original.teamId)),
+  ];
+  const statusTeamId =
+    teamId || (selectedTeamIds.length === 1 ? selectedTeamIds[0] : undefined);
 
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {selectedRows.length} selected
-        </CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <Can action="taskExportManage">
+          <Separator.Inline />
+          <Export
+            pluginName="operation"
+            moduleName="task"
+            collectionName="task"
+            buttonVariant="secondary"
+            ids={taskIds}
+          />
+        </Can>
         <Separator.Inline />
         <Popover
           open={open}
@@ -82,7 +95,7 @@ export const TasksCommandBar = () => {
           <Popover.Trigger asChild>
             <Button variant="secondary">
               <IconRepeat />
-              Actions
+              {t('actions')}
             </Button>
           </Popover.Trigger>
           <Popover.Content
@@ -123,13 +136,13 @@ export const TasksCommandBar = () => {
                             </Avatar.Fallback>
                           </Avatar>
                         </div>
-                        Assign to me
+                        {t('assign-to-me')}
                       </div>
                     </Command.Item>
                     <TasksAssignToTrigger
                       setCurrentContent={setCurrentContent}
                     />
-                    {teamId && (
+                    {statusTeamId && (
                       <TasksEditStatusTrigger
                         setCurrentContent={setCurrentContent}
                       />
@@ -147,10 +160,7 @@ export const TasksCommandBar = () => {
                       setCurrentContent={setCurrentContent}
                     />
                     {isSingleTaskSelected && singleTask && (
-                      <MakeACopyTrigger
-                        task={singleTask}
-                        setOpen={setOpen}
-                      />
+                      <MakeACopyTrigger task={singleTask} setOpen={setOpen} />
                     )}
                     <CopyTaskTrigger setCurrentContent={setCurrentContent} />
                   </Command.Group>
@@ -172,7 +182,7 @@ export const TasksCommandBar = () => {
                     >
                       <div className="flex gap-2 items-center">
                         <IconTrash className="size-4" />
-                        Delete
+                        {t('delete')}
                       </div>
                     </Command.Item>
                   </Command.Group>
@@ -192,8 +202,12 @@ export const TasksCommandBar = () => {
                 currentTeamId={teamId}
               />
             )}
-            {currentContent === 'status' && teamId && (
-              <TasksEditStatusContent taskIds={taskIds} setOpen={setOpen} />
+            {currentContent === 'status' && statusTeamId && (
+              <TasksEditStatusContent
+                taskIds={taskIds}
+                teamId={statusTeamId}
+                setOpen={setOpen}
+              />
             )}
             {currentContent === 'project' && (
               <TasksAddProjectContent taskIds={taskIds} setOpen={setOpen} />

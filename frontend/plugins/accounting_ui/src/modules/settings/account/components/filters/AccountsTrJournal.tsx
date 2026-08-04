@@ -1,7 +1,10 @@
 import { Combobox, Command, Popover } from 'erxes-ui';
 import React from 'react';
 import { Except } from 'type-fest';
-import { TR_JOURNAL_LABELS, TrJournalEnum } from '~/modules/transactions/types/constants';
+import {
+  TR_JOURNAL_LABELS,
+  TrJournalEnum,
+} from '~/modules/transactions/types/constants';
 
 export const SelectAccountTrJournalCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,
@@ -18,7 +21,7 @@ export const SelectAccountTrJournalCommand = React.forwardRef<
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ?? 'All'}
+        {selected ? TR_JOURNAL_LABELS[selected as TrJournalEnum] : 'Бүгд'}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsTrJournalCommand
@@ -45,7 +48,7 @@ export const AccountsTrJournalCommand = ({
 }) => {
   return (
     <Command>
-      <Command.Input placeholder="Filter Journal" focusOnMount={focusOnMount} />
+      <Command.Input placeholder="Журналаар шүүх" focusOnMount={focusOnMount} />
       <Command.List>
         {Object.values(TrJournalEnum).map((trJournal) => (
           <Command.Item

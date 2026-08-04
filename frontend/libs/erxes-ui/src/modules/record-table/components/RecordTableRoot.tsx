@@ -5,11 +5,12 @@ import { cn } from 'erxes-ui/lib/utils';
 export const RecordTableRoot = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => {
+>(({ className, style, ...props }, ref) => {
   return (
     <Table
       ref={ref}
-      className={cn('w-(--table-width) leading-0', className)}
+      className={cn('leading-0', className)}
+      style={{ width: 'var(--table-width)', ...style }}
       {...props}
     />
   );

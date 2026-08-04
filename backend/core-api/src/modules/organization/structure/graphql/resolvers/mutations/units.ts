@@ -1,18 +1,36 @@
 import { IContext } from '~/connectionResolvers';
 export const unitsMutations = {
-async unitsAdd(_parent: undefined, doc, { user, models }: IContext) {
+  async unitsAdd(
+    _parent: undefined,
+    doc,
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('unitsManage');
+
     const unit = await models.Units.createUnit(doc, user);
 
     return unit;
   },
 
-  async unitsEdit(_parent: undefined, { _id, ...doc }, { user, models }: IContext) {
+  async unitsEdit(
+    _parent: undefined,
+    { _id, ...doc },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('unitsManage');
+
     const unit = await models.Units.updateUnit(_id, doc, user);
 
     return unit;
   },
 
-  async unitsRemove(_parent: undefined, { ids }, { models }: IContext) {
+  async unitsRemove(
+    _parent: undefined,
+    { ids },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('unitsManage');
+
     if (!ids.length) {
       throw new Error('You must specify at least one unit id to remove');
     }

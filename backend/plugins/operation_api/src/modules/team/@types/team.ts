@@ -32,7 +32,8 @@ export enum TeamMemberRoles {
 export interface ITeamMember {
   memberId: string;
   teamId: string;
-  role: TeamMemberRoles;
+  // ** Deprecated
+  // role: TeamMemberRoles;
 }
 
 export interface ITeamMemberDocument extends ITeamMember, Document {

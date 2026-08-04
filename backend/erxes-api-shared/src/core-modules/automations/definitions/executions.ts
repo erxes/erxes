@@ -2,11 +2,17 @@ import { Document, Schema } from 'mongoose';
 
 export interface IAutomationExecAction {
   createdAt?: string;
+  startedAt?: string;
+  finishedAt?: string;
+  durationMs?: number;
+  status?: 'success' | 'error' | 'waiting';
   actionId: string;
   actionType: string;
   actionConfig?: any;
   nextActionId?: string;
   result?: any;
+  // Set on workflow node actions: links to the child execution for drill-in
+  childExecutionId?: string;
 }
 
 export interface IAutomationExecution {
@@ -26,11 +32,18 @@ export interface IAutomationExecution {
   waitingActionId?: string;
   objToCheck?: any;
   responseActionId?: string;
+  // Workflow child executions: run a workflow's member actions on behalf of
+  // a parent execution that waits on the workflow node.
+  parentExecutionId?: string;
+  workflowId?: string;
+  // Input values frozen when the workflow was entered; members resolve
+  // {{ input.* }} from here.
+  inputs?: Record<string, any>;
+  depth?: number;
 }
 
 export interface IAutomationExecutionDocument
-  extends IAutomationExecution,
-    Document {
+  extends IAutomationExecution, Document {
   _id: string;
 }
 
@@ -44,17 +57,22 @@ export const AUTOMATION_EXECUTION_STATUS = {
 };
 
 const execActionSchema = new Schema({
-  createdAt: { type: Date, default: Date.now(), required: true },
+  createdAt: { type: Date, default: Date.now, required: true },
+  startedAt: { type: Date },
+  finishedAt: { type: Date },
+  durationMs: { type: Number },
+  status: { type: String, enum: ['success', 'error', 'waiting'] },
   actionId: { type: String },
   actionType: { type: String },
   actionConfig: { type: Object },
   nextActionId: { type: String },
   result: { type: Object },
+  childExecutionId: { type: String },
 });
 
 export const automationExecutionSchema = new Schema({
-  createdAt: { type: Date, default: Date.now(), required: true },
-  modifiedAt: { type: Date, default: Date.now(), required: true },
+  createdAt: { type: Date, default: Date.now, required: true },
+  modifiedAt: { type: Date, default: Date.now, required: true },
   automationId: { type: String, required: true, index: true },
   triggerId: { type: String, required: true, index: true },
   triggerType: { type: String },
@@ -75,4 +93,8 @@ export const automationExecutionSchema = new Schema({
   waitingActionId: { type: String },
   responseActionId: { type: String },
   objToCheck: { type: Object, optional: true },
+  parentExecutionId: { type: String, index: true },
+  workflowId: { type: String },
+  inputs: { type: Object },
+  depth: { type: Number, default: 0 },
 });

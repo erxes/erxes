@@ -1,0 +1,68 @@
+import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+
+import { donationColumns } from './DonationColumns';
+import { DonationCommandBar } from './donation-command-bar/DonationCommandBar';
+import { useDonations } from '../hooks/useDonations';
+import { DONATIONS_CURSOR_SESSION_KEY } from '../constants/donationsCursorSessionKey';
+
+import { IconHeart } from '@tabler/icons-react';
+import { LoyaltyDonationAddSheet } from './DonationAddSheet';
+
+export const DonationRecordTable = () => {
+  const { t } = useTranslation('loyalty');
+  const { donations, handleFetchMore, loading, pageInfo } = useDonations();
+
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  return (
+    <RecordTable.Provider
+      columns={donationColumns(t)}
+      data={donations || []}
+      className="m-3"
+      stickyColumns={['more', 'checkbox', 'title']}
+    >
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={donations?.length}
+        sessionKey={DONATIONS_CURSOR_SESSION_KEY}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+        {!loading && donations?.length === 0 && (
+          <div>
+            <div className=" h-full w-full px-8 flex justify-center">
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                <div className="mb-6">
+                  <IconHeart
+                    size={64}
+                    className="text-muted-foreground mx-auto mb-4"
+                  />
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-donations-yet')}
+                  </h3>
+                  <p className="text-muted-foreground max-w-md">
+                    {t('get-started-donation')}
+                  </p>
+                </div>
+                <LoyaltyDonationAddSheet />
+              </div>
+            </div>
+          </div>
+        )}
+      </RecordTable.CursorProvider>
+      <DonationCommandBar />
+    </RecordTable.Provider>
+  );
+};

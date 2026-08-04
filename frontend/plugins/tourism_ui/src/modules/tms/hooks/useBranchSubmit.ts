@@ -1,5 +1,6 @@
 import { useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 import { useCreateBranch } from '@/tms/hooks/CreateBranch';
 import { useBranchEdit } from '@/tms/hooks/BranchEdit';
@@ -10,7 +11,6 @@ import { currentStepAtom } from '@/tms/states/tmsInformationFieldsAtoms';
 interface PermissionConfig {
   type: string;
   title: string;
-  icon: string;
   config?: string;
 }
 
@@ -31,15 +31,16 @@ export function useBranchSubmit({
   onOpenChange,
   onSuccess,
 }: UseBranchSubmitParams) {
+  const { t } = useTranslation('tourism');
   const { toast } = useToast();
   const { createBranch, loading: createLoading } = useCreateBranch();
 
   const { editBranch, loading: editLoading } = useBranchEdit({
     onError: (error: unknown) => {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error occurred';
+        error instanceof Error ? error.message : t('unknown-error-occurred');
       toast({
-        title: 'Error',
+        title: t('error'),
         description: errorMessage,
         variant: 'destructive',
       });
@@ -56,7 +57,7 @@ export function useBranchSubmit({
         await refetch();
       } catch (error) {
         toast({
-          title: 'Warning',
+          title: t('warning'),
           description: error instanceof Error ? error.message : String(error),
           variant: 'destructive',
         });
@@ -69,7 +70,6 @@ export function useBranchSubmit({
       data.otherPayments?.map((payment: PermissionConfig) => ({
         type: payment.type,
         title: payment.title,
-        icon: payment.icon,
         config: payment.config,
       })) || [];
 
@@ -77,12 +77,12 @@ export function useBranchSubmit({
       name: data.name,
       generalManagerIds: data.generalManager || [],
       managerIds: data.managers || [],
-      paymentIds: Array.isArray(data.payment)
-        ? data.payment
-        : data.payment
-        ? [data.payment]
-        : [],
+      paymentIds: Array.isArray(data.payment) ? data.payment : [],
+      prepaid: data.prepaid ?? false,
+      prepaidPercent: data.prepaid ? (data.prepaidPercent ?? null) : null,
       permissionConfig,
+      language: data.mainLanguage || '',
+      languages: Array.isArray(data.language) ? data.language : [],
       erxesAppToken: data.token,
       uiOptions: {
         logo: data.logo || '',
@@ -102,8 +102,8 @@ export function useBranchSubmit({
       },
       onCompleted: async () => {
         toast({
-          title: 'Success',
-          description: 'Branch updated successfully',
+          title: t('success'),
+          description: t('branch-updated-successfully'),
         });
         onOpenChange?.(false);
         onSuccess?.();
@@ -117,17 +117,17 @@ export function useBranchSubmit({
       variables,
       onError: (error: unknown) => {
         const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error occurred';
+          error instanceof Error ? error.message : t('unknown-error-occurred');
         toast({
-          title: 'Error',
+          title: t('error'),
           description: errorMessage,
           variant: 'destructive',
         });
       },
       onCompleted: async () => {
         toast({
-          title: 'Success',
-          description: 'Branch created successfully',
+          title: t('success'),
+          description: t('branch-created-successfully'),
         });
         resetForm();
         form.reset(DEFAULT_TMS_FORM);

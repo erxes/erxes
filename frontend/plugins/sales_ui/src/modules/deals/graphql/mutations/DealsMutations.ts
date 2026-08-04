@@ -1,15 +1,23 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 const dealMutationVariables = `
   $productsData: JSON,
+  $mobileAmount: Float,
+  $mobileAmounts: JSON,
   $paymentsData: JSON,
   $extraData: JSON,
+  $brokerType: String,
+  $brokerId: String,
 `;
 
 const dealMutationParams = `
   productsData: $productsData,
+  mobileAmount: $mobileAmount,
+  mobileAmounts: $mobileAmounts,
   paymentsData: $paymentsData,
   extraData: $extraData,
+  brokerType: $brokerType,
+  brokerId: $brokerId,
 `;
 
 const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
@@ -22,9 +30,13 @@ export const dealFields = `
     unitPrice
   }
   productsData
+  mobileAmount
+  mobileAmounts
   paymentsData
   unUsedAmount
   amount
+  brokerType
+  brokerId
   stageId
 `;
 
@@ -118,7 +130,7 @@ export const commonFields = `
     }
   }
   order
-  customFieldsData
+  propertiesData
   score
   timeTrack {
     status
@@ -163,7 +175,7 @@ export const commonMutationVariables = `
   $status: String,
   $priority: String,
   $sourceConversationIds: [String],
-  $customFieldsData: JSON,
+  $propertiesData: JSON,
   $tagIds: [String]
   $branchIds:[String],
   $departmentIds:[String]
@@ -185,12 +197,11 @@ export const commonMutationParams = `
   status: $status,
   priority: $priority,
   sourceConversationIds: $sourceConversationIds,
-  customFieldsData: $customFieldsData,
+  propertiesData: $propertiesData,
   tagIds: $tagIds
   branchIds: $branchIds
   departmentIds: $departmentIds
 `;
-
 
 export const ADD_DEALS = gql`
   mutation dealsAdd($name: String, ${copyVariables}, ${dealMutationVariables} ${commonMutationVariables}) {
@@ -221,7 +232,8 @@ export const REMOVE_DEALS = gql`
 export const DEALS_CHANGE = gql`
   mutation dealsChange(${commonDragVariables}) {
     dealsChange(${commonDragParams}) {
-      _id
+      ${commonFields}
+      ${dealFields}
     }
   }
 `;

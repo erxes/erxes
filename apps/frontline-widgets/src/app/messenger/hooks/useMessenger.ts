@@ -6,6 +6,7 @@ import {
   conversationIdAtom,
 } from '../states';
 import { TabType } from '../types';
+import { postMessage } from '@libs/utils';
 
 export function useMessenger() {
   const [activeTab] = useAtom(messengerTabAtom);
@@ -17,8 +18,21 @@ export function useMessenger() {
     setActiveTab(tab);
   };
 
+  function resetExpand() {
+    postMessage('fromMessenger', 'collapseMessenger');
+  }
+
+  function expandWindow() {
+    postMessage('fromMessenger', 'expandMessenger');
+  }
+
+  function closeWindow() {
+    window.postMessage({ action: 'closeMessenger' }, '*');
+  }
+
   const goBack = () => {
-    resetTab();
+    setActiveTab('messages');
+    resetExpand();
     setConversationId(null);
   };
 
@@ -26,5 +40,9 @@ export function useMessenger() {
     activeTab,
     switchToTab,
     goBack,
+    resetTab,
+    expandWindow,
+    resetExpand,
+    closeWindow,
   };
 }

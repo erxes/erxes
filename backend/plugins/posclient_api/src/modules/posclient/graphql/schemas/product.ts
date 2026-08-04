@@ -31,19 +31,32 @@ export const types = `
     categoryId: String
     customFieldsData: JSON
     customFieldsDataByFieldCode: JSON
+    propertiesData: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String
     attachmentMore: [Attachment]
     uom: String
     subUoms: JSON
+    currency: String
     category: PosProductCategory
+
     remainder: Float
     soonIn: Float
     soonOut: Float
     remainders: [JSON]
+    discounts: JSON
+    discount(
+      branchId: String
+      departmentId: String
+      pipelineId: String
+      discountConditions: JSON
+    ): JSON
+    
     isCheckRem: Boolean
     hasSimilarity: Boolean
+    similarityId: String
+    similarity: JSON
     pdfAttachment: PdfAttachment
   }
 
@@ -54,6 +67,18 @@ export const types = `
   type PoscProductSimilarity {
     products: [PoscProduct],
     groups: [PoscProductSimilarityGroup],
+  }
+
+  type PoscProductBulkSimilarityField {
+    fieldId: String
+    title: String
+    values: JSON
+  }
+  type PoscProductBulkSimilarity {
+    _id: String
+    starProductId: String
+    products: [PoscProduct]
+    fields: [PoscProductBulkSimilarityField]
   }
 `;
 
@@ -73,12 +98,18 @@ const productsQueryParams = `
   segmentData: String,
   isKiosk: Boolean,
   groupedSimilarity: String,
+  isSimilarity: Boolean,
   categoryMeta: String,
   image: String,
   minRemainder: Float
   maxRemainder: Float
   minPrice: Float
   maxPrice: Float
+  minDiscountValue: Float
+  maxDiscountValue: Float
+  minDiscountPercent: Float
+  maxDiscountPercent: Float
+  discountConditions: JSON
 `;
 
 const productCategoriesParams = `
@@ -117,4 +148,5 @@ export const queries = `
   poscProductDetail(_id: String, branchId: String): PoscProduct
   getPriceInfo(productId: String!): String
   poscProductSimilarities(_id: String!, groupedSimilarity: String, branchId: String): PoscProductSimilarity
+  poscProductBulkSimilarity(_id: String!, branchId: String): PoscProductBulkSimilarity
 `;

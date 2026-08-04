@@ -1,31 +1,34 @@
 import {
-  SelectProductContext,
-  useSelectProductContext,
-} from '../contexts/SelectProductContext';
-import { IProduct } from '../types/Product';
-import { useProducts } from '../hooks/useProducts';
-import { useDebounce } from 'use-debounce';
-import React, { useState } from 'react';
-import {
-  cn,
+  Badge,
   Combobox,
   Command,
   Filter,
   Form,
   Popover,
   PopoverScoped,
+  RecordTableInlineCell,
+  cn,
   useFilterContext,
   useQueryState,
-  RecordTableInlineCell,
 } from 'erxes-ui';
-import { ProductsInline } from './ProductsInline';
+import React, { useMemo, useState } from 'react';
+import {
+  SelectProductContext,
+  useSelectProductContext,
+} from '../contexts/SelectProductContext';
+
+import { IProduct } from '../types/Product';
 import { IconShoppingCart } from '@tabler/icons-react';
+import { ProductsInline } from './ProductsInline';
+import { useDebounce } from 'use-debounce';
+import { useProducts, useProductsInline } from '../hooks/useProducts';
 
 interface SelectProductProviderProps {
   children: React.ReactNode;
   value?: string[] | string;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
+  defaultSearchValue?: string;
 }
 
 const SelectProductProvider = ({
@@ -33,6 +36,7 @@ const SelectProductProvider = ({
   value,
   onValueChange,
   mode = 'single',
+  defaultSearchValue,
 }: SelectProductProviderProps) => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const productIds = !value ? [] : Array.isArray(value) ? value : [value];
@@ -58,6 +62,16 @@ const SelectProductProvider = ({
     });
     onValueChange?.(newSelectedProductIds);
   };
+  const removeId = (id: string) => {
+    if (mode === 'single') {
+      setProducts([]);
+      onValueChange?.('');
+      return;
+    }
+    const arrayValue = Array.isArray(value) ? value : [];
+    setProducts((prev) => prev.filter((p) => p._id !== id));
+    onValueChange?.(arrayValue.filter((v) => v !== id));
+  };
   return (
     <SelectProductContext.Provider
       value={{
@@ -67,6 +81,9 @@ const SelectProductProvider = ({
         setProducts,
         loading: false,
         error: null,
+        defaultSearchValue,
+        mode,
+        removeId,
       }}
     >
       {children}
@@ -75,9 +92,10 @@ const SelectProductProvider = ({
 };
 
 const SelectProductContent = () => {
-  const [search, setSearch] = useState('');
+  const { productIds, products, defaultSearchValue } =
+    useSelectProductContext();
+  const [search, setSearch] = useState(defaultSearchValue ?? '');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { productIds, products } = useSelectProductContext();
   const {
     products: productsData,
     loading,
@@ -99,6 +117,7 @@ const SelectProductContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        <SelectProductMissingBadges />
         {products?.length > 0 && (
           <>
             {products.map((product) => (
@@ -110,9 +129,7 @@ const SelectProductContent = () => {
         <Combobox.Empty loading={loading} error={error} />
         {!loading &&
           productsData
-            ?.filter(
-              (product) => !productIds.includes(product._id)
-            )
+            ?.filter((product) => !productIds.includes(product._id))
             .map((product) => (
               <SelectProductCommandItem key={product._id} product={product} />
             ))}
@@ -146,9 +163,11 @@ const SelectProductCommandItem = ({ product }: { product: IProduct }) => {
 
 const SelectProductInlineCell = ({
   onValueChange,
+  placeholder,
   scope,
   ...props
 }: Omit<React.ComponentProps<typeof SelectProductProvider>, 'children'> & {
+  placeholder?: string;
   scope?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -162,7 +181,7 @@ const SelectProductInlineCell = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <RecordTableInlineCell.Trigger>
-          <SelectProductValue />
+          <SelectProductValue placeholder={placeholder} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectProductContent />
@@ -181,7 +200,16 @@ const SelectProductRoot = React.forwardRef<
     }
 >(
   (
-    { onValueChange, className, mode, value, placeholder, scope, ...props },
+    {
+      onValueChange,
+      className,
+      mode,
+      value,
+      placeholder,
+      scope,
+      defaultSearchValue,
+      ...props
+    },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
@@ -190,6 +218,7 @@ const SelectProductRoot = React.forwardRef<
       <SelectProductProvider
         mode={mode}
         value={value}
+        defaultSearchValue={defaultSearchValue}
         onValueChange={(value) => {
           if (mode === 'single') {
             setOpen(false);
@@ -199,12 +228,12 @@ const SelectProductRoot = React.forwardRef<
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
           <Combobox.Trigger
-            className={cn('w-full inline-flex', className)}
+            className={cn('inline-flex w-full', className)}
             variant="outline"
             ref={ref}
             {...props}
           >
-            <SelectProductValue />
+            <SelectProductValue placeholder={placeholder} />
           </Combobox.Trigger>
           <Combobox.Content>
             <SelectProductContent />
@@ -215,8 +244,53 @@ const SelectProductRoot = React.forwardRef<
   },
 );
 
+const SelectProductMissingBadges = () => {
+  const { productIds, removeId, mode } = useSelectProductContext();
+
+  const { products: resolved, loading } = useProductsInline({
+    variables: { ids: productIds },
+    skip: productIds.length === 0,
+  });
+
+  const missingIds = useMemo(() => {
+    if (loading || productIds.length === 0) return [];
+    return productIds.filter((id) => !resolved.some((p) => p._id === id));
+  }, [loading, productIds, resolved]);
+
+  if (missingIds.length === 0) return null;
+
+  return (
+    <>
+      <div className="flex flex-wrap gap-2 p-2">
+        {missingIds.map((id) =>
+          mode === 'multiple' ? (
+            <Badge
+              key={id}
+              variant="secondary"
+              className="font-mono"
+              title={`Unknown id: ${id}`}
+              onClose={() => removeId?.(id)}
+            >
+              <span className="max-w-24 truncate">{id}</span>
+            </Badge>
+          ) : (
+            <span key={id} className="font-mono text-xs truncate">
+              {id}
+            </span>
+          ),
+        )}
+      </div>
+      <Command.Separator className="my-1" />
+    </>
+  );
+};
+
 const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   const { productIds, products, setProducts } = useSelectProductContext();
+
+  if (productIds.length === 0) {
+    return <Combobox.Value placeholder={placeholder || 'Select Products'} />;
+  }
 
   return (
     <ProductsInline
@@ -228,31 +302,37 @@ const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-export const SelectProductFilterItem = () => {
+export const SelectProductFilterItem = ({
+  value,
+  label,
+}: {
+  value: string;
+  label: string;
+}) => {
   return (
-    <Filter.Item value="product">
+    <Filter.Item value={value}>
       <IconShoppingCart />
-      Product
+      {label}
     </Filter.Item>
   );
 };
 
 export const SelectProductFilterView = ({
   onValueChange,
-  queryKey,
+  filterKey,
   mode = 'single',
 }: {
   onValueChange?: (value: string[] | string) => void;
-  queryKey?: string;
+  filterKey: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [product, setProduct] = useQueryState<string[] | string>(
-    queryKey || 'product',
+  const [product, setProduct] = useQueryState<string[] | string | undefined>(
+    filterKey,
   );
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={queryKey || 'product'}>
+    <Filter.View filterKey={filterKey}>
       <SelectProductProvider
         mode={mode}
         value={product || (mode === 'single' ? '' : [])}
@@ -271,16 +351,18 @@ export const SelectProductFilterView = ({
 export const SelectProductFilterBar = ({
   iconOnly,
   onValueChange,
-  queryKey,
+  filterKey,
+  label,
   mode = 'single',
 }: {
   iconOnly?: boolean;
+  filterKey: string;
+  label: string;
   onValueChange?: (value: string[] | string) => void;
-  queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [product, setProduct] = useQueryState<string[] | string>(
-    queryKey || 'product',
+  const [product, setProduct] = useQueryState<string[] | string | undefined>(
+    filterKey,
   );
   const [open, setOpen] = useState(false);
 
@@ -289,16 +371,16 @@ export const SelectProductFilterBar = ({
   }
 
   return (
-    <Filter.BarItem queryKey={queryKey || 'product'}>
+    <Filter.BarItem queryKey={filterKey}>
       <Filter.BarName>
         <IconShoppingCart />
-        {!iconOnly && 'Products'}
+        {label}
       </Filter.BarName>
       <SelectProductProvider
         mode={mode}
         value={product || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          if (value.length > 0) {
+          if (value && value.length > 0) {
             setProduct(value as string[] | string);
           } else {
             setProduct(null);
@@ -309,7 +391,7 @@ export const SelectProductFilterBar = ({
       >
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={queryKey || 'product'}>
+            <Filter.BarButton filterKey={filterKey}>
               <SelectProductValue />
             </Filter.BarButton>
           </Popover.Trigger>

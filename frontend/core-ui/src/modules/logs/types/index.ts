@@ -26,6 +26,10 @@ export interface ILogDoc {
   };
   createdAt: string;
   status?: ILogStatusType;
+  processId?: string;
+  contentType?: string;
+  /** Exact operation name — GraphQL mutation/query field, or affected entity. */
+  name?: string;
 }
 export type LogsMainListQueryResponse = {
   logsMainList: {
@@ -33,6 +37,17 @@ export type LogsMainListQueryResponse = {
     totalCount: number;
     pageInfo: IPageInfo;
   };
+};
+
+export interface ILogContentTypeOption {
+  value: string;
+  pluginName: string;
+  moduleName: string;
+  collectionName: string;
+}
+
+export type LogsGetContentTypesQueryResponse = {
+  logsGetContentTypes: ILogContentTypeOption[];
 };
 
 export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl' | 'xxl';

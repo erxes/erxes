@@ -1,4 +1,4 @@
-import { setWaitActionResponse } from '@/executions/setWaitActionResponse';
+import { setWaitActionResponse } from '../setWaitActionResponse';
 import {
   IAutomationAction,
   IAutomationExecutionDocument,

@@ -1,6 +1,4 @@
-import { z } from 'zod';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTicketForm } from '../hooks/useTicketForm';
+import { getLocalStorageItem } from '@libs/utils';
 import {
   Button,
   Form,
@@ -11,13 +9,14 @@ import {
   toast,
   Upload,
 } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Path } from 'react-hook-form';
+import { z } from 'zod';
 import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
-import { ticketConfigAtom } from '../../states';
+import { ticketConfigAtom, userTicketCreatedNumberAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
-import { getLocalStorageItem } from '@libs/utils';
+import { useTicketForm } from '../hooks/useTicketForm';
 import { SelectTicketTag } from './tags/select-ticket-tag';
-import { userTicketCreatedNumberAtom } from '../../states';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
 
@@ -45,6 +44,7 @@ export const TicketForm = ({
     const formData = data as Record<string, unknown>;
 
     createTicket({
+      refetchQueries: ['WidgetTicketsByCustomer'],
       variables: {
         name: (formData?.name as string) ?? '',
         description: (formData?.description as string) ?? '',
@@ -221,7 +221,7 @@ export const TicketForm = ({
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-3 p-3 w-full h-full"
+          className="flex flex-col gap-3 w-full h-full text-foreground"
         >
           <div className="flex flex-col gap-3 p-3 flex-1 w-full h-full overflow-y-auto styled-scroll">
             {/* Ticket Details */}
@@ -232,31 +232,30 @@ export const TicketForm = ({
               >
                 <InfoCard.Content>
                   {ticketDetailsFields.map(renderField)}
+                  <div className="flex justify-end shrink-0 px-5 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1 shadow-xs"
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={loading || saveTicketCustomersLoading}
+                      className="bg-primary shadow-2xs flex-1"
+                    >
+                      {loading || saveTicketCustomersLoading ? (
+                        <Spinner size="sm" />
+                      ) : (
+                        'Submit'
+                      )}
+                    </Button>
+                  </div>
                 </InfoCard.Content>
               </InfoCard>
             )}
-          </div>
-
-          <div className="flex justify-end shrink-0 px-5 gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="shadow-2xs flex-1"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading || saveTicketCustomersLoading}
-              className="bg-primary shadow-2xs flex-1"
-            >
-              {loading || saveTicketCustomersLoading ? (
-                <Spinner size="sm" />
-              ) : (
-                'Submit'
-              )}
-            </Button>
           </div>
         </form>
       </Form>

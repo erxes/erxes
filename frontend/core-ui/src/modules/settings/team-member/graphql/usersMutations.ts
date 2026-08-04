@@ -19,6 +19,17 @@ const USERS_SET_ACTIVE_STATUS = gql`
     }
   }
 `;
+const TEAM_MEMBER_REMOVE = gql`
+  mutation TeamMemberRemove($_ids: [String!]!) {
+    usersSetActiveStatusBatch(_ids: $_ids)
+  }
+`;
+
+const USERS_DEACTIVATE_BATCH = gql`
+  mutation UsersDeactivateBatch($_ids: [String!]!) {
+    usersSetActiveStatusBatch(_ids: $_ids)
+  }
+`;
 
 const USERS_CONFIRM_INVITATION = gql`
   mutation usersConfirmInvitation(
@@ -41,7 +52,7 @@ const USERS_CONFIRM_INVITATION = gql`
 `;
 
 const USERS_INLINE_EDIT = gql`
-   mutation usersEdit(
+  mutation usersEdit(
     $_id: String!
     $username: String
     $email: String
@@ -51,9 +62,11 @@ const USERS_INLINE_EDIT = gql`
     $links: JSON
     $branchIds: [String]
     $departmentIds: [String]
+    $unitId: String
     $password: String
     $isOnboarded: Boolean
-    $customFieldsData: JSON
+    $propertiesData: JSON
+    $score: Float
   ) {
     usersEdit(
       _id: $_id
@@ -65,14 +78,17 @@ const USERS_INLINE_EDIT = gql`
       links: $links
       branchIds: $branchIds
       departmentIds: $departmentIds
+      unitId: $unitId
       password: $password
       isOnboarded: $isOnboarded
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
+      score: $score
     ) {
       _id
       username
       email
       positionIds
+      score
       details {
         shortName
         birthDate
@@ -83,11 +99,12 @@ const USERS_INLINE_EDIT = gql`
         middleName
         lastName
       }
-      customFieldsData
+      propertiesData
       links
       employeeId
       branchIds
       departmentIds
+      unitId
       isOnboarded
     }
   }
@@ -108,6 +125,8 @@ const mutations = {
   USERS_SET_ACTIVE_STATUS,
   USERS_INLINE_EDIT,
   USERS_RESET_PASSWORD,
+  TEAM_MEMBER_REMOVE,
+  USERS_DEACTIVATE_BATCH,
 };
 
 export default mutations;

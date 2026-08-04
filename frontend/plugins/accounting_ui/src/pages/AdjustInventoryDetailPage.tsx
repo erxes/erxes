@@ -6,10 +6,9 @@ export const AdjustInventoryDetailPage = () => {
   return (
     <AccountingLayout>
       <AccountingHeader
-        returnLink='/accounting/adjustment/inventory'
-        returnText='Inventory'
-      >
-      </AccountingHeader>
+        returnLink="/accounting/adjustment/inventory"
+        returnText="Inventory"
+      ></AccountingHeader>
       <AdjustInventoryDetail />
     </AccountingLayout>
   );

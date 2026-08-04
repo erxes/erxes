@@ -1,4 +1,10 @@
 export const types = `
+  input TicketPropertyValueFilter {
+    propertyId: String
+    type: String
+    values: [String]
+  }
+
   input TicketReportFilter {
     date: String
     fromDate: String
@@ -9,6 +15,20 @@ export const types = `
     page: Int
     channelIds: [String]
     memberIds: [String]
+    pipelineIds: [String]
+    tagIds: [String]
+    state: String
+    priority: [Int]
+    startDate: String
+    targetDate: String
+    companyIds: [String]
+    customerIds: [String]
+    frequency: String
+    branchIds: [String]
+    propertyIds: [String]
+    groupPropertyId: String
+    groupPropertyValue: String
+    propertyValueFilters: [TicketPropertyValueFilter!]
   }
 
   type ReportTicketMetric {
@@ -22,12 +42,21 @@ export const types = `
     count: Int
     percentage: Int
   }
+
   type ReportTicketTag {
     _id: String
     name: String
     count: Int
     percentage: Int
     colorCode: String
+  }
+
+  type ReportTicketCustomProperty {
+    _id: String
+    name: String
+    group: String
+    count: Int
+    percentage: Int
   }
 
   type TicketDateStat {
@@ -41,12 +70,47 @@ export const types = `
     page: Int
     totalPages: Int
   }
+
+  type ReportTicketStatusSummary {
+    statusType: Int
+    name: String
+    color: String
+    count: Int
+    percentage: Int
+  }
+  type ReportTicketPriority {
+    priority: Int
+    name: String
+    color: String
+    count: Int
+    percentage: Int
+  }
+
+  type TicketExportItem {
+    _id: String
+    name: String
+    state: String
+    priorityLabel: String
+    statusLabel: String
+    assigneeName: String
+    pipelineName: String
+    tagNames: [String]
+    createdAt: Date
+    startDate: Date
+    targetDate: Date
+    updatedAt: Date
+  }
 `;
 
 export const queries = `
   reportTicketSource(filters: TicketReportFilter): [ReportTicketSource]
-  reportTicketOpenDate(filters: TicketReportFilter): [TicketDateStat]
+  reportTicketDate(filters: TicketReportFilter): [TicketDateStat]
   reportTicketOpen(filters: TicketReportFilter): ReportTicketMetric
   reportTicketList(filters: TicketReportFilter): TicketListResult
   reportTicketTags(filters: TicketReportFilter): [ReportTicketTag]
+  reportTicketCustomProperties(filters: TicketReportFilter): [ReportTicketCustomProperty]
+  reportTicketTotalCount(filters: TicketReportFilter): Int
+  reportTicketStatusSummary(filters: TicketReportFilter): [ReportTicketStatusSummary]
+  reportTicketPriority(filters: TicketReportFilter): [ReportTicketPriority]
+  reportTicketExport(filters: TicketReportFilter): [TicketExportItem]
 `;

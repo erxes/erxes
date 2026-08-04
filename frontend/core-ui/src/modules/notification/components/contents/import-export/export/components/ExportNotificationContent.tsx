@@ -1,13 +1,13 @@
-import { INotification } from '@/notification/types/notifications';
 import { IconDownload, IconLoader, IconUpload } from '@tabler/icons-react';
 import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
+import { TNotification } from 'ui-modules';
 import { useExportNotificationData } from '../hooks/useExportNotificationData';
 
 export const ExportNotificationContent = ({
   createdAt,
   metadata,
   message,
-}: INotification) => {
+}: TNotification) => {
   const {
     fileName,
     status,

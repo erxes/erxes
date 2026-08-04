@@ -20,6 +20,7 @@ import {
 } from 'erxes-ui';
 import React, { useState } from 'react';
 import { useDebounce } from 'use-debounce';
+import { useTranslation } from 'react-i18next';
 
 interface SelectMilestoneContextType {
   value?: string;
@@ -80,6 +81,7 @@ export const SelectMilestoneFormItem = ({
 };
 
 const SelectMilestoneValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('operation');
   const { milestones, value } = useSelectMilestoneContext();
 
   const selectedMilestone = milestones.find((p) => p._id === value);
@@ -90,7 +92,7 @@ const SelectMilestoneValue = ({ placeholder }: { placeholder?: string }) => {
   });
 
   const milestoneName =
-    selectedMilestone?.name || milestone?.name || 'No milestone';
+    selectedMilestone?.name || milestone?.name || t('no-milestone');
 
   if (!value)
     return (
@@ -98,8 +100,8 @@ const SelectMilestoneValue = ({ placeholder }: { placeholder?: string }) => {
         <IconSquareRotated className="size-4" />
         <span className="truncate font-medium">
           {milestones?.length
-            ? placeholder || 'Select milestone'
-            : 'No milestones'}
+            ? placeholder || t('select-milestone')
+            : t('no-milestones')}
         </span>
       </div>
     );
@@ -146,20 +148,21 @@ const SelectMilestoneCommandItem = ({
 };
 
 const SelectMilestoneContent = () => {
+  const { t } = useTranslation('operation');
   const { milestones, search, setSearch, handleFetchMore, totalCount } =
     useSelectMilestoneContext();
 
   return (
     <Command shouldFilter={false} id="milestone-command-menu">
       <Command.Input
-        placeholder="Search milestone"
+        placeholder={t('search-milestone')}
         value={search}
         onValueChange={setSearch}
       />
-      <Command.Empty>No milestone found</Command.Empty>
+      <Command.Empty>{t('no-milestone-found')}</Command.Empty>
       <Command.List>
         <SelectMilestoneCommandItem
-          milestone={{ _id: '', name: 'No milestone' } as IMilestone}
+          milestone={{ _id: '', name: t('no-milestone') } as IMilestone}
         />
         {milestones.map((milestone) => (
           <SelectMilestoneCommandItem

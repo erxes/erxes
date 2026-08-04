@@ -2,9 +2,17 @@ import { TAutomationProducers } from '../automations/types';
 import { TAutomationProducersInput } from '../automations/zodTypes';
 import { TSegmentProducers } from '../segments/types';
 import { TAfterProcessProducers } from '../logs/types';
+import {
+  TBeforeResolversProducers,
+  TBeforeResolversProducersInput,
+} from '../../utils/apollo/beforeResolvers';
 import { TSegmentProducersInput } from '../segments/zodSchemas';
 import { TImportExportProducersInput } from '../import-export/zodSchemas';
 import { TImportExportProducers } from '../import-export';
+import {
+  TRecordReferenceProducers,
+  TRecordReferenceProducersInput,
+} from './references/types';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -15,8 +23,14 @@ type TModuleProducerInputMap = {
   afterProcess: {
     [K in TAfterProcessProducers]: any;
   };
+  beforeResolvers: {
+    [K in TBeforeResolversProducers]: TBeforeResolversProducersInput[K];
+  };
   importExport: {
     [K in TImportExportProducers]: TImportExportProducersInput[K];
+  };
+  references: {
+    [K in TRecordReferenceProducers]: TRecordReferenceProducersInput[K];
   };
 };
 

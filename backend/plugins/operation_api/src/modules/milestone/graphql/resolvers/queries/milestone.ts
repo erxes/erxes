@@ -11,15 +11,20 @@ export const milestoneQueries = {
   getMilestone: async (
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('milestoneRead');
+
     return models.Milestone.getMilestone(_id);
   },
+
   milestones: async (
     _root: undefined,
     params: IMilestoneParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('milestoneRead');
+
     const { projectId, searchValue } = params;
 
     const filter: FilterQuery<IMilestoneParams> = {
@@ -46,8 +51,10 @@ export const milestoneQueries = {
   milestoneProgress: async (
     _root: undefined,
     { projectId }: { projectId: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('milestoneRead');
+
     await models.Project.getProject(projectId);
 
     return models.Milestone.aggregate([

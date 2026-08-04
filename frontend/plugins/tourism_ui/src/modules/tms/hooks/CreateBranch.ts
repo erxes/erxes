@@ -11,13 +11,14 @@ export interface ICreateBranchVariables {
   generalManagerIds?: string[];
   managerIds?: string[];
   paymentIds?: string[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   token?: string;
   erxesAppToken?: string;
   permissionConfig?: {
     _id?: string;
     type: string;
     title: string;
-    icon: string;
     config?: string;
   }[];
   uiOptions?: {
@@ -27,6 +28,8 @@ export interface ICreateBranchVariables {
       primary?: string;
     };
   };
+  language?: string;
+  languages?: string[];
 }
 
 export const useCreateBranch = () => {

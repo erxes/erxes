@@ -1,9 +1,8 @@
-import { IStatusDocument } from '@/status/@types/status';
+import { IStatus, IStatusDocument } from '@/status/@types/status';
 import { statusSchema } from '@/status/db/definitions/status';
-import { IStatus } from '@/status/@types/status';
+import { generateDefaultStatuses } from '@/status/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { generateDefaultStatuses } from '@/status/utils';
 
 export interface IStatusModel extends Model<IStatusDocument> {
   getStatus(_id: string): Promise<IStatusDocument>;
@@ -30,7 +29,10 @@ export const loadStatusClass = (models: IModels) => {
       teamId: string,
       type: number,
     ): Promise<IStatusDocument[]> {
-      const query = { teamId } as any;
+      const query: Record<string, any> = {
+        teamId,
+        _id: { $exists: true, $ne: null, $type: 'objectId' },
+      };
 
       if (type) {
         query.type = type;

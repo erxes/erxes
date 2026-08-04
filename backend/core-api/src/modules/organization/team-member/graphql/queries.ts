@@ -4,7 +4,7 @@ import {
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 
 type IListArgs = {
   sortDirection?: number;
@@ -29,7 +29,7 @@ type IListArgs = {
 
 const NORMAL_USER_SELECTOR = { role: { $ne: USER_ROLES.SYSTEM } };
 
-const queryBuilder = async (params: IListArgs) => {
+const queryBuilder = async (params: IListArgs, models: IModels) => {
   const {
     searchValue,
     isActive,
@@ -40,6 +40,9 @@ const queryBuilder = async (params: IListArgs) => {
     brandIds,
     departmentId,
     branchId,
+    departmentIds,
+    branchIds,
+    unitId,
   } = params;
 
   const selector: any = {
@@ -89,6 +92,23 @@ const queryBuilder = async (params: IListArgs) => {
     selector.departmentIds = { $in: [departmentId] };
   }
 
+  if (branchIds && branchIds.length > 0) {
+    selector.branchIds = { $in: branchIds };
+  }
+
+  if (departmentIds && departmentIds.length > 0) {
+    selector.departmentIds = { $in: departmentIds };
+  }
+
+  if (unitId) {
+    const unit = await models.Units.findOne({ _id: unitId }).lean();
+    const unitUserIds = unit?.userIds || [];
+
+    selector._id = selector._id
+      ? { ...selector._id, $in: unitUserIds }
+      : { $in: unitUserIds };
+  }
+
   return selector;
 };
 
@@ -102,7 +122,7 @@ export const userQueries = {
     { models }: IContext,
   ) {
     const selector = {
-      ...(await queryBuilder(args)),
+      ...(await queryBuilder(args, models)),
       ...NORMAL_USER_SELECTOR,
     };
 
@@ -167,7 +187,7 @@ export const userQueries = {
     { models }: IContext,
   ) {
     const selector = {
-      ...(await queryBuilder(args)),
+      ...(await queryBuilder(args, models)),
       ...NORMAL_USER_SELECTOR,
     };
 

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { Spinner } from 'erxes-ui';
-import { PageChangeEffect } from './app/effect-components/AccountingPageChangeEffect';
+import { PageChangeEffect } from './app/AccountingPageChangeEffect';
 
 const TransactionList = lazy(() =>
   import('~/pages/TransactionListPage').then((module) => ({
@@ -39,6 +39,42 @@ const AdjustInventoryDetail = lazy(() =>
   })),
 );
 
+const AdjustFundRateList = lazy(() =>
+  import('~/pages/AdjustFundRateListPage').then((module) => ({
+    default: module.AdjustFundRateListPage,
+  })),
+);
+
+const AdjustFundRateDetail = lazy(() =>
+  import('~/pages/AdjustFundRateDetailPage').then((module) => ({
+    default: module.AdjustFundRateDetailPage,
+  })),
+);
+
+const AdjustDebtRateList = lazy(() =>
+  import('~/pages/AdjustDebtRateListPage').then((module) => ({
+    default: module.AdjustDebtRateListPage,
+  })),
+);
+
+const AdjustDebtRateDetail = lazy(() =>
+  import('~/pages/AdjustDebtRateDetailPage').then((module) => ({
+    default: module.AdjustDebtRateDetailPage,
+  })),
+);
+
+const AdjustFixedAssetList = lazy(() =>
+  import('~/pages/AdjustFixedAssetListPage').then((module) => ({
+    default: module.AdjustFixedAssetListPage,
+  })),
+);
+
+const AdjustFixedAssetDetail = lazy(() =>
+  import('~/pages/AdjustFixedAssetDetailPage').then((module) => ({
+    default: module.AdjustFixedAssetDetailPage,
+  })),
+);
+
 const AccountingJournalReports = lazy(() =>
   import('~/pages/JournalReports').then((module) => ({
     default: module.JournalReports,
@@ -48,6 +84,39 @@ const AccountingJournalReports = lazy(() =>
 const AccountingGenJournalReport = lazy(() =>
   import('~/pages/GenJournalReport').then((module) => ({
     default: module.GenJournalReport,
+  })),
+);
+
+const InventoryRemainders = lazy(() =>
+  import('~/pages/inventories/RemaindersPage').then((module) => ({
+    default: module.RemaindersPage,
+  })),
+);
+const InventorySafeRemainders = lazy(() =>
+  import('~/pages/inventories/SafeRemaindersPage').then((module) => ({
+    default: module.SafeRemaindersPage,
+  })),
+);
+const InventorySafeRemainderDetail = lazy(() =>
+  import('~/pages/inventories/SafeRemainderDetailPage').then((module) => ({
+    default: module.SafeRemainderDetailPage,
+  })),
+);
+const InventoryReserveRemainders = lazy(() =>
+  import('~/pages/inventories/ReserveRemaindersPage').then((module) => ({
+    default: module.ReserveRemaindersPage,
+  })),
+);
+
+const TransactionPrint = lazy(() =>
+  import('~/pages/TransactionPrintPage').then((module) => ({
+    default: module.TransactionPrintPage,
+  })),
+);
+
+const AccountingCheckSync = lazy(() =>
+  import('~/modules/check-synced/AccountingCheckSync').then((module) => ({
+    default: module.AccountingCheckSync,
   })),
 );
 
@@ -66,15 +135,51 @@ const PluginAccounting = () => {
         <Route path="/records" element={<TrRecordList />} />
         <Route path="/transaction/edit" element={<TransactionForm />} />
         <Route path="/transaction/create" element={<TransactionForm />} />
+        <Route path="transaction/print" element={<TransactionPrint />} />
         <Route path="/adjustment" element={<AdjustmentsHomePage />} />
         <Route path="/adjustment/inventory" element={<AdjustInventoryList />} />
         <Route
           path="/adjustment/inventory/detail"
           element={<AdjustInventoryDetail />}
         />
+        <Route path="/adjustment/fundRate" element={<AdjustFundRateList />} />
+        <Route
+          path="/adjustment/fundRate/detail"
+          element={<AdjustFundRateDetail />}
+        />
+        <Route path="/adjustment/debRate" element={<AdjustDebtRateList />} />
+        <Route
+          path="/adjustment/debRate/detail"
+          element={<AdjustDebtRateDetail />}
+        />
+        <Route path="/adjustment/fxa" element={<AdjustFixedAssetList />} />
+        <Route
+          path="/adjustment/fxa/detail"
+          element={<AdjustFixedAssetDetail />}
+        />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
-        <Route path="/gen-journal-report" element={<AccountingGenJournalReport />} />
+        <Route path="/check-sync/*" element={<AccountingCheckSync />} />
+        <Route
+          path="/gen-journal-report"
+          element={<AccountingGenJournalReport />}
+        />
 
+        <Route
+          path="/inventories/remainders"
+          element={<InventoryRemainders />}
+        />
+        <Route
+          path="/inventories/safe-remainders"
+          element={<InventorySafeRemainders />}
+        />
+        <Route
+          path="/inventories/safe-remainder/detail"
+          element={<InventorySafeRemainderDetail />}
+        />
+        <Route
+          path="/inventories/reserve-remainders"
+          element={<InventoryReserveRemainders />}
+        />
       </Routes>
       <PageChangeEffect />
     </Suspense>

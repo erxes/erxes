@@ -1,12 +1,11 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
-import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosOrdersByCustomerRecordTable } from '@/pos/pos-orders-by-customer/components/PosOrdersByCustomerRecordTable';
+import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
+import { useParams } from 'react-router-dom';
 
 export const PosOrdersByCustomerPage = () => {
   const { posId } = useParams();
-
   return (
     <>
       <PageHeader>
@@ -23,7 +22,7 @@ export const PosOrdersByCustomerPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <PosOrdersByCustomerRecordTable posId={posId} />
+      <PosOrdersByCustomerRecordTable />
     </>
   );
 };

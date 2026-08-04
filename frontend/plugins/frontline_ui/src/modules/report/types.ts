@@ -36,6 +36,7 @@ export interface ReportCardProps {
 export interface TagData {
   _id: string;
   name: string;
+  group?: string;
   count: number;
   percentage: number;
 }
@@ -45,6 +46,12 @@ export interface SourceData {
   name: string;
   count: number;
   percentage: number;
+}
+
+export interface TicketPropertyFilter {
+  propertyId: string;
+  type?: string;
+  values: string[];
 }
 
 export interface ConversationListItem {

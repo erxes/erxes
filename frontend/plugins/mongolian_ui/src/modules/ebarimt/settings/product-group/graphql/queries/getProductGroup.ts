@@ -18,43 +18,7 @@ export const productGroupFields = `
   ratio
   isActive
 `;
-export const SELECT_PRODUCT_GROUP = gql`
-  query SelectProductGroups(
-    $status: String
-    $name: String
-    $number: String
-    $searchValue: String
-    $ids: [String]
-    $excludeIds: Boolean
-    $page: Int
-    $perPage: Int
-    $sortField: String
-    $sortDirection: Int
-  ) {
-    ebarimtProductGroups(
-      status: $status
-      name: $name
-      number: $number
-      searchValue: $searchValue
-      ids: $ids
-      excludeIds: $excludeIds
-      page: $page
-      perPage: $perPage
-      sortField: $sortField
-      sortDirection: $sortDirection
-    ) {
-      ${productGroupFields}
-    }
-    ebarimtProductGroupsCount(
-      status: $status
-      name: $name
-      number: $number
-      searchValue: $searchValue
-      ids: $ids
-      excludeIds: $excludeIds
-    )
-  }
-`;
+
 export const GET_PRODUCT_GROUP = gql`
   query EbarimtProductGroups(
     $searchValue: String
@@ -114,10 +78,7 @@ export const GET_PRODUCT_GROUP = gql`
 export const GET_PRODUCT_GROUP_VALUE = gql`
   query ProductGroupDetail($id: String) {
     productGroupDetail(_id: $id) {
-      _id
-      name
-      number
-      percent
+      ${productGroupFields}
     }
   }
 `;

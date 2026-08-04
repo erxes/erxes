@@ -2,10 +2,16 @@ import { Form, Select } from 'erxes-ui';
 import { ITransactionGroupForm } from '../../types/JournalForms';
 import {
   CustomerType,
-  SelectCustomer,
   SelectCompany,
+  SelectCustomer,
   SelectMember,
 } from 'ui-modules';
+
+const CUSTOMER_TYPE_LABELS = {
+  [CustomerType.CUSTOMER]: 'Харилцагч',
+  [CustomerType.COMPANY]: 'Байгууллага',
+  [CustomerType.USER]: 'Ажилтан',
+};
 
 export const CustomerFields = ({
   form,
@@ -30,18 +36,18 @@ export const CustomerFields = ({
         name={`trDocs.${index}.customerType`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Customer Type</Form.Label>
+            <Form.Label>Харилцагчийн төрөл</Form.Label>
 
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Select Customer Type" />
+                  <Select.Value placeholder="Харилцагчийн төрөл сонгох" />
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
                 {Object.values(CustomerType).map((type) => (
                   <Select.Item key={type} value={type}>
-                    {type}
+                    {CUSTOMER_TYPE_LABELS[type]}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -54,7 +60,10 @@ export const CustomerFields = ({
         name={`trDocs.${index}.customerId`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{customerType}</Form.Label>
+            <Form.Label>
+              {CUSTOMER_TYPE_LABELS[customerType as CustomerType] ||
+                'Харилцагч'}
+            </Form.Label>
             <Form.Control>
               <SelectComponent
                 value={field.value ?? ''}

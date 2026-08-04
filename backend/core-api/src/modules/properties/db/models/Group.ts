@@ -83,7 +83,7 @@ export const loadFieldGroupClass = (models: IModels) => {
     public static async validateGroup(doc: IFieldGroup, _id?: string) {
       const { code } = doc || {};
 
-      if (_id) {
+      if (code && _id) {
         const group = await models.FieldsGroups.getGroup({ _id });
 
         if (group.code !== code) {

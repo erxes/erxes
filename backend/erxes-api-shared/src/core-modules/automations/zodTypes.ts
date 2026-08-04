@@ -8,6 +8,10 @@ export const AutomationBaseInput = z.object({
 
 export const AutomationExecActionInput = z.object({
   createdAt: z.string().optional(),
+  startedAt: z.string().optional(),
+  finishedAt: z.string().optional(),
+  durationMs: z.number().optional(),
+  status: z.enum(['success', 'error', 'waiting']).optional(),
   actionId: z.string(),
   actionType: z.string(),
   actionConfig: z.any().optional(),
@@ -29,6 +33,8 @@ export const AutomationExecutionInput = z.object({
   status: z.string(),
   description: z.string(),
   actions: z.array(AutomationExecActionInput).optional(),
+  // Arrives as a Date in-process but as an ISO string after crossing the
+  // queue/producer JSON boundary (same reason createdAt is a string above)
   startWaitingDate: z.date().optional(),
   waitingActionId: z.string().optional(),
   objToCheck: z.record(z.any()).optional(),
@@ -78,21 +84,28 @@ export const CheckCustomTriggerInputData = z.object({
   }),
   target: z.record(z.any()),
   config: z.record(z.any()),
+  eventUpdateDescription: z.record(z.string(), z.any()).optional(),
 });
 
-export const ReplacePlaceholdersInputData = z.object({
+export const CheckTargetMatchInputData = z.object({
   moduleName: z.string(),
-  target: z.record(z.any()),
-  config: z.record(z.any()),
-  relatedValueProps: z
-    .record(
-      z.string(),
-      z.object({
-        key: z.string(),
-        filter: z.object({ key: z.string(), value: z.any() }).optional(),
-      }),
-    )
-    .optional(),
+  contentType: z.string(),
+  collectionType: z.string(),
+  targetId: z.string(),
+  selector: z.record(z.any()),
+});
+
+export const FindObjectInputData = z.object({
+  objectType: z.string(),
+  field: z.string(),
+  value: z.string(),
+});
+
+export const ResolveOutputPathsInputData = z.object({
+  nodeType: z.string(),
+  source: z.record(z.any()),
+  paths: z.array(z.string()),
+  defaultValue: z.any().optional(),
 });
 
 export const SetPropertiesInputData = z.object({
@@ -105,16 +118,62 @@ export const SetPropertiesInputData = z.object({
   collectionType: z.string(),
 });
 
+export const GenerateAiContextInputData = z.object({
+  moduleName: z.string(),
+  collectionType: z.string().optional(),
+  triggerType: z.string(),
+  target: z.record(z.any()),
+});
+
+export const LoadAiKnowledgeDocumentBatchInputData = z.object({
+  moduleName: z.string(),
+  sourceKey: z.string(),
+  sourceIds: z.array(z.string()).max(1000).optional(),
+  candidateSourceIds: z.array(z.string()).max(1000).optional(),
+  config: z.record(z.unknown()).optional(),
+  cursor: z.string().optional(),
+  limit: z.number().int().min(1).max(5000).optional(),
+  skipTotalCount: z.boolean().optional(),
+});
+
+export const LookupAiToolInputData = z.object({
+  moduleName: z.string(),
+  toolKey: z.string(),
+  query: z.string().default(''),
+  limit: z.number().int().min(1).max(20).optional(),
+  filters: z.record(z.unknown()).optional(),
+});
+
 export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
 
-export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
-  data: ReplacePlaceholdersInputData,
+export const CheckTargetMatchInput = AutomationBaseInput.extend({
+  data: CheckTargetMatchInputData,
+});
+
+export const FindObjectInput = AutomationBaseInput.extend({
+  data: FindObjectInputData,
+});
+
+export const ResolveOutputPathsInput = AutomationBaseInput.extend({
+  data: ResolveOutputPathsInputData,
 });
 
 export const SetPropertiesInput = AutomationBaseInput.extend({
   data: SetPropertiesInputData,
+});
+
+export const GenerateAiContextInput = AutomationBaseInput.extend({
+  data: GenerateAiContextInputData,
+});
+
+export const LoadAiKnowledgeDocumentBatchInput = AutomationBaseInput.extend({
+  data: LoadAiKnowledgeDocumentBatchInputData,
+});
+
+export const LookupAiToolInput = AutomationBaseInput.extend({
+  data: LookupAiToolInputData,
 });
 
 export type TAutomationProducersInput = {
@@ -124,11 +183,20 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.CHECK_CUSTOM_TRIGGER]: z.infer<
     typeof CheckCustomTriggerInputData
   >;
-  [TAutomationProducers.REPLACE_PLACEHOLDERS]: z.infer<
-    typeof ReplacePlaceholdersInputData
+  [TAutomationProducers.CHECK_TARGET_MATCH]: z.infer<
+    typeof CheckTargetMatchInputData
+  >;
+  [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
+  [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<
+    typeof ResolveOutputPathsInputData
   >;
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
-  [TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES]: z.infer<
-    typeof AutomationBaseInput
+
+  [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
+    typeof GenerateAiContextInputData
   >;
+  [TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH]: z.infer<
+    typeof LoadAiKnowledgeDocumentBatchInputData
+  >;
+  [TAutomationProducers.LOOKUP_AI_TOOL]: z.infer<typeof LookupAiToolInputData>;
 };

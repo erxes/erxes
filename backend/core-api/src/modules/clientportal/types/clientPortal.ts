@@ -72,7 +72,7 @@ export interface ITestUser {
   email?: string;
   phone?: string;
   password?: string;
-  otp?: number;
+  otp?: string;
 }
 
 export interface IAuthConfig {
@@ -97,6 +97,11 @@ export interface IFacebookOAuthConfig {
 export interface IOTPResendConfig {
   cooldownPeriodInSeconds?: number; // Default: 300 (5 minutes)
   maxAttemptsPerHour?: number; // Default: 5
+}
+
+export interface IFirebaseConfig {
+  serviceAccountKey?: string; // JSON string of Firebase service account credentials
+  enabled?: boolean; // Enable/disable Firebase notifications
 }
 
 export interface IClientPortal {
@@ -137,6 +142,8 @@ export interface IClientPortal {
   enableManualVerification?: boolean;
 
   testUser?: ITestUser;
+
+  firebaseConfig?: IFirebaseConfig;
 }
 
 export interface IClientPortalDocument extends IClientPortal, Document {

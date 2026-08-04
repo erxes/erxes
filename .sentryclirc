@@ -1,0 +1,8 @@
+[defaults]
+url = https://sentry.erxes.io
+org = sentry
+project = erxes-api
+
+# Auth token should be set via environment variable:
+# export SENTRY_AUTH_TOKEN=sntryu_...
+# Or in GitHub Actions: secrets.SENTRY_AUTH_TOKEN

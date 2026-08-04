@@ -5,8 +5,9 @@ import { selectedFacebookAccountAtom } from '../states/facebookStates';
 import { IntegrationType } from '@/types/Integration';
 import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
 
-export const useFacebookPages = () => {
+export const useFacebookPages = (overrideAccountId?: string) => {
   const selectedAccount = useAtomValue(selectedFacebookAccountAtom);
+  const accountId = overrideAccountId ?? selectedAccount;
   const { isPost } = useFbIntegrationContext();
   const { data, loading, error } = useQuery<{
     facebookGetPages: {
@@ -16,12 +17,12 @@ export const useFacebookPages = () => {
     }[];
   }>(GET_FB_PAGES, {
     variables: {
-      accountId: selectedAccount,
+      accountId,
       kind: isPost
         ? IntegrationType.FACEBOOK_POST
         : IntegrationType.FACEBOOK_MESSENGER,
     },
-    skip: !selectedAccount,
+    skip: !accountId,
   });
 
   const { facebookGetPages = [] } = data || {};

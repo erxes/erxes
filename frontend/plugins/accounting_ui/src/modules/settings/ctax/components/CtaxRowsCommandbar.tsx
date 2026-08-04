@@ -15,7 +15,7 @@ export const CtaxRowsCommandbar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {table.getFilteredSelectedRowModel().rows.length} сонгосон
         </CommandBar.Value>
         <Separator.Inline />
         <CtaxRowsDelete />
@@ -31,10 +31,10 @@ export const CtaxRowsDelete = () => {
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete these ctax rows?',
+      message: 'Эдгээр НХАТ-ын мөрийг устгахдаа итгэлтэй байна уу?',
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: 'Устгах',
+        cancelLabel: 'Болих',
       },
     }).then(() => {
       const ctaxRowIds = table
@@ -45,7 +45,7 @@ export const CtaxRowsDelete = () => {
         variables: { ctaxRowIds },
         onError: (error: Error) => {
           toast({
-            title: 'Error',
+            title: 'Алдаа',
             description: error.message,
             variant: 'destructive',
           });
@@ -53,8 +53,8 @@ export const CtaxRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Success',
-            description: 'Ctax rows deleted successfully',
+            title: 'Амжилттай',
+            description: 'НХАТ-ын мөрийг устгалаа',
           });
         },
       });
@@ -64,7 +64,7 @@ export const CtaxRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Delete
+      Устгах
     </Button>
   );
 };

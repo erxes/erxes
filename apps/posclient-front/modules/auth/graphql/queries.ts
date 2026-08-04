@@ -29,7 +29,6 @@ const currentConfig = gql`
       token
       waitingScreen
       kitchenScreen
-      erxesAppToken
       orderPassword
       uiOptions {
         colors
@@ -56,6 +55,7 @@ const currentConfig = gql`
         footerText
         hasCopy
         hasSumQty
+        isCleanTaxPrice
       }
       saveRemainder
     }

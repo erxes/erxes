@@ -1,6 +1,6 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { getUserActionsMap, USER_ROLES } from 'erxes-api-shared/core-modules';
+import { USER_ROLES } from 'erxes-api-shared/core-modules';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
@@ -19,12 +19,6 @@ export default {
     }
 
     return 'Verified';
-  },
-
-  async role(user: IUserDocument, _args: undefined, { models }: IContext) {
-    const { role } = await models.Roles.getRole(user._id);
-
-    return role;
   },
 
   //   async currentOrganization(_user, _args, { subdomain, models }: IContext) {
@@ -135,16 +129,6 @@ export default {
     }).lean();
   },
 
-  async permissionActions(
-    user: IUserDocument,
-    _args,
-    { models: { Permissions }, subdomain }: IContext,
-  ) {
-    return getUserActionsMap(subdomain, user, (query) =>
-      Permissions.find(query),
-    );
-  },
-
   async departments(user: IUserDocument, _args, { models }: IContext) {
     return models.Departments.find({ _id: { $in: user.departmentIds } });
   },
@@ -155,6 +139,11 @@ export default {
 
   async positions(user: IUserDocument, _args, { models }: IContext) {
     return models.Positions.find({ _id: { $in: user.positionIds } });
+  },
+
+  async unitId(user: IUserDocument, _args, { models }: IContext) {
+    const unit = await models.Units.findOne({ userIds: user._id }).lean();
+    return unit?._id ?? null;
   },
 
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {

@@ -1,13 +1,14 @@
-import { Suspense } from 'react';
-import { Routes, Route } from 'react-router';
-import { SettingsHeader } from 'ui-modules';
-import { Button, PageContainer } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconClipboard } from '@tabler/icons-react';
+import { Button, PageContainer } from 'erxes-ui';
+import { Suspense } from 'react';
+import { Route, Routes } from 'react-router';
 import { Outlet } from 'react-router-dom';
+import { SettingsHeader, TagProvider, TagsGroupsAddButtons } from 'ui-modules';
 import { ProjectsTagsPage } from '~/pages/ProjectsTagsPage';
-import { TagProvider, TagsGroupsAddButtons } from 'ui-modules';
 
 const ProjectsSettings = () => {
+  const { t } = useTranslation('operation');
   return (
     <Suspense fallback={<div />}>
       <TagProvider>
@@ -19,7 +20,7 @@ const ProjectsSettings = () => {
                   breadcrumbs={
                     <Button variant="ghost" className="font-semibold">
                       <IconClipboard className="w-4 h-4 text-accent-foreground" />
-                      Projects
+                      {t('projects')}
                     </Button>
                   }
                 >

@@ -8,16 +8,22 @@ export type ISelectProductContext = {
   setProducts: (products: IProduct[]) => void;
   loading: boolean;
   error: string | null;
+  defaultSearchValue?: string;
+  selectedProducts?: IProduct[];
+  mode?: 'single' | 'multiple';
+  removeId?: (id: string) => void;
 };
 
-export const SelectProductContext =
-  createContext<ISelectProductContext | null>(null);
-
+export const SelectProductContext = createContext<ISelectProductContext | null>(
+  null,
+);
 
 export const useSelectProductContext = () => {
-    const context = useContext(SelectProductContext);
-    if (!context) {
-        throw new Error('useSelectProductContext must be used within a SelectProductContextProvider');
-    }
-    return context;
-}
+  const context = useContext(SelectProductContext);
+  if (!context) {
+    throw new Error(
+      'useSelectProductContext must be used within a SelectProductContextProvider',
+    );
+  }
+  return context;
+};

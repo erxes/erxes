@@ -1,28 +1,40 @@
+import { IAssignment } from '@/assignment/@types/assignment';
 import { IContext } from '~/connectionResolvers';
-import { IAssignment } from '~/modules/assignment/@types/assignment';
 
 export const assignmentMutations = {
-  createAssignment: async (
-    _parent: undefined,
+  async assignmentsAdd(
+    _root: undefined,
     doc: IAssignment,
-    { models }: IContext,
-  ) => {
-    return models.Assignment.createAssignment(doc);
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('assignmentCreate');
+    return models.Assignments.createAssignment(doc);
   },
 
-  updateAssignment: async (
-    _parent: undefined,
-    { _id, ...doc }: IAssignment & { _id: string },
-    { models }: IContext,
-  ) => {
-    return models.Assignment.updateAssignment(_id, doc);
+  async assignmentsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('assignmentRemove');
+    return models.Assignments.removeAssignments(_ids);
   },
 
-  removeAssignment: async (
-    _parent: undefined,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) => {
-    return models.Assignment.removeAssignment(_id);
+  async cpAssignmentsAdd(
+    _root: undefined,
+    doc: IAssignment,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('assignmentCreate');
+    return models.Assignments.createAssignment(doc, true);
+  },
+
+  async cpAssignmentsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('assignmentRemove');
+    return models.Assignments.removeAssignments(_ids);
   },
 };

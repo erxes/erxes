@@ -1,36 +1,21 @@
-import { Button, Dialog } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { useState } from 'react';
-import { AccountingDialog } from '@/layout/components/Dialog';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { TAccountCategoryForm } from '../types/AccountCategory';
-import { useForm } from 'react-hook-form';
-import { accountCategorySchema } from '../constants/accountCategorySchema';
+import { Button, Sheet } from 'erxes-ui';
+
 import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
 import { AccountCategoryForm } from './AccountCategoryForm';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
+import { TAccountCategoryForm } from '../types/AccountCategory';
+import { accountCategorySchema } from '../constants/accountCategorySchema';
 import { useAccountCategoryAdd } from '../hooks/useAccountCategoryAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const AddAccountCategory = () => {
-  const [open, setOpen] = useState(false);
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Add account category
-        </Button>
-      </Dialog.Trigger>
-      <AccountingDialog
-        title="Add account category"
-        description="Add a new account category"
-      >
-        <AddAccountCategoryForm setOpen={setOpen} />
-      </AccountingDialog>
-    </Dialog>
-  );
-};
-
-const AddAccountCategoryForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+const AddAccountCategoryForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TAccountCategoryForm>({
     resolver: zodResolver(accountCategorySchema),
     defaultValues: ACCOUNT_CATEGORY_DEFAULT_VALUES,
@@ -42,11 +27,10 @@ const AddAccountCategoryForm = ({ setOpen }: { setOpen: (open: boolean) => void 
     addAccountCategory({
       variables: { ...data },
       onCompleted: () => {
-        setOpen(false);
         form.reset();
+        setOpen(false);
       },
     });
-
   };
 
   return (
@@ -55,5 +39,23 @@ const AddAccountCategoryForm = ({ setOpen }: { setOpen: (open: boolean) => void 
       handleSubmit={handleSubmit}
       loading={loading}
     />
+  );
+};
+
+export const AddAccountCategory = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          Дансны ангилал нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="Дансны ангилал нэмэх">
+        <AddAccountCategoryForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

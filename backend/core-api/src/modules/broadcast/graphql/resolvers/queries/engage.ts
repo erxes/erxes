@@ -3,15 +3,23 @@ import {
   IReportQueryParams,
   ISmsDeliveryQueryParams,
 } from '@/broadcast/@types';
-import { awsRequests } from '@/broadcast/trackers';
 import {
   countsByKind,
   countsByStatus,
   countsByTag,
   prepareAvgStats,
 } from '@/broadcast/utils';
+import {
+  getEmailSenderOptions,
+  getVerifiedSenderEmails,
+} from '~/utils/email/senders';
+import { TEmailScope } from '~/utils/email/scope';
 import { ICursorPaginateParams, IUser } from 'erxes-api-shared/core-types';
-import { cursorPaginate, getCustomerName } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getCustomerName,
+} from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -79,7 +87,7 @@ const generateFilter = async (
   if (tag) {
     const object = await models.Tags.findOne({ _id: tag });
 
-    const relatedIds = object && object.relatedIds ? object.relatedIds : [];
+    const relatedIds = object?.relatedIds || [];
 
     filter.tagIds = { $in: [tag, ...relatedIds] };
   }
@@ -244,14 +252,17 @@ export const engageQueries = {
       isActive: true,
     };
 
-    if (isVerified) {
-      const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
+    const verifiedEmails = isVerified
+      ? await getVerifiedSenderEmails(models, 'broadcast')
+      : null;
 
-      query.email = { $in: verifiedEmails || [] };
-    }
-
-    if (searchValue) {
-      query.email = { $regex: searchValue, $options: '$i' };
+    if (verifiedEmails || searchValue) {
+      query.email = {
+        ...(verifiedEmails ? { $in: verifiedEmails } : {}),
+        ...(searchValue
+          ? { $regex: escapeRegExp(searchValue), $options: 'i' }
+          : {}),
+      };
     }
 
     return await cursorPaginate({
@@ -277,6 +288,16 @@ export const engageQueries = {
     }
   },
 
+  async engageBroadcastTraces(
+    _root: undefined,
+    { engageMessageId }: { engageMessageId: string },
+    { models }: IContext,
+  ) {
+    return models.BroadcastTraces.find({ engageMessageId }).sort({
+      createdAt: -1,
+    });
+  },
+
   async engageSmsDeliveries(
     _root: undefined,
     params: ISmsDeliveryQueryParams,
@@ -299,5 +320,35 @@ export const engageQueries = {
     const totalCount = await models.SmsRequests.countDocuments(filter);
 
     return { list: data, totalCount };
+  },
+  async emailSenderOptions(
+    _root: undefined,
+    { scope }: { scope?: TEmailScope },
+    { models }: IContext,
+  ) {
+    const options = await getEmailSenderOptions(models, scope);
+
+    return { ...options, _scope: scope };
+  },
+
+  async engageVerifiedEmails(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    const users = await models.Users.find({
+      isActive: true,
+    });
+    const userEmails = users?.map((u) => u.email);
+    const allVerifiedEmails = await getVerifiedSenderEmails(
+      models,
+      'broadcast',
+    );
+
+    if (!allVerifiedEmails) {
+      return userEmails;
+    }
+
+    return allVerifiedEmails.filter((email) => userEmails.includes(email));
   },
 };

@@ -1,6 +1,9 @@
-
 import { defaultPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 const findDetail = async (model, _id) => {
   return await model.findOne({ $or: [{ _id }, { code: _id }] });
@@ -13,16 +16,19 @@ const buildQuery = (args: any) => {
 
   keys.forEach((key) => {
     if (args[key] && args[key].length > 0) {
-      const field = key.replace('s', '');
+      // Articles carry their id in _id; "articleId" is not a schema field.
+      const field = key === 'articleIds' ? '_id' : key.replace('s', '');
       qry[field] = { $in: args[key] };
     }
   });
 
-  if (args.searchValue && args.searchValue.trim()) {
+  const searchValue = args.searchValue?.trim();
+  if (searchValue) {
+    const safeSearch = escapeRegExp(searchValue);
     qry.$or = [
-      { title: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { content: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { summary: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
+      { title: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
+      { description: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
+      { code: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
     ];
   }
 
@@ -46,7 +52,6 @@ const buildQuery = (args: any) => {
 };
 
 export const knowledgeBaseQueries = {
-
   async knowledgeBaseArticles(
     _root,
     args: {
@@ -61,7 +66,7 @@ export const knowledgeBaseQueries = {
       sortDirection?: number;
       status?: string;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const selector: any = buildQuery(args);
     let sort: any = { createdDate: -1 };
@@ -90,7 +95,7 @@ export const knowledgeBaseQueries = {
   async knowledgeBaseArticleDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return findDetail(models.Article, _id);
   },
@@ -98,20 +103,16 @@ export const knowledgeBaseQueries = {
   async knowledgeBaseArticleDetailAndIncViewCount(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Article.findOneAndUpdate(
       { _id },
       { $inc: { viewCount: 1 } },
-      { new: true }
+      { new: true },
     );
   },
 
-  async knowledgeBaseArticlesTotalCount(
-    _root,
-    args,
-    { models }: IContext
-  ) {
+  async knowledgeBaseArticlesTotalCount(_root, args, { models }: IContext) {
     const qry: any = buildQuery(args);
 
     return models.Article.find(qry).countDocuments();
@@ -127,7 +128,7 @@ export const knowledgeBaseQueries = {
       codes: string[];
       icon: string;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const qry: any = buildQuery(args);
 
@@ -147,7 +148,7 @@ export const knowledgeBaseQueries = {
   async knowledgeBaseCategoryDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return findDetail(models.Category, _id);
   },
@@ -155,54 +156,59 @@ export const knowledgeBaseQueries = {
   async knowledgeBaseCategoriesTotalCount(
     _root,
     args: { topicIds: string[]; codes: string[] },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const qry: any = buildQuery(args);
 
     return models.Category.find(qry).countDocuments();
   },
 
-
-  async knowledgeBaseCategoriesGetLast(
-    _root,
-    _args,
-    { models }: IContext
-  ) {
-    return models.Category
-      .findOne({})
-      .sort({ createdDate: -1 });
+  async knowledgeBaseCategoriesGetLast(_root, _args, { models }: IContext) {
+    return models.Category.findOne({}).sort({ createdDate: -1 });
   },
 
   async knowledgeBaseTopics(
     _root,
-    args,
-    { models }: IContext
+    args: {
+      page: number;
+      perPage: number;
+      searchValue?: string;
+      brandId?: string;
+      codes?: string[];
+    },
+    { models }: IContext,
   ) {
     const qry: any = buildQuery(args);
-  
-    const topics = models.Topic.find(qry)
-      .sort({ modifiedDate: -1 });
-  
+
+    const topics = models.Topic.find(qry).sort({ modifiedDate: -1 });
+
     return defaultPaginate(topics, args);
   },
 
   async knowledgeBaseTopicDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return findDetail(models.Topic, _id);
   },
 
-  async knowledgeBaseTopicsTotalCount(
-    _root,
-    _args,
-    { models }: IContext
-  ) {
+  async knowledgeBaseTopicsTotalCount(_root, _args, { models }: IContext) {
     return models.Topic.countDocuments({});
-  }
-  
+  },
+
+  cpKnowledgeBaseTopicDetail: async (
+    _root,
+    { _id }: { _id: string },
+    context,
+  ) => {
+    const { models } = context as IContext;
+    return findDetail(models.Topic, _id);
+  },
 };
 
-
 export default knowledgeBaseQueries;
+
+(knowledgeBaseQueries.cpKnowledgeBaseTopicDetail as any).wrapperConfig = {
+  skipPermission: true,
+};

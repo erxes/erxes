@@ -1,39 +1,21 @@
 import { AttachmentProvider } from './attachments/AttachmentContext';
-import AttachmentUploader from './attachments/AttachmentUploader';
-import Attachments from './attachments/Attachments';
-import ChecklistOverview from './checklist/ChecklistOverview';
-import { Checklists } from './checklist/Checklists';
+import { Separator } from 'erxes-ui';
 import { IAttachment } from '@/deals/types/attachments';
 import { IDeal } from '@/deals/types/deals';
-import MainOverview from './MainOverview';
-import SalesDescription from './SalesDescription';
-import SalesNoteAndComment from './NoteAndComment';
+import { SalesNoteAndComment } from './NoteAndComment';
+import { SalesFormFields } from './SalesFormFields';
 
-const Overview = ({ deal }: { deal: IDeal }) => {
+export const Overview = ({ deal }: { deal: IDeal }) => {
   return (
     <AttachmentProvider
+      dealId={deal._id}
       initialAttachments={deal.attachments || ([] as IAttachment[])}
     >
-      <div className="border-b ">
-        <SalesDescription
-          dealDescription={deal.description || []}
-          dealId={deal._id}
-        />
-        <div className="flex justify-between ">
-          <div className="flex gap-4 py-2 px-4">
-            <ChecklistOverview />
-            <AttachmentUploader />
-          </div>
-        </div>
+      <div className="w-full xl:max-w-6xl mx-auto p-6 flex flex-col gap-3">
+        <SalesFormFields deal={deal} />
+        <Separator className="mt-1" />
+        <SalesNoteAndComment dealId={deal._id} />
       </div>
-      <Attachments />
-      <div className="overview mb-4">
-        <MainOverview deal={deal} />
-        <Checklists />
-      </div>
-      <SalesNoteAndComment />
     </AttachmentProvider>
   );
 };
-
-export default Overview;

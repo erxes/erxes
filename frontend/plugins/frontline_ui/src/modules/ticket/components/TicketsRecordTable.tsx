@@ -1,4 +1,4 @@
-import { ticketsColumns } from '@/ticket/components/TicketsColumn';
+import { useTicketsColumns } from '@/ticket/components/TicketsColumn';
 import { isUndefinedOrNull, RecordTable, useQueryState } from 'erxes-ui';
 import { useTickets } from '@/ticket/hooks/useGetTickets';
 import { TICKETS_CURSOR_SESSION_KEY } from '@/ticket/constants';
@@ -6,6 +6,7 @@ import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { ticketTotalCountAtom } from '@/ticket/states/ticketsTotalCountState';
 import { TicketPipelineFallback } from '@/ticket/components/TicketPipelineFallback';
+import { TicketCommandBar } from './ticket-command-bar/TicketCommandbar';
 export const TicketsRecordTable = () => {
   const setTicketTotalCount = useSetAtom(ticketTotalCountAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
@@ -35,10 +36,10 @@ export const TicketsRecordTable = () => {
         <TicketPipelineFallback className="absolute inset-0" />
       )}
       <RecordTable.Provider
-        columns={ticketsColumns()}
+        columns={useTicketsColumns()}
         data={tickets || (loading ? [{}] : [])}
         className="m-3 h-full"
-        stickyColumns={['checkbox', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
@@ -60,6 +61,7 @@ export const TicketsRecordTable = () => {
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <TicketCommandBar />
       </RecordTable.Provider>
     </div>
   );

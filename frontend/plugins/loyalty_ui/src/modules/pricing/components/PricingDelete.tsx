@@ -1,7 +1,7 @@
-import { Button } from 'erxes-ui/components';
+import { Button, useToast, useConfirm } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { useConfirm } from 'erxes-ui/hooks';
-import { useToast } from 'erxes-ui';
+import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useDeletePricing } from '@/pricing/hooks/useDeletePricing';
 
 interface PricingDeleteProps {
@@ -13,9 +13,12 @@ export const PricingDelete = ({
   pricingIds,
   onDeleteSuccess,
 }: PricingDeleteProps) => {
-  const { confirm } = useConfirm();
-  const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
   const { deletePricing, loading } = useDeletePricing();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { confirm } = useConfirm();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const pricingCount = pricingIds.includes(',')
     ? pricingIds.split(',').length
@@ -31,39 +34,44 @@ export const PricingDelete = ({
       return;
     }
 
-    await confirm({
-      message: `Are you sure you want to delete the ${pricingCount} selected pricing item(s)?`,
-    });
+    confirm({
+      message: t('delete-pricing-confirm', { count: pricingCount }),
+      options: confirmOptions,
+    }).then(async () => {
+      try {
+        await Promise.all(ids.map((id) => deletePricing(id)));
 
-    try {
-      await Promise.all(ids.map((id) => deletePricing(id)));
+        if (onDeleteSuccess) {
+          onDeleteSuccess();
+        }
 
-      toast({
-        title: 'Success',
-        description: 'Selected pricing item(s) deleted successfully.',
-      });
+        toast({
+          title: t('success'),
+          description: t('pricing-deleted', { count: pricingCount }),
+          variant: 'success',
+        });
 
-      if (onDeleteSuccess) {
-        onDeleteSuccess();
+        navigate('/settings/loyalty/pricing');
+      } catch (error: unknown) {
+        toast({
+          title: t('error'),
+          description:
+            error instanceof Error ? error.message : t('pricing-delete-failed'),
+          variant: 'destructive',
+        });
       }
-    } catch {
-      toast({
-        title: 'Failed to delete pricing',
-        description: 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
-    }
+    });
   };
 
   return (
     <Button
       variant="secondary"
-      className="text-destructive"
-      disabled={loading}
+      size="sm"
       onClick={handleDelete}
+      disabled={loading}
     >
       <IconTrash />
-      Delete
+      {loading ? t('deleting') : t('delete')}
     </Button>
   );
 };

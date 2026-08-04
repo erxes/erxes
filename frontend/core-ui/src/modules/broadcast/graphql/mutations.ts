@@ -6,6 +6,8 @@ export const BROADCAST_MESSAGE_ADD = gql`
     $kind: String
     $method: String
     $fromUserId: String
+    $fromEmail: String
+    $cpId: String
     $targetType: String
     $targetIds: [String]
     $targetCount: Int
@@ -20,6 +22,8 @@ export const BROADCAST_MESSAGE_ADD = gql`
       kind: $kind
       method: $method
       fromUserId: $fromUserId
+      fromEmail: $fromEmail
+      cpId: $cpId
 
       targetType: $targetType
       targetIds: $targetIds
@@ -34,6 +38,12 @@ export const BROADCAST_MESSAGE_ADD = gql`
     ) {
       _id
     }
+  }
+`;
+
+export const BROADCAST_UPDATE_CONFIGS = gql`
+  mutation BROADCAST_UPDATE_CONFIGS($configsMap: JSON!) {
+    broadcastUpdateConfigs(configsMap: $configsMap)
   }
 `;
 

@@ -1,12 +1,19 @@
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader, Export } from 'ui-modules';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosItemsRecordTable } from '@/pos/pos-items/components/PosItemsRecordTable';
 import { PosItemsFilter } from '@/pos/pos-items/components/PosItemsFilter';
+import { PosItemDetailSheet } from '@/pos/pos-items/detail/PosItemDetailSheet';
+import { usePosItemsList } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
 
 export const PosItemsPage = () => {
   const { posId } = useParams();
+  const { variables } = usePosItemsList();
+  const getFilters = () => {
+    const { ...filters } = variables || {};
+    return filters;
+  };
 
   return (
     <>
@@ -24,10 +31,23 @@ export const PosItemsPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <PageSubHeader>
-        <PosItemsFilter />
-      </PageSubHeader>
-      <PosItemsRecordTable posId={posId} />
+      <div className="flex overflow-hidden w-full h-full">
+        <div className="flex flex-col overflow-hidden w-full h-full">
+          <PageSubHeader>
+            <PosItemsFilter />
+            <Can action="posItemsExportManage">
+              <Export
+                pluginName="sales"
+                moduleName="pos"
+                collectionName="posItems"
+                getFilters={getFilters}
+              />
+            </Can>
+          </PageSubHeader>
+          <PosItemsRecordTable posId={posId} />
+        </div>
+      </div>
+      <PosItemDetailSheet />
     </>
   );
 };

@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+
 import { ICompany } from '../types';
 
 interface CompaniesInlineContextType {
@@ -7,11 +8,11 @@ interface CompaniesInlineContextType {
   placeholder?: string;
   updateCompanies?: (companies: ICompany[]) => void;
   companyIds?: string[];
+  hideAvatar?: boolean;
 }
 
-export const CompaniesInlineContext = createContext<CompaniesInlineContextType | null>(
-  null
-);
+export const CompaniesInlineContext =
+  createContext<CompaniesInlineContextType | null>(null);
 
 export const useCompaniesInlineContext = () => {
   const context = useContext(CompaniesInlineContext);

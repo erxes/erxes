@@ -4,60 +4,96 @@ import {
   IconSettings,
   IconTicket,
   IconChartHistogram,
+  IconForms,
+  IconBook,
+  IconPlus,
+  IconCaretRightFilled,
 } from '@tabler/icons-react';
-import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
+import {
+  NavigationMenuLinkItem,
+  DropdownMenu,
+  Button,
+  Spinner,
+  Skeleton,
+  Badge,
+} from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
+import { useConversations } from './inbox/conversations/hooks/useConversations';
+import { useTranslation } from 'react-i18next';
 export const FrontlineNavigation = () => {
-  const navigate = useNavigate();
+  const { t } = useTranslation('frontline');
+  const navigate = (path: string) => {
+    window.history.pushState(null, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
 
   return (
     <>
-      <div className="relative group/inbox">
-        <NavigationMenuLinkItem
-          name="Inbox"
-          icon={IconMail}
-          path="frontline/inbox"
-        />
-
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="invisible group-hover/inbox:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <IconDotsVertical className="size-4" />
-            </Button>
-          </DropdownMenu.Trigger>
-
-          <DropdownMenu.Content
-            side="right"
-            align="start"
-            className="w-60 min-w-0"
-          >
-            <DropdownMenu.Item
-              className="cursor-pointer"
-              onSelect={() => navigate('/settings/frontline/channels')}
-            >
-              <IconSettings className="size-4" />
-              Go to inbox settings
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      </div>
       <NavigationMenuLinkItem
-        name="Tickets"
+        name={t('inbox')}
+        icon={IconMail}
+        path="frontline/inbox"
+        children={<NotificationCount />}
+      />
+      <NavigationMenuLinkItem
+        name={t('tickets')}
         icon={IconTicket}
         path="frontline/tickets"
       />
-      <IntegrationNavigation />
       <NavigationMenuLinkItem
-        name="Reports"
+        name={t('reports')}
         icon={IconChartHistogram}
         path="frontline/reports"
       />
+      <IntegrationNavigation />
+      <NavigationMenuLinkItem
+        name={t('forms')}
+        icon={IconForms}
+        path="frontline/forms"
+      />
+      <div className="relative group/knowledgebase">
+        <NavigationMenuLinkItem
+          name={t('knowledge-base')}
+          icon={IconBook}
+          path="frontline/knowledgebase"
+        />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="invisible group-hover/knowledgebase:visible group-focus-within/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate('/frontline/knowledgebase?createTopic=true');
+          }}
+          aria-label={t('create-new-topic')}
+          title={t('create-new-topic')}
+        >
+          <IconPlus className="size-4" />
+        </Button>
+      </div>
     </>
+  );
+};
+
+export const NotificationCount = () => {
+  const { totalCount, loading } = useConversations({
+    variables: {
+      status: 'new',
+    },
+  });
+
+  if (loading) {
+    return <Skeleton className="size-4 rounded-sm" />;
+  }
+
+  if (totalCount === 0) {
+    return null;
+  }
+
+  return (
+    <Badge className="ml-auto text-xs min-w-6 px-1 justify-center">
+      {totalCount}
+    </Badge>
   );
 };

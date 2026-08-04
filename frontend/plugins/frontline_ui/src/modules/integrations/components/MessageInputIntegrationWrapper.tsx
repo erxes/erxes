@@ -1,7 +1,6 @@
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { FacebookMessageInputWrapper } from '@/integrations/facebook/components/FacebookMessageInputWrapper';
 import { IntegrationType } from '@/types/Integration';
-
 export const MessageInputIntegrationWrapper = ({
   children,
 }: {

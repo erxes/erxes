@@ -5,18 +5,32 @@ import { useMountStatus } from '../hooks/useMountStatus';
 import { Button, cn, DropdownMenu } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  IconArrowsDiagonal,
   IconCheck,
   IconCalendarEvent,
   IconNumbers,
+  IconPaperclip,
   IconPlus,
   IconTextScan2,
   IconTextSize,
   IconChevronDown,
+  IconDots,
+  IconEdit,
+  IconTrash,
+  IconListCheck,
+  IconListDetails,
+  IconUserCircle,
+  IconAt,
+  IconPhoneSpark,
+  IconGenderBigender,
+  IconAddressBook,
+  IconChevronLeft,
+  IconWorld,
 } from '@tabler/icons-react';
-import { FORM_FIELD_TYPES } from '../constants/formFieldTypes';
-import { useState } from 'react';
+import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
+import React, { useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
+import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
+import { useTranslation } from 'react-i18next';
 
 export const FormDndField = ({
   field,
@@ -58,14 +72,7 @@ export const FormDndField = ({
       >
         <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
         {fieldData?.label}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-auto"
-          onClick={() => setOpen(true)}
-        >
-          <IconArrowsDiagonal />
-        </Button>
+        <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
       </div>
       <FormFieldDetailSheet open={open} onOpenChange={setOpen}>
         <FormFieldDetail
@@ -89,32 +96,161 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconCalendarEvent />;
     case 'select':
       return <IconChevronDown />;
+    case 'select:countries':
+      return <IconWorld />;
     case 'textarea':
       return <IconTextScan2 />;
+    case 'radio':
+      return <IconListCheck />;
+    case 'check':
+      return <IconListDetails />;
+    case 'file':
+      return <IconPaperclip />;
+    case 'core:customer:avatar':
+      return <IconUserCircle />;
+    case 'core:customer:email':
+      return <IconAt />;
+    case 'core:customer:phone':
+      return <IconPhoneSpark />;
+    case 'core:customer:sex':
+      return <IconGenderBigender />;
+    case 'core:customer:birthDate':
+      return <IconCalendarEvent />;
     default:
       return <IconTextSize />;
   }
 };
 
 export const AddField = ({ step }: { step: UniqueIdentifier }) => {
+  const { t } = useTranslation('frontline');
   const { handleAddField } = useFormDnd();
+  const [view, setView] = useState<'main' | 'customer'>('main');
+
+  const GROUPED_FIELD_TYPES: GroupedFields = FORM_FIELD_TYPES.reduce(
+    (groups, type) => {
+      const group = type.value.startsWith('core:customer:')
+        ? 'core:customer'
+        : 'basic';
+      if (!groups[group]) {
+        groups[group] = [];
+      }
+      groups[group].push(type);
+      return groups;
+    },
+    {} as Record<'basic' | 'core:customer', typeof FORM_FIELD_TYPES>,
+  );
+
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      onOpenChange={(open) => {
+        if (!open) setView('main');
+      }}
+    >
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary" className="ml-auto">
-          <IconPlus /> Add Field
+          <IconPlus /> {t('add-field')}
+        </Button>
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Content>
+        {view === 'main' ? (
+          <>
+            <DropdownMenu.Label className="font-bold">
+              {FORM_GROUP_LABELS.basic.label}
+            </DropdownMenu.Label>
+
+            {GROUPED_FIELD_TYPES.basic.map((type) => (
+              <DropdownMenu.Item
+                key={type.value}
+                onClick={() => handleAddField(step, type)}
+              >
+                <FormDndFieldIcon type={type.value} />
+                {type.label}
+              </DropdownMenu.Item>
+            ))}
+
+            <DropdownMenu.Separator />
+
+            <DropdownMenu.Label className="font-bold">
+              {FORM_GROUP_LABELS['core:customer'].label}
+            </DropdownMenu.Label>
+
+            <DropdownMenu.Item
+              onSelect={(e) => {
+                e.preventDefault();
+                setView('customer');
+              }}
+            >
+              <IconAddressBook /> {t('customer-fields')}
+            </DropdownMenu.Item>
+          </>
+        ) : (
+          <>
+            <DropdownMenu.Item
+              onSelect={(e) => {
+                e.preventDefault();
+                setView('main');
+              }}
+              className="text-accent-foreground text-xs"
+            >
+              <IconChevronLeft /> {t('back')}
+            </DropdownMenu.Item>
+
+            <DropdownMenu.Label className="font-bold">
+              {t('customer-fields')}
+            </DropdownMenu.Label>
+
+            {GROUPED_FIELD_TYPES['core:customer'].map((type) => (
+              <DropdownMenu.Item
+                key={type.value}
+                onClick={() => handleAddField(step, type)}
+              >
+                <FormDndFieldIcon type={type.value} />
+                {type.label}
+              </DropdownMenu.Item>
+            ))}
+          </>
+        )}
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
+export const FieldContextMenu = ({
+  fieldId,
+  stepId,
+  setOpen,
+}: {
+  fieldId: UniqueIdentifier;
+  stepId: UniqueIdentifier;
+  setOpen: (open: boolean) => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const [_open, _setOpen] = React.useState<boolean>(false);
+  const { handleDeleteField } = useFormDnd();
+  const handleRemoveField = () => {
+    handleDeleteField(stepId, fieldId);
+  };
+
+  return (
+    <DropdownMenu open={_open} onOpenChange={_setOpen}>
+      <DropdownMenu.Trigger className="ml-auto">
+        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+          <IconDots />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        {FORM_FIELD_TYPES.map((type) => (
-          <DropdownMenu.Item
-            key={type.value}
-            onClick={() => handleAddField(step, type)}
-          >
-            <FormDndFieldIcon type={type.value} />
-            {type.label}
-          </DropdownMenu.Item>
-        ))}
+        <DropdownMenu.Item onClick={() => setOpen(true)}>
+          <IconEdit />
+          {t('edit-attributes')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onClick={handleRemoveField}
+          className="text-destructive"
+        >
+          <IconTrash />
+          {t('remove-field')}
+        </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
   );

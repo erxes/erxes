@@ -18,6 +18,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectTeamContextType {
   value: string | string[];
@@ -90,7 +91,7 @@ const SelectTeamProvider = ({
 const SelectTeamValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, teams } = useSelectTeamContext();
 
-  if (!teams || teams.length === 0 || !value || !value.length) {
+  if (!teams || teams.length === 0 || !value?.length) {
     return (
       <span className="text-muted-foreground">
         {placeholder || 'Select teams...'}
@@ -147,10 +148,11 @@ const SelectTeamCommandItem = ({ team }: { team: ITeam }) => {
 };
 
 const SelectTeamContent = () => {
+  const { t } = useTranslation('operation');
   const { loading, teams } = useSelectTeamContext();
   return (
     <Command>
-      <Command.Input placeholder="Search teams..." />
+      <Command.Input placeholder={t('search-teams')} />
       <Command.List>
         <Combobox.Empty loading={loading} />
         {teams?.map((team) => (

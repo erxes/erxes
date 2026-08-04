@@ -1,31 +1,55 @@
+import './sentry-instrument';
+import * as Sentry from '@sentry/node';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import { isDev } from 'erxes-api-shared/utils';
-import express from 'express';
-import * as http from 'http';
-import { appRouter } from '~/init-trpc';
-import { initApolloServer } from './apollo/apolloServer';
-import { router } from './routes';
-
+import { initRecordReferences } from 'erxes-api-shared/core-modules';
 import {
+  applyTrustProxy,
   closeMongooose,
   createTRPCContext,
+  getSubdomain,
+  isDev,
   joinErxesGateway,
   leaveErxesGateway,
+  registerRevertContentTypeResolver,
 } from 'erxes-api-shared/utils';
-
-import rateLimit from 'express-rate-limit';
+import { logs as coreLogsConfig } from './meta/logs';
+import express from 'express';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import * as http from 'http';
+import { IncomingMessage } from 'http';
 import * as path from 'path';
+import { appRouter } from '~/init-trpc';
+import { initApolloServer } from './apollo/apolloServer';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
-import { initSegmentCoreProducers } from './meta/segments';
-import initImportExport from './meta/import-export/import';
 import { initBroadcast } from './meta/broadcast';
+import initImportExport from './meta/import-export';
+import { references } from './meta/references';
+import { initSegmentCoreProducers } from './meta/segments';
+import { router } from './routes';
+
+const PLUGIN_NAME = 'core';
+
+Sentry.getGlobalScope().setTags({
+  plugin: PLUGIN_NAME,
+  service: PLUGIN_NAME,
+});
 
 dotenv.config();
+
+const collectionToContentType = new Map<string, string>(
+  coreLogsConfig.contentTypes.map((c) => [
+    c.collectionName,
+    `${PLUGIN_NAME}:${c.moduleName}.${c.collectionName}`,
+  ]),
+);
+registerRevertContentTypeResolver((collectionName) =>
+  collectionToContentType.get(collectionName),
+);
 
 const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
   process.env;
@@ -33,6 +57,7 @@ const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
+applyTrustProxy(app);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
@@ -40,6 +65,9 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(
   express.json({
     limit: '15mb',
+    verify: (req: IncomingMessage & { rawBody?: Buffer }, _res, buffer) => {
+      req.rawBody = buffer;
+    },
   }),
 );
 
@@ -62,9 +90,24 @@ app.options('*', cors(corsOptions));
 app.use(router);
 
 const fileLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  keyGenerator: (req) => {
+    const xff = req.headers['x-forwarded-for'];
+    if (xff) {
+      const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
+      return ipKeyGenerator(parts[parts.length - 1].trim());
+    }
+    return ipKeyGenerator(req.ip || 'unknown');
+  },
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many requests from this IP, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
@@ -99,22 +142,52 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
+app.get('/get-client-portal-token', async (req, res) => {
+  const token = req.query.GET_CP_TOKEN as string;
+
+  if (!token) {
+    return res.status(400).json({ error: 'GET_CP_TOKEN is required' });
+  }
+
+  if (token !== process.env.GET_CP_TOKEN) {
+    return res.status(401).json({ error: 'Invalid GET_CP_TOKEN' });
+  }
+
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+
+  const clientPortal = await models.ClientPortal.findOne({}).lean();
+
+  if (!clientPortal) {
+    return res.status(404).json({ error: 'Client portal not found' });
+  }
+
+  return res.status(200).json({ token: clientPortal.token });
+});
+
+app.get('/debug-sentry', () => {
+  throw new Error('Sentry test error (core-api): ' + new Date().toISOString());
+});
+
 // Wrap the Express server
 const httpServer = http.createServer(app);
 
 httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
 
+  Sentry.setupExpressErrorHandler(app);
+
   await joinErxesGateway({
-    name: 'core',
+    name: PLUGIN_NAME,
     port,
     hasSubscriptions: true,
     meta,
   });
   await initAutomation(app);
+  await initRecordReferences(app, PLUGIN_NAME, references);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
-  await initBroadcast(app)
+  await initBroadcast(app);
 });
 
 // GRACEFULL SHUTDOWN
@@ -122,7 +195,7 @@ process.stdin.resume(); // so the program will not close instantly
 
 async function leaveServiceDiscovery() {
   try {
-    await leaveErxesGateway('core', port);
+    await leaveErxesGateway(PLUGIN_NAME, port);
     console.log('Left from service discovery');
   } catch (e) {
     console.error(e);

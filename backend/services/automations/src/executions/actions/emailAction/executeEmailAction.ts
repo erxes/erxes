@@ -1,7 +1,7 @@
-import { debugError } from '@/debugger';
-import { generateEmailPayload } from '@/executions/actions/emailAction/generateEmailPayload';
-import { sendEmails } from '@/executions/actions/emailAction/sendEmails';
-import { setActivityLog } from '@/executions/actions/emailAction/utils';
+import { debugError } from '../../../debugger';
+import { generateEmailPayload } from './generateEmailPayload';
+import { sendEmails } from './sendEmails';
+import { setActivityLog } from './utils';
 
 /**
  * Executes an email action by generating payload and sending emails
@@ -37,6 +37,7 @@ export const executeEmailAction = async ({
 
     const response = await sendEmails(subdomain, {
       payload,
+      executionId: execution?._id,
     });
 
     await setActivityLog({

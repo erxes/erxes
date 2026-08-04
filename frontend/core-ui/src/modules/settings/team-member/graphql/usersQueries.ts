@@ -11,7 +11,10 @@ const GET_USER = gql`
       _id
       username
       email
+      isOwner
       positionIds
+      permissionGroupIds
+      score
       details {
         avatar
         shortName
@@ -29,7 +32,7 @@ const GET_USER = gql`
       branchIds
       departmentIds
       isSubscribed
-      customFieldsData
+      propertiesData
     }
   }
 `;
@@ -73,7 +76,7 @@ const GET_USERS_QUERY = gql`
         brandIds
         score
         positionIds
-        role
+        permissionGroupIds
         details {
           avatar
           shortName
@@ -88,7 +91,10 @@ const GET_USERS_QUERY = gql`
         }
         links
         employeeId
-        customFieldsData
+        branchIds
+        departmentIds
+        unitId
+        propertiesData
       }
       ${GQL_PAGE_INFO}
     }

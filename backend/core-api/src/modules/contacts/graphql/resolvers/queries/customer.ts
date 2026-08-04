@@ -1,17 +1,17 @@
 import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import {
   ICustomerDocument,
   ICustomerQueryFilterParams,
+  Resolver,
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { customersCount, generateFilter } from '~/modules/contacts/utils';
 
-export const customerQueries = {
+export const customerQueries: Record<
+  string,
+  Resolver<undefined, unknown, IContext>
+> = {
   /**
    * Customers list
    */
@@ -36,10 +36,39 @@ export const customerQueries = {
     return { list, totalCount, pageInfo };
   },
 
+  async cpCustomers(
+    _parent: undefined,
+    params: ICustomerQueryFilterParams,
+    { models, subdomain }: IContext,
+  ) {
+    const filter: FilterQuery<ICustomerDocument> = await generateFilter(
+      subdomain,
+      params,
+      models,
+    );
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICustomerDocument>({
+        model: models.Customers,
+        params,
+        query: filter,
+      });
+
+    return { list, totalCount, pageInfo };
+  },
+
   /**
    * Get one customer
    */
-  async customerDetail(
+  customerDetail(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Customers.getCustomer(_id);
+  },
+
+  cpCustomerDetail(
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -70,6 +99,8 @@ export const customerQueries = {
             _id: { $in: content },
           }).lean();
           break;
+        default:
+          break;
       }
 
       return result;
@@ -80,22 +111,31 @@ export const customerQueries = {
 
   async customersCount(
     _parent: undefined,
-    params: { types: string[] },
+    params: { types?: string[] },
     { models, subdomain }: IContext,
   ) {
-    const { types } = params;
+    const types = params.types || [];
 
     const counts = {};
 
     for (const type of types) {
       const contentType = type.toLowerCase();
 
-      counts[contentType] = await customersCount({ models, subdomain, type: contentType });
+      counts[contentType] = await customersCount({
+        models,
+        subdomain,
+        type: contentType,
+      });
     }
 
     return counts;
   },
 };
 
-moduleRequireLogin(customerQueries);
-checkPermission(customerQueries, 'customers', 'showCustomers');
+customerQueries.cpCustomers.wrapperConfig = {
+  forClientPortal: true,
+};
+
+customerQueries.cpCustomerDetail.wrapperConfig = {
+  forClientPortal: true,
+};

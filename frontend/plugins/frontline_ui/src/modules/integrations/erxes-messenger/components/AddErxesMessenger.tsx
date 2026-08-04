@@ -1,12 +1,16 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
-import { erxesMessengerSetupSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import {
+  erxesMessengerSetupSheetOpenAtom,
+  settedIntegrationDetailAtom,
+} from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { EMSetup } from '@/integrations/erxes-messenger/components/EMSetup';
-import { settedIntegrationDetailAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { useTranslation } from 'react-i18next';
 
 export const AddErxesMessengerSheet = () => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useAtom(erxesMessengerSetupSheetOpenAtom);
   const settedIntegrationDetail = useAtomValue(settedIntegrationDetailAtom);
   const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
@@ -21,11 +25,11 @@ export const AddErxesMessengerSheet = () => {
             }
           >
             <IconPlus />
-            Add Messenger
+            {t('add-messenger')}
           </Button>
         </Sheet.Trigger>
       </div>
-      <EMSetup title="Add Erxes Messenger" />
+      <EMSetup title={t('add-erxes-messenger')} />
     </Sheet>
   );
 };

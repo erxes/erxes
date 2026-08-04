@@ -27,10 +27,6 @@ export const tags = {
       description: 'Product & Service',
       type: 'product',
     },
-    {
-      description: 'Form',
-      type: 'form',
-    },
   ],
   tag: async ({ subdomain, data }) => {
     const { type, action, _ids, tagIds, targetIds } = data;

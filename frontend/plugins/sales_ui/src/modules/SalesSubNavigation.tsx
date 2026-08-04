@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Button,
   Collapsible,
@@ -7,16 +6,29 @@ import {
   Sidebar,
   Skeleton,
   TextOverflowTooltip,
+  cn,
+  useMultiQueryState,
   useQueryState,
   useToast,
 } from 'erxes-ui';
-import { IconDotsVertical, IconLink, IconSettings } from '@tabler/icons-react';
+import {
+  IconCaretRightFilled,
+  IconDotsVertical,
+  IconLink,
+  IconSettings,
+} from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
 import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
-import { useEffect } from 'react';
-import { usePipelines } from '@/deals/boards/hooks/usePipelines';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+type TBoardSelection = {
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
+};
 
 function LoadingSkeleton() {
   return (
@@ -29,113 +41,119 @@ function LoadingSkeleton() {
 }
 
 function BoardItem({ board }: { board: IBoard }) {
-  const [boardId, setBoardId] = useQueryState<string | null>('boardId');
-
-  useEffect(() => {
-    const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
-
-    if (storedBoardId && !boardId) {
-      setBoardId(storedBoardId);
-    }
-  }, [boardId]);
+  const { t } = useTranslation('sales');
+  const [{ boardId, pipelineId }, setBoardSelection] =
+    useMultiQueryState<TBoardSelection>(['boardId', 'pipelineId', 'stageId']);
 
   const isActive = boardId === board._id;
+  const pipelines = (board.pipelines || []).filter(
+    (pipeline) => pipeline.status !== 'archived',
+  );
 
-  const handleClick = (boardId: string) => {
-    localStorage.setItem('erxesCurrentBoardId', boardId);
-    setBoardId(boardId);
+  const [open, setOpen] = useState(isActive);
+
+  // Board selection can arrive after mount (restored from localStorage), so
+  // keep opening the active board instead of relying on defaultOpen alone.
+  useEffect(() => {
+    if (isActive) setOpen(true);
+  }, [isActive]);
+
+  const handleBoardClick = () => {
+    if (board._id === boardId) return;
+
+    const nextPipelineId = pipelines[0]?._id || null;
+
+    localStorage.setItem('erxesCurrentBoardId', board._id);
     localStorage.removeItem('erxesCurrentPipelineId');
+    setBoardSelection({
+      boardId: board._id,
+      pipelineId: nextPipelineId,
+      stageId: null,
+    });
+  };
+
+  const handlePipelineClick = (nextPipelineId: string) => {
+    localStorage.setItem('erxesCurrentBoardId', board._id);
+    localStorage.setItem('erxesCurrentPipelineId', nextPipelineId);
+    setBoardSelection({
+      boardId: board._id,
+      pipelineId: nextPipelineId,
+      stageId: null,
+    });
   };
 
   return (
-    <Sidebar.Group className="p-0">
-      <div className="w-full relative group/trigger hover:cursor-pointer">
-        <div className="w-full flex items-center justify-between">
-          <Sidebar.MenuButton
-            isActive={isActive}
-            onClick={() => handleClick(board._id)}
-          >
-            <div className="flex items-center gap-2">
+    <Collapsible
+      className="group/collapsible"
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <Sidebar.Group className="p-0">
+        <Collapsible.Trigger asChild>
+          <div className="w-full flex items-center justify-between">
+            <Button
+              variant="ghost"
+              className={cn(
+                'px-2 flex min-w-0 flex-1 justify-start',
+                isActive && 'bg-primary/10 text-primary hover:bg-primary/10',
+              )}
+              onClick={handleBoardClick}
+            >
               <TextOverflowTooltip
-                className="font-sans font-semibold normal-case flex-1 min-w-0"
+                className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
                 value={board.name}
               />
-            </div>
-          </Sidebar.MenuButton>
-        </div>
-      </div>
-    </Sidebar.Group>
+              <span className="ml-auto">
+                <IconCaretRightFilled
+                  className={cn(
+                    'size-3 transition-transform group-data-[state=open]/collapsible:rotate-90',
+                    isActive ? 'text-primary' : 'text-accent-foreground',
+                  )}
+                />
+              </span>
+            </Button>
+          </div>
+        </Collapsible.Trigger>
+        <Collapsible.Content className="pt-1">
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              {pipelines.map((pipeline) => (
+                <Sidebar.MenuItem key={pipeline._id}>
+                  <Sidebar.MenuButton
+                    className="pl-6 font-medium"
+                    isActive={isActive && pipelineId === pipeline._id}
+                    onClick={() => handlePipelineClick(pipeline._id)}
+                  >
+                    <TextOverflowTooltip
+                      className="capitalize flex-1 min-w-0"
+                      value={pipeline.name}
+                    />
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              ))}
+              {!pipelines.length && (
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton className="pl-6" disabled>
+                    <span className="capitalize text-foreground">
+                      {t('no-pipelines')}
+                    </span>
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              )}
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Collapsible.Content>
+      </Sidebar.Group>
+    </Collapsible>
   );
 }
-
-const Pipelines = () => {
-  const [boardId] = useQueryState<string | null>('boardId');
-  const [pipelineId, setPipelineId] = useQueryState<string | null>(
-    'pipelineId',
-  );
-  const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
-  const selectedBoardId = storedBoardId ? storedBoardId : boardId;
-
-  const { pipelines, loading } = usePipelines({
-    variables: {
-      boardId: selectedBoardId,
-    },
-    skip: !selectedBoardId,
-  });
-
-  useEffect(() => {
-    if (!boardId || !pipelines) return;
-
-    const storedPipelineId = localStorage.getItem('erxesCurrentPipelineId');
-
-    if (storedPipelineId) {
-      setPipelineId(storedPipelineId);
-    } else {
-      setPipelineId(pipelines[0]?._id || null);
-    }
-  }, [boardId, pipelines]);
-
-  return (
-    <Collapsible.Content className="pt-1">
-      <Sidebar.GroupContent>
-        <Sidebar.Menu>
-          {loading ? (
-            <LoadingSkeleton />
-          ) : (
-            pipelines?.map((pipeline) => (
-              <Sidebar.MenuItem key={pipeline._id}>
-                <Sidebar.MenuButton
-                  isActive={pipelineId === pipeline._id}
-                  onClick={() => {
-                    localStorage.setItem(
-                      'erxesCurrentPipelineId',
-                      pipeline._id,
-                    );
-                    setPipelineId(pipeline._id);
-                  }}
-                >
-                  <span className="capitalize">{pipeline.name}</span>
-                </Sidebar.MenuButton>
-              </Sidebar.MenuItem>
-            ))
-          )}
-          {!loading && !pipelines?.length && (
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">No pipelines</span>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-          )}
-        </Sidebar.Menu>
-      </Sidebar.GroupContent>
-    </Collapsible.Content>
-  );
-};
 
 const ActionsMenu = () => {
   const navigate = useNavigate();
 
   const { toast } = useToast();
+
+  const { t } = useTranslation('sales');
 
   const handleCopyLink = async () => {
     const link = `${window.location.origin}/settings/deals`;
@@ -144,12 +162,12 @@ const ActionsMenu = () => {
       await navigator.clipboard.writeText(link);
       toast({
         variant: 'default',
-        title: 'Link copied to clipboard',
+        title: t('link-copied-to-clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy link',
+        title: t('failed-to-copy-link'),
         description: e as string,
       });
     }
@@ -172,21 +190,21 @@ const ActionsMenu = () => {
       <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
         <DropdownMenu.Item
           className="cursor-pointer"
-          onSelect={(e) => {
+          onSelect={() => {
             navigate(`/settings/deals`);
           }}
         >
           <IconSettings className="size-4" />
-          Manage board & pipelines
+          {t('manage-board-pipelines')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
-          onSelect={(e) => {
+          onSelect={() => {
             handleCopyLink();
           }}
           className="cursor-pointer"
         >
           <IconLink className="size-4" />
-          Copy link
+          {t('copy-link')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -196,6 +214,10 @@ const ActionsMenu = () => {
 const DealsNavigation = () => {
   const { boards, loading } = useBoards();
   const [boardId, setBoardId] = useQueryState<string | null>('boardId');
+  const [pipelineId, setPipelineId] = useQueryState<string | null>(
+    'pipelineId',
+  );
+  const { t } = useTranslation('sales');
 
   useEffect(() => {
     if (!boards || boards.length === 0) return;
@@ -212,19 +234,36 @@ const DealsNavigation = () => {
     }
   }, [boards, setBoardId, boardId]);
 
+  // Keep the selected pipeline within the selected board.
+  useEffect(() => {
+    if (!boards || boards.length === 0 || !boardId) return;
+
+    const currentBoard = boards.find((board) => board._id === boardId);
+
+    if (!currentBoard) return;
+
+    const pipelines = (currentBoard.pipelines || []).filter(
+      (pipeline) => pipeline.status !== 'archived',
+    );
+
+    if (pipelines.some((pipeline) => pipeline._id === pipelineId)) return;
+
+    const storedPipelineId = localStorage.getItem('erxesCurrentPipelineId');
+    const storedPipeline = pipelines.find(
+      (pipeline) => pipeline._id === storedPipelineId,
+    );
+
+    setPipelineId(storedPipeline?._id || pipelines[0]?._id || null);
+  }, [boards, boardId, pipelineId, setPipelineId]);
+
   return (
-    <>
-      <NavigationMenuGroup name="Boards" actions={<ActionsMenu />}>
-        {loading ? (
-          <LoadingSkeleton />
-        ) : (
-          boards?.map((board) => <BoardItem key={board._id} board={board} />)
-        )}
-      </NavigationMenuGroup>
-      <NavigationMenuGroup name="Pipelines" actions={<ActionsMenu />}>
-        {boardId && <Pipelines />}
-      </NavigationMenuGroup>
-    </>
+    <NavigationMenuGroup name={t('boards')} actions={<ActionsMenu />}>
+      {loading ? (
+        <LoadingSkeleton />
+      ) : (
+        boards?.map((board) => <BoardItem key={board._id} board={board} />)
+      )}
+    </NavigationMenuGroup>
   );
 };
 

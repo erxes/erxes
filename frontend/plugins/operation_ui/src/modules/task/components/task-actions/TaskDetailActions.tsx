@@ -1,4 +1,5 @@
 import { Button, Command, Popover, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import {
   TasksSetDueDateCommandBarItem,
@@ -14,17 +15,17 @@ import { CopyTaskTrigger, CopyTaskCommandBarItem } from './CopyTask';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRemoveTask } from '@/task/hooks/useRemoveTask';
-import { useSetAtom } from 'jotai';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 
 export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('main');
   const { task } = useGetTask({ variables: { _id: taskId } });
   const { teamId } = useParams();
   const { removeTask } = useRemoveTask();
   const navigate = useNavigate();
-  const setActiveTask = useSetAtom(taskDetailSheetState);
+  const [, setActiveTask] = useTaskDetailSheet();
 
   return (
     <Popover
@@ -72,15 +73,15 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                           navigate(`/operation/tasks`);
                         }
                         toast({
-                          title: 'Success',
-                          description: `Deleted ${task?.name}`,
+                          title: t('success'),
+                          description: t('deleted-task', { name: task?.name }),
                           variant: 'success',
                         });
                       },
                       onError: () => {
                         toast({
-                          title: 'Error',
-                          description: `Failed to delete ${task?.name}`,
+                          title: t('error'),
+                          description: t('failed-to-delete-task', { name: task?.name }),
                           variant: 'destructive',
                         });
                       },
@@ -89,7 +90,7 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                 >
                   <div className="flex gap-2 items-center">
                     <IconTrash className="size-4" />
-                    Delete
+                    {t('delete')}
                   </div>
                 </Command.Item>
               </Command.Group>

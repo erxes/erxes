@@ -16,12 +16,26 @@ export const AUTOMATION_CONSTANTS = gql`
   }
 `;
 
+export const AUTOMATION_NODE_OUTPUT = gql`
+  query AutomationNodeOutput($nodeType: String!) {
+    automationNodeOutput(nodeType: $nodeType)
+  }
+`;
+
+export const AUTOMATION_REFERENCE_FIELDS = gql`
+  query AutomationReferenceFields($type: String!, $field: String!) {
+    automationReferenceFields(type: $type, field: $field)
+  }
+`;
+
 export const AUTOMATION_DETAIL = gql`
 query AutomationDetail($id: String!) {
   automationDetail(_id: $id) {
     _id
     name
     status
+    edgeType
+    flowDirection
     createdAt
     updatedAt
     createdBy
@@ -35,9 +49,13 @@ query AutomationDetail($id: String!) {
     workflows {
       id
       automationId
+      templateId
+      nextActionId
       name
       description
       config
+      actions 
+      icon
       position
     }
     createdUser {
@@ -57,6 +75,8 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         _id
         name
         status
+        edgeType
+        flowDirection
         createdAt
         updatedAt
         createdBy
@@ -64,6 +84,14 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         tagIds
         triggers { id }
         actions { id }
+        approvalLockState(action: "edit") {
+          contentType
+          contentId
+          action
+          locked
+          hasAccess
+          reason
+        }
         createdUser {
           ${COMMON_USER_FIELDS}
         }
@@ -107,5 +135,19 @@ export const GET_AUTOMATION_WEBHOOK_ENDPOINT = gql`
       _id: $id
       waitEventActionId: $waitEventActionId
     )
+  }
+`;
+
+export const AUTOMATION_WORKFLOW_TEMPLATES = gql`
+  query AutomationWorkflowTemplates($searchValue: String) {
+    automationWorkflowTemplates(searchValue: $searchValue) {
+      _id
+      name
+      description
+      entryActionId
+      actions
+      inputs
+      createdAt
+    }
   }
 `;

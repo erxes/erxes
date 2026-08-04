@@ -1,150 +1,115 @@
-import { ICoupon, ICouponDocument } from '@/coupon/@types/coupon';
+import { ICouponDocument, ICouponInput } from '@/coupon/@types/coupon';
+import { ICouponCampaignDocument } from '@/coupon/@types/couponCampaign';
+import { CODE_STATUS } from '@/coupon/constants';
 import { couponSchema } from '@/coupon/db/definitions/coupon';
-import { IUserDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import { customAlphabet } from 'nanoid';
-import { STATUSES } from '~/@types';
 import { IModels } from '~/connectionResolvers';
-import { LOYALTY_CHAR_SET, LOYALTY_STATUSES } from '~/constants';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
+import { LOYALTY_CHAR_SET } from '~/constants';
 
 export interface ICouponModel extends Model<ICouponDocument> {
-  getCoupon(code: string): Promise<ICouponDocument>;
-  getCoupons(): Promise<ICouponDocument[]>;
-  createCoupon(
-    doc: ICoupon,
-    user: IUserDocument,
-  ): Promise<ICouponDocument | ICouponDocument[]>;
-  updateCoupon(
-    _id: string,
-    doc: ICoupon,
-    user: IUserDocument,
-  ): Promise<ICouponDocument>;
-  removeCoupon(_id: string): Promise<{ ok: number }>;
+  createCoupon(doc: ICouponInput): Promise<ICouponDocument>;
+  updateCoupon(_id: string, doc: ICouponInput): Promise<ICouponDocument>;
+  removeCoupons(_ids: string[]): void;
+  checkCoupon({
+    code,
+    ownerId,
+    totalAmount,
+  }: {
+    code: string;
+    ownerId?: string;
+    totalAmount?: number;
+  }): Promise<ICouponCampaignDocument>;
+  redeemCoupon({
+    code,
+    usageInfo,
+  }: {
+    code: string;
+    usageInfo?: any;
+  }): Promise<ICouponDocument>;
 }
 
 export const loadCouponClass = (models: IModels) => {
   class Coupon {
-    public static async getCoupon(code: string) {
-      const coupon = await models.Coupon.findOne({ code }).lean();
+    public static async checkCoupon({
+      code,
+      ownerId,
+      totalAmount,
+    }: {
+      code: string;
+      ownerId?: string;
+      totalAmount?: number;
+    }) {
+      const coupon = await models.Coupons.findOne({ code });
+
       if (!coupon) {
-        throw new Error('coupon not found');
-      }
-      return coupon;
-    }
-
-    public static async getCoupons(): Promise<ICouponDocument[]> {
-      return models.Coupon.find().lean();
-    }
-
-    public static async createCoupon(
-      doc: ICoupon,
-      user: IUserDocument,
-    ): Promise<ICouponDocument | ICouponDocument[]> {
-      const { campaignId, code } = doc;
-      if (!campaignId) {
-        throw new Error('Campaign id is required');
-      }
-      
-      const campaign = await models.Campaign.getCampaign(campaignId);
-      const existingCoupon = await models.Coupon.findOne({ code }).lean();
-      
-      if (existingCoupon) {
-        throw new Error('Coupon already exists');
+        throw new Error('Invalid coupon code');
       }
 
-      const { conditions = {} } = campaign || {};
-      
-      if (code) {
-        return models.Coupon.create({
-          ...doc,
-          createdBy: user._id,
-        });
+      if (!coupon.campaignId) {
+        throw new Error('Coupon code is not associated with any campaign');
       }
 
-      const codes = await this.generateCodes(conditions);
-      const couponDocs = codes.map(codeValue => ({
-        ...doc,
-        code: codeValue,
-        conditions: {
-          usageCount: 0,
-          usageLimit: 1,
-          ...doc.conditions,
-        },
-        createdBy: user._id,
-      }));
-
-      const coupons = await models.Coupon.insertMany(couponDocs);
-      return coupons as ICouponDocument[];
-    }
-
-    public static async updateCoupon(
-      _id: string,
-      doc: ICoupon,
-      user: IUserDocument,
-    ) {
-      return await models.Coupon.findOneAndUpdate(
-        { _id },
-        { $set: { ...doc, updatedBy: user._id } },
-        { new: true },
-      );
-    }
-
-    public static async removeCoupon(_id: string) {
-      return models.Coupon.findOneAndDelete({ _id });
-    }
-
-    private static buildAlphabet(charSet: string[]): string {
-      let alphabet = '';
-      for (const range of charSet) {
-        alphabet += LOYALTY_CHAR_SET[range];
+      if (coupon.usageCount >= coupon.usageLimit) {
+        throw new Error('Coupon code usage limit reached');
       }
-      return alphabet;
-    }
 
-    private static formatCodeWithPattern(code: string, pattern: string): string {
-      let formattedCode = '';
-      let codeIndex = 0;
-      
-      for (const char of pattern) {
-        if (char === '#') {
-          if (codeIndex < code.length) {
-            formattedCode += code[codeIndex];
-            codeIndex++;
-          }
-        } else {
-          formattedCode += char;
+      if (coupon.status === 'done') {
+        throw new Error('Coupon code has already been used and is expired');
+      }
+
+      if (ownerId && coupon.redemptionLimitPerUser) {
+        const redeemedUser =
+          coupon.usageLogs?.filter(
+            (log) => log.ownerId === ownerId && coupon.code === code,
+          ) || [];
+
+        if (redeemedUser.length >= coupon.redemptionLimitPerUser) {
+          throw new Error(
+            'Coupon code has already been used and cannot be reused',
+          );
         }
       }
-      
-      return formattedCode;
-    }
 
-    private static addAffixes(code: string, prefix: string, postfix: string): string {
-      if (prefix || postfix) {
-        return [prefix.toUpperCase(), code, postfix.toUpperCase()]
-          .filter(Boolean)
-          .join('');
-      }
-      return code;
-    }
+      const couponCampaign = await models.CouponCampaigns.findOne({
+        _id: coupon.campaignId,
+      });
 
-    private static generateSingleCode(
-      config: any,
-      nanoid: (size?: number) => string,
-      pattern: string,
-      prefix: string,
-      postfix: string
-    ): string {
-      let code = nanoid();
-      
-      if (pattern) {
-        code = this.formatCodeWithPattern(code, pattern);
+      if (!couponCampaign) {
+        throw new Error('Campaign not found');
       }
-      
-      code = this.addAffixes(code, prefix, postfix);
-      
-      return code;
+
+      if (totalAmount && couponCampaign.restrictions) {
+        const { minimumSpend, maximumSpend } = couponCampaign.restrictions;
+
+        if (maximumSpend && maximumSpend < totalAmount) {
+          throw new Error(
+            `This coupon allows a maximum spend of ${maximumSpend}`,
+          );
+        }
+
+        if (minimumSpend && minimumSpend > totalAmount) {
+          throw new Error(
+            `This coupon requires a minimum spend of ${minimumSpend}`,
+          );
+        }
+      }
+
+      if (couponCampaign.status !== 'active') {
+        throw new Error('Campaign is not active');
+      }
+
+      const currentDate = new Date();
+
+      if (
+        (couponCampaign.finishDateOfUse || couponCampaign.endDate) < currentDate
+      ) {
+        throw new Error(
+          'The campaign has ended and the coupon code is expired',
+        );
+      }
+
+      return couponCampaign;
     }
 
     public static async generateCodes(config) {
@@ -160,23 +125,53 @@ export const loadCouponClass = (models: IModels) => {
 
       try {
         const codes = new Set<string>();
-        
+
         if (staticCode) {
           const code = staticCode.trim().toUpperCase().replace(/\s+/g, '');
-          codes.add(code);
-          return Array.from(codes);
-        }
 
-        const alphabet = this.buildAlphabet(charSet);
-        const actualCodeLength = pattern
-          ? pattern.split('').filter((char) => char === '#').length
-          : codeLength;
-        
-        const nanoid = customAlphabet(alphabet, actualCodeLength);
-
-        while (codes.size < size) {
-          const code = this.generateSingleCode(config, nanoid, pattern, prefix, postfix);
           codes.add(code);
+        } else {
+          let alphabet = '';
+
+          for (const range of charSet) {
+            alphabet += LOYALTY_CHAR_SET[range];
+          }
+
+          const actualCodeLength = pattern
+            ? pattern.split('').filter((char) => char === '#').length
+            : codeLength;
+
+          const nanoid = customAlphabet(alphabet, actualCodeLength);
+
+          while (codes.size < size) {
+            let code = nanoid();
+
+            if (pattern) {
+              let formattedCode = '';
+              let codeIndex = 0;
+
+              for (const char of pattern) {
+                if (char === '#') {
+                  if (codeIndex < code.length) {
+                    formattedCode += code[codeIndex];
+                    codeIndex++;
+                  }
+                } else {
+                  formattedCode += char;
+                }
+              }
+
+              code = formattedCode;
+            }
+
+            if (prefix || postfix) {
+              code = [prefix.toUpperCase(), code, postfix.toUpperCase()]
+                .filter(Boolean)
+                .join('');
+            }
+
+            codes.add(code);
+          }
         }
 
         return Array.from(codes);
@@ -185,43 +180,52 @@ export const loadCouponClass = (models: IModels) => {
       }
     }
 
-    public static async checkCoupon(doc) {
-      const { code, ownerId, ownerType } = doc || {};
-      
-      if (!ownerId || !ownerType) {
-        throw new Error('Owner not defined');
+    public static async createCoupon(doc: ICouponInput) {
+      const { campaignId, customConfig } = doc;
+
+      if (!campaignId) {
+        throw new Error('Campaign id is required');
       }
 
-      const coupon = await models.Coupon.getCoupon(code);
-      
-      if (coupon.status !== LOYALTY_STATUSES.NEW && coupon.status !== LOYALTY_STATUSES.ACTIVE) {
-        throw new Error('Coupon is already redeemed');
+      const campaign = await models.CouponCampaigns.findOne({
+        _id: campaignId,
+      });
+
+      if (!campaign) {
+        throw new Error('Campaign not found');
       }
 
-      if (!coupon.campaignId) {
-        throw new Error('This voucher is not associated with a campaign.');
+      const { codeRule } = campaign || {};
+
+      const codes = await this.generateCodes(codeRule);
+
+      const couponDocs: any = [];
+
+      for (const [index, value] of codes.entries()) {
+        const { usageLimit, redemptionLimitPerUser } =
+          customConfig?.[index] || {};
+
+        couponDocs.push({
+          campaignId,
+          code: value,
+          usageLimit: usageLimit || campaign.codeRule.usageLimit,
+          redemptionLimitPerUser:
+            redemptionLimitPerUser || campaign.codeRule.redemptionLimitPerUser,
+          codeType: codeRule.staticCode ? 'static' : 'generated',
+        });
       }
 
-      const campaign = await models.Campaign.getCampaign(coupon.campaignId);
-      
-      if (campaign.status === CAMPAIGN_STATUS.INACTIVE) {
-        throw new Error('Campaign is not active');
-      }
+      const coupons = await models.Coupons.insertMany(couponDocs);
 
-      if (campaign.status === CAMPAIGN_STATUS.EXPIRED) {
-        throw new Error('Campaign is expired');
-      }
+      return coupons;
+    }
 
-      const NOW = new Date();
-      if (NOW < campaign.startDate) {
-        throw new Error('Campaign is not active yet');
-      }
+    public static async updateCoupon(_id: string, doc: ICouponInput) {
+      return models.Coupons.updateOne({ _id }, { $set: doc });
+    }
 
-      if (NOW > campaign.endDate) {
-        throw new Error('Campaign is expired');
-      }
-
-      return campaign;
+    public static async removeCoupon(_id: string, doc: ICouponInput) {
+      return models.Coupons.deleteOne({ _id });
     }
 
     public static async redeemCoupon({
@@ -231,39 +235,38 @@ export const loadCouponClass = (models: IModels) => {
       code: string;
       usageInfo?: any;
     }) {
-      const { ownerId, ownerType } = usageInfo || {};
-      
-      await this.checkCoupon({
+      const { ownerId } = usageInfo || {};
+
+      const isValid = await this.checkCoupon({
         code,
         ownerId,
-        ownerType,
       });
 
-      const coupon = await models.Coupon.getCoupon(code);
+      if (!isValid) {
+        throw new Error('Invalid voucher code');
+      }
+
+      const coupon = await models.Coupons.findOne({ code });
+
       if (!coupon) {
         throw new Error('Voucher not found');
       }
 
-      const { conditions, status } = coupon || {};
-      const doc: { status: STATUSES; conditions: any } = {
-        status,
-        conditions: { ...conditions },
-      };
-
-      if (conditions) {
-        const { usageCount = 0, usageLimit = 1 } = conditions || {};
-        doc.conditions.usageCount = usageCount + 1;
-        const remainingUsage = usageLimit - doc.conditions.usageCount > 0;
-        doc.status = remainingUsage
-          ? LOYALTY_STATUSES.ACTIVE
-          : LOYALTY_STATUSES.REDEEMED;
-      }
+      const usageCount = coupon.usageCount + 1;
+      const status =
+        usageCount >= coupon.usageLimit ? CODE_STATUS.DONE : CODE_STATUS.IN_USE;
+      const usageLogs = [...coupon.usageLogs, usageInfo || {}];
 
       try {
-        return await models.Coupon.findOneAndUpdate(
+        return await models.Coupons.updateOne(
           { code },
-          { $set: doc },
-          { new: true },
+          {
+            $set: {
+              usageCount,
+              status,
+              usageLogs,
+            },
+          },
         );
       } catch (error) {
         throw new Error(`Error occurred while redeeming coupon code ${error}`);
@@ -272,5 +275,6 @@ export const loadCouponClass = (models: IModels) => {
   }
 
   couponSchema.loadClass(Coupon);
+
   return couponSchema;
 };

@@ -9,7 +9,7 @@ export const vatRowSchema = schemaWrapper(
     number: { type: String },
     kind: { type: String, enum: VatRowKinds.ALL },
     formula: { type: String, optional: true },
-    formula_text: { type: String, optional: true },
+    formulaText: { type: String, optional: true },
     tabCount: { type: Number, default: 0 },
     isBold: { type: Boolean, default: false },
     status: {

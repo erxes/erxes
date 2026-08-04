@@ -1,6 +1,8 @@
 const commonFields = `
   name: String
   status: String
+  edgeType: String
+  flowDirection: String
   triggers: [TriggerInput],
   actions: [ActionInput],
   workflows: [WorkflowInput]
@@ -17,11 +19,9 @@ const commonNoteFields = `
 const aiAgentParams = `
     name:String,
     description:String,
-    provider:String,
-    prompt:String,
-    instructions:String,
-    files:JSON,
-    config:JSON,
+    connection:JSON,
+    runtime:JSON,
+    context:JSON,
 `;
 
 const emailTemplateFields = `
@@ -44,13 +44,16 @@ const mutations = `
   automationsRemoveNote(_id: String!): AutomationNote
   automationsAiAgentAdd(${aiAgentParams}):JSON
   automationsAiAgentEdit(_id:String!,${aiAgentParams}):JSON
-  startAiTraining(agentId: String!): TrainingProgress!
-  getTrainingStatus(agentId: String!): TrainingProgress!
-  generateAgentMessage(agentId: String!, prevQuestions:[String],question: String!): AiAgentMessage!
+  automationsAiAgentRemove(_id:String!):JSON
+  automationsAiAgentReindex(_id:String!, fileId:String):JSON
   
   automationEmailTemplatesAdd(${emailTemplateFields}): AutomationEmailTemplate
   automationEmailTemplatesEdit(_id: String!, ${emailTemplateFields}): AutomationEmailTemplate
   automationEmailTemplatesRemove(_id: String!): JSON
+
+  automationWorkflowTemplatesAdd(name: String!, description: String, entryActionId: String, actions: JSON, inputs: JSON): AutomationWorkflowTemplate
+  automationWorkflowTemplatesEdit(_id: String!, name: String, description: String, entryActionId: String, actions: JSON, inputs: JSON): AutomationWorkflowTemplate
+  automationWorkflowTemplatesRemove(_id: String!): JSON
 `;
 
 export default mutations;

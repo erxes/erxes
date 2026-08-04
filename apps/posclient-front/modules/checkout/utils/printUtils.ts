@@ -1,15 +1,19 @@
 const PRINT_STYLES = `
   body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    color: black;
-    line-height: 1.6;
+    margin: 16px;
+    color: #000;
+    font-size: 12px;
+    line-height: 1.45;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .bg-gray-50 {
-    background-color: #f9f9f9;
+    background-color: #fff;
     padding: 16px;
     border-radius: 8px;
     margin-bottom: 16px;
+    border: 1px solid #d4d4d4;
   }
   .grid {
     display: grid;
@@ -19,12 +23,12 @@ const PRINT_STYLES = `
     grid-template-columns: 1fr 1fr;
   }
   .border-b-2 {
-    border-bottom: 2px solid #d1d5db;
+    border-bottom: 1px solid #cfcfcf;
     padding-bottom: 16px;
     margin-bottom: 24px;
   }
   .border-t {
-    border-top: 1px solid #d1d5db;
+    border-top: 1px solid #cfcfcf;
     padding-top: 16px;
     margin-top: 32px;
   }
@@ -44,10 +48,10 @@ const PRINT_STYLES = `
     font-size: 14px;
   }
   .text-gray-600 {
-    color: #6b7280;
+    color: #222;
   }
   .text-gray-700 {
-    color: #374151;
+    color: #111;
   }
   .mb-2 {
     margin-bottom: 8px;
@@ -87,16 +91,16 @@ const PRINT_STYLES = `
     border-radius: 8px;
   }
   .bg-blue-50 {
-    background-color: #eff6ff;
+    background-color: #fff;
   }
   .border-blue-200 {
-    border-color: #bfdbfe;
+    border-color: #cfcfcf;
   }
   .text-blue-600 {
-    color: #2563eb;
+    color: #111;
   }
   .text-green-600 {
-    color: #16a34a;
+    color: #111;
   }
   .italic {
     font-style: italic;
@@ -106,23 +110,23 @@ const PRINT_STYLES = `
       margin: 0;
     }
     .bg-gray-50 {
-      background-color: #f5f5f5 !important;
+      background-color: #fff !important;
     }
     .bg-blue-50 {
-      background-color: #f0f9ff !important;
+      background-color: #fff !important;
     }
     .border-blue-200 {
-      border-color: #bfdbfe !important;
+      border-color: #cfcfcf !important;
     }
   }
 `
 
 export const replaceTemplateVariables = (
-  content: string, 
+  content: string,
   variables: Record<string, string>
 ): string => {
   return Object.entries(variables).reduce((acc, [key, value]) => {
-    const pattern = new RegExp(`{{${key}}}`, 'g')
+    const pattern = new RegExp(`{{${key}}}`, "g")
     return acc.replace(pattern, value || "N/A")
   }, content)
 }

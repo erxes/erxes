@@ -11,12 +11,14 @@ import {
 import { useResponseAdd } from '@/responseTemplate/hooks/useAddResponse';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { ResponseHotkeyScope } from '@/responseTemplate/types/ResponseHotkeyScope';
 import { CreateResponseForm } from '@/responseTemplate/components/CreateResponseForm';
 import { TCreateResponseForm } from '@/responseTemplate/types';
 
 export const CreateResponse = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -52,7 +54,7 @@ export const CreateResponse = () => {
     addResponse({
       variables: { ...data, channelId },
       onCompleted: (res) => {
-        toast({ title: 'Success!' });
+        toast({ title: t('success') });
         setOpen(false);
         navigate(
           `/settings/frontline/channels/${channelId}/response/${res.createResponses._id}`,
@@ -60,7 +62,7 @@ export const CreateResponse = () => {
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });
@@ -75,14 +77,14 @@ export const CreateResponse = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Create response template
+          {t('create-response-template')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
 
       <Sheet.View className="p-0">
         <Sheet.Header>
-          <Sheet.Title>Add response template</Sheet.Title>
+          <Sheet.Title>{t('add-response-template')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 

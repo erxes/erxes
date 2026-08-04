@@ -6,8 +6,12 @@ import { PipelineList } from '@/deals/pipelines/components/PipelineList';
 import { useBoards } from '@/deals/boards/hooks/useBoards';
 import { useEffect } from 'react';
 import { useLastBoard } from '@/deals/boards/hooks/useLastBoard';
+import { useTranslation } from 'react-i18next';
 
 export const SalesLeftSidebar = () => {
+
+  const { t } = useTranslation('sales');
+
   const navigate = useNavigate();
 
   const [selectedBoardId, setSelectedBoardId] =
@@ -20,12 +24,7 @@ export const SalesLeftSidebar = () => {
   const { boards, loading } = useBoards();
 
   useEffect(() => {
-    if (
-      !selectedBoardId &&
-      lastBoard &&
-      lastBoard.pipelines &&
-      lastBoard.pipelines.length > 0
-    ) {
+    if (!selectedBoardId && lastBoard?.pipelines?.length) {
       setSelectedBoardId(lastBoard._id);
       setSelectedPipelineId(lastBoard.pipelines[0]._id);
     }
@@ -63,7 +62,7 @@ export const SalesLeftSidebar = () => {
           >
             <Accordion.Item value="boards">
               <Accordion.Trigger className="text-gray-400 text-sm">
-                Boards ({boards?.length || 0})
+                {t('boards')} ({boards?.length || 0})
               </Accordion.Trigger>
               <Accordion.Content className="content">
                 <Sidebar.Menu className="px-2">

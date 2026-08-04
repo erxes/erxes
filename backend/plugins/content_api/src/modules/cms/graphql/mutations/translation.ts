@@ -1,6 +1,30 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
+import {
+  assertOwnedDocument,
+  requireClientPortalId,
+} from '@/cms/graphql/utils/clientPortal';
+
+const getTranslationTargetModel = (
+  models: IContext['models'],
+  type = 'post',
+) => {
+  const modelMap: Record<string, any> = {
+    post: models.Posts,
+    page: models.Pages,
+    category: models.Categories,
+    tag: models.PostTags,
+    menu: models.MenuItems,
+  };
+
+  const model = modelMap[type];
+
+  if (!model) {
+    throw new Error(`Invalid type: ${type}`);
+  }
+
+  return model;
+};
 
 const mutations: Record<string, Resolver> = {
   /**
@@ -17,6 +41,35 @@ const mutations: Record<string, Resolver> = {
     return models.Translations.createTranslation(input);
   },
 
+  cpCmsAddTranslation: async (
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> => {
+    const { models } = context;
+    const clientPortalId = requireClientPortalId(context);
+    const { input } = args;
+    const type = input.type || 'post';
+    const objectId = input.objectId || input.postId;
+
+    if (!objectId) {
+      throw new Error('objectId is required');
+    }
+
+    await assertOwnedDocument(
+      getTranslationTargetModel(models, type),
+      objectId,
+      clientPortalId,
+      'Object not found',
+    );
+
+    return models.Translations.createTranslation({
+      ...input,
+      objectId,
+      type,
+    });
+  },
+
   /**
    * Edit translation for a post
    */
@@ -28,14 +81,7 @@ const mutations: Record<string, Resolver> = {
     const { models } = context;
     const { input } = args;
 
-    console.log('🌐 cmsEditTranslation mutation called with input:', input);
-
-    try {
-      const result = await models.Translations.updateTranslation(input);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    return models.Translations.updateTranslation(input);
   },
 
   /**
@@ -46,18 +92,27 @@ const mutations: Record<string, Resolver> = {
     args: any,
     context: IContext,
   ): Promise<any> => {
-    const { models } = context;
+    const { models, clientPortal } = context;
     const { _id } = args;
+
+    const post = await models.Posts.findOne({
+      _id,
+      clientPortalId: clientPortal._id,
+    }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
 
     return models.Posts.increaseViewCount(_id);
   },
 };
 
-requireLogin(mutations, 'cmsAddTranslation');
-requireLogin(mutations, 'cmsEditTranslation');
-
-checkPermission(mutations, 'cmsAddTranslation', 'manageCms', []);
-// Temporarily disabled to debug - checkPermission returns null when user lacks permission
-// checkPermission(mutations, 'cmsEditTranslation', 'manageCms', []);
-
 export default mutations;
+
+mutations.cpPostsIncrementViewCount.wrapperConfig = {
+  forClientPortal: true,
+};
+mutations.cpCmsAddTranslation.wrapperConfig = {
+  forClientPortal: true,
+};

@@ -1,39 +1,21 @@
-import { AccountingDialog } from '@/layout/components/Dialog';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
+
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  DatePicker,
-  Dialog,
-  Form,
-  Spinner,
-  Textarea,
-  useQueryState,
-} from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useAdjustInventoryAdd } from '../hooks/useAdjustInventoryAdd';
 import { TAdjustInventoryForm } from '../types/adjustInventoryForm';
 import { adjustInventorySchema } from '../types/adjustInventorySchema';
+import { useAdjustInventoryAdd } from '../hooks/useAdjustInventoryAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const AddAdjustInventory = () => {
-  const [open, setOpen] = useState(false);
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Add Inventory Adjustment
-        </Button>
-      </Dialog.Trigger>
-      <AccountingDialog title="Add Account" description="Add a new account">
-        <AddAdjustInventoryForm setOpen={setOpen} />
-      </AccountingDialog>
-    </Dialog>
-  );
-};
-
-const AddAdjustInventoryForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+const AddAdjustInventoryForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
+  const { t } = useTranslation('accounting');
   const form = useForm<TAdjustInventoryForm>({
     resolver: zodResolver(adjustInventorySchema),
     defaultValues: {
@@ -41,7 +23,7 @@ const AddAdjustInventoryForm = ({ setOpen }: { setOpen: (open: boolean) => void 
     },
   });
   const { addAdjustInventory, loading } = useAdjustInventoryAdd();
-  const [id] = useQueryState<string>('id');
+
   const onSubmit = (data: TAdjustInventoryForm) => {
     addAdjustInventory({
       variables: { ...data },
@@ -49,65 +31,81 @@ const AddAdjustInventoryForm = ({ setOpen }: { setOpen: (open: boolean) => void 
         setOpen(false);
         form.reset();
       },
-    })
-  };
-
-  const onError = (error: any) => {
-    console.log(error);
+    });
   };
 
   return (
     <Form {...form}>
       <form
-        className="p-6 flex-auto overflow-auto"
-        onSubmit={form.handleSubmit(onSubmit, onError)}
+        className="flex flex-col flex-1 min-h-0 bg-background"
+        onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h3 className="text-lg font-bold">
-          {id ? `Edit` : `Create`} Adjust Inventory
-        </h3>
-        <Form.Field
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Date</Form.Label>
-              <Form.Control>
-                <DatePicker
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="h-8 flex w-full"
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
+          <Form.Field
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('date')}</Form.Label>
+                <Form.Control>
+                  <DatePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    className="h-8 flex w-full"
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
 
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Description</Form.Label>
-              <Form.Control>
-                <Textarea placeholder="Enter description" {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+          <Form.Field
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('description')}</Form.Label>
+                <Form.Control>
+                  <Textarea placeholder={t('enter-description')} {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </div>
 
-        <Dialog.Footer className="col-span-2 mt-4">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              Cancel
-            </Button>
-          </Dialog.Close>
+        <Sheet.Footer className="px-5 border-t bg-background shrink-0">
+          <Button
+            variant="outline"
+            type="button"
+            size="lg"
+            onClick={() => setOpen(false)}
+          >
+            {t('cancel')}
+          </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            {t('save')}
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
+  );
+};
+
+export const AddAdjustInventory = () => {
+  const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          {t('add-inventory-adjustment')}
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title={t('add-inventory-adjustment')}>
+        <AddAdjustInventoryForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

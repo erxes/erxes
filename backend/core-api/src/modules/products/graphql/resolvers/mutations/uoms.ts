@@ -6,7 +6,13 @@ export const uomMutations = {
    * Creates a new uom
    * @param {Object} doc uom document
    */
-  async uomsAdd(_parent: undefined, doc: IUom, { models }: IContext) {
+  async uomsAdd(
+    _parent: undefined,
+    doc: IUom,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('uomsManage');
+
     return await models.Uoms.createUom(doc);
   },
 
@@ -18,8 +24,10 @@ export const uomMutations = {
   async uomsEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & IUom,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('uomsManage');
+
     return await models.Uoms.updateUom(_id, doc);
   },
 
@@ -30,8 +38,10 @@ export const uomMutations = {
   async uomsRemove(
     _parent: undefined,
     { uomIds }: { uomIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('uomsManage');
+
     return await models.Uoms.removeUoms(uomIds);
   },
 };

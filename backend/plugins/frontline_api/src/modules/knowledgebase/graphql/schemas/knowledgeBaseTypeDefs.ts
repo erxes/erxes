@@ -145,7 +145,7 @@ export const types = `
   `;
 
 export const queries = `
-    knowledgeBaseTopics(page: Int, perPage: Int, brandId: String, codes: [String]): [KnowledgeBaseTopic]
+    knowledgeBaseTopics(page: Int, perPage: Int, brandId: String, codes: [String], searchValue: String): [KnowledgeBaseTopic]
     knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     knowledgeBaseTopicsTotalCount: Int
 
@@ -158,6 +158,8 @@ export const queries = `
     knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
     knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
     knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String], articleIds:[String], topicIds: [String], status: String): Int
+
+    cpKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   `;
 
 export const mutations = `

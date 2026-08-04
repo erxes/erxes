@@ -1,18 +1,16 @@
-import { useAutomation } from '@/automations/context/AutomationProvider';
-import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
-import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
-import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
 import { AutomationNodesType, NodeData } from '@/automations/types';
 import { Node, useReactFlow } from '@xyflow/react';
-import { toast } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { useMemo } from 'react';
+
 import { splitAutomationNodeType } from 'ui-modules';
+import { toast } from 'erxes-ui';
+import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { useMemo } from 'react';
 
 export const useCustomTriggerContent = (activeNode: NodeData) => {
   const { setAutomationBuilderFormValue } = useAutomationFormController();
-  const { setQueryParams } = useAutomation();
-  const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
+  const { setQueryParams, toggleSidebar: toggleSideBarOpen } = useAutomation();
   const { triggers } = useAutomationNodes();
   const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
   const activeTrigger = triggers[activeNode.nodeIndex];
@@ -32,7 +30,6 @@ export const useCustomTriggerContent = (activeNode: NodeData) => {
   };
 
   const onSaveTriggerConfig = (config: any) => {
-    console.log({ config, index: activeNode.nodeIndex });
     setAutomationBuilderFormValue(
       `${AutomationNodesType.Triggers}.${activeNode.nodeIndex}.config`,
       config,

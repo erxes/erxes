@@ -5,6 +5,9 @@ import {
   AutomationExecutionHistoryNameProps,
 } from 'ui-modules';
 import { IDeal } from '@/deals/types/deals';
+import { Button } from 'erxes-ui/components';
+import { Link } from 'react-router';
+import { IconExternalLink } from '@tabler/icons-react';
 
 const SalesActionConfigForm = lazy(() =>
   import('./action/SalesActionConfigForm').then((module) => ({
@@ -45,8 +48,23 @@ export const SalesRemoteEntry = (props: AutomationRemoteEntryProps) => {
         triggerConfigContent: StageProbalityTriggerNodeContent,
         actionNodeConfiguration: SalesActionNodeContent,
         historyActionResult: SalesActionHistoryResult,
-        historyName: ({ target }: AutomationExecutionHistoryNameProps<IDeal>) =>
-          target?.name,
+        // historyName: ({ target }: AutomationExecutionHistoryNameProps<IDeal>) =>
+        //   target?.name,
+        historyName: ({
+          target,
+        }: AutomationExecutionHistoryNameProps<IDeal>) => {
+          return (
+            <Button asChild variant="link">
+              <Link
+                target="_blank"
+                to={`http://localhost:3001/sales/deals?salesItemId=${target._id}`}
+              >
+                {target?.name || 'See Customer'}
+                <IconExternalLink />
+              </Link>
+            </Button>
+          );
+        },
       }}
     />
   );

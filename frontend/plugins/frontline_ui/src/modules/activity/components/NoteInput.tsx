@@ -1,21 +1,22 @@
+import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
+import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
+import type { Block } from '@blocknote/core';
+import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
 import {
   BlockEditor,
+  Button,
   getMentionedUserIds,
   Kbd,
   useBlockEditor,
-  Button,
+  usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
-
-import { usePreviousHotkeyScope } from 'erxes-ui';
-import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
 import { AssignMemberInEditor } from 'ui-modules';
-import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
-import type { Block } from '@blocknote/core';
+import { useTranslation } from 'react-i18next';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
-  const editor = useBlockEditor({ placeholder: 'Leave a note...' });
+  const { t } = useTranslation('frontline');
+  const editor = useBlockEditor({ placeholder: t('leave-a-note') });
   const { createTicketNote, loading } = useCreateTicketNote();
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -79,7 +80,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
           disabled={loading}
           onClick={onSend}
         >
-          Send
+          {t('send')}
           <Kbd className="ml-1">
             <IconCommand size={12} />
             <IconCornerDownLeft size={12} />

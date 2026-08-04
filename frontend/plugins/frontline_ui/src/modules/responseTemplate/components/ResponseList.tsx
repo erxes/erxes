@@ -1,178 +1,206 @@
+import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { useTranslation } from 'react-i18next';
 import {
-  Skeleton,
-  Table,
-  TextOverflowTooltip,
-  ScrollArea,
-  Tooltip,
-  Button,
+  Combobox,
+  Command,
+  Empty,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
   Spinner,
   useConfirm,
+  useMultiQueryState,
 } from 'erxes-ui';
-import { format } from 'date-fns';
-import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import { useNavigate } from 'react-router-dom';
-import { IconGitBranch, IconTrash } from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import { IResponseTemplate } from '../types';
+import {
+  IconAlignLeft,
+  IconCalendarPlus,
+  IconCalendarUp,
+  IconEdit,
+  IconGitBranch,
+  IconTrash,
+} from '@tabler/icons-react';
 import { CreateResponse } from '@/responseTemplate/components/CreateResponse';
 import { useRemoveResponse } from '../hooks/useRemoveResponse';
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export const ResponseList = ({ channelId }: { channelId: string }) => {
-  const { responses, loading } = useGetResponses({
-    variables: {
-      filter: { channelId },
-    },
-  });
+const ResponseMoreCell = ({
+  cell,
+}: {
+  cell: Cell<IResponseTemplate, unknown>;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { _id, channelId } = cell.row.original;
   const navigate = useNavigate();
-
-  const onClick = (responseId: string) => {
-    navigate(
-      `/settings/frontline/channels/${channelId}/response/${responseId}`,
-    );
-  };
-
-  const hasData = !loading && (responses?.length ?? 0) > 0;
-
-  return (
-    <div className="bg-sidebar border border-sidebar border-t-4 border-l-4 rounded-lg">
-      <Table>
-        <Table.Header>
-          <Table.Row className="rounded-t-md">
-            <Table.Head className="pl-2 rounded-tl-md">Name</Table.Head>
-            <Table.Head className="pl-2">Updated At</Table.Head>
-            <Table.Head className="pl-2">Created At</Table.Head>
-            <Table.Head className="w-10 rounded-tr-md"></Table.Head>
-          </Table.Row>
-        </Table.Header>
-      </Table>
-
-      <ScrollArea className="h-[calc(100vh-260px)]">
-        <Table>
-          <Table.Body>
-            {loading &&
-              Array.from({ length: 3 }).map((_, index) => (
-                <TableRowSkeleton key={index} />
-              ))}
-
-            {hasData &&
-              responses?.map((response) => (
-                <Table.Row
-                  key={response._id}
-                  onClick={() => onClick(response._id)}
-                  className="hover:bg-muted/50 cursor-pointer shadow-xs group/row"
-                >
-                  <Table.Cell className="pl-2 border-none font-medium">
-                    <TextOverflowTooltip value={response.name || 'Unnamed'} />
-                  </Table.Cell>
-
-                  <Table.Cell className="border-none">
-                    <DateDisplay date={response.updatedAt} />
-                  </Table.Cell>
-
-                  <Table.Cell className="border-none text-muted-foreground">
-                    <DateDisplay date={response.createdAt} />
-                  </Table.Cell>
-
-                  <Table.Cell className="border-none">
-                    <DeleteResponse responseId={response._id} />
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-          </Table.Body>
-
-          {!loading && !hasData && (
-            <div className="w-full px-8 flex justify-center">
-              <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-                <IconGitBranch
-                  size={64}
-                  className="text-muted-foreground mb-4"
-                />
-
-                <h3 className="text-xl font-semibold mb-2">No responses yet</h3>
-
-                <p className="text-muted-foreground max-w-md mb-6">
-                  Get started by creating your first response to organize and
-                  manage your workflow processes.
-                </p>
-
-                <CreateResponse />
-              </div>
-            </div>
-          )}
-        </Table>
-      </ScrollArea>
-    </div>
-  );
-};
-
-const TableRowSkeleton = () => (
-  <Table.Row className="shadow-xs">
-    <Table.Cell className="pl-2 border-none">
-      <Skeleton className="h-4 w-24" />
-    </Table.Cell>
-    <Table.Cell className="border-none">
-      <Skeleton className="h-4 w-10" />
-    </Table.Cell>
-    <Table.Cell className="border-none">
-      <Skeleton className="h-4 w-10" />
-    </Table.Cell>
-    <Table.Cell className="border-none">
-      <Skeleton className="h-4 w-4" />
-    </Table.Cell>
-  </Table.Row>
-);
-
-export const DeleteResponse = ({ responseId }: { responseId: string }) => {
-  const confirmationValue = 'delete';
-  const confirmationMessage = 'Are you sure you want to delete this response?';
   const { removeResponse, loading } = useRemoveResponse();
   const { confirm } = useConfirm();
-  const [error, setError] = React.useState<string | null>(null);
 
-  const onDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+  const handleEdit = () => {
+    navigate(`/settings/frontline/channels/${channelId}/response/${_id}`);
+  };
+
+  const handleDelete = () => {
     confirm({
-      message: confirmationMessage,
-      options: { confirmationValue },
+      message: t('confirm-delete-response'),
+      options: { confirmationValue: 'delete' },
     })
       .then(() => {
-        removeResponse({
-          variables: { id: responseId },
-        }).catch((err) => {
-          setError(err.message || 'Something went wrong');
-        });
-      })
-      .catch(() => {
-        setError('Something went wrong');
+        removeResponse({ variables: { id: _id } });
       });
   };
 
   return (
-    <>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="aspect-square text-muted-foreground hover:text-destructive hover:bg-transparent group-hover/row:visible invisible transition-all duration-50 ease-linear"
-        onClick={onDelete}
-        disabled={loading}
-      >
-        {loading ? <Spinner size="sm" /> : <IconTrash />}
-      </Button>
-      {error && <div className="text-destructive text-xs mt-1">{error}</div>}
-    </>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> {t('edit')}
+            </Command.Item>
+            <Command.Item
+              value="delete"
+              onSelect={handleDelete}
+              className="text-destructive"
+            >
+              {loading ? <Spinner size="sm" /> : <IconTrash />} {t('delete')}
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
-export const DateDisplay = ({ date }: { date: string }) => (
-  <Tooltip.Provider>
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <div className="text-muted-foreground text-xs cursor-default">
-          {date ? format(new Date(date), 'MMM d, yyyy') : ''}
-        </div>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        {date ? format(new Date(date), 'MMM d, yyyy HH:mm') : ''}
-      </Tooltip.Content>
-    </Tooltip>
-  </Tooltip.Provider>
-);
+const ResponseNameCell = ({
+  cell,
+}: {
+  cell: Cell<IResponseTemplate, unknown>;
+}) => {
+  const navigate = useNavigate();
+  const { _id, channelId } = cell.row.original;
+  return (
+    <RecordTableInlineCell
+      onClick={() =>
+        navigate(`/settings/frontline/channels/${channelId}/response/${_id}`)
+      }
+    >
+      {cell.getValue() as string}
+    </RecordTableInlineCell>
+  );
+};
+
+export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
+  const { t } = useTranslation('frontline');
+  return [
+    {
+      id: 'more',
+      size: 33,
+      cell: ResponseMoreCell,
+    },
+    {
+      accessorKey: 'name',
+      id: 'name',
+      header: () => <RecordTable.InlineHead label={t('title-label')} icon={IconAlignLeft} />,
+      size: 400,
+      cell: ResponseNameCell,
+    },
+    {
+      accessorKey: 'createdAt',
+      id: 'createdAt',
+      header: () => (
+        <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
+      ),
+      size: 120,
+      cell: ({ cell }) => (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      ),
+    },
+    {
+      accessorKey: 'updatedAt',
+      id: 'updatedAt',
+      header: () => (
+        <RecordTable.InlineHead label={t('updated-at-label')} icon={IconCalendarUp} />
+      ),
+      size: 120,
+      cell: ({ cell }) => (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      ),
+    },
+  ];
+};
+
+export const ResponseList = ({ channelId }: { channelId: string }) => {
+  const { t } = useTranslation('frontline');
+  const responseColumns = useResponseColumns();
+  const [{ searchValue }] = useMultiQueryState<{ searchValue?: string }>([
+    'searchValue',
+  ]);
+
+  const { responses, isInitialLoad, handleFetchMore, pageInfo } = useGetResponses({
+    variables: {
+      filter: { channelId, searchValue: searchValue || undefined },
+    },
+  });
+
+  if (!isInitialLoad && responses?.length === 0) {
+    return (
+      <Empty className="bg-sidebar rounded-lg m-3">
+        <Empty.Header>
+          <Empty.Media>
+            <IconGitBranch />
+          </Empty.Media>
+          <Empty.Title>
+            {searchValue ? t('no-results-found') : t('no-responses-yet')}
+          </Empty.Title>
+          <Empty.Description>
+            {searchValue
+              ? t('try-different-search-term')
+              : t('get-started-creating-first-response')}
+          </Empty.Description>
+        </Empty.Header>
+        {!searchValue && (
+          <Empty.Content>
+            <CreateResponse />
+          </Empty.Content>
+        )}
+      </Empty>
+    );
+  }
+
+  return (
+    <RecordTable.Provider
+      columns={responseColumns as unknown as ColumnDef<IResponseTemplate>[]}
+      data={responses || []}
+      className="m-3"
+    >
+      <RecordTable.CursorProvider
+        hasPreviousPage={pageInfo?.hasPreviousPage}
+        hasNextPage={pageInfo?.hasNextPage}
+        dataLength={responses?.length}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+            {isInitialLoad && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.CursorProvider>
+    </RecordTable.Provider>
+  );
+};

@@ -8,6 +8,7 @@ import {
   RecordTable,
 } from 'erxes-ui';
 import { useRemovePosition } from '../../hooks/usePositionActions';
+import { Can } from 'ui-modules';
 
 export const PositionsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -43,10 +44,12 @@ export const PositionsCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <Button variant="secondary" onClick={onRemove}>
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="positionsManage">
+          <Button variant="secondary" onClick={onRemove}>
+            <IconTrash />
+            Delete
+          </Button>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

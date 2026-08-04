@@ -124,7 +124,7 @@ const genStock = (detail, product, config, taxRule) => {
     name: product.shortName || `${product.code} - ${product.name}`,
     barCode,
     barCodeType,
-    classificationCode: config.defaultGSCode,
+    classificationCode: config.defaultUnitedCode,
     taxProductCode: taxRule.taxCode,
     measureUnit: product.uom ?? 'ш',
     qty: detail.quantity,
@@ -176,8 +176,8 @@ const getArrangeProducts = async (
       innerAmount += detail.totalAmount;
     } else if (
       !config.hasCitytax &&
-      config.reverseCtaxRules?.length &&
-      taxRule.citytaxCode
+      taxRule.citytaxCode &&
+      config.reverseCtaxRules?.includes(taxRule.citytaxCode)
     ) {
       // when has a reverseCtitytax
       const pCtaxPercent = Number(taxRule.citytaxPercent) || 0; // productCitytaxPercent per

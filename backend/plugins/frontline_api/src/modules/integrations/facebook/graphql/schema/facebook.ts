@@ -18,7 +18,10 @@ const commonBotMutationParams = `
   accountId:String,
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
-  greetText:String
+  greetText:String,
+  handoffMessage:String,
+  automationActiveMessage:String,
+  handoffPauseMinutes:Int,
   tag:String,
   isEnabledBackBtn:Boolean,
   backButtonText:String
@@ -64,6 +67,8 @@ export const types = `
     attachments: [Attachment]
     fromBot: Boolean
     botData: JSON
+    source: JSON
+    relatedMessage: JSON
     customerId: String
     userId: String
     createdAt: Date
@@ -103,6 +108,14 @@ export const types = `
     link: String
   }
 
+  type FacebookBotHealth {
+    status: String
+    isSubscribed: Boolean
+    isProfileSynced: Boolean
+    lastSyncedAt: Date
+    lastVerifiedAt: Date
+  }
+
   input BotPersistentMenuInput {
     _id:String
     type:String
@@ -118,12 +131,21 @@ export const types = `
     pageId: String
     page: JSON
     createdAt: Date
+    updatedAt: Date
+    createdBy: String
+    updatedBy: String
+    createdUser: User
+    updatedUser: User
     persistentMenus:[BotPersistentMenuType]
     profileUrl:String
     greetText:String
+    handoffMessage:String
+    automationActiveMessage:String
+    handoffPauseMinutes:Int
     tag:String
     isEnabledBackBtn:Boolean
     backButtonText:String
+    health: FacebookBotHealth
   }
 `;
 
@@ -153,8 +175,9 @@ export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
   facebookRepair(_id: String!): JSON
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
-  facebookMessengerAddBot(${commonBotMutationParams}):JSON
-  facebookMessengerUpdateBot(_id:String,${commonBotMutationParams}):JSON
+  facebookCreatePost(erxesApiId: String!, pageId: String!, message: String!, link: String): JSON
+  facebookMessengerAddBot(${commonBotMutationParams}):FacebookMessengerBot
+  facebookMessengerUpdateBot(_id:String,${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerRemoveBot(_id:String):JSON
   facebookMessengerRepairBot(_id:String):JSON
 `;

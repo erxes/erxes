@@ -1,0 +1,98 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./backend/services/automations/tsconfig.json"
+    },
+    {
+      "path": "./backend/services/logs/tsconfig.json"
+    },
+    {
+      "path": "./backend/erxes-api-shared/tsconfig.json"
+    },
+    {
+      "path": "./backend/gateway/tsconfig.json"
+    },
+    {
+      "path": "./backend/core-api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/posclient_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/tourism_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/mongolian_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/frontline_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/sales_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/content_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/accounting_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/loyalty_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/payment_api/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/payment_api/src/widget/tsconfig.json"
+    },
+    {
+      "path": "./backend/plugins/operation_api/tsconfig.json"
+    },
+    {
+      "path": "./apps/posclient-front/tsconfig.json"
+    },
+    {
+      "path": "./apps/client-portal-template/tsconfig.json"
+    },
+    {
+      "path": "./apps/frontline-widgets/tsconfig.json"
+    },
+    {
+      "path": "./frontend/core-ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/libs/ui-modules/tsconfig.json"
+    },
+    {
+      "path": "./frontend/libs/erxes-ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/sales_ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/payment_ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/frontline_ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/tourism_ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/content_ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/accounting_ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/mongolian_ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/loyalty_ui/tsconfig.json"
+    },
+    {
+      "path": "./frontend/plugins/operation_ui/tsconfig.json"
+    },
+  ]
+}

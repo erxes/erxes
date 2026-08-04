@@ -6,24 +6,20 @@ interface ActivityLogContextType {
   targetId: string;
   activityLogs: TActivityLog[];
   loading: boolean;
-  error?: any;
+  variant?: 'forward' | 'backward';
+  error?: Error;
   customActivities?: ActivityLogCustomActivity[];
   handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
   hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
   totalCount?: number;
+  limit?: number;
+  showExactDate?: boolean;
 }
 
-interface ActivityLogProviderProps {
+type ActivityLogProviderProps = ActivityLogContextType & {
   children: React.ReactNode;
-  targetId: string;
-  activityLogs: TActivityLog[];
-  loading: boolean;
-  error?: any;
-  customActivities?: ActivityLogCustomActivity[];
-  handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
-  hasNextPage?: boolean;
-  totalCount?: number;
-}
+};
 
 const ActivityLogContext = createContext<ActivityLogContextType | null>(null);
 
@@ -32,11 +28,15 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   targetId,
   activityLogs,
   loading,
+  variant = 'forward',
   error,
   customActivities,
   handleFetchMore,
   hasNextPage,
+  hasPreviousPage,
   totalCount,
+  limit,
+  showExactDate,
 }) => {
   return (
     <ActivityLogContext.Provider
@@ -44,11 +44,15 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
         targetId,
         activityLogs,
         loading,
+        variant,
         error,
         customActivities,
         handleFetchMore,
         hasNextPage,
+        hasPreviousPage,
         totalCount,
+        limit,
+        showExactDate,
       }}
     >
       {children}

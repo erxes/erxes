@@ -23,4 +23,5 @@ export const conversationMessageSchema = new Schema({
   internal: { type: Boolean, label: 'Internal' },
   botId: { type: String, label: 'Bot', optional: true },
   botData: { type: Object, optional: true },
+  source: { type: Object, optional: true },
 });

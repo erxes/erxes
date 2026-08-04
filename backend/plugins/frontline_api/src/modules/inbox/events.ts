@@ -4,6 +4,7 @@ import {
   getIndexPrefix,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 
 interface ISaveEventArgs {
@@ -23,7 +24,7 @@ interface ICustomerIdentifyParams {
   integrationId?: string;
 }
 
-export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
+export const saveEvent = async (models: IModels, subdomain: string, args: ISaveEventArgs) => {
   const { type, name, triggerAutomation, attributes, additionalQuery } = args;
 
   if (!type) {
@@ -66,16 +67,7 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: 'fields',
-            action: 'generateTypedListFromMap',
-            input: {
-              attributes,
-            },
-          }),
+          attributes: await models.Fields.generateTypedListFromMap(attributes),
         },
       },
     });
@@ -112,6 +104,7 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
 };
 
 export const trackViewPageEvent = (
+  models: IModels,
   subdomain: string,
   args: {
     customerId?: string;
@@ -121,7 +114,7 @@ export const trackViewPageEvent = (
 ) => {
   const { attributes, customerId, visitorId } = args;
 
-  return saveEvent(subdomain, {
+  return saveEvent(models, subdomain, {
     type: 'lifeCycle',
     name: 'viewPage',
     customerId,
@@ -158,6 +151,7 @@ export const trackViewPageEvent = (
 };
 
 export const trackCustomEvent = (
+  models: IModels,
   subdomain: string,
   args: {
     name: string;
@@ -167,7 +161,7 @@ export const trackCustomEvent = (
     attributes: any;
   },
 ) => {
-  return saveEvent(subdomain, {
+  return saveEvent(models, subdomain, {
     type: 'custom',
     name: args.name,
     triggerAutomation: args.triggerAutomation,

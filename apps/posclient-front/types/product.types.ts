@@ -5,12 +5,6 @@ export interface IProductBase {
   isPackage?: boolean
 }
 
-export interface CustomField {
-  field: string
-  value: string
-  stringValue: string
-}
-
 export interface Group {
   fieldId: string
   title: string
@@ -23,11 +17,18 @@ export interface IProduct extends IProductBase {
   attachment?: { url?: string } | null
   remainder?: number
   remainders?: { location: string; remainder: number }[]
+  discount?: {
+    planId: string
+    discount: number
+    discountPercent: number
+    prefixes: string[]
+    conditions: Record<string, unknown>
+  } | null
   isCheckRem?: boolean
   code?: string
   manufacturedDate?: string
   hasSimilarity?: boolean
-  customFieldsData?: CustomField[]
+  propertiesData?: Record<string, string>
   category?: ICategory
 }
 

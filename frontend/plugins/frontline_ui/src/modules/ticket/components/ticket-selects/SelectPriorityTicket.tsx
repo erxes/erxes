@@ -7,6 +7,7 @@ import {
   useQueryState,
   useFilterContext,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import {
   PriorityBadge,
@@ -111,10 +112,11 @@ const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
 };
 
 const SelectPriorityContent = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Command>
-      <Command.Input placeholder="Search priority" />
-      <Command.Empty>No priority found</Command.Empty>
+      <Command.Input placeholder={t('search-priority')} />
+      <Command.Empty>{t('no-priority-found')}</Command.Empty>
       <Command.List>
         {PROJECT_PRIORITIES_OPTIONS.map((priority, index) => (
           <SelectPriorityCommandItem key={priority} priority={index} />
@@ -130,12 +132,14 @@ const SelectPriorityRoot = ({
   scope,
   variant,
   id,
+  disabled,
 }: {
   value?: number;
   onValueChange?: (value: number) => void;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   id?: string;
+  disabled?: boolean;
 }) => {
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
@@ -159,7 +163,7 @@ const SelectPriorityRoot = ({
       variant={variant}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant}>
+        <SelectTriggerTicket variant={variant} disabled={disabled}>
           {variant === SelectTriggerVariant.TABLE ? (
             <SelectPriorityBadgeValue />
           ) : (

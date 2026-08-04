@@ -48,7 +48,7 @@ export interface IMessengerOnlineHours {
 
 export interface IMessengerOnlineHoursDocument
   extends IMessengerOnlineHours,
-  Document { }
+    Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -65,13 +65,27 @@ type BotPersistentMenuTypeMessenger = {
   type: string;
   text: string;
   link: string;
+  contentType: string;
   isEditing?: boolean;
+};
+type WebsiteApp = {
+  _id: string;
+  kind: string;
+  showInInbox: boolean;
+  credentials: {
+    integrationId: string;
+    description?: string;
+    buttonText?: string;
+    url: string;
+  };
+  scopeBrandIds: string[];
 };
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
+  automationId?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
   getStarted?: boolean;
   skillData?: {
@@ -100,9 +114,11 @@ export interface IMessengerData {
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
   isReceiveWebCall?: boolean;
+  knowledgeBaseTopicId?: string;
+  websiteApps?: WebsiteApp[];
 }
 
-export interface IMessengerDataDocument extends IMessengerData, Document { }
+export interface IMessengerDataDocument extends IMessengerData, Document {}
 
 export interface ICallout extends Document {
   title?: string;
@@ -160,11 +176,15 @@ export interface IColorDefinition {
 }
 export interface IUiOptions {
   logo?: string;
+  launcherLogo?: string;
   primary?: IColorDefinition;
+  backgroundColor?: string;
+  heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
+  navigationVariant?: string;
 }
 
 // subdocument schema for messenger UiOptions
-export interface IUiOptionsDocument extends IUiOptions, Document { }
+export interface IUiOptionsDocument extends IUiOptions, Document {}
 
 export interface IIntegration {
   kind: string;
@@ -182,6 +202,7 @@ export interface IIntegration {
   visibility?: string;
   configId?: string;
   ticketConfigId?: string;
+  brandId?: string;
 }
 
 export interface IExternalLink {
@@ -191,6 +212,7 @@ export interface IExternalLink {
 export interface IIntegrationDocument extends IIntegration, Document {
   _id: string;
   createdUserId: string;
+  brandId: string;
   // TODO remove
   formData?: ILeadData;
   leadData?: ILeadDataDocument;

@@ -1,6 +1,5 @@
 import { Skeleton, TextOverflowTooltip, Tooltip } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useUsersGroup } from 'ui-modules/modules/team-members/hooks';
 import { IUserGroup } from 'ui-modules/modules/team-members/types/TeamMembers';
 
@@ -89,8 +88,7 @@ export const GroupInlineEffectComponent = ({
 }) => {
   const { groups, groupsIds, updateGroups } = useGroupsInlineContext();
   const { usersGroups } = useUsersGroup();
-  const groupDetail =
-    usersGroups && usersGroups?.find((g) => g._id === groupId);
+  const groupDetail = usersGroups?.find((g) => g._id === groupId);
 
   useEffect(() => {
     if (!groupDetail) return;

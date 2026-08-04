@@ -1,5 +1,6 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ICommonDocument } from '~/utils';
 
 enum AgentStatus {
   Active = 'active',
@@ -26,12 +27,11 @@ export interface IAgent {
   discountPercent?: number;
 }
 
-export interface IAgentDocument extends IAgent, Document {
-  createdAt: Date;
-  updatedAt: Date;
+export interface IAgentDocument extends IAgent, ICommonDocument, Document {
+  _id: string;
 }
 
-export interface IAgentListParams extends ICursorPaginateParams {
+export interface IAgentParams extends ICursorPaginateParams {
   number?: string;
   status?: string;
   hasReturn?: boolean;

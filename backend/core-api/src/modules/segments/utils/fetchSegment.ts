@@ -1,16 +1,15 @@
+import { splitType } from 'erxes-api-shared/core-modules';
 import {
+  fetchEs,
   fetchEsWithScroll,
+  generateElkIds,
   getEsIndexByContentType,
   getPluginSegmentConfig,
+  getRealIdFromElk,
 } from 'erxes-api-shared/utils';
-
-import { generateElkIds, getRealIdFromElk } from 'erxes-api-shared/utils';
-
-import { fetchEs } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IOptions } from '../types';
 import { generateQueryBySegment } from './common';
-import { splitType } from 'erxes-api-shared/core-modules';
 
 export const fetchSegment = async (
   models: IModels,
@@ -20,9 +19,8 @@ export const fetchSegment = async (
 ): Promise<any> => {
   const { contentType } = segment;
 
-  const { pluginConfigs, mongoConnectionString } = await getPluginSegmentConfig(
-    contentType,
-  );
+  const { pluginConfigs, mongoConnectionString } =
+    await getPluginSegmentConfig(contentType);
 
   let index = await getEsIndexByContentType(contentType);
   let selector = { bool: {} };
@@ -155,7 +153,7 @@ export const fetchSegment = async (
 
       /* istanbul ignore next */
 
-      if (hits.total && hits.total.value === results.length) {
+      if (hits.total?.value === results.length) {
         // check to see if we have collected all the documents
         break;
       }

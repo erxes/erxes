@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { Can } from 'ui-modules';
 
 export const ClientPortalGeneral = ({
   clientPortal = {},
@@ -76,18 +77,20 @@ export const ClientPortalGeneral = ({
               )}
             />
             <div className="col-start-2 flex justify-end">
-              <Button
-                type="submit"
-                variant="secondary"
-                disabled={
-                  loading ||
-                  form.formState.isSubmitting ||
-                  !form.formState.isDirty
-                }
-              >
-                {loading && <Spinner containerClassName="w-auto flex-none" />}
-                Update
-              </Button>
+              <Can action="clientPortalManage">
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  disabled={
+                    loading ||
+                    form.formState.isSubmitting ||
+                    !form.formState.isDirty
+                  }
+                >
+                  {loading && <Spinner containerClassName="w-auto flex-none" />}
+                  Update
+                </Button>
+              </Can>
             </div>
           </form>
         </Form>

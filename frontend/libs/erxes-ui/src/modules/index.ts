@@ -1,10 +1,12 @@
 export * from './blocks';
+export * from './chat-viz';
 export * from './hotkey';
 export * from './select-tree';
 export * from './record-table';
 export * from './report';
 export * from './record-field';
 export * from './filter';
+export * from './focus-sheet/components/focus-sheet';
 export * from './side-menu/components/SideMenu';
 export * from './side-menu/context/SideMenuContext';
 export * from './inputs';
@@ -16,3 +18,4 @@ export * from './navigation-menu';
 export * from './board';
 export * from './motion';
 export * from './select-operation';
+export * from './attachments';

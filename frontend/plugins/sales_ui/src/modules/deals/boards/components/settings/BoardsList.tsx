@@ -6,6 +6,7 @@ import { useEffect, useMemo } from 'react';
 
 import { BoardForm } from './BoardForm';
 import { IBoard } from '@/deals/types/boards';
+import { useTranslation } from 'react-i18next';
 
 export const BoardsList = () => {
   const navigate = useNavigate();
@@ -28,23 +29,24 @@ export const BoardsList = () => {
     }
   }, [boards, loading, activeBoardId, navigate, location, searchParams]);
 
+  const { t } = useTranslation('sales');
+
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <div className="w-full flex items-center justify-between">
+        <div className="flex w-full items-center justify-between">
           <Sidebar.GroupLabel>
-            Boards ({boards?.length || 0})
+            {t('boards')} ({boards?.length || 0})
           </Sidebar.GroupLabel>
           <BoardForm />
         </div>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {boards &&
-              boards.map((board) => (
-                <Sidebar.MenuItem key={board._id}>
-                  <BoardMenuItem board={board} />
-                </Sidebar.MenuItem>
-              ))}
+            {boards?.map((board) => (
+              <Sidebar.MenuItem key={board._id}>
+                <BoardMenuItem board={board} />
+              </Sidebar.MenuItem>
+            ))}
             {loading &&
               Array.from({ length: 10 }).map((_, index) => (
                 <Sidebar.MenuItem key={index}>
@@ -61,6 +63,7 @@ export const BoardsList = () => {
 const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const [activeBoardId] = useQueryState('activeBoardId');
   const [, setBoardId] = useQueryState('boardId');
+  const { t } = useTranslation('sales');
 
   const isActive = board._id === activeBoardId;
 
@@ -70,7 +73,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
 
   const onRemove = (boardId: string) => {
     confirm({
-      message: `Are you sure you want to delete ${board.name}?`,
+      message: t('delete-board-confirm', { name: board.name }),
     }).then(() => {
       removeBoard({ variables: { _id: boardId } });
     });

@@ -14,6 +14,7 @@ export const NOTIFICATIONS = gql`
     $fromDate: String
     $endDate: String
     $fromUserId: String
+    $module: String
   ) {
     notifications(
       ids: $ids
@@ -28,6 +29,7 @@ export const NOTIFICATIONS = gql`
       fromDate: $fromDate
       endDate: $endDate
       fromUserId: $fromUserId
+      module: $module
     ) {
       list {
         _id
@@ -35,6 +37,14 @@ export const NOTIFICATIONS = gql`
         message
         type
         fromUserId
+        fromUser {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
         priority
         isRead
         contentType
@@ -63,6 +73,14 @@ export const NOTIFICATION_DETAIL = gql`
       message
       type
       fromUserId
+      fromUser {
+        _id
+        email
+        details {
+          fullName
+          avatar
+        }
+      }
       priority
       metadata
       createdAt

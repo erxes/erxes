@@ -1,26 +1,4 @@
-import {
-  Button,
-  Combobox,
-  Command,
-  Filter,
-  Form,
-  Popover,
-  PopoverScoped,
-  RecordTableInlineCell,
-  SelectOperationContent,
-  SelectTree,
-  SelectTriggerOperation,
-  SelectTriggerVariant,
-  TextOverflowTooltip,
-  cn,
-  useFilterContext,
-  useQueryState,
-} from 'erxes-ui';
-import {
-  IPipelineLabel,
-  ISelectLabelContext,
-  ISelectLabelProviderProps,
-} from '@/deals/types/pipelines';
+import { createContext, useContext, useState } from 'react';
 import {
   IconCheck,
   IconLabel,
@@ -29,17 +7,39 @@ import {
   IconPlus,
   IconTagMinus,
 } from '@tabler/icons-react';
-import { useContext, useEffect, useState } from 'react';
+import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
+import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
+import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import {
   usePipelineLabelLabel,
   usePipelineLabels,
 } from '@/deals/pipelines/hooks/usePipelineDetails';
-
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
-import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
-import React from 'react';
-import { createContext } from 'react';
+import {
+  IPipelineLabel,
+  ISelectLabelContext,
+  ISelectLabelProviderProps,
+} from '@/deals/types/pipelines';
+import {
+  Button,
+  Combobox,
+  Command,
+  Filter,
+  Form,
+  Popover,
+  PopoverScoped,
+  SelectOperationContent,
+  SelectTriggerOperation,
+  SelectTriggerVariant,
+  cn,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import {
+  areIdListsEqual,
+  rejectOnMutationError,
+  useOptimisticField,
+} from '@/deals/components/deal-selects/hooks/useOptimisticField';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -51,6 +51,14 @@ export const useSelectLabelsContext = () => {
   return context || ({} as ISelectLabelContext);
 };
 
+const getLabelIds = (value?: string[] | string) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value : [value];
+};
+
 export const SelectLabelsProvider = ({
   children,
   value,
@@ -59,26 +67,26 @@ export const SelectLabelsProvider = ({
 }: ISelectLabelProviderProps) => {
   const [newLabelName, setNewLabelName] = useState<string>('');
   const [selectedLabels, setSelectedLabels] = useState<IPipelineLabel[]>([]);
-  const labelIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const labelIds = getLabelIds(value);
 
   const handleSelectCallback = (label: IPipelineLabel) => {
-    if (!label) return;
+    if (!label._id) return;
 
     const isSingleMode = mode === 'single';
-    const multipleValue = (value as string[]) || [];
-    const isSelected = !isSingleMode && multipleValue.includes(label._id || '');
+    const multipleValue = getLabelIds(value);
+    const isSelected = !isSingleMode && multipleValue.includes(label._id);
 
-    const newSelectedLabelIds = isSingleMode
-      ? [label._id]
-      : isSelected
-      ? multipleValue.filter((p) => p !== label._id)
-      : [...multipleValue, label._id];
+    let newSelectedLabelIds = [label._id];
+    let newSelectedLabels = [label];
 
-    const newSelectedLabels = isSingleMode
-      ? [label]
-      : isSelected
-      ? selectedLabels.filter((p) => p._id !== label._id)
-      : [...selectedLabels, label];
+    if (!isSingleMode) {
+      newSelectedLabelIds = isSelected
+        ? multipleValue.filter((labelId) => labelId !== label._id)
+        : [...multipleValue, label._id];
+      newSelectedLabels = isSelected
+        ? selectedLabels.filter(({ _id }) => _id !== label._id)
+        : [...selectedLabels, label];
+    }
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -102,8 +110,8 @@ export const SelectLabelsProvider = ({
   );
 };
 
-export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
-  const { labelPipelineLabel } = usePipelineLabelLabel();
+export const SelectLabelsCommand = () => {
+  const { t } = useTranslation('sales');
   const { labelIds, onSelect } = useSelectLabelsContext();
 
   const [pipelineId] = useQueryState('pipelineId');
@@ -122,34 +130,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
       return;
     }
 
-    let newLabelIds = Array.isArray(labelIds) ? [...labelIds] : [];
-
-    if (newLabelIds.includes(label._id)) {
-      newLabelIds = newLabelIds.filter((id) => id !== label._id);
-    } else {
-      newLabelIds.push(label._id);
-    }
-
-    if (targetId) {
-      labelPipelineLabel({
-        variables: {
-          targetId: targetId,
-          labelIds: newLabelIds,
-        },
-        refetchQueries: [
-          {
-            query: GET_PIPELINE_LABELS,
-            variables: { pipelineId },
-          },
-          {
-            query: GET_DEALS,
-            variables: { pipelineId },
-          },
-        ],
-      });
-    } else {
-      onSelect(label);
-    }
+    onSelect(label);
   };
 
   const [editLabelId, setEditLabelId] = useState<string | null>(null);
@@ -163,10 +144,10 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
             onClick={() => setShowForm(false)}
             className="text-sm text-blue-600 hover:underline"
           >
-            Back
+            {t('back')}
           </button>
           <h3 className="text-sm font-semibold text-gray-600">
-            {editLabelId ? 'Edit Label' : 'Add Label'}
+            {editLabelId ? t('edit-label') : t('add-label')}
           </h3>
           <span />
         </div>
@@ -183,29 +164,35 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   if (pipelineLabels.length === 0) {
     return (
       <Command>
-        <div className="flex relative items-center justify-center -mb-5">
-          <IconTagMinus className="mb-10 absolute" />
-          <Combobox.Empty loading={loading} error={error} />
+        <div className="flex flex-col items-center justify-center gap-2 px-4 pb-4 pt-6">
+          <IconTagMinus className="size-6 text-muted-foreground" />
+          <Combobox.Empty
+            loading={loading}
+            error={error}
+            className="w-full [&>p]:p-2"
+          />
         </div>
 
-        <Button
-          type="button"
-          className="w-[90%] mx-auto mb-2"
-          onClick={() => {
-            setEditLabelId(null);
-            setShowForm(true);
-          }}
-        >
-          <IconPlus size={16} />
-          Create a new label
-        </Button>
+        <div className="px-3 pb-3">
+          <Button
+            type="button"
+            className="w-full"
+            onClick={() => {
+              setEditLabelId(null);
+              setShowForm(true);
+            }}
+          >
+            <IconPlus size={16} />
+            {t('create-new-label')}
+          </Button>
+        </div>
       </Command>
     );
   }
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search label" />
+        <Command.Input placeholder={t('search-label')} />
         <div className="flex items-center gap-2">
           <IconLoader className="animate-spin" />
         </div>
@@ -214,7 +201,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   } else
     return (
       <Command>
-        <Command.Input placeholder="Search label" />
+        <Command.Input placeholder={t('search-label')} />
         <Command.List className="px-1">
           {pipelineLabels.map((label) => {
             return (
@@ -223,7 +210,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
                 className={cn(
                   'flex items-center justify-between p-2 cursor-pointer my-1  ',
                   labelIds?.includes(label._id || '')
-                    ? 'bg-blue-50 border-blue-300 rounded-md w-[100%]'
+                    ? 'bg-blue-50 border-blue-300 rounded-md w-full'
                     : '',
                 )}
                 onSelect={() => toggleLabel(label)}
@@ -262,147 +249,55 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
           }}
         >
           <IconPlus size={16} />
-          Create a new label
+          {t('create-new-label')}
         </Button>
       </Command>
     );
 };
 
-export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
-  const { onSelect, labelIds } = useSelectLabelsContext();
-  const isSelected = labelIds?.some((b) => b === label._id);
-
-  return (
-    <SelectTree.Item
-      key={label._id}
-      _id={label._id || ''}
-      name={label.name}
-      order={'1'}
-      hasChildren={false}
-      selected={isSelected}
-      onSelect={() => onSelect(label)}
-    >
-      <TextOverflowTooltip
-        value={label.name}
-        className="flex-auto w-auto font-medium"
-      />
-    </SelectTree.Item>
-  );
-};
-
-export const SelectLabelsValue = () => {
+export const SelectLabelsValue = ({
+  showLabels = false,
+}: {
+  showLabels?: boolean;
+}) => {
+  const { t } = useTranslation('sales');
+  const [pipelineId] = useQueryState('pipelineId');
+  const { pipelineLabels = [] } = usePipelineLabels({
+    variables: { pipelineId },
+    skip: !pipelineId,
+  });
   const { labelIds } = useSelectLabelsContext();
+  const selectedIds = new Set(labelIds ?? []);
 
   if ((labelIds || [])?.length !== 0) {
     return (
       <span className="text-muted-foreground flex items-center gap-1 -ml-1">
-        <IconLabel className="w-4 h-4 text-gray-400" /> Label +
-        {(labelIds || []).length}
+        {showLabels ? (
+          <>
+            <IconLabel className="w-4 h-4 text-gray-400" />
+            {pipelineLabels
+              .filter((label) => label._id && selectedIds.has(label._id))
+              .map((label) => label.name)
+              .join(', ')}
+          </>
+        ) : (
+          <>
+            <IconLabel className="w-4 h-4 text-gray-400" /> {t('label')} +
+            {(labelIds || []).length}
+          </>
+        )}
       </span>
     );
   }
-  return <Combobox.Value placeholder="Select Label" />;
+  return <Combobox.Value placeholder={t('select-label')} />;
 };
 
-export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
-  return <SelectLabelsCommand targetId={targetId} />;
-};
-
-export const SelectLabelsInlineCell = ({
-  onValueChange,
-  scope,
-  ...props
-}: Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> & {
-  scope?: string;
-}) => {
-  const [open, setOpen] = useState<boolean>(false);
-
-  return (
-    <SelectLabelsProvider
-      onValueChange={(value) => {
-        onValueChange?.(value);
-        setOpen(false);
-      }}
-      {...props}
-    >
-      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <RecordTableInlineCell.Trigger>
-          <SelectLabelsValue />
-        </RecordTableInlineCell.Trigger>
-        <RecordTableInlineCell.Content className="min-w-72">
-          <SelectLabelsContent />
-        </RecordTableInlineCell.Content>
-      </PopoverScoped>
-    </SelectLabelsProvider>
-  );
-};
-
-export const SelectLabelsDetail = React.forwardRef<
-  React.ElementRef<typeof Combobox.Trigger>,
-  Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
->(({ onValueChange, scope, value, mode, className, ...props }, ref) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <SelectLabelsProvider
-      onValueChange={(value) => {
-        if (mode === 'single') {
-          setOpen(false);
-        }
-        onValueChange?.(value);
-      }}
-      value={value}
-      {...props}
-      mode={mode}
-    >
-      <Popover open={open} onOpenChange={setOpen}>
-        <Combobox.Content className="mt-2">
-          <SelectLabelsContent />
-        </Combobox.Content>
-      </Popover>
-    </SelectLabelsProvider>
-  );
-});
-
-SelectLabelsDetail.displayName = 'SelectLabelsDetail';
-
-export const SelectLabelsCommandbarItem = ({
-  onValueChange,
-  ...props
-}: Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'>) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <SelectLabelsProvider
-      onValueChange={(value) => {
-        onValueChange?.(value);
-        setOpen(false);
-      }}
-      {...props}
-    >
-      <Popover open={open} onOpenChange={setOpen}>
-        <Button variant={'secondary'} asChild>
-          <RecordTableInlineCell.Trigger>
-            <IconLabel />
-            Label
-          </RecordTableInlineCell.Trigger>
-        </Button>
-        <RecordTableInlineCell.Content className="w-96">
-          <SelectLabelsContent />
-        </RecordTableInlineCell.Content>
-      </Popover>
-    </SelectLabelsProvider>
-  );
-};
+export const SelectLabelsContent = () => <SelectLabelsCommand />;
 
 export const SelectLabelsFormItem = ({
   onValueChange,
   className,
+  mode,
   ...props
 }: Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> & {
   className?: string;
@@ -412,8 +307,11 @@ export const SelectLabelsFormItem = ({
     <SelectLabelsProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
+      mode={mode}
       {...props}
     >
       <Popover open={open} onOpenChange={setOpen}>
@@ -453,9 +351,7 @@ export const SelectLabelsFilterView = ({
   mode: 'single' | 'multiple';
   filterKey: string;
 }) => {
-  const [query, setQuery] = useQueryState<string[] | string | undefined>(
-    filterKey,
-  );
+  const [query, setQuery] = useQueryState<string[] | string>(filterKey);
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -464,7 +360,16 @@ export const SelectLabelsFilterView = ({
         mode={mode}
         value={query || []}
         onValueChange={(value) => {
-          setQuery(value as any);
+          if (Array.isArray(value)) {
+            const labelIds = value.filter((labelId): labelId is string =>
+              Boolean(labelId),
+            );
+
+            setQuery(labelIds.length ? labelIds : null);
+          } else {
+            setQuery(value || null);
+          }
+
           resetFilterState();
         }}
       >
@@ -477,37 +382,54 @@ export const SelectLabelsFilterView = ({
 export const SelectLabelsFilterBar = ({
   mode = 'multiple',
   filterKey,
-  label,
   variant,
   scope,
   targetId,
   initialValue,
+  showLabels,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
-  label: string;
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
   targetId?: string;
   initialValue?: string[];
+  showLabels?: boolean;
 }) => {
-  const isCardVariant = variant === 'card';
+  const isCardVariant = variant === 'card' || variant === 'detail';
 
-  // Use local state for card variant, URL state for filter variant
-  const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
-  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
+  const [urlQuery, setUrlQuery] = useQueryState<string[] | string>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
+  const { labelPipelineLabel } = usePipelineLabelLabel();
+  const optimisticLabels = useOptimisticField({
+    value: initialValue || [],
+    resetKey: targetId,
+    isEqual: areIdListsEqual,
+    onCommit: (labelIds) => {
+      if (!targetId) {
+        return;
+      }
 
-  // Sync local state with initialValue when it changes (for card variant)
-  useEffect(() => {
-    if (isCardVariant && initialValue) {
-      setLocalQuery(initialValue);
-    }
-  }, [initialValue, isCardVariant]);
+      return rejectOnMutationError(
+        labelPipelineLabel({
+          variables: {
+            targetId,
+            labelIds,
+          },
+          refetchQueries: [
+            {
+              query: GET_DEAL_DETAIL,
+              variables: { _id: targetId },
+            },
+          ],
+        }),
+      );
+    },
+  });
 
-  const query = isCardVariant ? localQuery : urlQuery;
+  const query = isCardVariant ? optimisticLabels.value : urlQuery;
 
-  if (!query && variant !== 'card') {
+  if (!query && !isCardVariant) {
     return null;
   }
 
@@ -516,28 +438,42 @@ export const SelectLabelsFilterBar = ({
       mode={mode}
       value={query || []}
       onValueChange={(value) => {
-        if (value && value.length > 0) {
+        const nextValue = Array.isArray(value)
+          ? value.filter((labelId): labelId is string => Boolean(labelId))
+          : value;
+
+        if (nextValue && nextValue.length > 0) {
           if (isCardVariant) {
-            setLocalQuery(value as string[]);
+            optimisticLabels.setValue(
+              Array.isArray(nextValue) ? nextValue : [nextValue],
+            );
           } else {
-            setUrlQuery(value as string[]);
+            setUrlQuery(nextValue);
           }
         } else {
           if (isCardVariant) {
-            setLocalQuery([]);
+            optimisticLabels.setValue([]);
           } else {
             setUrlQuery(null);
           }
         }
-        setOpen(false);
+        if (mode === 'single') {
+          setOpen(false);
+        }
       }}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectLabelsValue />
-        </SelectTriggerOperation>
+        {variant === 'detail' ? (
+          <DealChipTrigger>
+            <SelectLabelsValue showLabels={showLabels} />
+          </DealChipTrigger>
+        ) : (
+          <SelectTriggerOperation variant={variant || 'filter'}>
+            <SelectLabelsValue showLabels={showLabels} />
+          </SelectTriggerOperation>
+        )}{' '}
         <SelectOperationContent variant={variant || 'filter'}>
-          <SelectLabelsContent targetId={targetId} />
+          <SelectLabelsContent />
         </SelectOperationContent>
       </PopoverScoped>
     </SelectLabelsProvider>

@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export interface IPropertyType {
   contentType: string;
-  label: string;
+  description: string;
 }
 
 export enum PropertiesHotkeyScope {
@@ -24,5 +24,5 @@ export interface IFieldGroup {
   description: string;
   contentType: string;
   order: number;
-  logics: string;
+  logics?: Record<string, unknown>;
 }

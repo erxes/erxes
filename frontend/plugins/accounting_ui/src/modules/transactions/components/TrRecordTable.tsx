@@ -3,6 +3,10 @@ import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys
 import { useTrRecords } from '../hooks/useTrRecords';
 import { trRecordColumns } from './TrRecordsTableColumns';
 import { useEffect, useState } from 'react';
+import { TransactionsCommandbar } from './TransactionsCommandBar';
+
+const hasInventoryLikeDetails = (journal?: string) =>
+  journal?.includes('inv') || journal?.includes('fxa');
 
 export const TrRecordTable = () => {
   const { trRecords, loading, handleFetchMore, pageInfo } = useTrRecords();
@@ -12,20 +16,20 @@ export const TrRecordTable = () => {
   const [columns, setColumns] = useState(trRecordColumns);
 
   useEffect(() => {
-    if (!journal?.includes('inv')) {
-      setColumns(trRecordColumns.filter(c => !c.id?.includes('inv')));
+    if (!hasInventoryLikeDetails(journal ?? '')) {
+      setColumns(trRecordColumns.filter((c) => !c.id?.includes('inv')));
       return;
     }
 
     return setColumns(trRecordColumns);
-  }, [journal])
-
+  }, [journal]);
 
   return (
     <RecordTable.Provider
       columns={columns}
       data={trRecords || []}
       stickyColumns={['more', 'checkbox', 'account']}
+      tableId="accounting_transaction_records_record_table"
       className="m-3"
     >
       <RecordTable.CursorProvider
@@ -47,7 +51,7 @@ export const TrRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
-        {/* <AccountsCommandbar /> */}
+        <TransactionsCommandbar />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

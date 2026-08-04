@@ -1,15 +1,14 @@
-import * as graph from 'fbgraph';
-import { getSubdomain } from 'erxes-api-shared/utils';
 import { getConfig } from '@/integrations/facebook/commonUtils';
-import { generateModels } from '~/connectionResolvers';
-import { graphRequest } from '@/integrations/facebook/utils';
 import {
   debugFacebook,
   debugRequest,
   debugResponse,
 } from '@/integrations/facebook/debuggers';
 import { repairIntegrations } from '@/integrations/facebook/helpers';
-import { getEnv } from 'erxes-api-shared/utils';
+import { graphRequest } from '@/integrations/facebook/utils';
+import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
+import * as graph from 'fbgraph';
+import { generateModels } from '~/connectionResolvers';
 
 export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -20,7 +19,7 @@ export const loginMiddleware = async (req, res) => {
   const FACEBOOK_PERMISSIONS = await getConfig(
     models,
     'FACEBOOK_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
+    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content,business_management,pages_manage_posts',
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });

@@ -21,6 +21,8 @@ import {
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { ISESConfig } from '@/organization/settings/db/definitions/configs';
+import { getValueAsString } from '@/organization/settings/db/models/Configs';
 
 export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   getEngageMessage(_id: string): Promise<IEngageMessageDocument>;
@@ -62,6 +64,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     visitorId?: string;
     browserInfo: any;
   }): Promise<IMessageDocument[]>;
+  broadcastConfigs(): Promise<ISESConfig>;
 }
 
 export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
@@ -284,7 +287,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
           const conversationMessage =
             await this.createOrUpdateConversationAndMessages({
-              customerId: customer && customer._id,
+              customerId: customer?._id,
               visitorId,
               integrationId,
               user,
@@ -437,6 +440,40 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           engageData,
         },
       });
+    }
+
+    public static async broadcastConfigs() {
+      const accessKeyId = await getValueAsString(
+        models,
+        'BROADCAST_AWS_SES_ACCESS_KEY_ID',
+        'AWS_SES_ACCESS_KEY_ID',
+      );
+
+      const secretAccessKey = await getValueAsString(
+        models,
+        'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
+        'AWS_SES_SECRET_ACCESS_KEY',
+      );
+
+      const region = await getValueAsString(
+        models,
+        'BROADCAST_AWS_REGION',
+        'AWS_REGION',
+      );
+
+      const unverifiedEmailsLimit = await getValueAsString(
+        models,
+        'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
+        'UNVERIFIED_EMAILS_LIMIT',
+        '100',
+      );
+
+      return {
+        accessKeyId,
+        secretAccessKey,
+        region,
+        unverifiedEmailsLimit,
+      };
     }
   }
 

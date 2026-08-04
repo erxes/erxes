@@ -13,4 +13,14 @@ export const addTicketSchema = z.object({
   tagIds: z.array(z.string()).optional(),
   assigneeId: z.string().optional(),
   userId: z.string().optional(),
+  attachments: z
+    .array(
+      z.object({
+        name: z.string(),
+        url: z.string(),
+        size: z.number(),
+        type: z.string(),
+      }),
+    )
+    .optional(),
 });

@@ -1,16 +1,15 @@
-import dayjs from 'dayjs';
-import { Card, Label, Sheet, Separator } from 'erxes-ui';
-import { UAParser } from 'ua-parser-js';
-import { ILogDoc } from '../types';
 import {
   IconBrowser,
-  IconClockHour1,
   IconDeviceDesktopCode,
   IconDeviceImac,
-  IconMail,
+  IconGlobe,
   IconMapPin,
   IconShield,
 } from '@tabler/icons-react';
+import { UAParser } from 'ua-parser-js';
+import { ILogDoc } from '../types';
+import { maskIpValue } from '../utils/logFormUtils';
+import { LogDetailMetricCard, LogDetailSection } from './LogDetailPrimitives';
 
 const getClientInfo = (headers: any) => {
   if (!headers) {
@@ -48,7 +47,7 @@ const getClientInfo = (headers: any) => {
   };
 };
 
-export const AuthLogDetailContent = ({ payload, createdAt }: ILogDoc) => {
+export const AuthLogDetailContent = ({ payload }: ILogDoc) => {
   const { headers } = payload || {};
 
   const {
@@ -58,76 +57,38 @@ export const AuthLogDetailContent = ({ payload, createdAt }: ILogDoc) => {
     browser = '',
   } = getClientInfo(headers) || {};
   return (
-    <div className="flex flex-col gap-4 p-6">
-      <div className="border-b pb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Authentication Details
-        </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          User session and device information
-        </p>
+    <LogDetailSection
+      title="Session Details"
+      description="Device, network, and authentication context captured for this session."
+      icon={IconShield}
+    >
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <LogDetailMetricCard
+          title="IP Address"
+          value={maskIpValue(ip)}
+          icon={IconMapPin}
+        />
+        <LogDetailMetricCard
+          title="Device"
+          value={device}
+          icon={IconDeviceImac}
+        />
+        <LogDetailMetricCard
+          title="Operating System"
+          value={os}
+          icon={IconDeviceDesktopCode}
+        />
+        <LogDetailMetricCard
+          title="Browser"
+          value={browser}
+          icon={IconBrowser}
+        />
+        <LogDetailMetricCard
+          title="Auth Method"
+          value={payload?.method}
+          icon={IconGlobe}
+        />
       </div>
-      <Sheet.Description>User Information </Sheet.Description>
-      <div className="flex flex-row justify-between">
-        <Card className="flex flex-row items-center gap-4 py-2 px-4">
-          <div className="bg-foreground/20 p-2 rounded-xl text-foreground/80">
-            <IconMail />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>Email</Label>
-            <span>{payload.email}</span>
-          </div>
-        </Card>
-        <Card className="flex flex-row items-center gap-4 py-2 px-4">
-          <div className="bg-success/20 p-2 rounded-xl text-success/80">
-            <IconClockHour1 />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>Time</Label>
-            <span>{dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
-          </div>
-        </Card>
-        <Card className="flex flex-row items-center gap-4 py-2 px-4">
-          <div className="bg-primary/20 p-2 rounded-xl text-primary/80">
-            <IconShield />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>Method</Label>
-            <span>{payload.method}</span>
-          </div>
-        </Card>
-      </div>
-      <Separator />
-      <div className="w-full flex flex-row justify-between">
-        <Card className="flex flex-col gap-2 items-center size-36 justify-center">
-          <div className="bg-warning/20 p-2 rounded-xl text-warning/80">
-            <IconMapPin />
-          </div>
-          <p>IP Address</p>
-          <span>{ip}</span>
-        </Card>
-        <Card className="flex flex-col gap-2 items-center size-36 justify-center">
-          <div className="bg-foreground/20 p-2 rounded-xl text-foreground/80">
-            <IconDeviceImac />
-          </div>
-          <p>Device</p>
-          <span>{device}</span>
-        </Card>
-        <Card className="flex flex-col gap-2 items-center size-36 justify-center">
-          <div className="bg-primary/20 p-2 rounded-xl text-primary/80">
-            <IconDeviceDesktopCode />
-          </div>
-          <p>Os</p>
-          <span>{os}</span>
-        </Card>
-        <Card className="flex flex-col gap-2 items-center size-36 justify-center">
-          <div className="bg-success/20 p-2 rounded-xl text-success/80">
-            <IconBrowser />
-          </div>
-          <p>Browser</p>
-          <span>{browser}</span>
-        </Card>
-      </div>
-    </div>
+    </LogDetailSection>
   );
 };

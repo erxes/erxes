@@ -2,6 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { saveErrorFile } from '~/modules/import-export/workers/utils/errorFileHandler';
+import { importTemplates } from './templates';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -10,6 +11,7 @@ const progressSchema = z.object({
   successRows: z.number().optional(),
   errorRows: z.number().optional(),
   totalRows: z.number().optional(),
+  lastProcessedRow: z.number().optional(),
   status: z
     .enum([
       'pending',
@@ -22,6 +24,13 @@ const progressSchema = z.object({
     .optional(),
   errorMessage: z.string().optional(),
   errorFileUrl: z.string().nullable().optional(),
+  terminalError: z
+    .object({
+      code: z.string().optional(),
+      stage: z.string().optional(),
+      retryable: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export const importRouter = t.router({
@@ -97,6 +106,21 @@ export const importRouter = t.router({
         );
 
         return fileKey;
+      }),
+
+    getTemplate: t.procedure
+      .input(
+        z.object({
+          entityType: z.string(),
+        }),
+      )
+      .query(({ input }) => {
+        return (
+          importTemplates[input.entityType] ?? {
+            filename: 'import-template.csv',
+            headers: [],
+          }
+        );
       }),
   }),
 });

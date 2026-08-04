@@ -12,12 +12,18 @@ export const useConversationMessageContext = () => {
     );
   }
 
-  const { previousMessage, nextMessage, userId, customerId, createdAt } =
+  const { previousMessage, nextMessage, userId, customerId, createdAt, botData, fromBot } =
     context;
+
+  const isBotMessage = !!fromBot || !!botData?.length;
 
   const checkHasSibling = (message?: IMessage) => {
     if (!message) {
       return false;
+    }
+
+    if (isBotMessage) {
+      return !!message.botData?.length;
     }
 
     const isClient = !userId;
@@ -55,6 +61,7 @@ export const useConversationMessageContext = () => {
 
   return {
     ...context,
+    isBotMessage,
     hasPreviousMessage,
     separatePrevious: !closeToPreviousMessage || !hasPreviousMessage,
     separateNext: !closeToNextMessage || !hasNextMessage || !nextMessage,

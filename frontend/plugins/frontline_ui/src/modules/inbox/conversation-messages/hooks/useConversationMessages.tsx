@@ -1,8 +1,6 @@
-import { QueryHookOptions } from '@apollo/client';
-
-import { useQuery } from '@apollo/client';
-import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
+import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
 import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
 import { IMessage } from '../../types/Conversation';
 
@@ -61,12 +59,22 @@ export const useConversationMessages = (
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
 
-        // Check if the message already exists to prevent duplicates
-        const messageExists = prev.conversationMessages.some(
+        // The same message id can be re-emitted to push an update (e.g. a Discord
+        // poll's vote tallies refreshing on `extraData`). Replace the existing
+        // copy in place so the card updates, rather than dropping the event as a
+        // duplicate or appending a second bubble.
+        const existingIndex = prev.conversationMessages.findIndex(
           (msg: IMessage) => msg._id === newMessage._id,
         );
 
-        if (messageExists) return prev;
+        if (existingIndex !== -1) {
+          const conversationMessages = [...prev.conversationMessages];
+          conversationMessages[existingIndex] = {
+            ...conversationMessages[existingIndex],
+            ...newMessage,
+          };
+          return { ...prev, conversationMessages };
+        }
 
         try {
           // Get the cache ID for the conversation

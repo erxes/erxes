@@ -4,6 +4,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { IProduct } from '@/pos/pos-by-items/types/PosByItemType';
 import { POS_BY_ITEMS_QUERY } from '@/pos/pos-by-items/graphql/queries';
@@ -14,8 +15,7 @@ import { useSetAtom } from 'jotai';
 const POS_PER_PAGE = 30;
 
 interface UsePosByItemsListOptions {
-  posId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UsePosByItemsListReturn {
@@ -34,12 +34,14 @@ interface UsePosByItemsListReturn {
 export const usePosByItemsVariables = (
   options: UsePosByItemsListOptions = {},
 ) => {
-  const { posId, ...otherOptions } = options;
+  const { posId: posIdFromUrl } = useParams();
+  const { ...otherOptions } = options;
 
   const [
     {
       searchValue,
       customer,
+      category,
       company,
       user,
       pos,
@@ -52,6 +54,7 @@ export const usePosByItemsVariables = (
   ] = useMultiQueryState<{
     searchValue: string;
     customer: string;
+    category: string;
     company: string;
     user: string;
     pos: string;
@@ -63,6 +66,7 @@ export const usePosByItemsVariables = (
   }>([
     'searchValue',
     'customer',
+    'category',
     'company',
     'user',
     'pos',
@@ -77,16 +81,13 @@ export const usePosByItemsVariables = (
 
   return {
     perPage: POS_PER_PAGE,
-    ...(posId && { posId }),
-    search: (() => {
-      const searchParts = [];
-      if (searchValue) searchParts.push(searchValue);
-      if (number) searchParts.push(number);
-      return searchParts.length > 0 ? searchParts.join(' ') : undefined;
-    })(),
+    page: 1,
+    posId: posIdFromUrl || pos || undefined,
+    search: number || undefined,
+    searchValue: searchValue || undefined,
     customerId: customerIdValue,
     userId: user || undefined,
-    posId: pos || undefined,
+    categoryId: category && category !== 'all' ? category : undefined,
     types: types && types !== 'all' ? [types] : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:
@@ -106,16 +107,17 @@ export const usePosByItemsList = (
   const setPosByItemsTotalCount = useSetAtom(posByItemsTotalCountAtom);
   const { data, loading, fetchMore } = useQuery(POS_BY_ITEMS_QUERY, {
     variables,
+    fetchPolicy: 'network-only',
   });
 
   const posByItemsList = useMemo<IProduct[]>(
     () => data?.posProducts?.products || [],
-    [data?.posProducts?.products],
+    [data?.posProducts],
   );
 
   const totalCount = useMemo(
     () => data?.posProducts?.totalCount || 0,
-    [data?.posProducts?.totalCount],
+    [data?.posProducts],
   );
 
   const handleFetchMore = useCallback(() => {
@@ -147,7 +149,6 @@ export const usePosByItemsList = (
   }, [posByItemsList.length, fetchMore, data?.posProducts, variables]);
 
   useEffect(() => {
-    if (!totalCount) return;
     setPosByItemsTotalCount(totalCount);
   }, [totalCount, setPosByItemsTotalCount]);
 

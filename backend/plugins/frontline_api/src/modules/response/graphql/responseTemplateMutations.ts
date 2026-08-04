@@ -3,7 +3,6 @@ import {
   IResponseTemplatesEdit,
 } from '@/response/@types/responseTemplates';
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const responseTemplateMutations = {
   async responseTemplatesAdd(
@@ -30,6 +29,3 @@ export const responseTemplateMutations = {
     return models.ResponseTemplates.removeResponseTemplate(_id);
   },
 };
-requireLogin(responseTemplateMutations, 'responseTemplatesAdd');
-requireLogin(responseTemplateMutations, 'responseTemplatesEdit');
-requireLogin(responseTemplateMutations, 'responseTemplatesRemove');

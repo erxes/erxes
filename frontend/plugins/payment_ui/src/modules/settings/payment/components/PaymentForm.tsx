@@ -1,19 +1,42 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Select } from 'erxes-ui';
-import { Form } from 'erxes-ui/components/form';
+import {
+  Button,
+  Combobox,
+  Command,
+  Form,
+  Input,
+  Popover,
+  ScrollArea,
+  Select,
+  Sheet,
+  Switch,
+  toast,
+} from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
-import { IPayment } from '~/modules/payment/types/Payment';
+import { usePaymentAdd } from '~/modules/payment/hooks/usePaymentAdd';
+import { usePaymentEdit } from '~/modules/payment/hooks/usePaymentEdit';
+import { IPayment, IPaymentDocument } from '~/modules/payment/types/Payment';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { paymentKind } from '~/modules/payment/utils';
+import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
+import KhanbankForm from '~/modules/settings/payment/components/KhanbankForm';
+import { DealConfigForm } from '~/modules/settings/payment/components/DealConfigForm';
 
 type Props = {
   payment: any;
-  onSave: (payment: any) => void;
   onCancel: () => void;
+};
+
+const settingsFields = {
+  sendEmailOnPayment: z.boolean().optional(),
+  dealEnabled: z.boolean().optional(),
+  dealBoardId: z.string().optional(),
+  dealPipelineId: z.string().optional(),
+  dealStageId: z.string().optional(),
 };
 
 // Base validation schema
@@ -54,16 +77,24 @@ const quickQrSchema = z.object({
   ibanNumber: z.string().min(1, 'IBAN number is required'),
   bankAccountName: z.string().min(1, 'Bank account name is required'),
 });
+const khanbankSchema = z.object({
+  kind: z.string().min(1, 'Payment method is required'),
+  name: z.string().min(1, 'Name is required'),
+  status: z.enum(['active', 'inactive']),
+  configId: z.string().min(1, 'Configuration is required'),
+  accountNumber: z.string().min(1, 'Account is required'),
+  ibanAcctNo: z.string().optional(),
+});
 
 // Dynamic schema generator based on payment kind
 const createPaymentSchema = (selectedKind: string) => {
   if (!selectedKind) {
-    return baseSchema;
+    return baseSchema.extend(settingsFields);
   }
 
   const payment = paymentKind(selectedKind);
   if (!payment?.fields) {
-    return baseSchema;
+    return baseSchema.extend(settingsFields);
   }
 
   // Create dynamic fields schema
@@ -118,14 +149,25 @@ const createPaymentSchema = (selectedKind: string) => {
   });
 
   if (selectedKind === PaymentKind.QUICKQR) {
-    return quickQrSchema;
+    return quickQrSchema.extend(settingsFields);
   }
-
-  return baseSchema.extend(dynamicFields);
+  if (selectedKind === PaymentKind.KHANBANK) {
+    return khanbankSchema.extend(settingsFields);
+  }
+  return baseSchema.extend(dynamicFields).extend(settingsFields);
 };
 
-const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
+const PaymentForm = ({ payment, onCancel }: Props) => {
+  const { t } = useTranslation('payment');
   const [selectedKind, setSelectedKind] = useState(payment?.kind || '');
+  const [kindOpen, setKindOpen] = useState(false);
+  const [kindSearch, setKindSearch] = useState('');
+  const [paymentState, setPayment] = useState<
+    IPayment | IPaymentDocument | null
+  >(payment);
+
+  const { addPayment } = usePaymentAdd();
+  const { editPayment } = usePaymentEdit();
 
   // Create dynamic schema based on selected payment kind
   const validationSchema = useMemo(
@@ -136,13 +178,27 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
   // Get default values from payment prop
   const getDefaultValues = useMemo(() => {
     if (!payment) {
-      return { kind: '', name: '', status: 'active' };
+      return {
+        kind: '',
+        name: '',
+        status: 'active',
+        sendEmailOnPayment: true,
+        dealEnabled: false,
+        dealBoardId: '',
+        dealPipelineId: '',
+        dealStageId: '',
+      };
     }
 
     const defaultValues: Record<string, any> = {
       kind: payment.kind || '',
       name: payment.name || '',
       status: payment.status || 'active',
+      sendEmailOnPayment: payment.sendEmailOnPayment !== false,
+      dealEnabled: payment.dealConfig?.enabled || false,
+      dealBoardId: payment.dealConfig?.boardId || '',
+      dealPipelineId: payment.dealConfig?.pipelineId || '',
+      dealStageId: payment.dealConfig?.stageId || '',
     };
 
     // Add payment config values
@@ -155,8 +211,10 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
     }
 
     if (selectedKind === PaymentKind.QUICKQR) {
-      defaultValues.type = 'person';
-      defaultValues.city = '11000';
+      defaultValues.type =
+        defaultValues.type ||
+        (payment.config?.isCompany ? 'company' : 'person');
+      defaultValues.city = defaultValues.city || '11000';
     }
 
     return defaultValues;
@@ -205,19 +263,76 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
       name: data.name,
       kind: data.kind,
       status: data.status,
+      sendEmailOnPayment: data.sendEmailOnPayment !== false,
+      dealConfig: {
+        enabled: !!data.dealEnabled,
+        boardId: data.dealEnabled ? data.dealBoardId || '' : '',
+        pipelineId: data.dealEnabled ? data.dealPipelineId || '' : '',
+        stageId: data.dealEnabled ? data.dealStageId || '' : '',
+      },
       config: {},
     };
 
     const config: any = {};
+    const topLevelKeys = new Set([
+      'kind',
+      'name',
+      'status',
+      'sendEmailOnPayment',
+      'dealEnabled',
+      'dealBoardId',
+      'dealPipelineId',
+      'dealStageId',
+    ]);
     Object.entries(data).forEach(([key, value]) => {
-      if (key !== 'kind' && key !== 'name' && key !== 'status') {
+      if (!topLevelKeys.has(key)) {
         config[key] = value;
       }
     });
     input.config = config;
 
     try {
-      onSave(input);
+      if (paymentState) {
+        // Update existing payment
+        editPayment({
+          variables: {
+            _id: payment._id,
+            input,
+          },
+        })
+          .then(() => {
+            toast({
+              title: t('success'),
+              description: t('payment-method-updated'),
+            });
+          })
+          .catch((e) => {
+            toast({
+              title: t('error'),
+              description: e.message,
+            });
+          });
+      } else {
+        addPayment({
+          variables: {
+            input,
+          },
+        })
+          .then(() => {
+            toast({
+              title: t('success'),
+              description: t('payment-method-added'),
+            });
+          })
+          .catch((e) => {
+            toast({
+              title: t('error'),
+              description: e.message,
+            });
+          });
+      }
+
+      onCancel();
     } catch (error) {
       console.error('Form submission error:', error);
     }
@@ -230,182 +345,247 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
       return null;
     }
 
-    return <QuickQrForm payment={payment} form={form} Form={Form} />;
+    return <QuickQrForm payment={payment} form={form} />;
+  };
+  const renderKhanbank = () => {
+    if (selectedKind !== PaymentKind.KHANBANK) {
+      return null;
+    }
+
+    return <KhanbankForm payment={payment} form={form} />;
   };
 
   return (
-    <div className="max-h-[80vh] overflow-y-auto">
-      <Form {...form}>
-        {/* Payment Kind Selection */}
-        <form className="space-y-4 p-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <Form.Field
-            name="kind"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Payment Method *</Form.Label>
-                <Form.Control>
-                  <Select
-                    disabled={payment}
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                  >
+    <Form {...form}>
+      {/* Payment Kind Selection */}
+      <form
+        className="flex flex-col h-full overflow-hidden"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <Sheet.Header className="gap-3 border-b">
+          <Sheet.Title>
+            {payment ? t('edit-payment') : t('add-payment')}
+          </Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+
+        <Sheet.Content className="flex-auto overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="space-y-3 p-5">
+              <Form.Field
+                name="kind"
+                control={form.control}
+                render={({ field }) => {
+                  const selectedMethod =
+                    PAYMENT_KINDS[field.value as keyof typeof PAYMENT_KINDS];
+                  const filteredKinds = Object.entries(PAYMENT_KINDS).filter(
+                    ([, method]) =>
+                      method.name
+                        .toLowerCase()
+                        .includes(kindSearch.trim().toLowerCase()),
+                  );
+
+                  return (
+                    <Form.Item>
+                      <Form.Label>{t('payment-method-label')} *</Form.Label>
+                      <Popover
+                        open={kindOpen}
+                        onOpenChange={(open) => {
+                          setKindOpen(open);
+                          if (!open) setKindSearch('');
+                        }}
+                      >
+                        <Combobox.Trigger
+                          disabled={!!payment}
+                          className="w-full"
+                        >
+                          <Combobox.Value
+                            value={selectedMethod?.name}
+                            placeholder={t('select-payment-method')}
+                          />
+                        </Combobox.Trigger>
+                        <Combobox.Content>
+                          <Command shouldFilter={false}>
+                            <Command.Input
+                              placeholder={t('search-payment-method')}
+                              value={kindSearch}
+                              onValueChange={setKindSearch}
+                            />
+                            <Command.Separator />
+                            <Command.List>
+                              <Combobox.Empty />
+                              {filteredKinds.map(([key, method]) => (
+                                <Command.Item
+                                  key={key}
+                                  value={key}
+                                  className="cursor-pointer text-xs"
+                                  onSelect={() => {
+                                    field.onChange(key);
+                                    setKindOpen(false);
+                                    setKindSearch('');
+                                  }}
+                                >
+                                  {method.name}
+                                  {field.value === key && (
+                                    <Combobox.Check
+                                      checked
+                                      className="ml-auto"
+                                    />
+                                  )}
+                                </Command.Item>
+                              ))}
+                            </Command.List>
+                          </Command>
+                        </Combobox.Content>
+                      </Popover>
+                    </Form.Item>
+                  );
+                }}
+              />
+
+              {/* Display Name */}
+              <Form.Field
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('display-name')} *</Form.Label>
                     <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value
-                          placeholder={
-                            <span className="text-sm font-medium text-center truncate text-muted-foreground">
-                              {'Select payment method'}
-                            </span>
-                          }
-                        >
-                          <span className="text-sm font-medium text-foreground">
-                            {
-                              Object.entries(PAYMENT_KINDS).find(
-                                ([key, method]) => key === field.value,
-                              )?.[1].name
-                            }
-                          </span>
-                        </Select.Value>
-                      </Select.Trigger>
+                      <Input {...field} placeholder={t('enter-payment-name')} />
                     </Form.Control>
-                    <Select.Content
-                      className="border p-0 [&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:pe-8 [&_*[role=option]]:ps-2"
-                      align="start"
-                    >
-                      <Select.Group>
-                        {Object.entries(PAYMENT_KINDS).map(([key, method]) => (
-                          <Select.Item
-                            key={key}
-                            className="text-xs h-7"
-                            value={key}
-                          >
-                            {method.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Group>
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
+                  </Form.Item>
+                )}
+              />
 
-          {/* Display Name */}
-          <Form.Field
-            name="name"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Display Name *</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder="Enter a name for this payment method"
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-
-          {/* Status */}
-          <Form.Field
-            name="status"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Status *</Form.Label>
-                <Form.Control>
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                  >
+              {/* Status */}
+              <Form.Field
+                name="status"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('status')} *</Form.Label>
                     <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value
-                          placeholder={
-                            <span className="text-sm font-medium text-center truncate text-muted-foreground">
-                              {'Select status'}
-                            </span>
-                          }
-                        >
-                          <span className="text-sm font-medium text-foreground capitalize">
-                            {field.value}
-                          </span>
-                        </Select.Value>
-                      </Select.Trigger>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                      >
+                        <Form.Control>
+                          <Select.Trigger>
+                            <Select.Value
+                              placeholder={
+                                <span className="font-medium text-muted-foreground text-sm text-center truncate">
+                                  {t('select-status')}
+                                </span>
+                              }
+                            >
+                              <span className="font-medium text-foreground text-sm capitalize">
+                                {field.value}
+                              </span>
+                            </Select.Value>
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content className="p-0 border" align="start">
+                          <Select.Group>
+                            <Select.Item
+                              className="h-7 text-xs capitalize"
+                              value="active"
+                            >
+                              {t('active')}
+                            </Select.Item>
+                            <Select.Item
+                              className="h-7 text-xs capitalize"
+                              value="inactive"
+                            >
+                              {t('inactive')}
+                            </Select.Item>
+                          </Select.Group>
+                        </Select.Content>
+                      </Select>
                     </Form.Control>
-                    <Select.Content className="border p-0" align="start">
-                      <Select.Group>
-                        <Select.Item
-                          className="text-xs h-7 capitalize"
-                          value="active"
-                        >
-                          Active
-                        </Select.Item>
-                        <Select.Item
-                          className="text-xs h-7 capitalize"
-                          value="inactive"
-                        >
-                          Inactive
-                        </Select.Item>
-                      </Select.Group>
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
+                  </Form.Item>
+                )}
+              />
 
-          {/* Dynamic Payment-Specific Fields */}
-          {currentPaymentKind?.fields.map((fieldConfig) => (
-            <Form.Field
-              key={fieldConfig.key}
-              name={fieldConfig.key as any}
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{fieldConfig.label} *</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      type={fieldConfig.type || 'text'}
-                      placeholder={`Enter ${fieldConfig.label.toLowerCase()}`}
-                      autoComplete={
-                        fieldConfig.type === 'password' ? '' : 'off'
-                      }
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          ))}
-          {renderQuickQr()}
+              <Form.Field
+                name="sendEmailOnPayment"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="space-y-0.5">
+                        <Form.Label>{t('send-email-after-payment')}</Form.Label>
+                        <p className="text-xs text-muted-foreground">
+                          {t('send-email-description')}
+                        </p>
+                      </div>
+                      <Form.Control>
+                        <Switch
+                          checked={field.value !== false}
+                          onCheckedChange={field.onChange}
+                        />
+                      </Form.Control>
+                    </div>
+                  </Form.Item>
+                )}
+              />
 
-          {/* Action Buttons */}
-          <div className="sticky bottom-0 left-0 w-full bg-white p-4 z-10">
-            <div className="flex gap-3 pt-6 ">
-              <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : payment ? 'Update' : 'Save'}{' '}
-                Payment Method
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
+              <DealConfigForm form={form} />
+
+              {/* Dynamic Payment-Specific Fields */}
+              {currentPaymentKind?.fields.map((fieldConfig) => (
+                <Form.Field
+                  key={fieldConfig.key}
+                  name={fieldConfig.key as any}
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t(fieldConfig.label)} *</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          type={fieldConfig.type || 'text'}
+                          placeholder={`Enter ${t(fieldConfig.label).toLowerCase()}`}
+                          autoComplete={
+                            fieldConfig.type === 'password' ? '' : 'off'
+                          }
+                        />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+              ))}
+
+              {renderQuickQr()}
+              {renderKhanbank()}
             </div>
-          </div>
-        </form>
-      </Form>
-    </div>
+          </ScrollArea>
+        </Sheet.Content>
+
+        <Sheet.Footer className="flex justify-end gap-1 bg-muted p-2.5 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            {t('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            {isSubmitting
+              ? t('saving')
+              : payment
+                ? t('update-payment-method')
+                : t('save-payment-method')}
+          </Button>
+        </Sheet.Footer>
+      </form>
+    </Form>
   );
 };
 

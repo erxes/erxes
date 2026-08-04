@@ -1,5 +1,10 @@
 import { IModels } from '~/connectionResolvers';
 import { prepareCustomerDoc } from './utils';
+
+type OpMeta =
+  | { row: any; type: 'insert' }
+  | { row: any; type: 'update'; _id: any };
+
 export async function processCustomerRows(
   models: IModels,
   rows: any[],
@@ -32,19 +37,44 @@ export async function processCustomerRows(
     }
 
     const operations: any[] = [];
-    const rowToMetaMap = new Map<
-      any,
-      { index: number; _id?: any; operationIndex?: number }
-    >();
+    const opMeta: OpMeta[] = [];
+
+
+    const batchOpIndexByEmail = new Map<string, number>();
+    const batchOpIndexByPhone = new Map<string, number>();
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       try {
         const doc = await prepareCustomerDoc(models, row, state);
 
+        const queuedIndex =
+          (doc.primaryEmail && batchOpIndexByEmail.get(doc.primaryEmail)) ??
+          (doc.primaryPhone && batchOpIndexByPhone.get(doc.primaryPhone));
+
+        if (typeof queuedIndex === 'number') {
+          const existingOp = operations[queuedIndex];
+          if (existingOp.updateOne) {
+            existingOp.updateOne.update.$set = {
+              ...existingOp.updateOne.update.$set,
+              ...doc,
+              updatedAt: new Date(),
+            };
+          } else {
+            existingOp.insertOne.document = {
+              ...existingOp.insertOne.document,
+              ...doc,
+            };
+          }
+          opMeta[queuedIndex].row = { ...opMeta[queuedIndex].row, ...row };
+          continue;
+        }
+
         const existingDoc =
           (doc.primaryEmail && existingByEmail.get(doc.primaryEmail)) ||
           (doc.primaryPhone && existingByPhone.get(doc.primaryPhone));
+
+        const opIndex = operations.length;
 
         if (existingDoc) {
           operations.push({
@@ -53,13 +83,17 @@ export async function processCustomerRows(
               update: { $set: { ...doc, updatedAt: new Date() } },
             },
           });
-          rowToMetaMap.set(row, { index: i, _id: existingDoc._id });
+          opMeta.push({ row, type: 'update', _id: existingDoc._id });
         } else {
-          const operationIndex = operations.length;
-          operations.push({
-            insertOne: { document: doc },
-          });
-          rowToMetaMap.set(row, { index: i, operationIndex });
+          operations.push({ insertOne: { document: doc } });
+          opMeta.push({ row, type: 'insert' });
+        }
+
+        if (doc.primaryEmail) {
+          batchOpIndexByEmail.set(doc.primaryEmail, opIndex);
+        }
+        if (doc.primaryPhone) {
+          batchOpIndexByPhone.set(doc.primaryPhone, opIndex);
         }
       } catch (error: any) {
         errorRows.push({
@@ -70,20 +104,57 @@ export async function processCustomerRows(
     }
 
     if (operations.length > 0) {
-      const result = await models.Customers.bulkWrite(operations);
+      let bulkResult: any;
+      const failedIndexes = new Set<number>();
 
-      for (const [row, meta] of rowToMetaMap.entries()) {
-        if (meta.operationIndex !== undefined) {
-          const insertedId = result.insertedIds[meta.operationIndex];
-          successRows.push({ ...row, _id: insertedId });
+      try {
+
+        bulkResult = await models.Customers.bulkWrite(operations, {
+          ordered: false,
+        });
+      } catch (error: any) {
+
+        bulkResult = error.result || {};
+        for (const writeError of error.writeErrors || []) {
+          if (typeof writeError.index === 'number') {
+            failedIndexes.add(writeError.index);
+            const meta = opMeta[writeError.index];
+            errorRows.push({
+              ...(meta?.row || {}),
+              error:
+                writeError.errmsg || writeError.message || 'Bulk write failed',
+            });
+          }
+        }
+      }
+
+      const insertedIds = bulkResult?.insertedIds || {};
+
+      for (let opIndex = 0; opIndex < opMeta.length; opIndex++) {
+        if (failedIndexes.has(opIndex)) {
+          continue;
+        }
+
+        const meta = opMeta[opIndex];
+        if (meta.type === 'update') {
+          successRows.push({ ...meta.row, _id: meta._id });
         } else {
-          successRows.push({ ...row, _id: meta._id });
+          const insertedId = insertedIds[opIndex] ?? insertedIds[String(opIndex)];
+          if (insertedId) {
+            successRows.push({ ...meta.row, _id: insertedId });
+          } else {
+
+            errorRows.push({
+              ...meta.row,
+              error: 'Insert not acknowledged by bulkWrite',
+            });
+          }
         }
       }
     }
 
     return { successRows, errorRows };
-  } catch (error) {
+  } catch (error: any) {
     return {
       successRows: [],
       errorRows: rows.map((row) => ({

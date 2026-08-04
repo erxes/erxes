@@ -17,6 +17,7 @@ import {
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { currentUserState } from 'ui-modules';
@@ -36,13 +37,14 @@ export const useProjectsVariables = (
   const { cursor } = useRecordTableCursor({
     sessionKey: PROJECTS_CURSOR_SESSION_KEY,
   });
-  const [{ name, team, priority, status, lead }] = useMultiQueryState<{
+  const [{ name, team, priority, status, lead, tags }] = useMultiQueryState<{
     name: string;
     team: string;
     priority: string;
     status: string;
     lead: string;
-  }>(['name', 'team', 'priority', 'status', 'lead']);
+    tags: string[];
+  }>(['name', 'team', 'priority', 'status', 'lead', 'tags']);
   const currentUser = useAtomValue(currentUserState);
 
   return {
@@ -56,6 +58,7 @@ export const useProjectsVariables = (
     priority: priority || undefined,
     status: status || undefined,
     leadId: lead || undefined,
+    tagIds: tags || undefined,
     ...variables,
     ...(variables?.teamIds || variables?.memberId || !currentUser?._id
       ? {}
@@ -67,6 +70,7 @@ export const useProjectsVariables = (
 export const useProjects = (
   options?: QueryHookOptions<ICursorListResponse<IProject>>,
 ) => {
+  const { t } = useTranslation('operation');
   const setProjectTotalCount = useSetAtom(projectTotalCountAtom);
   const { toast } = useToast();
   const variables = useProjectsVariables(options?.variables);
@@ -79,7 +83,7 @@ export const useProjects = (
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     onError: (e) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });

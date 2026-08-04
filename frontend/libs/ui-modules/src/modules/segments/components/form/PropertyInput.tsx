@@ -1,23 +1,39 @@
 import { gql } from '@apollo/client';
-import { DatePicker, Form, Input, Select } from 'erxes-ui';
-import { ControllerRenderProps, useWatch } from 'react-hook-form';
+import { DatePicker, Form, Input, Select, TPropertyInputMeta } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import {
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+  useWatch,
+} from 'react-hook-form';
 
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
-import { IPropertyInput } from '../../types';
+import { useSegmentGroupField } from '../../context/SegmentGroupField';
 import { FieldWithError } from '../FieldWithError';
 import { QuerySelectInput } from '../QuerySelectInput';
+import { pluginsConfigState } from 'ui-modules/states';
+import { TSegmentForm } from '../../types';
 
-export const PropertyInput = ({
-  defaultValue,
-  parentFieldName,
-  operators,
-  selectedField,
-}: IPropertyInput) => {
+const isPropertyInputMeta = (value: unknown): value is TPropertyInputMeta =>
+  Boolean(value && typeof value === 'object' && !Array.isArray(value));
+
+type PropertyValueField = ControllerRenderProps<FieldValues, string>;
+
+export const PropertyInput = () => {
   const { form } = useSegment();
-  const { control } = form;
+  const pluginsConfig = useAtomValue(pluginsConfigState);
+  const {
+    condition,
+    conditionFieldName,
+    operators = [],
+    selectedField,
+    loading,
+    onBeforeFieldChange,
+  } = useSegmentGroupField();
   const propertyOperator = useWatch({
-    control,
-    name: `${parentFieldName}.propertyOperator`,
+    control: form.control,
+    name: `${conditionFieldName}.propertyOperator`,
   });
 
   const selectedOperator = operators.find(
@@ -31,42 +47,53 @@ export const PropertyInput = ({
   }
 
   const {
-    selectOptions = [],
+    options = [],
+    configs,
     selectionConfig,
-    type,
-    choiceOptions = [],
+    // choiceOptions = [],
   } = selectedField || {};
+
+  const [pluginName] = condition?.propertyType?.split(':') || [];
+  const customInputName = selectionConfig?.component;
+  const CustomInput =
+    pluginName && customInputName
+      ? Object.values(pluginsConfig || {}).find(
+          (pluginConfig) => pluginConfig.name === pluginName,
+        )?.widgets?.propertyInputs?.[customInputName]
+      : undefined;
 
   if (['is', 'ins', 'it', 'if'].indexOf(value) >= 0) {
     return null;
   }
 
-  let Component = (field: ControllerRenderProps<any, any>) => (
-    <Input {...field} disabled={!value} />
+  let Component = (field: PropertyValueField) => (
+    <Input {...field} className="w-full min-w-0" disabled={!value || loading} />
   );
 
   if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
-    Component = (field: ControllerRenderProps<any, any>) => (
+    Component = (field: PropertyValueField) => (
       <DatePicker
         className="w-full"
         value={field.value}
         onChange={(date) => field.onChange(date as Date)}
         placeholder="Select date"
+        disabled={loading}
       />
     );
   }
 
-  if (selectOptions.length > 0) {
-    Component = (field: ControllerRenderProps<any, any>) => (
+  if (options.length > 0) {
+    Component = (field: PropertyValueField) => (
       <Select
         value={field.value}
         onValueChange={(selectedValue) => field.onChange(selectedValue)}
+        disabled={loading}
       >
-        <Select.Trigger>
+        <Select.Trigger className="w-full min-w-0">
           <Select.Value className="w-full" />
         </Select.Trigger>
         <Select.Content>
-          {selectOptions.map((option, idx) => (
+          {options.map((option, idx) => (
             <Select.Item key={idx} value={`${option?.value}`}>
               {option?.label || '-'}
             </Select.Item>
@@ -76,14 +103,8 @@ export const PropertyInput = ({
     );
   }
 
-  if (selectionConfig) {
-    const {
-      queryName,
-      selectionName,
-      labelField,
-      valueField = '_id',
-      multi,
-    } = selectionConfig;
+  if (configs?.queryName && configs?.labelField) {
+    const { queryName, labelField, valueField = '_id', multi } = configs;
     const query = gql`
           query ${queryName}($searchValue: String,$direction: CURSOR_DIRECTION,$cursor: String,$limit:Int) {
             ${queryName}(searchValue: $searchValue,direction:$direction,cursor:$cursor,limit:$limit) {
@@ -98,50 +119,58 @@ export const PropertyInput = ({
             }
           }
         `;
-    Component = (field: ControllerRenderProps<any, any>) => (
+    Component = (field: PropertyValueField) => (
       <QuerySelectInput
         query={query}
         queryName={queryName}
         labelField={labelField}
         valueField={valueField}
         nullable
-        multi
-        initialValue={field.value}
-        onSelect={(value) => field.onChange(value)}
+        multi={multi}
+        value={field.value}
+        onSelect={(value) => {
+          field.onChange(value);
+        }}
         focusOnMount
       />
     );
   }
 
-  if (type === 'radio' && choiceOptions.length > 0) {
-    const options = choiceOptions.map((opt) => ({ value: opt, label: opt }));
-
-    Component = (field: ControllerRenderProps<any, any>) => (
-      <Select
-        value={field.value}
-        onValueChange={(selectedValue) => field.onChange(selectedValue)}
-      >
-        <Select.Trigger>
-          <Select.Value className="w-full" />
-        </Select.Trigger>
-        <Select.Content>
-          {options.map((option, idx) => (
-            <Select.Item key={idx} value={`${option?.value}`}>
-              {option?.label || '-'}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
+  if (CustomInput) {
+    Component = (field: PropertyValueField) => (
+      <CustomInput
+        value={typeof field.value === 'string' ? field.value : ''}
+        onValueChange={field.onChange}
+        meta={isPropertyInputMeta(condition?.meta) ? condition.meta : {}}
+        onMetaChange={(meta) => {
+          form.setValue(
+            `${conditionFieldName}.meta` as Path<TSegmentForm>,
+            meta,
+            { shouldDirty: true },
+          );
+        }}
+        disabled={!value || loading}
+      />
     );
   }
 
+  const wrapFieldOnChange = (field: PropertyValueField) => ({
+    ...field,
+    onChange: (updatedValue: unknown) => {
+      onBeforeFieldChange('propertyValue');
+      field.onChange(updatedValue);
+    },
+  });
+
   return (
     <Form.Field
-      control={control}
-      name={`${parentFieldName}.propertyValue`}
+      control={form.control}
+      name={`${conditionFieldName}.propertyValue`}
       render={({ field, fieldState }) => (
         <FieldWithError error={fieldState.error}>
-          {Component(field)}
+          <div className="w-full min-w-0">
+            {Component(wrapFieldOnChange(field))}
+          </div>
         </FieldWithError>
       )}
     />

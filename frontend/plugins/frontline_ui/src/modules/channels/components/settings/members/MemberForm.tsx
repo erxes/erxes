@@ -1,6 +1,9 @@
+import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { TChannelMemberForm } from '@/channels/types';
-import { UseFormReturn } from 'react-hook-form';
 import { Combobox, Command, Form, Popover } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import React, { useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import {
   currentUserState,
@@ -9,17 +12,15 @@ import {
   useSelectMemberContext,
   useUsers,
 } from 'ui-modules';
-import { useAtomValue } from 'jotai';
 import { useDebounce } from 'use-debounce';
-import { useState } from 'react';
-import React from 'react';
-import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
+import { useTranslation } from 'react-i18next';
 
 export const MemberForm = ({
   form,
 }: {
   form: UseFormReturn<TChannelMemberForm>;
 }) => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams();
   return (
     <div className="flex flex-col gap-3">
@@ -28,7 +29,7 @@ export const MemberForm = ({
         name="memberIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Choose members</Form.Label>
+            <Form.Label>{t('choose-members')}</Form.Label>
             <Form.Description className="sr-only">Members</Form.Description>
             <SelectChannelMember
               channelId={channelId ?? ''}

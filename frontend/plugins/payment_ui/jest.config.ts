@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 export default {
   displayName: 'payment-ui',
   preset: '../../../jest.preset.js',

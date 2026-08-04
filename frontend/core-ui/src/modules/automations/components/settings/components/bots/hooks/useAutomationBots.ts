@@ -13,6 +13,7 @@ export const useAutomationBots = () => {
 
   return {
     automationBotsConstants,
+    isEmpty: !automationBotsConstants?.length && !loading,
     loading,
     error,
   };
@@ -26,7 +27,7 @@ export const useAutomationBotTotalCount = (queryName: string, skip?: any) => {
     },
   );
 
-  const totalCount = (data || {})[queryName] ?? 0;
+  const totalCount = data?.[queryName] ?? 0;
 
   return {
     totalCount,

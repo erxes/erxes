@@ -12,7 +12,7 @@ const jsonParseLiteral = (ast: any) => {
       return ast.value;
     case Kind.INT:
     case Kind.FLOAT:
-      return parseFloat(ast.value);
+      return Number.parseFloat(ast.value);
     case Kind.OBJECT: {
       const value = Object.create(null);
 

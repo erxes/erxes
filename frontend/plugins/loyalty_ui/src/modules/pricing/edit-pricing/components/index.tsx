@@ -6,11 +6,19 @@ export type DiscountType =
   | 'bonus';
 
 export const DISCOUNT_TYPES: { value: DiscountType; label: string }[] = [
-  { value: 'default', label: 'Default' },
-  { value: 'fixed', label: 'Fixed' },
-  { value: 'subtraction', label: 'Subtraction' },
-  { value: 'percentage', label: 'Percentage' },
-  { value: 'bonus', label: 'Bonus' },
+  { value: 'default', label: 'default' },
+  { value: 'fixed', label: 'fixed' },
+  { value: 'subtraction', label: 'subtraction' },
+  { value: 'percentage', label: 'percentage' },
+  { value: 'bonus', label: 'bonus' },
+];
+
+// Used for quantity/price/expiry sub-rule sheets — 'fixed' is only valid on the Common tab
+export const RULE_DISCOUNT_TYPES: { value: DiscountType; label: string }[] = [
+  { value: 'default', label: 'default' },
+  { value: 'subtraction', label: 'subtraction' },
+  { value: 'percentage', label: 'percentage' },
+  { value: 'bonus', label: 'bonus' },
 ];
 
 export type PriceAdjustType =
@@ -25,19 +33,17 @@ export const PRICE_ADJUST_TYPES: {
   value: PriceAdjustType;
   label: string;
 }[] = [
-  { value: 'none', label: 'None' },
-  { value: 'round', label: 'Round' },
-  { value: 'floor', label: 'Floor' },
-  { value: 'ceil', label: 'Ceil' },
-  { value: 'truncate', label: 'Truncate' },
-  { value: 'endsWith9', label: 'Ends With 9' },
+  { value: 'none', label: 'none' },
+  { value: 'round', label: 'round' },
+  { value: 'floor', label: 'floor' },
+  { value: 'ceil', label: 'ceil' },
+  { value: 'truncate', label: 'truncate' },
+  { value: 'endsWith9', label: 'ends-with-9' },
 ];
 
 export const PRICING_STEPS = [
-  { value: 'general', title: 'General' },
-  { value: 'options', title: 'Options' },
-  { value: 'price', title: 'Price' },
-  { value: 'quantity', title: 'Quantity' },
-  { value: 'repeat', title: 'Repeat' },
-  { value: 'expiry', title: 'Expiry' },
+  { value: 'general', title: 'general' },
+  { value: 'options', title: 'options' },
+  { value: 'participants', title: 'participants' },
+  { value: 'rules', title: 'rules' },
 ];

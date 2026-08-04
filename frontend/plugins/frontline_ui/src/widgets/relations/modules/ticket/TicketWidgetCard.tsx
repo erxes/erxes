@@ -2,13 +2,13 @@ import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateT
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import { ITicket } from '@/ticket/types';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { Button, Card, Separator } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TicketDetailSheet = lazy(() =>
   import('@/ticket/components/ticket-detail/TicketDetailSheet').then(
@@ -19,6 +19,7 @@ const TicketDetailSheet = lazy(() =>
 );
 
 export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
+  const { t } = useTranslation('frontline');
   const {
     startDate,
     targetDate,
@@ -31,7 +32,7 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
     pipelineId,
     createdAt,
   } = ticket || {};
-  const [activeTicket, setActiveTicket] = useAtom(ticketDetailSheetState);
+  const [activeTicket, setActiveTicket] = useTicketDetailSheet();
 
   return (
     <>
@@ -55,7 +56,7 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
           <div className="flex flex-col gap-1">
             <h5 className="font-semibold">{name}</h5>
             <div className="text-accent-foreground uppercase">
-              Ticket #{number}
+              {t('ticket-number', { number })}
             </div>
           </div>
           <div className="flex flex-wrap gap-1">
@@ -81,7 +82,9 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
           <SelectAssigneeTicket variant="card" value={assigneeId} id={_id} />
         </div>
       </Card>
-      <Suspense>{activeTicket && <TicketDetailSheet />}</Suspense>
+      <Suspense>
+        {activeTicket && <TicketDetailSheet hideRelationWidgetSideTabs />}
+      </Suspense>
     </>
   );
 };

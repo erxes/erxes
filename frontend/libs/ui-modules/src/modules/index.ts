@@ -1,7 +1,9 @@
 export * from './automations';
+export * from './approval';
 export * from './brands';
 export * from './contacts';
 export * from './documents';
+export * from './favorites';
 export * from './header';
 export * from './internal-notes';
 export * from './notifications';
@@ -13,11 +15,12 @@ export * from './structure';
 export * from './tags';
 export * from './team-members';
 export * from './types/PageInfo';
-export * from './widget/widget-provider/context/widgetContext';
-export * from './widget/hooks';
-export * from './widget/graphql';
+export * from './widget';
 export * from './tags-new';
 
 export * from './import-export';
 export * from './activity-logs';
 export * from './payments';
+export * from './sales';
+export * from './templates';
+export * from './shared';

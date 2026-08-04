@@ -1,9 +1,31 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  cursorPaginateAggregation,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
+import type { FilterQuery, PipelineStage } from 'mongoose';
+
 import { IContext } from '~/connectionResolvers';
 import { IPipelineDocument } from '~/modules/sales/@types';
+import { SALES_STATUSES } from '~/modules/sales/constants';
 
-export const pipelineQueries = {
+// Keep legacy pipelines without a status in the active group and cursor.
+const PIPELINE_STATUS_RANK_STAGE: PipelineStage = {
+  $addFields: {
+    statusRank: {
+      $cond: [{ $eq: ['$status', SALES_STATUSES.ARCHIVED] }, 1, 0],
+    },
+  },
+};
+
+const PIPELINES_ORDER_BY = {
+  statusRank: 1,
+  createdAt: -1,
+  _id: 1,
+} as const;
+
+export const pipelineQueries: Record<string, Resolver> = {
   /**
    *  Pipelines list
    */
@@ -17,11 +39,10 @@ export const pipelineQueries = {
   ) {
     const { boardId, isAll } = params;
 
-    const query: any =
+    const query: FilterQuery<IPipelineDocument> =
       user.isOwner || isAll
         ? {}
         : {
-            status: { $ne: 'archived' },
             $or: [
               { visibility: 'public' },
               {
@@ -38,6 +59,11 @@ export const pipelineQueries = {
             ],
           };
 
+    // Owners may see private pipelines; only management callers see archived ones.
+    if (!isAll) {
+      query.status = { $ne: SALES_STATUSES.ARCHIVED };
+    }
+
     if (!user.isOwner && !isAll) {
       const userDetail = await sendTRPCMessage({
         subdomain,
@@ -46,9 +72,82 @@ export const pipelineQueries = {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: {
-          _id: user._id,
+        input: { query: { _id: user._id } },
+        defaultValue: {},
+      });
+
+      const departmentIds = userDetail?.departmentIds || [];
+
+      if (Object.keys(query) && departmentIds.length > 0) {
+        query.$or?.push({
+          $and: [
+            { visibility: 'private' },
+            { departmentIds: { $in: departmentIds } },
+          ],
+        });
+      }
+    }
+
+    if (boardId) {
+      query.boardId = boardId;
+    }
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginateAggregation<IPipelineDocument>({
+        model: models.Pipelines,
+        pipeline: [{ $match: query }, PIPELINE_STATUS_RANK_STAGE],
+        params: {
+          ...params,
+          orderBy: PIPELINES_ORDER_BY,
+          limit: params.limit || 20,
         },
+        // Cursor dates are encoded as ISO strings.
+        formatter: { createdAt: 'date' },
+      });
+
+    return { list, totalCount, pageInfo };
+  },
+
+  async cpSalesPipelines(
+    _root,
+    params: {
+      boardId: string;
+      isAll: boolean;
+    } & ICursorPaginateParams,
+    { user, models, subdomain }: IContext,
+  ) {
+    const { boardId, isAll } = params;
+
+    const query: any =
+      user?.isOwner || isAll
+        ? {}
+        : {
+            status: { $ne: 'archived' },
+            $or: [
+              { visibility: 'public' },
+              {
+                $and: [
+                  { visibility: 'private' },
+                  {
+                    $or: [
+                      { memberIds: { $in: [user?._id] } },
+                      { userId: user?._id },
+                    ],
+                  },
+                ],
+              },
+            ],
+          };
+
+    if (user?._id && !user.isOwner && !isAll) {
+      const userDetail = await sendTRPCMessage({
+        subdomain,
+
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'findOne',
+        input: { query: { _id: user._id } },
         defaultValue: {},
       });
 
@@ -101,9 +200,8 @@ export const pipelineQueries = {
       startDate: { $gt: now },
     };
 
-    const notStartedCount = await models.Pipelines.find(
-      notStartedQuery,
-    ).countDocuments();
+    const notStartedCount =
+      await models.Pipelines.find(notStartedQuery).countDocuments();
 
     counts['Not started'] = notStartedCount;
 
@@ -113,9 +211,8 @@ export const pipelineQueries = {
       endDate: { $gt: now },
     };
 
-    const inProgressCount = await models.Pipelines.find(
-      inProgressQuery,
-    ).countDocuments();
+    const inProgressCount =
+      await models.Pipelines.find(inProgressQuery).countDocuments();
 
     counts['In progress'] = inProgressCount;
 
@@ -124,9 +221,8 @@ export const pipelineQueries = {
       endDate: { $lt: now },
     };
 
-    const completedCounted = await models.Pipelines.find(
-      completedQuery,
-    ).countDocuments();
+    const completedCounted =
+      await models.Pipelines.find(completedQuery).countDocuments();
 
     counts.Completed = completedCounted;
 
@@ -170,4 +266,6 @@ export const pipelineQueries = {
   },
 };
 
-// moduleRequireLogin(pipelineQueries);
+pipelineQueries.cpSalesPipelines.wrapperConfig = {
+  forClientPortal: true,
+};

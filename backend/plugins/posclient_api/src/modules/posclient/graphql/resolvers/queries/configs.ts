@@ -51,6 +51,7 @@ const configQueries: Record<string, Resolver> = {
     });
   },
 };
+
 markResolvers(configQueries, {
   wrapperConfig: {
     skipPermission: true,

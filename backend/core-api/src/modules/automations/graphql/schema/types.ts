@@ -25,9 +25,13 @@ const commonActionTypes = `
 const workflowTypes = `
   id:String
   automationId:String
+  templateId:String
+  nextActionId:String
   name:String
   description:String
   config:JSON
+  actions: [JSON]
+  icon: String
   position:JSON
 `;
 
@@ -50,6 +54,8 @@ const types = `
     _id: String!
     name: String
     status: String
+    edgeType: String
+    flowDirection: String
     createdAt: Date
     updatedAt: Date
     createdBy: String
@@ -61,6 +67,7 @@ const types = `
 
     createdUser: User
     updatedUser: User
+    approvalLockState(action: String): ApprovalLockState
 
   }
 
@@ -100,6 +107,10 @@ const types = `
     actions: [JSON]
     startWaitingDate: Date
     waitingActionId: String
+    parentExecutionId: String
+    workflowId: String
+    inputs: JSON
+    depth: Int
   }
 
   type AutomationHistories {
@@ -120,18 +131,12 @@ const types = `
     ${workflowTypes}
   }
 
-  type TrainingProgress {
-    agentId: String!
-    totalFiles: Int!
-    processedFiles: Int!
-    status: String!
-    error: String
-  }
-
-  type AiAgentMessage {
-    message: String!
-    relevantFile: String
-    similarity: Float
+  type AiAgentHealth {
+    ready: Boolean!
+    checkedAt: String!
+    errors: [String!]!
+    warnings: [String!]!
+    checks: JSON
   }
 
   type AutomationEmailTemplate {
@@ -149,6 +154,18 @@ const types = `
     list: [AutomationEmailTemplate]
     totalCount: Float
     pageInfo: PageInfo
+  }
+
+  type AutomationWorkflowTemplate {
+    _id: String!
+    name: String!
+    description: String
+    entryActionId: String
+    actions: JSON
+    inputs: JSON
+    createdBy: String
+    createdAt: Date
+    updatedAt: Date
   }
 `;
 

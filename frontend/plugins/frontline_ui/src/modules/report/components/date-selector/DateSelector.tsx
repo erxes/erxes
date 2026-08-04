@@ -7,6 +7,9 @@ import {
 } from 'erxes-ui';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { format, parse } from 'date-fns';
+import { useTranslation } from 'react-i18next';
+
+type DateRange = { from: Date | undefined; to?: Date | undefined };
 
 export type DateSelectorValue =
   | 'today'
@@ -37,15 +40,15 @@ const useDateSelectorContext = () => {
 };
 
 const DATE_OPTIONS = [
-  { value: 'today', label: 'Today' },
-  { value: 'yesterday', label: 'Yesterday' },
-  { value: 'this-week', label: 'This Week' },
-  { value: 'last-week', label: 'Last Week' },
-  { value: 'this-month', label: 'This Month' },
-  { value: 'last-month', label: 'Last Month' },
-  { value: 'this-year', label: 'This Year' },
-  { value: 'last-year', label: 'Last Year' },
-  { value: 'custom', label: 'Custom Date' },
+  { value: 'today', label: 'today' },
+  { value: 'yesterday', label: 'yesterday' },
+  { value: 'this-week', label: 'this-week' },
+  { value: 'last-week', label: 'last-week' },
+  { value: 'this-month', label: 'this-month' },
+  { value: 'last-month', label: 'last-month' },
+  { value: 'this-year', label: 'this-year' },
+  { value: 'last-year', label: 'last-year' },
+  { value: 'custom', label: 'custom-date' },
 ] as const;
 
 export const DateSelectorProvider = ({
@@ -80,6 +83,7 @@ export const DateSelectorProvider = ({
 };
 
 export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
+  const { t } = useTranslation('frontline');
   const { value } = useDateSelectorContext();
   if (!value) {
     return (
@@ -95,17 +99,25 @@ export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
   ) {
     if (typeof value === 'string' && value.startsWith('custom:')) {
       const dateString = value.replace('custom:', '');
+      const [startStr, endStr] = dateString.split(',');
       try {
-        const date = parse(dateString, 'yyyy-MM-dd', new Date());
+        const start = parse(startStr, 'yyyy-MM-dd', new Date());
+        let display = format(start, 'MMM DD, YYYY');
+
+        if (endStr) {
+          const end = parse(endStr, 'yyyy-MM-dd', new Date());
+          display += ` - ${format(end, 'MMM DD, YYYY')}`;
+        }
+
         return (
           <div className="flex items-center gap-2">
-            <span className="text-sm">{format(date, 'MMM DD, YYYY')}</span>
+            <span className="text-sm">{display}</span>
           </div>
         );
       } catch {
         return (
           <div className="flex items-center gap-2">
-            <span className="text-sm">Custom Date</span>
+            <span className="text-sm">{t('custom-date')}</span>
           </div>
         );
       }
@@ -120,7 +132,7 @@ export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
   const selectedOption = DATE_OPTIONS.find((option) => option.value === value);
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm">{selectedOption?.label || placeholder}</span>
+      <span className="text-sm">{selectedOption ? t(selectedOption.label) : placeholder}</span>
     </div>
   );
 };
@@ -130,6 +142,7 @@ export const DateSelectorCommandItem = ({
 }: {
   option: (typeof DATE_OPTIONS)[number];
 }) => {
+  const { t } = useTranslation('frontline');
   const { onValueChange, value } = useDateSelectorContext();
   const isChecked =
     option.value === 'custom'
@@ -144,20 +157,27 @@ export const DateSelectorCommandItem = ({
         onValueChange(option.value);
       }}
     >
-      <span className="text-sm">{option.label}</span>
+      <span className="text-sm">{t(option.label)}</span>
       <Combobox.Check checked={isChecked} />
     </Command.Item>
   );
 };
 
 export const DateSelectorCustomDate = () => {
+  const { t } = useTranslation('frontline');
   const { value, onValueChange } = useDateSelectorContext();
 
-  const getCustomDate = (): Date | undefined => {
+  const getCustomDate = (): DateRange | undefined => {
     if (typeof value === 'string' && value.startsWith('custom:')) {
       const dateString = value.replace('custom:', '');
+      const [startStr, endStr] = dateString.split(',');
       try {
-        return parse(dateString, 'yyyy-MM-dd', new Date());
+        const start = parse(startStr, 'yyyy-MM-dd', new Date());
+        if (endStr) {
+          const end = parse(endStr, 'yyyy-MM-dd', new Date());
+          return { from: start, to: end };
+        }
+        return { from: start, to: undefined };
       } catch {
         return undefined;
       }
@@ -165,7 +185,7 @@ export const DateSelectorCustomDate = () => {
     return undefined;
   };
 
-  const [customDate, setCustomDate] = useState<Date | undefined>(
+  const [customDate, setCustomDate] = useState<DateRange | undefined>(
     getCustomDate(),
   );
 
@@ -173,12 +193,15 @@ export const DateSelectorCustomDate = () => {
     setCustomDate(getCustomDate());
   }, [value]);
 
-  const handleDateChange = (date: Date | Date[] | undefined) => {
-    const singleDate = Array.isArray(date) ? date[0] : date;
-    setCustomDate(singleDate);
-    if (singleDate) {
-      const dateString = format(singleDate, 'yyyy-MM-dd');
-      onValueChange(`custom:${dateString}`);
+  const handleDateChange = (date: any) => {
+    const range = date as DateRange | undefined;
+
+    setCustomDate(range);
+
+    if (range?.from && range.to) {
+      const startString = format(range.from, 'yyyy-MM-dd');
+      const endString = format(range.to, 'yyyy-MM-dd');
+      onValueChange(`custom:${startString},${endString}`);
     }
   };
 
@@ -187,10 +210,11 @@ export const DateSelectorCustomDate = () => {
       <DatePicker
         value={customDate}
         onChange={handleDateChange}
-        placeholder="Select custom date"
+        placeholder={t('select-custom-date-range')}
         format="MMM DD, YYYY"
         variant="outline"
         className="w-full"
+        mode="range"
       />
     </div>
   );
@@ -225,6 +249,7 @@ const DateSelectorRoot = ({
   value: DateSelectorValue | string;
   onValueChange: (value: DateSelectorValue | string) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   return (
     <DateSelectorProvider
@@ -234,7 +259,7 @@ const DateSelectorRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Popover.Trigger className="bg-background rounded px-2 shadow-xs hover:bg-accent cursor-pointer transition-all duration-200 hover:text-primary/80 ease-in-out">
-          <DateSelectorValue placeholder="Select date" />
+          <DateSelectorValue placeholder={t('select-date')} />
         </Popover.Trigger>
         <Combobox.Content sideOffset={8} onClick={(e) => e.stopPropagation()}>
           <DateSelectorContent />

@@ -1,9 +1,10 @@
-import { Breadcrumb, Button, ToggleGroup } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconCheckbox } from '@tabler/icons-react';
-import { Link, useLocation } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { Breadcrumb, Button, ToggleGroup } from 'erxes-ui';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 export const TaskBreadCrump = ({ link }: { link: string }) => {
+  const { t } = useTranslation('operation');
   const { pathname } = useLocation();
   const { teamId } = useParams();
 
@@ -14,17 +15,17 @@ export const TaskBreadCrump = ({ link }: { link: string }) => {
           <Button variant="ghost" asChild>
             <Link to={link}>
               <IconCheckbox />
-              Tasks
+              {t('tasks')}
             </Link>
           </Button>
         </Breadcrumb.Item>
         <Breadcrumb.Separator />
         <ToggleGroup type="single" value={pathname}>
           <ToggleGroup.Item value="/operation/tasks" asChild>
-            <Link to="/operation/tasks">Assigned</Link>
+            <Link to="/operation/tasks">{t('assigned')}</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="/operation/tasks/created" asChild>
-            <Link to="/operation/tasks/created">Created</Link>
+            <Link to="/operation/tasks/created">{t('created')}</Link>
           </ToggleGroup.Item>
         </ToggleGroup>
       </>
@@ -36,7 +37,7 @@ export const TaskBreadCrump = ({ link }: { link: string }) => {
       <Button variant="ghost" asChild>
         <Link to={link}>
           <IconCheckbox />
-          Tasks
+          {t('tasks')}
         </Link>
       </Button>
     </Breadcrumb.Item>

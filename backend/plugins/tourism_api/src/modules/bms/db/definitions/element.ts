@@ -30,6 +30,7 @@ export const elementSchema = new Schema({
   images: { type: [String], optional: true, label: 'images' },
   itineraryId: { type: String, optional: true, label: 'itineraryId' },
   branchId: { type: String, optional: true, label: 'branchId' },
+  language: { type: String, optional: true, label: 'language' },
   location: {
     type: locationSchema,
     optional: true,

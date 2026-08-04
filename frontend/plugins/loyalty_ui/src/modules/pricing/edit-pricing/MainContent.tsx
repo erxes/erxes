@@ -1,14 +1,11 @@
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { Badge, Spinner } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { GeneralInfo } from '@/pricing/edit-pricing/components/general/GeneralInfo';
 import { OptionsInfo } from '@/pricing/edit-pricing/components/options/OptionsInfo';
-import { PriceInfo } from '@/pricing/edit-pricing/components/price/PriceInfo';
-import { QuantityInfo } from '@/pricing/edit-pricing/components/quantity/QuantityInfo';
-import { RepeatInfo } from '@/pricing/edit-pricing/components/repeat/RepeatInfo';
-import { ExpiryInfo } from '@/pricing/edit-pricing/components/expiry/ExpiryInfo';
-import { PricingDelete } from '@/pricing/components/PricingDelete';
+import { ParticipantsInfo } from '@/pricing/edit-pricing/components/participants/ParticipantsInfo';
+import { RulesInfo } from '@/pricing/edit-pricing/components/rules/RulesInfo';
 
 interface MainContentProps {
   activeStep: string;
@@ -16,6 +13,7 @@ interface MainContentProps {
   pricingDetail?: IPricingPlanDetail;
   loading: boolean;
   error?: Error;
+  onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
 export const PricingMainContent: React.FC<MainContentProps> = ({
@@ -24,48 +22,73 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
   pricingDetail,
   loading,
   error,
+  onSaveActionChange,
 }) => {
-  const navigate = useNavigate();
+  const { t } = useTranslation('loyalty');
 
-  const handleDeleteSuccess = () => {
-    navigate('/settings/pricing/');
-  };
   const renderContent = (): React.ReactNode => {
     switch (activeStep) {
       case 'general':
         return (
-          <GeneralInfo pricingId={pricingId} pricingDetail={pricingDetail} />
+          <GeneralInfo
+            pricingId={pricingId}
+            pricingDetail={pricingDetail}
+            onSaveActionChange={onSaveActionChange}
+          />
         );
       case 'options':
         return (
-          <OptionsInfo pricingId={pricingId} pricingDetail={pricingDetail} />
+          <OptionsInfo
+            pricingId={pricingId}
+            pricingDetail={pricingDetail}
+            onSaveActionChange={onSaveActionChange}
+          />
         );
-      case 'price':
+      case 'participants':
+        if (pricingDetail?.priority === 'posBase') {
+          return (
+            <GeneralInfo
+              pricingId={pricingId}
+              pricingDetail={pricingDetail}
+              onSaveActionChange={onSaveActionChange}
+            />
+          );
+        }
+
         return (
-          <PriceInfo pricingId={pricingId} pricingDetail={pricingDetail} />
+          <ParticipantsInfo
+            pricingId={pricingId}
+            pricingDetail={pricingDetail}
+            onSaveActionChange={onSaveActionChange}
+          />
         );
+      case 'rules':
+      case 'common':
       case 'quantity':
-        return (
-          <QuantityInfo pricingId={pricingId} pricingDetail={pricingDetail} />
-        );
-      case 'repeat':
-        return (
-          <RepeatInfo pricingId={pricingId} pricingDetail={pricingDetail} />
-        );
+      case 'price':
       case 'expiry':
         return (
-          <ExpiryInfo pricingId={pricingId} pricingDetail={pricingDetail} />
+          <RulesInfo
+            pricingId={pricingId}
+            pricingDetail={pricingDetail}
+            activeStep={activeStep}
+            onSaveActionChange={onSaveActionChange}
+          />
         );
       default:
         return (
-          <GeneralInfo pricingId={pricingId} pricingDetail={pricingDetail} />
+          <GeneralInfo
+            pricingId={pricingId}
+            pricingDetail={pricingDetail}
+            onSaveActionChange={onSaveActionChange}
+          />
         );
     }
   };
 
   if (loading) {
     return (
-      <div className="flex flex-1 justify-center items-center h-full">
+      <div className="flex items-center justify-center flex-1 h-full">
         <Spinner />
       </div>
     );
@@ -75,36 +98,27 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
     return (
       <div className="p-6 text-center">
         <p className="text-destructive">
-          Failed to load Pricing details: {error.message}
+          {t('failed-to-load-pricing-details', { message: error.message })}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex overflow-hidden flex-col flex-1 h-full">
-      <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-background shrink-0">
-        <div className="flex flex-1 gap-4 items-center min-w-0">
-          <h1 className="max-w-[300px] text-xl font-semibold truncate text-foreground">
-            {pricingDetail?.name || 'New Pricing'}
+    <div className="flex flex-col flex-1 h-full overflow-hidden">
+      <div className="flex items-center px-6 py-4 border-b border-border bg-background shrink-0">
+        <div className="flex w-fit max-w-full min-w-0 items-center gap-4">
+          <h1 className="min-w-0 whitespace-normal break-words text-xl font-semibold leading-7 text-foreground">
+            {pricingDetail?.name || t('new-pricing')}
           </h1>
 
           <Badge variant="secondary" className="text-xs shrink-0">
-            {pricingDetail?.applyType || 'N/A'}
+            {pricingDetail?.applyType || t('na')}
           </Badge>
-        </div>
-
-        <div className="flex gap-2 items-center shrink-0">
-          {pricingId && (
-            <PricingDelete
-              pricingIds={pricingId}
-              onDeleteSuccess={handleDeleteSuccess}
-            />
-          )}
         </div>
       </div>
 
-      <div className="overflow-y-auto flex-1 mb-12">{renderContent()}</div>
+      <div className="flex-1 mb-12 overflow-y-auto">{renderContent()}</div>
     </div>
   );
 };

@@ -2,11 +2,11 @@ import { useQuery, OperationVariables } from '@apollo/client';
 import { EXCHANGE_GET_RATE_QUERY } from '../graphql/queries/exchangeRate';
 
 export interface IExchangeRate {
-  _id: string
-  date: Date
-  mainCurrency: string
-  rateCurrency: string
-  rate: number
+  _id: string;
+  date: Date;
+  mainCurrency: string;
+  rateCurrency: string;
+  rate: number;
 }
 // exchangeGetRate(date: Date, currency: String, mainCurrency: String): ExchangeRate
 export const useGetExchangeRate = (options?: OperationVariables) => {

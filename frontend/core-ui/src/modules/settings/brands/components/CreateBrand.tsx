@@ -9,8 +9,10 @@ import {
   useScopedHotkeys,
   useSetHotkeyScope,
   useToast,
+  useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useBrandsForm } from '../hooks/useBrandsForm';
 import { useBrandsAdd } from '../hooks/useBrandsAdd';
 import { SubmitHandler } from 'react-hook-form';
@@ -21,8 +23,8 @@ import { useTranslation } from 'react-i18next';
 export const CreateBrand = () => {
   const { toast } = useToast();
   const { brandsAdd, loading } = useBrandsAdd();
-  const { t } = useTranslation('settings', { 
-    keyPrefix: 'brands'
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'brands',
   });
   const {
     methods,
@@ -30,6 +32,11 @@ export const CreateBrand = () => {
   } = useBrandsForm();
 
   const [_open, _setOpen] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [createParam] = useQueryState('create_brand');
+
+  const open = _open || !!createParam;
+
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
 
@@ -41,7 +48,20 @@ export const CreateBrand = () => {
   const onClose = () => {
     setHotkeyScope(BrandsHotKeyScope.BrandsSettingsPage);
     _setOpen(false);
+    if (createParam) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('create_brand');
+      setSearchParams(next);
+    }
   };
+
+  useEffect(() => {
+    if (createParam) {
+      setHotkeyScopeAndMemorizePreviousScope(
+        BrandsHotKeyScope.BrandsCreateSheet,
+      );
+    }
+  }, [createParam, setHotkeyScopeAndMemorizePreviousScope]);
 
   useScopedHotkeys(`c`, () => onOpen(), BrandsHotKeyScope.BrandsSettingsPage);
   useScopedHotkeys(`esc`, () => onClose(), BrandsHotKeyScope.BrandsCreateSheet);
@@ -56,7 +76,7 @@ export const CreateBrand = () => {
             title: t('brand-created-successfully'),
           });
           reset();
-          _setOpen(false);
+          onClose();
         },
         onError: (error) =>
           toast({
@@ -66,11 +86,11 @@ export const CreateBrand = () => {
           }),
       });
     },
-    [brandsAdd, toast, reset, _setOpen],
+    [brandsAdd, toast, reset, onClose],
   );
 
   return (
-    <Sheet open={_open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+    <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />

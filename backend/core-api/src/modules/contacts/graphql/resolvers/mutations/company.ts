@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { ICompany } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
@@ -9,8 +8,10 @@ export const companyMutations = {
   async companiesAdd(
     _parent: undefined,
     doc: ICompany,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsCreate');
+
     return await models.Companies.createCompany(doc, user);
   },
 
@@ -20,8 +21,10 @@ export const companyMutations = {
   async companiesEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & ICompany,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     return await models.Companies.updateCompany(_id, doc);
   },
 
@@ -31,8 +34,10 @@ export const companyMutations = {
   async companiesRemove(
     _parent: undefined,
     { companyIds }: { companyIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsDelete');
+
     await models.Companies.removeCompanies(companyIds);
 
     return companyIds;
@@ -47,14 +52,10 @@ export const companyMutations = {
       companyIds,
       companyFields,
     }: { companyIds: string[]; companyFields: ICompany },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsMerge');
+
     return models.Companies.mergeCompanies(companyIds, companyFields);
   },
 };
-
-checkPermission(companyMutations, 'companiesAdd', 'companiesAdd');
-checkPermission(companyMutations, 'companiesEdit', 'companiesEdit');
-checkPermission(companyMutations, 'companiesEditByField', 'companiesEdit');
-checkPermission(companyMutations, 'companiesRemove', 'companiesRemove');
-checkPermission(companyMutations, 'companiesMerge', 'companiesMerge');

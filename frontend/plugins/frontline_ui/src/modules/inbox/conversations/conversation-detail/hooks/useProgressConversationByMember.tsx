@@ -3,7 +3,6 @@ import { CONVERSATION_MEMBER_PROGRESS } from '@/inbox/conversations/conversation
 import { IConversationMemberProgress } from '@/inbox/types/Conversation';
 import { useEffect } from 'react';
 import { CONVERSATION_CHANGED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
-import { useQueryState } from 'erxes-ui';
 
 interface IGetConversationMemberProgressResponse {
   conversationMemberProgress: IConversationMemberProgress[];
@@ -18,8 +17,6 @@ export const useGetConversationMemberProgress = (
     IGetConversationMemberProgressVariables
   >,
 ) => {
-  const [assignee] = useQueryState<string>('assignee');
-
   const { data, loading, refetch, subscribeToMore } = useQuery<
     IGetConversationMemberProgressResponse,
     IGetConversationMemberProgressVariables
@@ -39,7 +36,7 @@ export const useGetConversationMemberProgress = (
     return () => {
       unsubscribe();
     };
-  }, [options.variables?.customerId, subscribeToMore, refetch, assignee]);
+  }, [options.variables?.customerId, subscribeToMore, refetch]);
 
   return {
     conversationMemberProgress,

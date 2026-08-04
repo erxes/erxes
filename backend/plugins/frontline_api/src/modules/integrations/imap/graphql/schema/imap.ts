@@ -1,7 +1,6 @@
 export const types = `
   type IMap {
     _id: String!
-    title: String
     mailData: JSON
     createdAt: Date
   }
@@ -13,7 +12,8 @@ export const types = `
     smtpPort: String
     mainUser: String
     user: String
-    password: String
+    healthStatus: String
+    error: String
   }
 `;
 
@@ -35,11 +35,6 @@ export const mutations = `
     from: String!
     shouldResolve: Boolean
     shouldOpen: Boolean
-    headerId: String
-    replyTo: [String]
-    inReplyTo: String
-    threadId: String
-    messageId: String
     replyToMessageId: String
     references: [String]
     attachments: [JSON]

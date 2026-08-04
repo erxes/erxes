@@ -1,21 +1,37 @@
-import {
-  NotificationOrderByT,
-  NotificationPriorityT,
-  NotificationTypeT,
-} from '@/notification/types/notifications';
 import { parseDateRangeFromString, useNonNullMultiQueryState } from 'erxes-ui';
-import { NotificationStatusT } from '@/notification/types/notifications';
+import {
+  TNotificationOrderBy,
+  TNotificationPriority,
+  TNotificationStatus,
+  TNotificationType,
+} from 'ui-modules';
 
 export const useNotificationFilters = () => {
-  const { notificationStatus: status, notificationPriority: priority, notificationType: type, notificationCreatedAt: createdAt, notificationOrderBy: orderBy, notificationFromUserId: fromUserId } =
-    useNonNullMultiQueryState<{
-      notificationStatus: NotificationStatusT;
-      notificationPriority: NotificationPriorityT;
-      notificationType: NotificationTypeT;
-      notificationCreatedAt: string;
-      notificationOrderBy: NotificationOrderByT;
-      notificationFromUserId: string;
-    }>(['notificationStatus', 'notificationType', 'notificationPriority', 'notificationCreatedAt', 'notificationOrderBy', 'notificationFromUserId']);
+  const {
+    notificationStatus: status,
+    notificationPriority: priority,
+    notificationType: type,
+    notificationCreatedAt: createdAt,
+    notificationOrderBy: orderBy,
+    notificationFromUserId: fromUserId,
+    notificationModule: module,
+  } = useNonNullMultiQueryState<{
+    notificationStatus: TNotificationStatus;
+    notificationPriority: TNotificationPriority;
+    notificationType: TNotificationType;
+    notificationCreatedAt: string;
+    notificationOrderBy: TNotificationOrderBy;
+    notificationFromUserId: string;
+    notificationModule: string;
+  }>([
+    'notificationStatus',
+    'notificationType',
+    'notificationPriority',
+    'notificationCreatedAt',
+    'notificationOrderBy',
+    'notificationFromUserId',
+    'notificationModule',
+  ]);
 
   const orderByFilter = () => {
     if (orderBy === 'old') {
@@ -36,5 +52,6 @@ export const useNotificationFilters = () => {
     endDate: parseDateRangeFromString(createdAt)?.to,
     ...(Object.keys(orderByValue).length > 0 && { orderBy: orderByValue }),
     fromUserId,
+    module,
   };
 };

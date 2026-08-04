@@ -20,7 +20,7 @@ export const useDocument = () => {
     skip: !cleanDocumentId,
   });
 
-  const document = data?.documentsDetail || {};
+  const document = data?.documentsDetail || null;
 
   useEffect(() => {
     if (data?.documentsDetail) {
@@ -54,7 +54,7 @@ export const useDocument = () => {
           return cache.modify({
             id: docId,
             fields: Object.keys(document || {}).reduce((fields: any, field) => {
-              fields[field] = () => (document || {})[field];
+              fields[field] = () => document?.[field];
               return fields;
             }, {}),
           });
@@ -93,6 +93,7 @@ export const useDocument = () => {
 
   return {
     document,
+    documentId: cleanDocumentId,
     documentSave,
     loading,
     saving,

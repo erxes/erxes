@@ -38,7 +38,7 @@ const useHandlePayment = () => {
       value = ((Number(val) / 100) * totalAmount).toFixed(1)
     }
 
-    const numericValue = parseFloat(
+    const numericValue = Number.parseFloat(
       value.replace(
         HARD_PAYMENT_TYPES.includes(type) ? /[^0-9.]/g : /[^0-9.-]/g,
         ""

@@ -1,28 +1,47 @@
+import { IVoucher, IVoucherParams } from '@/voucher/@types/voucher';
 import { IContext } from '~/connectionResolvers';
-import { IVoucher } from '~/modules/voucher/@types/voucher';
+import { IBuyParams } from '~/utils';
 
 export const voucherMutations = {
-  createVoucher: async (
-    _parent: undefined,
-    doc: IVoucher,
-    { models, user }: IContext,
-  ) => {
-    return models.Voucher.createVoucher(doc, user);
+  async vouchersAdd(_root: undefined, doc: IVoucher, { models, checkPermission }: IContext) {
+    await checkPermission('voucherCreate');
+    return models.Vouchers.createVoucher(doc);
   },
 
-  updateVoucher: async (
-    _parent: undefined,
-    { _id, ...doc }: { _id: string } & IVoucher,
-    { models, user }: IContext,
-  ) => {
-    return models.Voucher.updateVoucher(_id, doc, user);
+  async vouchersAddMany(_root: undefined, doc: IVoucher, { models, checkPermission }: IContext) {
+    await checkPermission('voucherCreate');
+    return models.Vouchers.createVouchers(doc);
   },
 
-  removeVoucher: async (
-    _parent: undefined,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) => {
-    return models.Voucher.removeVoucher(_id);
+  async vouchersEdit(
+    _root: undefined,
+    { _id, ...doc }: IVoucher & { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('voucherEdit');
+    return models.Vouchers.updateVoucher(_id, { ...doc, userId: user._id });
+  },
+
+  async vouchersRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('voucherRemove');
+    return models.Vouchers.removeVouchers(_ids);
+  },
+
+  async vouchersRemoveByFilter(
+    _root: undefined,
+    params: IVoucherParams,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('voucherRemove');
+    return models.Vouchers.removeVouchersByFilter(params);
+  },
+
+  async buyVoucher(_root: undefined, param: IBuyParams, { models, checkPermission }: IContext) {
+    await checkPermission('voucherBuy');
+    return models.Vouchers.buyVoucher(param);
   },
 };

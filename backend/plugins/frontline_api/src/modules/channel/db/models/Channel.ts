@@ -1,13 +1,14 @@
-import { FilterQuery, Model } from 'mongoose';
-import { IModels } from '~/connectionResolvers';
-import { channelSchema } from '@/channel/db/definitions/channel';
 import {
   ChannelMemberRoles,
   IChannel,
   IChannelDocument,
   IChannelFilter,
+  IChannelMember,
 } from '@/channel/@types/channel';
-import { IChannelMember } from '@/channel/@types/channel';
+import { channelSchema } from '@/channel/db/definitions/channel';
+import { FilterQuery, Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+
 export interface IChannelModel extends Model<IChannelDocument> {
   getChannel(_id: string): Promise<IChannelDocument>;
   getChannels(params: IChannelFilter): Promise<IChannelDocument[]>;
@@ -21,9 +22,16 @@ export interface IChannelModel extends Model<IChannelDocument> {
     adminId: string;
     memberIds: string[];
   }): Promise<IChannelDocument>;
-  updateChannel(_id: string, doc: IChannel, userId: string): IChannelDocument;
-  updateUserChannels(channelIds: string[], userId: string): IChannelDocument[];
-  removeChannel(_id: string): void;
+  updateChannel(
+    _id: string,
+    doc: IChannel,
+    userId: string,
+  ): Promise<IChannelDocument>;
+  updateUserChannels(
+    channelIds: string[],
+    userId: string,
+  ): Promise<IChannelDocument[]>;
+  removeChannel(_id: string): Promise<void>;
 }
 
 export const loadChannelClass = (models: IModels) => {

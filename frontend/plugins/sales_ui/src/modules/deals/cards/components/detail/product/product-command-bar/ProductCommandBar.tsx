@@ -1,23 +1,17 @@
-import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 
-import { IconPlus } from '@tabler/icons-react';
-import { PrintDocument } from 'ui-modules';
 import { ProductsDelete } from './ProductDelete';
+import { useTranslation } from 'react-i18next';
 
-export const ProductCommandBar = ({
-  refetch,
-  dealId,
-}: {
-  refetch: () => void;
-  dealId: string;
-}) => {
+export const ProductCommandBar = ({ refetch }: { refetch: () => void }) => {
   const { table } = RecordTable.useRecordTable();
+  const { t } = useTranslation('sales');
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ProductsDelete
@@ -25,19 +19,6 @@ export const ProductCommandBar = ({
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original._id)}
           refetch={refetch}
-          dealId={dealId}
-        />
-        <Separator.Inline />
-        <Button variant="secondary">
-          <IconPlus />
-          Create
-        </Button>
-
-        <PrintDocument
-          items={table
-            .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original)}
-          contentType="core:product"
         />
       </CommandBar.Bar>
     </CommandBar>

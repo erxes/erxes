@@ -1,4 +1,9 @@
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IRelation, IRelationDocument } from 'erxes-api-shared/core-types';
+import {
+  generateRelationActivityLogs,
+  RelationEntityPair,
+} from '@/relations/meta/activity-log';
 import lodash from 'lodash';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -18,6 +23,13 @@ export interface IRelationModel extends Model<IRelationDocument> {
     doc: IRelation;
   }) => Promise<IRelationDocument>;
   deleteRelation: ({ _id }: { _id: string }) => Promise<IRelationDocument>;
+  cleanRelation: ({
+    contentType,
+    contentIds,
+  }: {
+    contentType: string;
+    contentIds: string[];
+  }) => Promise<string>;
   getRelationsByEntity: ({
     contentType,
     contentId,
@@ -44,14 +56,22 @@ export interface IRelationModel extends Model<IRelationDocument> {
     relatedContentType: string;
   }) => Promise<IRelationDocument[]>;
   getRelationIds: ({
-    contentType, contentId, relatedContentType
+    contentType,
+    contentId,
+    relatedContentType,
   }: {
-    contentType: string, contentId: string, relatedContentType: string
+    contentType: string;
+    contentId: string;
+    relatedContentType: string;
   }) => Promise<string[]>;
   filterRelationIds: ({
-    contentType, contentIds, relatedContentType
+    contentType,
+    contentIds,
+    relatedContentType,
   }: {
-    contentType: string, contentIds: string[], relatedContentType: string
+    contentType: string;
+    contentIds: string[];
+    relatedContentType: string;
   }) => Promise<string[]>;
   createMultipleRelations: ({
     relations,
@@ -71,10 +91,29 @@ export interface IRelationModel extends Model<IRelationDocument> {
   }) => Promise<IRelationDocument[]>;
 }
 
-export const loadRelationClass = (models: IModels) => {
+export const loadRelationClass = (
+  models: IModels,
+  { createActivityLog, getContext }: EventDispatcherReturn,
+) => {
+  const toEntityPairs = (relations: IRelation[]): RelationEntityPair[] =>
+    relations
+      .filter(({ entities = [] }) => entities.length >= 2)
+      .map(({ entities: [entity, relatedEntity] }) => [entity, relatedEntity]);
+
   class Relation {
     public static async createRelation({ relation }: { relation: IRelation }) {
-      return models.Relations.create(relation);
+      const created = await models.Relations.create(relation);
+      const { subdomain, userId } = getContext();
+
+      await generateRelationActivityLogs({
+        subdomain,
+        userId,
+        createActivityLog,
+        added: toEntityPairs([relation]),
+        removed: [],
+      });
+
+      return created;
     }
 
     public static async createMultipleRelations({
@@ -82,7 +121,18 @@ export const loadRelationClass = (models: IModels) => {
     }: {
       relations: IRelation[];
     }) {
-      return models.Relations.insertMany(relations);
+      const created = await models.Relations.insertMany(relations);
+      const { subdomain, userId } = getContext();
+
+      await generateRelationActivityLogs({
+        subdomain,
+        userId,
+        createActivityLog,
+        added: toEntityPairs(relations),
+        removed: [],
+      });
+
+      return created;
     }
 
     public static async updateRelation({
@@ -97,6 +147,24 @@ export const loadRelationClass = (models: IModels) => {
 
     public static async deleteRelation({ _id }: { _id: string }) {
       return models.Relations.deleteOne({ _id });
+    }
+
+    public static async cleanRelation({
+      contentType,
+      contentIds,
+    }: {
+      contentType: string;
+      contentIds: string[];
+    }) {
+      await models.Relations.deleteMany({
+        entities: {
+          $elemMatch: {
+            contentType: contentType,
+            contentId: { $in: contentIds },
+          },
+        },
+      });
+      return 'success';
     }
 
     public static async getRelationsByEntity({
@@ -176,26 +244,52 @@ export const loadRelationClass = (models: IModels) => {
     }
 
     public static async getRelationIds({
-      contentType, contentId, relatedContentType
+      contentType,
+      contentId,
+      relatedContentType,
     }: {
-      contentType: string, contentId: string, relatedContentType: string
+      contentType: string;
+      contentId: string;
+      relatedContentType: string;
     }) {
-      const relations = await models.Relations.getRelationsByEntity({ contentType, contentId, relatedContentType });
-      return lodash.uniq(relations.map(r => (
-        r.entities.find(e => e.contentType === relatedContentType && e.contentId)?.contentId ?? ''
-      )));
+      const relations = await models.Relations.getRelationsByEntity({
+        contentType,
+        contentId,
+        relatedContentType,
+      });
+      return lodash.uniq(
+        relations.map(
+          (r) =>
+            r.entities.find(
+              (e) => e.contentType === relatedContentType && e.contentId,
+            )?.contentId ?? '',
+        ),
+      );
     }
 
     public static async filterRelationIds({
-      contentType, contentIds, relatedContentType
+      contentType,
+      contentIds,
+      relatedContentType,
     }: {
-      contentType: string, contentIds: string[], relatedContentType: string
+      contentType: string;
+      contentIds: string[];
+      relatedContentType: string;
     }) {
-      const relations = await models.Relations.filterRelations({ contentType, contentIds, relatedContentType })
+      const relations = await models.Relations.filterRelations({
+        contentType,
+        contentIds,
+        relatedContentType,
+      });
 
-      return lodash.uniq(relations.map(r => (
-        r.entities.find(e => e.contentType === relatedContentType && e.contentId)?.contentId ?? ''
-      )));
+      return lodash.uniq(
+        relations.map(
+          (r) =>
+            r.entities.find(
+              (e) => e.contentType === relatedContentType && e.contentId,
+            )?.contentId ?? '',
+        ),
+      );
     }
 
     public static async manageRelations({
@@ -209,15 +303,31 @@ export const loadRelationClass = (models: IModels) => {
       relatedContentType: string;
       relatedContentIds: string[];
     }) {
-      const existingRels = await models.Relations.getRelationsByEntity({ contentType, contentId, relatedContentType });
+      const { subdomain, userId } = getContext();
+      const existingRels = await models.Relations.getRelationsByEntity({
+        contentType,
+        contentId,
+        relatedContentType,
+      });
 
-      const existingRelIds: string[] = lodash.uniq(existingRels.map(r => (
-        r.entities.find(e => e.contentType === relatedContentType && e.contentId)?.contentId ?? ''
-      )));
+      const existingRelIds: string[] = lodash.uniq(
+        existingRels.map(
+          (r) =>
+            r.entities.find(
+              (e) => e.contentType === relatedContentType && e.contentId,
+            )?.contentId ?? '',
+        ),
+      );
 
       const relContentIds: string[] = lodash.uniq(relatedContentIds);
-      const toCreateRelIds: string[] = lodash.difference(relContentIds, existingRelIds);
-      const toDeleteRelIds: string[] = lodash.difference(existingRelIds, relContentIds);
+      const toCreateRelIds: string[] = lodash.difference(
+        relContentIds,
+        existingRelIds,
+      );
+      const toDeleteRelIds: string[] = lodash.difference(
+        existingRelIds,
+        relContentIds,
+      );
 
       if (toDeleteRelIds.length) {
         await models.Relations.deleteMany({
@@ -234,7 +344,7 @@ export const loadRelationClass = (models: IModels) => {
               entities: {
                 $elemMatch: {
                   contentType: relatedContentType,
-                  contentId: { $in: toDeleteRelIds }
+                  contentId: { $in: toDeleteRelIds },
                 },
               },
             },
@@ -243,14 +353,34 @@ export const loadRelationClass = (models: IModels) => {
       }
 
       if (toCreateRelIds.length) {
-        await models.Relations.insertMany(toCreateRelIds.map(relId => ({
-          entities: [
-            { contentType, contentId },
-            { contentType: relatedContentType, contentId: relId }
-          ]
-        })));
+        await models.Relations.insertMany(
+          toCreateRelIds.map((relId) => ({
+            entities: [
+              { contentType, contentId },
+              { contentType: relatedContentType, contentId: relId },
+            ],
+          })),
+        );
       }
-      return models.Relations.getRelationsByEntity({ contentType, contentId, relatedContentType })
+
+      const toPair = (relatedContentId: string): RelationEntityPair => [
+        { contentType, contentId },
+        { contentType: relatedContentType, contentId: relatedContentId },
+      ];
+
+      await generateRelationActivityLogs({
+        subdomain,
+        userId,
+        createActivityLog,
+        added: toCreateRelIds.map(toPair),
+        removed: toDeleteRelIds.map(toPair),
+      });
+
+      return models.Relations.getRelationsByEntity({
+        contentType,
+        contentId,
+        relatedContentType,
+      });
     }
   }
 

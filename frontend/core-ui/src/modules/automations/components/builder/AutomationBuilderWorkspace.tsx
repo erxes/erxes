@@ -1,34 +1,27 @@
 import { AutomationBuilderCanvas } from '@/automations/components/builder/AutomationBuilderCanvas';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationsHotKeyScope } from '@/automations/types';
-import {
-  Icon,
-  // IconLayoutBottombarExpand,
-  IconLayoutSidebarRightExpand,
-  IconProps,
-} from '@tabler/icons-react';
+import { Icon, IconProps } from '@tabler/icons-react';
 import {
   Badge,
   Button,
   Command,
-  // PageSubHeader,
   Resizable,
   Spinner,
   Tooltip,
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useAutomationBilderWorkSpace } from '@/automations/components/builder/hooks/useAutomationBilderWorkSpace';
+import { WorkflowEditView } from '@/automations/components/builder/nodes/components/WorkflowEditView';
+import { AutomationBuilderSidebar } from './sidebar/components/AutomationBuilderSidebar';
 
 export const AutomationBuilderWorkspace = () => {
-  const { loading } = useAutomation();
+  const { loading, editingWorkflowId } = useAutomation();
 
   const {
-    // isPanelOpen,
-    // togglePanelOpen,
-    isOpenSideBar,
-    toggleSideBarOpen,
     onOpen,
-    isMac,
+    // isMac,
+    // isPanelOpen,
   } = useAutomationBilderWorkSpace();
 
   useScopedHotkeys(`mod+i`, () => onOpen(), AutomationsHotKeyScope.Builder);
@@ -36,37 +29,28 @@ export const AutomationBuilderWorkspace = () => {
     return <Spinner />;
   }
   return (
-    <Resizable.PanelGroup direction="vertical" className="w-full h-full">
+    <Resizable.PanelGroup
+      direction="vertical"
+      className="h-full min-h-0 w-full"
+    >
       {/* Canvas */}
       <Resizable.Panel
         id="main-canvas"
         minSize={30}
-        className="relative flex flex-row w-full"
+        className="relative flex min-h-0 w-full flex-row overflow-hidden"
       >
-        <AutomationBuilderCanvas />
-        <div className="bg-sidebar border-l h-full w-16 flex flex-col gap-2 items-center pt-2">
-          <AutomationBuilderPanelToggle
-            isOpen={isOpenSideBar}
-            onToggle={toggleSideBarOpen}
-            openLabel="Hide Menu"
-            closedLabel="Show Menu"
-            shortcut={`${isMac ? '⌘' : 'Ctrl'}G`}
-            IconComponent={IconLayoutSidebarRightExpand}
-          />
-          {/* TODO: Add inspector panel when it is implemented */}
-          {/* <AutomationBuilderPanelToggle
-            isOpen={isPanelOpen}
-            onToggle={togglePanelOpen}
-            openLabel="Hide Inspect"
-            closedLabel="Show Inspect"
-            shortcut={`${isMac ? '⌘' : 'Ctrl'}I`}
-            IconComponent={IconLayoutBottombarExpand}
-          /> */}
-        </div>
+        {editingWorkflowId ? (
+          <WorkflowEditView workflowId={editingWorkflowId} />
+        ) : (
+          <>
+            <AutomationBuilderCanvas />
+            <AutomationBuilderSidebar />
+          </>
+        )}
       </Resizable.Panel>
 
       {/* TODO: Add inspector panel when it is implemented */}
-      {/* {isPanelOpen && (
+      {/* {isPanelOpen && editingWorkflowId && (
         <>
           <Resizable.Handle />
 
@@ -76,14 +60,7 @@ export const AutomationBuilderWorkspace = () => {
             minSize={5}
             className="bg-background"
           >
-            <PageSubHeader>Inspect</PageSubHeader>
-            <Resizable.PanelGroup direction="horizontal">
-              <Resizable.Panel minSize={20} maxSize={50} defaultSize={30}>
-                Executions
-              </Resizable.Panel>
-              <Resizable.Handle />
-              <Resizable.Panel> Outputs</Resizable.Panel>
-            </Resizable.PanelGroup>
+            <WorkflowEditView workflowId={editingWorkflowId} />
           </Resizable.Panel>
         </>
       )} */}
@@ -113,11 +90,10 @@ const AutomationBuilderPanelToggle = ({
       <Tooltip.Trigger asChild>
         <Button
           variant="ghost"
-          className="bg-sidebar text-primary"
+          className="bg-sidebar text-primary w-full aspect-square size-16 [&>svg]:size-5"
           onClick={onToggle}
-          asChild
         >
-          <IconComponent className="size-16" />
+          <IconComponent />
         </Button>
       </Tooltip.Trigger>
       <Tooltip.Content

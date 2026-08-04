@@ -1,7 +1,7 @@
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { AutomationCoreActionSidebarContent } from '@/automations/components/builder/sidebar/components/content/action/AutomationCoreActionSidebarContent';
 import { useAutomationActionContentSidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationActionContentSidebar';
-import { ErrorState } from '@/automations/components/common/ErrorState';
+import { AutomationErrorState } from '@/automations/components/common/AutomationErrorState';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 import { Card, Spinner, toast } from 'erxes-ui';
 import { Suspense, useRef } from 'react';
@@ -45,10 +45,11 @@ export const AutomationActionContentSidebar = () => {
         <Suspense fallback={<Spinner />}>
           <ErrorBoundary
             FallbackComponent={({ resetErrorBoundary }) => (
-              <ErrorState onRetry={resetErrorBoundary} />
+              <AutomationErrorState onRetry={resetErrorBoundary} />
             )}
           >
             <RenderPluginsComponentWrapper
+              key={currentAction.id}
               pluginName={pluginName}
               moduleName={moduleName}
               props={{
@@ -69,6 +70,7 @@ export const AutomationActionContentSidebar = () => {
 
   return (
     <AutomationCoreActionSidebarContent
+      key={currentAction.id}
       currentIndex={currentIndex}
       currentAction={currentAction}
       onSaveActionConfig={onSaveActionConfig}

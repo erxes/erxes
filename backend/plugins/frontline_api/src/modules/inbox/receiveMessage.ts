@@ -1,8 +1,15 @@
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  AUTOMATED_REPLY_STATUS,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
+import {
+  graphqlPubsub,
+  RPError,
+  RPResult,
+  RPSuccess,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
-import { RPError, RPResult, RPSuccess } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 const sendError = (message): RPError => ({
   status: 'error',
@@ -13,6 +20,34 @@ const sendSuccess = (data): RPSuccess => ({
   status: 'success',
   data,
 });
+
+const getAutomatedReplyStatus = (status: unknown) => {
+  switch (status) {
+    case AUTOMATED_REPLY_STATUS.ACTIVE:
+      return AUTOMATED_REPLY_STATUS.ACTIVE;
+    case AUTOMATED_REPLY_STATUS.HANDOFF_REQUESTED:
+      return AUTOMATED_REPLY_STATUS.HANDOFF_REQUESTED;
+    case AUTOMATED_REPLY_STATUS.HUMAN_ACTIVE:
+      return AUTOMATED_REPLY_STATUS.HUMAN_ACTIVE;
+    default:
+      return undefined;
+  }
+};
+
+const getAutomatedReplyReason = (reason: unknown) => {
+  switch (reason) {
+    case 'customer_requested':
+      return 'customer_requested';
+    case 'operator_reply':
+      return 'operator_reply';
+    case 'manual':
+      return 'manual';
+    case 'timeout_expired':
+      return 'timeout_expired';
+    default:
+      return undefined;
+  }
+};
 
 /*
  * Handle requests from integrations api
@@ -99,13 +134,17 @@ export const receiveInboxMessage = async (
       conversationId,
       content,
       owner,
+      userId,
       updatedAt,
       integrationId,
       customerId,
     } = doc;
     let user;
 
-    if (owner) {
+    // If a direct userId is provided, use it; otherwise look up by operatorPhone
+    let assignedUserId: string | null = userId || null;
+
+    if (!assignedUserId && owner) {
       user = await sendTRPCMessage({
         subdomain,
 
@@ -119,27 +158,23 @@ export const receiveInboxMessage = async (
           },
         },
       });
+      assignedUserId = user ? user._id : null;
     }
 
-    let assignedUserId = user ? user._id : null;
-
     if (conversationId) {
-      if (!assignedUserId) {
-        const existingConversation = await Conversations.findOne({
-          $and: [{ _id: conversationId }, { integrationId: integrationId }],
-        }).lean();
-
-        assignedUserId = existingConversation?.assignedUserId || null;
-      }
-
       const conversation = await Conversations.findOne({
-        $and: [{ _id: conversationId }, { integrationId: integrationId }],
+        _id: conversationId,
       }).lean();
+
+      if (!assignedUserId) {
+        assignedUserId = conversation?.assignedUserId || null;
+      }
 
       if (conversation) {
         const updatedDoc = {
           content,
           assignedUserId,
+          integrationId,
           updatedAt,
 
           readUserIds: [],
@@ -169,6 +204,55 @@ export const receiveInboxMessage = async (
     const conversation = await Conversations.createConversation(doc);
 
     return sendSuccess({ _id: conversation._id });
+  }
+
+  if (action === 'ensure-automated-reply-control') {
+    if (!doc.conversationId) {
+      return sendError('conversationId is required');
+    }
+
+    const conversation = await Conversations.findOne({
+      _id: doc.conversationId,
+    });
+
+    if (!conversation) {
+      return sendError(`Conversation not found: ${doc.conversationId}`);
+    }
+
+    if (!conversation.automatedReplyControl) {
+      await Conversations.setAutomatedReplyControl(doc.conversationId, {
+        status: AUTOMATED_REPLY_STATUS.ACTIVE,
+      });
+    }
+
+    return sendSuccess({ _id: doc.conversationId });
+  }
+
+  if (action === 'set-automated-reply-control') {
+    if (!doc.conversationId) {
+      return sendError('conversationId is required');
+    }
+
+    const automatedReplyStatus = getAutomatedReplyStatus(doc.status);
+
+    if (!automatedReplyStatus) {
+      return sendError('Invalid automated reply status');
+    }
+
+    const conversation = await Conversations.setAutomatedReplyControl(
+      doc.conversationId,
+      {
+        status: automatedReplyStatus,
+        pausedUntil: doc.pausedUntil ? new Date(doc.pausedUntil) : undefined,
+        reason: getAutomatedReplyReason(doc.reason),
+        updatedBy: doc.updatedBy,
+      },
+    );
+
+    return sendSuccess({
+      _id: conversation?._id,
+      automatedReplyControl: conversation?.automatedReplyControl,
+    });
   }
 
   if (action === 'create-conversation-message') {

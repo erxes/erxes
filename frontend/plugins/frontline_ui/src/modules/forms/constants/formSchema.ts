@@ -1,12 +1,34 @@
 import { IAttachment } from 'erxes-ui';
 import { z } from 'zod';
 
+const FIELD_VALIDATOR_SCHEMA = z
+  .object({
+    type: z.enum(['PRESET', 'CUSTOM', 'NONE']),
+    presetKey: z
+      .enum([
+        'EMAIL',
+        'PHONE',
+        'POSTAL_CODE',
+        'ALPHANUMERIC',
+        'MN_VEHICLE_REGISTRATION',
+        'NUMBER',
+        'DATE',
+        'DATE_TIME',
+      ])
+      .nullish(),
+    customRegex: z.string().nullish(),
+    errorMessage: z.string().nullish(),
+  })
+  .nullish();
+
 export const FORM_GENERAL_SCHEMA = z.object({
   primaryColor: z.string(),
   appearance: z.string(),
+  loadType: z.string(),
   title: z.string(),
   description: z.string(),
   buttonText: z.string(),
+  channelId: z.string(),
 });
 
 export const FORM_CONFIRMATION_SCHEMA = z.object({
@@ -28,13 +50,25 @@ export const FORM_CONTENT_SCHEMA = z.object({
           type: z.string(),
           label: z.string(),
           description: z.string(),
-          placeholder: z.string(),
+          placeholder: z.string().optional(),
           options: z.array(z.string()),
           span: z.number().optional().default(1),
           required: z.boolean().optional().default(false),
           order: z.number().optional().default(0),
           stepId: z.string(),
           validation: z.string().optional().default('').nullable(),
+          logics: z
+            .array(
+              z.object({
+                fieldId: z.string(),
+                logicOperator: z.string().nullish(),
+                logicValue: z.any().optional(),
+              }),
+            )
+            .optional(),
+          logicAction: z.string().optional().default(''),
+          allowSearch: z.boolean().optional().default(false),
+          validator: FIELD_VALIDATOR_SCHEMA.optional(),
         }),
       ),
     }),

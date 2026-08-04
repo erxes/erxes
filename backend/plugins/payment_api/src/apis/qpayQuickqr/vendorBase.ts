@@ -47,19 +47,9 @@ export class VendorBaseAPI {
 
   private async handleResponse<T>(response: Response): Promise<T> {
     const data = await response.json();
-    console.debug('API Response:', {
-      status: response.status,
-      statusText: response.statusText,
-      data
-    });
 
     if (!response.ok) {
       const error = data as ErrorResponse;
-      console.debug('API Error:', {
-        status: response.status,
-        error: error.message || error.error,
-        code: error.code
-      });
       throw new Error(error.message || error.error || 'Unknown error occurred');
     }
 
@@ -68,7 +58,6 @@ export class VendorBaseAPI {
 
   async authenticate(): Promise<string> {
     try {
-      console.debug('Authenticating with QuickQR API...');
       const response = await fetch(this.apiUrl + '/' + meta.paths.auth, {
         method: 'POST',
         body: JSON.stringify({ terminal_id: '95000059' }),
@@ -82,11 +71,6 @@ export class VendorBaseAPI {
 
       const authData = await this.handleResponse<AuthResponse>(response);
       const { access_token, refresh_token, expires_in } = authData;
-
-      console.debug('Authentication successful', {
-        expiresIn: expires_in,
-        hasRefreshToken: !!refresh_token
-      });
 
       this.accessToken = access_token;
 
@@ -106,17 +90,14 @@ export class VendorBaseAPI {
 
       return access_token;
     } catch (error) {
-      console.debug('Authentication failed:', error.message);
       throw new Error(`Authentication failed: ${error.message}`);
     }
   }
 
   async refreshToken(): Promise<string> {
-    console.debug('Attempting to refresh token...');
     const cachedData = await redis.get('qpay_merchant_data');
 
     if (!cachedData) {
-      console.debug('No cached data found, performing fresh authentication');
       return await this.authenticate();
     }
 
@@ -135,11 +116,6 @@ export class VendorBaseAPI {
       const authData = await this.handleResponse<AuthResponse>(response);
       const { access_token, refresh_token, expires_in } = authData;
 
-      console.debug('Token refresh successful', {
-        expiresIn: expires_in,
-        hasRefreshToken: !!refresh_token
-      });
-
       const data = {
         access_token,
         refresh_token,
@@ -157,7 +133,6 @@ export class VendorBaseAPI {
 
       return access_token;
     } catch (error) {
-      console.debug('Token refresh failed:', error.message);
       throw new Error(`Token refresh failed: ${error.message}`);
     }
   }
@@ -166,13 +141,6 @@ export class VendorBaseAPI {
     const { method, path, params, data } = args;
 
     try {
-      console.debug('Making API request:', {
-        method,
-        path,
-        params,
-        hasData: !!data
-      });
-
       const token = await this.authenticate();
 
       const headers: HeadersInit = {
@@ -197,19 +165,10 @@ export class VendorBaseAPI {
         });
       }
 
-      console.debug('Request URL:', url.toString());
-
       const response = await fetch(url.toString(), requestOptions);
       return await this.handleResponse<T>(response);
     } catch (error) {
-      console.debug('Request failed:', {
-        error: error.message,
-        path,
-        method
-      });
-
       if (error.message.includes('Unauthorized')) {
-        console.debug('Unauthorized error, attempting token refresh');
         await this.refreshToken();
         return await this.makeRequest(args);
       }

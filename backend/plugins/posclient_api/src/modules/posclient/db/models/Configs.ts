@@ -1,22 +1,65 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import {
   IConfig,
   IConfigDocument,
   IProductsConfig,
   IProductsConfigDocument,
 } from '@/posclient/@types/configs';
+import type { IModels } from '~/connectionResolvers';
 import { productsConfigSchema, configSchema } from '../definitions/configs';
 
 export interface IConfigModel extends Model<IConfigDocument> {
   createConfig(token: string, name: string): Promise<IConfigDocument>;
-  getConfig(query: any): Promise<IConfigDocument>;
+  getConfig(query: FilterQuery<IConfigDocument>): Promise<IConfigDocument>;
   removeConfig(_id: string): Promise<IConfigDocument>;
   updateConfig(_id: string, doc: IConfig): Promise<IConfigDocument>;
 }
 
-export const loadConfigClass = (models) => {
+const removeConfigRelatedDocuments = async (
+  models: IModels,
+  config: IConfigDocument,
+) => {
+  const { _id, token } = config;
+  const userIds = [...(config.adminIds || []), ...(config.cashierIds || [])];
+  const orderSelector = {
+    $or: [{ posToken: token }, { subToken: token }],
+  };
+  const orders = await models.Orders.find(orderSelector, { _id: 1 }).lean();
+  const orderIds = orders.map((order) => order._id);
+
+  await models.PosUsers.updateMany(
+    { _id: { $in: userIds }, tokens: token },
+    { $pull: { tokens: token } },
+  );
+  await models.PosUsers.deleteMany({ tokens: { $size: 0 } });
+
+  await models.Covers.deleteMany({ posToken: token });
+  await models.PosSlots.deleteMany({ posToken: token });
+
+  await models.ProductCategories.updateMany(
+    { tokens: token },
+    { $pull: { tokens: token } },
+  );
+  await models.ProductCategories.deleteMany({ tokens: { $size: 0 } });
+
+  await models.Products.updateMany(
+    { tokens: token },
+    { $pull: { tokens: token } },
+  );
+  await models.Products.deleteMany({ tokens: { $size: 0 } });
+
+  await models.PutResponses.deleteMany({
+    $or: [{ posToken: token }, { contentId: { $in: orderIds } }],
+  });
+  await models.OrderItems.deleteMany({ orderId: { $in: orderIds } });
+  await models.Orders.deleteMany(orderSelector);
+
+  await models.Configs.deleteOne({ _id });
+};
+
+export const loadConfigClass = (models: IModels) => {
   class Config {
-    public static async getConfig(query: any) {
+    public static async getConfig(query: FilterQuery<IConfigDocument>) {
       const pos = await models.Configs.findOne(query).lean();
 
       if (!pos) {
@@ -56,9 +99,11 @@ export const loadConfigClass = (models) => {
     }
 
     public static async removeConfig(_id: string) {
-      await models.Configs.getConfig({ _id });
+      const config = await models.Configs.getConfig({ _id });
 
-      return models.Configs.deleteOne({ _id });
+      await removeConfigRelatedDocuments(models, config);
+
+      return config;
     }
   }
 

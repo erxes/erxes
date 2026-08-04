@@ -97,7 +97,7 @@ export const loadElementCategoryClass = (models: IModels) => {
         ? await models.ElementCategories.findOne({ _id: doc.parentId }).lean()
         : undefined;
 
-      if (parentCategory && parentCategory.parentId === _id) {
+      if (parentCategory?.parentId === _id) {
         throw new Error('Cannot change category');
       }
 

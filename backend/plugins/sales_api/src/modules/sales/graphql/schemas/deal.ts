@@ -51,6 +51,7 @@ const queryParams = `
   stageChangedStartDate: Date
   stageChangedEndDate: Date
   noSkipArchive: Boolean
+  status: String
   tagIds: [String]
   number: String
   branchIds: [String]
@@ -67,6 +68,8 @@ const queryParams = `
   closeDateStartDate: Date
   closeDateEndDate: Date
   resolvedDayBetween:[Int]
+  relationType: String
+  relationId: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -78,7 +81,7 @@ export const types = `
   type Deal @key(fields: "_id") {
     _id: String!
 
-    name: String!
+    name: String
     order: Float
     createdAt: Date
     hasNotified: Boolean
@@ -108,9 +111,10 @@ export const types = `
     assignedUsers: [User]
     stage: SalesStage
     labels: [SalesPipelineLabel]
+    pipelineId: String
     pipeline: SalesPipeline
     createdUser: User
-    customFieldsData: JSON
+    propertiesData: JSON
     score: Float
     timeTrack: SalesTimeTrack
     number: String
@@ -128,7 +132,12 @@ export const types = `
 
     products: [Product]
     productsData: JSON
+    mobileAmount: Float
+    mobileAmounts: JSON
     paymentsData: JSON
+    extraData: JSON
+    brokerType: String
+    brokerId: String
 
     cursor: String
   }
@@ -180,15 +189,19 @@ const archivedDealsParams = `
  `;
 
 export const queries = `
-  checkDiscount(_id: String!,products:[SalesProductField], couponCode: String, voucherId: String):JSON
+  checkDiscount(_id: String!,products:[SalesProductField!]!, couponCode: String, voucherId: String):JSON
   
   deals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
+  dealLink(_id: String): JSON
   dealsTotalCount(stageId: String, initialStageId: String, ${queryParams}): Int
   dealsTotalAmounts(${queryParams}): [SalesTotalForType]
   
   archivedDeals(${archivedDealsParams}): DealsListResponse
   archivedDealsCount(${archivedDealsParams}): Int
+
+  cpDeals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
+  cpDealDetail(_id: String!, clientPortalCard: Boolean): Deal
 `;
 
 const mutationParams = `
@@ -207,14 +220,18 @@ const mutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
-  customFieldsData: JSON,
+  propertiesData: JSON,
   tagIds: [String],
   branchIds: [String],
   departmentIds: [String],
 
   paymentsData: JSON,
+  mobileAmount: Float,
+  mobileAmounts: JSON,
   productsData: JSON,
   extraData: JSON,
+  brokerType: String,
+  brokerId: String,
 `;
 
 export const mutations = `
@@ -228,4 +245,10 @@ export const mutations = `
   dealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
+
+  cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
+  cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
+  cpDealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
+  cpDealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
+  cpDealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
 `;

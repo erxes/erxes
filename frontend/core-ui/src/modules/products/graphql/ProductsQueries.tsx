@@ -8,6 +8,7 @@ import {
 const productsMain = gql`
   query ProductsMain(
     $type: String
+    $status: String
     $categoryIds: [String]
     $searchValue: String
     $vendorId: String
@@ -21,6 +22,7 @@ const productsMain = gql`
   ) {
     productsMain(
       type: $type
+      status: $status
       categoryIds: $categoryIds
       searchValue: $searchValue
       vendorId: $vendorId
@@ -40,7 +42,7 @@ const productsMain = gql`
         categoryId
         code
         createdAt
-        customFieldsData
+        propertiesData
         description
         tagIds
         category {
@@ -51,20 +53,29 @@ const productsMain = gql`
         shortName
         uom
         unitPrice
+        status
         type
         vendor {
           _id
-            primaryName
-          }
+          primaryName
         }
-        ${GQL_PAGE_INFO}
+      }
+      ${GQL_PAGE_INFO}
     }
   }
 `;
 
 const productCategories = gql`
-  query ProductCategories {
-    productCategories {
+  query ProductCategories(
+    $parentId: String
+    $status: String
+    $searchValue: String
+  ) {
+    productCategories(
+      parentId: $parentId
+      status: $status
+      searchValue: $searchValue
+    ) {
       _id
       parentId
       attachment {
@@ -74,7 +85,22 @@ const productCategories = gql`
       name
       order
       productCount
+      status
     }
+  }
+`;
+
+const productCategoriesTotalCount = gql`
+  query ProductCategoriesTotalCount(
+    $parentId: String
+    $status: String
+    $searchValue: String
+  ) {
+    productCategoriesTotalCount(
+      parentId: $parentId
+      status: $status
+      searchValue: $searchValue
+    )
   }
 `;
 
@@ -93,9 +119,27 @@ const productCategoryDetail = gql`
   query productCategoryDetail($_id: String) {
     productCategoryDetail(_id: $_id) {
       _id
-      code
       name
+      description
+      meta
+      parentId
+      code
+      order
+      scopeBrandIds
+      attachment {
+        url
+        name
+        size
+        type
+        __typename
+      }
+      status
+      isRoot
       productCount
+      maskType
+      mask
+      isSimilarity
+      similarities
       __typename
     }
   }
@@ -104,6 +148,7 @@ const productCategoryDetail = gql`
 export const productsQueries = {
   productsMain,
   productCategories,
+  productCategoriesTotalCount,
   productTags,
   productCategoryDetail,
 };

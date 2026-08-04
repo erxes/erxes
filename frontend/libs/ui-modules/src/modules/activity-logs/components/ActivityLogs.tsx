@@ -1,4 +1,4 @@
-import React, { Children, isValidElement } from 'react';
+import React, { useEffect } from 'react';
 import { QueryHookOptions } from '@apollo/client';
 import {
   useActivityLogs,
@@ -8,38 +8,24 @@ import { ActivityLogProvider } from '../context/ActivityLogProvider';
 import { ActivityLogLoading } from './ActivityLogLoading';
 import { ActivityLogList } from './ActivityLogList';
 import { ActivityLogCustomActivity } from '../types';
-import { ActivityLogActorName, ActivityLogRow } from './ActivityLogRow';
-
-function hasActivityLogHeader(children: React.ReactNode): boolean {
-  let found = false;
-
-  Children.forEach(children, (child) => {
-    if (found) return;
-
-    if (isValidElement(child)) {
-      if (
-        child.type === ActivityLogsHeader ||
-        (child.type as any)?.displayName === 'ActivityLogsHeader'
-      ) {
-        found = true;
-        return;
-      }
-
-      if (child.props?.children) {
-        found = hasActivityLogHeader(child.props.children);
-      }
-    }
-  });
-
-  return found;
-}
+import { ActivityLogRow } from './ActivityLogRow';
+import { ActivityLogActorName } from './ActivityLogActor';
+import { internalNoteCustomActivity } from '../../internal-notes/components/InternalNoteActivityRow';
+import { relationCustomActivities } from './RelationActivityRow';
 
 type ActivityLogFormRootProps = {
   targetId: string;
   action?: string;
   limit?: number;
+  variant?: 'forward' | 'backward';
   customActivities?: ActivityLogCustomActivity[];
   options?: QueryHookOptions<ActivityLogsQueryData>;
+  showExactDate?: boolean;
+  activityType?: string;
+  excludeActivityType?: string;
+  dateFrom?: Date | string;
+  dateTo?: Date | string;
+  onTotalCountChange?: (totalCount: number) => void;
   children: React.ReactNode;
 };
 
@@ -47,8 +33,15 @@ const ActivityLogsRoot = ({
   targetId,
   action,
   limit,
+  variant = 'forward',
   customActivities,
   options,
+  showExactDate,
+  activityType,
+  excludeActivityType,
+  dateFrom,
+  dateTo,
+  onTotalCountChange,
   children,
 }: ActivityLogFormRootProps) => {
   const {
@@ -57,17 +50,29 @@ const ActivityLogsRoot = ({
     error,
     handleFetchMore,
     hasNextPage,
+    hasPreviousPage,
     totalCount,
   } = useActivityLogs(
     {
       targetId,
       action,
       limit,
+      variant,
+      activityType,
+      excludeActivityType,
+      dateFrom,
+      dateTo,
     },
     options,
   );
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading) {
+      onTotalCountChange?.(totalCount);
+    }
+  }, [loading, totalCount, onTotalCountChange]);
+
+  if (loading && activityLogs.length === 0) {
     return <ActivityLogLoading />;
   }
 
@@ -76,11 +81,15 @@ const ActivityLogsRoot = ({
       targetId={targetId}
       activityLogs={activityLogs}
       loading={loading}
+      variant={variant}
       error={error}
       customActivities={customActivities}
       handleFetchMore={handleFetchMore}
       hasNextPage={hasNextPage}
+      hasPreviousPage={hasPreviousPage}
       totalCount={totalCount}
+      limit={limit}
+      showExactDate={showExactDate}
     >
       {children}
     </ActivityLogProvider>
@@ -88,20 +97,8 @@ const ActivityLogsRoot = ({
 };
 
 const ActivityLogsWrapper = ({ children }: { children: React.ReactNode }) => {
-  return <div className="flex flex-col w-full flex-auto px-6 py-4">{children}</div>;
+  return <div className="flex flex-col w-full flex-auto px-6">{children}</div>;
 };
-
-const ActivityLogsHeader = ({ children }: { children?: React.ReactNode }) => {
-  return (
-    <div className="w-full p-2">
-      {children || (
-        <h4 className="text-sm font-medium">Activity</h4>
-      )}
-    </div>
-  );
-};
-
-ActivityLogsHeader.displayName = 'ActivityLogsHeader';
 
 const ActivityLogsContent = ({ emptyMessage }: { emptyMessage?: string }) => {
   return (
@@ -111,14 +108,9 @@ const ActivityLogsContent = ({ emptyMessage }: { emptyMessage?: string }) => {
   );
 };
 
-// Legacy props interface for backward compatibility
-type LegacyProps = {
-  targetId: string;
-  action?: string;
-  limit?: number;
-  customActivities?: ActivityLogCustomActivity[];
+type LegacyProps = Omit<ActivityLogFormRootProps, 'children'> & {
+  showInternalNotes?: boolean;
   emptyMessage?: string;
-  options?: QueryHookOptions<ActivityLogsQueryData>;
 };
 
 // Legacy component wrapper
@@ -126,20 +118,40 @@ const ActivityLogsLegacy = ({
   targetId,
   action,
   limit,
+  variant = 'forward',
   customActivities,
+  showInternalNotes = true,
   emptyMessage,
   options,
+  showExactDate,
+  activityType,
+  excludeActivityType,
+  dateFrom,
+  dateTo,
+  onTotalCountChange,
 }: LegacyProps) => {
+  const mergedActivities = [
+    ...(showInternalNotes ? [internalNoteCustomActivity] : []),
+    ...relationCustomActivities,
+    ...(customActivities || []),
+  ];
+
   return (
     <ActivityLogsRoot
       targetId={targetId}
       action={action}
       limit={limit}
-      customActivities={customActivities}
+      variant={variant}
+      customActivities={mergedActivities}
       options={options}
+      showExactDate={showExactDate}
+      activityType={activityType}
+      excludeActivityType={excludeActivityType}
+      dateFrom={dateFrom}
+      dateTo={dateTo}
+      onTotalCountChange={onTotalCountChange}
     >
       <ActivityLogsWrapper>
-        <ActivityLogsHeader />
         <ActivityLogsContent emptyMessage={emptyMessage} />
       </ActivityLogsWrapper>
     </ActivityLogsRoot>
@@ -149,7 +161,6 @@ const ActivityLogsLegacy = ({
 export const ActivityLogs = Object.assign(ActivityLogsLegacy, {
   Root: ActivityLogsRoot,
   Wrapper: ActivityLogsWrapper,
-  Header: ActivityLogsHeader,
   Content: ActivityLogsContent,
   List: ActivityLogList,
   Row: ActivityLogRow,

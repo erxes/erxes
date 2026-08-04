@@ -1,10 +1,7 @@
-import PaymentSettings from '~/modules/settings/payment/components/PaymentSettings'
-
+import { PaymentRecordTable } from '~/modules/settings/payment/components/PaymentRecordTable';
 
 const PaymentSettingsPage = () => {
-  return (
-   <PaymentSettings />
-  )
-}
+  return <PaymentRecordTable />;
+};
 
-export default PaymentSettingsPage
+export default PaymentSettingsPage;

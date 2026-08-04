@@ -1,0 +1,81 @@
+import { IconCube, IconAlignJustified } from '@tabler/icons-react';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { Link, useLocation } from 'react-router-dom';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { useMemo } from 'react';
+import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
+import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
+
+export const CustomFieldsNavigation = () => {
+  const { t } = useTranslation('content');
+  const { pathname } = useLocation();
+
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+  });
+
+  const { data: websitesData } = useQuery(GET_CLIENT_PORTALS, {
+    fetchPolicy: 'cache-first',
+  });
+
+  const { basePath, websiteId } = useMemo(() => {
+    const pathSegments = pathname.split('/');
+    const cmsIndex = pathSegments.findIndex((segment) => segment === 'cms');
+    const websiteId =
+      cmsIndex > 0 && cmsIndex < pathSegments.length - 1
+        ? pathSegments[cmsIndex + 1]
+        : '';
+    const basePath = websiteId ? `/content/cms/${websiteId}` : '/content/cms';
+    return { basePath, websiteId };
+  }, [pathname]);
+
+  const websiteName =
+    cmsData?.contentCMSList?.find((w: any) => w.clientPortalId === websiteId)
+      ?.name ||
+    websitesData?.getClientPortals?.list?.find((w: any) => w._id === websiteId)
+      ?.name ||
+    '';
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('cms'),
+    websiteName || t('website'),
+    t('custom-fields'),
+  );
+
+  return (
+    <PageHeader.Start>
+      <Breadcrumb>
+        <Breadcrumb.List className="gap-1">
+          <Breadcrumb.Item>
+            <Button variant="ghost" asChild>
+              <Link to={'/content/cms'}>
+                <IconCube />
+                {t('cms')}
+              </Link>
+            </Button>
+          </Breadcrumb.Item>
+          <Breadcrumb.Separator />
+          <Breadcrumb.Item>
+            <Button variant="ghost" asChild>
+              <Link to="/content/cms">{websiteName || t('website')}</Link>
+            </Button>
+          </Breadcrumb.Item>
+          <Breadcrumb.Separator />
+          <Breadcrumb.Page>
+            <Button variant="ghost" asChild>
+              <Link to={`${basePath}/custom-fields`}>
+                <IconAlignJustified />
+                {t('custom-fields')}
+              </Link>
+            </Button>
+          </Breadcrumb.Page>
+          <Breadcrumb.Separator />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconBooks"
+          />
+        </Breadcrumb.List>
+      </Breadcrumb>
+    </PageHeader.Start>
+  );
+};

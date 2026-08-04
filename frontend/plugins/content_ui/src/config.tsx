@@ -1,6 +1,5 @@
-import { IconLibraryPhoto } from '@tabler/icons-react';
+import { IconBooks, IconLibraryPhoto } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
-import { IconBooks } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 
 const ContentNavigation = lazy(() =>
@@ -14,6 +13,7 @@ export const CONFIG: IUIConfig = {
   path: 'content',
   navigationGroup: {
     name: 'content',
+    defaultPath: 'content/cms',
     icon: IconLibraryPhoto,
     content: () => (
       <Suspense fallback={<div />}>
@@ -22,11 +22,6 @@ export const CONFIG: IUIConfig = {
     ),
   },
   modules: [
-    {
-      name: 'knowledgebase',
-      icon: IconBooks,
-      path: 'content/knowledgebase',
-    },
     {
       name: 'cms',
       icon: IconBooks,

@@ -13,7 +13,7 @@ export interface IProduct {
   categoryId: string;
   unitPrice: number;
   category: ICategory;
-  counts: number;
+  counts: Record<string, number>;
   count: number;
   amount: number;
   __typename: string;

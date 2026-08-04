@@ -2,11 +2,9 @@ import { AutomationBuilderTabsType } from '@/automations/types';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
-export const automationBuilderActiveTabState =
-  atomWithStorage<AutomationBuilderTabsType>(
-    'activeTab',
-    AutomationBuilderTabsType.Builder,
-  );
+export const automationBuilderActiveTabState = atom<AutomationBuilderTabsType>(
+  AutomationBuilderTabsType.Builder,
+);
 
 export const automationBuilderSiderbarOpenState = atomWithStorage<boolean>(
   'automationSidebarOpen',
@@ -18,9 +16,11 @@ export const automationBuilderPanelOpenState = atomWithStorage<boolean>(
   false,
 );
 
+export const automationBuilderSecondarySidebarOpenState =
+  atomWithStorage<boolean>('automationSecondarySidebarOpen', false);
+
 export const toggleAutomationBuilderOpenSidebar = atom(true, (get, set) => {
   const isOpen = get(automationBuilderSiderbarOpenState);
-
   set(automationBuilderSiderbarOpenState, !isOpen);
 });
 
@@ -29,6 +29,15 @@ export const toggleAutomationBuilderOpenPanel = atom(false, (get, set) => {
 
   set(automationBuilderPanelOpenState, !isOpen);
 });
+
+export const toggleAutomationBuilderSecondarySidebar = atom(
+  false,
+  (get, set) => {
+    const isOpen = get(automationBuilderSecondarySidebarOpenState);
+
+    set(automationBuilderSecondarySidebarOpenState, !isOpen);
+  },
+);
 
 export const automationAiAgentIsStartedTrainingState = atomWithStorage<boolean>(
   'automationAiStartedTraining',

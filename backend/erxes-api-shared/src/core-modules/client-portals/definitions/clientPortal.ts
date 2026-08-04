@@ -174,6 +174,14 @@ const testUserSchema = new Schema(
   { _id: false },
 );
 
+const firebaseConfigSchema = new Schema(
+  {
+    serviceAccountKey: { type: String }, // JSON string of Firebase service account credentials
+    enabled: { type: Boolean, default: false }, // Enable/disable Firebase notifications
+  },
+  { _id: false },
+);
+
 const authSchema = new Schema(
   {
     authConfig: { type: authConfigSchema },
@@ -202,7 +210,7 @@ export const clientPortalSchema = new Schema(
     description: { type: String },
     url: { type: String },
     domain: { type: String },
-    token: { type: String, unique: true },
+    token: { type: String, unique: true, sparse: true },
     erxesIntegrationToken: { type: String },
 
     auth: { type: authSchema },
@@ -214,6 +222,7 @@ export const clientPortalSchema = new Schema(
     },
     enableManualVerification: { type: Boolean },
     testUser: { type: testUserSchema },
+    firebaseConfig: { type: firebaseConfigSchema },
   },
 
   { timestamps: true },

@@ -8,7 +8,6 @@ import { IPipelineLabelDocument, IStageDocument } from '~/modules/sales/@types';
 import { IContext } from '~/connectionResolvers';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { getCloseDateByType } from '~/modules/sales/utils';
-import { moduleRequireLogin } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const boardQueries = {
@@ -16,6 +15,14 @@ export const boardQueries = {
    *  Boards list
    */
   async salesBoards(_root: undefined, _args: undefined, { models }: IContext) {
+    return models.Boards.find({}).lean();
+  },
+
+  async cpSalesBoards(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
     return models.Boards.find({}).lean();
   },
 
@@ -60,6 +67,14 @@ export const boardQueries = {
    *  Board detail
    */
   async salesBoardDetail(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Boards.findOne({ _id }).lean();
+  },
+
+  async cpSalesBoardDetail(
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -360,8 +375,8 @@ export const boardQueries = {
 
         pluginName: 'core',
         method: 'query',
-        module: 'forms',
-        action: 'fieldsGroups.find',
+        module: 'fieldsGroups',
+        action: 'find',
         input: {
           query: {
             contentType: `sales:${ct}`,
@@ -378,8 +393,8 @@ export const boardQueries = {
 
           pluginName: 'core',
           method: 'query',
-          module: 'forms',
-          action: 'fields.find',
+          module: 'fields',
+          action: 'find',
           input: {
             query: {
               contentType: `sales:${ct}`,
@@ -496,6 +511,28 @@ export const boardQueries = {
 
     return intervals;
   },
+
+  async cpSalesCheckFreeTimes(
+    _root,
+    { pipelineId, intervals },
+    context: IContext,
+  ) {
+    return boardQueries.salesCheckFreeTimes(
+      _root,
+      { pipelineId, intervals },
+      context,
+    );
+  },
 };
 
-// moduleRequireLogin(boardQueries);
+(boardQueries.cpSalesBoardDetail as any).wrapperConfig = {
+  forClientPortal: true,
+};
+
+(boardQueries.cpSalesBoards as any).wrapperConfig = {
+  forClientPortal: true,
+};
+
+(boardQueries.cpSalesCheckFreeTimes as any).wrapperConfig = {
+  forClientPortal: true,
+};

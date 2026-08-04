@@ -1,33 +1,52 @@
+import { CODE_STATUS } from '@/coupon/constants';
+import { schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
-import { schemaWrapper } from 'erxes-api-shared/utils';
-import { LOYALTY_STATUSES, OWNER_TYPES } from '~/constants';
+const usageLogSchema = new Schema(
+  {
+    usedDate: {
+      type: Date,
+      default: Date.now,
+    },
+    ownerId: String,
+    ownerType: String,
+    targetId: String,
+    targetType: String,
+  },
+  { _id: false },
+);
 
 export const couponSchema = schemaWrapper(
   new Schema(
     {
-      campaignId: { type: Schema.Types.ObjectId, label: 'Campaign ID' },
-
-      ownerId: { type: String, label: 'Owner ID' },
-      ownerType: { type: String, label: 'Owner Type', enum: OWNER_TYPES.ALL },
-
+      campaignId: {
+        type: String,
+        required: true,
+      },
       code: {
         type: String,
-        label: 'Code',
         required: true,
-        unique: true,
+      },
+      usageLimit: {
+        type: Number,
+        default: 1,
+        min: 1,
+      },
+      usageCount: {
+        type: Number,
+        default: 0,
+        min: 0,
       },
       status: {
         type: String,
-        label: 'Status',
-        enum: LOYALTY_STATUSES.ALL,
-        default: LOYALTY_STATUSES.NEW,
+        enum: CODE_STATUS.ALL,
+        default: CODE_STATUS.NEW,
       },
-
-      createdBy: { type: String, label: 'Created by' },
-      updatedBy: { type: String, label: 'Updated by' },
-
-      conditions: { type: Schema.Types.Mixed, label: 'Conditions' },
+      usageLogs: {
+        type: [usageLogSchema],
+        default: [],
+      },
+      redemptionLimitPerUser: { type: Number, min: 1 },
     },
     {
       timestamps: true,

@@ -1,17 +1,19 @@
 import {
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
+import {
   SelectIntegrationTypeContext,
   useSelectIntegrationTypeContext,
 } from '@/integrations/constants/context/SelectIntegrationTypeContext';
-import { useUsedIntegrationTypes } from '@/integrations/hooks/useUsedIntegrationTypes';
+
 import { IconPlug } from '@tabler/icons-react';
-import {
-  Filter,
-  Command,
-  Combobox,
-  useQueryState,
-  useFilterContext,
-  Popover,
-} from 'erxes-ui';
+import { useUsedIntegrationTypes } from '@/integrations/hooks/useUsedIntegrationTypes';
+import { useTranslation } from 'react-i18next';
 
 const SelectIntegrationTypeProvider = ({
   children,
@@ -39,12 +41,13 @@ const SelectIntegrationTypeProvider = ({
 };
 
 export const ChooseIntegrationTypeContent = () => {
+  const { t } = useTranslation('frontline');
   const { integrationTypes } = useUsedIntegrationTypes();
   const { value, onSelect } = useSelectIntegrationTypeContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Filter" focusOnMount />
+      <Command.Input placeholder={t('filter')} focusOnMount />
       <Command.List>
         <Combobox.Empty />
         {integrationTypes?.map((integrationType) => (
@@ -63,10 +66,11 @@ export const ChooseIntegrationTypeContent = () => {
 };
 
 export const IntegrationTypeFilterItem = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Filter.Item value="integrationType">
       <IconPlug />
-      Integration Type
+      {t('integration-type')}
     </Filter.Item>
   );
 };
@@ -92,6 +96,7 @@ export const IntegrationTypeFilterView = () => {
 };
 
 export const IntegrationTypeValue = () => {
+  const { t } = useTranslation('frontline');
   const { integrationTypes, loading } = useUsedIntegrationTypes();
   const { value } = useSelectIntegrationTypeContext();
 
@@ -103,7 +108,7 @@ export const IntegrationTypeValue = () => {
         )?.name
       }
       loading={loading}
-      placeholder="Select integration type"
+      placeholder={t('select-integration-type')}
     />
   );
 };
@@ -113,6 +118,7 @@ export const IntegrationTypeFilterBar = ({
 }: {
   iconOnly?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [integrationTypeId, setIntegrationTypeId] =
     useQueryState<string>('integrationType');
   const { resetFilterState } = useFilterContext();
@@ -121,13 +127,11 @@ export const IntegrationTypeFilterBar = ({
     return null;
   }
 
-  console.log(integrationTypeId);
-
   return (
     <Filter.BarItem queryKey="integrationType">
       <Filter.BarName>
         <IconPlug />
-        {!iconOnly && 'Integration Type'}
+        {!iconOnly && t('integration-type')}
       </Filter.BarName>
       <SelectIntegrationTypeProvider
         value={integrationTypeId}

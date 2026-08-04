@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useCreateMilestone } from '@/project/hooks/useCreateMilestone';
 import { IconPlus } from '@tabler/icons-react';
 import { useFormContext } from 'react-hook-form';
@@ -14,6 +15,7 @@ export const AddMilestone = ({
   isActive,
   setActiveMilestone,
 }: Props) => {
+  const { t } = useTranslation('operation');
   const { createMilestone } = useCreateMilestone();
 
   const { reset } = useFormContext();
@@ -39,7 +41,7 @@ export const AddMilestone = ({
 
   const triggerContent = (
     <div className="flex items-center justify-between">
-      Milestone <IconPlus size={16} strokeWidth={2} />
+      {t('milestone')} <IconPlus size={16} strokeWidth={2} />
     </div>
   );
 

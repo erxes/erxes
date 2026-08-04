@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { ITicketSaveConfigArgs } from '~/modules/ticket/@types/ticketConfig';
 
@@ -13,7 +12,6 @@ export const ticketConfigMutations = {
       pipelineId: input.pipelineId,
     });
 
-    // Check for duplicate name
     const duplicateQuery: { [key: string]: any } = {
       name: input.name,
     };
@@ -49,6 +47,3 @@ export const ticketConfigMutations = {
     });
   },
 };
-
-requireLogin(ticketConfigMutations, 'ticketSaveConfig');
-requireLogin(ticketConfigMutations, 'ticketRemoveConfig');

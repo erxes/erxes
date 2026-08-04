@@ -1,18 +1,20 @@
-import { generateAttributesFromPlaceholders } from '@/utils/utils';
-import { splitType, TAutomationProducers } from 'erxes-api-shared/core-modules';
-import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
-import { extractValidEmails } from './utils';
+import { generateAttributesFromPlaceholders } from '../../../utils/utils';
+import {
+  IAutomationExecutionDocument,
+  replaceOutputPlaceholders,
+} from 'erxes-api-shared/core-modules';
+import { extractValidEmails, normalizeEmailActionPlaceholders } from './utils';
 
 export const getRecipientEmails = async ({
   subdomain,
   config,
+  execution,
   targetType,
-  target,
 }) => {
   const commonProps = {
     subdomain,
+    execution,
     targetType,
-    target,
   };
 
   const toEmails = [
@@ -34,54 +36,33 @@ export const collectEmails = async (
   mailPlaceHolder: string,
   {
     subdomain,
-    target,
+    execution,
     targetType,
   }: {
     subdomain: string;
-    target: any;
+    execution: IAutomationExecutionDocument;
     targetType: string;
   },
 ) => {
-  const directEmails = extractValidEmails(mailPlaceHolder);
-  let recipientEmails: string[] = [];
-  const [pluginName, moduleName, contentType] = splitType(targetType);
-  const attributes = generateAttributesFromPlaceholders(mailPlaceHolder);
-  if (!attributes.length) return [];
+  const normalizedMailPlaceHolder = normalizeEmailActionPlaceholders(
+    mailPlaceHolder,
+    targetType,
+  );
+  const directEmails = extractValidEmails(normalizedMailPlaceHolder);
+  const attributes = generateAttributesFromPlaceholders(
+    normalizedMailPlaceHolder,
+  );
+  if (!attributes.length) return directEmails;
 
-  const relatedValueProps: Record<string, any> = {};
-
-  for (const attribute of attributes) {
-    relatedValueProps[attribute] = {
-      key: 'email',
-      filter: {
-        key: 'registrationToken',
-        value: null,
-      },
-    };
-
-    if (['customers', 'companies'].includes(attribute)) {
-      relatedValueProps[attribute] = { key: 'primaryEmail' };
-    }
-  }
-
-  const replacedContent = await sendCoreModuleProducer({
+  const replacedContent = await replaceOutputPlaceholders({
     subdomain,
-    moduleName: 'automations',
-    pluginName,
-    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-    input: {
-      moduleName,
-      target: { ...(target || {}), type: contentType },
-      config: { mailPlaceHolder: mailPlaceHolder },
-      relatedValueProps,
-    },
+    execution,
+    values: { mailPlaceHolder: normalizedMailPlaceHolder },
   });
 
   const generatedEmails = extractValidEmails(
-    replacedContent['mailPlaceHolder'] || '',
+    String(replacedContent.mailPlaceHolder || ''),
   );
 
-  return [
-    ...new Set([...directEmails, ...generatedEmails, ...recipientEmails]),
-  ];
+  return [...new Set([...directEmails, ...generatedEmails])];
 };

@@ -1,16 +1,17 @@
-import * as graph from 'fbgraph';
-import { IModels } from '~/connectionResolvers';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
-import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
-import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import {
   IAttachment,
   IAttachmentMessage,
 } from '@/integrations/facebook/@types/utils';
-import { randomAlphanumeric } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
+import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
 import * as AWS from 'aws-sdk';
+import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as graph from 'fbgraph';
+import { IModels } from '~/connectionResolvers';
 import { SUBSCRIBED_FIELDS } from './constants';
+import { validateMediaUrl } from './urlValidation';
+
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
@@ -63,6 +64,42 @@ export const getPostDetails = async (
   } catch (e) {
     debugError(`Error occurred while getting facebook post: ${e.message}`);
     return null;
+  }
+};
+
+export const createPagePost = async (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  message: string,
+  link?: string,
+): Promise<{ id: string }> => {
+  let pageAccessToken;
+
+  try {
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+  } catch (e) {
+    debugError(`Error occurred while getting page access token: ${e.message}`);
+    throw new Error('Page access token not found');
+  }
+
+  const doc: { message: string; link?: string } = { message };
+
+  if (link) {
+    doc.link = link;
+  }
+
+  try {
+    // Requires the pages_manage_posts permission on the page token.
+    const response: any = await graphRequest.post(
+      `${pageId}/feed`,
+      pageAccessToken,
+      doc,
+    );
+
+    return response;
+  } catch (e) {
+    debugError(`Error occurred while creating facebook post: ${e.message}`);
+    throw new Error(e.message);
   }
 };
 
@@ -121,6 +158,14 @@ export const uploadMedia = async (
   url: string,
   video: boolean,
 ) => {
+  try {
+    validateMediaUrl(url);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    debugError(`SSRF protection blocked media fetch: ${message}`);
+    return null;
+  }
+
   const mediaFile = `uploads/${randomAlphanumeric(16)}.${
     video ? 'mp4' : 'jpg'
   }`;
@@ -290,6 +335,8 @@ export const refreshPageAccessToken = async (
 
   facebookPageTokensMap[pageId] = pageAccessToken;
 
+  await models.FacebookBots.updatePageToken(pageId, pageAccessToken);
+
   await models.FacebookIntegrations.updateOne(
     { _id: integration._id },
     { $set: { facebookPageTokensMap } },
@@ -302,7 +349,7 @@ export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
 ): string => {
-  return (pageTokens || {})[pageId];
+  return pageTokens?.[pageId];
 };
 
 export const subscribePage = async (
@@ -394,7 +441,7 @@ export const restorePost = async (
   let pageAccessToken;
 
   try {
-    pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(
       `Error occurred while trying to get page access token with ${e.message}`,
@@ -437,7 +484,7 @@ export const sendReply = async (
     debugError(
       `Error occurred while trying to get page access token with ${e.message}`,
     );
-    return e;
+    throw new Error(e.message);
   }
 
   try {
@@ -452,13 +499,15 @@ export const sendReply = async (
         e.message
       } data: ${JSON.stringify(data)}`,
     );
-
+    // request-level failures (unknown error, invalid parameter, messaging
+    // window, already replied) say nothing about the token's health
+    const messageLevelErrorCodes = [1, 10, 100, 10900];
     if (e.message.includes('access token')) {
       await models.FacebookIntegrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'page-token', error: `${e.message}` } },
       );
-    } else if (e.code !== 10) {
+    } else if (!messageLevelErrorCodes.includes(e.code)) {
       await models.FacebookIntegrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'account-token', error: `${e.message}` } },
@@ -576,7 +625,7 @@ export const getFacebookUserProfilePic = async (
       pageAccessToken,
     );
 
-    const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+    const uploadConfig = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
@@ -585,6 +634,8 @@ export const getFacebookUserProfilePic = async (
       action: 'getFileUploadConfigs',
       input: {},
     });
+
+    const { UPLOAD_SERVICE_TYPE } = uploadConfig || {};
 
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
       const awsResponse = await uploadMedia(

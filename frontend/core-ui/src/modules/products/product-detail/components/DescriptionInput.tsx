@@ -3,8 +3,7 @@ import {
   IconCommand,
   IconCornerDownLeft,
 } from '@tabler/icons-react';
-import { BlockEditor, Button, cn, useBlockEditor } from 'erxes-ui';
-import { Kbd } from 'erxes-ui';
+import { BlockEditor, Button, cn, Kbd, useBlockEditor } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
 import { DescriptionInputProps } from '../types/descriptionTypes';
 

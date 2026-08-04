@@ -39,7 +39,7 @@ export const FieldRelation = ({
     <SelectRelationComponent
       scope={id}
       value={currentValue ?? undefined}
-      mode={field.multiple ? 'multiple' : 'single'}
+      mode={'single'}
       onValueChange={(val) => {
         setCurrentValue(val);
         val !== value && handleChange(val);

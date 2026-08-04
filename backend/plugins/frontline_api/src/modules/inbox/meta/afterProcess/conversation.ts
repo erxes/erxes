@@ -1,10 +1,7 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
 import { IAfterProcessRule } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import {
-  IConversation,
-  IConversationDocument,
-} from '@/inbox/@types/conversations';
+import { IConversationDocument } from '@/inbox/@types/conversations';
 import { conversationNotifReceivers } from '@/inbox/graphql/resolvers/mutations/conversations';
 
 export const conversationAfterProcessWorkers = {

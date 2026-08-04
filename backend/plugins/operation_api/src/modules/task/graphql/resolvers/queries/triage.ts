@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { ITriageDocument } from '@/task/@types/triage';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { FilterQuery } from 'mongoose';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 
@@ -8,16 +7,20 @@ export const triageQueries = {
   operationGetTriage: async (
     _parent: undefined,
     { _id },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('triageRead');
+
     return models.Triage.getTriage(_id);
   },
 
   operationGetTriageList: async (
     _parent: undefined,
     { filter }: { filter: ITriageDocument },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('triageRead');
+
     const filterQuery: FilterQuery<ITriageDocument> = {};
 
     if (filter.name) {
@@ -47,6 +50,3 @@ export const triageQueries = {
     return { list, totalCount, pageInfo };
   },
 };
-
-requireLogin(triageQueries, 'operationGetTriage');
-requireLogin(triageQueries, 'operationGetTriageList');

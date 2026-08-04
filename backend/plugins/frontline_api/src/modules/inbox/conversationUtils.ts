@@ -1,10 +1,9 @@
 import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { IListArgs } from '~/conversationQueryBuilder';
-import { fixDate, fetchEs } from 'erxes-api-shared/utils';
+import { fixDate, fetchEs, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getIntegrationsKinds } from '@/inbox/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export interface ICountBy {
   [index: string]: number;
@@ -48,7 +47,7 @@ const countByTags = async (
     module: 'tags',
     action: 'find',
     input: {
-      doc: {
+      query: {
         type: 'inbox:conversation',
       },
     },
@@ -80,6 +79,27 @@ const countByIntegrationTypes = async (
   return counts;
 };
 
+// Count conversations per individual Discord channel (each Discord channel is
+// its own integration), keyed by integration id. Used by the inbox sidebar's
+// "Discord Channels" section to badge each channel with its open count.
+const countByIntegrations = async (
+  qb: CommonBuilder<IListArgs>,
+  counts: ICountBy,
+): Promise<ICountBy> => {
+  const integrations = await qb.models.Integrations.findIntegrations({
+    kind: 'discord-messenger',
+  });
+
+  for (const integration of integrations) {
+    await qb.buildAllQueries();
+    qb.integrationFilter(integration._id);
+
+    counts[integration._id as string] = await qb.runQueries();
+  }
+
+  return counts;
+};
+
 export const countByConversations = async (
   models: IModels,
   subdomain: string,
@@ -103,6 +123,10 @@ export const countByConversations = async (
 
     case 'byTags':
       await countByTags(subdomain, qb, counts);
+      break;
+
+    case 'byIntegrations':
+      await countByIntegrations(qb, counts);
       break;
   }
 
@@ -359,6 +383,15 @@ export class CommonBuilder<IArgs extends IListArgs> {
     this.filterList.push({
       terms: {
         'integrationId.keyword': _.pluck(integrations, '_id'),
+      },
+    });
+  }
+
+  // Restrict to a single integration (e.g. one Discord channel) by id.
+  public integrationFilter(integrationId: string) {
+    this.filterList.push({
+      terms: {
+        'integrationId.keyword': [integrationId],
       },
     });
   }

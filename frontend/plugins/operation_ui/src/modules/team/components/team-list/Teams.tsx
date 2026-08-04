@@ -1,28 +1,30 @@
-import { Skeleton, Table, TextOverflowTooltip } from 'erxes-ui';
-import { IconComponent } from 'erxes-ui';
-import { useGetTeams } from '@/team/hooks/useGetTeams';
-import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
-import { IconUserX } from '@tabler/icons-react';
 import { CreateTeam } from '@/team/components/team-list/CreateTeam';
+import { useGetTeams } from '@/team/hooks/useGetTeams';
+import { IconUserX } from '@tabler/icons-react';
+import { format } from 'date-fns';
+import { IconComponent, Skeleton, Table, TextOverflowTooltip } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
 export function Teams() {
+  const { t } = useTranslation('operation');
   const { teams, loading } = useGetTeams();
   const navigate = useNavigate();
   const onClick = (teamId: string) => {
     navigate(`/settings/operation/team/details/${teamId}`);
   };
   return (
-    <div className="overflow-auto h-full px-8">
+    <div className="overflow-auto h-full px-8 pb-4">
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
         <Table>
           <Table.Header>
             <Table.Row className="rounded-t-md">
               <Table.Head className="w-auto rounded-tl-md pl-2">
-                Title
+                {t('title')}
               </Table.Head>
-              <Table.Head className="w-20">Members</Table.Head>
-              <Table.Head className="w-20">Tasks</Table.Head>
-              <Table.Head className="w-32">Created At</Table.Head>
+              <Table.Head className="w-20">{t('members')}</Table.Head>
+              <Table.Head className="w-20">{t('tasks')}</Table.Head>
+              <Table.Head className="w-32">{t('created-at')}</Table.Head>
             </Table.Row>
           </Table.Header>
           <Table.Body className="">
@@ -66,9 +68,9 @@ export function Teams() {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No team yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-team-yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first team.
+                    {t('get-started-creating-team')}
                   </p>
                 </div>
                 <CreateTeam />

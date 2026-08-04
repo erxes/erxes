@@ -1,15 +1,18 @@
-import { Command } from 'erxes-ui';
+import { Command, useFilterContext } from 'erxes-ui';
 import { IconChevronLeft } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
-interface BackButtonProps {
-  onSelect: () => void;
-}
-
-export const BackButton = ({ onSelect }: BackButtonProps) => {
+export const BackButton = ({ view = 'root' }: { view?: string }) => {
+  const { t } = useTranslation();
+  const { setView } = useFilterContext();
   return (
-    <Command.Item value="back" onSelect={onSelect} className="text-sm">
+    <Command.Item
+      value="back"
+      onSelect={() => setView(view)}
+      className="text-sm"
+    >
       <IconChevronLeft className="w-3 h-3" />
-      Back
+      {t('back')}
     </Command.Item>
   );
 };

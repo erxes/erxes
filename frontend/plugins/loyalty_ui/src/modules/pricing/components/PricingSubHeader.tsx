@@ -5,6 +5,7 @@ import {
   Skeleton,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePricing } from '@/pricing/hooks/usePricing';
 import {
   PricingFilterBar,
@@ -17,7 +18,7 @@ type PricingFilterState = {
   branchId?: string | null;
   departmentId?: string | null;
   productId?: string | null;
-  isPriority?: string | null;
+  priority?: string | null;
   date?: string | null;
   isQuantityEnabled?: boolean | null;
   isPriceEnabled?: boolean | null;
@@ -27,6 +28,7 @@ type PricingFilterState = {
 };
 
 export function PricingSubHeader() {
+  const { t } = useTranslation('loyalty');
   const { totalCount, loading } = usePricing();
   const [queries] = useMultiQueryState<PricingFilterState>([
     'searchValue',
@@ -34,29 +36,28 @@ export function PricingSubHeader() {
     'branchId',
     'departmentId',
     'productId',
-    'isPriority',
+    'priority',
     'date',
     'isQuantityEnabled',
     'isPriceEnabled',
     'isExpiryEnabled',
     'isRepeatEnabled',
   ]);
-
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
+  const hasFilters = Object.values(queries).some(
+    (value) => value !== undefined && value !== null && value !== '',
   );
 
   return (
     <Filter id="pricing">
       <PageSubHeader>
         <Filter.Bar>
-          <PricingFilterBar queries={queries} />
           <Filter.Popover scope="pricing-page">
             <Filter.Trigger isFiltered={hasFilters} />
             <Combobox.Content>
               <PricingFilterView />
             </Combobox.Content>
           </Filter.Popover>
+          <PricingFilterBar queries={queries} />
           <Filter.Dialog>
             <Filter.View filterKey="searchValue" inDialog>
               <Filter.DialogStringView filterKey="searchValue" />
@@ -65,7 +66,7 @@ export function PricingSubHeader() {
 
           <div className="h-7 text-sm font-medium leading-7 whitespace-nowrap text-muted-foreground">
             {totalCount
-              ? `${totalCount} records found`
+              ? `${totalCount} ${t('records-found')}`
               : loading && (
                   <Skeleton className="w-20 h-4 inline-block mt-1.5" />
                 )}

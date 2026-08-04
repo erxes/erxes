@@ -24,7 +24,7 @@ export const useQuerySelectInputList = (
     skip,
   });
 
-  const { list, totalCount, pageInfo } = (data || {})[queryName] || {};
+  const { list, totalCount, pageInfo } = data?.[queryName] || {};
 
   const handleFetchMore = ({
     direction,
@@ -55,14 +55,15 @@ export const useQuerySelectInputList = (
           }
 
           const { pageInfo: fetchMorePageInfo, list: fetchMoreList = [] } =
-            (fetchMoreResult || {})[queryName];
+            fetchMoreResult?.[queryName] || {};
 
           const { pageInfo: prevPageInfo, list: prevList = [] } =
-            (prev || {})[queryName] || {};
+            prev?.[queryName] || {};
 
           // setCursor(prevPageInfo?.endCursor);
 
-          return Object.assign({}, prev, {
+          return {
+            ...prev,
             [queryName]: mergeCursorData({
               direction: EnumCursorDirection.FORWARD,
               fetchMoreResult: {
@@ -74,7 +75,7 @@ export const useQuerySelectInputList = (
                 list: prevList,
               },
             }),
-          });
+          };
         },
       });
     }

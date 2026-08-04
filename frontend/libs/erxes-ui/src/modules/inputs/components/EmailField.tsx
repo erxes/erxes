@@ -152,7 +152,6 @@ export const EmailListField = ({
       onValidationStatusChange={onValidationStatusChange}
     >
       <EmailList />
-
       <EmailForm />
     </EmailFieldsProvider>
   );

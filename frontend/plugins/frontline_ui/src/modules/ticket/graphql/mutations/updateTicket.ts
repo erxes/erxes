@@ -12,9 +12,13 @@ export const UPDATE_TICKET_MUTATION = gql`
     $labelIds: [String]
     $tagIds: [String]
     $assigneeId: String
+    $assignedMembers: [String]
     $startDate: Date
     $targetDate: Date
     $isSubscribed: Boolean
+    $propertiesData: JSON
+    $state: String
+    $attachments: [AttachmentInput]
   ) {
     updateTicket(
       _id: $_id
@@ -27,11 +31,37 @@ export const UPDATE_TICKET_MUTATION = gql`
       labelIds: $labelIds
       tagIds: $tagIds
       assigneeId: $assigneeId
+      assignedMembers: $assignedMembers
       startDate: $startDate
       targetDate: $targetDate
       isSubscribed: $isSubscribed
+      propertiesData: $propertiesData
+      state: $state
+      attachments: $attachments
     ) {
       _id
+      name
+      description
+      statusId
+      priority
+      labelIds
+      tagIds
+      assigneeId
+      assignedMembers
+      startDate
+      targetDate
+      channelId
+      pipelineId
+      isSubscribed
+      state
+      propertiesData
+      attachments {
+        name
+        url
+        size
+        type
+        duration
+      }
     }
   }
 `;

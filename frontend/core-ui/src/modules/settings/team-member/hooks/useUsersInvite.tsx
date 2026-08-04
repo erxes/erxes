@@ -3,6 +3,7 @@ import { mutations } from '@/settings/team-member/graphql';
 
 const useUsersInvite = () => {
   const [invite, { loading }] = useMutation(mutations.USERS_INVITE, {
+    refetchQueries: ['Users'],
     onError(error) {
       console.error(error.message);
     },
@@ -13,7 +14,7 @@ const useUsersInvite = () => {
         ...options,
       });
     } catch (error) {
-      console.error('Error occured', error);
+      console.error('Error occurred', error);
     }
   };
 

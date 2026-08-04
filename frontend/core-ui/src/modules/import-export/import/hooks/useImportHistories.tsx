@@ -17,13 +17,18 @@ interface ImportHistoriesQueryResponse {
   };
 }
 
-export function useImportHistories({ entityType }: { entityType: string }) {
+export function useImportHistories({
+  entityTypes,
+}: {
+  entityTypes?: string[];
+}) {
   const { data, loading, error, fetchMore } =
     useQuery<ImportHistoriesQueryResponse>(GET_IMPORT_HISTORIES, {
       variables: {
-        entityType,
+        entityTypes,
         limit: IMPORT_HISTORIES_PER_PAGE,
       },
+      notifyOnNetworkStatusChange: true,
     });
 
   const { list = [], totalCount = 0, pageInfo } = data?.importHistories || {};
@@ -45,6 +50,7 @@ export function useImportHistories({ entityType }: { entityType: string }) {
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
             : pageInfo?.startCursor,
+        entityTypes,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) {

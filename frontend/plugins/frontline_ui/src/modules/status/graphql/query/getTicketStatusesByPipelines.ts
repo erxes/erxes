@@ -5,3 +5,9 @@ export const GET_TICKET_STATUS_BY_PIPELINE = gql`
     getTicketStatusesChoicesPipeline(pipelineId: $pipelineId)
   }
 `;
+
+export const GET_ACCESSIBLE_TICKET_STATUSES = gql`
+  query getAccessibleTicketStatuses($pipelineId: String!) {
+    getAccessibleTicketStatuses(pipelineId: $pipelineId)
+  }
+`;

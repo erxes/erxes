@@ -1,10 +1,7 @@
-import { PROBABILITY } from './constants';
-import // BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
-// BOARD_ITEM_EXTENDED_FIELDS,
-'~/modules/sales/constants';
-import { generateModels, IModels } from '~/connectionResolvers';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateFieldsFromSchema } from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { PROBABILITY } from './constants';
 
 const generateProductsOptions = async (
   name: string,
@@ -96,26 +93,6 @@ const generateStructuresOptions = async (
   };
 };
 
-const getStageOptions = async (models: IModels, pipelineId) => {
-  const stages = await models.Stages.find({ pipelineId });
-  const options: Array<{ label: string; value: any }> = [];
-
-  for (const stage of stages) {
-    options.push({
-      value: stage._id,
-      label: stage.name || '',
-    });
-  }
-
-  return {
-    _id: Math.random(),
-    name: 'stageId',
-    label: 'Stage',
-    type: 'stage',
-    selectOptions: options,
-  };
-};
-
 const getStageProbabilityOptions = () => {
   return {
     _id: Math.random(),
@@ -161,7 +138,7 @@ const generateTagOptions = async (
     module: 'tags',
     action: 'find',
     input: {
-      type: 'sales:deal',
+      query: { type: 'sales:deal' },
     },
     defaultValue: [],
   });
@@ -195,7 +172,7 @@ export const generateSalesFields = async (
 
   let schema: any;
   let fields: Array<{
-    _id: number;
+    _id: string | number;
     name: string;
     group?: string;
     label?: string;
@@ -206,7 +183,7 @@ export const generateSalesFields = async (
   }> = [];
 
   switch (collectionType) {
-    case 'deal':
+    case 'deals':
       schema = models.Deals.schema;
       break;
   }
@@ -439,12 +416,22 @@ export const generateSalesFields = async (
     fields = [...fields, ...extendExport];
   }
 
+  const stageField = {
+    _id: 'stageId',
+    name: 'stageId',
+    label: 'Stage',
+    type: 'stage',
+    selectionConfig: { component: 'dealStage' },
+  };
+
+  const probabilityOptions = getStageProbabilityOptions();
+
   if (segmentId || pipelineId) {
     const segment = segmentId
       ? await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
-          module: 'segments',
+          module: 'segment',
           action: 'findOne',
           input: { _id: segmentId },
         })
@@ -455,26 +442,9 @@ export const generateSalesFields = async (
       pipelineId || (segment ? segment.pipelineId : null),
     );
 
-    const stageOptions = await getStageOptions(
-      models,
-      pipelineId || (segment ? segment.pipelineId : null),
-    );
-
-    // Add probability options here
-    const probabilityOptions = getStageProbabilityOptions();
-
-    fields = [...fields, stageOptions, labelOptions, probabilityOptions];
+    fields = [...fields, stageField, labelOptions, probabilityOptions];
   } else {
-    const stageOptions = {
-      _id: Math.random(),
-      name: 'stageId',
-      label: 'Stage',
-      type: 'stage',
-    };
-    //Add probability options in else
-    const probabilityOptions = getStageProbabilityOptions();
-
-    fields = [...fields, stageOptions, probabilityOptions];
+    fields = [...fields, stageField, probabilityOptions];
   }
 
   return fields;

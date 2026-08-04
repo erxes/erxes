@@ -2,13 +2,16 @@ import { IPropertyGroupForm } from '@/properties/types/Properties';
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useAddPropertyGroup } from '../hooks/useAddPropertyGroup';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertyGroupSchema } from '../propertySchema';
 import { useParams, useLocation } from 'react-router-dom';
 import { PropertyGroupForm } from './PropertyGroupForm';
+import { Can } from 'ui-modules';
 
 export const AddPropertyGroup = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
   const location = useLocation();
 
@@ -45,9 +48,11 @@ export const AddPropertyGroup = () => {
 
   return (
     <Sheet onOpenChange={setOpen} open={open}>
-      <Sheet.Trigger asChild>
-        <Button variant="outline">Add Group</Button>
-      </Sheet.Trigger>
+      <Can action="fieldGroupsManage">
+        <Sheet.Trigger asChild>
+          <Button variant="outline">{t('add-group', 'Add Group')}</Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

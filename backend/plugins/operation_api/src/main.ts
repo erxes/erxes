@@ -5,6 +5,23 @@ import { initMQWorkers } from '~/worker';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import * as trpc from './trpc/init-trpc';
+import { permissions } from './meta/permissions';
+import { notifications } from './meta/notifications';
+import { automations } from './meta/automations';
+import segments from './meta/segments';
+import {
+  createCoreModuleProducerHandler,
+  TImportExportProducers,
+  TGetExportDataInput,
+  TGetExportHeadersInput,
+  TInsertImportRowsInput,
+  TGetImportHeadersInput,
+} from 'erxes-api-shared/core-modules';
+import {
+  taskExportHandlers,
+  projectExportHandlers,
+} from './meta/import-export/export/exportHandlers';
+import { taskImportHandlers } from './meta/import-export/import/importHandlers';
 
 export const router: Router = Router();
 
@@ -45,32 +62,72 @@ startPlugin({
   expressRouter: router,
 
   meta: {
-    notificationModules: [
-      {
-        name: 'tasks',
-        description: 'Tasks',
-        icon: 'IconChecklist',
+    importExport: {
+      import: {
         types: [
-          { name: 'taskAssignee', text: 'Task assignee' },
-          { name: 'taskStatus', text: 'Task status changed' },
+          {
+            label: 'Task',
+            contentType: 'operation:task.task',
+            permissions: ['taskImportManage'],
+          },
         ],
+        insertImportRows: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { task: taskImportHandlers },
+          methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+          extractModuleName: (input: TInsertImportRowsInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getImportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { task: taskImportHandlers },
+          methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+          extractModuleName: (input: TGetImportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
       },
-      {
-        name: 'projects',
-        description: 'Projects',
-        icon: 'IconClipboard',
+      export: {
         types: [
-          { name: 'projectAssignee', text: 'Project assignee' },
-          { name: 'projectStatus', text: 'Project status changed' },
+          {
+            label: 'Task',
+            contentType: 'operation:task.task',
+            permissions: ['taskExportManage'],
+          },
+          {
+            label: 'Project',
+            contentType: 'operation:project.project',
+            permissions: ['projectExportManage'],
+          },
         ],
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: {
+            task: taskExportHandlers,
+            project: projectExportHandlers,
+          },
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: {
+            task: taskExportHandlers,
+            project: projectExportHandlers,
+          },
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
       },
-      {
-        name: 'note',
-        description: 'Note',
-        icon: 'IconNote',
-        types: [{ name: 'note', text: 'Mentioned in note' }],
-      },
-    ],
+    },
+    automations,
+    permissions,
+    notifications,
+    segments,
     tags: {
       types: [
         {
@@ -80,7 +137,19 @@ startPlugin({
         {
           description: 'Project',
           type: 'project',
-        }
+        },
+      ],
+    },
+    properties: {
+      types: [
+        {
+          description: 'Tasks',
+          type: 'task',
+        },
+        {
+          description: 'Projects',
+          type: 'project',
+        },
       ],
     },
   },

@@ -1,10 +1,13 @@
 import { json } from '@codemirror/lang-json';
-import type { EditorView } from '@codemirror/view';
 import { EditorView as CMEditorView } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
-import { Form } from 'erxes-ui';
-import { useMemo, useRef } from 'react';
-import { Attributes } from 'ui-modules/modules/automations/components/Attributes';
+import { cn, Form, Select } from 'erxes-ui';
+import { useMemo } from 'react';
+import {
+  PlaceholderInput,
+  useAutomationVariableCodeMirrorDrop,
+} from 'ui-modules';
+import { normalizeOutgoingWebhookBodyValue } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
 
 function createTheme() {
   return CMEditorView.theme({
@@ -49,56 +52,68 @@ function createTheme() {
 }
 
 export function OutgoingWebhookBodyBuilder({
+  bodyMode,
   value,
   onChange,
-  contentType,
+  onBodyModeChange,
 }: {
+  bodyMode: 'json' | 'text';
   value: string;
   onChange: (value: string) => void;
-  contentType?: string;
+  onBodyModeChange: (value: 'json' | 'text') => void;
 }) {
-  const editorRef = useRef<EditorView | null>(null);
   const extensions = useMemo(() => [json(), createTheme()], []);
-
-  const handleAttributeSelect = (placeholder: string) => {
-    if (!editorRef.current) return;
-
-    const view = editorRef.current;
-    const transaction = view.state.update({
-      changes: {
-        from: view.state.selection.main.from,
-        to: view.state.selection.main.to,
-        insert: placeholder,
-      },
+  const normalizedValue = normalizeOutgoingWebhookBodyValue(value, bodyMode);
+  const { isDragActive, editorExtensions } =
+    useAutomationVariableCodeMirrorDrop({
+      onChange,
     });
+  const mergedExtensions = useMemo(
+    () => [...extensions, ...editorExtensions],
+    [editorExtensions, extensions],
+  );
 
-    view.dispatch(transaction);
-  };
   return (
     <Form.Item className="flex flex-col h-full">
+      <div className="flex items-center justify-between gap-3">
+        <Form.Label>Body</Form.Label>
+        <Select value={bodyMode} onValueChange={onBodyModeChange}>
+          <Select.Trigger className="w-36">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="json">JSON</Select.Item>
+            <Select.Item value="text">Text</Select.Item>
+          </Select.Content>
+        </Select>
+      </div>
       <Form.Message />
-      <Form.Label className="flex justify-between items-center">
-        Body
-        <Attributes
-          contentType={contentType || ''}
-          onSelect={handleAttributeSelect}
-          buttonText="Attributes"
+      {bodyMode === 'text' ? (
+        <PlaceholderInput
+          value={normalizedValue}
+          onChange={onChange}
+          variant="expression"
         />
-      </Form.Label>
-      <CodeMirror
-        value={`${value}` || '{}'}
-        height="30rem"
-        lang="json"
-        extensions={extensions}
-        basicSetup={{
-          highlightActiveLine: false,
-          highlightActiveLineGutter: false,
-        }}
-        onChange={(newValue) => onChange(newValue)}
-        onCreateEditor={(view) => {
-          editorRef.current = view;
-        }}
-      />
+      ) : (
+        <div
+          className={cn(
+            'rounded-md transition-colors',
+            isDragActive ? 'ring-2 ring-primary/40 ring-offset-2' : '',
+          )}
+        >
+          <CodeMirror
+            value={normalizedValue}
+            height="30rem"
+            lang="json"
+            extensions={mergedExtensions}
+            basicSetup={{
+              highlightActiveLine: false,
+              highlightActiveLineGutter: false,
+            }}
+            onChange={(newValue) => onChange(newValue)}
+          />
+        </div>
+      )}
     </Form.Item>
   );
 }

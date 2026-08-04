@@ -6,9 +6,11 @@ import { IField } from '../types/fieldsTypes';
 export const useFields = ({
   groupId,
   contentType,
+  limit,
 }: {
   groupId?: string;
   contentType: string;
+  limit?: number;
 }) => {
   const { data, loading, refetch } = useQuery<ICursorListResponse<IField>>(
     FIELDS_QUERY,
@@ -17,21 +19,30 @@ export const useFields = ({
         params: {
           groupId,
           contentType,
+          limit,
         },
       },
     },
   );
 
   const fields = (data?.fields?.list || []).map((field) => {
-    const type = field.type?.startsWith('relation') ? 'relation' : field.type;
+    const type = field.type?.startsWith('relation:') ? 'relation' : field.type;
     const relationType =
       type === 'relation' ? field.type?.replace('relation:', '') : undefined;
 
-    const logics = Object.fromEntries(
-      Object.entries(field.logics || {}).filter(([key]) => key !== 'multiple'),
-    );
+    const isLogicRules = Array.isArray(field.logics);
 
-    const multiple = field.logics?.multiple;
+    const logics = isLogicRules
+      ? field.logics
+      : Object.fromEntries(
+          Object.entries(field.logics || {}).filter(
+            ([key]) => key !== 'multiple',
+          ),
+        );
+
+    const multiple = isLogicRules
+      ? undefined
+      : (field.logics as { multiple?: boolean } | undefined)?.multiple;
 
     return {
       ...field,
@@ -44,6 +55,7 @@ export const useFields = ({
 
   return {
     fields: fields,
+    totalCount: data?.fields?.totalCount || 0,
     loading,
     refetch,
   };

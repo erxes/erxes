@@ -34,7 +34,9 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
+import { AreaGradient } from '../chart/AreaGradient';
 import {
+  getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
@@ -42,6 +44,11 @@ import {
   getReportMemberFilterAtom,
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface ConversationOpenProps {
   title: string;
@@ -123,17 +130,19 @@ export const OpenLineChart = memo(function OpenLineChart({
         data={chartData}
         margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
       >
+        <defs>
+          <AreaGradient id="fl-open-primary" color="var(--primary)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <Area
           type="monotone"
           dataKey="count"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.2}
+          fill="url(#fl-open-primary)"
           strokeWidth={2}
           name="Count"
-          dot={{ fill: 'var(--primary)' }}
-          activeDot={{ r: 6 }}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <XAxis
           dataKey="date"
@@ -142,7 +151,6 @@ export const OpenLineChart = memo(function OpenLineChart({
           angle={-45}
           textAnchor="end"
           height={60}
-          label={{ angle: -45, position: 'insideBottom' }}
         />
         <YAxis
           dataKey="count"
@@ -366,6 +374,11 @@ export const openTableColumns: ColumnDef<OpenTableData>[] = [
   },
 ];
 
+const OPEN_EXPORT_COLUMNS = [
+  { key: 'date' as const, header: 'Date' },
+  { key: 'count' as const, header: 'Count' },
+];
+
 export const ConversationOpen = ({
   title,
   colSpan = 6,
@@ -373,16 +386,11 @@ export const ConversationOpen = ({
 }: ConversationOpenProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [dateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
+  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -397,15 +405,39 @@ export const ConversationOpen = ({
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        callStatus:
+          sourceFilter === 'calls' && callStatusFilter !== 'all'
+            ? callStatusFilter
+            : undefined,
       },
     },
     notifyOnNetworkStatusChange: true,
   });
 
+  const allData = useMemo(
+    () => reports?.reportConversationOpenDate || [],
+    [reports],
+  );
+  const {
+    pagedData: chartData,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allData);
 
-  const chartData = useMemo(() => {
-    return reports?.reportConversationOpenDate || [];
-  }, [reports]);
+  const filterEl = (
+    <>
+      <ReportFilter cardId={id} />
+      <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton
+        data={allData}
+        columns={OPEN_EXPORT_COLUMNS}
+        filename="conversation-open"
+      />
+    </>
+  );
 
   if (loading) {
     return (
@@ -414,14 +446,7 @@ export const ConversationOpen = ({
         title={title}
         description="Total conversations open in the last 30 days"
       >
-        <FrontlineCard.Header
-          filter={
-            <>
-              <ReportFilter cardId={id} />
-              <SelectChartType value={chartType} onValueChange={setChartType} />
-            </>
-          }
-        />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Skeleton />
       </FrontlineCard>
     );
@@ -458,14 +483,7 @@ export const ConversationOpen = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header
-        filter={
-          <>
-            <ReportFilter cardId={id} />
-            <SelectChartType value={chartType} onValueChange={setChartType} />
-          </>
-        }
-      />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -477,6 +495,13 @@ export const ConversationOpen = ({
         >
           {renderChart()}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );

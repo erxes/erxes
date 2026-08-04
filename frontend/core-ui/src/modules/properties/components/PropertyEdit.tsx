@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router';
+import { Sheet } from 'erxes-ui';
 import { PropertyForm } from './PropertyForm';
 import { useFieldDetail } from '../hooks/useFieldDetail';
 import { useEditProperty } from '../hooks/useEditProperty';
@@ -7,7 +8,7 @@ import { useSetAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
 
 export const PropertyEdit = () => {
-  const { groupId, id, type } = useParams<{
+  const { id, type } = useParams<{
     groupId: string;
     id: string;
     type: string;
@@ -19,32 +20,49 @@ export const PropertyEdit = () => {
 
   const navigate = useNavigate();
 
+  const handleClose = () => navigate(`/settings/properties/${type}`);
+
+  const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
+
   const handleSubmit = (data: IPropertyForm) => {
     editProperty({
       variables: {
         id,
-        groupId,
         contentType: type,
         ...data,
       },
       onCompleted: () => {
-        navigate(`/settings/properties/${type}`);
         setNeedsToRefresh(true);
+        handleClose();
       },
     });
   };
 
-  if (loading) return null;
-
   return (
-    <PropertyForm
-      onSubmit={handleSubmit}
-      loading={editPropertyLoading}
-      defaultValues={{
-        ...fieldDetail,
-        multiple: !!fieldDetail?.logics?.multiple,
-      }}
-      isEdit
-    />
+    <Sheet open onOpenChange={handleClose}>
+      <Sheet.View
+        className="p-0"
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+        }}
+      >
+        {!loading && fieldDetail && (
+          <PropertyForm
+            onSubmit={handleSubmit}
+            loading={editPropertyLoading}
+            defaultValues={{
+              ...fieldDetail,
+              icon: fieldDetail?.icon ?? '123',
+              type: fieldType,
+              relationType: relationType.join(':'),
+            }}
+            isEdit
+            onCancel={handleClose}
+            contentType={type || ''}
+            fieldId={id}
+          />
+        )}
+      </Sheet.View>
+    </Sheet>
   );
 };

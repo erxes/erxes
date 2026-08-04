@@ -1,73 +1,32 @@
-import { IconChevronLeft } from '@tabler/icons-react';
-import { activePluginState, NavigationMenuGroup, Sidebar } from 'erxes-ui';
-import { usePluginsNavigationGroups } from '../hooks/usePluginsNavigationGroups';
-import { useAtom } from 'jotai';
+import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
+import { Sidebar } from 'erxes-ui';
 
-export const NavigationPluginExitButton = () => {
-  const [activePlugin, setActivePlugin] = useAtom(activePluginState);
+export const NavigationPluginPanelContent = ({
+  activityId,
+}: {
+  activityId: string;
+}) => {
+  const navigationGroups = usePluginsNavigationGroups();
+  const navigationGroup = navigationGroups[activityId];
 
-  if (!activePlugin) {
+  if (!navigationGroup) {
     return null;
   }
 
   return (
     <>
-      <Sidebar.Menu className="px-4 py-2">
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onClick={() => setActivePlugin(null)}>
-            <IconChevronLeft className="text-accent-foreground" />
-            <span className="font-sans font-semibold text-accent-foreground">
-              Exit {activePlugin}
-            </span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-      </Sidebar.Menu>
-      <Sidebar.Separator className="mx-0" />
-    </>
-  );
-};
-
-export const NavigationPlugins = () => {
-  const navigationGroups = usePluginsNavigationGroups();
-  const [activePlugin, setActivePlugin] = useAtom(activePluginState);
-
-  if (Object.entries(navigationGroups).length === 0) {
-    return null;
-  }
-
-  if (activePlugin && navigationGroups[activePlugin]) {
-    const { subGroups } = navigationGroups[activePlugin];
-    return (
-      <>
-        <NavigationMenuGroup
-          name={
-            activePlugin.charAt(0).toUpperCase() +
-            activePlugin.slice(1) +
-            ' modules'
-          }
-          separate
-        >
-          {navigationGroups[activePlugin].contents.map((Content, index) => (
-            <Content key={index} />
-          ))}
-        </NavigationMenuGroup>
-        {subGroups.map((SubGroup, index) => (
-          <SubGroup key={index} />
-        ))}
-      </>
-    );
-  }
-
-  return (
-    <NavigationMenuGroup name="Plugins">
-      {Object.entries(navigationGroups).map(([name, group]) => (
-        <Sidebar.MenuItem key={name}>
-          <Sidebar.MenuButton onClick={() => setActivePlugin(name)}>
-            {group.icon && <group.icon className="text-accent-foreground" />}
-            <span className="capitalize">{name}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
+      <Sidebar.Group className="px-2 py-1">
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            {navigationGroup.contents.map((Content) => (
+              <Content key={Content.displayName || Content.name} />
+            ))}
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+      {navigationGroup.subGroups.map((SubGroup) => (
+        <SubGroup key={SubGroup.displayName || SubGroup.name} />
       ))}
-    </NavigationMenuGroup>
+    </>
   );
 };

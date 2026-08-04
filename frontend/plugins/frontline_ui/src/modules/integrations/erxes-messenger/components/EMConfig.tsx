@@ -1,37 +1,54 @@
-import { useFieldArray, useForm, UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import {
+  ControllerRenderProps,
+  useFieldArray,
+  useForm,
+  UseFormReturn,
+} from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emConfigSchema';
+import { useQuery } from '@apollo/client';
 import {
   Button,
   Collapsible,
+  Combobox,
+  Command,
   Form,
   Input,
+  Popover,
   Select,
   Spinner,
   Switch,
   Textarea,
   Tooltip,
 } from 'erxes-ui';
+import { EM_MESSENGER_AUTOMATIONS } from '@/integrations/erxes-messenger/graphql/queries/emAutomationsQueries';
 import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { SelectMember } from 'ui-modules';
+import { SelectMember, SelectBrand } from 'ui-modules';
 import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
-import { erxesMessengerSetupConfigAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import {
+  erxesMessengerSetupConfigAtom,
+  erxesMessengerSetupEditSheetOpenAtom,
+} from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 import { useCreateMessenger } from '@/integrations/erxes-messenger/hooks/useCreateMessenger';
 import { useEditMessenger } from '@/integrations/erxes-messenger/hooks/useEditMessenger';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
-import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { useParams } from 'react-router';
 import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
+import { useState } from 'react';
+import { useTopics } from '@/knowledgebase/hooks/useTopics';
+import { EM_CONTENT_TYPES } from '../constants/emContentTypes';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
 export const EMConfig = () => {
+  const { t } = useTranslation('frontline');
   const { id } = useParams();
   const form = useForm<EMConfigFormValues>({
     resolver: zodResolver(EM_CONFIG_SCHEMA),
@@ -49,8 +66,6 @@ export const EMConfig = () => {
 
   const loading = createLoading || editLoading;
   const isEditMode = !!idToEdit;
-
-  console.log(form.watch(), '\nwatch');
 
   return (
     <Form {...form}>
@@ -75,13 +90,13 @@ export const EMConfig = () => {
         className="flex-auto flex flex-col overflow-hidden"
       >
         <EMLayout
-          title="Config"
+          title={t('config')}
           actions={
             <>
               <EMLayoutPreviousStepButton />
               <Button type="submit" disabled={loading}>
                 {loading && <Spinner size="sm" />}
-                Save
+                {t('save')}
               </Button>
             </>
           }
@@ -90,17 +105,38 @@ export const EMConfig = () => {
             <Collapsible defaultOpen>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
-                Integration Setup
+                {t('integration-setup')}
               </Collapsible.TriggerButton>
               <Collapsible.Content className="p-2 space-y-6">
                 <Form.Field
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Name</Form.Label>
+                      <Form.Label>{t('name')}</Form.Label>
                       <Form.Control>
                         <Input {...field} />
                       </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="brandId"
+                  rules={{ required: 'Brand is required' }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t('brand')}</Form.Label>
+                      <Form.Control>
+                        <SelectBrand
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder={t('select-a-brand')}
+                          className="w-full h-10 rounded-lg border bg-background"
+                        />
+                      </Form.Control>
+                      <Form.Description>
+                        {t('choose-the-brand-for-this-integration')}
+                      </Form.Description>
                       <Form.Message />
                     </Form.Item>
                   )}
@@ -110,14 +146,14 @@ export const EMConfig = () => {
             <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
-                Bot Setup
+                {t('bot-setup')}
               </Collapsible.TriggerButton>
               <Collapsible.Content className="p-2 space-y-4">
                 <Form.Field
                   name="botSetup.greetingMessage"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Greeting Message</Form.Label>
+                      <Form.Label>{t('greeting-message')}</Form.Label>
                       <Form.Control>
                         <Textarea {...field} />
                       </Form.Control>
@@ -139,19 +175,84 @@ export const EMConfig = () => {
                         </Form.Control>
 
                         <Form.Label variant="peer" className="leading-6">
-                          Generate Messenger Bots
+                          {t('enable-ai-bot')}
                         </Form.Label>
                       </div>
                       <Form.Description>
-                        Please check messenger bot
+                        {t('enable-ai-bot-description')}
                       </Form.Description>
                       <Form.Message />
                     </Form.Item>
                   )}
                 />
+                <Form.Field
+                  name="botSetup.botShowInitialMessage"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <div className="flex items-center gap-3">
+                        <Form.Control>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </Form.Control>
+                        <Form.Label variant="peer" className="leading-6">
+                          {t('show-initial-message')}
+                        </Form.Label>
+                      </div>
+                      <Form.Description>
+                        {t('show-initial-message-description')}
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="botSetup.botShowInitialMessage"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <div className="flex items-center gap-3">
+                        <Form.Control>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </Form.Control>
+                        <Form.Label variant="peer" className="leading-6">
+                          Show Initial Message
+                        </Form.Label>
+                      </div>
+                      <Form.Description>
+                        When enabled, the bot will display the greeting message
+                        as an initial message in the conversation.
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                {form.watch('botSetup.botCheck') && (
+                  <Form.Field
+                    name="botSetup.automationId"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('automation-bot')}</Form.Label>
+                        <Form.Control>
+                          <SelectMessengerAutomation
+                            value={field.value ?? ''}
+                            onChange={field.onChange}
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          {t('automation-bot-description')}
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
               </Collapsible.Content>
             </Collapsible>
-            <Collapsible>
+            {/* <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
                 Cloudflare calls setup
@@ -161,7 +262,7 @@ export const EMConfig = () => {
                   name="cloudflareCallsSetup.header"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Header</Form.Label>
+                      <Form.Label>{t('header')}</Form.Label>
                       <Form.Control>
                         <Input {...field} />
                       </Form.Control>
@@ -173,7 +274,7 @@ export const EMConfig = () => {
                   name="cloudflareCallsSetup.description"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>{t('description')}</Form.Label>
                       <Form.Control>
                         <Textarea {...field} />
                       </Form.Control>
@@ -185,7 +286,7 @@ export const EMConfig = () => {
                   name="cloudflareCallsSetup.secondPageHeader"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Second page header</Form.Label>
+                      <Form.Label>{t('second-page-header')}</Form.Label>
                       <Form.Control>
                         <Input {...field} />
                       </Form.Control>
@@ -197,7 +298,7 @@ export const EMConfig = () => {
                   name="cloudflareCallsSetup.secondPageDescription"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Second page description</Form.Label>
+                      <Form.Label>{t('second-page-description')}</Form.Label>
                       <Form.Control>
                         <Textarea {...field} />
                       </Form.Control>
@@ -230,23 +331,47 @@ export const EMConfig = () => {
                   )}
                 />
               </Collapsible.Content>
-            </Collapsible>
+            </Collapsible> */}
             <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
-                Ticket config
+                {t('ticket-config')}
               </Collapsible.TriggerButton>
               <Collapsible.Content className="p-2 space-y-4">
                 <Form.Field
                   name="ticketConfigId"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label className="sr-only">Ticket config</Form.Label>
+                      <Form.Label>{t('select-ticket-config')}</Form.Label>
                       <Form.Control>
                         <SelectTicketConfig.FormItem
                           value={field.value}
                           onValueChange={field.onChange}
                         />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+              </Collapsible.Content>
+            </Collapsible>
+            <Collapsible>
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+                <Collapsible.TriggerIcon />
+                {t('knowledge-base-topic')}
+              </Collapsible.TriggerButton>
+              <Collapsible.Content className="p-2 space-y-4">
+                <Form.Field<
+                  z.infer<typeof EM_CONFIG_SCHEMA>,
+                  'knowledgeBaseTopicId'
+                >
+                  name="knowledgeBaseTopicId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>
+                        {t('select-knowledge-base-topic')}
+                      </Form.Label>
+                      <Form.Control>
+                        <SelectKnowledgeBaseTopic field={field} />
                       </Form.Control>
                     </Form.Item>
                   )}
@@ -265,17 +390,20 @@ const PersistentMenu = ({
 }: {
   form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
 }) => {
-  const { control } = form;
+  const { t } = useTranslation('frontline');
+  const { control, watch } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'botSetup.persistentMenu',
   });
 
+  const persistentMenuValues = watch('botSetup.persistentMenu');
+
   return (
     <Form.Item>
       <Form.Label className="flex items-center">
-        Persistent Menu
+        {t('persistent-menu')}
         <Tooltip.Provider>
           <Tooltip delayDuration={100}>
             <Tooltip.Trigger asChild>
@@ -288,67 +416,121 @@ const PersistentMenu = ({
               </Button>
             </Tooltip.Trigger>
             <Tooltip.Content className="max-w-80">
-              A Persistent Menu is a quick-access toolbar in your chat.
-              Customize it below for easy navigation to key bot features.
+              {t('persistent-menu-tooltip')}
             </Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
       </Form.Label>
       <div className="space-y-3">
-        {fields.map((field, index) => (
-          <div className="flex gap-2 items-end" key={field.id}>
-            <Form.Field
-              key={field.id}
-              name={`botSetup.persistentMenu.${index}.title`}
-              render={({ field }) => (
-                <Form.Item className="flex-auto">
-                  <Form.Label>Title</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              key={field.id}
-              name={`botSetup.persistentMenu.${index}.type`}
-              render={({ field }) => (
-                <Form.Item className="flex-auto">
-                  <Form.Label>Type</Form.Label>
-                  <Select value={field.value} onValueChange={field.onChange}>
+        {fields.map((field, index) => {
+          const currentType = persistentMenuValues?.[index]?.type;
+          return (
+            <div className="space-y-2" key={field.id}>
+              <div className="flex gap-2 items-end">
+                <Form.Field
+                  name={`botSetup.persistentMenu.${index}.text`}
+                  render={({ field }) => (
+                    <Form.Item className="flex-auto">
+                      <Form.Label>{t('text')}</Form.Label>
+                      <Form.Control>
+                        <Input {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name={`botSetup.persistentMenu.${index}.type`}
+                  render={({ field }) => (
+                    <Form.Item className="flex-auto">
+                      <Form.Label>{t('type')}</Form.Label>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Form.Control>
+                          <Select.Trigger className="mb-0">
+                            <Select.Value placeholder={t('select-a-type')} />
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content>
+                          <Select.Item value="button">
+                            {t('button')}
+                          </Select.Item>
+                          <Select.Item value="link">{t('link')}</Select.Item>
+                        </Select.Content>
+                      </Select>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Button
+                  onClick={() => remove(index)}
+                  variant="secondary"
+                  size="icon"
+                  className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
+                >
+                  <IconTrash />
+                </Button>
+              </div>
+              {/* Always register `link` so reset() retains its value;
+                  only show the UI when type === 'link' */}
+              <Form.Field
+                name={`botSetup.persistentMenu.${index}.link`}
+                render={({ field }) => (
+                  <Form.Item className={currentType === 'link' ? '' : 'hidden'}>
+                    <Form.Label>{t('url')}</Form.Label>
                     <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select a type" />
-                      </Select.Trigger>
+                      <Input
+                        {...field}
+                        type="url"
+                        placeholder="https://example.com"
+                      />
                     </Form.Control>
-                    <Select.Content>
-                      <Select.Item value="button">Button</Select.Item>
-                      <Select.Item value="link">Link</Select.Item>
-                    </Select.Content>
-                  </Select>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Button
-              onClick={() => remove(index)}
-              variant="secondary"
-              size="icon"
-              className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
-            >
-              <IconTrash />
-            </Button>
-          </div>
-        ))}
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name={`botSetup.persistentMenu.${index}.contentType`}
+                render={({ field }) => (
+                  <Form.Item
+                    className={currentType === 'button' ? '' : 'hidden'}
+                  >
+                    <Form.Label>{t('content-type')}</Form.Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Form.Control>
+                        <Select.Trigger>
+                          <Select.Value
+                            placeholder={t('select-content-type')}
+                          />
+                        </Select.Trigger>
+                      </Form.Control>
+                      <Select.Content>
+                        {EM_CONTENT_TYPES.map(({ type, label }) => (
+                          <Select.Item key={type} value={type}>
+                            {label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </div>
+          );
+        })}
       </div>
       <Button
-        onClick={() => append({ title: '', type: 'button' })}
+        onClick={() =>
+          append({ text: '', type: 'button', contentType: 'text' })
+        }
         className="flex w-full mt-5!"
         variant="secondary"
       >
         <IconPlus />
-        Add persistent menu
+        {t('add-persistent-menu')}
       </Button>
     </Form.Item>
   );
@@ -359,6 +541,7 @@ const CallRouting = ({
 }: {
   form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
 }) => {
+  const { t } = useTranslation('frontline');
   const { control } = form;
 
   const { fields, append, remove } = useFieldArray({
@@ -368,7 +551,7 @@ const CallRouting = ({
 
   return (
     <Form.Item>
-      <Form.Label>Call routing</Form.Label>
+      <Form.Label>{t('call-routing')}</Form.Label>
       <div className="space-y-3">
         {fields.map((field, index) => (
           <div className="flex gap-2 items-end">
@@ -377,7 +560,7 @@ const CallRouting = ({
               name={`cloudflareCallsSetup.callRouting.${index}.name`}
               render={({ field }) => (
                 <Form.Item className="flex-auto">
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -390,7 +573,7 @@ const CallRouting = ({
               name={`cloudflareCallsSetup.callRouting.${index}.operatorIds`}
               render={({ field }) => (
                 <Form.Item className="flex-auto">
-                  <Form.Label>Operator IDs</Form.Label>
+                  <Form.Label>{t('operator-ids')}</Form.Label>
                   <SelectMember.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -418,8 +601,113 @@ const CallRouting = ({
         variant="secondary"
       >
         <IconPlus />
-        Add call routing
+        {t('add-call-routing')}
       </Button>
     </Form.Item>
+  );
+};
+
+const SelectMessengerAutomation = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const [open, setOpen] = useState(false);
+  const { data, loading } = useQuery(EM_MESSENGER_AUTOMATIONS, {
+    variables: { triggerTypes: ['frontline:inbox.messages'] },
+  });
+
+  const automations: { _id: string; name: string; status: string }[] =
+    data?.automations || [];
+
+  const selected = automations.find((a) => a._id === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Combobox.Trigger className="w-full">
+        <span className={selected ? '' : 'text-muted-foreground'}>
+          {loading
+            ? t('loading')
+            : selected
+              ? selected.name
+              : t('select-an-automation')}
+        </span>
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <Command>
+          <Command.List>
+            <Command.Input placeholder={t('search-automation')} />
+            <Command.Empty>{t('no-automations-found')}</Command.Empty>
+            {automations.map((automation) => (
+              <Command.Item
+                key={automation._id}
+                value={automation._id}
+                onSelect={(v) => {
+                  onChange(v === value ? '' : v);
+                  setOpen(false);
+                }}
+              >
+                <span className="flex-1">{automation.name}</span>
+                <span className="ml-2 text-xs text-muted-foreground capitalize">
+                  {automation.status}
+                </span>
+                {automation._id === value && <Combobox.Check />}
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+const SelectKnowledgeBaseTopic = ({
+  field,
+}: {
+  field: ControllerRenderProps<
+    z.infer<typeof EM_CONFIG_SCHEMA>,
+    'knowledgeBaseTopicId'
+  >;
+}) => {
+  const { t } = useTranslation('frontline');
+  const [_open, _setOpen] = useState<boolean>(false);
+  const { topics } = useTopics();
+  const selectedTopic = (field.value?.length &&
+    topics?.find((topic) => topic._id === field.value)) || {
+    title: t('select-a-topic'),
+  };
+
+  console.log('topic', field.value);
+
+  return (
+    <Popover open={_open} onOpenChange={_setOpen}>
+      <Combobox.Trigger>
+        <span>{selectedTopic.title}</span>
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <Command>
+          <Command.List>
+            <Command.Input placeholder={t('search-topic')} />
+            {topics &&
+              topics.map((topic) => (
+                <Command.Item
+                  key={topic._id}
+                  value={topic._id}
+                  onSelect={(v) => {
+                    field.onChange(v);
+                    _setOpen(false);
+                  }}
+                >
+                  {topic.title}
+                  {topic._id === field.value && <Combobox.Check />}
+                </Command.Item>
+              ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };

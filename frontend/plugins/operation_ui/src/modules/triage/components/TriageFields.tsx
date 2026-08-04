@@ -1,4 +1,5 @@
-import { Input, Separator, useBlockEditor, BlockEditor } from 'erxes-ui';
+import { Input, Separator, useBlockEditor, BlockEditor, Dialog, Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
@@ -7,21 +8,18 @@ import { ITriage } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { ConvertToTask } from './triage-selects/ConvertToTask';
+import { DeclineTriage } from './triage-selects/DeclineTriage';
+import { SelectStatus } from '@/operation/components/SelectStatus';
+import { useConvertTriage } from '../hooks/useConvertTriage';
+import { STATUS_TYPES } from '@/operation/components/StatusInline';
+import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
-  const {
-    _id: triageId,
-    priority,
-
-    name: _name,
-  } = triage || {};
+  const { t } = useTranslation('operation');
+  const { _id: triageId, priority, status, name: _name } = triage || {};
 
   const description = (triage as ITriage)?.description;
-  const parsedDescription = description ? JSON.parse(description) : undefined;
-  const initialDescriptionContent =
-    Array.isArray(parsedDescription) && parsedDescription.length > 0
-      ? parsedDescription
-      : undefined;
+  const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
@@ -29,9 +27,14 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
-    placeholder: 'Description...',
+    placeholder: t('description-placeholder'),
   });
   const { updateTriage } = useUpdateTriage();
+  const { convertTriageToTask } = useConvertTriage();
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<number | null>(null);
+
   const [name, setName] = useState(_name);
 
   const handleDescriptionChange = async () => {
@@ -50,7 +53,9 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     updateTriage({
       variables: {
         _id: triageId,
-        name: debouncedName,
+        input: {
+          name: debouncedName,
+        },
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,14 +65,16 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     if (!debouncedDescriptionContent) return;
     if (
       JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(description ? JSON.parse(description) : undefined)
+      JSON.stringify(parseDescriptionBlocks(description))
     ) {
       return;
     }
     updateTriage({
       variables: {
         _id: triageId,
-        description: JSON.stringify(debouncedDescriptionContent),
+        input: {
+          description: JSON.stringify(debouncedDescriptionContent),
+        },
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,7 +84,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     <div className="flex flex-col gap-3">
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-        placeholder="Triage Name"
+        placeholder={t('triage-name')}
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
@@ -87,12 +94,29 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
           value={priority}
           onValueChange={(value) => {
             updateTriage({
-              variables: { _id: triageId, priority: Number(value) },
+              variables: {
+                _id: triageId,
+                input: {
+                  priority: Number(value),
+                },
+              },
             });
           }}
         />
 
+        <SelectStatus
+          variant="detail"
+          value={status}
+          useExtendedLabels={true}
+          onValueChange={(value) => {
+            if (value !== STATUS_TYPES.TRIAGE) {
+              setPendingStatus(value);
+              setConfirmOpen(true);
+            }
+          }}
+        />
         <ConvertToTask triageId={triageId} />
+        <DeclineTriage triageId={triageId} />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">
@@ -103,6 +127,35 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
         />
       </div>
       <ActivityList contentId={triageId} contentDetail={triage} />
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>{t('convert-to-task')}</Dialog.Title>
+          </Dialog.Header>
+          <div className="py-4">
+            <p>
+              {t('convert-triage-confirm')}
+            </p>
+          </div>
+          <Dialog.Footer>
+            <Dialog.Close asChild>
+              <Button variant="outline">{t('cancel')}</Button>
+            </Dialog.Close>
+            <Button
+              onClick={() => {
+                if (pendingStatus) {
+                  convertTriageToTask({
+                    variables: { id: triageId, status: pendingStatus },
+                  });
+                }
+                setConfirmOpen(false);
+              }}
+            >
+              {t('confirm')}
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
     </div>
   );
 };

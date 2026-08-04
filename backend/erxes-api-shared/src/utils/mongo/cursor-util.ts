@@ -10,6 +10,7 @@ export interface CursorPaginateParams<T> {
     orderBy?: Record<string, SortOrder>;
   };
   query?: FilterQuery<T>;
+  formatter?: Record<string, CursorFieldType>;
 }
 
 export interface CursorPaginateAggregationParams<T> {
@@ -83,13 +84,13 @@ const convertValue = (value: any, type: CursorFieldType) => {
     default:
       return value;
   }
-}
+};
 
 export const buildCursorQuery = (
   cursor: string,
   orderBy: Record<string, SortOrder>,
   direction: 'forward' | 'backward',
-  formatter?: Record<string, CursorFieldType>
+  formatter?: Record<string, CursorFieldType>,
 ): Record<string, any> => {
   const cursorData = decodeCursor(cursor);
 
@@ -128,8 +129,8 @@ export const buildCursorQuery = (
           ? '$gt'
           : '$lt'
         : isAscending
-          ? '$lt'
-          : '$gt';
+        ? '$lt'
+        : '$gt';
 
     if (cursorData[field] !== undefined) {
       condition[field] = { [operator]: cursorData[field] };

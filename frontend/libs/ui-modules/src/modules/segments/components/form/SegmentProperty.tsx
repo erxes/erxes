@@ -1,82 +1,66 @@
 import { IconTrash } from '@tabler/icons-react';
-import { Button, Spinner } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 
 import { PropertyField } from 'ui-modules/modules/segments/components/form/PropertyField';
 import { PropertyInput } from 'ui-modules/modules/segments/components/form/PropertyInput';
 import { PropertyOperator } from 'ui-modules/modules/segments/components/form/PropertyOperator';
 import { useSegmentProperty } from '../../hooks/useSegmentProperty';
-import { IProperty } from '../../types';
 import { SegmentPropertiesRails } from './SegmentPropertiesRails';
+import { SegmentGroupFieldProvider } from '../../context/SegmentGroupField';
 
-export const SegmentProperty = ({
-  index,
-  remove,
-  total,
-  parentFieldName,
-}: IProperty) => {
+export const SegmentProperty = ({ index }: { index: number }) => {
   const {
+    totalFields,
+    removeField,
     fields,
     propertyTypes,
-    loading,
     condition,
+    loading,
     selectedField,
     operators,
     conditionFieldName,
-  } = useSegmentProperty({ index, parentFieldName });
-  const { propertyName, propertyOperator, propertyValue } = condition || {};
-  if (loading) {
-    return <Spinner />;
-  }
+    resetLaterFields,
+  } = useSegmentProperty({ index });
 
   return (
     <div className="flex items-center relative">
-      {/* Tree line connector */}
-      <SegmentPropertiesRails
-        total={total}
-        index={index}
-        parentFieldName={parentFieldName}
-      />
+      <SegmentPropertiesRails index={index} />
       <div
-        className={`flex flex-row gap-4 w-full py-2 group ${
-          total > 1 ? 'pl-12' : ''
+        className={`flex flex-row gap-2 w-full min-w-0 py-2 group ${
+          totalFields > 1 ? 'pl-12' : ''
         }`}
       >
-        <div className="w-2/5">
-          <PropertyField
-            defaultValue={propertyName}
-            parentFieldName={conditionFieldName}
-            index={index}
-            fields={fields}
-            currentField={selectedField}
-            propertyTypes={propertyTypes}
-          />
-        </div>
-        <div className="w-1/5">
-          <PropertyOperator
-            defaultValue={propertyOperator}
-            parentFieldName={conditionFieldName}
-            index={index}
-            currentField={selectedField}
-            operators={operators || []}
-          />
-        </div>
-        <div className="w-2/5 flex items-center gap-2">
-          <PropertyInput
-            defaultValue={propertyValue}
-            parentFieldName={conditionFieldName}
-            index={index}
-            operators={operators || []}
-            selectedField={selectedField}
-          />
-          <Button
-            variant="destructive"
-            size="icon"
-            className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => remove()}
-          >
-            <IconTrash size={16} />
-          </Button>
-        </div>
+        <SegmentGroupFieldProvider
+          index={index}
+          condition={condition}
+          conditionFieldName={conditionFieldName}
+          fields={fields}
+          selectedField={selectedField}
+          operators={operators}
+          loading={loading}
+          onBeforeFieldChange={resetLaterFields}
+          propertyTypes={propertyTypes}
+        >
+          <div className="min-w-0 flex-[2_0_0%]">
+            <PropertyField />
+          </div>
+          <div className="min-w-0 flex-[1_0_0%]">
+            <PropertyOperator />
+          </div>
+          <div className="min-w-0 flex-[2_0_0%] flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <PropertyInput />
+            </div>
+            <Button
+              variant="destructive"
+              size="icon"
+              className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={() => removeField(index)}
+            >
+              <IconTrash size={16} />
+            </Button>
+          </div>
+        </SegmentGroupFieldProvider>
       </div>
     </div>
   );

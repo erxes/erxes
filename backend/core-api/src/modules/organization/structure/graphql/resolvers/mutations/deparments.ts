@@ -1,6 +1,12 @@
 import { IContext } from '~/connectionResolvers';
 export const deparmentMutations = {
-  async departmentsAdd(_parent: undefined, doc, { user, models }: IContext) {
+  async departmentsAdd(
+    _parent: undefined,
+    doc,
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('departmentsManage');
+
     const department = await models.Departments.createDepartment(doc, user);
 
     return department;
@@ -9,8 +15,10 @@ export const deparmentMutations = {
   async departmentsEdit(
     _parent: undefined,
     { _id, ...doc },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('departmentsManage');
+
     const department = await models.Departments.updateDepartment(
       _id,
       doc,
@@ -20,7 +28,13 @@ export const deparmentMutations = {
     return department;
   },
 
-  async departmentsRemove(_parent: undefined, { ids }, { models }: IContext) {
+  async departmentsRemove(
+    _parent: undefined,
+    { ids },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('departmentsManage');
+
     if (!ids.length) {
       throw new Error('You must specify at least one department id to remove');
     }

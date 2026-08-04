@@ -35,6 +35,7 @@ export const GET_DEPARTMENTS = gql`
       list{
         ${DEPARTMENTS_FIELDS}
       }
+      totalCount
       ${GQL_PAGE_INFO}
     }
   }
@@ -49,6 +50,7 @@ export const GET_DEPARTMENT_BY_ID = gql`
       parentId
       order
       workhours
+      status
     }
   }
 `;

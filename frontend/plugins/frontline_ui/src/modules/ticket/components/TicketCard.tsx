@@ -1,21 +1,35 @@
-import { BoardCardProps, Separator } from 'erxes-ui';
-import { IconCalendarEventFilled } from '@tabler/icons-react';
-import { format } from 'date-fns';
-import { Button, TextOverflowTooltip } from 'erxes-ui';
-import { useAtomValue, useSetAtom, atom } from 'jotai';
-import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
-import { ticketCountByBoardAtom } from '@/ticket/states/ticketsTotalCountState';
+import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
+import { ticketCountByBoardAtom } from '@/ticket/states/ticketsTotalCountState';
+import { IconCalendarEventFilled } from '@tabler/icons-react';
+import { format } from 'date-fns';
+import {
+  BoardCardProps,
+  Button,
+  Separator,
+  TextOverflowTooltip,
+} from 'erxes-ui';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const ticketBoardItemAtom = atom(
   (get) => (id: string) => get(allTicketsMapState)[id],
 );
 
 export const TicketCard = ({ id, column }: BoardCardProps) => {
+  const { t } = useTranslation('frontline');
+  const ticket = useAtomValue(ticketBoardItemAtom)(id);
+  const [, setActiveTicket] = useTicketDetailSheet();
+  const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
+
+  if (!ticket) {
+    return null;
+  }
+
   const {
     startDate,
     targetDate,
@@ -26,9 +40,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
     createdAt,
     pipelineId,
     assigneeId,
-  } = useAtomValue(ticketBoardItemAtom)(id);
-  const setActiveTicket = useSetAtom(ticketDetailSheetState);
-  const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
+  } = ticket;
 
   return (
     <div onClick={() => setActiveTicket(id)}>
@@ -54,7 +66,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
             value={name}
           />
           <div className="text-accent-foreground uppercase">
-            Ticket #{number}
+            {t('ticket-number', { number })}
           </div>
         </div>
         <div className="flex flex-wrap gap-1">
@@ -82,7 +94,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
           className="text-muted-foreground px-1 hover:bg-background"
         >
           <IconCalendarEventFilled />
-          {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
+          {createdAt && format(new Date(createdAt), 'MMM d, yyyy HH:mm')}
         </Button>
         <SelectAssigneeTicket variant="card" value={assigneeId} id={_id} />
       </div>

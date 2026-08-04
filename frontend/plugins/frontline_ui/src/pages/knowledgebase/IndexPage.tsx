@@ -1,0 +1,165 @@
+import { Breadcrumb, Button, PageContainer, Kbd, Separator } from 'erxes-ui';
+import { Link, useSearchParams } from 'react-router-dom';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { IconLibraryPhoto, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { KnowledgeBase } from '../../modules/knowledgebase/components/KnowledgeBase';
+import { useMemo, useState } from 'react';
+import { TopicDrawer } from '../../modules/knowledgebase/components/TopicDrawer';
+import { ArticleDrawer } from '../../modules/knowledgebase/components/ArticleDrawer';
+import { useTopics } from '../../modules/knowledgebase/hooks/useTopics';
+import { useMutation } from '@apollo/client';
+import { REMOVE_TOPIC } from '../../modules/knowledgebase/graphql/mutations';
+
+const IndexPage = () => {
+  const { t } = useTranslation('frontline');
+  const [isTopicDrawerOpen, setIsTopicDrawerOpen] = useState(false);
+  const [isArticleDrawerOpen, setIsArticleDrawerOpen] = useState(false);
+  const [editingTopic, setEditingTopic] = useState<any>(undefined);
+  const [editingArticle, setEditingArticle] = useState<any>(null);
+  const [searchParams] = useSearchParams();
+  const { topics, refetch } = useTopics();
+  const [removeTopic] = useMutation(REMOVE_TOPIC);
+
+  const topicId = searchParams.get('topicId') || '';
+  const categoryId = searchParams.get('categoryId') || '';
+
+  const currentTopic = useMemo(
+    () => (topics || []).find((t: any) => t._id === topicId),
+    [topics, topicId],
+  );
+
+  const currentCategory = useMemo(() => {
+    const cats = currentTopic?.categories || [];
+    return (cats || []).find((c: any) => c._id === categoryId);
+  }, [currentTopic, categoryId]);
+
+  let lastLabel = t('knowledge-base');
+
+  if (topicId) {
+    lastLabel = t('kb-categories');
+  }
+
+  if (categoryId) {
+    lastLabel = t('articles');
+  }
+
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('knowledge-base'),
+    topicId && (currentTopic?.title || t('unnamed-topic')),
+    categoryId && (currentCategory?.title || t('unnamed-category')),
+  );
+
+  const handleEditTopic = (topic: any) => {
+    setEditingTopic(topic);
+    setIsTopicDrawerOpen(true);
+  };
+
+  const handleRemoveTopic = (_id: string) => {
+    removeTopic({ variables: { _id } }).then(() => refetch());
+  };
+
+  const handleCloseTopicDrawer = () => {
+    setIsTopicDrawerOpen(false);
+    setEditingTopic(undefined);
+  };
+
+  const handleCloseArticleDrawer = () => {
+    setIsArticleDrawerOpen(false);
+    setEditingArticle(null);
+  };
+
+  return (
+    <PageContainer>
+      <PageHeader>
+        <PageHeader.Start>
+          <Breadcrumb>
+            <Breadcrumb.List className="gap-1">
+              <Breadcrumb.Item>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/knowledgeBase">
+                    <IconLibraryPhoto className="h-4 w-4" />
+                    {t('knowledge-base')}
+                  </Link>
+                </Button>
+              </Breadcrumb.Item>
+
+              {topicId ? (
+                <>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <Button variant="ghost" asChild>
+                      <Link to={`/frontline/knowledgeBase?topicId=${topicId}`}>
+                        {currentTopic?.title || t('unnamed-topic')}
+                      </Link>
+                    </Button>
+                  </Breadcrumb.Item>
+                </>
+              ) : null}
+
+              {categoryId ? (
+                <>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <Button variant="ghost" asChild>
+                      <Link
+                        to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}
+                      >
+                        {currentCategory?.title || t('unnamed-category')}
+                      </Link>
+                    </Button>
+                  </Breadcrumb.Item>
+                </>
+              ) : null}
+
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
+                <Button variant="ghost">{lastLabel}</Button>
+              </Breadcrumb.Item>
+            </Breadcrumb.List>
+          </Breadcrumb>
+
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconLibraryPhoto"
+          />
+        </PageHeader.Start>
+
+        <PageHeader.End>
+          <Button
+            onClick={() =>
+              categoryId
+                ? setIsArticleDrawerOpen(true)
+                : setIsTopicDrawerOpen(true)
+            }
+            className="h-7 py-1"
+          >
+            <IconPlus className="w-4 h-4" />
+            {categoryId ? t('new-article') : t('kb-new-topic')}
+            <Kbd>C</Kbd>
+          </Button>
+        </PageHeader.End>
+      </PageHeader>
+
+      <KnowledgeBase />
+
+      <TopicDrawer
+        topic={editingTopic}
+        isOpen={isTopicDrawerOpen}
+        onClose={handleCloseTopicDrawer}
+        onSaved={() => refetch()}
+      />
+
+      <ArticleDrawer
+        article={editingArticle}
+        categoryId={categoryId}
+        isOpen={isArticleDrawerOpen}
+        onClose={handleCloseArticleDrawer}
+        onSaved={() => {}}
+      />
+    </PageContainer>
+  );
+};
+
+export default IndexPage;

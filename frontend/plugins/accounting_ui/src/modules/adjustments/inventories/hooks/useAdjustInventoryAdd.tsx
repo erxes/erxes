@@ -1,11 +1,12 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ADJUST_INVENTORY_ADD } from '../graphql/adjustInventoryAdd';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ADJUST_INVENTORIES_QUERY } from '../graphql/adjustInventoryQueries';
 
-
 export const useAdjustInventoryAdd = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
 
   const [_addAdjustInventory, { loading }] = useMutation(
@@ -18,7 +19,7 @@ export const useAdjustInventoryAdd = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -26,19 +27,19 @@ export const useAdjustInventoryAdd = (options?: OperationVariables) => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Adjust Inventory created successfully',
+          title: t('success'),
+          description: t('adjust-inventory-created-successfully'),
         });
-        options?.onCompleted()
+        options?.onCompleted();
       },
       refetchQueries: [
         {
           query: ADJUST_INVENTORIES_QUERY,
           variables: {
-            "page": 1,
-            "perPage": 20
-          }
-        }
+            page: 1,
+            perPage: 20,
+          },
+        },
       ],
       awaitRefetchQueries: true,
       update: (_cache, { data }) => {
@@ -46,7 +47,7 @@ export const useAdjustInventoryAdd = (options?: OperationVariables) => {
 
         const pathname = newId
           ? `/accounting/adjustment/inventory/edit?id=${newId}`
-          : "/accounting/adjustment/inventory";
+          : '/accounting/adjustment/inventory';
 
         navigate(pathname);
       },

@@ -44,6 +44,7 @@ export const BROADCAST_MESSAGES = gql`
         validCustomersCount
         runCount
         fromUserId
+        fromEmail
         status
         progress
         shortMessage {
@@ -103,6 +104,7 @@ export const BROADCAST_MESSAGE = gql`
       runCount
       lastRunAt
       fromUserId
+      fromEmail
       stats
       shortMessage {
         from
@@ -155,6 +157,23 @@ export const BROADCAST_MEMBERS = gql`
 export const BROADCAST_CUSTOMERS_COUNT = gql`
   query BroadcastCustomersCount($types: [CUSTOMER_RELATION_TYPE]) {
     customersCount(types: $types)
+  }
+`;
+
+export const BROADCAST_TRACES = gql`
+  query BroadcastTraces($engageMessageId: String!) {
+    engageBroadcastTraces(engageMessageId: $engageMessageId) {
+      _id
+      type
+      message
+      createdAt
+    }
+  }
+`;
+
+export const BROADCAST_VERIFIED_EMAILS = gql`
+  query BroadcastVerifiedEmails {
+    engageVerifiedEmails
   }
 `;
 

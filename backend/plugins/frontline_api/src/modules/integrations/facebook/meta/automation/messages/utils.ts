@@ -1,5 +1,3 @@
-import { getEnv } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import {
@@ -10,18 +8,18 @@ import {
   IFacebookCustomer,
   IFacebookCustomerDocument,
 } from '@/integrations/facebook/@types/customers';
+import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
 import { debugError } from '@/integrations/facebook/debuggers';
 import {
   ISendMessageData,
   TAttachmentMessage,
   TAutomationActionConfig,
-  TBotConfigMessage,
+  TBotConfigMessageAttachment,
   TBotConfigMessageButton,
   TFacebookMessageButton,
   TGenericTemplateMessage,
   TQuickRepliesMessage,
-  TQuickReplyMessage,
   TTemplateMessage,
   TTextInputMessage,
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
@@ -31,7 +29,14 @@ import {
   getUrl,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import { sendReply } from '@/integrations/facebook/utils';
-import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
+import {
+  AutomationExecutionSetWaitCondition,
+  EXECUTE_WAIT_TYPES,
+} from 'erxes-api-shared/core-modules';
+import { getEnv } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { IFacebookCommentConversation } from '../../../@types/comment_conversations';
+import { IFacebookConversationMessageDocument } from '../../../@types/conversationMessages';
 
 type TGenerateMessagesParams = {
   subdomain: string;
@@ -42,6 +47,115 @@ type TGenerateMessagesParams = {
   config?: TAutomationActionConfig;
 };
 
+type TMessageTemplateContext = {
+  prevAction?: Record<string, unknown>;
+};
+
+type TFacebookMediaMessageType = 'image' | 'audio' | 'video';
+
+type TFacebookMessageActionTarget =
+  | IFacebookConversationMessageDocument
+  | IFacebookCommentConversation;
+
+const isFacebookMediaMessageType = (
+  type: string,
+): type is TFacebookMediaMessageType =>
+  ['image', 'audio', 'video'].includes(type);
+
+const isCommentMessageActionTarget = (
+  target: TFacebookMessageActionTarget,
+): target is IFacebookCommentConversation => 'comment_id' in target;
+
+const isDirectMessageActionTarget = (
+  target: TFacebookMessageActionTarget,
+): target is IFacebookConversationMessageDocument => 'conversationId' in target;
+
+const getValueByPath = (
+  source: Record<string, unknown>,
+  path: string,
+): { found: boolean; value?: unknown } => {
+  const segments = path.split('.');
+
+  let current: unknown = source;
+
+  for (const segment of segments) {
+    if (
+      current === null ||
+      current === undefined ||
+      typeof current !== 'object' ||
+      !(segment in (current as Record<string, unknown>))
+    ) {
+      return { found: false };
+    }
+
+    current = (current as Record<string, unknown>)[segment];
+  }
+
+  return { found: true, value: current };
+};
+
+const replaceMessageTemplateString = (
+  value: string,
+  context: TMessageTemplateContext,
+) => {
+  return value.replace(
+    /{{\s*([\w\d]+(?:\.[\w\d-]+)*)\s*}}/g,
+    (match, placeholderPath) => {
+      const { found, value: resolvedValue } = getValueByPath(
+        context,
+        placeholderPath,
+      );
+
+      if (!found || resolvedValue === null || resolvedValue === undefined) {
+        return match;
+      }
+
+      if (typeof resolvedValue === 'object') {
+        return JSON.stringify(resolvedValue);
+      }
+
+      return String(resolvedValue);
+    },
+  );
+};
+
+const replaceMessageTemplateValues = <T>(
+  value: T,
+  context: TMessageTemplateContext,
+): T => {
+  if (typeof value === 'string') {
+    return replaceMessageTemplateString(value, context) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) =>
+      replaceMessageTemplateValues(item, context),
+    ) as T;
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        replaceMessageTemplateValues(item, context),
+      ]),
+    ) as T;
+  }
+
+  return value;
+};
+
+export const resolveMessageActionConfigTemplates = (
+  config?: TAutomationActionConfig,
+  context: TMessageTemplateContext = {},
+) => {
+  if (!config) {
+    return config;
+  }
+
+  return replaceMessageTemplateValues(config, context);
+};
+
 export const generateMessages = async ({
   subdomain,
   conversation,
@@ -50,7 +164,7 @@ export const generateMessages = async ({
   actionId,
   config,
 }: TGenerateMessagesParams) => {
-  let { messages = [] } = config || {};
+  const messages = [...(config?.messages || [])];
 
   const generateButtons = (buttons: TBotConfigMessageButton[] = []) => {
     const generatedButtons: TFacebookMessageButton[] = [];
@@ -88,6 +202,21 @@ export const generateMessages = async ({
     const quickRepliesMessage = messages.splice(quickRepliesIndex, 1)[0];
     messages.push(quickRepliesMessage);
   }
+
+  const generateAttachmentMessage = (
+    type: TFacebookMediaMessageType | 'file',
+    url: string,
+    botData: TAttachmentMessage['botData'],
+  ): TAttachmentMessage => ({
+    attachment: {
+      type,
+      payload: {
+        url: getUrl(subdomain, url),
+      },
+    },
+    botData,
+  });
+
   const generatedMessages: (
     | TTextInputMessage
     | TTemplateMessage
@@ -105,6 +234,7 @@ export const generateMessages = async ({
     image = '',
     video = '',
     audio = '',
+    attachments = [],
     input,
   } of messages) {
     const botData = generateBotData(subdomain, {
@@ -114,6 +244,9 @@ export const generateMessages = async ({
       cards,
       quickReplies,
       image,
+      video,
+      audio,
+      attachments,
     });
 
     if (['text', 'input'].includes(type) && !buttons?.length) {
@@ -156,7 +289,7 @@ export const generateMessages = async ({
           },
         },
         botData,
-      } as TGenericTemplateMessage);
+      });
     }
 
     if (type === 'quickReplies' && quickReplies.length) {
@@ -183,105 +316,52 @@ export const generateMessages = async ({
       });
     }
 
-    if (['image', 'audio', 'video'].includes(type)) {
+    if (isFacebookMediaMessageType(type)) {
       const url = image || video || audio;
 
-      url &&
-        generatedMessages.push({
-          attachment: {
-            type: type as 'image' | 'audio' | 'video',
-            payload: {
-              url: getUrl(subdomain, url),
-            },
-          },
-          botData,
-        });
+      if (url) {
+        generatedMessages.push(generateAttachmentMessage(type, url, botData));
+      }
+    }
+
+    if (type === 'attachments') {
+      generatedMessages.push(
+        ...attachments
+          .filter(({ url }) => !!url)
+          .map((attachment: TBotConfigMessageAttachment) =>
+            generateAttachmentMessage('file', attachment.url, botData),
+          ),
+      );
     }
   }
 
   return generatedMessages;
 };
 
-export const generateObjectToWait = ({
-  messages = [],
-  optionalConnects = [],
-  conversation,
-  customer,
-}: {
-  messages: TBotConfigMessage[];
-  optionalConnects: {
-    sourceId: string;
-    actionId: string;
-    optionalConnectId: string;
-  }[];
-  conversation: { _id: string } & IFacebookConversation;
-  customer: IFacebookCustomer;
-}) => {
-  const obj: any = {};
-  const general: any = {
-    conversationId: conversation._id,
-    customerId: customer.erxesApiId,
-  };
-  let propertyName = 'payload.btnId';
-
-  // if (messages.some((msg) => msg.type === 'input')) {
-  //   const inputMessageConfig = messages.find(
-  //     (msg) => msg.type === 'input',
-  //   )?.input;
-  //   if (inputMessageConfig) {
-  //     if (inputMessageConfig?.type === 'day') {
-  //       obj.startWaitingDate = moment()
-  //         .add(inputMessageConfig?.value || 0, 'day')
-  //         .toDate();
-  //     }
-
-  //     if (inputMessageConfig?.type === 'hour') {
-  //       obj.startWaitingDate = moment()
-  //         .add(inputMessageConfig?.value || 0, 'hour')
-  //         .toDate();
-  //     }
-  //     if (inputMessageConfig?.type === 'minute') {
-  //       obj.startWaitingDate = moment()
-  //         .add(inputMessageConfig?.value || 0, 'minute')
-  //         .toDate();
-  //     }
-  //   }
-
-  //   const actionIdIfNotReply =
-  //     optionalConnects.find(
-  //       (connect) => connect?.optionalConnectId === 'ifNotReply',
-  //     )?.actionId || null;
-
-  //   obj.waitingActionId = actionIdIfNotReply;
-
-  //   propertyName = 'botId';
-  // } else {
-  //   obj.startWaitingDate = moment().add(24, 'hours').toDate();
-  //   obj.waitingActionId = null;
-  // }
-
-  return {
-    ...obj,
-    objToCheck: {
-      propertyName,
-      general,
-    },
-  };
-};
-
 export const sendMessage = async (
   models: IModels,
   bot: IFacebookBotDocument,
-  { senderId, recipientId, integration, message, tag }: ISendMessageData,
-  isLoop?: boolean,
-) => {
-  await trySendTypingOn(
-    models,
+  {
     senderId,
     recipientId,
-    integration.erxesApiId,
+    integration,
+    message,
     tag,
-  );
+    commentId,
+  }: ISendMessageData,
+  isLoop?: boolean,
+) => {
+  if (!commentId) {
+    await trySendTypingOn(
+      models,
+      senderId,
+      recipientId,
+      integration.erxesApiId,
+      tag,
+    );
+  }
+
+  const recipient = commentId ? { comment_id: commentId } : { id: senderId };
 
   try {
     // Send the actual message
@@ -289,7 +369,7 @@ export const sendMessage = async (
       models,
       'me/messages',
       {
-        recipient: { id: senderId },
+        recipient,
         message,
         tag,
       },
@@ -297,6 +377,27 @@ export const sendMessage = async (
       integration.erxesApiId,
     );
   } catch (error) {
+    const isAlreadyRepliedComment =
+      !!commentId &&
+      (error.message.includes('Activity already replied to') ||
+        error.message.includes('#10900'));
+
+    if (isAlreadyRepliedComment) {
+      return await sendMessage(
+        models,
+        bot,
+        {
+          senderId,
+          recipientId,
+          integration,
+          message,
+          tag,
+          commentId: undefined,
+        },
+        isLoop,
+      );
+    }
+
     const shouldRetryWithTag =
       error.message.includes(
         'This message is sent outside of allowed window',
@@ -314,6 +415,7 @@ export const sendMessage = async (
           integration,
           message,
           tag: bot?.tag,
+          commentId,
         },
         true,
       );
@@ -348,12 +450,12 @@ async function trySendTypingOn(
   }
 }
 
-export const getData = async (
+export const getOrCreateFacebookMessageActionContext = async (
   models: IModels,
   subdomain: string,
   collectionType: string,
-  target: any,
-  config: any,
+  target: TFacebookMessageActionTarget,
+  config: TAutomationActionConfig,
 ): Promise<{
   conversation: IFacebookConversationDocument;
   integration: IFacebookIntegrationDocument;
@@ -362,127 +464,38 @@ export const getData = async (
   recipientId: string;
   senderId: string;
   botId: string;
+  didCreateConversation: boolean;
 }> => {
   if (collectionType === 'comments') {
-    const { senderId, recipientId, erxesApiId } = target;
-
-    const { botId } = config;
-
-    let conversation = await models.FacebookConversations.findOne({
-      senderId,
-      recipientId,
-    });
-
-    const customer = await models.FacebookCustomers.findOne({
-      erxesApiId: target.customerId,
-    });
-
-    if (!customer) {
-      throw new Error(
-        `Error occurred during send message with trigger type ${collectionType}`,
-      );
-    }
-    const integration = await models.FacebookIntegrations.findOne({
-      erxesApiId: customer?.integrationId,
-    });
-
-    if (!integration) {
-      throw new Error(
-        `Error occurred during send message with trigger type ${collectionType}`,
-      );
+    if (!isCommentMessageActionTarget(target)) {
+      throw new Error('Comment target is required');
     }
 
-    const bot = await models.FacebookBots.findOne({ _id: botId });
-
-    if (!bot) {
-      throw new Error('Bot not found');
-    }
-
-    const DOMAIN = getEnv({
-      name: 'DOMAIN',
+    return await getOrCreateCommentMessageActionContext({
+      target,
+      models,
+      config,
       subdomain,
     });
-
-    const timestamp = new Date();
-    if (!conversation) {
-      try {
-        conversation = await models.FacebookConversations.create({
-          timestamp,
-          senderId,
-          recipientId,
-          content: 'Start conversation from comment',
-          integrationId: integration._id,
-          isBot: true,
-          botId,
-        });
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation duplication'
-            : e,
-        );
-      }
-    }
-
-    // save on api
-    try {
-      const apiConversationResponse = await receiveInboxMessage(subdomain, {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          content: 'Start conversation from comment',
-          conversationId: conversation.erxesApiId,
-          updatedAt: timestamp,
-        }),
-      });
-
-      if (apiConversationResponse.status === 'success') {
-        conversation.erxesApiId = apiConversationResponse.data._id;
-
-        await conversation.save();
-      } else {
-        throw new Error(
-          `Conversation creation failed: ${JSON.stringify(
-            apiConversationResponse,
-          )}`,
-        );
-      }
-    } catch (e) {
-      await models.Conversations.deleteOne({ _id: conversation._id });
-      throw new Error(e);
-    }
-
-    const created = await models.ConversationMessages.addMessage({
-      conversationId: conversation._id,
-      content: '<p>Bot Message</p>',
-      internal: true,
-      botId,
-      botData: [
-        {
-          type: 'text',
-          text: `${DOMAIN}/inbox/index?_id=${erxesApiId}`,
-        },
-      ],
-      fromBot: true,
-    });
-
-    pConversationClientMessageInserted(subdomain, {
-      ...created.toObject(),
-      conversationId: conversation.erxesApiId,
-    });
-
-    return {
-      conversation,
-      integration,
-      customer,
-      bot,
-      recipientId,
-      senderId,
-      botId,
-    };
   }
 
+  if (!isDirectMessageActionTarget(target)) {
+    throw new Error('Direct message target is required');
+  }
+
+  return await getOrCreateDirectMessageActionContext({
+    target,
+    models,
+  });
+};
+
+async function getOrCreateDirectMessageActionContext({
+  target,
+  models,
+}: {
+  target: IFacebookConversationMessageDocument;
+  models: IModels;
+}) {
   const conversation = await models.FacebookConversations.findOne({
     _id: target?.conversationId,
   });
@@ -502,16 +515,13 @@ export const getData = async (
 
   const customer = await models.FacebookCustomers.findOne({
     userId: senderId,
-  }).lean();
+  });
 
   if (!customer) {
     throw new Error(`Customer not found`);
   }
 
-  const bot = await models.FacebookBots.findOne(
-    { _id: botId },
-    { tag: 1 },
-  ).lean();
+  const bot = await models.FacebookBots.findOne({ _id: botId }, { tag: 1 });
 
   if (!bot) {
     throw new Error(`Bot not found`);
@@ -525,5 +535,163 @@ export const getData = async (
     recipientId,
     senderId,
     botId,
+    didCreateConversation: false,
+  };
+}
+
+async function getOrCreateCommentMessageActionContext({
+  target,
+  models,
+  config,
+  subdomain,
+}: {
+  subdomain: string;
+  target: IFacebookCommentConversation;
+  config: TAutomationActionConfig;
+  models: IModels;
+}) {
+  const { senderId, recipientId, erxesApiId } = target;
+
+  const { botId } = config;
+
+  let conversation = await models.FacebookConversations.findOne({
+    senderId,
+    recipientId,
+  });
+
+  const didCreateConversation = !conversation;
+
+  const customer = await models.FacebookCustomers.findOne({
+    erxesApiId: target.customerId,
+  });
+
+  if (!customer) {
+    throw new Error(
+      `Error occurred during send message with trigger type comments`,
+    );
+  }
+  const integration = await models.FacebookIntegrations.findOne({
+    erxesApiId: target.integrationId || customer.integrationId,
+  });
+
+  if (!integration) {
+    throw new Error(
+      `Error occurred during send message with trigger type comments`,
+    );
+  }
+
+  const bot = await models.FacebookBots.findOne({ _id: botId });
+
+  if (!bot) {
+    throw new Error('Bot not found');
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+  });
+
+  const timestamp = new Date();
+  if (!conversation) {
+    try {
+      conversation = await models.FacebookConversations.create({
+        timestamp,
+        senderId,
+        recipientId,
+        content: 'Start conversation from comment',
+        integrationId: integration._id,
+        isBot: true,
+        botId,
+      });
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: conversation duplication'
+          : e,
+      );
+    }
+  }
+
+  // save on api
+  try {
+    const apiConversationResponse = await receiveInboxMessage(subdomain, {
+      action: 'create-or-update-conversation',
+      payload: JSON.stringify({
+        customerId: customer.erxesApiId,
+        integrationId: integration.erxesApiId,
+        content: 'Start conversation from comment',
+        conversationId: conversation.erxesApiId,
+        updatedAt: timestamp,
+      }),
+    });
+
+    if (apiConversationResponse.status === 'success') {
+      conversation.erxesApiId = apiConversationResponse.data._id;
+
+      await conversation.save();
+    } else {
+      throw new Error(
+        `Conversation creation failed: ${JSON.stringify(
+          apiConversationResponse,
+        )}`,
+      );
+    }
+  } catch (e) {
+    if (didCreateConversation) {
+      await models.FacebookConversations.deleteOne({ _id: conversation._id });
+    }
+    throw new Error(e);
+  }
+
+  if (!conversation.erxesApiId) {
+    throw new Error('Conversation erxesApiId is required');
+  }
+
+  const created = await models.ConversationMessages.addMessage({
+    conversationId: conversation.erxesApiId,
+    content: '<p>Bot Message</p>',
+    internal: true,
+    botId,
+    botData: [
+      {
+        type: 'text',
+        text: `${DOMAIN}/inbox/index?_id=${erxesApiId}`,
+      },
+    ],
+    fromBot: true,
+  });
+
+  pConversationClientMessageInserted(subdomain, {
+    ...created.toObject(),
+    conversationId: conversation.erxesApiId,
+  });
+
+  return {
+    conversation,
+    integration,
+    customer,
+    bot,
+    recipientId,
+    senderId,
+    botId,
+    didCreateConversation,
+  };
+}
+
+export const generateConditionWaitToAction = ({
+  customer,
+  conversation,
+}: {
+  conversation: IFacebookConversationDocument;
+  customer: IFacebookCustomerDocument;
+}): AutomationExecutionSetWaitCondition => {
+  return {
+    type: EXECUTE_WAIT_TYPES.CHECK_OBJECT,
+    propertyName: 'payload.btnId',
+    expectedState: {
+      conversationId: conversation._id,
+      customerId: customer.erxesApiId,
+    },
+    shouldCheckOptionalConnect: true,
   };
 };

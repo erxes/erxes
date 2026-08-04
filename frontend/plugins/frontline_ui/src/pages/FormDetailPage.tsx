@@ -1,14 +1,13 @@
-import { SettingsHeader } from 'ui-modules';
-import { FormEdit } from '@/forms/components/FormEdit';
-import { FormsBreadCrumb } from '@/forms/components/FormsBreadCrumb';
+import { lazy } from 'react';
 
-export const FormDetailPage = () => {
-  return (
-    <>
-      <SettingsHeader>
-        <FormsBreadCrumb />
-      </SettingsHeader>
-      <FormEdit />
-    </>
-  );
+const FormEdit = lazy(() =>
+  import('@/forms/components/FormEdit').then((module) => ({
+    default: module.FormEdit,
+  })),
+);
+
+const FormDetailPage = () => {
+  return <FormEdit />;
 };
+
+export default FormDetailPage;

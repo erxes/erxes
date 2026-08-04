@@ -12,6 +12,7 @@ export const GET_TRIAGE = gql`
       createdAt
       updatedAt
       priority
+      status
     }
   }
 `;

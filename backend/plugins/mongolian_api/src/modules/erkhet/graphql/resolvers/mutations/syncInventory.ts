@@ -2,17 +2,19 @@ import {
   consumeInventory,
   consumeInventoryCategory,
   getConfig,
+  sendErkhetGet,
 } from '@/erkhet/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import fetch from 'node-fetch';
 import { IContext } from '~/connectionResolvers';
 
 const inventoryMutations = {
   async toCheckProducts(
     _root: undefined,
     _params: undefined,
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -47,21 +49,15 @@ const inventoryMutations = {
     }
 
     const productCodes = products.map((p) => p.code) || [];
-    const response = await fetch(
-      process.env.ERKHET_URL +
-        '/get-api/?' +
-        new URLSearchParams({
-          kind: 'inventory',
-          api_key: config.apiKey,
-          api_secret: config.apiSecret,
-          token: config.apiToken,
-          is_gen_fk: 'true',
-        }),
-    );
+    const responseData = await sendErkhetGet('/get-api/', {
+      kind: 'inventory',
+      api_key: config.apiKey,
+      api_secret: config.apiSecret,
+      token: config.apiToken,
+      is_gen_fk: 'true',
+    });
 
-    const responseData = await response.json();
-
-    if (!response.ok && Object.keys(responseData).length === 0) {
+    if (Object.keys(responseData).length === 0) {
       throw new Error('Erkhet data not found.');
     }
 
@@ -70,7 +66,7 @@ const inventoryMutations = {
     const deleteProducts: any = [];
     let matchedCount = 0;
 
-    let result = responseData.map((r) => r.fields);
+    const result = responseData.map((r) => r.fields);
     const resultCodes = result.map((r) => r.code) || [];
 
     const productByCode = {};
@@ -94,8 +90,7 @@ const inventoryMutations = {
           (resProd.vat_type || '') === (product.taxType || '') &&
           product.uom &&
           resProd.measure_unit_code === product.uom &&
-          resProd.category_code ===
-            (categoryOfId[product.categoryId] || {}).code
+          resProd.category_code === categoryOfId[product.categoryId]?.code
         ) {
           matchedCount = matchedCount + 1;
         } else {
@@ -128,8 +123,11 @@ const inventoryMutations = {
   async toCheckCategories(
     _root: undefined,
     _params: undefined,
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    // Permission check
+    await checkPermission('erkhetManageSync');
+
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -155,24 +153,18 @@ const inventoryMutations = {
       throw new Error('No category codes found.');
     }
 
-    const response = await fetch(
-      process.env.ERKHET_URL +
-        '/get-api/?' +
-        new URLSearchParams({
-          kind: 'inv_category',
-          api_key: config.apiKey,
-          api_secret: config.apiSecret,
-          token: config.apiToken,
-          is_gen_fk: 'true',
-        }),
-    );
+    const responseData = await sendErkhetGet('/get-api/', {
+      kind: 'inv_category',
+      api_key: config.apiKey,
+      api_secret: config.apiSecret,
+      token: config.apiToken,
+      is_gen_fk: 'true',
+    });
 
-    const responseData = await response.json();
-
-    if (!response || Object.keys(responseData).length === 0) {
+    if (Object.keys(responseData).length === 0) {
       throw new Error('Erkhet data not found.');
     }
-    let result = responseData.map((r) => r.fields);
+    const result = responseData.map((r) => r.fields);
 
     // for update
     const matchedErkhetData = result.filter((r) => {
@@ -185,7 +177,7 @@ const inventoryMutations = {
       (r) => !matchedErkhetData.includes(r),
     );
     // for delete
-    let otherCategories: any[] = [];
+    const otherCategories: any[] = [];
     for (const code of categoryCodes) {
       if (result.every((r) => r.code !== code)) {
         const response = await sendTRPCMessage({
@@ -193,7 +185,7 @@ const inventoryMutations = {
           pluginName: 'core',
           module: 'productCategories',
           action: 'findOne',
-          input: { code },
+          input: { query: { code } },
           method: 'query',
           defaultValue: {},
         });
@@ -220,8 +212,10 @@ const inventoryMutations = {
   async toSyncCategories(
     _root: undefined,
     { action, categories }: { action: string; categories: any[] },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     try {
       switch (action) {
         case 'CREATE': {
@@ -271,8 +265,10 @@ const inventoryMutations = {
   async toSyncProducts(
     _root: undefined,
     { action, products }: { action: string; products: any[] },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     try {
       switch (action) {
         case 'CREATE': {

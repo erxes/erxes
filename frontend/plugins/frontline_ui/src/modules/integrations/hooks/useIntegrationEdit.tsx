@@ -12,13 +12,14 @@ export const useIntegrationEdit = () => {
           id: cache.identify(data.integrationsEditCommonFields),
           fields: Object.keys(options.variables || {}).reduce(
             (fields: any, field) => {
-              fields[field] = () => (options.variables || {})[field];
+              fields[field] = () => options.variables?.[field];
               return fields;
             },
             {},
           ),
         });
       },
+      refetchQueries: ['Integrations', 'IntegrationDetail'],
     });
   };
 

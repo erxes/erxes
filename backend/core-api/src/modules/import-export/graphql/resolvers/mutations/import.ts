@@ -1,8 +1,12 @@
 import { nanoid } from 'nanoid';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { splitType } from 'erxes-api-shared/core-modules';
+import {
+  splitType,
+  getImportExportJobOptions,
+} from 'erxes-api-shared/core-modules';
 import { validateImportConfig } from '~/modules/import-export/utils/validateConfig';
+import { getRequiredImportExportPermissions } from '~/modules/import-export/utils/getRequiredPermissions';
 
 async function getJobIdFromQueue(
   subdomain: string,
@@ -25,7 +29,7 @@ export const importMutations = {
       fileKey,
       fileName,
     }: { entityType: string; fileKey: string; fileName: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     const [pluginName, moduleName, collectionName] = splitType(entityType);
 
@@ -35,6 +39,16 @@ export const importMutations = {
       requireGetImportHeaders: true,
       requireInsertImportRows: true,
     });
+
+    const requiredPermissions = await getRequiredImportExportPermissions({
+      pluginName,
+      operation: 'import',
+      entityType,
+    });
+
+    for (const permission of requiredPermissions) {
+      await checkPermission(permission);
+    }
 
     const importDoc = await models.Imports.create({
       _id: nanoid(),
@@ -58,15 +72,13 @@ export const importMutations = {
           importId: importDoc._id,
           entityType,
           fileKey,
+          userId: user._id,
         },
       },
-      {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-      },
+      getImportExportJobOptions({
+        attempts: 2,
+        backoffDelay: 2000,
+      }),
     );
 
     await models.Imports.updateOne(
@@ -80,8 +92,10 @@ export const importMutations = {
   async importCancel(
     _root: undefined,
     { importId }: { importId: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('importsManage');
+
     const importDoc = await models.Imports.getImport(importId);
 
     if (!importDoc) {
@@ -154,8 +168,10 @@ export const importMutations = {
   async importRetry(
     _root: undefined,
     { importId }: { importId: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('importsManage');
+
     const importDoc = await models.Imports.getImport(importId);
 
     if (!importDoc) {
@@ -181,15 +197,13 @@ export const importMutations = {
           importId: importDoc._id,
           entityType: importDoc.entityType,
           fileKey: importDoc.fileKey,
+          userId: user._id,
         },
       },
-      {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-      },
+      getImportExportJobOptions({
+        attempts: 2,
+        backoffDelay: 2000,
+      }),
     );
 
     await models.Imports.updateOne(
@@ -202,6 +216,7 @@ export const importMutations = {
           successRows: 0,
           errorRows: 0,
           totalRows: 0,
+          lastProcessedRow: 0,
         },
         $unset: {
           completedAt: 1,
@@ -215,8 +230,10 @@ export const importMutations = {
   async importResume(
     _root: undefined,
     { importId }: { importId: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('importsManage');
+
     const importDoc = await models.Imports.getImport(importId);
 
     if (!importDoc) {
@@ -242,15 +259,13 @@ export const importMutations = {
           importId: importDoc._id,
           entityType: importDoc.entityType,
           fileKey: importDoc.fileKey,
+          userId: user._id,
         },
       },
-      {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-      },
+      getImportExportJobOptions({
+        attempts: 2,
+        backoffDelay: 2000,
+      }),
     );
 
     await models.Imports.updateOne(
@@ -259,9 +274,16 @@ export const importMutations = {
         $set: {
           jobId: String(job.id),
           status: 'pending',
+          processedRows: 0,
+          successRows: 0,
+          errorRows: 0,
+          totalRows: 0,
+          errorMessage: undefined,
+          terminalError: undefined,
         },
         $unset: {
           completedAt: 1,
+          errorFileUrl: 1,
         },
       },
     );

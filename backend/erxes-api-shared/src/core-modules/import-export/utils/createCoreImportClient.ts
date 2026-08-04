@@ -1,11 +1,27 @@
 import { sendTRPCMessage } from '../../../utils/trpc';
 
+type TerminalImportExportError = {
+  code?: string;
+  stage?: string;
+  retryable?: boolean;
+};
+
 export type CoreImportClient = {
   getImport: (subdomain: string, importId: string) => Promise<any>;
   updateImportProgress: (
     subdomain: string,
     importId: string,
-    progress: Record<string, any>,
+    progress: {
+      status?: string;
+      processedRows?: number;
+      successRows?: number;
+      errorRows?: number;
+      totalRows?: number;
+      lastProcessedRow?: number;
+      errorMessage?: string;
+      errorFileUrl?: string;
+      terminalError?: TerminalImportExportError;
+    },
   ) => Promise<any>;
   addImportedIds: (
     subdomain: string,
@@ -25,7 +41,16 @@ export type CoreImportClient = {
   updateExportProgress: (
     subdomain: string,
     exportId: string,
-    progress: Record<string, any>,
+    progress: {
+      status?: string;
+      processedRows?: number;
+      totalRows?: number;
+      lastCursor?: string;
+      estimatedSecondsRemaining?: number;
+      fileKey?: string;
+      errorMessage?: string;
+      terminalError?: TerminalImportExportError;
+    },
   ) => Promise<any>;
   saveExportFile: (
     subdomain: string,

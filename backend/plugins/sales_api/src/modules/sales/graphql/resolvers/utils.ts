@@ -1,17 +1,38 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { checkUserIds, graphqlPubsub } from 'erxes-api-shared/utils';
 import { DeleteResult } from 'mongoose';
-import * as _ from "underscore";
-import { IModels } from "~/connectionResolvers";
-import { IDealDocument, IProductData, IStage, IStageDocument } from "~/modules/sales/@types";
+import * as _ from 'underscore';
+import { IModels } from '~/connectionResolvers';
+import {
+  IDealDocument,
+  IProductData,
+  IStage,
+  IStageDocument,
+} from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
-import { getNewOrder } from '~/modules/sales/utils';
+import {
+  generateAmounts,
+  generateProducts,
+  getNewOrder,
+} from '~/modules/sales/utils';
 
 export const subscriptionWrapper = async (
   models: IModels,
-  { action, deal, oldDeal, dealId, pipelineId, oldPipelineId }: {
-    action: string, deal?: IDealDocument, oldDeal?: IDealDocument, dealId?: string, pipelineId?: string, oldPipelineId?: string
-  }
+  {
+    action,
+    deal,
+    oldDeal,
+    dealId,
+    pipelineId,
+    oldPipelineId,
+  }: {
+    action: string;
+    deal?: IDealDocument;
+    oldDeal?: IDealDocument;
+    dealId?: string;
+    pipelineId?: string;
+    oldPipelineId?: string;
+  },
 ) => {
   const id = deal?._id || dealId;
   await graphqlPubsub.publish(`salesDealChanged:${id}`, {
@@ -26,20 +47,18 @@ export const subscriptionWrapper = async (
 
   if (!pipelineId && deal?.stageId) {
     const stage = await models.Stages.findOne({ _id: deal.stageId }).lean();
-    pipelineId = stage?.pipelineId
+    pipelineId = stage?.pipelineId;
+  }
+  if (pipelineId) {
+    pipelineIds.push(pipelineId);
   }
 
   if (!oldPipelineId && oldDeal?.stageId) {
     const stage = await models.Stages.findOne({ _id: oldDeal.stageId }).lean();
-    oldPipelineId = stage?.pipelineId
+    oldPipelineId = stage?.pipelineId;
   }
-
-  if (pipelineId) {
-    pipelineIds.push(pipelineId)
-  }
-
   if (oldPipelineId) {
-    pipelineIds.push(oldPipelineId)
+    pipelineIds.push(oldPipelineId);
   }
 
   await graphqlPubsub.publish('salesDealListChanged', {
@@ -49,7 +68,92 @@ export const subscriptionWrapper = async (
       oldDeal,
     },
   });
-}
+};
+
+export const resolveDealSubscriptionItem = async (
+  models: IModels,
+  subdomain: string,
+  deal: IDealDocument,
+) => {
+  const dealDoc =
+    typeof deal.toObject === 'function' ? deal.toObject() : { ...deal };
+
+  const labels = await models.PipelineLabels.find({
+    _id: { $in: deal.labelIds || [] },
+  }).lean();
+
+  // Match Deal.products GraphQL shape used by board cards: { _id, name }
+  // (not generateProducts line-item shape with nested `product`)
+  const generatedProducts = await generateProducts(
+    subdomain,
+    deal.productsData,
+  );
+  const products = generatedProducts
+    .map(
+      (row: {
+        productId?: string;
+        product?: { _id?: string; name?: string };
+      }) => {
+        const productId = row.product?._id || row.productId;
+        if (!productId) {
+          return null;
+        }
+
+        return {
+          _id: productId,
+          name: row.product?.name,
+        };
+      },
+    )
+    .filter(
+      (product): product is { _id: string; name?: string } => product !== null,
+    );
+
+  const amount = generateAmounts(deal.productsData || []);
+  const unUsedAmount = generateAmounts(deal.productsData || [], false);
+
+  return {
+    ...dealDoc,
+    labels,
+    products,
+    amount,
+    unUsedAmount,
+  };
+};
+
+export const publishPipelineOrderUpdated = async ({
+  pipelineIds,
+  processId,
+  item,
+  aboveItemId,
+  destinationStageId,
+  oldStageId,
+}: {
+  pipelineIds: string[];
+  processId?: string;
+  item: Record<string, unknown>;
+  aboveItemId?: string;
+  destinationStageId: string;
+  oldStageId?: string;
+}) => {
+  const uniquePipelineIds = [...new Set(pipelineIds.filter(Boolean))];
+
+  for (const pipelineId of uniquePipelineIds) {
+    await graphqlPubsub.publish(`salesPipelinesChanged:${pipelineId}`, {
+      salesPipelinesChanged: {
+        _id: pipelineId,
+        processId,
+        action: 'orderUpdated',
+        data: {
+          item,
+          aboveItemId: aboveItemId || '',
+          destinationStageId,
+          oldStageId,
+        },
+      },
+    });
+  }
+};
 
 /**
  * Copies pipeline labels alongside deal when they are moved between different pipelines.
@@ -99,7 +203,7 @@ export const copyPipelineLabels = async (
   for (const label of oldLabels) {
     const exists =
       existingLabelsByUnique[
-      JSON.stringify({ name: label.name, colorCode: label.colorCode })
+        JSON.stringify({ name: label.name, colorCode: label.colorCode })
       ];
     if (!exists) {
       notExistingLabels.push({
@@ -123,7 +227,10 @@ export const copyPipelineLabels = async (
     updatedLabelIds.push(newLabel._id);
   }
 
-  await models.PipelineLabels.labelObject({ dealId: item._id, labelIds: updatedLabelIds });
+  await models.PipelineLabels.labelObject({
+    dealId: item._id,
+    labelIds: updatedLabelIds,
+  });
 };
 
 export const itemMover = async (
@@ -289,31 +396,10 @@ export const removeStageWithItems = async (
 };
 
 export const removeItems = async (models: IModels, stageIds: string[]) => {
-  const items = await models.Deals.find(
-    { stageId: { $in: stageIds } },
-    { _id: 1 },
+  await models.Deals.updateMany(
+    { stageId: { $in: stageIds }, status: { $ne: SALES_STATUSES.ARCHIVED } },
+    { $set: { status: SALES_STATUSES.ARCHIVED } },
   );
-
-  const itemIds = items.map((i) => i._id);
-
-  await models.Checklists.removeChecklists(itemIds);
-
-  //   await sendCoreMessage({
-  //     subdomain,
-  //     action: "conformities.removeConformities",
-  //     data: {
-  //       mainType: type,
-  //       mainTypeIds: itemIds
-  //     }
-  //   });
-
-  //   await sendCoreMessage({
-  //     subdomain,
-  //     action: "removeInternalNotes",
-  //     data: { contentType: `sales:${type}`, contentTypeIds: itemIds }
-  //   });
-
-  await models.Deals.deleteMany({ stageId: { $in: stageIds } });
 };
 
 export const removePipelineStagesWithItems = async (
@@ -334,28 +420,25 @@ export const changeItemStatus = async (
   user: any,
   {
     item,
+    oldDeal,
     status,
     processId,
     stage,
   }: {
     item: any;
+    oldDeal?: IDealDocument;
     status: string;
     processId: string;
     stage: IStageDocument;
   },
 ) => {
   if (status === 'archived') {
-    // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-    //   salesPipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     processId,
-    //     action: "itemRemove",
-    //     data: {
-    //       item,
-    //       oldStageId: item.stageId,
-    //     },
-    //   },
-    // });
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: item,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
 
     return;
   }
@@ -371,18 +454,23 @@ export const changeItemStatus = async (
   const aboveItemId = aboveItems[0]?._id || '';
 
   // maybe, recovered order includes to oldOrders
+  const recoveredOrder = await getNewOrder({
+    collection: models.Deals,
+    stageId: item.stageId,
+    aboveItemId,
+  });
+
   await models.Deals.updateOne(
     {
       _id: item._id,
     },
     {
-      order: await getNewOrder({
-        collection: models.Deals,
-        stageId: item.stageId,
-        aboveItemId,
-      }),
+      order: recoveredOrder,
     },
   );
+
+  // Publish the persisted order when restoring the deal.
+  item.order = recoveredOrder;
 
   // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
   //   salesPipelinesChanged: {
@@ -404,23 +492,23 @@ export const changeItemStatus = async (
 export const checkAssignedUserFromPData = (
   oldAllUserIds?: string[],
   assignedUsersPdata?: string[],
-  oldPData?: IProductData[]
+  oldPData?: IProductData[],
 ) => {
   let assignedUserIds = oldAllUserIds || [];
 
   const oldAssignedUserPdata = (oldPData || [])
     .filter((pdata) => pdata.assignUserId)
-    .map((pdata) => pdata.assignUserId || "");
+    .map((pdata) => pdata.assignUserId || '');
 
   const { addedUserIds, removedUserIds } = checkUserIds(
     oldAssignedUserPdata,
-    assignedUsersPdata
+    assignedUsersPdata,
   );
 
   if (addedUserIds.length > 0 || removedUserIds.length > 0) {
     assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
     assignedUserIds = assignedUserIds.filter(
-      (userId) => !removedUserIds.includes(userId)
+      (userId) => !removedUserIds.includes(userId),
     );
   }
 

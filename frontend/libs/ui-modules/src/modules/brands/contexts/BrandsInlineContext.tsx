@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { IBrand } from '../types/brand';
 
 export interface IBrandsInlineContext {
@@ -6,7 +7,7 @@ export interface IBrandsInlineContext {
   loading: boolean;
   brandIds?: string[];
   placeholder: string;
-  updateBrands?: (brands: IBrand[]) => void;
+  updateBrands?: Dispatch<SetStateAction<IBrand[]>>;
 }
 
 export const BrandsInlineContext = createContext<IBrandsInlineContext | null>(

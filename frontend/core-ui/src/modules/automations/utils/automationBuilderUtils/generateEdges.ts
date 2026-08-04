@@ -1,13 +1,15 @@
 import { CONNECTION_PROPERTY_NAME_MAP } from '@/automations/constants';
+import { TAutomationEdgeType } from '@/automations/constants/edgeTypes';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { AutomationNodeType } from '@/automations/types';
 import { Edge } from '@xyflow/react';
+import type { IAutomationsActionFolkConfig } from 'ui-modules';
 import {
   TAutomationAction,
+  TAutomationOptionalConnect,
   TAutomationTrigger,
   TAutomationWorkflowNode,
-  TAutomationOptionalConnect,
 } from 'ui-modules';
-import type { IAutomationsActionFolkConfig } from 'ui-modules';
 
 const COMMON_EDGE_STYLES = { strokeWidth: 2 };
 const COMMON_EDGE_VARIABLES = {
@@ -15,6 +17,19 @@ const COMMON_EDGE_VARIABLES = {
   sourceHandle: 'right',
   targetHandle: 'left',
 };
+
+const withEdgeType = <TEdge extends Edge>(
+  edge: TEdge,
+  edgeType: TAutomationEdgeType,
+  flowDirection: TAutomationFlowDirection,
+): TEdge => ({
+  ...edge,
+  data: {
+    ...edge.data,
+    edgeType,
+    flowDirection,
+  },
+});
 // --- Helper functions ---
 
 export const buildPrimaryEdge = (
@@ -162,13 +177,15 @@ export const generateEdge = (
   targetField: string,
   workflowMap: Map<string, TAutomationWorkflowNode>,
   folksMap?: Map<string, IAutomationsActionFolkConfig[]>,
+  edgeType: TAutomationEdgeType = 'default',
+  flowDirection: TAutomationFlowDirection = 'horizontal',
 ) => {
   const generatedEdges = [];
   const target = (edge as any)[targetField];
   const { optionalConnects = [], ...config } = edge?.config || {};
 
   if (type === AutomationNodeType.Action) {
-    if (folksMap && folksMap.has(edge.type)) {
+    if (folksMap?.has(edge.type)) {
       generatedEdges.push(
         ...buildFolksEdges(
           type,
@@ -199,13 +216,17 @@ export const generateEdge = (
   if (target) {
     generatedEdges.push(buildPrimaryEdge(type, edge.id.toString(), target));
   }
-  return generatedEdges;
+  return generatedEdges.map((edge) =>
+    withEdgeType(edge, edgeType, flowDirection),
+  );
 };
 export const generateEdges = (
   triggers: TAutomationTrigger[],
   actions: TAutomationAction[],
   workFlows: TAutomationWorkflowNode[] = [],
   actionFolks: Record<string, IAutomationsActionFolkConfig[]> = {},
+  edgeType: TAutomationEdgeType = 'default',
+  flowDirection: TAutomationFlowDirection = 'horizontal',
 ): Edge[] => {
   const generatedEdges: Edge[] = [];
 
@@ -228,7 +249,15 @@ export const generateEdges = (
 
     for (const edge of edges) {
       generatedEdges.push(
-        ...generateEdge(type, edge, targetField, workflowMap, folksMap),
+        ...generateEdge(
+          type,
+          edge,
+          targetField,
+          workflowMap,
+          folksMap,
+          edgeType,
+          flowDirection,
+        ),
       );
     }
   }

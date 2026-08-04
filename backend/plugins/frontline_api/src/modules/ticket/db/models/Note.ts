@@ -3,7 +3,7 @@ import { INote, INoteDocument } from '@/ticket/@types/note';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+
 export interface INoteModel extends Model<INoteDocument> {
   getNote(_id: string): Promise<INoteDocument>;
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;
@@ -53,6 +53,16 @@ export const loadNoteClass = (models: IModels) => {
       subdomain: string;
       userId: string;
     }): Promise<INoteDocument> {
+      if (doc.contentId && !doc.statusId) {
+        const ticket = await models.Ticket.findOne(
+          { _id: doc.contentId },
+          { statusId: 1 },
+        ).lean();
+        if (ticket?.statusId) {
+          doc.statusId = ticket.statusId;
+        }
+      }
+
       const note = await models.Note.create(doc);
 
       await models.Activity.createActivity({

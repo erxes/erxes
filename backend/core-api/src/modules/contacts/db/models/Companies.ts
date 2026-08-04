@@ -3,13 +3,13 @@ import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
   ICompany,
   ICompanyDocument,
-  ICustomField,
+  IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { validSearchText } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { generateCompanyActivityLogs } from '../../utils/activityLogs';
+import { generateCompanyUpdateActivityLogs } from '../../meta/activity-log/companies';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   getCompany(_id: string): Promise<ICompanyDocument>;
@@ -36,9 +36,59 @@ export const loadCompanyClass = (
   models: IModels,
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
+  const updateCompanyMergeReferences = async (
+    oldCompanyIds: string[],
+    newCompanyId: string,
+  ) => {
+    await models.CPUser.updateMany(
+      { erxesCompanyId: { $in: oldCompanyIds } },
+      { $set: { erxesCompanyId: newCompanyId } },
+    );
+
+    await models.Products.updateMany(
+      { vendorId: { $in: oldCompanyIds } },
+      { $set: { vendorId: newCompanyId } },
+    );
+
+    await models.ProductSimilarities.updateMany(
+      { 'info.vendorId': { $in: oldCompanyIds } },
+      { $set: { 'info.vendorId': newCompanyId } },
+    );
+
+    await models.Relations.updateMany(
+      {
+        entities: {
+          $elemMatch: {
+            contentType: 'core:company',
+            contentId: { $in: oldCompanyIds },
+          },
+        },
+      },
+      {
+        $set: {
+          'entities.$[entity].contentId': newCompanyId,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'entity.contentType': 'core:company',
+            'entity.contentId': { $in: oldCompanyIds },
+          },
+        ],
+      },
+    );
+
+    await models.Conformities.changeConformity({
+      type: 'company',
+      newTypeId: newCompanyId,
+      oldTypeIds: oldCompanyIds,
+    });
+  };
+
   class Company {
     /**
-     * Retreive company
+     * Retrieve company
      */
     public static async getCompany(_id: string) {
       const company = await models.Companies.findOne({ _id });
@@ -63,7 +113,7 @@ export const loadCompanyClass = (
     }
 
     /**
-     * Retreive active companies
+     * Retrieve active companies
      */
     public static async findActiveCompanies(query, fields?, skip?, limit?) {
       return models.Companies.find(
@@ -79,6 +129,11 @@ export const loadCompanyClass = (
      * Create a company
      */
     public static async createCompany(doc: ICompany, user: any) {
+      // Trim code so trailing/leading spaces don't break exact code lookups
+      if (typeof doc.code === 'string') {
+        doc.code = doc.code.trim();
+      }
+
       // Checking duplicated fields of company
       await this.checkDuplication(doc);
 
@@ -88,9 +143,9 @@ export const loadCompanyClass = (
 
       this.fixListFields(doc, doc.trackedData);
 
-      if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.validateFieldValues(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        doc.propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
       }
 
@@ -124,6 +179,11 @@ export const loadCompanyClass = (
      * Update company
      */
     public static async updateCompany(_id: string, doc: ICompany) {
+      // Trim code so trailing/leading spaces don't break exact code lookups
+      if (typeof doc.code === 'string') {
+        doc.code = doc.code.trim();
+      }
+
       // Checking duplicated fields of company
       await this.checkDuplication(doc, [_id]);
 
@@ -132,10 +192,12 @@ export const loadCompanyClass = (
       this.fixListFields(doc, doc.trackedData, company);
 
       // clean custom field values
-      if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.validateFieldValues(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
+
+        doc.propertiesData = propertiesData;
       }
 
       const searchText = this.fillSearchText(
@@ -155,7 +217,7 @@ export const loadCompanyClass = (
           currentDocument: updatedCompany.toObject(),
           prevDocument: company.toObject(),
         });
-        generateCompanyActivityLogs(
+        generateCompanyUpdateActivityLogs(
           company,
           updatedCompany,
           models,
@@ -169,12 +231,18 @@ export const loadCompanyClass = (
      * Remove company
      */
     public static async removeCompanies(companyIds: string[]) {
+      // Snapshot before deletion so the removal is revertable (point-in-time).
+      const prevDocuments = await models.Companies.find({
+        _id: { $in: companyIds },
+      }).lean();
+
       const deletedCompanies = await models.Companies.deleteMany({
         _id: { $in: companyIds },
       });
       sendDbEventLog({
         action: 'deleteMany',
         docIds: companyIds,
+        prevDocuments,
       });
       return deletedCompanies;
     }
@@ -190,7 +258,7 @@ export const loadCompanyClass = (
       await this.checkDuplication(companyFields, companyIds);
 
       let scopeBrandIds: string[] = [];
-      let customFieldsData: ICustomField[] = [];
+      let propertiesData: IPropertyField = {};
       let tagIds: string[] = [];
       let names: string[] = [];
       let emails: string[] = [];
@@ -210,10 +278,12 @@ export const loadCompanyClass = (
         scopeBrandIds = scopeBrandIds.concat(companyScopeBrandIds);
 
         // merge custom fields data
-        customFieldsData = [
-          ...customFieldsData,
-          ...(companyObj.customFieldsData || []),
-        ];
+
+        // property note: prepare mergeProperties method
+        propertiesData = {
+          ...propertiesData,
+          ...(companyObj.propertiesData || {}),
+        };
 
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
@@ -244,13 +314,15 @@ export const loadCompanyClass = (
       const company = await models.Companies.createCompany({
         ...companyFields,
         scopeBrandIds,
-        customFieldsData,
+        propertiesData,
         tagIds,
         mergedIds: companyIds,
         names,
         emails,
         phones,
       });
+
+      await updateCompanyMergeReferences(companyIds, company._id);
 
       return company;
     }
@@ -265,7 +337,7 @@ export const loadCompanyClass = (
       },
       idsToExclude?: string[] | string,
     ) {
-      const query: { status: { $ne: string }; [key: string]: any } = {
+      const query: { status: { $ne: string }; [key: string]: unknown } = {
         status: { $ne: 'deleted' },
       };
       let previousEntry;
@@ -304,6 +376,7 @@ export const loadCompanyClass = (
       }
     }
 
+    /** Build the denormalized search blob (name/emails/phones/etc.) for a company. */
     public static fillSearchText(doc: ICompany) {
       return validSearchText([
         doc.primaryName || ' ',
@@ -312,12 +385,12 @@ export const loadCompanyClass = (
         (doc.phones || []).join(' '),
         doc.website || '',
         doc.industry || '',
-        doc.plan || '',
         doc.description || '',
         doc.code || '',
       ]);
     }
 
+    /** All company schema paths, including one level of nested sub-paths. */
     public static companyFieldNames() {
       const names: string[] = [];
 
@@ -336,9 +409,14 @@ export const loadCompanyClass = (
       return names;
     }
 
+    /**
+     * Normalize a company doc's list fields (emails/phones/names) and
+     * trackedData before save. Pre-existing helper; the flexible `doc`/
+     * `trackedData` shapes are intentionally untyped here.
+     */
     public static fixListFields(
-      doc: any,
-      trackedData: any[] = [],
+      doc: any, // skipcq: JS-0323 — pre-existing flexible input doc; out of scope
+      trackedData: any[] = [], // skipcq: JS-0323 — pre-existing; out of scope
       company?: ICompanyDocument,
     ) {
       let emails: string[] = doc.emails || [];

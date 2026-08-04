@@ -32,17 +32,20 @@ import {
   YAxis,
 } from 'recharts';
 import { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ResponsesChartType,
   ConversationUserMessageStat,
 } from '@/report/types';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 import { ColumnDef } from '@tanstack/table-core';
 import { IUser, MembersInline } from 'ui-modules';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { useAtom } from 'jotai';
 import {
+  getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
@@ -50,13 +53,17 @@ import {
   getReportMemberFilterAtom,
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { AreaGradient } from '../chart/AreaGradient';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface ConversationResponseProps {
   title: string;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
-
 
 interface ResponseChartProps {
   conversationResponses: ConversationUserMessageStat[];
@@ -67,18 +74,14 @@ export const ConversationResponse = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationResponseProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [dateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
+  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -93,10 +96,51 @@ export const ConversationResponse = ({
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        callStatus:
+          sourceFilter === 'calls' && callStatusFilter !== 'all'
+            ? callStatusFilter
+            : undefined,
       },
     },
   });
 
+  const allResponses = useMemo(
+    () => conversationResponses || [],
+    [conversationResponses],
+  );
+  const {
+    pagedData: pagedResponses,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allResponses);
+
+  const responseExportColumns = useMemo(
+    () => [
+      {
+        key: 'user' as const,
+        header: 'User',
+        format: (u: ConversationUserMessageStat['user']) =>
+          u?.details?.fullName || u?.username || 'Unknown',
+      },
+      { key: 'messageCount' as const, header: 'Message Count' },
+    ],
+    [],
+  );
+
+  const filterEl = (
+    <>
+      <ReportFilter cardId={id} />
+      <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton
+        data={allResponses}
+        columns={responseExportColumns}
+        filename="conversation-response"
+      />
+    </>
+  );
 
   if (loading) {
     return (
@@ -107,14 +151,7 @@ export const ConversationResponse = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header
-          filter={
-            <>
-              <ReportFilter cardId={id} />
-              <SelectChartType value={chartType} onValueChange={setChartType} />
-            </>
-          }
-        />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Skeleton />
         </FrontlineCard.Content>
@@ -133,7 +170,7 @@ export const ConversationResponse = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>
               {error.message || 'Failed to load conversation responses'}
             </Alert.Description>
@@ -167,14 +204,7 @@ export const ConversationResponse = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header
-        filter={
-          <>
-            <ReportFilter cardId={id} />
-            <SelectChartType value={chartType} onValueChange={setChartType} />
-          </>
-        }
-      />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -185,23 +215,28 @@ export const ConversationResponse = ({
           )}
         >
           {chartType === ResponsesChartType.Bar && (
-            <ResponseBarChart conversationResponses={conversationResponses} />
+            <ResponseBarChart conversationResponses={pagedResponses} />
           )}
           {chartType === ResponsesChartType.Line && (
-            <ResponseLineChart conversationResponses={conversationResponses} />
+            <ResponseLineChart conversationResponses={pagedResponses} />
           )}
           {chartType === ResponsesChartType.Pie && (
-            <ResponsePieChart conversationResponses={conversationResponses} />
+            <ResponsePieChart conversationResponses={pagedResponses} />
           )}
           {chartType === ResponsesChartType.Radar && (
-            <ResponseRadarChart conversationResponses={conversationResponses} />
+            <ResponseRadarChart conversationResponses={pagedResponses} />
           )}
           {chartType === ResponsesChartType.Table && (
-            <ResponseRecordTableChart
-              conversationResponses={conversationResponses}
-            />
+            <ResponseRecordTableChart conversationResponses={pagedResponses} />
           )}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );
@@ -303,7 +338,6 @@ export const ResponseBarChart = memo(function ResponseBarChart({
   if (scaledChartData.length === 0) {
     return null;
   }
-
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart data={scaledChartData}>
@@ -318,13 +352,11 @@ export const ResponseBarChart = memo(function ResponseBarChart({
         <Bar
           dataKey="messageCount"
           fill="var(--primary)"
-          stackId="stack-responses"
           name="Message Count"
         />
         <Bar
           dataKey="percentageScaled"
           fill="var(--success)"
-          stackId="stack-responses"
           name="Percentage"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
@@ -405,6 +437,10 @@ export const ResponseLineChart = memo(function ResponseLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="fl-resp-primary" color="var(--primary)" />
+          <AreaGradient id="fl-resp-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="user" tickLine={false} axisLine={false} />
         <YAxis
@@ -431,9 +467,10 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           dataKey="messageCount"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.3}
+          fill="url(#fl-resp-primary)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Area
@@ -441,9 +478,10 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
-          fillOpacity={0.3}
+          fill="url(#fl-resp-success)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />

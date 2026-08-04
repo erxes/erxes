@@ -13,6 +13,8 @@ export const orderFields = `
   slotCode
   customerId
   customerType
+  brokerId
+  brokerType
   printedEbarimt
   origin
   type
@@ -216,6 +218,7 @@ export const progressDetail = gql`
       _id
       modifiedAt
       number
+      slotCode
       items {
         _id
         productName

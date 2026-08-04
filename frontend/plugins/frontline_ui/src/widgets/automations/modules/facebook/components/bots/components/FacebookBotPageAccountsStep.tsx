@@ -1,6 +1,5 @@
 import { useFacebookAccounts } from '@/integrations/facebook/hooks/useFacebookAccounts';
 import { selectedFacebookAccountAtom } from '@/integrations/facebook/states/facebookStates';
-import { IntegrationType } from '@/types/Integration';
 import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
@@ -8,16 +7,18 @@ import {
   Command,
   Input,
   RadioGroup,
-  REACT_APP_API_URL,
   Spinner,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const FacebookBotPageAccountsStep = ({
   accountId,
 }: {
   accountId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [selectedAccountId, setSelectedAccountId] = useAtom(
     selectedFacebookAccountAtom,
   );
@@ -28,31 +29,28 @@ export const FacebookBotPageAccountsStep = ({
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
-            <Input placeholder="Search for an account" />
+            <Input placeholder={t('search-for-an-account')} />
           </Command.Primitive.Input>
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {facebookGetAccounts.length} accounts found
+            {t('accounts-found', { count: facebookGetAccounts.length })}
           </div>
+
           <Button variant="ghost" className="text-primary" asChild>
-            <a
-              href={`${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=${IntegrationType.FACEBOOK_MESSENGER}`}
+            <Link
+              to="/settings/frontline/channels"
               target="_blank"
               rel="noreferrer"
             >
               <IconPlus />
-              Add account via facebook
-            </a>
+              {t('add-account-via-facebook')}
+            </Link>
           </Button>
         </div>
         <RadioGroup
           value={selectedAccountId}
-          onValueChange={(value) =>
-            setSelectedAccountId(
-              value === selectedAccountId ? undefined : value,
-            )
-          }
+          onValueChange={setSelectedAccountId}
         >
           <Command.List>
             <FacebookBotPageAccountsStepContent
@@ -82,26 +80,37 @@ const FacebookBotPageAccountsStepContent = ({
   const [selectedAccountId, setSelectedAccountId] = useAtom(
     selectedFacebookAccountAtom,
   );
+
+  const handleSelect = (accountId: string) => {
+    setSelectedAccountId(accountId);
+  };
+
   if (loading) {
     return <Spinner />;
   }
 
-  return facebookGetAccounts.map((account) => (
-    <Command.Item
-      key={account._id}
-      value={account.name}
-      onSelect={() =>
-        setSelectedAccountId(
-          selectedAccountId === account._id ? undefined : account._id,
-        )
-      }
-      className={cn(
-        'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3',
-        selectedAccountId === account._id && 'text-primary',
-      )}
-    >
-      <RadioGroup.Item value={account._id} className="bg-background" />
-      <div className="font-semibold">{account.name}</div>
-    </Command.Item>
-  ));
+  return facebookGetAccounts.map((account) => {
+    const isSelected = selectedAccountId === account._id;
+
+    return (
+      <Command.Item
+        key={account._id}
+        value={account.name}
+        onSelect={() => handleSelect(account._id)}
+        className={cn(
+          'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3 cursor-pointer',
+          isSelected && 'text-primary',
+        )}
+      >
+        <RadioGroup.Item
+          value={account._id}
+          checked={isSelected}
+          className="bg-background"
+        />
+        <div className={cn('font-semibold', isSelected && 'text-primary')}>
+          {account.name}
+        </div>
+      </Command.Item>
+    );
+  });
 };

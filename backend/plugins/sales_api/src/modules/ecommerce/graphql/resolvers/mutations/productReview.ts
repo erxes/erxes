@@ -1,0 +1,94 @@
+import { markResolvers } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
+
+export const productReviewMutations = {
+  productReviewAdd: async (
+    _root,
+    params,
+    { models: { ProductReview } }: IContext,
+  ) => {
+    const { productId, customerId, review, description, info } = params;
+    const added = await ProductReview.createProductReview({
+      productId,
+      customerId,
+      review: review || 0,
+      description,
+      info,
+    });
+    return added;
+  },
+  productReviewUpdate: async (
+    _root,
+    params,
+    { models: { ProductReview } }: IContext,
+  ) => {
+    const { _id, productId, customerId, review, description, info } = params;
+    const updated = await ProductReview.updateProductReview(_id, {
+      productId,
+      customerId,
+      review: review || 0,
+      description,
+      info,
+    });
+    return updated;
+  },
+  productReviewRemove: async (
+    _root,
+    params,
+    { models: { ProductReview } }: IContext,
+  ) => {
+    const { _id } = params;
+    const removed = await ProductReview.removeProductReview(_id);
+    return removed;
+  },
+
+  cpProductReviewAdd: async (
+    _root,
+    params,
+    { models: { ProductReview } }: IContext,
+  ) => {
+    const { productId, customerId, review, description, info } = params;
+    const added = await ProductReview.createProductReview({
+      productId,
+      customerId,
+      review: review || 0,
+      description,
+      info,
+    });
+    return added;
+  },
+
+  cpProductReviewUpdate: async (
+    _root,
+    params,
+    { models: { ProductReview } }: IContext,
+  ) => {
+    const { _id, productId, customerId, review, description, info } = params;
+    const updated = await ProductReview.updateProductReview(_id, {
+      productId,
+      customerId,
+      review: review || 0,
+      description,
+      info,
+    });
+    return updated;
+  },
+
+  cpProductReviewRemove: async (
+    _root,
+    params,
+    { models: { ProductReview } }: IContext,
+  ) => {
+    const { _id } = params;
+    const removed = await ProductReview.removeProductReview(_id);
+    return removed;
+  },
+};
+
+markResolvers(productReviewMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+
+export default productReviewMutations;

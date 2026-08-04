@@ -1,14 +1,13 @@
-import { IconTicketOff } from '@tabler/icons-react';
-import { ScrollArea, Separator } from 'erxes-ui';
-import { IRelationWidgetProps, useRelations } from 'ui-modules';
-import { useCreateMultipleRelations } from 'ui-modules';
+import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
+import { IconTicketOff } from '@tabler/icons-react';
+import { ScrollArea, Separator, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useQueryState } from 'erxes-ui';
-import { TicketWidget } from './TicketWidget';
-import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { IRelationWidgetProps, useCreateMultipleRelations, useRelations } from 'ui-modules';
+import { TicketWidget } from './TicketWidget';
 
 export const TicketRelationWidget = ({
   contentId,
@@ -16,6 +15,7 @@ export const TicketRelationWidget = ({
   customerId,
   companyId,
 }: IRelationWidgetProps) => {
+  const { t } = useTranslation('frontline');
   const { ownEntities } = useRelations({
     variables: {
       contentId,
@@ -93,7 +93,7 @@ export const TicketRelationWidget = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">Tickets</span>
+        <span className="font-medium text-primary">{t('tickets')}</span>
         <AddTicketSheet
           onComplete={onComplete}
           variant="secondary"

@@ -9,10 +9,18 @@ import { gql } from '@apollo/client';
 export const GET_PRODUCTS = gql`
   query SelectProduct(
     $searchValue: String
+    $categoryIds: [String]
+    $vendorId: String
+    $pipelineId: String
+    $sortField: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     productsMain(
       searchValue: $searchValue
+      categoryIds: $categoryIds
+      vendorId: $vendorId
+      pipelineId: $pipelineId
+      sortField: $sortField
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
@@ -36,6 +44,7 @@ export const GET_PRODUCTS = gql`
         type
         barcodes
         subUoms
+        remainder
       }
       totalCount
       ${GQL_PAGE_INFO}

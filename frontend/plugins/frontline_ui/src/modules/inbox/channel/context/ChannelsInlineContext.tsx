@@ -7,6 +7,7 @@ export interface IChannelsInlineContext {
   channelIds?: string[];
   placeholder?: string;
   updateChannels?: (channels: IChannel[]) => void;
+  showIcon?: boolean;
 }
 
 export const ChannelsInlineContext =

@@ -22,6 +22,17 @@ import {
   queries as FacebookQueries,
   types as FacebookTypes,
 } from '@/integrations/facebook/graphql/schema/facebook';
+import {
+  mutations as DiscordMutations,
+  queries as DiscordQueries,
+  types as DiscordTypes,
+} from '@/integrations/discord/graphql/schema/discord';
+
+import {
+  mutations as InstagramMutations,
+  queries as InstagramQueries,
+  types as InstagramTypes,
+} from '@/integrations/instagram/graphql/schema/instagram';
 
 import {
   mutations as CallMutations,
@@ -36,43 +47,10 @@ import {
 } from '@/integrations/imap/graphql/schema/imap';
 
 import {
-  mutations as PipelineMutations,
-  queries as PipelineQuery,
-  types as PipelineTypes,
-} from '@/ticket/graphql/schemas/pipeline';
-
-import {
-  mutations as StatusMutations,
-  queries as StatusQuery,
-  types as StatusTypes,
-} from '@/ticket/graphql/schemas/status';
-import {
-  mutations as TicketMutations,
-  queries as TicketQuery,
-  types as TicketTypes,
-} from '@/ticket/graphql/schemas/ticket';
-
-import {
   queries as WidgetQueries,
   types as WidgetTypes,
   mutations as WidgetMutations,
 } from '~/modules/inbox/graphql/schemas/widget';
-
-import {
-  queries as ActivityQueries,
-  types as ActivityTypes,
-} from '@/ticket/graphql/schemas/activity';
-
-import {
-  mutations as NoteMutations,
-  queries as NoteQueries,
-  types as NoteTypes,
-} from '@/ticket/graphql/schemas/note';
-import {
-  mutations as TicketConfigMutations,
-  queries as TicketConfigQueries,
-  types as TicketConfigTypes,
-} from '@/ticket/graphql/schemas/ticketConfig';
 
 import {
   mutations as ResponseTemplateMutations,
@@ -107,46 +85,55 @@ import {
   types as KnowledgeBaseTypes,
 } from '@/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs';
 
+import {
+  mutations as TicketMutations,
+  queries as TicketQuery,
+  types as TicketTypes,
+} from '@/ticket/graphql/schemas';
+
+import {
+  queries as CpInboxQueries,
+  mutations as CpInboxMutations,
+  subscriptions as CpInboxSubscriptions,
+} from '~/modules/inbox/graphql/schemas/clientPortal';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
     ${IntegrationsTypes}
     ${FacebookTypes}
+    ${DiscordTypes}
+    ${InstagramTypes}
     ${CallTypes}
     ${ImapTypes}
-    ${PipelineTypes}
-    ${StatusTypes}
     ${TicketTypes}
     ${WidgetTypes}
-    ${ActivityTypes}
-    ${NoteTypes}
-    ${TicketConfigTypes}
     ${ResponseTemplateTypes}
     ${ReportInboxTypes}
     ${ReportTicketTypes}
     ${FormTypes}
-    ${FieldTypes}    ${KnowledgeBaseTypes}
+    ${FieldTypes}
+    ${KnowledgeBaseTypes}
   `;
+
 export const queries = `
     ${ChannelsQueries}
     ${ConversationsQueries}
     ${IntegrationsQueries}
     ${FacebookQueries}
+    ${DiscordQueries}
+    ${InstagramQueries}
     ${CallQueries}
     ${ImapQueries}
-    ${PipelineQuery}
-    ${StatusQuery}
     ${TicketQuery}
     ${WidgetQueries}
-    ${ActivityQueries}
-    ${NoteQueries}
-    ${TicketConfigQueries}
     ${ResponseTemplateQueries}
     ${ReportInboxQueries}
     ${ReportTicketQueries}
     ${FormQueries}
     ${FieldQueries}
     ${KnowledgeBaseQueries}
+    ${CpInboxQueries}
   `;
 
 export const mutations = `
@@ -154,17 +141,17 @@ export const mutations = `
    ${ConversationsMutations}
    ${IntegrationsMutations}
    ${FacebookMutations}
+   ${DiscordMutations}
+   ${InstagramMutations}
    ${CallMutations}
    ${ImapMutations}
-   ${PipelineMutations}
-   ${StatusMutations}
    ${TicketMutations}
    ${WidgetMutations}
-   ${NoteMutations}
-   ${TicketConfigMutations}
    ${ResponseTemplateMutations}
    ${FormMutations}
    ${FieldMutations}
    ${KnowledgeBaseMutations}
+   ${CpInboxMutations}
 `;
+
 export default { types, queries, mutations };

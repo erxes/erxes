@@ -1,5 +1,4 @@
-import { IconCheckbox } from '@tabler/icons-react';
-import { Button, Checkbox, CommandBar, Separator } from 'erxes-ui';
+import { Checkbox, CommandBar, Separator } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { useEffect } from 'react';
@@ -9,7 +8,6 @@ import { selectConversationsState } from '@/inbox/conversations/states/selectCon
 import { FilterConversationsPopover } from '@/inbox/conversations/components/ConversationsFilter';
 import { ConversationTag } from './ConversationTag';
 import { ConversationDisplay } from './ConversationDisplay';
-import { ConversationRefetch } from './ConversationRefetch';
 import { ResolveAll } from './ResolveAll';
 
 export const ConversationActions = () => {
@@ -17,7 +15,6 @@ export const ConversationActions = () => {
     <>
       <div className="flex items-center gap-1">
         <ConversationSelectAll />
-        <ConversationRefetch />
         <FilterConversationsPopover />
         <ConversationDisplay />
       </div>

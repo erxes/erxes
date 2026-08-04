@@ -1,13 +1,26 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import { requireClientPortalId } from '@/cms/graphql/utils/clientPortal';
 const systemTypes = ['page', 'post', 'category'];
 
-const mutations = {
+const mutations : Record<string, Resolver> = {
   async cmsCustomFieldGroupsAdd(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { input } = args;
 
     return models.CustomFieldGroups.createFieldGroup(input);
+  },
+
+  async cpCmsCustomFieldGroupsAdd(_parent: any, args: any, context: IContext) {
+    const { models } = context;
+    const clientPortalId = requireClientPortalId(context);
+    const { input } = args;
+    const { clientPortalId: _ignored, ...fieldGroupInput } = input;
+
+    return models.CustomFieldGroups.createFieldGroup({
+      ...fieldGroupInput,
+      clientPortalId,
+    });
   },
 
   async cmsCustomFieldGroupsEdit(_parent: any, args: any, context: IContext) {
@@ -35,6 +48,22 @@ const mutations = {
     return models.CustomPostTypes.createCustomPostType(input);
   },
 
+  cpCmsCustomPostTypesAdd(_parent: any, args: any, context: IContext) {
+    const { models } = context;
+    const clientPortalId = requireClientPortalId(context);
+    const { input } = args;
+    const { clientPortalId: _ignored, ...customPostTypeInput } = input;
+
+    if (systemTypes.includes(customPostTypeInput.code)) {
+      throw new Error('Cannot add system post type');
+    }
+
+    return models.CustomPostTypes.createCustomPostType({
+      ...customPostTypeInput,
+      clientPortalId,
+    });
+  },
+
   cmsCustomPostTypesEdit(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { _id, input } = args;
@@ -56,11 +85,11 @@ const mutations = {
   },
 };
 
-requireLogin(mutations, 'cmsCustomFieldGroupsAdd');
-requireLogin(mutations, 'cmsCustomFieldGroupsEdit');
-requireLogin(mutations, 'cmsCustomFieldGroupsRemove');
-requireLogin(mutations, 'cmsCustomPostTypesAdd');
-requireLogin(mutations, 'cmsCustomPostTypesEdit');
-requireLogin(mutations, 'cmsCustomPostTypesRemove');
-
 export default mutations;
+
+mutations.cpCmsCustomFieldGroupsAdd.wrapperConfig = {
+  forClientPortal: true,
+};
+mutations.cpCmsCustomPostTypesAdd.wrapperConfig = {
+  forClientPortal: true,
+};

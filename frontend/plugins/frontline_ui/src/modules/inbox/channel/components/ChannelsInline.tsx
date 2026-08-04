@@ -3,20 +3,28 @@ import {
   ChannelsInlineContext,
   useChannelsInlineContext,
 } from '@/inbox/channel/context/ChannelsInlineContext';
-import { Skeleton, TextOverflowTooltip, Tooltip } from 'erxes-ui';
+import {
+  IconComponent,
+  Skeleton,
+  TextOverflowTooltip,
+  Tooltip,
+} from 'erxes-ui';
 import { useChannelInline } from '../hooks/useChannelInline';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelsInline = ({
   channels,
   channelIds,
   placeholder,
   updateChannels,
+  showIcon,
 }: {
-  channels: IChannel[];
+  channels?: IChannel[];
   channelIds?: string[];
   placeholder?: string;
   updateChannels?: (channels: IChannel[]) => void;
+  showIcon?: boolean;
 }) => {
   return (
     <ChannelsInlineProvider
@@ -24,6 +32,7 @@ export const ChannelsInline = ({
       channelIds={channelIds}
       placeholder={placeholder}
       updateChannels={updateChannels}
+      showIcon={showIcon}
     >
       <ChannelsInlineTitle />
     </ChannelsInlineProvider>
@@ -36,13 +45,16 @@ export const ChannelsInlineProvider = ({
   channelIds,
   placeholder,
   updateChannels,
+  showIcon,
 }: {
   children?: React.ReactNode;
   channels?: IChannel[];
   channelIds?: string[];
   placeholder?: string;
   updateChannels?: (channels: IChannel[]) => void;
+  showIcon?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [_channels, _setChannels] = useState<IChannel[]>(channels || []);
 
   return (
@@ -51,8 +63,9 @@ export const ChannelsInlineProvider = ({
         channels: channels || _channels,
         loading: false,
         channelIds: channelIds || [],
-        placeholder: placeholder || 'Select channels',
+        placeholder: placeholder || t('select-channels'),
         updateChannels: updateChannels || _setChannels,
+        showIcon: showIcon || false,
       }}
     >
       {children}
@@ -92,7 +105,8 @@ export const ChannelInlineEffectComponent = ({
 };
 
 export const ChannelsInlineTitle = () => {
-  const { channels, loading, placeholder } = useChannelsInlineContext();
+  const { channels, loading, placeholder, showIcon } =
+    useChannelsInlineContext();
 
   if (loading) {
     return <Skeleton className="w-full flex-1 h-4" />;
@@ -100,6 +114,15 @@ export const ChannelsInlineTitle = () => {
 
   if (channels.length === 0) {
     return <span className="text-accent-foreground/70">{placeholder}</span>;
+  }
+
+  if (channels.length === 1) {
+    return (
+      <div className="flex items-center gap-0.5">
+        {showIcon && <IconComponent name={channels?.[0]?.icon} size={10} />}
+        {channels?.[0]?.name}
+      </div>
+    );
   }
 
   if (channels.length < 3) {

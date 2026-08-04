@@ -34,7 +34,7 @@ export const IncomingWebhookSettingsField = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>Secret</Form.Label>
-            <Input {...field} type="password" defaultValue={30} />
+            <Input {...field} type="password" placeholder="Secret (optional)" />
           </Form.Item>
         )}
       />
@@ -44,7 +44,11 @@ export const IncomingWebhookSettingsField = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>Bearar Token</Form.Label>
-            <Input {...field} type="password" defaultValue={30} />
+            <Input
+              {...field}
+              type="password"
+              placeholder="Bearer token (optional)"
+            />
           </Form.Item>
         )}
       />

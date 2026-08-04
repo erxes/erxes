@@ -1,11 +1,12 @@
+import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-import { cursorPaginate } from 'erxes-api-shared/utils';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
-import { Resolver } from 'erxes-api-shared/core-types';
-
-export const clientPortalQueries: Record<string, Resolver> = {
+export const clientPortalQueries: Record<
+  string,
+  Resolver<any, any, IContext>
+> = {
   async getClientPortals(
     _root: unknown,
     params: ICursorPaginateParams,

@@ -5,6 +5,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PosInlineProps, IPos } from '../types/pos';
 import { usePosInline } from '../hooks/usePosInline';
 import {
@@ -27,6 +28,7 @@ const PosInlineProvider = ({
   placeholder,
   updatePos,
 }: PosInlineProps & { children?: React.ReactNode }) => {
+  const { t } = useTranslation('sales');
   const [_pos, _setPos] = useState<IPos[]>(pos || []);
 
   const contextValue = useMemo(() => {
@@ -34,7 +36,7 @@ const PosInlineProvider = ({
       pos: pos || _pos,
       loading: false,
       posIds: posIds || [],
-      placeholder: isUndefinedOrNull(placeholder) ? 'Select pos' : placeholder,
+      placeholder: isUndefinedOrNull(placeholder) ? t('select-pos') : placeholder,
       updatePos: updatePos || _setPos,
     };
   }, [pos, _pos, posIds, placeholder, updatePos]);
@@ -70,6 +72,7 @@ const PosInlineEffectComponent = ({ posId }: { posId: string }) => {
 };
 
 const PosInlineTitle = () => {
+  const { t } = useTranslation('sales');
   const { pos, loading, placeholder } = usePosInlineContext();
 
   if (loading) {
@@ -88,7 +91,7 @@ const PosInlineTitle = () => {
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <span>{`${pos.length} pos`}</span>
+          <span>{t('pos-count', { count: pos.length })}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>{pos.map((p) => p.name).join(', ')}</Tooltip.Content>
       </Tooltip>

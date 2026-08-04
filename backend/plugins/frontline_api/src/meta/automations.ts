@@ -1,5 +1,15 @@
 import { facebookConstants } from '@/integrations/facebook/meta/automation/constants';
 import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automation/workers';
+import { instagramConstants } from '@/integrations/instagram/meta/constants';
+import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
+import { inboxAutomationConstants } from '@/inbox/meta/automation/constants';
+import { inboxAutomationWorkers } from '@/inbox/meta/automation/workers';
+import { discordConstants } from '@/integrations/discord/meta/automation/constants';
+import { discordAutomationWorkers } from '@/integrations/discord/meta/automation/workers';
+import {
+  frontlineAiKnowledgeProvider,
+  FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY,
+} from '@/knowledgebase/meta/automations';
 
 import {
   AutomationConfigs,
@@ -7,16 +17,45 @@ import {
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
+import { ticketAutomationProducers } from '~/modules/ticket/meta/automations';
+import { ticketsAutomationContants } from '~/modules/ticket/meta/automations/ticketAutomationsConstants';
 
 const modules = {
   facebook: facebookAutomationWorkers,
+  instagram: instagramAutomationWorkers,
+  inbox: inboxAutomationWorkers,
+  tickets: ticketAutomationProducers,
+  discord: discordAutomationWorkers,
+  knowledgebase: frontlineAiKnowledgeProvider,
 };
 
-export default {
+export const automations = {
   constants: {
-    actions: [...facebookConstants.actions],
-    triggers: [...facebookConstants.triggers],
-    bots: [...facebookConstants.bots],
+    actions: [
+      ...inboxAutomationConstants.actions,
+      ...facebookConstants.actions,
+      ...instagramConstants.actions,
+      ...ticketsAutomationContants.actions,
+      ...discordConstants.actions,
+    ],
+    triggers: [
+      ...inboxAutomationConstants.triggers,
+      ...facebookConstants.triggers,
+      ...instagramConstants.triggers,
+      ...ticketsAutomationContants.triggers,
+      ...discordConstants.triggers,
+    ],
+    bots: [...facebookConstants.bots, ...instagramConstants.bots],
+    ai: {
+      knowledgeSources: [
+        {
+          key: FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY,
+          label: 'Knowledge base articles',
+          moduleName: 'knowledgebase',
+          sourceSelector: 'remote-module',
+        },
+      ],
+    },
   },
 
   receiveActions: createCoreModuleProducerHandler({
@@ -34,11 +73,25 @@ export default {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
-  getAdditionalAttributes: createCoreModuleProducerHandler({
+  checkTargetMatch: createCoreModuleProducerHandler({
     moduleName: 'automations',
     modules,
-    methodName: TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES,
-    extractModuleName: (input) => (input as any).moduleName,
+    methodName: TAutomationProducers.CHECK_TARGET_MATCH,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
+  generateAiContext: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.GENERATE_AI_CONTEXT,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
+  loadAiKnowledgeDocumentBatch: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH,
+    extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
 

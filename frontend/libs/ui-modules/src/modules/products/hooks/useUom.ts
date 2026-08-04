@@ -1,6 +1,4 @@
-import { useQuery } from '@apollo/client';
-import { QueryHookOptions } from '@apollo/client';
-
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { UOM_QUERY } from '../graphql/queries/productsQueries';
 import { IUom } from '../types';
 

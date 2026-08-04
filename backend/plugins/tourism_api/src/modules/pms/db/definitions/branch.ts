@@ -25,13 +25,53 @@ export const branchSchema = new Schema({
     label: 'Permission',
   },
   status: { type: String, label: 'Status', optional: true },
+  websiteReservationLock: {
+    type: Boolean,
+    label: 'websiteReservationLock',
+    optional: true,
+    default: false,
+  },
   time: { type: String, label: 'time', optional: true },
   discount: { type: Object, label: 'object', optional: true },
   extraProductCategories: {
     type: [String],
     label: ' extraProductCategories ids',
   },
+  excludeExtraProductCategoryIds: {
+    type: [String],
+    label: 'excludeExtraProductCategoryIds',
+  },
+  excludeExtraProductIds: {
+    type: [String],
+    label: 'excludeExtraProductIds',
+  },
   roomCategories: { type: [String], label: ' roomCategories ids' },
+  excludeRoomCategoryIds: {
+    type: [String],
+    label: ' excludeRoomCategories ids',
+  },
+  excludeRoomIds: {
+    type: [String],
+    label: ' excludeRoomIds ids',
+  },
+  hasAppointment: {
+    type: Boolean,
+    label: 'hasAppointment',
+    optional: true,
+    default: false,
+  },
+  appointmentCategories: {
+    type: [String],
+    label: 'appointmentCategories ids',
+  },
+  excludeAppointmentCategoryIds: {
+    type: [String],
+    label: 'excludeAppointmentCategoryIds',
+  },
+  excludeAppointmentIds: {
+    type: [String],
+    label: 'excludeAppointmentIds',
+  },
   checkintime: { type: String, label: 'checkintime' },
   checkouttime: { type: String, label: 'checkouttime' },
   checkinamount: { type: Number, label: 'checkinamount' },

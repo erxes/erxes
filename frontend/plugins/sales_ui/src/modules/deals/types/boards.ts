@@ -60,6 +60,7 @@ export interface DealsBoardColumnProps {
     cursor?: string | null;
     totalCount?: number;
   }) => void;
+  locallyMovedIdsRef?: any;
 }
 
 export interface VirtualizedCardListProps<TItem extends BaseBoardItem> {

@@ -73,6 +73,8 @@ export const checkFile = async (
     'text/csv',
     'image/svg+xml',
     'text/plain',
+    'text/markdown',
+    'text/x-markdown',
     'application/vnd.ms-excel',
     'audio/mp3',
     'audio/vnd.wave',
@@ -125,6 +127,11 @@ export const checkFile = async (
     'audio/vnd.wave',
     'audio/wave',
     'audio/wav',
+    'video/mp4',
+    'video/webm',
+    'video/quicktime',
+    'video/x-msvideo',
+    'video/x-matroska',
   ];
 
   if (Array.isArray(source)) {
@@ -137,10 +144,7 @@ export const checkFile = async (
     models,
   );
 
-  if (
-    !(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime)) &&
-    !defaultMimeTypes.includes(mime)
-  ) {
+  if (!UPLOAD_FILE_TYPES?.includes(mime) && !defaultMimeTypes.includes(mime)) {
     return 'Invalid configured file type';
   }
 

@@ -3,6 +3,7 @@ import { Badge, Skeleton, TextOverflowTooltip, toast } from 'erxes-ui';
 import { IBoard } from '@/deals/types/boards';
 import React from 'react';
 import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
+import { useTranslation } from 'react-i18next';
 
 export const BoardBadge = React.forwardRef<
   React.ElementRef<typeof Badge>,
@@ -18,6 +19,7 @@ export const BoardBadge = React.forwardRef<
     { board, boardId, renderClose, onCompleted, renderAsPlainText, ...props },
     ref,
   ) => {
+    const { t } = useTranslation('sales');
     const { boardDetail, loading } = useBoardDetail({
       variables: {
         _id: boardId,
@@ -28,7 +30,7 @@ export const BoardBadge = React.forwardRef<
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

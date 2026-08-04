@@ -1,0 +1,339 @@
+import { CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useArticles } from '../hooks/useArticles';
+import { useMutation } from '@apollo/client';
+import { REMOVE_ARTICLE } from '../graphql/mutations';
+import {
+  IconFileText,
+  IconUser,
+  IconCalendar,
+  IconEye,
+} from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+
+type StatusFilter = 'all' | 'draft' | 'published' | 'archived';
+
+interface ArticleListProps {
+  readonly onEditArticle: (article: any) => void;
+  readonly onCreateArticle: () => void;
+}
+
+export function ArticleList({
+  onEditArticle,
+  onCreateArticle,
+}: ArticleListProps) {
+  const { t } = useTranslation('frontline');
+  const [searchParams] = useSearchParams();
+  const categoryId = searchParams.get('categoryId') || '';
+
+  const [q, setQ] = useState('');
+  const [status, setStatus] = useState<StatusFilter>('all');
+  const { confirm } = useConfirm();
+
+  // API hook
+  const { articles, loading, refetch } = useArticles({
+    categoryIds: [categoryId],
+  });
+
+  // Remove article mutation
+  const [removeArticle] = useMutation(REMOVE_ARTICLE);
+
+  // Derived state (no setState, no useEffect)
+  const articleList = useMemo(() => articles ?? [], [articles]);
+
+  // Create article
+  const handleCreateArticle = () => {
+    onEditArticle(null);
+  };
+
+  const handleEditArticle = (article: any) => {
+    onEditArticle(article);
+  };
+
+  // Article columns definition
+  const articleColumns = [
+    RecordTable.checkboxColumn,
+    {
+      id: 'title',
+      accessorKey: 'title',
+      size: 220,
+      header: () => <RecordTable.InlineHead icon={IconFileText} label={t('col-name')} />,
+      cell: ({ row }: any) => (
+        <div
+          className="flex items-center gap-2 ml-2 cursor-pointer hover:bg-accent rounded p-1 -m-1"
+          onClick={() => handleEditArticle(row.original)}
+        >
+          <div>
+            <div className="font-semibold opacity-80 ml-2">
+              {row.original?.title || t('kb-untitled')}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'status',
+      accessorKey: 'status',
+      size: 220,
+      header: () => <RecordTable.InlineHead icon={IconEye} label={t('status')} />,
+      cell: ({ row }: any) => {
+        const status = String(row.original?.status || 'unknown').toLowerCase();
+        const isPublished = status.includes('publish');
+        const isDraft = status.includes('draft');
+        const isArchived = status.includes('archived');
+
+        let statusColor = 'text-muted-foreground';
+        let bgColor = 'bg-muted';
+
+        if (isPublished) {
+          statusColor = 'text-success';
+          bgColor = 'bg-success/10';
+        } else if (isDraft) {
+          statusColor = 'text-info';
+          bgColor = 'bg-info/10';
+        } else if (isArchived) {
+          statusColor = 'text-destructive';
+          bgColor = 'bg-destructive/10';
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex rounded-full border px-2 py-0.5 text-xs ml-2 ${bgColor} ${statusColor}`}
+            >
+              {row.original?.status || 'unknown'}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: 'createdUser',
+      accessorKey: 'createdUser',
+      size: 220,
+      header: () => <RecordTable.InlineHead icon={IconUser} label={t('kb-owner')} />,
+      cell: ({ row }: any) => (
+        <div className="flex items-center gap-2 opacity-80 ml-2">
+          {row.original?.createdUser?.username || '-'}
+        </div>
+      ),
+    },
+    {
+      id: 'createdDate',
+      accessorKey: 'createdDate',
+      size: 180,
+      header: () => (
+        <RecordTable.InlineHead icon={IconCalendar} label={t('kb-created')} />
+      ),
+      cell: ({ row }: any) => {
+        const createdDate = row.original?.createdDate;
+        if (!createdDate) return <div className="opacity-80 ml-2">-</div>;
+
+        try {
+          const date = new Date(createdDate);
+          return (
+            <div className="opacity-80 ml-2">
+              {date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </div>
+          );
+        } catch (error) {
+          return <div className="opacity-80 ml-2">{t('kb-invalid-date')}</div>;
+        }
+      },
+    },
+  ];
+
+  // Filter + search
+  const filtered = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    return articleList.filter((a: any) => {
+      const title = String(a?.title || '').toLowerCase();
+      const summary = String(a?.summary || '').toLowerCase();
+      const textOk = query ? `${title} ${summary}`.includes(query) : true;
+
+      const st = String(a?.status || '').toLowerCase();
+      const statusOk =
+        status === 'all'
+          ? true
+          : status === 'draft'
+          ? st.includes('draft')
+          : status === 'published'
+          ? st.includes('publish')
+          : status === 'archived'
+          ? st.includes('archived')
+          : true;
+
+      return textOk && statusOk;
+    });
+  }, [articleList, q, status]);
+
+  // Command bar for bulk actions
+  const ArticleCommandBar = () => {
+    const { table } = RecordTable.useRecordTable();
+
+    const selectedArticles = table.getFilteredSelectedRowModel().rows;
+    const articleIds = selectedArticles.map((row) => row.original._id);
+
+    const handleEdit = () => {
+      if (selectedArticles.length === 1) {
+        const article = selectedArticles[0].original;
+        onEditArticle(article);
+      }
+    };
+
+    const handleDelete = async () => {
+      if (articleIds.length === 0) return;
+
+      const message = t('kb-confirm-delete-articles', { count: articleIds.length });
+
+      const confirmOptions = {
+        confirmationValue: 'delete',
+        description: t('kb-action-permanent'),
+      };
+
+      try {
+        await confirm({
+          message,
+          options: confirmOptions,
+        });
+
+        // Delete all selected articles
+        await Promise.all(
+          articleIds.map((id) => removeArticle({ variables: { _id: id } })),
+        );
+
+        // Refetch to update the list
+        refetch();
+      } catch (error) {
+        console.error('Error deleting articles:', error);
+      }
+    };
+
+    return (
+      <CommandBar open={selectedArticles.length > 0}>
+        <CommandBar.Bar>
+          <CommandBar.Value>
+            {t('n-selected', { count: selectedArticles.length })}
+          </CommandBar.Value>
+          <Separator.Inline />
+          <button
+            onClick={handleEdit}
+            disabled={selectedArticles.length !== 1}
+            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent text-foreground hover:bg-border h-7 py-1"
+          >
+            {t('edit')}
+          </button>
+          <Separator.Inline />
+          <button
+            onClick={handleDelete}
+            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent hover:bg-border h-7 py-1 text-destructive"
+          >
+            {t('delete')}
+          </button>
+        </CommandBar.Bar>
+      </CommandBar>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-[320px] flex-1 items-center gap-2">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.preventDefault();
+            }}
+            placeholder={t('filter')}
+            className="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className={`h-10 rounded-lg border px-4 text-sm ${
+              status === 'all' ? 'font-semibold' : 'opacity-70'
+            }`}
+            onClick={() => setStatus('all')}
+          >
+            {t('kb-all')}
+          </button>
+          <button
+            type="button"
+            className={`h-10 rounded-lg border px-4 text-sm ${
+              status === 'draft' ? 'font-semibold' : 'opacity-70'
+            }`}
+            onClick={() => setStatus('draft')}
+          >
+            {t('kb-draft')}
+          </button>
+          <button
+            type="button"
+            className={`h-10 rounded-lg border px-4 text-sm ${
+              status === 'published' ? 'font-semibold' : 'opacity-70'
+            }`}
+            onClick={() => setStatus('published')}
+          >
+            {t('kb-published')}
+          </button>
+          <button
+            type="button"
+            className={`h-10 rounded-lg border px-4 text-sm ${
+              status === 'archived' ? 'font-semibold' : 'opacity-70'
+            }`}
+            onClick={() => setStatus('archived')}
+          >
+            {t('archived')}
+          </button>
+
+          <div className="ml-1 rounded-lg border px-3 py-2 text-sm opacity-70">
+            {t('kb-article-count', { count: filtered.length })}
+          </div>
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="px-3 py-14 text-center">
+          <div className="mx-auto w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-4">
+            <IconFileText className="w-8 h-8 text-accent-foreground" />
+          </div>
+          <div className="text-base font-semibold mb-2">
+            {q.trim()
+              ? t('kb-no-results-for', { query: q })
+              : t('kb-no-articles')}
+          </div>
+          <div className="mt-1 text-sm opacity-70 mb-4">
+            {q.trim()
+              ? t('kb-adjust-search')
+              : t('kb-create-first-article')}
+          </div>
+        </div>
+      ) : (
+        <RecordTable.Provider
+          columns={articleColumns}
+          data={filtered}
+          stickyColumns={['checkbox']}
+        >
+          <ArticleCommandBar />
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              {loading ? (
+                <RecordTable.RowSkeleton rows={10} />
+              ) : (
+                <RecordTable.RowList />
+              )}
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Provider>
+      )}
+    </div>
+  );
+}

@@ -18,6 +18,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectChannelContextType {
   value: string;
@@ -75,7 +76,7 @@ const SelectChannelProvider = ({
 const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, channels } = useSelectChannelContext();
 
-  if (!channels || channels.length === 0 || !value || !value.length) {
+  if (!channels || channels?.length === 0 || !value?.length) {
     return (
       <span className="text-accent-foreground/80">
         {placeholder || 'Select channels'}
@@ -91,10 +92,7 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
       <div className="flex gap-2 items-center">
         {selectedChannels.map((channel) => (
           <Badge key={channel._id} variant="secondary">
-            <IconComponent
-              name={channel.icon}
-              className="size-4 shrink-0"
-            />
+            <IconComponent name={channel.icon} className="size-4 shrink-0" />
             <TextOverflowTooltip value={channel.name} className="max-w-32" />
           </Badge>
         ))}
@@ -136,10 +134,11 @@ const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
 };
 
 const SelectChannelContent = () => {
+  const { t } = useTranslation('frontline');
   const { loading, channels } = useSelectChannelContext();
   return (
     <Command>
-      <Command.Input placeholder="Search channels..." />
+      <Command.Input placeholder={t('search-channels')} />
       <Command.List>
         <Combobox.Empty loading={loading} />
         {channels?.map((channel) => (

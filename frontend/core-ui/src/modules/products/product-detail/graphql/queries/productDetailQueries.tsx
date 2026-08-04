@@ -14,10 +14,13 @@ export const PRODUCT_DETAIL_QUERY = gql`
       status
       description
       unitPrice
+      duration
+      durationType
       barcodes
       variants
       barcodeDescription
       createdAt
+      currency
       attachment {
         url
         name
@@ -29,6 +32,13 @@ export const PRODUCT_DETAIL_QUERY = gql`
         name
         size
         type
+      }
+      videos {
+        url
+        name
+        size
+        type
+        duration
       }
       pdfAttachment {
         pdf {
@@ -46,7 +56,22 @@ export const PRODUCT_DETAIL_QUERY = gql`
       }
       uom
       subUoms
-      customFieldsData
+      propertiesData
+      similarityId
+      similarity {
+        _id
+        status
+        propertiesData
+        starProductId
+        products {
+          _id
+          code
+          name
+          unitPrice
+          status
+          propertiesData
+        }
+      }
     }
   }
 `;

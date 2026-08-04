@@ -10,16 +10,28 @@ export const useCompaniesEdit = () => {
     variables,
     onError,
     ...options
-  }: MutationHookOptions<{ companiesEdit: { _id: string } }, ICompany>) => {
+  }: MutationHookOptions<{ companiesEdit: ICompany }, ICompany>) => {
     return mutate({
       ...options,
       variables,
-      update: (cache, { data: { companiesEdit } }) => {
+      update: (cache, { data }) => {
+        const updated = data?.companiesEdit;
+
+        if (!updated) {
+          return;
+        }
+
+        const nextValues: Record<string, unknown> = {
+          ...variables,
+          ...updated,
+        };
+        delete nextValues.__typename;
+
         cache.modify({
-          id: cache.identify(companiesEdit),
-          fields: Object.keys(variables || {}).reduce(
+          id: cache.identify(updated),
+          fields: Object.keys(nextValues).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field as keyof ICompany];
+              fields[field] = () => nextValues[field];
               return fields;
             },
             {},

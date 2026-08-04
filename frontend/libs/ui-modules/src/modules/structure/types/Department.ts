@@ -7,11 +7,12 @@ export interface IDepartment {
   parentId?: string;
   order?: string;
   userCount?: number;
+  status?: string;
 }
 
 export interface ISelectDepartmentsContext {
   selectedDepartments: IDepartment[];
-  setSelectedDepartments: (Departments: IDepartment[]) => void;
+  setSelectedDepartments: React.Dispatch<React.SetStateAction<IDepartment[]>>;
   value?: string[] | string;
   onSelect: (Departments: IDepartment) => void;
   newDepartmentName: string;

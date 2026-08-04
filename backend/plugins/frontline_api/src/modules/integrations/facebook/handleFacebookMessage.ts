@@ -22,7 +22,7 @@ export const handleFacebookMessage = async (
       erxesApiId: doc.conversationId,
     });
 
-    return models.ConversationMessages.addMessage(
+    return models.FacebookConversationMessages.addMessage(
       {
         ...doc,
         conversationId: conversation._id,
@@ -124,12 +124,12 @@ export const handleFacebookMessage = async (
         input: { _id: userId },
       });
 
-      if (!user) {
+      if (!user?._id) {
         throw new Error('User not found');
       }
 
       // Send notification about the reply to relevant users/devices
-      sendNotifications({
+      sendNotifications(subdomain, {
         user,
         conversations: [inboxConversation],
         type: 'conversationStateChange',
@@ -154,6 +154,14 @@ export const handleFacebookMessage = async (
     } = doc;
 
     const tag = extraInfo?.tag || '';
+
+    const trimmedTag = tag.trim();
+    const messagingParams: { messaging_type: string; tag?: string } = {
+      messaging_type: trimmedTag ? 'MESSAGE_TAG' : 'RESPONSE',
+    };
+    if (trimmedTag) {
+      messagingParams.tag = trimmedTag;
+    }
 
     // Extract image URLs from the content
     const images = (content.match(/<img[^>]* src="([^"]*)"/g) || []).map(
@@ -189,7 +197,7 @@ export const handleFacebookMessage = async (
           {
             recipient: { id: senderId },
             message: { text: strippedContent },
-            tag,
+            ...messagingParams,
           },
           conversation.recipientId,
           integrationId,
@@ -218,7 +226,7 @@ export const handleFacebookMessage = async (
           {
             recipient: { id: senderId },
             message,
-            tag,
+            ...messagingParams,
           },
           conversation.recipientId,
           integrationId,

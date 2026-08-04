@@ -1,21 +1,297 @@
-import { IProductDocument } from 'erxes-api-shared/core-types';
-import { cursorPaginate, defaultPaginate, escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { FilterQuery, SortOrder } from 'mongoose';
+import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  cursorPaginateAggregation,
+  defaultPaginate,
+  escapeRegExp,
+} from 'erxes-api-shared/utils';
+import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductParams } from '@/products/@types/product';
-import { PRODUCT_STATUSES } from '@/products/constants';
+import {
+  PRODUCT_SIMILARITY_STATUSES,
+  PRODUCT_STATUSES,
+} from '@/products/constants';
+import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '@/products/utils';
+import { getPipelineInventoryScope } from '@/products/graphql/resolvers/customResolvers/product';
+
+const inventoryKey = (id?: string) => id || '_';
+type DiscountField = 'discount' | 'discountPercent';
+type DiscountRangeOperator = '$gte' | '$lte';
+type DiscountConditions = Record<string, unknown>;
+
+const isDiscountSortField = (sortField?: string) =>
+  sortField === 'discount' || sortField === 'discountPercent';
+
+const hasRangeValue = (value?: number | null): value is number =>
+  value !== undefined && value !== null;
+
+const compactDiscountConditions = (conditions: DiscountConditions = {}) =>
+  Object.entries(conditions).reduce<DiscountConditions>(
+    (result, [key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return result;
+      }
+
+      result[key] = value;
+      return result;
+    },
+    {},
+  );
+
+const getDiscountConditions = (params: IProductParams): DiscountConditions =>
+  compactDiscountConditions({
+    ...params.discountConditions,
+    branchId: params.branchId,
+    departmentId: params.departmentId,
+    pipelineId: params.pipelineId,
+  });
+
+const getSortField = (params: IProductParams) => {
+  return params.sortField;
+};
+
+const getConditionValueExpression = (
+  conditionsExpression,
+  prefixExpression,
+) => ({
+  $first: {
+    $map: {
+      input: {
+        $filter: {
+          input: { $objectToArray: conditionsExpression },
+          as: 'condition',
+          cond: { $eq: ['$$condition.k', prefixExpression] },
+        },
+      },
+      as: 'condition',
+      in: '$$condition.v',
+    },
+  },
+});
+
+const getRuleConditionMatchExpression = (
+  requestConditions: DiscountConditions,
+) => {
+  const requestConditionsExpression = { $literal: requestConditions };
+
+  return {
+    $allElementsTrue: {
+      $map: {
+        input: { $ifNull: ['$$discount.prefixes', []] },
+        as: 'prefix',
+        in: {
+          $let: {
+            vars: {
+              requestValue: getConditionValueExpression(
+                requestConditionsExpression,
+                '$$prefix',
+              ),
+              ruleValue: getConditionValueExpression(
+                { $ifNull: ['$$discount.conditions', {}] },
+                '$$prefix',
+              ),
+            },
+            in: {
+              $and: [
+                { $ne: ['$$requestValue', null] },
+                {
+                  $cond: [
+                    { $isArray: '$$ruleValue' },
+                    { $in: ['$$requestValue', '$$ruleValue'] },
+                    {
+                      $cond: [
+                        { $eq: [{ $type: '$$ruleValue' }, 'object'] },
+                        {
+                          $and: [
+                            {
+                              $or: [
+                                { $eq: ['$$ruleValue.start', null] },
+                                {
+                                  $gte: ['$$requestValue', '$$ruleValue.start'],
+                                },
+                              ],
+                            },
+                            {
+                              $or: [
+                                { $eq: ['$$ruleValue.end', null] },
+                                { $lte: ['$$requestValue', '$$ruleValue.end'] },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          $cond: [
+                            {
+                              $in: [
+                                { $type: '$$ruleValue' },
+                                ['int', 'long', 'double', 'decimal'],
+                              ],
+                            },
+                            { $gte: ['$$requestValue', '$$ruleValue'] },
+                            { $eq: ['$$ruleValue', '$$requestValue'] },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+  };
+};
+
+const getMatchingDiscountsExpression = (conditions: DiscountConditions) => ({
+  $filter: {
+    input: { $ifNull: ['$discounts', []] },
+    as: 'discount',
+    cond: getRuleConditionMatchExpression(conditions),
+  },
+});
+
+const getDiscountValueExpression = (
+  field: DiscountField,
+  conditions: DiscountConditions,
+) => ({
+  $ifNull: [
+    {
+      $max: {
+        $map: {
+          input: getMatchingDiscountsExpression(conditions),
+          as: 'discount',
+          in: `$$discount.${field}`,
+        },
+      },
+    },
+    0,
+  ],
+});
+
+const buildScopedDiscountRangeFilter = (
+  field: DiscountField,
+  operator: DiscountRangeOperator,
+  value: number,
+  conditions: DiscountConditions,
+) => ({
+  $expr: {
+    [operator]: [getDiscountValueExpression(field, conditions), value],
+  },
+});
+
+const pushScopedDiscountRangeFilter = (
+  filters: FilterQuery<IProductDocument>[],
+  field: DiscountField,
+  operator: DiscountRangeOperator,
+  value: number | undefined,
+  conditions: DiscountConditions,
+) => {
+  if (!hasRangeValue(value)) {
+    return;
+  }
+
+  filters.push(
+    buildScopedDiscountRangeFilter(field, operator, value, conditions),
+  );
+};
+
+const buildDiscountSortPipeline = (
+  filter: FilterQuery<IProductDocument>,
+  params: IProductParams,
+): PipelineStage[] => {
+  const discountField =
+    params.sortField === 'discountPercent' ? 'discountPercent' : 'discount';
+  const conditions = getDiscountConditions(params);
+
+  return [
+    { $match: filter },
+    {
+      $addFields: {
+        discountSortValue: getDiscountValueExpression(
+          discountField,
+          conditions,
+        ),
+      },
+    },
+  ];
+};
+
+/**
+ * Categories configured as a pipeline's initial ones, expanded with their
+ * descendants. Products of these categories are listed before the rest.
+ */
+const getPipelineInitialCategoryIds = async (
+  context: IContext,
+  pipelineId?: string,
+): Promise<string[]> => {
+  if (!pipelineId) {
+    return [];
+  }
+
+  const pipeline = await getPipelineInventoryScope(context, pipelineId);
+
+  if (!pipeline?.initialCategoryIds?.length) {
+    return [];
+  }
+
+  const categories = await context.models.ProductCategories.getChildCategories(
+    pipeline.initialCategoryIds,
+  );
+
+  return categories.map((category) => category._id);
+};
+
+const withInitialCategoryPriority = (
+  pipeline: PipelineStage[],
+  initialCategoryIds: string[],
+): PipelineStage[] => [
+  ...pipeline,
+  {
+    $addFields: {
+      initialCategoryOrder: {
+        $cond: [{ $in: ['$categoryId', initialCategoryIds] }, 0, 1],
+      },
+    },
+  },
+];
+
+const paginateDiscountSortedProducts = async (
+  models: IModels,
+  filter: FilterQuery<IProductDocument>,
+  params: IProductParams,
+) => {
+  const pipeline = buildDiscountSortPipeline(filter, params);
+  const sortDirection = params.sortDirection === -1 ? -1 : 1;
+  const paginationParams = params as IProductParams & {
+    page?: number;
+    perPage?: number;
+  };
+  const page = Number(paginationParams.page || 1);
+  const perPage = Number(paginationParams.perPage || params.limit || 20);
+
+  pipeline.push(
+    { $sort: { discountSortValue: sortDirection, code: 1, _id: 1 } },
+    { $skip: (page - 1) * perPage },
+    { $limit: perPage },
+  );
+
+  return models.Products.aggregate(pipeline);
+};
 
 const generateFilter = async (
-  models: IModels,
-  subdomain: string,
+  context: IContext,
   commonQuerySelector: any,
   params: IProductParams,
 ) => {
+  const { models, subdomain } = context;
   const {
     type,
     categoryIds,
@@ -28,14 +304,38 @@ const generateFilter = async (
     ids,
     excludeIds,
     image,
-    pipelineId
+    pipelineId,
+    segment,
+    segmentData,
+    branchId,
+    departmentId,
+    minRemainder,
+    maxRemainder,
+    minPrice,
+    maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
   } = params;
 
   const filter: FilterQuery<IProductParams> = { ...commonQuerySelector };
 
-  const andFilters: any[] = [];
+  const andFilters: FilterQuery<IProductDocument>[] = [];
 
   filter.status = { $ne: PRODUCT_STATUSES.DELETED };
+
+  // one card per similarity group: standalone products + each group's star
+  if (params.similarity) {
+    const starProductIds = await models.ProductSimilarities.distinct(
+      'starProductId',
+      { status: { $ne: PRODUCT_SIMILARITY_STATUSES.DELETED } },
+    );
+
+    andFilters.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
 
   if (params.status) {
     filter.status = params.status;
@@ -46,9 +346,8 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories = await models.ProductCategories.getChildCategories(
-      categoryIds,
-    );
+    const categories =
+      await models.ProductCategories.getChildCategories(categoryIds);
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -84,7 +383,9 @@ const generateFilter = async (
     const baseTagIds: Set<string> = new Set(excludeTagIds);
 
     if (tagWithRelated) {
-      const tagObjs = await models.Tags.find({ _id: { $in: excludeTagIds } }).lean();
+      const tagObjs = await models.Tags.find({
+        _id: { $in: excludeTagIds },
+      }).lean();
 
       for (const tag of tagObjs) {
         (tag.relatedIds || []).forEach((id) => baseTagIds.add(id));
@@ -119,36 +420,131 @@ const generateFilter = async (
   }
 
   if (pipelineId) {
-    const pipeline = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'sales',
-      method: 'query',
-      module: 'pipeline',
-      action: 'findOne',
-      input: { _id: pipelineId },
-      defaultValue: {},
-    });
+    const pipeline = await getPipelineInventoryScope(context, pipelineId);
 
-    if (pipeline.initialCategoryIds?.length) {
-      let incCategories = await models.ProductCategories.getChildCategories(
-        pipeline.initialCategoryIds
-      );
-
-      if (pipeline.excludeCategoryIds?.length) {
-        const excCategories = await models.ProductCategories.getChildCategories(
-          pipeline.excludeCategoryIds
+    if (pipeline?.excludeCategoryIds?.length) {
+      const excludedCategories =
+        await models.ProductCategories.getChildCategories(
+          pipeline.excludeCategoryIds,
         );
-        const excCatIds = excCategories.map(c => c._id);
-        incCategories = incCategories.filter(c => !excCatIds.includes(c._id));
-      }
 
-      andFilters.push({ categoryId: { $in: incCategories.map(c => c._id) } });
-
-      if (pipeline.excludeProductIds?.length) {
-        andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
+      if (excludedCategories.length) {
+        andFilters.push({
+          categoryId: { $nin: excludedCategories.map((c) => c._id) },
+        });
       }
     }
+
+    if (pipeline?.excludeProductIds?.length) {
+      andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
+    }
   }
+
+  if (branchId || departmentId) {
+    const branchKey = inventoryKey(branchId);
+    const departmentKey = inventoryKey(departmentId);
+
+    if (minRemainder || minRemainder === 0) {
+      andFilters.push({
+        [`inventories.${branchKey}.${departmentKey}.remainder`]: {
+          $exists: true,
+          $gte: minRemainder,
+        },
+      });
+    }
+    if (maxRemainder || maxRemainder === 0) {
+      andFilters.push({
+        [`inventories.${branchKey}.${departmentKey}.remainder`]: {
+          $exists: true,
+          $lte: maxRemainder,
+        },
+      });
+    }
+  } else {
+    if (minRemainder || minRemainder === 0) {
+      andFilters.push({
+        $expr: {
+          $gte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$inventories', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.remainder', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            minRemainder,
+          ],
+        },
+      });
+    }
+    if (maxRemainder || maxRemainder === 0) {
+      andFilters.push({
+        $expr: {
+          $lte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$inventories', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.remainder', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            maxRemainder,
+          ],
+        },
+      });
+    }
+  }
+
+  const discountConditions = getDiscountConditions(params);
+
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discount',
+    '$gte',
+    minDiscountValue,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discount',
+    '$lte',
+    maxDiscountValue,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discountPercent',
+    '$gte',
+    minDiscountPercent,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discountPercent',
+    '$lte',
+    maxDiscountPercent,
+    discountConditions,
+  );
 
   if (vendorId) {
     filter.vendorId = vendorId;
@@ -163,22 +559,100 @@ const generateFilter = async (
       image === 'hasImage' ? { $exists: true } : { $exists: false };
   }
 
+  if (minPrice || minPrice === 0) {
+    andFilters.push({ unitPrice: { $exists: true, $gte: minPrice } });
+  }
+  if (maxPrice || maxPrice === 0) {
+    andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
+  }
+
+  if (segment || segmentData) {
+    const segmentObj = segmentData
+      ? JSON.parse(segmentData)
+      : await models.Segments.findOne({ _id: segment }).lean();
+
+    if (segmentObj) {
+      const segmentProductIds = await fetchSegment(
+        models,
+        subdomain,
+        segmentObj,
+      );
+
+      andFilters.push({ _id: { $in: segmentProductIds } });
+    }
+  }
+
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
 };
 
-export const productQueries = {
+export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Products list
    */
   async productsMain(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
+
+    const sortField = getSortField(params);
+
+    const initialCategoryIds = await getPipelineInitialCategoryIds(
+      context,
+      params.pipelineId,
+    );
+
+    const priorityOrder: Record<string, SortOrder> = initialCategoryIds.length
+      ? { initialCategoryOrder: 1 }
+      : {};
+
+    if (isDiscountSortField(params.sortField)) {
+      const discountPipeline = buildDiscountSortPipeline(filter, params);
+
+      return await cursorPaginateAggregation({
+        model: models.Products,
+        pipeline: initialCategoryIds.length
+          ? withInitialCategoryPriority(discountPipeline, initialCategoryIds)
+          : discountPipeline,
+        params: {
+          ...params,
+          orderBy: {
+            ...priorityOrder,
+            discountSortValue: (params.sortDirection || 1) as SortOrder,
+            _id: 1,
+          },
+        },
+      });
+    }
+
+    if (sortField) {
+      params.orderBy = {
+        [sortField]: (params.sortDirection || 1) as SortOrder,
+      };
+    }
 
     if (!params.orderBy) {
-      params.orderBy = { code: 1 }
+      params.orderBy = { code: 1 };
+    }
+
+    if (initialCategoryIds.length) {
+      return await cursorPaginateAggregation({
+        model: models.Products,
+        pipeline: withInitialCategoryPriority(
+          [{ $match: filter }],
+          initialCategoryIds,
+        ),
+        params: {
+          ...params,
+          orderBy: {
+            ...priorityOrder,
+            ...params.orderBy,
+            _id: params.orderBy._id ?? 1,
+          },
+        },
+      });
     }
 
     return await cursorPaginate({
@@ -191,11 +665,13 @@ export const productQueries = {
   async products(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
-    const { sortField, sortDirection } = params;
+    const { sortDirection } = params;
+    const sortField = getSortField(params);
 
     let sort: { [key: string]: SortOrder } = { code: 1 };
 
@@ -209,11 +685,45 @@ export const productQueries = {
       });
     }
 
-    return await defaultPaginate(
-      models.Products.find(filter).sort(sort),
-      {
-        ...params,
+    if (isDiscountSortField(params.sortField)) {
+      return await paginateDiscountSortedProducts(models, filter, params);
+    }
+
+    return await defaultPaginate(models.Products.find(filter).sort(sort), {
+      ...params,
+    });
+  },
+
+  async cpProducts(
+    _parent: undefined,
+    params: IProductParams,
+    context: IContext,
+  ) {
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
+
+    const { sortDirection } = params;
+    const sortField = getSortField(params);
+
+    let sort: { [key: string]: SortOrder } = { code: 1 };
+
+    if (sortField) {
+      sort = { [sortField]: (sortDirection || 1) as SortOrder };
+    }
+
+    if (params.groupedSimilarity) {
+      return await getSimilaritiesProducts(models, filter, sort, {
+        groupedSimilarity: params.groupedSimilarity,
       });
+    }
+
+    if (isDiscountSortField(params.sortField)) {
+      return await paginateDiscountSortedProducts(models, filter, params);
+    }
+
+    return await defaultPaginate(models.Products.find(filter).sort(sort), {
+      ...params,
+    });
   },
 
   async productDetail(
@@ -224,12 +734,21 @@ export const productQueries = {
     return await models.Products.findOne({ _id }).lean();
   },
 
+  async cpProductDetail(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return await models.Products.findOne({ _id }).lean();
+  },
+
   async productsTotalCount(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
     if (params.groupedSimilarity) {
       return await getSimilaritiesProductsCount(models, filter, {
@@ -248,21 +767,25 @@ export const productQueries = {
     const product: IProductDocument = await models.Products.getProduct({ _id });
 
     if (groupedSimilarity === 'config') {
-      const getRegex = (str) => {
-        return ['*', '.', '_'].includes(str)
-          ? new RegExp(
-            `^${str
-              .replace(/\./g, '\\.')
-              .replace(/\*/g, '.')
-              .replace(/_/g, '.')}.*`,
-            'igu',
-          )
-          : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+      /**
+       * Converts a similarity mask character into a matching regex.
+       * Single wildcard chars (*, _) become "any single char" anchored at start.
+       * Literal '.' matches strings starting with a dot.
+       * All other strings become unanchored escaped-substring matchers.
+       */
+      const WILDCARD_REGEX: Record<string, RegExp> = {
+        '*': /^..*/giu,
+        '.': /^\..*/giu,
+        _: /^..*/giu,
+      };
+      const getRegex = (str: string): RegExp => {
+        return (
+          WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu')
+        );
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(
@@ -304,7 +827,7 @@ export const productQueries = {
         };
       }
 
-      const codeRegexes: any[] = [];
+      const codeRegexes: FilterQuery<IProductDocument>[] = [];
       const fieldIds: string[] = [];
       const groups: { title: string; fieldId: string }[] = [];
 
@@ -343,7 +866,7 @@ export const productQueries = {
         }
       }
 
-      const filters: any = {
+      const filters: FilterQuery<IProductDocument> = {
         $and: [
           {
             $or: codeRegexes,
@@ -380,7 +903,7 @@ export const productQueries = {
 
     const fieldIds = category.similarities.map((r) => r.fieldId);
 
-    const filters: any = {
+    const filters: FilterQuery<IProductDocument> = {
       $and: [
         {
           categoryId: category._id,
@@ -414,4 +937,12 @@ export const productQueries = {
 
     return counts;
   },
+};
+
+productQueries.cpProducts.wrapperConfig = {
+  forClientPortal: true,
+};
+
+productQueries.cpProductDetail.wrapperConfig = {
+  forClientPortal: true,
 };

@@ -1,3 +1,4 @@
+import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import {
   IconAlertSquareRounded,
   IconCalendarFilled,
@@ -5,75 +6,108 @@ import {
   IconProgressCheck,
   IconUser,
 } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import {
+  NameCell,
+  NumberCell,
+  ProductsCell,
+} from '@/deals/components/deal-selects/MoveDealSelect';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
+import { RecordTable } from 'erxes-ui';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
-
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-
-import {
-  BoardCell,
-  PipelineCell,
-  StageCell,
-  NameCell,
-  ProductsCell,
-} from '@/deals/components/deal-selects/MoveDealSelect';
+import { dealsMoreColumn } from './DealsMoreColumn';
+import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
+import { useTranslation } from 'react-i18next';
 
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
+  const { moveDealStage } = useMoveDealStage();
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
+  const { t } = useTranslation('sales');
 
   return [
     checkBoxColumn,
+    dealsMoreColumn,
     {
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
       ),
       cell: ({ row }) => <NameCell deal={row.original} />,
       size: 240,
     },
     {
+      id: 'number',
+      accessorKey: 'number',
+      header: () => (
+        <RecordTable.InlineHead label={t('number')} icon={IconLabelFilled} />
+      ),
+      cell: ({ row }) => <NumberCell deal={row.original} />,
+    },
+    {
       id: 'boardId',
       accessorFn: (row) => row.boardId,
       header: () => (
-        <RecordTable.InlineHead label="Board" icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('board')} icon={IconLabelFilled} />
       ),
-      cell: ({ row }) => <BoardCell deal={row.original} />,
+      cell: ({ row }) => <BoardSelect boardId={row.original.boardId} />,
     },
     {
       id: 'pipeline',
       accessorFn: (row) => row.pipeline?.name,
       header: () => (
-        <RecordTable.InlineHead label="Pipeline" icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('pipeline')}
+          icon={IconProgressCheck}
+        />
       ),
-      cell: ({ row }) => <PipelineCell deal={row.original} />,
+      cell: ({ row }) => {
+        return <PipelineSelect pipelineId={row.original.pipeline?._id} />;
+      },
       size: 170,
     },
     {
       id: 'stage',
       accessorFn: (row) => row.stage?.name,
       header: () => (
-        <RecordTable.InlineHead label="Stage" icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('stage')} icon={IconProgressCheck} />
       ),
-      cell: ({ row }) => <StageCell deal={row.original} />,
+      cell: ({ row }) => {
+        return (
+          <StageSelect
+            stageId={row.original.stageId}
+            pipelineId={row.original.pipeline?._id || ''}
+            onChange={(stageId) => {
+              moveDealStage({
+                deal: row.original,
+                stageId,
+              });
+            }}
+          />
+        );
+      },
       size: 170,
     },
     {
       id: 'products',
       accessorFn: (row) => row.products,
       header: () => (
-        <RecordTable.InlineHead label="Products" icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('products')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ row }) => <ProductsCell deal={row.original} />,
     },
     {
       id: 'assignedUsers',
       accessorKey: 'assignedUserIds',
-      header: () => <RecordTable.InlineHead label="Assignee" icon={IconUser} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />
+      ),
       cell: ({ row }) => (
         <SelectAssigneeDeal
           variant="table"
@@ -88,7 +122,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       accessorKey: 'priority',
       header: () => (
         <RecordTable.InlineHead
-          label="Priority"
+          label={t('priority')}
           icon={IconAlertSquareRounded}
         />
       ),
@@ -105,7 +139,10 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label="Start Date" icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('start-date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ row }) => {
         const startDate = row.original.startDate;
@@ -114,7 +151,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
             type="startDate"
             value={startDate || ''}
             id={row.original._id}
-            placeholder="Start Date"
+            placeholder={t('start-date')}
           />
         );
       },
@@ -124,7 +161,10 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       id: 'closeDate',
       accessorKey: 'closeDate',
       header: () => (
-        <RecordTable.InlineHead label="Close Date" icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('close-date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ row }) => {
         const closeDate = row.original.closeDate;
@@ -133,7 +173,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
             type="closeDate"
             value={closeDate || ''}
             id={row.original._id}
-            placeholder="Close Date"
+            placeholder={t('close-date')}
           />
         );
       },

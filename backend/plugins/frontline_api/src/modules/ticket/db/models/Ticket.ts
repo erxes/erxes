@@ -9,6 +9,9 @@ import { Document, FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
@@ -29,10 +32,13 @@ export interface ITicketModel extends Model<ITicketDocument> {
     userId: string;
     subdomain: string;
   }): Promise<ITicketDocument>;
-  removeTicket(_id: string): Promise<{ ok: number }>;
+  removeTicket(_id: string[]): Promise<{ ok: number }>;
 }
 
-export const loadTicketClass = (models: IModels) => {
+export const loadTicketClass = (
+  models: IModels,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Ticket {
     public static async getTicket(_id: string): Promise<ITicketDocument> {
       const ticket = await models.Ticket.findOne({ _id });
@@ -44,13 +50,14 @@ export const loadTicketClass = (models: IModels) => {
       params: ITicketFilter,
     ): Promise<FlattenMaps<ITicketDocument>[] | Document[]> {
       const query = {} as FilterQuery<ITicketDocument>;
-
       if (params.name) query.name = { $regex: params.name, $options: 'i' };
       if (params.assigneeId) query.assigneeId = params.assigneeId;
       if (params.channelId) query.channelId = params.channelId;
       if (params.pipelineId) query.pipelineId = params.pipelineId;
       if (params.statusId) query.statusId = params.statusId;
       if (params.assigneeId) query.assigneeId = params.assigneeId;
+      if (params.assignedMembers)
+        query.assignedMembers = { $in: params.assignedMembers };
       if (params.priority) query.priority = params.priority;
       if (params.labelIds) query.labelIds = { $in: params.labelIds };
       if (params.tagIds) query.tagIds = { $in: params.tagIds };
@@ -58,6 +65,21 @@ export const loadTicketClass = (models: IModels) => {
       if (params.startDate) query.startDate = { $gte: params.startDate };
       if (params.targetDate) query.targetDate = { $lte: params.targetDate };
       if (params.createdAt) query.createdAt = { $gte: params.createdAt };
+      switch (params.state) {
+        case 'active':
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
+        case 'archived':
+          query.state = 'archived';
+          break;
+        case 'deleted':
+          query.state = 'deleted';
+          break;
+        default:
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
+      }
+
       return models.Ticket.find(query)
         .populate('pipelineId')
         .populate('statusId')
@@ -77,7 +99,7 @@ export const loadTicketClass = (models: IModels) => {
 
       const status = await models.Status.getStatus(doc.statusId);
 
-      if (status && status.pipelineId) {
+      if (status?.pipelineId) {
         doc.pipelineId = status.pipelineId;
       }
 
@@ -100,6 +122,11 @@ export const loadTicketClass = (models: IModels) => {
         });
       }
 
+      sendDbEventLog({
+        action: 'create',
+        docId: ticket._id,
+        currentDocument: ticket.toObject(),
+      });
       return ticket;
     }
 
@@ -112,12 +139,32 @@ export const loadTicketClass = (models: IModels) => {
       userId: string;
       subdomain: string;
     }) {
-      const { _id, ...rest } = doc;
+      const { _id, propertiesData: incomingPropertiesData, ...rest } = doc;
+      const permissionValidator = createPermissionValidator(models);
 
       const ticket = await models.Ticket.findOne({ _id });
 
       if (!ticket) {
         throw new Error('Ticket not found');
+      }
+
+      await permissionValidator.validateEditPermission(
+        ticket.statusId || '',
+        doc.statusId || '',
+        userId,
+      );
+      if (incomingPropertiesData) {
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'fields',
+          action: 'validateFieldValues',
+          input: {
+            data: incomingPropertiesData,
+          },
+          defaultValue: incomingPropertiesData,
+        });
       }
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {
@@ -171,9 +218,15 @@ export const loadTicketClass = (models: IModels) => {
           action: 'assignee',
         });
       }
-      const update = {
-        $set: rest,
+      const update: { $set: Record<string, any>; [key: string]: any } = {
+        $set: { ...rest },
       };
+
+      if (incomingPropertiesData) {
+        for (const [key, value] of Object.entries(incomingPropertiesData)) {
+          update.$set[`propertiesData.${key}`] = value;
+        }
+      }
 
       if (doc.isSubscribed !== false) {
         update['$addToSet'] = {
@@ -191,14 +244,11 @@ export const loadTicketClass = (models: IModels) => {
         new: true,
       });
 
-      if (
-        detail &&
-        detail.subscribedUserIds &&
-        detail.subscribedUserIds.length > 0
-      ) {
-        const userIds = detail.subscribedUserIds.filter(
-          (id) => id !== userId && id !== doc.assigneeId,
-        );
+      if (detail?.subscribedUserIds?.length) {
+        const userIds =
+          detail.subscribedUserIds.filter(
+            (id) => id !== userId && id !== doc.assigneeId,
+          ) || [];
         await createNotifications({
           contentType: 'ticket',
           contentTypeId: detail._id,
@@ -209,12 +259,27 @@ export const loadTicketClass = (models: IModels) => {
           action: 'updated',
         });
       }
+      if (detail) {
+        sendDbEventLog?.({
+          action: 'update',
+          docId: detail._id,
+          currentDocument: detail.toObject(),
+          prevDocument: ticket.toObject(),
+        });
+      }
       return detail;
     }
 
-    public static async removeTicket(_id: string): Promise<{ ok: number }> {
-      const result = await models.Ticket.deleteOne({ _id });
-
+    public static async removeTicket(_ids: string[]): Promise<{ ok: number }> {
+      const result = await models.Ticket.deleteMany({
+        _id: { $in: _ids },
+      });
+      for (const _id of _ids) {
+        sendDbEventLog?.({
+          action: 'delete',
+          docId: _id,
+        });
+      }
       return { ok: result.deletedCount || 0 };
     }
   }

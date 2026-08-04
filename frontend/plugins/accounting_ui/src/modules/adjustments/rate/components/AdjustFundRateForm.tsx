@@ -1,4 +1,3 @@
-import { AccountingDialog } from '@/layout/components/Dialog';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
@@ -11,6 +10,7 @@ import {
   Spinner,
   Textarea,
 } from 'erxes-ui';
+import type { CurrencyCode } from 'erxes-ui/types';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
@@ -22,6 +22,9 @@ import { IAdjustFundRate } from '../types/AdjustFundRate';
 import { FILTERED_CURRENCIES } from '../constants';
 import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
 
+const getCurrencyCode = (value: string) =>
+  value in FILTERED_CURRENCIES ? (value as CurrencyCode) : undefined;
+
 export const AddAdjustFundRate = () => {
   const [open, setOpen] = useState(false);
   return (
@@ -32,12 +35,12 @@ export const AddAdjustFundRate = () => {
           Add Fund Rate Adjustment
         </Button>
       </Dialog.Trigger>
-      <AccountingDialog
+      <Dialog.ContentCombined
         title="Fund Rate Adjustment"
         description="Create a new fund rate adjustment"
       >
         <AdjustFundRateFormContent setOpen={setOpen} />
-      </AccountingDialog>
+      </Dialog.ContentCombined>
     </Dialog>
   );
 };
@@ -53,7 +56,7 @@ export const EditAdjustFundRate = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <AccountingDialog
+      <Dialog.ContentCombined
         title="Edit Fund Rate Adjustment"
         description="Update fund rate adjustment"
       >
@@ -61,7 +64,7 @@ export const EditAdjustFundRate = ({
           setOpen={setOpen}
           adjustFundRate={adjustFundRate}
         />
-      </AccountingDialog>
+      </Dialog.ContentCombined>
     </Dialog>
   );
 };
@@ -149,15 +152,11 @@ const AdjustFundRateFormContent = ({
     }
   };
 
-  const onError = (error: any) => {
-    console.log(error);
-  };
-
   return (
     <Form {...form}>
       <form
         className="p-6 flex-auto overflow-auto"
-        onSubmit={form.handleSubmit(onSubmit, onError)}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <h3 className="text-lg font-bold mb-4">
           {adjustFundRate ? 'Edit' : 'Create'} Fund Rate Adjustment
@@ -174,7 +173,7 @@ const AdjustFundRateFormContent = ({
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
-                    value={field.value as any}
+                    value={getCurrencyCode(field.value)}
                     onChange={field.onChange}
                     currencies={FILTERED_CURRENCIES}
                   />
@@ -194,7 +193,7 @@ const AdjustFundRateFormContent = ({
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
-                    value={field.value as any}
+                    value={getCurrencyCode(field.value)}
                     onChange={field.onChange}
                     currencies={FILTERED_CURRENCIES}
                   />

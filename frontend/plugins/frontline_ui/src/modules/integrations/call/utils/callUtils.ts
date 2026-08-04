@@ -22,7 +22,7 @@ export function parseCallDirection(
 
 export const logger = {
   log: (a: any) => {
-    console.log(a, 'log a***');
+    // intentionally empty in production
   },
   error: (e: any) => {
     console.error(e, 'error');
@@ -31,7 +31,7 @@ export const logger = {
     console.warn(w, 'warn');
   },
   debug: (d: any, e?: any) => {
-    console.debug(d, 'debug', e);
+    // intentionally empty in production
   },
 };
 

@@ -1,5 +1,4 @@
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import { IPos } from '../types/pos';
 
 export const usePosInline = (options?: any) => {

@@ -10,6 +10,7 @@ export interface TActivityEntity<TData = any> {
 export interface TActivityLog<TTarget = any, TContext = any> {
   _id: string;
   createdAt: string | Date;
+  sourcePlugin?: string;
   actorType: string;
   actor: {
     username?: string;
@@ -25,7 +26,8 @@ export interface TActivityLog<TTarget = any, TContext = any> {
   contextType: string;
   context: TActivityEntity<TContext>;
   action: {
-    action: string;
+    action?: string;
+    type?: string;
     description: string;
   };
   changes?: any;

@@ -1,4 +1,5 @@
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { ValidationError } from '@/clientportal/services/errorHandler';
 
 export interface OTPConfig {
   codeLength: number;
@@ -7,12 +8,19 @@ export interface OTPConfig {
   messageTemplate: string;
 }
 
-type OTPContext = 'registration' | 'login' | 'passwordReset';
+type OTPContext =
+  | 'registration'
+  | 'login'
+  | 'passwordReset'
+  | 'emailChange'
+  | 'phoneChange';
 
 const CONTEXT_SUBJECTS: Record<OTPContext, string> = {
   registration: 'Registration verification',
   login: 'Login OTP',
   passwordReset: 'Password Reset',
+  emailChange: 'Confirm new email',
+  phoneChange: 'Confirm new phone',
 };
 
 export function getOTPConfig(
@@ -23,20 +31,22 @@ export function getOTPConfig(
   const otpConfig = clientPortal.securityAuthConfig?.otpConfig;
 
   if (!otpConfig) {
-    throw new Error('OTP configuration is not set for this client portal');
+    throw new ValidationError(
+      'OTP configuration is not set for this client portal',
+    );
   }
 
   if (identifierType === 'email') {
     const emailConfig = otpConfig.email;
 
     if (!emailConfig) {
-      throw new Error(
+      throw new ValidationError(
         'Email OTP configuration is not set for this client portal',
       );
     }
 
     if (!emailConfig.codeLength || !emailConfig.duration) {
-      throw new Error('Email OTP configuration is incomplete');
+      throw new ValidationError('Email OTP configuration is incomplete');
     }
 
     return {
@@ -50,11 +60,13 @@ export function getOTPConfig(
   const smsConfig = otpConfig.sms;
 
   if (!smsConfig) {
-    throw new Error('SMS OTP configuration is not set for this client portal');
+    throw new ValidationError(
+      'SMS OTP configuration is not set for this client portal',
+    );
   }
 
   if (!smsConfig.codeLength || !smsConfig.duration) {
-    throw new Error('SMS OTP configuration is incomplete');
+    throw new ValidationError('SMS OTP configuration is incomplete');
   }
 
   return {
@@ -68,15 +80,19 @@ export function getOTPConfig(
 export function isEmailVerificationEnabled(
   clientPortal: IClientPortalDocument,
 ): boolean {
-  return clientPortal.securityAuthConfig?.otpConfig?.email
-    ?.enableEmailVerification ?? false;
+  return (
+    clientPortal.securityAuthConfig?.otpConfig?.email
+      ?.enableEmailVerification ?? false
+  );
 }
 
 export function isPhoneVerificationEnabled(
   clientPortal: IClientPortalDocument,
 ): boolean {
-  return clientPortal.securityAuthConfig?.otpConfig?.sms
-    ?.enablePhoneVerification ?? false;
+  return (
+    clientPortal.securityAuthConfig?.otpConfig?.sms?.enablePhoneVerification ??
+    false
+  );
 }
 
 export function isPasswordlessLoginEnabled(

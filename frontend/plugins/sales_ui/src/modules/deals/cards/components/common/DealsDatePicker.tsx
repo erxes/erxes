@@ -13,7 +13,7 @@ export const DealsDatePicker = ({ date, Icon, text }: Props) => {
       <Icon />
       <DatePicker
         value={date}
-        onChange={(date) => console.log(date)}
+        onChange={() => {}}
         format="MMM DD"
         variant="ghost"
         className="p-0 h-3 text-xs"

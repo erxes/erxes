@@ -8,6 +8,9 @@ export const types = `
       status:String,
       userId:String,
       cursor:String,
+      processId:String,
+      contentType:String,
+      name:String,
 
       user:User
       prevObject:JSON
@@ -19,6 +22,13 @@ export const types = `
         pageInfo: PageInfo
     }
 
+    type LogContentType {
+      value: String!
+      pluginName: String!
+      moduleName: String!
+      collectionName: String!
+    }
+
     type ActivityLogsList {
         list:[ActivityLog]
         totalCount: Int
@@ -28,6 +38,7 @@ export const types = `
         _id: String
         createdAt: Date
         activityType: String
+        sourcePlugin: String
         actorType: String
         actor: JSON
         targetType: String
@@ -37,6 +48,54 @@ export const types = `
         contextType: String
         changes: JSON
         metadata: JSON
+    }
+
+    type LogRevertField {
+        field: String!
+        revertValue: JSON
+        currentValue: JSON
+    }
+
+    type LogRevertConflict {
+        contentType: String!
+        docId: String!
+        mongooseName: String!
+        fields: [LogRevertField!]!
+    }
+
+    type LogRevertApplied {
+        contentType: String!
+        docId: String!
+        kind: String!
+    }
+
+    type LogRevertUnrevertable {
+        contentType: String
+        docId: String
+        action: String!
+        reason: String!
+    }
+
+    type LogRevertResult {
+        processId: String!
+        requestProcessId: String!
+        dryRun: Boolean!
+        alreadyReverted: Boolean!
+        reverted: [LogRevertApplied!]!
+        conflicts: [LogRevertConflict!]!
+        unrevertable: [LogRevertUnrevertable!]!
+    }
+
+    input LogRevertFieldResolutionInput {
+        field: String!
+        mode: String!
+        value: JSON
+    }
+
+    input LogRevertDocResolutionInput {
+        contentType: String!
+        docId: String!
+        fields: [LogRevertFieldResolutionInput!]!
     }
 `;
 
@@ -48,7 +107,6 @@ const cursorParams = `
 `;
 
 export const commonListQueryParams = `
-    searchValue:String,
     page:Int,
     perPage:Int,
     ids:[String]
@@ -58,6 +116,14 @@ export const commonListQueryParams = `
 const commonQueryParams = `
     ${commonListQueryParams},
     ${cursorParams},
+    status: String
+    source: String
+    action: String
+    userIds: [String]
+    contentType: String
+    documentId: String
+    createdAtFrom: Date
+    createdAtTo: Date
     filters:JSON
 `;
 
@@ -66,11 +132,27 @@ const activityLogQueryParams = `
     targetType: String
     targetId: String!
     action: String
+    variant: String
+    activityType: String
+    excludeActivityType: String
+    dateFrom: Date
+    dateTo: Date
 `;
 
 export const queries = `
     activityLogs(${activityLogQueryParams}):ActivityLogsList
     logsMainList(${commonQueryParams}):MainLogsList
+    logsGetContentTypes: [LogContentType!]!
     logDetail(_id:String!):Log
+    logsRevertPreview(processId: String!): LogRevertResult
 `;
-export default { types, queries };
+
+export const mutations = `
+    logsRevertProcess(
+      processId: String!
+      dryRun: Boolean
+      force: Boolean
+      skipConflicts: Boolean
+      resolutions: [LogRevertDocResolutionInput!]
+    ): LogRevertResult
+`;

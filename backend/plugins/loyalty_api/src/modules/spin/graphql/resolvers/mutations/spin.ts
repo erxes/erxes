@@ -1,41 +1,50 @@
+import { ISpin } from '@/spin/@types/spin';
 import { IContext } from '~/connectionResolvers';
-import { ISpin } from '~/modules/spin/@types/spin';
+import { IBuyParams } from '~/utils';
 
 export const spinsMutations = {
-  async createSpin(_root, doc: ISpin, { models, user }: IContext) {
-    return models.Spin.createSpin(doc, user);
+  async spinsAdd(
+    _root: undefined,
+    doc: ISpin,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('spinCreate');
+    return models.Spins.createSpin(doc);
   },
 
-  async updateSpin(
-    _parent: undefined,
+  async spinsEdit(
+    _root: undefined,
     { _id, ...doc }: ISpin & { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
-    return models.Spin.updateSpin(_id, doc, user);
+    await checkPermission('spinEdit');
+    return models.Spins.updateSpin(_id, { ...doc, userId: user._id });
   },
 
-  async removeSpin(
-    _parent: undefined,
-    { _id }: { _id: string },
-    { models }: IContext,
+  async spinsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models, checkPermission }: IContext,
   ) {
-    return models.Spin.removeSpin(_id);
+    await checkPermission('spinRemove');
+    return models.Spins.removeSpins(_ids);
   },
 
   async buySpin(
-    _parent: undefined,
-    param: {
-      campaignId: string;
-      ownerType: string;
-      ownerId: string;
-      count?: number;
-    },
-    { models, user }: IContext,
+    _root: undefined,
+    param: IBuyParams,
+    { models, checkPermission }: IContext,
   ) {
-    return models.Spin.buySpin(param, user);
+    await checkPermission('spinBuy');
+    return models.Spins.buySpin(param);
   },
 
-  async doSpin(_parent: undefined, spinId, { models, user }: IContext) {
-    return models.Spin.doSpin(spinId, user);
+  async doSpin(
+    _root: undefined,
+    spinId: string,
+    { models, checkPermission, subdomain }: IContext,
+  ) {
+    await checkPermission('spinDo');
+    return models.Spins.doSpin(spinId);
   },
 };

@@ -9,6 +9,7 @@ import {
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useConversationTags } from '@/report/hooks/useConversationTags';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
 import {
@@ -31,11 +32,13 @@ import {
   YAxis,
 } from 'recharts';
 import { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ResponsesChartType, TagData } from '@/report/types';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { useAtom } from 'jotai';
 import {
+  getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
@@ -43,13 +46,17 @@ import {
   getReportMemberFilterAtom,
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { AreaGradient } from '../chart/AreaGradient';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface ConversationTagProps {
   title: string;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
-
 
 interface TagChartProps {
   conversationTags: TagData[];
@@ -60,18 +67,14 @@ export const ConversationTag = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationTagProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [dateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
+  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -86,10 +89,48 @@ export const ConversationTag = ({
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        callStatus:
+          sourceFilter === 'calls' && callStatusFilter !== 'all'
+            ? callStatusFilter
+            : undefined,
       },
     },
   });
 
+  const allTags = useMemo(() => conversationTags || [], [conversationTags]);
+  const {
+    pagedData: pagedTags,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allTags);
+
+  const tagExportColumns = useMemo(
+    () => [
+      { key: 'name' as const, header: 'Tag' },
+      { key: 'count' as const, header: 'Count' },
+      {
+        key: 'percentage' as const,
+        header: 'Percentage',
+        format: (v: number) => `${v}%`,
+      },
+    ],
+    [],
+  );
+
+  const filterEl = (
+    <>
+      <ReportFilter cardId={id} />
+      <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton
+        data={allTags}
+        columns={tagExportColumns}
+        filename="conversation-tag"
+      />
+    </>
+  );
 
   if (loading) {
     return (
@@ -100,14 +141,7 @@ export const ConversationTag = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header
-          filter={
-            <>
-              <ReportFilter cardId={id} />
-              <SelectChartType value={chartType} onValueChange={setChartType} />
-            </>
-          }
-        />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Skeleton />
         </FrontlineCard.Content>
@@ -126,7 +160,7 @@ export const ConversationTag = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>
               {error.message || 'Failed to load conversation tags'}
             </Alert.Description>
@@ -161,14 +195,7 @@ export const ConversationTag = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header
-        filter={
-          <>
-            <ReportFilter cardId={id} />
-            <SelectChartType value={chartType} onValueChange={setChartType} />
-          </>
-        }
-      />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -179,26 +206,32 @@ export const ConversationTag = ({
           )}
         >
           {chartType === ResponsesChartType.Bar && (
-            <TagBarChart conversationTags={conversationTags} />
+            <TagBarChart conversationTags={pagedTags} />
           )}
           {chartType === ResponsesChartType.Line && (
-            <TagLineChart conversationTags={conversationTags} />
+            <TagLineChart conversationTags={pagedTags} />
           )}
           {chartType === ResponsesChartType.Pie && (
-            <TagPieChart conversationTags={conversationTags} />
+            <TagPieChart conversationTags={pagedTags} />
           )}
           {chartType === ResponsesChartType.Radar && (
-            <TagRadarChart conversationTags={conversationTags} />
+            <TagRadarChart conversationTags={pagedTags} />
           )}
           {chartType === ResponsesChartType.Table && (
-            <TagRecordTableChart conversationTags={conversationTags} />
+            <TagRecordTableChart conversationTags={pagedTags} />
           )}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );
 };
-
 
 export const TagBarChart = memo(function TagBarChart({
   conversationTags,
@@ -283,16 +316,10 @@ export const TagBarChart = memo(function TagBarChart({
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar
-          dataKey="count"
-          fill="var(--primary)"
-          stackId="stack-tag"
-          name="Count"
-        />
+        <Bar dataKey="count" fill="var(--primary)" name="Count" />
         <Bar
           dataKey="percentageScaled"
           fill="var(--success)"
-          stackId="stack-tag"
           name="Percentage"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
@@ -361,6 +388,10 @@ export const TagLineChart = memo(function TagLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="fl-tag-primary" color="var(--primary)" />
+          <AreaGradient id="fl-tag-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="tag" tickLine={false} axisLine={false} />
         <YAxis
@@ -387,20 +418,24 @@ export const TagLineChart = memo(function TagLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
+          fill="url(#fl-tag-primary)"
           fillOpacity={0.3}
           strokeWidth={2}
           strokeLinecap="round"
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <Area
           yAxisId="percentage"
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
+          fill="url(#fl-tag-success)"
           fillOpacity={0.3}
           strokeWidth={2}
           strokeLinecap="round"
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />

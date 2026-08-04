@@ -4,7 +4,6 @@ import {
   ITeamFilter,
   ITeamMember,
   TeamEstimateTypes,
-  TeamMemberRoles,
 } from '@/team/@types/team';
 import { teamSchema } from '@/team/db/definitions/team';
 import { getEnv, updateSaasOrganization } from 'erxes-api-shared/utils';
@@ -94,11 +93,10 @@ export const loadTeamClass = (models: IModels, subdomain: string) => {
       const team = await models.Team.insertOne(teamDoc);
 
       roles.push(
-        { memberId: adminId, teamId: team._id, role: TeamMemberRoles.ADMIN },
+        { memberId: adminId, teamId: team._id },
         ...memberIds.map((memberId) => ({
           memberId,
           teamId: team._id,
-          role: TeamMemberRoles.MEMBER,
         })),
       );
 
@@ -138,7 +136,11 @@ export const loadTeamClass = (models: IModels, subdomain: string) => {
         { new: true },
       );
 
-      if (updatedTeam && updatedTeam.cycleEnabled !== team.cycleEnabled && VERSION === 'saas') {
+      if (
+        updatedTeam &&
+        updatedTeam.cycleEnabled !== team.cycleEnabled &&
+        VERSION === 'saas'
+      ) {
         await updateSaasOrganization(subdomain, {
           cycleEnabled: updatedTeam.cycleEnabled,
         });

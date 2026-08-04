@@ -25,7 +25,7 @@ export const actionCreateComment = async (
       data.attachment_url = url;
     }
 
-    const inboxConversation = await models.FacebookConversations.findOne({
+    const inboxConversation = await models.Conversations.findOne({
       _id: erxesApiId,
     });
 
@@ -61,6 +61,16 @@ export const checkCommentTrigger = async (subdomain, { target, config }) => {
   const { botId, postId, postType, checkContent, conditions, onlyFirstLevel } =
     config || {};
 
+  if (
+    !target?.recipientId ||
+    !target?.postId ||
+    !target?.comment_id ||
+    !target?.senderId ||
+    !target?.customerId
+  ) {
+    return false;
+  }
+
   const models = await generateModels(subdomain);
 
   const bot = await models.FacebookBots.findOne(
@@ -72,14 +82,18 @@ export const checkCommentTrigger = async (subdomain, { target, config }) => {
   ).lean();
 
   if (!bot) {
-    return;
+    return false;
   }
 
   if (postType === 'specific' && target.postId !== postId) {
     return false;
   }
 
-  if (onlyFirstLevel && target.parentId) {
+  if (
+    onlyFirstLevel &&
+    target.parentId &&
+    String(target.parentId) !== String(target.postId)
+  ) {
     return false;
   }
 

@@ -5,6 +5,7 @@ import {
   PopoverScoped,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useBoards, IBoard } from '@/pricing/hooks/useBoards';
 
 // SelectBoard Context
@@ -71,16 +72,17 @@ const SelectBoardProvider = ({
 
 // SelectBoard Value Display
 const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('loyalty');
   const { value, boards, loading } = useSelectBoardContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">Loading boards...</span>;
+    return <span className="text-accent-foreground/80">{t('loading-boards')}</span>;
   }
 
   if (!boards || boards.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select board'}
+        {placeholder || t('select-board')}
       </span>
     );
   }
@@ -90,7 +92,7 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedBoard) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select board'}
+        {placeholder || t('select-board')}
       </span>
     );
   }
@@ -123,13 +125,14 @@ const SelectBoardCommandItem = ({ board }: { board: IBoard }) => {
 
 // SelectBoard Content
 const SelectBoardContent = () => {
+  const { t } = useTranslation('loyalty');
   const { boards, loading } = useSelectBoardContext();
   return (
     <Command>
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">
-            {loading ? 'Loading boards...' : 'No boards found'}
+            {loading ? t('loading-boards') : t('no-boards-found')}
           </div>
         </Command.Empty>
         {boards?.map((board) => (

@@ -4,8 +4,13 @@ import {
   updateConfigs,
 } from '@/integrations/facebook/helpers';
 import { IReplyParams } from '@/integrations/facebook/@types/utils';
-import { sendReply } from '@/integrations/facebook/utils';
+import {
+  createPagePost,
+  getPostDetails,
+  sendReply,
+} from '@/integrations/facebook/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import { TCreateBotInputDoc } from '../../db/models/Bots';
 export const facebookMutations = {
   async facebookUpdateConfigs(_root, { configsMap }, { subdomain }: IContext) {
     await updateConfigs(subdomain, configsMap);
@@ -68,7 +73,7 @@ export const facebookMutations = {
 
     const id = comment ? comment.comment_id : post.postId;
 
-    if (comment && comment.comment_id) {
+    if (comment?.comment_id) {
       data = {
         message: ` @[${comment.senderId}] ${content}`,
         attachment_url: attachment.url,
@@ -89,10 +94,10 @@ export const facebookMutations = {
         `${id}/comments`,
         data,
         recipientId,
-        (inboxConversation && inboxConversation.integrationId) || '',
+        inboxConversation?.integrationId ?? '',
       );
 
-      await sendNotifications({
+      await sendNotifications(subdomain, {
         user,
         conversations: [inboxConversation],
         type: 'conversationStateChange',
@@ -105,22 +110,70 @@ export const facebookMutations = {
       throw new Error(e.message);
     }
   },
-  async facebookMessengerAddBot(_root, args, { models }: IContext) {
-    return await models.FacebookBots.addBot(args);
+  // Publish a post to a connected Facebook page. The page token must carry
+  // pages_manage_posts (granted at OAuth time via FACEBOOK_PERMISSIONS).
+  async facebookCreatePost(
+    _root,
+    {
+      erxesApiId,
+      pageId,
+      message,
+      link,
+    }: { erxesApiId: string; pageId: string; message: string; link?: string },
+    { models }: IContext,
+  ) {
+    const integration = await models.FacebookIntegrations.findOne({
+      erxesApiId,
+    });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    if (!(integration.facebookPageIds || []).includes(pageId)) {
+      throw new Error('Page is not connected to this integration');
+    }
+
+    const response = await createPagePost(
+      pageId,
+      integration.facebookPageTokensMap || {},
+      message,
+      link,
+    );
+
+    const details = await getPostDetails(
+      pageId,
+      integration.facebookPageTokensMap || {},
+      response.id,
+    );
+
+    return {
+      postId: response.id,
+      permalinkUrl: details ? details.permalink_url : null,
+    };
+  },
+  async facebookMessengerAddBot(_root, args, { models, user }: IContext) {
+    return await models.FacebookBots.addBot(args, {
+      userId: user._id,
+    });
   },
 
   async facebookMessengerUpdateBot(
     _root,
-    { _id, ...args },
-    { models }: IContext,
+    { _id, ...args }: TCreateBotInputDoc & { _id: string },
+    { models, user }: IContext,
   ) {
-    return await models.FacebookBots.updateBot(_id, args);
+    return await models.FacebookBots.updateBot(_id, args, {
+      userId: user._id,
+    });
   },
 
   async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
     return await models.FacebookBots.removeBot(_id);
   },
-  async facebookMessengerRepairBot(_root, { _id }, { models }: IContext) {
-    return await models.FacebookBots.repair(_id);
+  async facebookMessengerRepairBot(_root, { _id }, { models, user }: IContext) {
+    return await models.FacebookBots.repair(_id, {
+      userId: user._id,
+    });
   },
 };

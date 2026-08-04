@@ -1,12 +1,20 @@
 import {
   IAutomationExecutionDocument,
-  splitType,
-  TAutomationProducers,
+  replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { getEnv, sendCoreModuleProducer } from 'erxes-api-shared/utils';
+import { getEnv, resolveDefaultSenderEmail } from 'erxes-api-shared/utils';
+import { assertSenderAllowed } from '../../../utils/emailSender';
+import { getConfig } from '../../../utils/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
+import { renderEmailContent } from './renderEmailContent';
 import { replaceDocuments } from './replaceDocuments';
-import { filterOutSenderEmail, formatFromEmail } from './utils';
+import {
+  filterOutSenderEmail,
+  formatFromEmail,
+  formatIsoDatesInText,
+  normalizeEmailActionPlaceholders,
+  stripDeadLinks,
+} from './utils';
 
 export const generateEmailPayload = async ({
   subdomain,
@@ -23,22 +31,34 @@ export const generateEmailPayload = async ({
   config: any;
 }) => {
   const { fromEmailPlaceHolder, sender, type: senderType } = config;
-  const [pluginName, moduleName, type] = splitType(targetType);
   const version = getEnv({ name: 'VERSION' });
-  const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
+  const DEFAULT_FROM_EMAIL = getEnv({ name: 'DEFAULT_FROM_EMAIL' });
 
-  const template = { content: config?.html || '' };
   const isSaasVersion = version === 'saas';
+  const isDefaultSender = senderType === 'default' || !senderType;
+  const isPickedSender = senderType === 'custom' || senderType === 'verified';
+  const normalizedFromEmailPlaceHolder = normalizeEmailActionPlaceholders(
+    fromEmailPlaceHolder || '',
+    targetType,
+  );
+  const normalizedSubject = normalizeEmailActionPlaceholders(
+    config.subject || '',
+    targetType,
+  );
   let fromUserEmail = '';
 
-  if (isSaasVersion || senderType === 'default') {
-    fromUserEmail = DEFAULT_AWS_EMAIL;
+  if (isDefaultSender) {
+    fromUserEmail = resolveDefaultSenderEmail({
+      isSaas: isSaasVersion,
+      companyEmailFrom: await getConfig(subdomain, 'COMPANY_EMAIL_FROM', ''),
+      fallbackEmail: DEFAULT_FROM_EMAIL,
+    });
   }
 
-  if (senderType === 'custom' || !isSaasVersion) {
-    const emails = await collectEmails(fromEmailPlaceHolder, {
+  if (isPickedSender) {
+    const emails = await collectEmails(normalizedFromEmailPlaceHolder, {
       subdomain,
-      target,
+      execution,
       targetType,
     });
     if (!emails?.length) {
@@ -47,45 +67,50 @@ export const generateEmailPayload = async ({
     fromUserEmail = emails[0];
   }
 
-  let replacedContent = (template?.content || '').replace(
-    new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, 'g'),
-    '{{ $1 }}',
+  await assertSenderAllowed(subdomain, fromUserEmail);
+
+  const templateContent = renderEmailContent(config?.content, config?.html);
+
+  let replacedContent = normalizeEmailActionPlaceholders(
+    templateContent,
+    targetType,
   );
 
   replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
-  const { subject, content = '' } = await sendCoreModuleProducer({
-    moduleName: 'automations',
+  const replacedValues = await replaceOutputPlaceholders({
     subdomain,
-    pluginName,
-    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-    input: {
-      moduleName,
-      target,
-      config: {
-        subject: config.subject,
-        content: replacedContent,
-      },
+    execution,
+    values: {
+      subject: normalizedSubject,
+      content: replacedContent,
     },
-    defaultValue: {},
   });
+  const subject = formatIsoDatesInText(
+    String(replacedValues.subject ?? normalizedSubject),
+  );
+  const content = formatIsoDatesInText(String(replacedValues.content ?? ''));
 
   const [toEmails, ccEmails] = await getRecipientEmails({
     subdomain,
     config,
+    execution,
     targetType,
-    target,
   });
 
-  if (!toEmails?.length && ccEmails?.length) {
-    throw new Error('"Recieving emails not found"');
+  const filteredToEmails = filterOutSenderEmail(toEmails, fromUserEmail);
+  const filteredCcEmails = filterOutSenderEmail(ccEmails, fromUserEmail);
+
+  if (!filteredToEmails?.length) {
+    throw new Error('"Receiving emails not found"');
   }
 
   return {
     title: subject,
     fromEmail: formatFromEmail(sender, fromUserEmail),
-    toEmails: filterOutSenderEmail(toEmails, fromUserEmail),
-    ccEmails: filterOutSenderEmail(ccEmails, fromUserEmail),
-    customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, '-'),
+    replyTo: config.replyToEmail || undefined,
+    toEmails: filteredToEmails,
+    ccEmails: filteredCcEmails,
+    customHtml: stripDeadLinks(content.replace(/{{\s*([^}]+)\s*}}/g, '-')),
   };
 };

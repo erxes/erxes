@@ -4,12 +4,15 @@ import { IBoard, IBoardDocument } from '../../@types';
 import { boardSchema } from '../definitions/boards';
 import { removePipelineStagesWithItems } from '~/modules/sales/graphql/resolvers/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { generateBoardActivityLogs } from '~/utils/activityLogs';
 
 export interface IBoardModel extends Model<IBoardDocument> {
   getBoard(_id: string): Promise<IBoardDocument>;
   createBoard(doc: IBoard, userId?: string): Promise<IBoardDocument>;
-  updateBoard(_id: string, doc: IBoard, userId?: string): Promise<IBoardDocument>;
+  updateBoard(
+    _id: string,
+    doc: IBoard,
+    userId?: string,
+  ): Promise<IBoardDocument>;
   removeBoard(_id: string): Promise<object>;
   updateTimeTracking(
     _id: string,
@@ -24,7 +27,7 @@ export const loadBoardClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class Board {
     /** Get board */
@@ -63,13 +66,6 @@ export const loadBoardClass = (
         currentDocument: updatedBoard.toObject(),
         prevDocument: prevBoard.toObject(),
       });
-
-      await generateBoardActivityLogs(
-        prevBoard.toObject(),
-        updatedBoard.toObject(),
-        models,
-        createActivityLog,
-      );
 
       return updatedBoard;
     }

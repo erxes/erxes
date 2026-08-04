@@ -1,6 +1,12 @@
 import { IContext } from '~/connectionResolvers';
 export const branchsMutations = {
-  async branchesAdd(_parent: undefined, doc, { user, models }: IContext) {
+  async branchesAdd(
+    _parent: undefined,
+    doc,
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('branchesManage');
+
     const branch = await models.Branches.createBranch(doc, user);
 
     return branch;
@@ -9,14 +15,22 @@ export const branchsMutations = {
   async branchesEdit(
     _parent: undefined,
     { _id, ...doc },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('branchesManage');
+
     const branch = await models.Branches.updateBranch(_id, doc, user);
 
     return branch;
   },
 
-  async branchesRemove(_parent: undefined, { ids }, { models }: IContext) {
+  async branchesRemove(
+    _parent: undefined,
+    { ids },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('branchesManage');
+
     if (!ids.length) {
       throw new Error('You must specify at least one branch id to remove');
     }

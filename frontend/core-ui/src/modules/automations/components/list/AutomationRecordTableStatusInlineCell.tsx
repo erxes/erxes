@@ -1,12 +1,15 @@
 import { AUTOMATION_EDIT } from '@/automations/graphql/automationMutations';
-import { TAutomationRecordTableColumnDefData } from '@/automations/types';
+import {
+  AutomationsHotKeyScope,
+  TAutomationRecordTableColumnDefData,
+} from '@/automations/types';
 import { useMutation } from '@apollo/client';
 import { Cell } from '@tanstack/table-core';
 import {
   Badge,
   cn,
   Label,
-  Popover,
+  PopoverScoped,
   RecordTableInlineCell,
   Spinner,
   Switch,
@@ -46,9 +49,13 @@ export const AutomationRecordTableStatusInlineCell = ({
     });
   };
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <PopoverScoped
+      scope={AutomationsHotKeyScope.AutomationsTableInlinePopover}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <RecordTableInlineCell.Trigger>
-        <div className="w-full flex justify-center">
+        <div className="w-full flex">
           <Badge
             variant={status === 'active' ? 'success' : 'secondary'}
             className={cn('font-bold', {
@@ -60,15 +67,24 @@ export const AutomationRecordTableStatusInlineCell = ({
           </Badge>
         </div>
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="w-24 h-12 flex justify-center items-center space-x-2">
-        <Label htmlFor="mode">Inactive</Label>
-        <Switch
-          id="mode"
-          disabled={loading}
-          onCheckedChange={(isChecked) => onSave(isChecked)}
-          checked={status === 'active'}
-        />
+      <RecordTableInlineCell.Content className="h-cell ">
+        <div className="w-full flex h-full py-1 px-2 gap-2">
+          <Badge
+            variant={status === 'active' ? 'success' : 'secondary'}
+            className={cn('font-bold', {
+              'text-accent-foreground': status !== 'active',
+            })}
+          >
+            {status}
+          </Badge>
+          <Switch
+            id="mode"
+            disabled={loading}
+            onCheckedChange={(isChecked) => onSave(isChecked)}
+            checked={status === 'active'}
+          />
+        </div>
       </RecordTableInlineCell.Content>
-    </Popover>
+    </PopoverScoped>
   );
 };

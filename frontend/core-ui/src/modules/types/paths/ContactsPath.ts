@@ -5,4 +5,5 @@ export enum ContactsPath {
   Companies = '/companies',
   Vendors = '/vendors',
   Clients = '/clients',
+  ClientPortalUsers = '/client-portal-users',
 }

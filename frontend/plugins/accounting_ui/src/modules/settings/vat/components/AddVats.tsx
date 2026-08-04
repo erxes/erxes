@@ -1,35 +1,20 @@
-import { Button, Dialog } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, Sheet } from 'erxes-ui';
 import { TVatRowForm, VatKind, VatStatus } from '../types/VatRow';
-import { vatFormSchema } from '../constants/vatFormSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { VatRowForm } from './VatRowForm';
+
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { IconPlus } from '@tabler/icons-react';
+import { VatRowForm } from './VatRowForm';
 import { useAddVatRow } from '../hooks/useVatRowAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { vatFormSchema } from '../constants/vatFormSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const AddVats = () => {
-  const [open, setOpen] = useState(false);
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Add Vat
-        </Button>
-      </Dialog.Trigger>
-      <Dialog.ContentCombined
-        title="Add Vat"
-        description="Add a new vat"
-        className="sm:max-w-2xl"
-      >
-        <AddVatForm setOpen={setOpen} />
-      </Dialog.ContentCombined>
-    </Dialog>
-  );
-};
-
-export const AddVatForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+export const AddVatForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TVatRowForm>({
     resolver: zodResolver(vatFormSchema),
     defaultValues: {
@@ -44,11 +29,29 @@ export const AddVatForm = ({ setOpen }: { setOpen: (open: boolean) => void }) =>
     addVat({
       variables: { ...data },
       onCompleted: () => {
-        setOpen(false);
         form.reset();
+        setOpen(false);
       },
     });
   };
 
   return <VatRowForm form={form} onSubmit={onSubmit} loading={loading} />;
+};
+
+export const AddVats = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          НӨАТ нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="НӨАТ нэмэх">
+        <AddVatForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
+  );
 };

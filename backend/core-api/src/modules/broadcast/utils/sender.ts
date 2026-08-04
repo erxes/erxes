@@ -1,5 +1,37 @@
+import { deliverEmail, getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import {
+  createDeliveryLogPort,
+  createSuppressionPort,
+} from '~/utils/email/ports';
+import {
+  getBroadcastAlignedFrom,
+  getBroadcastCacheKey,
+  getBroadcastEmailConfig,
+  toOutboundEmail,
+} from './outboundEmail';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
+
+const getConfigSet = async (models: IModels) => {
+  let configSet = await getValueAsString(
+    models,
+    'AWS_SES_CONFIG_SET',
+    'AWS_SES_CONFIG_SET',
+    '',
+  );
+
+  if (!configSet) {
+    const VERSION = getEnv({ name: 'VERSION', defaultValue: '' });
+
+    if (VERSION === 'saas') {
+      configSet = getEnv({ name: 'AWS_SES_CONFIG_SET', defaultValue: 'erxes' });
+    } else {
+      configSet = 'erxes';
+    }
+  }
+
+  return configSet;
+};
 import { ICustomer, IEmailParams, ISmsParams } from '../@types';
 import { CAMPAIGN_KINDS } from '../constants';
 import { getConfig, getConfigs, setCampaignCount } from './common';
@@ -12,23 +44,11 @@ export const start = async (
   subdomain: string,
   data: IEmailParams,
 ) => {
-  const {
-    engageMessageId,
-    customers = [],
-    createdBy,
-    title,
-    fromEmail,
-    email,
-  } = data;
+  const { engageMessageId, customers = [], createdBy, fromEmail, email } = data;
 
   const configs = await getConfigs(models);
 
-  const configSet = await getValueAsString(
-    models,
-    'AWS_SES_CONFIG_SET',
-    'AWS_SES_CONFIG_SET',
-    'erxes',
-  );
+  const configSet = await getConfigSet(models);
 
   await models.Stats.findOneAndUpdate(
     { engageMessageId },
@@ -48,7 +68,9 @@ export const start = async (
 
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
-      await transporter.sendMail(prepareEmailParams(subdomain, customer, data, configSet));
+      await transporter.sendMail(
+        prepareEmailParams(subdomain, customer, data, configSet),
+      );
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
@@ -66,7 +88,7 @@ export const start = async (
     }
   };
 
-  const unverifiedEmailsLimit = parseInt(
+  const unverifiedEmailsLimit = Number.parseInt(
     configs.unverifiedEmailsLimit || '100',
     10,
   );
@@ -164,7 +186,8 @@ export const start = async (
       //   await models.Logs.createLog(
       //     engageMessageId,
       //     'regular',
-      //     `Error occured while creating activity log "${customer.primaryEmail}"`,
+      //     `Error occurred while creating activity log "${customer.primaryEmail}"`,
+      //     `Error occurred while creating activity log "${customer.primaryEmail}"`,
       //   );
     }
   } // end for loop
@@ -271,7 +294,7 @@ export const sendBulkSms = async (
       //   await models.Logs.createLog(
       //     engageMessageId,
       //     'regular',
-      //     `Error occured while creating activity log "${customer.primaryPhone}"`
+      //   `Error occurred while creating activity log "${customer.primaryPhone}"`
       //   );
     }
   } // end customers loop
@@ -282,20 +305,40 @@ export const sendEngageEmail = async (
   models: IModels,
   data: any,
 ) => {
-  const transporter = await createTransporter(models);
   const { customer } = data;
 
-  const configSet = await getValueAsString(
-    models,
-    'AWS_SES_CONFIG_SET',
-    'AWS_SES_CONFIG_SET',
-    'erxes',
-  );
+  const configSet = await getConfigSet(models);
 
   try {
-    await transporter.sendMail(prepareEmailParams(subdomain, customer, data, configSet));
+    const outcome = await deliverEmail({
+      cacheKey: getBroadcastCacheKey(models),
+      config: await getBroadcastEmailConfig(models),
 
-    console.log(`Sent email to: ${customer?.primaryEmail}`);
+      message: toOutboundEmail(
+        prepareEmailParams(
+          subdomain,
+          customer,
+          data,
+          data.fromEmail,
+          configSet,
+        ),
+        { alignedFrom: await getBroadcastAlignedFrom(models) },
+      ),
+      log: createDeliveryLogPort(models),
+      suppression: createSuppressionPort(models),
+      meta: {
+        source: 'broadcast',
+        sourceId: data.engageMessageId,
+        userId: data.createdBy,
+        subdomain,
+      },
+    });
+
+    console.log(
+      outcome.skipped
+        ? `Skipped suppressed address: ${customer?.primaryEmail}`
+        : `Sent email to: ${customer?.primaryEmail}`,
+    );
   } catch (e) {
     console.log(
       `Error occurred while sending email to ${customer?.primaryEmail}: ${e.message}`,

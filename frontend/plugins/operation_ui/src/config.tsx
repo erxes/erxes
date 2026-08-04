@@ -1,7 +1,19 @@
-import { IconChecklist, IconListCheck } from '@tabler/icons-react';
+import {
+  IconChecklist,
+  IconClipboard,
+  IconListCheck,
+} from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
-import { IUIConfig } from 'erxes-ui';
+import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+
+const TaskStatusPropertyInput = lazy(() =>
+  import('./modules/task/components/task-selects/TaskStatusPropertyInput').then(
+    (module) => ({
+      default: module.TaskStatusPropertyInput,
+    }),
+  ),
+);
 
 const MainNavigation = lazy(() =>
   import('./modules/navigation/MainNavigation').then((module) => ({
@@ -24,6 +36,7 @@ const OperationSettingsNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'operation',
   path: 'operation',
+  icon: IconListCheck,
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
       <OperationSettingsNavigation />
@@ -31,6 +44,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'operation',
+    defaultPath: 'operation/projects',
     icon: IconListCheck,
     content: () => (
       <Suspense fallback={<div />}>
@@ -48,6 +62,7 @@ export const CONFIG: IUIConfig = {
       name: 'operation',
       icon: IconListCheck,
       path: 'operation',
+      hasAutomation: true,
     },
     {
       name: 'team',
@@ -64,6 +79,17 @@ export const CONFIG: IUIConfig = {
         name: 'tasks',
         icon: IconChecklist,
       },
+      {
+        name: 'projects',
+        icon: IconClipboard,
+      },
     ],
+    propertyInputs: {
+      taskStatus: (props: TPropertyInputProps) => (
+        <Suspense fallback={<div />}>
+          <TaskStatusPropertyInput {...props} />
+        </Suspense>
+      ),
+    },
   },
 };

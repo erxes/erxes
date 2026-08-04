@@ -8,11 +8,13 @@ import momentTz from 'moment-timezone';
 import type { RequestInit, HeadersInit } from 'node-fetch';
 import redis from '@/integrations/call/redlock';
 import { IModels, generateModels } from '~/connectionResolvers';
-import { getEnv } from 'erxes-api-shared/utils';
+import { getEnv, ExpectedError } from 'erxes-api-shared/utils';
 import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { ICallHistory } from '@/integrations/call/@types/histories';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
+import { debugCall } from '@/integrations/call/debuggers';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const MAX_RETRY_COUNT = 3;
@@ -33,6 +35,17 @@ export const sendRequest = async (url, options) => {
     return response;
   } catch (error) {
     console.error('Error in sendRequest:', error);
+
+    if (
+      error instanceof Error &&
+      (error.message.includes('ENOTFOUND') ||
+        error.message.includes('getaddrinfo'))
+    ) {
+      throw new ExpectedError(
+        'Call integration server is not reachable. Please check your wsServer configuration.',
+      );
+    }
+
     throw error;
   }
 };
@@ -75,17 +88,7 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
     throw new Error('Cookie not found');
   }
 
-  cookie = cookie?.toString();
-
-  const isValid = await validateCookie(wsServer, cookie);
-  if (!isValid) {
-    await redis.del('callCookie');
-    cookie = await getOrSetCallCookie(wsServer);
-    if (!cookie) {
-      throw new Error('Failed to refresh cookie');
-    }
-    cookie = cookie.toString();
-  }
+  cookie = cookie.toString();
 
   const requestOptions: RequestInit & { headers: HeadersInit } = {
     method,
@@ -100,6 +103,21 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
     }),
   };
 
+  const retryWithFreshCookie = async () => {
+    console.warn(
+      `[Call] Cookie expired (status -6) for ${wsServer}, refreshing and retrying (${
+        retryCount - 1
+      } left)...`,
+    );
+    await redis.del('callCookie');
+    await getOrSetCallCookie(wsServer);
+    return sendToGrandStream(
+      models,
+      { ...args, retryCount: retryCount - 1 },
+      user,
+    );
+  };
+
   try {
     const res = await sendRequest(
       `https://${wsServer}/${path}`,
@@ -110,27 +128,38 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
       const response = await res.json();
 
       if (response.status === -6) {
-        await redis.del('callCookie');
-        return (await sendToGrandStream(
-          models,
-          {
-            path: 'api',
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data,
-            integrationId,
-            retryCount: retryCount - 1,
-            isConvertToJson,
-            isGetExtension,
-          },
-          user,
-        )) as any;
+        return await retryWithFreshCookie();
       }
 
       if (isGetExtension) {
         return { response, extensionNumber };
       }
       return response;
+    }
+
+    try {
+      const contentType = res.headers.get('content-type') || '';
+      const contentLength = parseInt(
+        res.headers.get('content-length') || '0',
+        10,
+      );
+      const isLikelyJson =
+        contentType.includes('json') ||
+        contentType.includes('text') ||
+        contentType.includes('html');
+      const isSmallResponse = contentLength > 0 && contentLength < 1024;
+      const isUnknownType =
+        !contentType || contentType === 'application/octet-stream';
+
+      if ((isLikelyJson || isSmallResponse || isUnknownType) && !res.bodyUsed) {
+        const clonedRes = res.clone();
+        const maybeError = await clonedRes.json();
+        if (maybeError?.status === -6) {
+          return await retryWithFreshCookie();
+        }
+      }
+    } catch (e) {
+      debugCall('Non-JSON response body:', e);
     }
 
     if (isGetExtension) {
@@ -252,6 +281,8 @@ export const getOrSetCallCookie = async (wsServer) => {
   }
 };
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const getRecordUrl = async (params, user, models, subdomain) => {
   const {
     operatorPhone,
@@ -262,6 +293,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     _id,
     transferredCallStatus,
   } = params;
+
   if (transferredCallStatus === 'local' && callType === 'incoming') {
     return 'Check the transferred call record URL!';
   }
@@ -269,6 +301,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   const history = await getCallHistory(models, _id);
   const { inboxIntegrationId = '' } = history;
   const operator = operatorPhone || history.operatorPhone;
+
   const fetchRecordUrl = async (retryCount) => {
     try {
       const { response, extensionNumber } = await sendToGrandStream(
@@ -295,13 +328,12 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       const queues = response?.response?.queue || response?.queue;
-      if (!queues) {
-        throw new Error('Queue not found');
-      }
+      if (!queues) throw new Error('Queue not found');
 
       const extension = queues.find((queueItem) =>
         queueItem.members.split(',').includes(extensionNumber),
       )?.extension;
+
       const tz = 'Asia/Ulaanbaatar';
       const startDate = (
         momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
@@ -322,8 +354,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         caller = extensionNumber;
         callee = customerPhone;
       }
+
       const startTime = `${startDate}T00:00:00`;
       const endTime = `${endDate}T23:59:59`;
+
       const cdrData = await sendToGrandStream(
         models,
         {
@@ -350,19 +384,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       const cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
-
-      if (!cdrRoot) {
-        console.log(
-          'CDR root not found',
-          caller,
-          callee,
-          'startedDate: ',
-          startTime,
-          endTime,
-          callStartTime,
-        );
-        throw new Error('CDR root not found');
-      }
+      if (!cdrRoot) throw new Error('CDR root not found');
 
       const sortedCdr = cdrRoot.sort(
         (a, b) =>
@@ -370,39 +392,18 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
-      if (!lastCreatedObject) {
-        console.log(
-          'Not found cdr',
-          caller,
-          callee,
-          'startedDate: ',
-          startTime,
-          endTime,
-          callStartTime,
-        );
-        throw new Error('Not found cdr');
-      }
+      if (!lastCreatedObject) throw new Error('Not found cdr');
 
-      const transferCall = findTransferCall(lastCreatedObject);
       const answeredCall = findAnsweredCall(lastCreatedObject);
+      const transferCall = findTransferCall(lastCreatedObject);
 
-      if (answeredCall) {
-        lastCreatedObject = answeredCall;
-      }
-
+      if (answeredCall) lastCreatedObject = answeredCall;
       if (transferCall) {
         lastCreatedObject = transferCall;
         fileDir = 'monitor';
       }
+
       if (lastCreatedObject?.disposition !== 'ANSWERED' && !transferCall) {
-        console.log(
-          'caller callee:',
-          caller,
-          callee,
-          'startedDate: ',
-          startDate,
-          callStartTime,
-        );
         throw new Error('Last created object disposition is not ANSWERED');
       }
 
@@ -414,18 +415,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       ) {
         fileDir = 'queue';
       }
+
       const recordfiles = lastCreatedObject?.recordfiles;
-      if (!recordfiles) {
-        console.log(
-          'record not found:',
-          caller,
-          callee,
-          'startedDate: ',
-          startDate,
-          callStartTime,
-        );
-        throw new Error('Record files not found');
-      }
+      if (!recordfiles) throw new Error('Record files not found');
+
       return await cfRecordUrl(
         { fileDir, recordfiles, inboxIntegrationId, retryCount },
         user,
@@ -433,21 +426,32 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         subdomain,
       );
     } catch (error) {
-      console.error('Error in fetchRecordUrl:', error.message);
-      if (
-        error.message !== 'Success' &&
-        Object.values(errorList).includes(error.message)
-      ) {
+      console.error(
+        `Error in fetchRecordUrl (Retries left: ${retryCount}):`,
+        error.message,
+      );
+
+      const isAuthError =
+        error.message.toLowerCase().includes('wrong account') ||
+        error.message.toLowerCase().includes('auth failed') ||
+        error.message.toLowerCase().includes('password');
+
+      if (isAuthError) {
+        console.error(
+          'Critical Auth Error: Please check GrandStream credentials!',
+        );
         throw error;
       }
+
       if (retryCount > 1) {
+        await delay(1000);
         return fetchRecordUrl(retryCount - 1);
       }
       throw error;
     }
   };
 
-  return fetchRecordUrl(MAX_RETRY_COUNT);
+  return fetchRecordUrl(MAX_RETRY_COUNT || 3);
 };
 
 function sanitizeFileName(rawFileName: string): string {
@@ -460,19 +464,14 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
   try {
     const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
 
-    if (!recordfiles) {
+    if (!recordfiles)
       throw new Error('Missing required parameter: recordfiles');
-    }
 
     const filePathParts = recordfiles.split('/');
     const rawFileName = filePathParts[1]?.split('@')[0];
 
-    if (!rawFileName) {
-      console.warn('Could not extract filename from recordfiles path');
-      return;
-    }
+    if (!rawFileName) return;
 
-    // Fetch file buffer from GrandStream API
     const grandStreamResponse = await sendToGrandStream(
       models,
       {
@@ -493,36 +492,48 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
       user,
     );
 
-    if (!grandStreamResponse) {
+    if (!grandStreamResponse)
       throw new Error('Failed to get response from GrandStream API');
-    }
-    const fileBuffer = await grandStreamResponse.arrayBuffer();
-    if (!fileBuffer) {
+
+    const fileBuffer = await grandStreamResponse.buffer();
+    if (!fileBuffer || fileBuffer.length === 0) {
       throw new Error('Received empty buffer from GrandStream API');
     }
-    // Prepare file upload
+
     const uploadUrl = getUrl(subdomain);
     const sanitizedFileName = sanitizeFileName(rawFileName);
 
     const formData = new FormData();
-    formData.append('file', Buffer.from(fileBuffer), {
-      filename: sanitizedFileName,
-    });
+    formData.append('file', fileBuffer, sanitizedFileName);
 
-    console.log(uploadUrl, 'uploadUrl');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const uploadResponse = await fetch(uploadUrl, {
-      method: 'POST',
-      body: formData,
-    });
-    if (!uploadResponse.ok) {
-      throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+    try {
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      const responseText = await uploadResponse.text();
+
+      if (!uploadResponse.ok) {
+        throw new Error(
+          `Upload failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${responseText}`,
+        );
+      }
+
+      return responseText;
+    } catch (fetchError) {
+      if (fetchError.name === 'AbortError')
+        throw new Error('Upload to Erxes timed out');
+      throw fetchError;
     }
-
-    const responseText = await uploadResponse.text();
-    return responseText;
   } catch (error) {
-    console.error('Error in cfRecordUrl:', error);
+    console.error('Error in cfRecordUrl:', error.message);
     throw error;
   }
 };
@@ -675,8 +686,8 @@ export const checkForExistingIntegrations = async (
     typeof details?.queues === 'string'
       ? details.queues.split(',').flatMap((q) => q.trim().split(/\s+/))
       : (details?.queues || []).flatMap((q) =>
-        typeof q === 'string' ? q.trim().split(/\s+/) : q,
-      );
+          typeof q === 'string' ? q.trim().split(/\s+/) : q,
+        );
 
   const models = await generateModels(subdomain);
   // Check for existing integrations with the same wsServer and overlapping queues
@@ -698,6 +709,66 @@ export const checkForExistingIntegrations = async (
   return details || {};
 };
 
+export type ICallOperator = {
+  userId: string;
+  gsUsername: string;
+  gsPassword: string;
+  gsForwardAgent: boolean;
+};
+
+export const sanitizeOperators = (
+  input: any,
+  existing: any[] = [],
+): ICallOperator[] => {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  const prevByUser = new Map(
+    (existing || [])
+      .filter((op) => op && op.userId)
+      .map((op) => [String(op.userId), op]),
+  );
+
+  const result: ICallOperator[] = [];
+
+  for (const raw of input) {
+    if (!raw || typeof raw !== 'object') {
+      continue;
+    }
+
+    const userId = typeof raw.userId === 'string' ? raw.userId : '';
+    const gsUsername =
+      typeof raw.gsUsername === 'string' ? raw.gsUsername.trim() : '';
+
+    if (!gsUsername) {
+      continue;
+    }
+
+    const prev = prevByUser.get(String(userId));
+    const gsPassword =
+      typeof raw.gsPassword === 'string' && raw.gsPassword.length > 0
+        ? raw.gsPassword
+        : prev?.gsPassword || '';
+    const gsForwardAgent =
+      typeof raw.gsForwardAgent === 'boolean'
+        ? raw.gsForwardAgent
+        : !!prev?.gsForwardAgent;
+
+    result.push({ userId, gsUsername, gsPassword, gsForwardAgent });
+  }
+
+  return result;
+};
+
+const SETTABLE_INTEGRATION_FIELDS = [
+  'phone',
+  'wsServer',
+  'srcTrunk',
+  'dstTrunk',
+  'queueNames',
+];
+
 export const updateIntegrationQueues = async (
   subdomain,
   integrationId,
@@ -713,13 +784,26 @@ export const updateIntegrationQueues = async (
       integrationId,
     );
     const { queues } = checkedIntegration;
-    // Prepare update data
-    const updateData = { $set: { queues, ...details }, $upsert: true };
+
+    const $set: Record<string, any> = { queues };
+    for (const key of SETTABLE_INTEGRATION_FIELDS) {
+      if (details[key] !== undefined) {
+        $set[key] = details[key];
+      }
+    }
+
+    if (details.operators !== undefined) {
+      const current = await models.CallIntegrations.findOne({
+        inboxId: integrationId,
+      }).lean();
+      $set.operators = sanitizeOperators(details.operators, current?.operators);
+    }
 
     // Update the integration
     const integration = await models.CallIntegrations.findOneAndUpdate(
       { inboxId: integrationId },
-      updateData,
+      { $set },
+      { new: true },
     );
 
     return integration?.queues || queues;
@@ -750,7 +834,7 @@ export const updateIntegrationQueueNames = async (
                 headers: { 'Content-Type': 'application/json' },
                 data: { request: { action: 'getQueue', queue } },
                 integrationId: integrationId,
-                retryCount: 1,
+                retryCount: 3,
                 isConvertToJson: true,
                 isGetExtension: true,
               },
@@ -786,6 +870,59 @@ export const updateIntegrationQueueNames = async (
     console.error('Error updating integration queue names:', error.message);
     throw error;
   }
+};
+
+export const normalizeQueueStat = (q: any, integrationId: string) => ({
+  queuechairman: q.queuechairman ?? q.queueChairman ?? '',
+  queue: q.queue,
+  totalCalls: q.total_calls ?? q.totalCalls ?? 0,
+  answeredCalls: q.answered_calls ?? q.answeredCalls ?? 0,
+  answeredRate: q.answered_rate ?? q.answeredRate ?? 0,
+  abandonedCalls: q.abandoned_calls ?? q.abandonedCalls ?? 0,
+  avgWait: q.avg_wait ?? q.avgWait ?? 0,
+  avgTalk: q.avg_talk ?? q.avgTalk ?? 0,
+  vqTotalCalls: q.vq_total_calls ?? q.vqTotalCalls ?? 0,
+  slaRate: q.sla_rate ?? q.slaRate ?? 0,
+  vqSlaRate: q.vq_sla_rate ?? q.vqSlaRate ?? 0,
+  transferOutCalls: q.transfer_out_calls ?? q.transferOutCalls ?? 0,
+  transferOutRate: q.transfer_out_rate ?? q.transferOutRate ?? 0,
+  abandonedRate: q.abandoned_rate ?? q.abandonedRate ?? 0,
+  integrationId,
+});
+
+export const upsertQueueStatistics = async (
+  models: IModels,
+  integration: ICallIntegrationDocument,
+  payload: any,
+): Promise<{ upserted: number }> => {
+  const integrationId = integration?.inboxId;
+  if (!integrationId) {
+    throw new Error('Integration not resolved');
+  }
+
+  const raw =
+    payload?.root_statistics?.queue ??
+    payload?.queue ??
+    payload?.queues ??
+    payload;
+  const list = Array.isArray(raw) ? raw : raw ? [raw] : [];
+
+  const allowed = (integration.queues || []).map(String);
+
+  const normalized = list
+    .filter((q) => q && q.queue !== undefined && q.queue !== null)
+    .map((q) => normalizeQueueStat(q, integrationId))
+    .filter((q) => allowed.includes(String(q.queue)));
+
+  for (const stat of normalized) {
+    await models.CallQueueStatistics.findOneAndUpdate(
+      { integrationId, queue: stat.queue },
+      { $set: stat },
+      { upsert: true, new: true },
+    );
+  }
+
+  return { upserted: normalized.length };
 };
 
 type ErrorList = {
@@ -966,6 +1103,24 @@ function handleActiveCallStatus(eventBody, graphqlPubsub) {
     }
   });
 }
+const deriveCdrCallStatus = (cdr: ICallCdrDocument): string => {
+  const disposition = (cdr.disposition || '').toUpperCase();
+  const actionType = cdr.actionType || '';
+
+  const isHumanAnswered =
+    disposition === 'ANSWERED' &&
+    (cdr.billsec || 0) > 0 &&
+    ['Queue', 'Dial'].includes(cdr.lastapp || '') &&
+    !actionType.includes('VM');
+
+  if (disposition === 'ANSWERED' && !isHumanAnswered) {
+    if (actionType.includes('IVR')) return 'IVR';
+    if (actionType.includes('VM')) return 'VOICEMAIL';
+  }
+
+  return cdr.disposition || '';
+};
+
 export const mapCdrToCallHistory = (
   cdr: ICallCdrDocument,
 ): ICallHistory & { acctId: string } => {
@@ -976,7 +1131,7 @@ export const mapCdrToCallHistory = (
     callStartTime: cdr.start,
     callEndTime: cdr.end,
     callType: cdr.userfield || '',
-    callStatus: cdr.disposition || '',
+    callStatus: deriveCdrCallStatus(cdr),
     timeStamp: cdr.start ? cdr.start.getTime() / 1000 : 0,
     modifiedAt: cdr.updatedAt,
     createdAt: cdr.createdAt,
@@ -992,3 +1147,515 @@ export const mapCdrToCallHistory = (
     acctId: cdr.acctId || '',
   };
 };
+
+export const mapSessionToCallHistory = (
+  session: ICallSessionDocument,
+): ICallHistory & { acctId: string } => {
+  return {
+    operatorPhone: session.operatorPhone || '',
+    customerPhone: session.customerPhone || '',
+    callDuration: session.durationSec || 0,
+    callStartTime: session.startedAt,
+    callEndTime: session.endedAt as Date,
+    callType: session.callType,
+    callStatus: session.status || '',
+    timeStamp: session.startedAt ? session.startedAt.getTime() / 1000 : 0,
+    modifiedAt: session.updatedAt,
+    createdAt: session.createdAt,
+    createdBy: '',
+    modifiedBy: '',
+    extensionNumber: session.answeredExtension || '',
+    conversationId: session.conversationId || '',
+    recordUrl: session.recordUrl || '',
+    endedBy: '',
+    acceptedUserId: '',
+    queueName: session.queueName || '',
+    inboxIntegrationId: session.inboxIntegrationId,
+    acctId: session.cdrAcctId || '',
+    uniqueid: session.uniqueid,
+  };
+};
+
+export async function getInboundStats(models, startDate, endDate) {
+  const data = await models.CallCdrs.aggregate([
+    {
+      $match: {
+        start: { $gte: new Date(startDate) },
+        end: { $lte: new Date(endDate) },
+        userfield: 'Inbound',
+      },
+    },
+    {
+      $group: {
+        _id: '$uniqueid',
+        dispositions: { $addToSet: '$disposition' },
+      },
+    },
+    {
+      $project: {
+        isAnswered: { $in: ['ANSWERED', '$dispositions'] },
+        isFailed: {
+          $anyElementTrue: {
+            $map: {
+              input: '$dispositions',
+              as: 'd',
+              in: {
+                $in: ['$d', ['FAILED', 'BUSY', 'CONGESTION', 'CHANUNAVAIL']],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalInbound: { $sum: 1 },
+        answered: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+        failed: { $sum: { $cond: ['$isFailed', 1, 0] } },
+        missed: {
+          $sum: {
+            $cond: [
+              { $and: [{ $not: ['$isAnswered'] }, { $not: ['$isFailed'] }] },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+    },
+  ]);
+
+  return data[0];
+}
+
+export async function getQueueStatsByDateRange(
+  models,
+  startDate,
+  endDate,
+  queueId = null,
+) {
+  const matchStage = {
+    userfield: 'Inbound',
+    start: { $gte: new Date(startDate) },
+    end: { $lte: new Date(endDate) },
+  };
+
+  const data = await models.CallCdrs.aggregate([
+    {
+      $match: matchStage,
+    },
+
+    {
+      $addFields: {
+        queue: {
+          $cond: [
+            {
+              $regexMatch: {
+                input: { $ifNull: ['$actionType', ''] },
+                regex: /QUEUE\[/,
+              },
+            },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    },
+
+    {
+      $match: {
+        queue: queueId ? queueId : { $ne: null },
+      },
+    },
+
+    {
+      $group: {
+        _id: { queue: '$queue', uniqueid: '$uniqueid' },
+        dispositions: { $addToSet: '$disposition' },
+        billsec: { $max: '$billsec' },
+        duration: { $max: '$duration' },
+        waitTime: { $max: '$waittime' },
+        lastapp: { $last: '$lastapp' },
+        dst: { $last: '$dst' },
+      },
+    },
+
+    {
+      $project: {
+        queue: '$_id.queue',
+        isAnswered: {
+          $and: [
+            { $in: ['ANSWERED', '$dispositions'] },
+            { $gt: ['$billsec', 0] },
+            {
+              $or: [
+                { $eq: ['$lastapp', 'Queue'] },
+                { $eq: ['$lastapp', 'Playback'] },
+              ],
+            },
+          ],
+        },
+        isAbandoned: {
+          $or: [
+            { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
+            {
+              $and: [
+                { $in: ['ANSWERED', '$dispositions'] },
+                { $eq: ['$billsec', 0] },
+              ],
+            },
+          ],
+        },
+
+        billsec: 1,
+        waitTime: { $ifNull: ['$waitTime', 0] },
+      },
+    },
+
+    {
+      $group: {
+        _id: '$queue',
+        totalCalls: { $sum: 1 },
+        answeredCalls: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+        abandonedCalls: { $sum: { $cond: ['$isAbandoned', 1, 0] } },
+        totalWaitTime: {
+          $sum: {
+            $cond: ['$isAnswered', '$waitTime', 0],
+          },
+        },
+        totalTalkTime: {
+          $sum: {
+            $cond: ['$isAnswered', '$billsec', 0],
+          },
+        },
+      },
+    },
+
+    {
+      $project: {
+        queue: '$_id',
+        totalCalls: 1,
+        answeredCalls: 1,
+        answeredRate: {
+          $cond: [
+            { $gt: ['$totalCalls', 0] },
+            {
+              $round: [
+                {
+                  $multiply: [
+                    { $divide: ['$answeredCalls', '$totalCalls'] },
+                    100,
+                  ],
+                },
+                2,
+              ],
+            },
+            0,
+          ],
+        },
+        abandonedCalls: 1,
+        abandonedRate: {
+          $cond: [
+            { $gt: ['$totalCalls', 0] },
+            {
+              $round: [
+                {
+                  $multiply: [
+                    { $divide: ['$abandonedCalls', '$totalCalls'] },
+                    100,
+                  ],
+                },
+                2,
+              ],
+            },
+            0,
+          ],
+        },
+
+        averageWaitTime: {
+          $cond: [
+            { $gt: ['$answeredCalls', 0] },
+            { $round: [{ $divide: ['$totalWaitTime', '$answeredCalls'] }, 2] },
+            0,
+          ],
+        },
+        averageTalkTime: {
+          $cond: [
+            { $gt: ['$answeredCalls', 0] },
+            { $round: [{ $divide: ['$totalTalkTime', '$answeredCalls'] }, 2] },
+            0,
+          ],
+        },
+      },
+    },
+
+    { $sort: { queue: 1 } },
+  ]);
+
+  return data;
+}
+
+export async function getDailyCallRecords(models, startDate, endDate) {
+  return await models.CallCdrs.aggregate([
+    {
+      $match: {
+        start: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      },
+    },
+
+    {
+      $addFields: {
+        queue: {
+          $cond: [
+            { $regexMatch: { input: '$actionType', regex: /QUEUE\[/ } },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        queue: '6502',
+        disposition: { $ne: 'ANSWERED' },
+        billsec: { $eq: 0 },
+      },
+    },
+
+    {
+      $group: {
+        _id: '$uniqueid',
+
+        src: { $first: '$src' },
+        dst: { $first: '$dst' },
+        userfield: { $first: '$userfield' },
+        callerName: { $first: '$callerName' },
+
+        start: { $first: '$start' },
+        end: { $max: '$end' },
+
+        totalDuration: { $sum: '$duration' },
+        totalBillsec: { $sum: '$billsec' },
+
+        dispositions: { $addToSet: '$disposition' },
+
+        queues: { $addToSet: '$queue' },
+
+        cdrList: { $push: '$$ROOT' },
+      },
+    },
+
+    {
+      $addFields: {
+        finalDisposition: {
+          $cond: [
+            { $in: ['ANSWERED', '$dispositions'] },
+            'ANSWERED',
+            {
+              $cond: [
+                { $in: ['NO ANSWER', '$dispositions'] },
+                'NO ANSWER',
+                {
+                  $cond: [
+                    { $in: ['BUSY', '$dispositions'] },
+                    'BUSY',
+                    'UNKNOWN',
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    },
+
+    {
+      $addFields: {
+        queues: {
+          $filter: {
+            input: '$queues',
+            as: 'q',
+            cond: { $ne: ['$$q', null] },
+          },
+        },
+        firstQueue: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: '$queues',
+                as: 'x',
+                cond: { $ne: ['$$x', null] },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+
+    { $sort: { start: 1 } },
+  ]);
+}
+
+export async function getQueueAnsweredList(
+  models,
+  startDate,
+  endDate,
+  queueId = '6500',
+) {
+  return await models.CallCdrs.aggregate([
+    {
+      $match: {
+        start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      },
+    },
+
+    {
+      $addFields: {
+        queue: {
+          $cond: [
+            { $regexMatch: { input: '$actionType', regex: /QUEUE\[/ } },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    },
+
+    {
+      $match: {
+        queue: queueId,
+        disposition: { $eq: 'ANSWERED' },
+        billsec: { $gte: 0 },
+        lastapp: 'Queue',
+      },
+    },
+
+    {
+      $group: {
+        _id: '$uniqueid',
+        src: { $first: '$src' },
+        dst: { $first: '$dst' },
+        start: { $first: '$start' },
+        end: { $max: '$end' },
+        billsec: { $sum: '$billsec' },
+        dispositions: { $addToSet: '$disposition' },
+        cdrList: { $push: '$$ROOT' },
+      },
+    },
+
+    {
+      $match: { dispositions: 'ANSWERED' },
+    },
+
+    { $sort: { start: 1 } },
+  ]);
+}
+
+export async function getQueueMissedList(
+  models,
+  startDate,
+  endDate,
+  queueId = '6501',
+) {
+  return await models.CallCdrs.aggregate([
+    {
+      $match: {
+        start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      },
+    },
+
+    {
+      $addFields: {
+        queue: {
+          $cond: [
+            { $regexMatch: { input: '$actionType', regex: /QUEUE\[/ } },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    },
+
+    { $match: { queue: queueId } },
+
+    {
+      $group: {
+        _id: '$uniqueid',
+        src: { $first: '$src' },
+        dst: { $first: '$dst' },
+        start: { $first: '$start' },
+        end: { $max: '$end' },
+        dispositions: { $addToSet: '$disposition' },
+        billsec: { $max: '$billsec' },
+        cdrList: { $push: '$$ROOT' },
+      },
+    },
+
+    {
+      $match: {
+        $or: [
+          { dispositions: { $nin: ['ANSWERED'] } },
+          {
+            dispositions: { $in: ['ANSWERED'] },
+            billsec: { $eq: 0 },
+          },
+        ],
+      },
+    },
+
+    { $sort: { start: 1 } },
+  ]);
+}

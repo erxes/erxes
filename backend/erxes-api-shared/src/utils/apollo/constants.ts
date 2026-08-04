@@ -7,3 +7,10 @@ export const GQL_CURSOR_PARAM_DEFS = `
   sortMode: String
   aggregationPipeline: [JSON]
 `;
+
+export const GQL_OFFSET_PARAM_DEFS = `
+  page: Int
+  perPage: Int
+  sortField: String
+  sortDirection: String
+`;

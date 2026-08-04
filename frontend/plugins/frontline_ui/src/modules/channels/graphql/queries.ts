@@ -21,6 +21,10 @@ const GET_CHANNELS = gql`
       updatedAt
       memberCount
       pipelineCount
+      responseTemplateCount
+      formCount
+      integrationCount
+      integrationKinds
     }
   }
 `;
@@ -50,6 +54,7 @@ const GET_CHANNEL_MEMBERS = gql`
         _id
         email
         username
+        isActive
         details {
           firstName
           lastName
@@ -62,4 +67,19 @@ const GET_CHANNEL_MEMBERS = gql`
   }
 `;
 
-export { GET_CHANNELS, GET_CHANNEL, GET_CHANNEL_MEMBERS };
+const GET_MY_CHANNELS = gql`
+  query GetMyChannels($name: String) {
+    getMyChannels(name: $name) {
+      _id
+      icon
+      name
+      description
+      createdAt
+      updatedAt
+      memberCount
+      pipelineCount
+    }
+  }
+`;
+
+export { GET_CHANNELS, GET_CHANNEL, GET_CHANNEL_MEMBERS, GET_MY_CHANNELS };

@@ -119,6 +119,11 @@ export const mutations = `
       attachments: [AttachmentInput]
     ): String
   
+    widgetChangeOperatorStatus(
+      conversationId: String!
+      operatorStatus: String!
+    ): JSON
+
     widgetGetBotInitialMessage(integrationId: String): JSON
     widgetsLeadIncreaseViewCount(formId: String!): JSON
     widgetsSendTypingInfo(conversationId: String!, text: String): String

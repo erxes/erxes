@@ -6,16 +6,26 @@ import {
 } from 'erxes-ui';
 
 export const ACTIVITY_LOGS = gql`
-  query activityLogs(
+  query uiModulesActivityLogs(
     $targetType: String
     $targetId: String!
     $action: String
+    $variant: String
+    $activityType: String
+    $excludeActivityType: String
+    $dateFrom: Date
+    $dateTo: Date
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     activityLogs(
       targetType: $targetType
       targetId: $targetId
       action: $action
+      variant: $variant
+      activityType: $activityType
+      excludeActivityType: $excludeActivityType
+      dateFrom: $dateFrom
+      dateTo: $dateTo
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
@@ -30,6 +40,7 @@ export const ACTIVITY_LOGS = gql`
         contextType
         changes
         activityType
+        sourcePlugin
         metadata
       }
       totalCount

@@ -3,9 +3,12 @@ import { IChannel } from '@/channels/types';
 export interface IIntegration {
   _id: string;
   name: string;
+  brandId?: string;
   kind: string;
   channelId: string;
   channel: any;
+  // Returned by the integrations list query (GET_INTEGRATIONS_BY_KIND).
+  isActive?: boolean;
 }
 
 export interface IIntegrationDetail extends IIntegration {

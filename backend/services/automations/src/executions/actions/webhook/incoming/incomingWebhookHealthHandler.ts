@@ -1,4 +1,4 @@
-import { generateModels } from '@/connectionResolver';
+import { generateModels } from '../../../../connectionResolver';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 

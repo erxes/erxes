@@ -2,37 +2,41 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { CategoriesDelete } from './delete/CategoryDelete';
 import { useState } from 'react';
+import { Can, TemplateSheet } from 'ui-modules';
 
 export const CategoryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const [refreshKey, setRefreshKey] = useState(0);
-  
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const selectedCategories = selectedRows.map((row) => row.original);
+
   const resetSelection = () => {
     table.resetRowSelection(true);
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   return (
-    <CommandBar 
-      key={refreshKey} 
-      open={table.getFilteredSelectedRowModel().rows.length > 0}
-    >
+    <CommandBar key={refreshKey} open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
-        </CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Separator.Inline />
         <CategoriesDelete
-          categoryIds={table
-            .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id).join(',')}
+          categories={selectedCategories}
           onDeleteSuccess={resetSelection}
         />
         <Separator.Inline />
-        <Button variant="secondary">
-          <IconPlus />
-          Create
-        </Button>
+        <Can action="productCategoriesManage">
+          <Button variant="secondary">
+            <IconPlus />
+            Create
+          </Button>
+        </Can>
+
+        <Separator.Inline />
+        <TemplateSheet
+          contentType="core:product:productCategory"
+          contentId={selectedCategories[0]?._id}
+        />
       </CommandBar.Bar>
     </CommandBar>
   );

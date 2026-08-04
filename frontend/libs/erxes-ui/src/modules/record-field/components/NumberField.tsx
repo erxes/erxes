@@ -21,22 +21,46 @@ export const NumberField = React.forwardRef<
     scope: string;
     onValueChange?: (value: number) => void;
     onSave?: (value: number) => void;
+    formatValue?: (value: number) => string;
   }
 >(
   (
-    { placeholder, value, scope, onSave, onValueChange, children, ...props },
+    {
+      placeholder,
+      value,
+      scope,
+      onSave,
+      onValueChange,
+      formatValue,
+      children,
+      ...props
+    },
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const [editingValue, setEditingValue] = useState(String(value));
+    const [isEdited, setIsEdited] = useState(false);
 
-    const handleAction = (e: React.FormEvent) => {
-      e.preventDefault();
+    const resetEditing = () => {
+      setEditingValue(String(value));
+      setIsEdited(false);
+    };
+
+    const handleAction = (e?: React.FormEvent) => {
+      e?.preventDefault();
       const numValue = Number(editingValue) || 0;
       if (numValue !== value) {
         onSave?.(numValue);
       }
       setIsOpen(false);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        resetEditing();
+        setIsOpen(false);
+      }
     };
 
     return (
@@ -46,7 +70,9 @@ export const NumberField = React.forwardRef<
         onOpenChange={(open: boolean) => {
           setIsOpen(open);
           if (open) {
-            setEditingValue(String(value));
+            resetEditing();
+          } else if (isEdited) {
+            handleAction();
           }
         }}
       >
@@ -54,8 +80,11 @@ export const NumberField = React.forwardRef<
           {children}
           <TextOverflowTooltip
             value={
-              (isOpen ? editingValue.toString() : value.toLocaleString()) ??
-              placeholder
+              (isOpen
+                ? editingValue.toString()
+                : formatValue
+                ? formatValue(value)
+                : value.toLocaleString()) ?? placeholder
             }
           />
         </RecordTableInlineCell.Trigger>
@@ -73,6 +102,7 @@ export const NumberField = React.forwardRef<
                   rawValue.match(/^-?\d*\.?\d*$/)
                 ) {
                   setEditingValue(rawValue);
+                  setIsEdited(true);
                   const numValue = Number(rawValue);
                   if (!isNaN(numValue)) {
                     onValueChange?.(numValue);
@@ -80,6 +110,7 @@ export const NumberField = React.forwardRef<
                 }
                 setIsOpen(true);
               }}
+              onKeyDown={handleKeyDown}
             />
 
             <button type="submit" className="sr-only">

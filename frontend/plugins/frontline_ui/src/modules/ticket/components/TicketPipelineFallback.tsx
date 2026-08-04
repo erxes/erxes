@@ -1,5 +1,6 @@
 import { IconBrandTrello, IconSettings } from '@tabler/icons-react';
 import { Button, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 
@@ -8,6 +9,7 @@ export const TicketPipelineFallback = ({
 }: {
   className?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [channelId] = useQueryState<string | null>('channelId');
   return (
     <div
@@ -22,15 +24,15 @@ export const TicketPipelineFallback = ({
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No pipeline yet
+        {t('no-pipeline-yet')}
       </h2>
       <p className="text-md text-muted-foreground mb-4">
-        Create a pipeline to start organizing your board.
+        {t('create-pipeline-description')}
       </p>
       <Button variant="outline" asChild className="z-10">
         <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
           <IconSettings />
-          Manage pipelines
+          {t('manage-pipelines')}
         </Link>
       </Button>
     </div>

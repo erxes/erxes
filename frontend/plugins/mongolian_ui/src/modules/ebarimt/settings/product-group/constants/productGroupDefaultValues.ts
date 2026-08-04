@@ -10,10 +10,18 @@ export enum ProductGroupStatus {
   DELETED = 'deleted',
 }
 
+export interface IProductGroupProduct {
+  _id: string;
+  name: string;
+  code?: string;
+}
+
 export interface IProductGroup {
   _id?: string;
   mainProductId: string;
   subProductId: string;
+  mainProduct?: IProductGroupProduct;
+  subProduct?: IProductGroupProduct;
   sortNum: number;
   ratio: number;
   isActive: boolean;
@@ -21,8 +29,8 @@ export interface IProductGroup {
 }
 
 export const productGroupDefaultValues: IProductGroup = {
-  mainProductId: ProductCategory.PRODUCT,
-  subProductId: ProductCategory.SERVICE,
+  mainProductId: '',
+  subProductId: '',
   sortNum: 0,
   ratio: 0,
   isActive: true,

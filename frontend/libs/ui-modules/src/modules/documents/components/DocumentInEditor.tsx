@@ -21,7 +21,9 @@ interface DocumentInEditorProps {
   handleFetchMore?: () => void;
 }
 
-interface DocumentMenuWrapperProps extends DocumentInEditorProps {}
+interface DocumentMenuWrapperProps extends DocumentInEditorProps {
+  contentType?: string;
+}
 
 interface DocumentMenuProps extends SlashMenuProps {
   items: DefaultReactSuggestionItem[];
@@ -53,7 +55,11 @@ function getDocumentMenuItems(
       try {
         blocks = JSON.parse(document.content);
       } catch (_error) {
-        blocks = await editor.tryParseHTMLToBlocks(document.content);
+        try {
+          blocks = await editor.tryParseHTMLToBlocks(document.content);
+        } catch (_htmlError) {
+          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+        }
       }
 
       editor.replaceBlocks(editor.document, blocks);
@@ -152,15 +158,23 @@ const DocumentMenuWrapper = (props: DocumentMenuWrapperProps) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
 
+  const variables: Record<string, string> = {};
+
+  if (debouncedSearch) {
+    variables.searchValue = debouncedSearch;
+  }
+
+  if (props.contentType) {
+    variables.contentType = props.contentType;
+  }
+
   const {
     documents = [],
     loading,
     handleFetchMore,
     totalCount = 0,
   } = useDocuments({
-    variables: {
-      searchValue: debouncedSearch,
-    },
+    variables,
   });
 
   const updatedProps = {

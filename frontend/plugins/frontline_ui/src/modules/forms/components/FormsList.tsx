@@ -1,35 +1,73 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import { useFormsList } from '../hooks/useFormsList';
+import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
+import {
+  IconCalendarEvent,
+  IconCircles,
+  IconEdit,
+  IconForms,
+  IconLabel,
+  IconTag,
+  IconToggleRight,
+  IconUser,
+} from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
-  Button,
+  DropdownMenu,
+  Empty,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  toast,
-  useConfirm,
+  useMultiQueryState,
 } from 'erxes-ui';
-import { ColumnDef } from '@tanstack/react-table';
-import { IForm } from '../types/formTypes';
-import {
-  IconCalendarEvent,
-  IconDots,
-  IconEdit,
-  IconTag,
-  IconTrash,
-  IconUser,
-} from '@tabler/icons-react';
+import { useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MembersInline, SelectTags } from 'ui-modules';
-import { useMutation } from '@apollo/client';
-import { FormInstallScript } from './FormInstallScript';
-import { FORM_REMOVE } from '../graphql/formMutations';
+import { useTranslation } from 'react-i18next';
+import { useFormsList } from '../hooks/useFormsList';
+import { IForm } from '../types/formTypes';
+import { FormInstallScript } from './actions/install-form';
+import { RemoveForm } from './actions/remove-form';
+import { FormToggleStatus } from './actions/toggle-form';
+import { FormCommandBar } from './form-page/command-bar/form-command-bar';
+import { FormsCreateButton } from './form-page/forms-create';
+import { OpenLiveForm } from './actions/open-live-form';
+import { OpenSubmissionsAction } from './actions/open-submissions';
 
 export const FormsList = () => {
-  const { channelId } = useParams();
+  const { t } = useTranslation('frontline');
+  const { id: channelId } = useParams<{ id: string }>();
+  const [{ searchValue, status, tagId }] = useMultiQueryState<{
+    searchValue?: string;
+    status?: string;
+    tagId?: string;
+  }>(['searchValue', 'status', 'tagId']);
+
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
-    channelId: channelId || '',
+    variables: {
+      channelId: channelId || undefined,
+      searchValue: searchValue || undefined,
+      status: status || undefined,
+      tagId: tagId || undefined,
+    },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  if (forms?.length === 0) {
+    return (
+      <Empty className="bg-sidebar rounded-lg m-3">
+        <Empty.Header>
+          <Empty.Media>
+            <IconForms />
+          </Empty.Media>
+          <Empty.Title>{t('no-forms-found')}</Empty.Title>
+          <Empty.Description>{t('forms-empty-description')}</Empty.Description>
+        </Empty.Header>
+        <Empty.Content>
+          <FormsCreateButton />
+        </Empty.Content>
+      </Empty>
+    );
+  }
 
   return (
     <RecordTable.Provider
@@ -60,42 +98,77 @@ export const FormsList = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <FormCommandBar />
     </RecordTable.Provider>
   );
 };
 
-// {
-//   "_id": "6fB2WR_dyRQZGowsAYgYp",
-//   "createdDate": "2026-01-12T03:16:20.823Z",
-//   "createdUserId": "FNeodJ2Dq71WrAQdlGi_c",
-//   "name": "Merch Order",
-//   "status": "active",
-//   "tagIds": [],
-//   "visibility": null,
-//   "title": "Merch Order",
-//   "__typename": "Form"
-// },
+export const FormsMoreColumnCell = ({
+  cell,
+}: {
+  cell: Cell<IForm, unknown>;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { _id, status, code, channelId } = cell.row.original;
+  const navigate = useNavigate();
+
+  const [open, setOpen] = useState(false);
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content side="bottom" align="start">
+        <FormInstallScript
+          formId={code}
+          channelId={channelId as string}
+          inActionBar={true}
+        />
+        <DropdownMenu.Item
+          onSelect={() => {
+            navigate(
+              `/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`,
+            );
+          }}
+        >
+          <IconEdit /> {t('edit')}
+        </DropdownMenu.Item>
+        <OpenLiveForm formId={_id} channelId={channelId as string} />
+        <OpenSubmissionsAction formId={_id} />
+        <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+        <RemoveForm formId={_id} title={cell.row.original.name} />
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
+export const MoreColumn: ColumnDef<IForm> = {
+  id: 'more',
+  size: 33,
+  cell: FormsMoreColumnCell,
+};
 
 const formsColumns: ColumnDef<IForm>[] = [
+  MoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<IForm>,
   {
     accessorKey: 'name',
     id: 'name',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
+    },
     cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { channelId } = useParams();
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const navigate = useNavigate();
       return (
         <RecordTableInlineCell>
-          <RecordTableInlineCell.Anchor
-            onClick={() => {
-              navigate(
-                `/settings/frontline/forms/${channelId}/${cell.row.original._id}`,
-              );
-            }}
+          <Link
+            to={`/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`}
           >
-            {cell.getValue() as string}
-          </RecordTableInlineCell.Anchor>
+            <RecordTableInlineCell.Anchor>
+              {cell.getValue() as string}
+            </RecordTableInlineCell.Anchor>
+          </Link>
         </RecordTableInlineCell>
       );
     },
@@ -104,6 +177,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'status',
     id: 'status',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -117,9 +195,34 @@ const formsColumns: ColumnDef<IForm>[] = [
     },
   },
   {
+    accessorKey: 'channelId',
+    id: 'channelId',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
+    },
+    cell: ({ cell }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTableInlineCell>
+          <ChannelsInline
+            channelIds={[cell.getValue() as string]}
+            placeholder={t('no-channel')}
+          />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
     accessorKey: 'tagIds',
     id: 'tagIds',
-    header: () => <RecordTable.InlineHead label="Tags" icon={IconTag} />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('tags')} icon={IconTag} />;
+    },
     cell: ({ cell }) => {
       return (
         <SelectTags.InlineCell
@@ -135,7 +238,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdUserId',
     id: 'createdUserId',
-    header: () => <RecordTable.InlineHead label="Created By" icon={IconUser} />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -147,9 +254,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdDate',
     id: 'createdDate',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarEvent} />
-    ),
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -158,71 +267,4 @@ const formsColumns: ColumnDef<IForm>[] = [
       );
     },
   },
-
-  {
-    id: 'action',
-    header: () => <RecordTable.InlineHead label="Action" icon={IconDots} />,
-    cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { channelId } = useParams();
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const navigate = useNavigate();
-      return (
-        <RecordTableInlineCell>
-          <FormInstallScript formId={cell.row.original._id} />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              navigate(
-                `/settings/frontline/forms/${channelId}/${cell.row.original._id}`,
-              );
-            }}
-          >
-            <IconEdit />
-          </Button>
-          <RemoveForm
-            formId={cell.row.original._id}
-            title={cell.row.original.name}
-          />
-        </RecordTableInlineCell>
-      );
-    },
-  },
 ];
-
-export const RemoveForm = ({
-  formId,
-  title,
-}: {
-  formId: string;
-  title: string;
-}) => {
-  const [removeForm, { loading }] = useMutation(FORM_REMOVE, {
-    refetchQueries: ['Forms'],
-    onCompleted() {
-      toast({
-        title: `Form "${title}" removed`,
-        variant: 'success',
-      });
-    },
-  });
-  const { confirm } = useConfirm();
-  return (
-    <Button
-      variant="secondary"
-      className="text-destructive bg-destructive/10 hover:bg-destructive/20"
-      size="icon"
-      onClick={() => {
-        confirm({
-          message: `Are you sure you want to remove "${title}" form?`,
-        }).then(() => {
-          removeForm({ variables: { id: formId } });
-        });
-      }}
-      disabled={loading}
-    >
-      <IconTrash />
-    </Button>
-  );
-};

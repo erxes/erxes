@@ -16,6 +16,15 @@ import {
 } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { useTranslation } from 'react-i18next';
+import {
+  formatDealDateForMutation,
+  parseDealDate,
+} from '@/deals/components/deal-selects/dateSelectUtils';
+import {
+  rejectOnMutationError,
+  useOptimisticField,
+} from '@/deals/components/deal-selects/hooks/useOptimisticField';
 
 export enum DateSelectVariant {
   TABLE = 'table',
@@ -48,12 +57,15 @@ const useDateSelectContext = () => {
   return context;
 };
 
+const areDatesEqual = (left?: Date, right?: Date) =>
+  left?.getTime() === right?.getTime();
+
 export const DateSelectProvider = ({
   children,
   ...props
 }: DateSelectContextType & {
   children: React.ReactNode;
-} & DateSelectContextType) => {
+}) => {
   return (
     <DateSelectContext.Provider
       value={{
@@ -66,6 +78,7 @@ export const DateSelectProvider = ({
 };
 
 const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('sales');
   const { value } = useDateSelectContext();
 
   if (!value) {
@@ -73,7 +86,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
       <>
         <IconCalendarPlus className="text-accent-foreground" />
         <span className="text-accent-foreground font-medium">
-          {placeholder || 'Select date...'}
+          {placeholder || t('select-date')}
         </span>
       </>
     );
@@ -152,13 +165,31 @@ export const DateSelectDealRoot = ({
   variant?: `${DateSelectVariant}`;
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
   const { editDeals, loading, error } = useDealsEdit();
   const closeDate = type === 'closeDate';
   const now = new Date();
-  const dateValue = value
-    ? new Date(typeof value === 'string' ? value.slice(0, 10) : value)
-    : undefined;
+  const optimisticDate = useOptimisticField({
+    value: parseDealDate(value),
+    resetKey: id,
+    isEqual: areDatesEqual,
+    onCommit: (nextValue) => {
+      if (!id) {
+        return;
+      }
+
+      return rejectOnMutationError(
+        editDeals({
+          variables: {
+            _id: id,
+            [type]: formatDealDateForMutation(nextValue),
+          },
+        }),
+      );
+    },
+  });
+  const dateValue = optimisticDate.value;
   const closeDateValue = closeDate && dateValue;
   const isEnded = closeDateValue && closeDateValue < now;
 
@@ -169,14 +200,7 @@ export const DateSelectDealRoot = ({
     : 0;
 
   const handleValueChange = (value?: Date) => {
-    if (id) {
-      editDeals({
-        variables: {
-          _id: id,
-          [type]: value?.toISOString(),
-        },
-      });
-    }
+    optimisticDate.setValue(value);
     setOpen(false);
   };
 
@@ -196,7 +220,8 @@ export const DateSelectDealRoot = ({
           <DateSelectTrigger>
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
-              Ended {endedDiff} {endedDiff === 1 ? 'day' : 'days'} ago{' '}
+              {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')}{' '}
+              {t('ago')}{' '}
             </div>
           </DateSelectTrigger>
           <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
@@ -238,7 +263,7 @@ export const DateSelectDealFormItem = ({
 }) => {
   return (
     <DateSelectProvider
-      value={value ? new Date(value) : undefined}
+      value={parseDealDate(value)}
       onValueChange={(date) => onValueChange?.(date)}
       variant={DateSelectVariant.FORM}
     >

@@ -1,6 +1,5 @@
-import { INotification } from '@/notification/types/notifications';
 import { IconBuildings } from '@tabler/icons-react';
-import { AssigneeNotificationContent, IUser } from 'ui-modules';
+import { AssigneeNotificationContent, IUser, TNotification } from 'ui-modules';
 import { useDepartmentById } from 'ui-modules/modules/structure/hooks/useDepartmentById';
 
 export const DepartmentNotificationContent = ({
@@ -8,7 +7,7 @@ export const DepartmentNotificationContent = ({
   createdAt,
   fromUser,
   contentTypeId,
-}: INotification) => {
+}: TNotification) => {
   const { departmentDetail, loading } = useDepartmentById({
     variables: { id: contentTypeId },
   });

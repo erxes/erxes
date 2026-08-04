@@ -33,6 +33,8 @@ export const GET_INTEGRATIONS_BY_KIND = gql`
         kind
         isActive
         healthStatus
+        brandId
+        channelId
       }
       ${GQL_PAGE_INFO}
     }

@@ -1,8 +1,9 @@
-import { Cell } from '@tanstack/table-core';
+import { CellContext } from '@tanstack/react-table';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
-import { Button, Switch, Tooltip } from 'erxes-ui';
+import { Switch, Tooltip } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 import { CallIntegrationSheetEdit } from '@/integrations/call/components/CallIntegrationEdit';
 import { CallIntegrationAddSheet } from '@/integrations/call/components/CallIntegrationAdd';
@@ -21,20 +22,21 @@ export const CallIntegrationDetail = () => {
 export const CallIntegrationActions = ({
   cell,
 }: {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
   const setEditId = useSetAtom(callEditSheetAtom);
 
   return (
     <>
       <CallIntegrationConnect integrationId={cell.row.original._id} />
-      <Button
-        variant={'outline'}
-        size="icon"
+      <div
         onClick={() => setEditId(cell.row.original._id)}
+        className="flex items-center gap-2 w-full"
       >
-        <IconEdit />
-      </Button>
+        <IconEdit size={16} />
+        {t('edit')}
+      </div>
     </>
   );
 };
@@ -44,6 +46,7 @@ export const CallIntegrationConnect = ({
 }: {
   integrationId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [callConfig, setCallConfig] = useAtom(callConfigAtom);
   const { callUserIntegrations } = useCallUserIntegration();
 
@@ -73,7 +76,7 @@ export const CallIntegrationConnect = ({
             onCheckedChange={handleChange}
           />
         </Tooltip.Trigger>
-        <Tooltip.Content>Connect to call</Tooltip.Content>
+        <Tooltip.Content>{t('connect-to-call')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );

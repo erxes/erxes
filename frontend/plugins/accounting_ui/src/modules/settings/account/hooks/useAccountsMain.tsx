@@ -21,40 +21,51 @@ export const useAccountsVariables = (
     code?: string;
     name?: string;
     categoryId?: string;
-    currency?: string
+    currency?: string;
     kind?: string;
     journal?: string;
     status?: string;
     isTemp?: string;
     isOutBalance?: string;
   }>([
-    'searchValue', 'code', 'name', 'categoryId', 'currency',
-    'kind', 'journal', 'status', 'isTemp', 'isOutBalance'
+    'searchValue',
+    'code',
+    'name',
+    'categoryId',
+    'currency',
+    'kind',
+    'journal',
+    'status',
+    'isTemp',
+    'isOutBalance',
   ]);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: ACCOUNTS_CURSOR_SESSION_KEY,
   });
 
-  const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
-    if (value) {
-      if (['isTemp', 'isOutBalance'].includes(key)) {
-        acc[key] = value !== 'False';
-      } else {
-        acc[key] = value + '';
+  const curVariables = Object.entries(queryParams).reduce(
+    (acc, [key, value]) => {
+      if (value) {
+        if (['isTemp', 'isOutBalance'].includes(key)) {
+          acc[key] = value !== 'False';
+        } else {
+          acc[key] = value + '';
+        }
       }
-    }
-    return acc;
-  }, {} as Record<string, string | boolean>);
+      return acc;
+    },
+    {} as Record<string, string | boolean>,
+  );
 
   return {
     limit: ACCOUNTS_PER_PAGE,
     orderBy: {
-      code: 1
+      code: 1,
     },
     cursor,
     ...variables,
-    ...curVariables
+    ...curVariables,
   };
 };
 
@@ -70,7 +81,7 @@ export const useAccountsMain = (options?: QueryHookOptions) => {
     ...options,
     variables: {
       ...options?.variables,
-      ...variables
+      ...variables,
     },
   });
 

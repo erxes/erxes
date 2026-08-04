@@ -1,11 +1,14 @@
 import { Button, Tooltip } from 'erxes-ui';
 import { IconRotateClockwise } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
-import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
-import { useAtomValue } from 'jotai';
-import { newMessagesCountState } from '@/inbox/conversations/states/newMessagesCountState';
+import { useSetAtom, useAtomValue } from 'jotai';
+import {
+  refetchNewMessagesState,
+  newMessagesCountState,
+} from '@/inbox/conversations/states/newMessagesCountState';
+import { useTranslation } from 'react-i18next';
 
 export const ConversationRefetch = () => {
+  const { t } = useTranslation('frontline');
   const newMessagesCount = useAtomValue(newMessagesCountState);
   const setRefetchNewMessages = useSetAtom(refetchNewMessagesState);
 
@@ -27,7 +30,7 @@ export const ConversationRefetch = () => {
             )}
           </Button>
         </Tooltip.Trigger>
-        <Tooltip.Content>Refresh</Tooltip.Content>
+        <Tooltip.Content>{t('refresh')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );

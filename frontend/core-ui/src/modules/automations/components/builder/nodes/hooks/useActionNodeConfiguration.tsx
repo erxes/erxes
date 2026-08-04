@@ -1,4 +1,3 @@
-import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationTrigger } from '@/automations/components/builder/hooks/useAutomationTrigger';
 import {
   getCoreAutomationActionComponent,
@@ -13,48 +12,56 @@ import {
   TAutomationAction,
 } from 'ui-modules';
 import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
+import { useMemo } from 'react';
 
 export const useActionNodeConfiguration = (
   data: NodeData,
-  actionData: TAutomationAction,
+  actionData?: TAutomationAction,
 ) => {
   const { id, type = '', config } = data || {};
-  const [pluginName, moduleName] = splitAutomationNodeType(type);
+  const [pluginName, moduleName] = useMemo(
+    () => splitAutomationNodeType(type),
+    [type],
+  );
   const { trigger } = useAutomationTrigger(id);
 
-  let Component = null;
+  const Component = useMemo(() => {
+    let component = null;
 
-  if (
-    isCoreAutomationActionType(type, TAutomationActionComponent.NodeContent)
-  ) {
-    const CoreActionComponent = getCoreAutomationActionComponent(
-      type,
-      TAutomationActionComponent.NodeContent,
-    );
+    if (
+      isCoreAutomationActionType(type, TAutomationActionComponent.NodeContent)
+    ) {
+      const CoreActionComponent = getCoreAutomationActionComponent(
+        type,
+        TAutomationActionComponent.NodeContent,
+      );
 
-    if (CoreActionComponent) {
-      Component = <CoreActionComponent nodeData={data} config={config} />;
+      if (CoreActionComponent) {
+        component = <CoreActionComponent nodeData={data} config={config} />;
+      }
+    } else if (pluginName && moduleName && actionData) {
+      const actionNodeProps: AutomationActionNodeConfigProps = {
+        componentType: 'actionNodeConfiguration',
+        type,
+        config,
+        trigger,
+        actionData,
+      };
+
+      component = (
+        <RenderPluginsComponentWrapper
+          pluginName={pluginName}
+          moduleName={moduleName}
+          props={actionNodeProps}
+        />
+      );
     }
-  } else if (pluginName && moduleName) {
-    const actionNodeProps: AutomationActionNodeConfigProps = {
-      componentType: 'actionNodeConfiguration',
-      type,
-      config,
-      trigger,
-      actionData,
-    };
 
-    Component = (
-      <RenderPluginsComponentWrapper
-        pluginName={pluginName}
-        moduleName={moduleName}
-        props={actionNodeProps}
-      />
-    );
-  }
+    return component ? <div className="px-4 py-2">{component}</div> : null;
+  }, [actionData, config, data, moduleName, pluginName, trigger, type]);
 
   return {
-    Component: Component ? <div className="px-4 py-2">{Component}</div> : null,
+    Component,
   };
 };
 

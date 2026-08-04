@@ -1,6 +1,8 @@
 import { Types } from 'mongoose';
 import { z } from 'zod';
 import { sendTRPCMessage } from '../../utils';
+import { sendNotificationEmail } from './emailUtils';
+
 const baseNotificationSchema = z.object({
   title: z.string(),
   message: z.string(),
@@ -9,6 +11,7 @@ const baseNotificationSchema = z.object({
   metadata: z.record(z.any()).optional(),
 
   contentType: z.string(),
+  content: z.string().optional(),
 });
 
 const systemNotificationSchema = baseNotificationSchema.extend({
@@ -36,16 +39,20 @@ export type INotificationData = z.infer<typeof notificationZTypeSchema>;
 
 export const sendNotification = async (
   subdomain: string,
-  data: { userIds: string[] } & Partial<INotificationData>,
+  data: {
+    userIds: string[];
+    notificationType?: string;
+  } & Partial<INotificationData>,
 ) => {
-  const { userIds, kind, ...notificationData } = data;
+  const { userIds, kind, notificationType, ...notificationData } = data;
 
   const parsedData = notificationZTypeSchema.parse({
     ...notificationData,
+    notificationType,
     kind: kind ?? 'user',
   });
 
-  sendTRPCMessage({
+  await sendTRPCMessage({
     subdomain,
 
     pluginName: 'core',
@@ -53,5 +60,84 @@ export const sendNotification = async (
     module: 'notifications',
     action: 'create',
     input: { data: parsedData, userIds },
+    defaultValue: [],
   });
+
+  if (notificationType) {
+    await sendNotificationChannels(subdomain, data);
+  }
+};
+
+export const sendNotificationChannels = async (
+  subdomain: string,
+  notification: {
+    userIds: string[];
+    notificationType?: string;
+    fromUserId?: string;
+  } & Partial<INotificationData>,
+) => {
+  const {
+    notificationType: eventName,
+    userIds,
+    contentType,
+    fromUserId,
+  } = notification || {};
+
+  if (!contentType) return;
+
+  const [pluginName = '', moduleName = ''] = contentType.split(':');
+
+  const userNotificationSettings = await sendTRPCMessage({
+    subdomain,
+
+    pluginName: 'core',
+    method: 'query',
+    module: 'notifications',
+    action: 'settings',
+    input: { userIds },
+    defaultValue: [],
+  });
+
+  const recipientIds: Record<string, string[]> = { email: [] };
+
+  for (const userNotificationSetting of userNotificationSettings) {
+    const { userId, events } = userNotificationSetting || {};
+
+    if (fromUserId && userId === fromUserId) {
+      continue;
+    }
+
+    if (!userIds.includes(userId)) {
+      continue;
+    }
+
+    if (!events?.[pluginName]?.enabled) {
+      continue;
+    }
+
+    if (!events?.[`${pluginName}:${moduleName}`]?.enabled) {
+      continue;
+    }
+
+    if (!events?.[`${pluginName}:${moduleName}:${eventName}`]?.enabled) {
+      continue;
+    }
+
+    const channels = events?.[pluginName]?.channels || [];
+
+    if (!channels.length) {
+      continue;
+    }
+
+    if (channels.includes('email')) {
+      recipientIds['email'].push(userId);
+    }
+  }
+
+  if (recipientIds['email']?.length) {
+    await sendNotificationEmail(subdomain, {
+      ...notification,
+      userIds: recipientIds['email'],
+    });
+  }
 };

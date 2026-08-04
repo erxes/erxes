@@ -39,6 +39,7 @@ const quickRepliesSchema = z.object({
     z.object({
       _id: z.string(),
       text: z.string(),
+      contentType: z.string().optional(),
       image_url: z.string().optional(),
       isEditing: z.boolean().default(false).optional(),
     }),
@@ -57,27 +58,40 @@ const inputMessageSchema = z.object({
   }),
 });
 
+const attachmentSchema = z.object({
+  _id: z.string(),
+  url: z.string().min(1, 'Attachment is required'),
+  type: z.string().optional(),
+  name: z.string().optional(),
+});
+
 const imageMessageSchema = z.object({
   _id: z.string(),
   type: z.literal('image'),
-  image: z.string(),
+  image: z.string().min(1, 'Image is required'),
 });
 
 const attachmentsMessageSchema = z.object({
   _id: z.string(),
   type: z.literal('attachments'),
-  attachments: z.array(z.any()).optional(),
+  attachments: z.array(attachmentSchema).min(1, 'Attachment is required'),
 });
 
 const videoMessageSchema = z.object({
   _id: z.string(),
   type: z.literal('video'),
-  video: z.string(),
+  video: z.string().min(1, 'Video is required'),
 });
 const audioMessageSchema = z.object({
   _id: z.string(),
   type: z.literal('audio'),
-  audio: z.string(),
+  audio: z.string().min(1, 'Audio is required'),
+});
+
+const ticketFormSchema = z.object({
+  _id: z.string(),
+  type: z.literal('ticketForm'),
+  text: z.string(),
 });
 
 const replyMessageSchema = z.discriminatedUnion('type', [
@@ -89,6 +103,7 @@ const replyMessageSchema = z.discriminatedUnion('type', [
   attachmentsMessageSchema,
   inputMessageSchema,
   quickRepliesSchema,
+  ticketFormSchema,
 ]);
 export const replyMessageFormSchema = z.object({
   messages: z.array(replyMessageSchema),
@@ -101,3 +116,4 @@ export type TBotMessageCard = NonNullable<
   Extract<TBotMessage, { type: 'card' }>['cards']
 >[number];
 export type TBotMessageButton = z.infer<typeof buttonSchema>[number];
+export type TBotMessageAttachment = z.infer<typeof attachmentSchema>;

@@ -1,4 +1,5 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCheckCategory } from '../hooks/useCheckCategory';
 
 export type CategoryFilterType = 'create' | 'update' | 'delete';
@@ -10,6 +11,7 @@ interface CheckCategoryFilterProps {
 export const CheckCategoryFilter = ({
   onFilterClick,
 }: CheckCategoryFilterProps) => {
+  const { t } = useTranslation('mongolian');
   const { selectedFilter, setSelectedFilter, toCheckCategoriesData } =
     useCheckCategory();
 
@@ -31,21 +33,21 @@ export const CheckCategoryFilter = ({
         variant={selectedFilter === 'create' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('create')}
       >
-        Create Categories ({getCount('create')})
+        {t('create-categories')} ({getCount('create')})
       </Button>
 
       <Button
         variant={selectedFilter === 'update' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('update')}
       >
-        Update Categories ({getCount('update')})
+        {t('update-categories')} ({getCount('update')})
       </Button>
 
       <Button
         variant={selectedFilter === 'delete' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('delete')}
       >
-        Delete Categories ({getCount('delete')})
+        {t('delete-categories')} ({getCount('delete')})
       </Button>
     </div>
   );

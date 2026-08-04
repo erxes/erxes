@@ -7,6 +7,9 @@ import {
   extractUserFromHeader,
 } from '../headers';
 import { generateRequestProcess, getSubdomain } from '../utils';
+import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
+import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
+import { checkPermissionGroup } from '../../core-modules/permissions/utils';
 
 export const generateApolloContext =
   <TContext>(
@@ -31,9 +34,23 @@ export const generateApolloContext =
 
     const subdomain = getSubdomain(req);
 
-    const processInfo = generateRequestProcess();
+    // Honor a caller-supplied correlation id (e.g. the AI agent stamps each
+    // action) so a request's DB changes can be traced/reverted together; the
+    // router propagates this header to every subgraph. Falls back to a fresh id.
+    const incomingProcessId = req.headers['x-erxes-process-id'];
+    const processInfo = generateRequestProcess(
+      Array.isArray(incomingProcessId)
+        ? incomingProcessId[0]
+        : incomingProcessId,
+    );
 
     const __ = (doc: any) => ({ ...processInfo, ...doc });
+    setEventHandlerRuntimeContext(subdomain, {
+      subdomain,
+      processId: processInfo.processId || '',
+      userId: user?._id || '',
+    });
+
     const context = {
       user,
       cpUser,
@@ -47,6 +64,12 @@ export const generateApolloContext =
         secure: req.secure,
         cookies: req.cookies,
       },
+      eventHandlers: createScopedEventHandlers(subdomain, {
+        subdomain,
+        processId: processInfo.processId || '',
+        userId: user?._id || '',
+      }),
+      checkPermission: checkPermissionGroup(subdomain, user),
     };
 
     if (apolloServerContext) {

@@ -1,10 +1,15 @@
-import { executeEmailAction } from '@/executions/actions/emailAction/executeEmailAction';
-import { executeDelayAction } from '@/executions/actions/executeDelayAction';
-import { executeIfCondition } from '@/executions/actions/executeIfCondition';
-import { executeSetPropertyAction } from '@/executions/actions/executeSetPropertyAction';
-import { executeWaitEvent } from '@/executions/actions/executeWaitEvent';
-import { executeOutgoingWebhook } from '@/executions/actions/webhook/outgoing/outgoingWebhook';
-import { executeFindObjectAction } from '@/executions/executeFindObjectAction';
+import { executeEmailAction } from './actions/emailAction/executeEmailAction';
+import { executeAiAgentAction } from './actions/executeAiAgentAction';
+import { executeDelayAction } from './actions/executeDelayAction';
+import { executeIfCondition } from './actions/executeIfCondition';
+import { executeMessageProAction } from './actions/executeMessageProAction';
+import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
+import { executeSplitAction } from './actions/executeSplitAction';
+import { executeTransformAction } from './actions/executeTransformAction';
+import { executeWaitEvent } from './actions/executeWaitEvent';
+import { executeOutgoingWebhook } from './actions/webhook/outgoing/outgoingWebhook';
+import { executeFindObjectAction } from './executeFindObjectAction';
+import { startWorkflowExecution } from './startWorkflowExecution';
 import {
   AUTOMATION_CORE_ACTIONS,
   IAutomationAction,
@@ -18,6 +23,8 @@ type TCoreActionResponse = Promise<{
   actionResponse?: any;
 }>;
 
+const SPLIT_ACTION_TYPE = 'split';
+
 export const executeCoreActions = async (
   triggerType: string,
   targetType: string,
@@ -28,11 +35,25 @@ export const executeCoreActions = async (
   execAction: IAutomationExecAction,
   actionsMap: IAutomationActionsMap,
 ): TCoreActionResponse => {
-  let shouldBreak = false;
+  const shouldBreak = false;
 
   let actionResponse: any = null;
+
+  // Entering a workflow pauses this execution; the child execution resumes
+  // it from the workflow node's nextActionId when it completes.
+  if (actionType === AUTOMATION_CORE_ACTIONS.WORKFLOW) {
+    actionResponse = await startWorkflowExecution(
+      subdomain,
+      execution,
+      action,
+    );
+    execAction.childExecutionId = actionResponse?.childExecutionId;
+
+    return { actionResponse, shouldBreak: true };
+  }
+
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {
-    await executeDelayAction(subdomain, execution, action, execAction);
+    await executeDelayAction(subdomain, execution, action);
     return { actionResponse, shouldBreak: true };
   }
 
@@ -48,8 +69,19 @@ export const executeCoreActions = async (
     return { actionResponse, shouldBreak: true };
   }
 
+  if (actionType === SPLIT_ACTION_TYPE) {
+    const splitResponse = await executeSplitAction(
+      subdomain,
+      execution,
+      action,
+    );
+
+    execAction.nextActionId = splitResponse?.nextActionId;
+    actionResponse = splitResponse?.result ?? splitResponse;
+  }
+
   if (actionType === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {
-    await executeWaitEvent(subdomain, execution, action, execAction);
+    actionResponse = await executeWaitEvent(subdomain, execution, action);
 
     return { actionResponse, shouldBreak: true };
   }
@@ -57,11 +89,22 @@ export const executeCoreActions = async (
   if (actionType === AUTOMATION_CORE_ACTIONS.FIND_OBJECT) {
     actionResponse = await executeFindObjectAction(
       subdomain,
+      triggerType,
+      targetType,
       execution,
       action,
       execAction,
-      actionsMap,
     );
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.TRANSFORM) {
+    actionResponse = await executeTransformAction({
+      subdomain,
+      triggerType,
+      targetType,
+      execution,
+      action,
+    });
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.SET_PROPERTY) {
@@ -72,6 +115,7 @@ export const executeCoreActions = async (
       targetType,
       execution,
     );
+
     actionResponse = result;
   }
 
@@ -89,10 +133,35 @@ export const executeCoreActions = async (
   if (actionType === AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK) {
     actionResponse = await executeOutgoingWebhook({
       subdomain,
+      execution,
       targetType,
       target: execution.target,
       action,
     });
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.MESSAGE_PRO) {
+    actionResponse = await executeMessageProAction(
+      subdomain,
+      execution,
+      action,
+    );
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.AI_AGENT) {
+    const aiResponse = await executeAiAgentAction(subdomain, execution, action);
+
+    if (aiResponse?.nextActionId) {
+      execAction.nextActionId = aiResponse.nextActionId;
+    }
+
+    // Classification found nothing — downstream actions would only receive
+    // empty values, so stop this execution here.
+    if (aiResponse?.attributesEmpty) {
+      execAction.nextActionId = undefined;
+    }
+
+    actionResponse = aiResponse?.result ?? aiResponse;
   }
   return { actionResponse, shouldBreak };
 };

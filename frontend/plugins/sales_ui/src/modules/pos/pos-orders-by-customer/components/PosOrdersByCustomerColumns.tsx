@@ -8,14 +8,16 @@ import {
 
 import { IPosOrdersByCustomer } from '@/pos/pos-orders-by-customer/types/posOrdersByCustomerType';
 import { PosOrdersByCustomerMoreColumn } from '@/pos/pos-orders-by-customer/components/PosOrdersByCustomerMoreColumn';
+import { TFunction } from 'i18next';
 
-export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
+export const PosOrdersByCustomerColumns: (
+  t: TFunction,
+) => ColumnDef<IPosOrdersByCustomer>[] = (t) => [
   PosOrdersByCustomerMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IPosOrdersByCustomer>,
   {
-    id: 'customerType',
-    accessorKey: 'customerType',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Type" />,
+    id: 'type',
+    accessorKey: 'customerDetail.state',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('type')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -25,10 +27,10 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     },
   },
   {
-    id: 'customerDetail.primaryName',
+    id: 'customerName',
     accessorKey: 'customerDetail.primaryName',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Customer Name" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('customer-name')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -39,10 +41,10 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     },
   },
   {
-    id: 'customerDetail.emails.email',
+    id: 'customerEmail',
     accessorKey: 'customerDetail.emails.email',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Customer Email" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('customer-email')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -56,12 +58,13 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     id: 'totalOrders',
     accessorKey: 'totalOrders',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Orders Count" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('orders-count')} />
     ),
     cell: ({ cell }) => {
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
         </RecordTableInlineCell>
       );
     },
@@ -70,24 +73,13 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     id: 'totalAmount',
     accessorKey: 'totalAmount',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Total Amount" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('total-amount')} />
     ),
     cell: ({ cell }) => {
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'customerType',
-    accessorKey: 'customerType',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Type" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
         </RecordTableInlineCell>
       );
     },

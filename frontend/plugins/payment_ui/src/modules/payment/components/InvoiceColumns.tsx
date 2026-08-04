@@ -1,4 +1,9 @@
-import { IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconCalendarPlus,
+  IconHash,
+  IconQrcode,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -6,16 +11,19 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-
 import { IInvoice } from '~/modules/payment/types/Payment';
 
-export const invoicesColumns: ColumnDef<IInvoice>[] = [
-  RecordTable.checkboxColumn as ColumnDef<IInvoice>,
+export const invoicesColumns = (
+  t: (key: string) => string,
+): ColumnDef<IInvoice>[] => [
   {
     id: 'invoiceNumber',
     accessorKey: 'invoiceNumber',
     header: () => (
-      <RecordTable.InlineHead label="Invoice number" icon={IconAlignLeft} />
+      <RecordTable.InlineHead
+        label={t('invoice-number')}
+        icon={IconAlignLeft}
+      />
     ),
     cell: ({ cell }) => {
       return (
@@ -30,7 +38,7 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
     id: 'description',
     accessorKey: 'description',
     header: () => (
-      <RecordTable.InlineHead label="description" icon={IconHash} />
+      <RecordTable.InlineHead label={t('description')} icon={IconHash} />
     ),
     cell: ({ cell }) => {
       return (
@@ -44,7 +52,9 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => <RecordTable.InlineHead label="amount" icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('amount')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -56,7 +66,9 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'currency',
     accessorKey: 'currency',
-    header: () => <RecordTable.InlineHead label="currency" icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('currency')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -68,7 +80,9 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="status" icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -84,10 +98,36 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
     },
   },
   {
+    id: 'scannedAt',
+    accessorKey: 'scannedAt',
+    header: () => (
+      <RecordTable.InlineHead label={t('scanned')} icon={IconQrcode} />
+    ),
+    cell: ({ cell }) => {
+      const scannedAt = cell.getValue() as string | undefined;
+      return (
+        <RecordTableInlineCell>
+          {scannedAt ? (
+            <RelativeDateDisplay value={scannedAt} asChild>
+              <Badge variant="success">
+                <RelativeDateDisplay.Value value={scannedAt} />
+              </Badge>
+            </RelativeDateDisplay>
+          ) : (
+            <Badge variant="secondary">{t('not-scanned')}</Badge>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label="date created" icon={IconCalendarPlus} />
+      <RecordTable.InlineHead
+        label={t('date-created')}
+        icon={IconCalendarPlus}
+      />
     ),
     cell: ({ cell }) => {
       return (

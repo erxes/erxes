@@ -4,12 +4,14 @@ import { IProject } from '@/project/types';
 import { ActivityTimelineItem } from '@/activity/components/ActivityTimelineItem';
 import { IconUser } from '@tabler/icons-react';
 import { ITriage } from '@/triage/types/triage';
+import { useTranslation } from 'react-i18next';
 
 interface CreatorInfoProps {
   contentDetail: ITask | IProject | ITriage;
 }
 
 export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
+  const { t } = useTranslation('operation');
   const memberIds = contentDetail.createdBy ? [contentDetail.createdBy] : [];
   const hasCreator = Boolean(contentDetail.createdBy);
 
@@ -29,13 +31,13 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
       createdAt={contentDetail.createdAt?.toLocaleString()}
       id={contentDetail._id}
     >
-      Created by{' '}
+      {t('created-by')}{' '}
       {hasCreator ? (
         <MembersInline.Provider memberIds={memberIds}>
           <MembersInline.Title />
         </MembersInline.Provider>
       ) : (
-        <span className="text-muted-foreground">Unknown</span>
+        <span className="text-muted-foreground">{t('unknown')}</span>
       )}
     </ActivityTimelineItem>
   );

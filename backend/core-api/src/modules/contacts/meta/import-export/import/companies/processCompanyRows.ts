@@ -1,4 +1,6 @@
 import { IModels } from '~/connectionResolvers';
+import { prepareCompanyDoc } from './utils';
+
 export async function processCompanyRows(
   models: IModels,
   rows: any[],
@@ -7,8 +9,9 @@ export async function processCompanyRows(
   const errorRows: any[] = [];
 
   try {
-    const emails = rows.map((r) => r.primaryEmail).filter((email) => email);
-    const names = rows.map((r) => r.primaryName).filter((name) => name);
+    // ✅ rows may have "name" instead of "primaryName" (CSV header)
+    const emails = rows.map((r) => r.primaryEmail).filter(Boolean);
+    const names = rows.map((r) => r.primaryName || r.name).filter(Boolean);
 
     const existingDocs = await models.Companies.find({
       $or: [
@@ -21,12 +24,8 @@ export async function processCompanyRows(
     const existingByName = new Map<string, any>();
 
     for (const doc of existingDocs) {
-      if (doc.primaryEmail) {
-        existingByEmail.set(doc.primaryEmail, doc);
-      }
-      if (doc.primaryName) {
-        existingByName.set(doc.primaryName, doc);
-      }
+      if (doc.primaryEmail) existingByEmail.set(doc.primaryEmail, doc);
+      if (doc.primaryName) existingByName.set(doc.primaryName, doc);
     }
 
     const operations: any[] = [];
@@ -37,8 +36,11 @@ export async function processCompanyRows(
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
+
       try {
-        const doc = prepareCompanyDoc(row);
+        // ✅ prepareCompanyDoc is async now (tags -> tagIds, mapping, normalize)
+        const doc = await prepareCompanyDoc(models, row);
+
         const existingDoc =
           (doc.primaryEmail && existingByEmail.get(doc.primaryEmail)) ||
           (doc.primaryName && existingByName.get(doc.primaryName));
@@ -61,7 +63,7 @@ export async function processCompanyRows(
       } catch (error: any) {
         errorRows.push({
           ...row,
-          error: error.message || 'Failed to prepare row',
+          error: error?.message || 'Failed to prepare row',
         });
       }
     }
@@ -80,12 +82,12 @@ export async function processCompanyRows(
     }
 
     return { successRows, errorRows };
-  } catch (error) {
+  } catch (error: any) {
     return {
       successRows: [],
       errorRows: rows.map((row) => ({
         ...row,
-        error: error.message || 'Failed to process rows',
+        error: error?.message || 'Failed to process rows',
       })),
     };
   }

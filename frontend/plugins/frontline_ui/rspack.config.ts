@@ -17,4 +17,20 @@ export default composePlugins(
   withNx(),
   withReact(),
   withModuleFederation(config, { dts: false }),
+  (config: import('@rspack/core').Configuration) => {
+    config.module = config.module ?? {};
+    config.module.rules = config.module.rules ?? [];
+    config.module.rules.push({
+      test: /\.(mp3|wav|ogg)$/,
+      type: 'asset/resource',
+    });
+
+    if (process.env.NODE_ENV !== 'production') {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],
+      };
+    }
+    return config;
+  },
 );

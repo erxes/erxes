@@ -17,6 +17,8 @@ const posCommonFields = `
   adminIds: [String]
   cashierIds: [String]
   paymentIds: [String]
+  serviceCharge: Float
+  serviceChargeApplicableProductId: String
   paymentTypes: [JSON]
   isOnline: Boolean
   onServer: Boolean
@@ -30,17 +32,12 @@ const posCommonFields = `
   kioskMachine: JSON
   uiOptions: JSON
   token: String
-  erxesAppToken: String
-  ebarimtConfig: JSON
-  erkhetConfig: JSON
   initialCategoryIds: [String]
   kioskExcludeCategoryIds: [String]
   kioskExcludeProductIds: [String]
   deliveryConfig: JSON
   cardsConfig: JSON
-  checkRemainder: Boolean
   permissionConfig: JSON
-  type: String
   allowTypes: [String]
   isCheckRemainder: Boolean
   checkExcludeCategoryIds: [String]
@@ -114,7 +111,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  posList(page: Int, perPage: Int, isOnline: String, sortField: String, sortDirection: Int): [Pos]
+  posList(page: Int, perPage: Int, isOnline: String, search: String, sortField: String, sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
   posEnv: JSON
   productGroups(posId: String!): [ProductGroups]

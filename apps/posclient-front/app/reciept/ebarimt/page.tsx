@@ -89,7 +89,7 @@ const Reciept = () => {
   }
 
   return (
-    <>
+    <div className="receipt-print space-y-2">
       <EbarimtHeader />
       <PutResponses />
       <Amount />
@@ -101,7 +101,7 @@ const Reciept = () => {
       >
         хэвлэх
       </Button>
-    </>
+    </div>
   )
 }
 

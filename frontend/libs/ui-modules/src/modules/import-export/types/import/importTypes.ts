@@ -10,6 +10,7 @@ export type TImportProgress = {
   _id: string;
   entityType: string;
   fileName: string;
+  fileKey?: string;
   status: TImportProgressStatus;
 
   totalRows: number;

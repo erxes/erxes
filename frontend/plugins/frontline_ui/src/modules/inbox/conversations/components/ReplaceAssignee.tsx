@@ -1,14 +1,12 @@
-import { IconReplaceUser } from '@tabler/icons-react';
-import { Button, Popover } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import { useAtom } from 'jotai';
 import { selectConversationsState } from '../states/selectConversationsState';
 import { useAssignConversations } from '../hooks/useAssignConversations';
+import { useTranslation } from 'react-i18next';
 
 export const ReplaceAssignee = () => {
-  const [selectedConversations, setSelectedConversations] = useAtom(
-    selectConversationsState,
-  );
+  const { t } = useTranslation('frontline');
+  const [selectedConversations] = useAtom(selectConversationsState);
   const { assignConversations } = useAssignConversations();
 
   return (
@@ -19,10 +17,9 @@ export const ReplaceAssignee = () => {
             conversationIds: selectedConversations,
             assignedUserId: value,
           },
-          onCompleted: () => setSelectedConversations([]),
         });
       }}
-      placeholder="Select assignee"
+      placeholder={t('select-assignee')}
     />
   );
 };

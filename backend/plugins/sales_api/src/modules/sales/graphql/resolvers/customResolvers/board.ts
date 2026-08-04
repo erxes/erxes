@@ -12,6 +12,14 @@ export default {
       return board.pipelines;
     }
 
+    if (!user) {
+      return models.Pipelines.find({
+        boardId: board._id,
+        status: { $ne: 'archived' },
+        visibility: 'public',
+      }).lean();
+    }
+
     if (user.isOwner) {
       return models.Pipelines.find({
         boardId: board._id,

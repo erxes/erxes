@@ -1,7 +1,7 @@
-import { CurrencyCode, IAttachment } from 'erxes-ui';
-
+import { CurrencyCode } from 'erxes-ui';
 import { PRODUCT_FORM_SCHEMA } from '../constants/addProductFormSchema';
 import { z } from 'zod';
+import { IProductCategory } from '../categories/types/category';
 
 export interface IProduct {
   _id: string;
@@ -11,9 +11,22 @@ export interface IProduct {
   categoryId: string;
   category?: IProductCategory;
   tagIds: string[];
+  branchId?: string;
+  departmentId?: string;
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
+  duration?: number;
+  durationType?:
+    | 'minute'
+    | 'hour'
+    | 'day'
+    | 'week'
+    | 'month'
+    | 'quarter'
+    | 'year';
   currency: CurrencyCode;
+  remainder: any;
+  status?: 'active' | 'deleted';
 }
 export interface IBundleRuleItem {
   code: string;
@@ -22,7 +35,7 @@ export interface IBundleRuleItem {
   products: IProduct[];
   priceValue: number;
   percent: number;
-  priceType: "thisProductPricePercent" | "price" | "mainPricePercent";
+  priceType: 'thisProductPricePercent' | 'price' | 'mainPricePercent';
   priceAdjustType: string;
   priceAdjustFactor: number;
   allowSkip: boolean;
@@ -71,16 +84,6 @@ export interface IProductData {
   conditions?: IDealBundleItem[];
 }
 
-export interface IProductCategory {
-  _id: string;
-  name: string;
-  avatar: IAttachment;
-  code: string;
-  order: string;
-  productCount: number;
-  parentId: string;
-}
-
 export interface IUom {
   _id: string;
   name: string;
@@ -94,6 +97,11 @@ export interface IProductDetail extends IProduct {
   barcodeDescription: string;
   barcodes: string[];
   vendorId: string;
+}
+
+export interface IProductType {
+  label: string;
+  value: string;
 }
 
 export type IProductFormValues = z.infer<typeof PRODUCT_FORM_SCHEMA>;

@@ -1,11 +1,17 @@
-import { can } from 'erxes-api-shared/core-modules';
+import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
-import { IDeal } from '~/modules/sales/@types';
 import {
-  createConformity,
+  checkUserIds,
+  graphqlPubsub,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { IDeal, IProductData } from '~/modules/sales/@types';
+import {
+  checkMovePermission,
+  createRelations,
   getNewOrder,
+  getTotalAmounts,
   sendNotifications,
 } from '~/modules/sales/utils';
 import {
@@ -13,8 +19,16 @@ import {
   checkAssignedUserFromPData,
   copyPipelineLabels,
   itemMover,
+  publishPipelineOrderUpdated,
+  resolveDealSubscriptionItem,
   subscriptionWrapper,
 } from '../utils';
+import {
+  checkLoyalties,
+  checkPricing,
+  confirmLoyalties,
+  doScoreCampaign,
+} from './loyaltyUtils';
 
 export const addDeal = async ({
   models,
@@ -32,7 +46,7 @@ export const addDeal = async ({
 
   const extendedDoc = {
     ...doc,
-    modifiedBy: user && user._id,
+    modifiedBy: user?._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection: models.Deals,
@@ -41,19 +55,17 @@ export const addDeal = async ({
     }),
   };
 
-  if (extendedDoc.customFieldsData) {
+  if (extendedDoc.propertiesData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendTRPCMessage({
+    extendedDoc.propertiesData = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
-      action: 'prepareCustomFieldsData',
-      input: {
-        customFieldsData: extendedDoc.customFieldsData,
-      },
-      defaultValue: [],
+      action: 'validateFieldValues',
+      input: { data: extendedDoc.propertiesData },
+      defaultValue: {},
     });
   }
 
@@ -61,9 +73,8 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createConformity(subdomain, {
-    mainType: 'deal',
-    mainTypeId: deal._id,
+  await createRelations(subdomain, {
+    dealId: deal._id,
     companyIds: doc.companyIds,
     customerIds: doc.customerIds,
   });
@@ -132,11 +143,18 @@ export const editDeal = async ({
 
     doc.assignedUserIds = assignedUserIds;
 
-    // doc.productsData = await checkPricing(subdomain, models, { ...oldDeal, ...doc })
-  }
+    doc.productsData = await checkLoyalties(subdomain, _id, {
+      ...oldDeal.toObject?.(),
+      ...oldDeal,
+      ...doc,
+    });
 
-  // await doScoreCampaign(subdomain, models, _id, doc);
-  // await confirmLoyalties(subdomain, _id, doc);
+    doc.productsData = await checkPricing(subdomain, models, {
+      ...oldDeal.toObject?.(),
+      ...oldDeal,
+      ...doc,
+    });
+  }
 
   const extendedDoc = {
     ...doc,
@@ -159,24 +177,22 @@ export const editDeal = async ({
   if (
     doc.status === 'archived' &&
     oldDeal.status === 'active' &&
-    !(await can(subdomain, 'dealsArchive', user))
+    !(await canGroup(subdomain, 'dealsArchive', user))
   ) {
     throw new Error('Permission denied');
   }
 
-  if (extendedDoc.customFieldsData) {
+  if (extendedDoc.propertiesData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendTRPCMessage({
+    extendedDoc.propertiesData = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
-      action: 'prepareCustomFieldsData',
-      input: {
-        customFieldsData: extendedDoc.customFieldsData,
-      },
-      defaultValue: [],
+      action: 'validateFieldValues',
+      input: { data: extendedDoc.propertiesData },
+      defaultValue: {},
     });
   }
 
@@ -200,6 +216,7 @@ export const editDeal = async ({
     // order notification
     await changeItemStatus(models, user, {
       item: updatedItem,
+      oldDeal,
       status: activityAction,
       processId,
       stage,
@@ -219,18 +236,26 @@ export const editDeal = async ({
   await sendNotifications(models, subdomain, notificationDoc);
 
   // exclude [null]
-  if (doc.tagIds && doc.tagIds.length) {
+  if (doc.tagIds?.length) {
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
-  await subscriptionWrapper(models, {
-    action: 'update',
-    deal: updatedItem,
-    oldDeal,
-    pipelineId: stage.pipelineId,
-  });
+  const transitionedToArchived =
+    doc.status === 'archived' &&
+    !!oldDeal.status &&
+    oldDeal.status !== doc.status;
 
-  // await doScoreCampaign(subdomain, models, _id, updatedItem);
+  if (!transitionedToArchived) {
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: updatedItem,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
+  }
+
+  await doScoreCampaign(subdomain, models, _id, updatedItem, oldDeal);
+  await confirmLoyalties(subdomain, _id, updatedItem);
 
   if (oldDeal.stageId === updatedItem.stageId) {
     return updatedItem;
@@ -240,4 +265,169 @@ export const editDeal = async ({
   await itemMover(models, user._id, oldDeal, updatedItem.stageId);
 
   return updatedItem;
+};
+
+export const changeDeal = async (
+  subdomain: string,
+  models: IModels,
+  userId: string,
+  {
+    itemId,
+    aboveItemId,
+    destinationStageId,
+    sourceStageId,
+    processId,
+  }: {
+    itemId: string;
+    aboveItemId?: string;
+    destinationStageId: string;
+    sourceStageId?: string;
+    processId?: string;
+  },
+) => {
+  const item = await models.Deals.findOne({ _id: itemId });
+
+  if (!item) {
+    throw new Error('Deal not found');
+  }
+
+  const stage = await models.Stages.getStage(item.stageId);
+  const destinationStage = await models.Stages.getStage(destinationStageId);
+
+  const extendedDoc: IDeal = {
+    modifiedBy: userId,
+    stageId: destinationStageId,
+    order: await getNewOrder({
+      collection: models.Deals,
+      stageId: destinationStageId,
+      aboveItemId,
+    }),
+  };
+
+  if (item.stageId !== destinationStageId) {
+    checkMovePermission(stage, userId);
+
+    checkMovePermission(destinationStage, userId);
+
+    extendedDoc.stageChangedDate = new Date();
+  }
+
+  const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
+
+  if (item.stageId !== destinationStageId) {
+    await doScoreCampaign(subdomain, models, item._id, updatedItem, item);
+    await confirmLoyalties(subdomain, item._id, updatedItem);
+  }
+
+  await itemMover(models, userId, item, destinationStageId);
+
+  const resolvedItem = await resolveDealSubscriptionItem(
+    models,
+    subdomain,
+    updatedItem,
+  );
+
+  const pipelineIds = [stage.pipelineId, destinationStage.pipelineId];
+
+  await publishPipelineOrderUpdated({
+    pipelineIds,
+    processId,
+    item: resolvedItem,
+    aboveItemId,
+    destinationStageId,
+    oldStageId: sourceStageId || item.stageId,
+  });
+
+  await subscriptionWrapper(models, {
+    action: 'update',
+    deal: updatedItem,
+    oldDeal: item,
+    pipelineId: stage.pipelineId,
+    oldPipelineId:
+      stage.pipelineId !== destinationStage.pipelineId
+        ? destinationStage.pipelineId
+        : undefined,
+  });
+
+  return updatedItem;
+};
+
+export const createProductsData = async ({
+  models,
+  processId,
+  dealId,
+  docs,
+}: {
+  models: IModels;
+  processId: string;
+  dealId: string;
+  docs: IProductData[];
+}) => {
+  const deal = await models.Deals.getDeal(dealId);
+  const stage = await models.Stages.getStage(deal.stageId);
+
+  const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
+
+  const { assignedUserIds } = checkAssignedUserFromPData(
+    deal.assignedUserIds,
+    [
+      ...(deal.productsData || [])
+        .filter((pdata) => pdata.assignUserId)
+        .map((pdata) => pdata.assignUserId || ''),
+      ...docs
+        .filter((pdata) => pdata.assignUserId)
+        .map((pdata) => pdata.assignUserId || ''),
+    ],
+    deal.productsData,
+  );
+
+  for (const doc of docs) {
+    if (doc._id) {
+      const checkDup = (deal.productsData || []).find(
+        (pd) => pd._id === doc._id,
+      );
+      if (checkDup) {
+        throw new Error('Deals productData duplicated');
+      }
+    }
+  }
+
+  // undefined or null then true
+  const tickUsed = !(stage.defaultTick === false);
+  const addDocs = (docs || []).map((doc) => ({ ...doc, tickUsed }));
+  const productsData: IProductData[] = (deal.productsData || []).concat(
+    addDocs,
+  );
+
+  const updatedItem =
+    (await models.Deals.findOneAndUpdate(
+      { _id: dealId },
+      {
+        $set: {
+          productsData,
+          assignedUserIds,
+          ...(await getTotalAmounts(productsData)),
+        },
+      },
+      { new: true },
+    )) || ({} as any);
+
+  const dataIds = (updatedItem.productsData || [])
+    .filter((pd) => !oldDataIds.includes(pd._id))
+    .map((pd) => pd._id);
+
+  graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
+    salesProductsDataChanged: {
+      _id: dealId,
+      processId,
+      action: 'create',
+      data: {
+        dataIds,
+        docs,
+        productsData,
+      },
+    },
+  });
+
+  return { dataIds, productsData };
 };

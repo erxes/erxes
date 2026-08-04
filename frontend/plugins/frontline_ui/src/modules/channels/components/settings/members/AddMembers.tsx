@@ -1,6 +1,10 @@
-import React from 'react';
-
+import { MemberForm } from '@/channels/components/settings/members/MemberForm';
+import { useChannelMembersAdd } from '@/channels/hooks/useChannelMembersAdd';
+import { useChannelMembersForm } from '@/channels/hooks/useChannelMembersForm';
+import { ChannelHotKeyScope, TChannelMemberForm } from '@/channels/types';
+import { IconPlus } from '@tabler/icons-react';
 import {
+  Button,
   Dialog,
   Form,
   Kbd,
@@ -9,17 +13,13 @@ import {
   useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
-import { useChannelMembersForm } from '@/channels/hooks/useChannelMembersForm';
-import { Button } from 'erxes-ui';
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { IconPlus } from '@tabler/icons-react';
-import { useChannelMembersAdd } from '@/channels/hooks/useChannelMembersAdd';
-import { MemberForm } from '@/channels/components/settings/members/MemberForm';
-import { ChannelHotKeyScope, TChannelMemberForm } from '@/channels/types';
+import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const AddMembers = () => {
+  const { t } = useTranslation('frontline');
   const form = useChannelMembersForm({});
   const { id } = useParams();
   const { toast } = useToast();
@@ -49,13 +49,13 @@ export const AddMembers = () => {
       channelAddMembers({
         variables: { ...data, id },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({ title: t('success') });
           form.reset();
           _setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -69,14 +69,14 @@ export const AddMembers = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add members
+          {t('add-members')}
           <Kbd>C</Kbd>
         </Button>
       </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header className="flex-row">
           <Dialog.Title className="flex items-center gap-2">
-            Add members
+            {t('add-members')}
           </Dialog.Title>
         </Dialog.Header>
         <Form {...form}>
@@ -86,7 +86,7 @@ export const AddMembers = () => {
           >
             <MemberForm form={form} />
             <Button className="w-full" type="submit" disabled={loading}>
-              Add
+              {t('add')}
             </Button>
           </form>
         </Form>

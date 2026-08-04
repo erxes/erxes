@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { onError } from "@/components/ui/use-toast"
 
 import ReturnOdd from "./ReturnOdd"
@@ -52,7 +53,7 @@ const ReturnForm = ({
   })
 
   const form = useForm<any>({
-    defaultValues: { cashAmount, ...amounts },
+    defaultValues: { cashAmount, description: "", ...amounts },
   })
 
   const [orderReturn, { loading: loadingReturn }] = useMutation(
@@ -70,13 +71,18 @@ const ReturnForm = ({
   )
 
   const onSubmit = (data: any) => {
-    const { cashAmount, ...rest } = data
+    const { cashAmount, description, ...rest } = data
     const paidAmounts = Object.keys(rest).map((key: string) => ({
       type: key,
       amount: isNaN(Number(rest[key])) ? 0 : Number(rest[key]),
     }))
     orderReturn({
-      variables: { _id, cashAmount: Number(cashAmount || 0), paidAmounts },
+      variables: {
+        _id,
+        cashAmount: Number(cashAmount || 0),
+        paidAmounts,
+        description: description?.trim() || "",
+      },
     })
   }
 
@@ -114,6 +120,27 @@ const ReturnForm = ({
             />
           ))}
         </div>
+        <FormField
+          control={form.control}
+          name="description"
+          rules={{
+            validate: (value) =>
+              value?.trim() ? true : "Буцаалтын тайлбар оруулна уу",
+          }}
+          render={({ field }) => (
+            <FormItem className="pt-3">
+              <FormLabel>Буцаалтын тайлбар</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Яагаад буцааж байгааг тайлбарлана уу"
+                  rows={3}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <AlertDialogFooter className="pt-4 sm:justify-between items-center">
           <ReturnOdd totalAmount={totalAmount} control={form.control} />
           <div className="flex items-center gap-2">

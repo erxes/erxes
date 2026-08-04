@@ -1,9 +1,46 @@
-import { typeDefs } from '~/apollo/typeDefs';
-
+import {
+  createCoreModuleProducerHandler,
+  TBatchSkipRowInput,
+  TGetImportHeadersInput,
+  TImportExportProducers,
+  TInsertImportRowsInput,
+} from 'erxes-api-shared/core-modules';
 import { startPlugin } from 'erxes-api-shared/utils';
+import { typeDefs } from '~/apollo/typeDefs';
+import { afterProcess } from '~/meta/afterProcess';
+import { permissions } from '~/meta/permissions';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { appRouter } from './init-trpc';
+import { accountImportHandlers } from './meta/import-export/import/importHandlers';
+import { router } from './routes';
+
+const accountImportTypes = [
+  {
+    label: 'Account',
+    contentType: 'accounting:account.account',
+    permissions: ['accountsImportManage'],
+  },
+  {
+    label: 'Account Category',
+    contentType: 'accounting:account.accountCategories',
+    permissions: ['accountCategoriesImportManage'],
+  },
+  {
+    label: 'Accounts',
+    contentType: 'accounting:account.accounts',
+    permissions: ['accountsImportManage'],
+  },
+  {
+    label: 'Transaction',
+    contentType: 'accounting:account.transactions',
+    permissions: ['transactionsImportManage'],
+  },
+  {
+    label: 'VAT rows',
+    contentType: 'accounting:account.vatRows',
+  },
+];
 
 startPlugin({
   name: 'accounting',
@@ -12,8 +49,8 @@ startPlugin({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
   }),
-
   hasSubscriptions: true,
+  expressRouter: router,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'apollo',
@@ -38,5 +75,40 @@ startPlugin({
 
       return context;
     },
+  },
+  onServerInit: async () => {
+    // await initMQWorkers(redis);
+  },
+  meta: {
+    importExport: {
+      import: {
+        types: accountImportTypes,
+        insertImportRows: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { account: accountImportHandlers },
+          methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+          extractModuleName: (input: TInsertImportRowsInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getImportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { account: accountImportHandlers },
+          methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+          extractModuleName: (input: TGetImportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        batchSkipRow: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { account: accountImportHandlers },
+          methodName: TImportExportProducers.BATCH_SKIP_ROW,
+          extractModuleName: (input: TBatchSkipRowInput) => input.moduleName,
+          generateModels,
+        }),
+      },
+    },
+    afterProcess,
+    permissions,
   },
 });

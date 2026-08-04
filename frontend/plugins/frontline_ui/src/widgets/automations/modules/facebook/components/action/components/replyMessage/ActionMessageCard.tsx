@@ -1,11 +1,10 @@
 import { IconChevronDown, IconLink } from '@tabler/icons-react';
 import { Button, Collapsible, readImage } from 'erxes-ui';
-import { Link } from 'react-router';
 import { useState } from 'react';
+import { Link } from 'react-router';
+import { TAutomationAction, useAutomationOptionalConnect } from 'ui-modules';
 import { REPLY_MESSAGE_ACTION_BUTTONS } from '../../constants/ReplyMessage';
-import { TAutomationAction } from 'ui-modules';
 import { TMessageActionForm } from '../../states/replyMessageActionForm';
-import { useAutomationOptionalConnect } from 'ui-modules';
 
 interface MessageButton {
   _id: string;
@@ -27,9 +26,11 @@ interface ActionMessageCardProps {
 
 function MessageButtonItem({
   button,
+  index,
   actionId,
 }: {
   button: MessageButton;
+  index: number;
   actionId: string;
 }) {
   const OptionConnectHandle = useAutomationOptionalConnect({
@@ -133,10 +134,11 @@ export function ActionMessageCard({
         <CollapsibleTrigger type={type} text={text || title} isOpen={isOpen} />
         <CollapsibleContent text={text} title={title} subtitle={subtitle} />
       </Collapsible>
-      {buttons.map((button) => (
+      {buttons.map((button, index) => (
         <MessageButtonItem
           key={`${button._id}-button`}
           button={button}
+          index={index}
           actionId={actionData.id}
         />
       ))}

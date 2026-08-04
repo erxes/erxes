@@ -1,22 +1,22 @@
 import { Icon, IconProps } from '@tabler/icons-react';
-import { Avatar, Button, readImage, Skeleton } from 'erxes-ui';
+import {
+  Avatar,
+  Button,
+  readImage,
+  RelativeDateDisplay,
+  Skeleton,
+} from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IUser } from 'ui-modules/modules/team-members';
-import { format, isToday, isYesterday, parseISO } from 'date-fns';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules/states/currentUserState';
 
-const getDate = (isoDate: string) => {
-  const date = parseISO(isoDate);
+const getUserDisplayName = (user?: IUser) =>
+  user?.details?.fullName || user?.email || 'Unknown user';
 
-  let display = '';
-
-  if (isToday(date)) {
-    display = `Today, ${format(date, 'HH:mm')}`;
-  } else if (isYesterday(date)) {
-    display = `Yesterday, ${format(date, 'HH:mm')}`;
-  } else {
-    display = format(date, 'yyyy-MM-dd HH:mm');
-  }
-  return display;
+const getUserInitial = (user?: IUser) => {
+  const name = user?.details?.fullName || user?.email || '';
+  return name.charAt(0).toUpperCase() || '?';
 };
 
 export const AssigneeNotificationContent = ({
@@ -36,51 +36,58 @@ export const AssigneeNotificationContent = ({
   Icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>;
   loading?: boolean;
 }) => {
-  const date = getDate(createdAt);
+  const currentUser = useAtomValue(currentUserState);
+  const isSelf = !!(currentUser?._id && fromUser?._id === currentUser._id);
+  const displayName = isSelf ? 'You' : getUserDisplayName(fromUser);
 
   return (
-    <div className="flex flex-col gap-2 w-full max-w-md mx-auto justify-center items-center h-full text-muted-foreground">
-      <div className="size-36 bg-sidebar rounded-2xl border-2 border-dashed flex flex-col items-center justify-center">
+    <div className="flex flex-col gap-3 h-screen justify-center w-full max-w-md mx-auto items-center text-muted-foreground">
+      <div className="size-28 bg-sidebar rounded-2xl border-2 border-dashed flex items-center justify-center">
         <Icon size={64} className="text-accent-foreground" stroke={1} />
       </div>
 
-      <p className="font-bold text-lg font-stretch-extra-expanded capitalize">
-        {contentType}
-      </p>
+      <div className="flex flex-col items-center gap-1 text-center">
+        <span className="text-lg font-semibold text-foreground capitalize">
+          {contentType}
+        </span>
 
-      <div className="flex flex-row items-center gap-2">
-        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm text-foreground">
+        <div className="flex items-center justify-center gap-2 text-sm flex-wrap mt-2">
           <Avatar className="size-6">
             <Avatar.Image
-              src={readImage(fromUser?.details?.avatar || '')}
-              alt={fromUser?.details?.fullName || ''}
+              src={readImage(
+                (isSelf ? currentUser : fromUser)?.details?.avatar || '',
+              )}
+              alt={displayName}
             />
-            <Avatar.Fallback className="rounded-lg">
-              {fromUser?.details?.fullName?.split('')[0]}
+            <Avatar.Fallback className="text-xs">
+              {getUserInitial(isSelf ? currentUser : fromUser)}
             </Avatar.Fallback>
           </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">
-              {fromUser?.details?.fullName || fromUser.email}
-            </span>
-          </div>
-        </div>
-        <p className="text-foreground">
-          {`${action} you on `}
+          <span className="font-medium text-foreground">{displayName}</span>
+          <span>
+            {action} {isSelf ? 'yourself' : 'you'} on
+          </span>
           {loading ? (
-            <Skeleton className="w-8 h-2" />
+            <Skeleton className="w-16 h-4 inline-block" />
           ) : (
-            <span className="font-bold">{name}</span>
+            <span className="font-semibold text-foreground">{name}</span>
           )}
-        </p>
-        <p>{contentType}</p>
+        </div>
+
+        {createdAt && (
+          <span className="text-xs mt-1">
+            <RelativeDateDisplay.Value value={createdAt} />
+          </span>
+        )}
       </div>
-      <p className="text-accent-foreground">{date}</p>
-      <Button variant={'secondary'}>
-        <Link to={`/settings/team-member?user_id=${fromUser._id}`}>
-          {`View ${fromUser?.details?.fullName || fromUser?.email}`}
-        </Link>
-      </Button>
+
+      {fromUser?._id && !isSelf && (
+        <Button asChild variant="secondary" size="sm" className="mt-2">
+          <Link to={`/settings/team/members?user_id=${fromUser._id}`}>
+            View {displayName}
+          </Link>
+        </Button>
+      )}
     </div>
   );
 };

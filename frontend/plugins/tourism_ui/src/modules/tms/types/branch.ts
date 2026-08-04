@@ -20,11 +20,15 @@ export interface IBranch {
   managerIds: string[];
   paymentIds: string[];
   paymentTypes: string[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   departmentId: string;
   token: string;
   erxesAppToken: string;
   permissionConfig: any;
   uiOptions: any;
+  language?: string;
+  languages?: string[];
   managers: IBranchUser[];
   generalManagers: IBranchUser[];
 }

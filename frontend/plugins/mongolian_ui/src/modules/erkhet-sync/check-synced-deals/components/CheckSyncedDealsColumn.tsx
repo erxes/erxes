@@ -4,6 +4,7 @@ import {
   IconCurrencyDollar,
   IconHash,
   IconLabel,
+  IconRefresh,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -12,16 +13,50 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import {
+  CheckSyncedDealStatus,
+  ICheckSyncedDeals,
+} from '../types/checkSyncedDeals';
+import { toSyncDealIdsAtom } from '../hooks/useCheckSyncedDeals';
+import { HeaderCell } from '../../components/HeaderCell';
+import {
+  ToSyncHeaderCell,
+  ToSyncCell,
+} from '../../shared/components/ToSyncColumnComponents';
+import { syncedInfoColumn } from '../../shared/components/SyncedInfoColumns';
 
-import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
-import { CheckSyncedDealsMoreColumn } from './CheckSyncedDealsMoreColumn';
+const syncableStatuses = new Set<CheckSyncedDealStatus>([
+  'checked',
+  'synced',
+  'pending',
+  'error',
+  'resynced',
+]);
+
+const getSyncStatus = (deal: ICheckSyncedDeals): CheckSyncedDealStatus =>
+  deal.syncStatus || 'skipped';
+
+export const isSyncableDeal = (deal: ICheckSyncedDeals) =>
+  syncableStatuses.has(getSyncStatus(deal));
+
+const stringifyAmount = (amount: unknown) => {
+  if (amount == null) {
+    return '';
+  }
+
+  if (typeof amount === 'string') {
+    return amount;
+  }
+
+  return JSON.stringify(amount);
+};
+
 export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
-  CheckSyncedDealsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICheckSyncedDeals>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Deal name" />,
+    header: () => <HeaderCell icon={IconLabel} label="deal-name" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -33,9 +68,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Deal number" />
-    ),
+    header: () => <HeaderCell icon={IconHash} label="deal-number" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -47,15 +80,11 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
-    ),
+    header: () => <HeaderCell icon={IconCurrencyDollar} label="amount" />,
     cell: ({ cell }) => {
-      const amount = cell.getValue() as any;
-      const amountStr = amount ? JSON.stringify(amount) : '';
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={amountStr} />
+          <TextOverflowTooltip value={stringifyAmount(cell.getValue())} />
         </RecordTableInlineCell>
       );
     },
@@ -63,9 +92,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
-    ),
+    header: () => <HeaderCell icon={IconCalendarPlus} label="created-at" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -79,9 +106,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'modifiedAt',
     accessorKey: 'modifiedAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Modified At" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} label="modified-at" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -95,9 +120,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'stageChangedDate',
     accessorKey: 'stageChangedDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Stage Changed Date" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} label="stage-changed-date" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -110,66 +133,45 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   },
   {
     id: 'unSynced',
-    accessorKey: 'unSynced',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Un Synced" />
-    ),
+    accessorKey: 'syncStatus',
+    header: () => <HeaderCell icon={IconCategory} label="sync-status" />,
     cell: ({ cell }) => {
+      const status = (cell.getValue() || 'skipped') as string;
+
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={status} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'syncedDate',
-    accessorKey: 'syncedDate',
+    id: 'toSync',
+    accessorKey: 'toSync',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced Date" />
+      <ToSyncHeaderCell
+        toSyncIdsAtom={toSyncDealIdsAtom}
+        isSyncable={isSyncableDeal}
+        ariaLabel="select-all-deals-to-sync"
+      />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'syncedBillNumber',
-    accessorKey: 'syncedBillNumber',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced bill number" />
+    size: 33,
+    cell: ({ row }) => (
+      <ToSyncCell
+        toSyncIdsAtom={toSyncDealIdsAtom}
+        isSyncable={isSyncableDeal}
+        item={row.original}
+        ariaLabel="select-deal-to-sync"
+      />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
   },
-  {
-    id: 'syncedCustomer',
-    accessorKey: 'syncedCustomer',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced customer" />
-    ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  syncedInfoColumn('syncedDate', 'synced-date'),
+  syncedInfoColumn('syncedBillNumber', 'synced-bill-number'),
+  syncedInfoColumn('syncedCustomer', 'synced-customer'),
   {
     id: 'syncAction',
     accessorKey: 'syncAction',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Sync action" />
-    ),
+    header: () => <HeaderCell icon={IconRefresh} label="sync-action" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

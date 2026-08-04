@@ -1,13 +1,13 @@
-import { useMemo } from 'react';
-import { useAtom } from 'jotai';
-import { pluginsConfigState } from 'ui-modules';
-import { useVersion } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
-import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { IUIConfig } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { type ComponentType, type ElementType, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
+import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 
 export const usePluginsModules = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
+  const { isLoaded, hasPluginPermission, isWildcard } = usePermissionCheck();
 
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'core-modules' });
@@ -17,32 +17,43 @@ export const usePluginsModules = () => {
   const modules = useMemo(() => {
     if (pluginsMetaData) {
       const pluginsModules = Object.values(pluginsMetaData || {}).flatMap(
-        (plugin) =>
-          (plugin.modules || []).map((module) => ({
+        (plugin) => {
+          if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
+            return [];
+          }
+
+          return (plugin.modules || []).map((module) => ({
             ...module,
             pluginName: plugin.name,
-          })),
+          }));
+        },
       );
 
       return [...CORE_MODULES, ...pluginsModules] as IUIConfig['modules'];
     }
     return CORE_MODULES;
-  }, [pluginsMetaData, t, version]);
+  }, [pluginsMetaData, t, version, isLoaded, isWildcard, hasPluginPermission]);
 
   return modules;
 };
 
-interface NavigationGroupResult {
-  icon?: React.ElementType;
-  contents: any[];
-  subGroups: any[];
+export type NavigationGroupContent = ComponentType;
+
+export interface NavigationGroupResult {
+  icon?: ElementType;
+  contents: NavigationGroupContent[];
+  defaultPath: string;
+  subGroups: NavigationGroupContent[];
+  modules: NonNullable<IUIConfig['modules']>;
   name: string;
+  i18n?: boolean;
 }
 
 type NavigationGroups = Record<string, NavigationGroupResult>;
 
 export const usePluginsNavigationGroups = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
+  const { isLoaded, hasPluginPermission, isWildcard } = usePermissionCheck();
 
   const navigationGroups = useMemo(() => {
     if (!pluginsMetaData) {
@@ -51,11 +62,19 @@ export const usePluginsNavigationGroups = () => {
 
     return Object.values(pluginsMetaData).reduce<NavigationGroups>(
       (acc, plugin) => {
+        if (!plugin?.modules?.length) return acc;
+
+        if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
+          return acc;
+        }
+
         const groupName = plugin.navigationGroup?.name || plugin.name;
 
         const existingGroup = acc[groupName] || {
           contents: [],
+          defaultPath: plugin.path,
           subGroups: [],
+          modules: [],
         };
 
         const newContent = plugin.navigationGroup?.content;
@@ -72,14 +91,18 @@ export const usePluginsNavigationGroups = () => {
           name: groupName,
           icon: plugin.navigationGroup?.icon || existingGroup.icon,
           contents: updatedContents,
+          defaultPath:
+            plugin.navigationGroup?.defaultPath || existingGroup.defaultPath,
           subGroups: updatedSubGroups,
+          modules: [...existingGroup.modules, ...(plugin.modules || [])],
+          i18n: plugin.i18n || existingGroup.i18n,
         };
 
         return acc;
       },
       {},
     );
-  }, [pluginsMetaData]);
+  }, [pluginsMetaData, isLoaded, isWildcard, hasPluginPermission]);
 
   return navigationGroups;
 };

@@ -1,4 +1,3 @@
-import { AccountingDialog } from '@/layout/components/Dialog';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
@@ -12,6 +11,7 @@ import {
   Textarea,
   Select,
 } from 'erxes-ui';
+import type { CurrencyCode } from 'erxes-ui/types';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -29,6 +29,9 @@ import { IAdjustDebtRate } from '../types/AdjustDebtRate';
 import { FILTERED_CURRENCIES } from '../constants';
 import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
 
+const getCurrencyCode = (value: string) =>
+  value in FILTERED_CURRENCIES ? (value as CurrencyCode) : undefined;
+
 export const AddAdjustDebtRate = () => {
   const [open, setOpen] = useState(false);
   return (
@@ -39,12 +42,12 @@ export const AddAdjustDebtRate = () => {
           Add Debt Rate Adjustment
         </Button>
       </Dialog.Trigger>
-      <AccountingDialog
+      <Dialog.ContentCombined
         title="Debt Rate Adjustment"
         description="Create a new debt rate adjustment"
       >
         <AdjustDebtRateFormContent setOpen={setOpen} />
-      </AccountingDialog>
+      </Dialog.ContentCombined>
     </Dialog>
   );
 };
@@ -60,7 +63,7 @@ export const EditAdjustDebtRate = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <AccountingDialog
+      <Dialog.ContentCombined
         title="Edit Debt Rate Adjustment"
         description="Update debt rate adjustment"
       >
@@ -68,7 +71,7 @@ export const EditAdjustDebtRate = ({
           setOpen={setOpen}
           adjustDebtRate={adjustDebtRate}
         />
-      </AccountingDialog>
+      </Dialog.ContentCombined>
     </Dialog>
   );
 };
@@ -177,7 +180,7 @@ const AdjustDebtRateFormContent = ({
     <Form {...form}>
       <form
         className="p-6 flex-auto overflow-auto"
-        onSubmit={form.handleSubmit(onSubmit, onError)}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <h3 className="text-lg font-bold mb-4">
           {adjustDebtRate ? 'Edit' : 'Create'} Debt Rate Adjustment
@@ -194,7 +197,7 @@ const AdjustDebtRateFormContent = ({
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
-                    value={field.value as any}
+                    value={getCurrencyCode(field.value)}
                     onChange={field.onChange}
                     currencies={FILTERED_CURRENCIES}
                   />
@@ -214,7 +217,7 @@ const AdjustDebtRateFormContent = ({
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
-                    value={field.value as any}
+                    value={getCurrencyCode(field.value)}
                     onChange={field.onChange}
                     currencies={FILTERED_CURRENCIES}
                   />

@@ -1,6 +1,7 @@
 import { Button, PageContainer } from 'erxes-ui';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BoardsList } from '~/modules/deals/boards/components/settings/BoardsList';
 import { IconSandbox } from '@tabler/icons-react';
@@ -21,27 +22,25 @@ const PosEditPage = lazy(() =>
 );
 
 const DealsSettings = () => {
+  const { t } = useTranslation('sales');
   return (
-    <PageContainer className="flex-row">
-      <BoardsList />
-      <div className="flex overflow-hidden relative flex-col flex-1">
-        <SettingsHeader breadcrumbs={[]}>
-          <Button variant="ghost" className="font-semibold">
-            <IconSandbox className="w-4 h-4 text-accent-foreground" />
-            Boards & Pipelines
-          </Button>
-          <PipelineFormBar />
-        </SettingsHeader>
-        <div className="flex overflow-hidden flex-auto w-full">
-          <div className="flex overflow-hidden flex-col w-full">
-            <PipelineRecordTable />
-          </div>
+    <PageContainer>
+      <SettingsHeader breadcrumbs={[]}>
+        <Button variant="ghost" className="font-semibold">
+          <IconSandbox className="w-4 h-4 text-accent-foreground" />
+          {t('boards-and-pipelines')}
+        </Button>
+        <PipelineFormBar />
+      </SettingsHeader>
+      <div className="flex flex-auto overflow-hidden">
+        <BoardsList />
+        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+          <PipelineRecordTable />
         </div>
       </div>
     </PageContainer>
   );
 };
-
 
 const Settings = () => {
   return (
@@ -50,7 +49,7 @@ const Settings = () => {
         <Route path="/deals" element={<DealsSettings />} />
         <Route path="/pos" element={<PosSettingsPage />} />
         <Route path="/pos/:id" element={<PosEditPage />} />
-        <Route path="/" element={<Navigate to="/deals" replace />} />
+        <Route path="/" element={<Navigate to="deals" replace />} />
       </Routes>
     </Suspense>
   );

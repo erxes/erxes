@@ -13,6 +13,9 @@ export const NavigationMenuLinkItem = forwardRef<
     path: string;
     pathPrefix?: string;
     isActive?: boolean;
+    label?: React.ReactNode;
+    action?: React.ReactNode;
+    itemClassName?: string;
   }
 >(
   (
@@ -24,6 +27,9 @@ export const NavigationMenuLinkItem = forwardRef<
       children,
       className,
       isActive: isActiveProp,
+      label,
+      action,
+      itemClassName,
       ...props
     },
     ref,
@@ -33,11 +39,12 @@ export const NavigationMenuLinkItem = forwardRef<
       ? `${pathPrefix.replace(/\/$/, '')}/`
       : '';
     const normalizedPath = path.replace(/^\//, '');
-    const fullPath = `/${normalizedPathPrefix}${normalizedPath}`;
+    const fullPath =
+      `/${normalizedPathPrefix}${normalizedPath}`.replace(/\/$/, '') || '/';
     const isActive = pathname.startsWith(fullPath);
 
     return (
-      <Sidebar.MenuItem>
+      <Sidebar.MenuItem className={itemClassName}>
         <Sidebar.MenuButton
           asChild
           isActive={isActiveProp ? isActiveProp : isActive}
@@ -46,7 +53,7 @@ export const NavigationMenuLinkItem = forwardRef<
           {...props}
         >
           <Link to={fullPath}>
-            {!!IconComponent && (
+            {IconComponent && (
               <IconComponent
                 className={cn(
                   'text-accent-foreground',
@@ -54,10 +61,13 @@ export const NavigationMenuLinkItem = forwardRef<
                 )}
               />
             )}
-            <span className="capitalize">{name}</span>
+            {label || (
+              <span className="min-w-0 flex-1 truncate capitalize">{name}</span>
+            )}
             {children}
           </Link>
         </Sidebar.MenuButton>
+        {action}
       </Sidebar.MenuItem>
     );
   },
@@ -91,9 +101,7 @@ export const NavigationMenuItem = forwardRef<
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton ref={ref} {...props}>
-        {!!IconComponent && (
-          <IconComponent className="text-accent-foreground" />
-        )}
+        {IconComponent && <IconComponent className="text-accent-foreground" />}
         <span className="capitalize">{name}</span>
       </Sidebar.MenuButton>
     </Sidebar.MenuItem>
@@ -113,7 +121,15 @@ export const NavigationMenuGroup = forwardRef<
   }
 >(
   (
-    { name, children, separate = true, defaultOpen = true, actions, ...props },
+    {
+      name,
+      children,
+      separate = true,
+      defaultOpen = true,
+      actions,
+      className,
+      ...props
+    },
     ref,
   ) => {
     return (
@@ -123,7 +139,11 @@ export const NavigationMenuGroup = forwardRef<
           defaultOpen={defaultOpen}
           className="group/collapsible-menu"
         >
-          <Sidebar.Group {...props} ref={ref}>
+          <Sidebar.Group
+            {...props}
+            className={cn('group/navigation-menu', className)}
+            ref={ref}
+          >
             <Sidebar.GroupLabel asChild>
               <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
                 <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
@@ -131,7 +151,7 @@ export const NavigationMenuGroup = forwardRef<
                   {name}
                 </span>
                 {actions && (
-                  <div className="ml-auto invisible group-hover/collapsible-trigger:visible hover:[&_button]:bg-transparent hover:[&_button]:text-foreground focus-visible:[&_button]:outline-hidden focus-visible:[&_button]:ring-0">
+                  <div className="invisible ml-auto group-hover/collapsible-trigger:visible hover:[&_button]:bg-transparent hover:[&_button]:text-foreground focus-visible:[&_button]:outline-hidden focus-visible:[&_button]:ring-0">
                     {actions}
                   </div>
                 )}

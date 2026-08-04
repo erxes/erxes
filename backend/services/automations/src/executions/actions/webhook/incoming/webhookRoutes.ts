@@ -1,4 +1,4 @@
-import { incomingWebhookRouter } from '@/executions/actions/webhook/incoming/incomingWebhook';
+import { incomingWebhookRouter } from './incomingWebhook';
 import { Router } from 'express';
 
 export const webhookRoutes: Router = Router();

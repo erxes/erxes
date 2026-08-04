@@ -1,4 +1,5 @@
 import { IOrderInput } from 'erxes-api-shared/core-types';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IStageDocument } from '~/modules/sales/@types';
 import { bulkUpdateOrders } from '~/modules/sales/utils';
@@ -12,6 +13,7 @@ export const stageMutations = {
     { orders }: { orders: IOrderInput[] },
     { models }: IContext,
   ) {
+    // No permission check required
     return models.Stages.updateOrder(orders);
   },
 
@@ -21,9 +23,27 @@ export const stageMutations = {
   async salesStagesEdit(
     _root,
     { _id, ...doc }: IStageDocument,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    return await models.Stages.updateStage(_id, doc);
+    await checkPermission('stagesEdit');
+
+    const oldStage = await models.Stages.getStage(_id);
+    const updated = await models.Stages.updateStage(_id, doc);
+
+    if (doc.status && doc.status !== oldStage.status) {
+      await graphqlPubsub.publish(
+        `salesPipelinesChanged:${updated.pipelineId}`,
+        {
+          salesPipelinesChanged: {
+            _id: updated.pipelineId,
+            action: 'stageStatusChanged',
+            data: { stageId: updated._id, status: updated.status },
+          },
+        },
+      );
+    }
+
+    return updated;
   },
 
   /**
@@ -32,8 +52,9 @@ export const stageMutations = {
   async salesStagesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('stagesRemove');
     return await models.Stages.removeStage(_id);
   },
 
@@ -48,8 +69,10 @@ export const stageMutations = {
       processId: string;
       sortType: string;
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('itemsSort');
+
     const sortTypes = {
       'created-asc': { createdAt: 1 },
       'created-desc': { createdAt: -1 },

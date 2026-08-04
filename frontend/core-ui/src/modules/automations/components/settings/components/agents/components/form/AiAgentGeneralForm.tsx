@@ -1,11 +1,12 @@
+import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 
 export const AiAgentGeneralForm = () => {
-  const { control } = useFormContext();
+  const { control } = useFormContext<TAiAgentForm>();
 
   return (
-    <>
+    <div className="grid gap-4">
       <Form.Field
         control={control}
         name="name"
@@ -15,26 +16,14 @@ export const AiAgentGeneralForm = () => {
             <Form.Control>
               <Input
                 type="text"
-                placeholder="Enter your ai agent name"
+                placeholder="Facebook Order Router"
                 {...field}
               />
             </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="description"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>description</Form.Label>
-            <Form.Control>
-              <Textarea
-                placeholder="Enter your ai agent description"
-                {...field}
-              />
-            </Form.Control>
+            <Form.Description>
+              Give the agent a clear name so it is easy to pick inside
+              automation actions.
+            </Form.Description>
             <Form.Message />
           </Form.Item>
         )}
@@ -42,33 +31,25 @@ export const AiAgentGeneralForm = () => {
 
       <Form.Field
         control={control}
-        name="prompt"
+        name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>prompt</Form.Label>
-            <Form.Control>
-              <Textarea placeholder="Enter your ai agent prompt" {...field} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="instructions"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>instructions</Form.Label>
+            <Form.Label>Description</Form.Label>
             <Form.Control>
               <Textarea
-                placeholder="Enter your ai agent instructions"
+                rows={5}
+                placeholder="Routes Facebook conversations, classifies intents, and extracts order attributes for downstream automation steps."
                 {...field}
               />
             </Form.Control>
+            <Form.Description>
+              Describe what this agent is meant to do for the team and for
+              future automation builders.
+            </Form.Description>
             <Form.Message />
           </Form.Item>
         )}
       />
-    </>
+    </div>
   );
 };

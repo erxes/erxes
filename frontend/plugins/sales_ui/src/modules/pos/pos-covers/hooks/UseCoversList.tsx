@@ -1,14 +1,16 @@
 import { useQuery } from '@apollo/client';
 import { useMemo, useCallback, useEffect } from 'react';
-import queries from '~/modules/pos/pos-covers/graphql/queries/queries';
 import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { useMultiQueryState, parseDateRangeFromString } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { posCoverTotalCountAtom } from '../states/usePosCoversCounts';
+import { posCovers } from '../graphql/queries/queries';
+import { useTranslation } from 'react-i18next';
 
 const COVERS_PER_PAGE = 30;
 
 interface UseCoversListOptions {
+  posId?: string;
   [key: string]: any;
 }
 
@@ -26,28 +28,35 @@ interface UseCoversListReturn {
 }
 
 export const useCoversVariables = (options: UseCoversListOptions = {}) => {
-  const [{ pos, user, dateRange }] = useMultiQueryState<{
-    pos: string;
-    user: string;
-    dateRange: string;
-  }>(['pos', 'user', 'dateRange']);
+  const { posId, ...otherOptions } = options;
+  const [{ pos, user, dateRange, sortField, sortDirection }] =
+    useMultiQueryState<{
+      pos: string;
+      user: string;
+      dateRange: string;
+      sortField: string;
+      sortDirection: string;
+    }>(['pos', 'user', 'dateRange', 'sortField', 'sortDirection']);
 
   return {
+    sortField: sortField || 'createdAt',
+    sortDirection: sortDirection || '-1',
     perPage: COVERS_PER_PAGE,
-    posId: pos || undefined,
+    posId: posId !== undefined ? posId : pos || undefined,
     userId: user || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
-    ...options,
+    ...otherOptions,
   };
 };
 
 export const useCoversList = (
   options: UseCoversListOptions = {},
 ): UseCoversListReturn => {
+  const { t } = useTranslation('sales');
   const variables = useCoversVariables(options);
   const setPosCoverTotalCount = useSetAtom(posCoverTotalCountAtom);
-  const { data, loading, fetchMore } = useQuery(queries.posCovers, {
+  const { data, loading, fetchMore } = useQuery(posCovers, {
     variables,
   });
 
@@ -55,14 +64,14 @@ export const useCoversList = (
     () =>
       data?.posCovers?.map((cover: ICovers) => ({
         _id: cover._id,
-        name: cover.posName,
+        posName: cover.posName,
         status: cover.status,
         beginDate: cover.beginDate,
         endDate: cover.endDate,
         description: cover.description,
         note: cover.note,
         createdAt: cover.createdAt,
-        createdBy: cover?.createdUser?.email || 'Unknown',
+        createdBy: cover?.createdUser?.email || t('unknown'),
       })) || [],
     [data?.posCovers],
   );

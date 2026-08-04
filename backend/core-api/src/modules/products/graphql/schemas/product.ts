@@ -1,6 +1,16 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  enum ProductDurationType {
+    minute
+    hour
+    day
+    week
+    month
+    quarter
+    year
+  }
+
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
@@ -14,25 +24,39 @@ export const types = `
     barcodeDescription: String
     unitPrice: Float
     categoryId: String
-    customFieldsData: JSON
-    customFieldsDataByFieldCode: JSON
+    propertiesData: JSON
     createdAt: Date
     tagIds: [String]
     attachment: Attachment
     attachmentMore: [Attachment]
+    videos: [Attachment]
     vendorId: String
     scopeBrandIds: [String]
     uom: String
     subUoms: JSON
     currency: String
+    duration: Float
+    durationType: ProductDurationType
 
     category: ProductCategory
     vendor: Company
     hasSimilarity: Boolean
+    similarityId: String
+    similarity: ProductBulkSimilarity
 
     pdfAttachment: PdfAttachment
 
     cursor: String
+    inventories: JSON
+    discounts: JSON
+
+    remainder: JSON
+    discount(
+      branchId: String
+      departmentId: String
+      pipelineId: String
+      discountConditions: JSON
+    ): JSON
   }
 
   type ProductSimilarityGroup {
@@ -71,15 +95,27 @@ const queryParams = `
   segment: String,
   segmentData: String,
   groupedSimilarity: String,
+  similarity: Boolean,
   image: String,
   brand: String,
 
-  ${GQL_CURSOR_PARAM_DEFS}
+  branchId: String,
+  departmentId: String,
+  minRemainder: Float,
+  maxRemainder: Float,
+  minPrice: Float,
+  maxPrice: Float,
+  minDiscountValue: Float,
+  maxDiscountValue: Float,
+  minDiscountPercent: Float,
+  maxDiscountPercent: Float,
+  discountConditions: JSON,
 `;
 
 export const queries = `
   productsMain(
     ${queryParams}
+    ${GQL_CURSOR_PARAM_DEFS}
     sortField: String,
     sortDirection: Int,
   ): ProductsListResponse
@@ -94,6 +130,15 @@ export const queries = `
   productDetail(_id: String): Product
   productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
   productCountByTags: JSON
+
+  cpProducts(
+    ${queryParams}
+    page: Int,
+    perPage: Int,
+    sortField: String,
+    sortDirection: Int,
+  ): [Product]
+  cpProductDetail(_id: String): Product
 `;
 
 export const mutationParams = `
@@ -107,14 +152,17 @@ export const mutationParams = `
   barcodeDescription: String,
   unitPrice: Float,
   code: String,
-  customFieldsData: JSON,
+  propertiesData: JSON
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
+  videos: [AttachmentInput],
   vendorId: String,
   scopeBrandIds: [String],
   uom: String,
   subUoms: JSON,
   currency: String
+  duration: Float
+  durationType: ProductDurationType
   pdfAttachment: PdfAttachmentInput
 `;
 

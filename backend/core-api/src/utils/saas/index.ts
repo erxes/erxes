@@ -39,7 +39,7 @@ export const ssocallback = async (req: any, res) => {
   const workosClient = new WorkOS(getEnv({ name: 'WORKOS_API_KEY' }));
 
   try {
-    const sub = subdomain || (await getSubdomain(req));
+    const sub = subdomain || getSubdomain(req);
     const models = await generateModels(sub);
     const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
     const { profile } = await workosClient.sso.getProfileAndToken({

@@ -1,14 +1,23 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model, SortOrder } from 'mongoose';
 
-import { IPost, IPostDocument } from '@/cms/@types/posts';
+import {
+  IPost,
+  IPostDocument,
+  IPostReactionCounts,
+  POST_REACTION_TYPES,
+  PostReactionType,
+} from '@/cms/@types/posts';
 import { IModels } from '~/connectionResolvers';
-import slugify from 'slugify';
 import { htmlToText } from 'html-to-text';
 import { postSchema } from '@/cms/db/definitions/posts';
-import { generateUniqueSlug } from '@/cms/utils/common';
+import {
+  createSlug,
+  generateUniqueSlug,
+  generateUniqueSlugWithExclusion,
+} from '@/cms/utils/common';
 
 export interface IPostModel extends Model<IPostDocument> {
-  getPosts: (query: any) => Promise<IPostDocument[]>;
+  getPosts: (query: FilterQuery<IPostDocument>) => Promise<IPostDocument[]>;
   createPost: (doc: IPost) => Promise<IPostDocument>;
   updatePost: (_id: string, doc: IPost) => Promise<IPostDocument>;
   deletePost: (_id: string) => Promise<IPostDocument>;
@@ -16,7 +25,13 @@ export interface IPostModel extends Model<IPostDocument> {
     _id: string,
     status: 'draft' | 'published' | 'archived' | 'scheduled',
   ) => Promise<IPostDocument>;
+  duplicatePost: (_id: string, authorId?: string) => Promise<IPostDocument>;
   increaseViewCount: (_id: string) => Promise<IPostDocument>;
+  updateReactionCount: (
+    _id: string,
+    reaction: PostReactionType,
+    modifyType: 'inc' | 'dec',
+  ) => Promise<IPostDocument>;
   toggleFeatured: (_id: string) => Promise<IPostDocument>;
 }
 
@@ -29,38 +44,81 @@ const prepareExcerpt = (content: string) => {
     : plainTextContent;
 };
 
-export const loadPostClass = (models: IModels) => {
-  class Posts {
-    public static async generateUniqueSlug(
-      title: string,
-      attempt = 0,
-    ): Promise<string> {
-      let baseSlug = slugify(title, { lower: true });
+const prepareSlug = (slug?: string | null) => {
+  const slugValue = slug?.trim();
 
-      // If it's a retry attempt, append the attempt number to the slug
-      if (attempt > 0) {
-        baseSlug = `${baseSlug}-${attempt}`;
-      }
+  return slugValue ? createSlug(slugValue) : '';
+};
 
-      // Check if the slug already exists
-      const existingPost = await models.Posts.findOne({ slug: baseSlug });
+const isValidReactionType = (reaction: string): reaction is PostReactionType =>
+  POST_REACTION_TYPES.includes(reaction as PostReactionType);
 
-      // If a post with this slug exists, recursively try again with an incremented attempt number
-      if (existingPost) {
-        return this.generateUniqueSlug(title, attempt + 1);
-      }
+const normalizeReactions = (reactions?: string[]): PostReactionType[] => {
+  if (!Array.isArray(reactions)) {
+    return [];
+  }
 
-      // Return the unique slug
-      return baseSlug;
+  return Array.from(new Set(reactions.filter(isValidReactionType)));
+};
+
+const normalizeReactionCounts = (
+  reactionCounts?: IPostReactionCounts,
+): IPostReactionCounts => {
+  if (!reactionCounts || typeof reactionCounts !== 'object') {
+    return {};
+  }
+
+  return POST_REACTION_TYPES.reduce((acc, reaction) => {
+    const value = reactionCounts[reaction];
+
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+      acc[reaction] = Math.trunc(value);
     }
 
-    public static getPosts = async (query: any, sort: any) => {
-      return models.Posts.find(query).sort(sort).lean();
+    return acc;
+  }, {} as IPostReactionCounts);
+};
+
+const normalizeReactionFields = (doc: Partial<IPost>) => {
+  if ('reactions' in doc) {
+    doc.reactions = normalizeReactions(doc.reactions as string[]);
+  }
+
+  if ('reactionCounts' in doc) {
+    doc.reactionCounts = normalizeReactionCounts(doc.reactionCounts);
+  }
+};
+
+export const loadPostClass = (models: IModels) => {
+  class Posts {
+    public static getNextPostCount = async (clientPortalId: string) => {
+      const latestPostWithCount = await models.Posts.findOne({
+        clientPortalId,
+        count: { $exists: true },
+      })
+        .sort({ count: -1 })
+        .select({ count: 1 })
+        .lean();
+
+      if (typeof latestPostWithCount?.count === 'number') {
+        return latestPostWithCount.count + 1;
+      }
+
+      return models.Posts.countDocuments({ clientPortalId });
+    };
+
+    public static readonly getPosts = async (
+      query: FilterQuery<IPostDocument>,
+      sort: Record<string, SortOrder>,
+    ) => {
+      return await models.Posts.find(query).sort(sort).lean();
     };
 
     public static createPost = async (doc: IPost) => {
-      if (!doc.slug && doc.title) {
-        const baseSlug = slugify(doc.title, { lower: true });
+      normalizeReactionFields(doc);
+
+      if (doc.slug || doc.title) {
+        const baseSlug = prepareSlug(doc.slug || doc.title);
         doc.slug = await generateUniqueSlug(
           models.Posts,
           doc.clientPortalId,
@@ -77,24 +135,39 @@ export const loadPostClass = (models: IModels) => {
         doc.publishedDate = new Date();
       }
 
+      if (doc.count === undefined) {
+        doc.count = await this.getNextPostCount(doc.clientPortalId);
+      }
+
       return models.Posts.create(doc);
     };
 
     public static updatePost = async (_id: string, doc: IPost) => {
-      if (!doc.slug && doc.title) {
-        const baseSlug = slugify(doc.title, { lower: true });
-        doc.slug = await generateUniqueSlug(
-          models.Posts,
-          doc.clientPortalId,
-          'slug',
-          baseSlug,
-        );
-      }
+      normalizeReactionFields(doc);
 
       const post = await models.Posts.findOne({ _id });
 
       if (!post) {
         throw new Error('Post not found');
+      }
+
+      const clientPortalId = doc.clientPortalId || post.clientPortalId;
+
+      if (doc.slug !== undefined) {
+        const baseSlug = prepareSlug(doc.slug);
+
+        if (!baseSlug) {
+          throw new Error('Slug is required');
+        }
+
+        doc.slug = await generateUniqueSlugWithExclusion(
+          models.Posts,
+          clientPortalId,
+          'slug',
+          baseSlug,
+          _id,
+          1,
+        );
       }
 
       if (doc.content && !doc.excerpt && !post.excerpt) {
@@ -114,6 +187,63 @@ export const loadPostClass = (models: IModels) => {
       return models.Posts.deleteOne({ _id });
     };
 
+    public static readonly duplicatePost = async (
+      _id: string,
+      authorId?: string,
+    ) => {
+      const post = await models.Posts.findOne({ _id }).lean();
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      const {
+        _id: _sourceId,
+        count: _count,
+        slug: _slug,
+        viewCount: _viewCount,
+        recentViewCount: _recentViewCount,
+        reactionCounts: _reactionCounts,
+        publishedDate: _publishedDate,
+        featuredDate: _featuredDate,
+        scheduledDate: _scheduledDate,
+        autoArchiveDate: _autoArchiveDate,
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        ...rest
+      } = post as unknown as IPost & {
+        _id: string;
+        createdAt?: Date;
+        updatedAt?: Date;
+      };
+
+      const duplicated = await this.createPost({
+        ...rest,
+        title: `${post.title} (Copy)`,
+        // createPost regenerates a unique slug from the new title
+        slug: '',
+        status: 'draft',
+        featured: false,
+        ...(authorId ? { authorId, authorKind: 'user' } : {}),
+      });
+
+      const translations = await models.Translations.find({
+        objectId: _id,
+      }).lean();
+
+      if (translations.length) {
+        await models.Translations.insertMany(
+          translations.map(({ _id: _translationId, ...translation }) => ({
+            ...translation,
+            objectId: duplicated._id,
+            title: translation.title ? `${translation.title} (Copy)` : '',
+          })),
+        );
+      }
+
+      return duplicated;
+    };
+
     public static changeStatus = async (
       _id: string,
       status: 'draft' | 'published' | 'archived' | 'scheduled',
@@ -131,11 +261,63 @@ export const loadPostClass = (models: IModels) => {
     };
 
     public static increaseViewCount = async (_id: string) => {
-      return models.Posts.findOneAndUpdate(
+      const post = await models.Posts.findOneAndUpdate(
         { _id },
         { $inc: { viewCount: 1 } },
         { new: true },
       );
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      await models.PostViews.incrementDailyCount(_id, post.clientPortalId);
+
+      return post;
+    };
+
+    public static updateReactionCount = async (
+      _id: string,
+      reaction: PostReactionType,
+      modifyType: 'inc' | 'dec',
+    ) => {
+      if (!isValidReactionType(reaction)) {
+        throw new Error('Invalid reaction type');
+      }
+
+      const post = await models.Posts.findOne({ _id });
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      const enabledReactions = normalizeReactions(post.reactions as string[]);
+
+      if (!enabledReactions.length) {
+        throw new Error('Reactions are not enabled for this post');
+      }
+
+      if (!enabledReactions.includes(reaction)) {
+        throw new Error('Reaction is not enabled for this post');
+      }
+
+      const reactionCounts = normalizeReactionCounts(
+        post.reactionCounts as IPostReactionCounts,
+      );
+      const nextCount = Math.max(
+        (reactionCounts[reaction] || 0) + (modifyType === 'inc' ? 1 : -1),
+        0,
+      );
+
+      if (nextCount > 0) {
+        reactionCounts[reaction] = nextCount;
+      } else {
+        delete reactionCounts[reaction];
+      }
+
+      post.reactionCounts = reactionCounts;
+
+      return post.save();
     };
 
     public static toggleFeatured = async (_id: string) => {

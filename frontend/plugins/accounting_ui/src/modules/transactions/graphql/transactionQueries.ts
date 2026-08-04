@@ -1,24 +1,33 @@
 import { gql } from '@apollo/client';
-import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS, GQL_PAGE_INFO } from 'erxes-ui';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_CURSOR_PARAMS,
+  GQL_PAGE_INFO,
+} from 'erxes-ui';
 
 export const commonTrDetailFields = `
   _id
   accountId
   transactionId
+  branchId
+  departmentId
   originId
   originType
   originSubId
   followInfos
 
-  side
   amount
   currencyAmount
   customRate
   assignedUserId
 
   productId
+  fixedAssetId
   count
   unitPrice
+
+  excludeVat
+  excludeCtax
 `;
 
 export const commonTransactionFields = `
@@ -26,6 +35,7 @@ export const commonTransactionFields = `
   ptrId
   parentId
   number
+  ptrNumber
   ptrStatus
   createdAt
   updatedAt
@@ -33,7 +43,11 @@ export const commonTransactionFields = `
   date
   description
   status
+  mentionOwnerId
+  mentionUserIds
   journal
+  side
+  relAccounts
   originId
   originType
   originSubId
@@ -122,6 +136,8 @@ export const commonTransactionFields = `
   }
 
   extraData
+  contentType
+  contentId
 
   permission
 `;
@@ -130,8 +146,13 @@ const trsFilterParamDefs = `
   $ids: [String],
   $excludeIds: Boolean,
   $status: String,
+  $mentionOwnerId: String,
+  $mentionUserId: String,
   $searchValue: String,
   $number: String,
+
+  $customerType: String,
+  $customerId: String,
 
   $accountIds: [String],
   $accountKind: String,
@@ -175,8 +196,12 @@ const trsFilterParams = `
   ids: $ids,
   excludeIds: $excludeIds,
   status: $status,
+  mentionOwnerId: $mentionOwnerId,
+  mentionUserId: $mentionUserId,
   searchValue: $searchValue,
   number: $number,
+  customerType: $customerType,
+  customerId: $customerId,
 
   accountIds: $accountIds,
   accountKind: $accountKind,

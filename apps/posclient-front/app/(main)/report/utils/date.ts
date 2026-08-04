@@ -14,8 +14,8 @@ export const combineDateTime = (date: Date | null, timeString: string | null): D
     return null;
   }
 
-  const hours = parseInt(match[1], 10);
-  const minutes = parseInt(match[2], 10);
+  const hours = Number.parseInt(match[1], 10);
+  const minutes = Number.parseInt(match[2], 10);
 
   try {
     const combinedDate = set(date, { 

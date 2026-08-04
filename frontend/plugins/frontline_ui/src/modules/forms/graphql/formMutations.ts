@@ -10,6 +10,7 @@ export const FORMS_ADD = gql`
     $buttonText: String
     $numberOfPages: Int
     $leadData: JSON
+    $integrationId: String
   ) {
     formsAdd(
       name: $name
@@ -20,6 +21,7 @@ export const FORMS_ADD = gql`
       buttonText: $buttonText
       numberOfPages: $numberOfPages
       leadData: $leadData
+      integrationId: $integrationId
     ) {
       _id
     }
@@ -32,12 +34,14 @@ export const FORM_BULK_ACTION = gql`
     $contentTypeId: String
     $newFields: [FrontlineFieldItem]
     $updatedFields: [FrontlineFieldItem]
+    $removedFieldIds: [String]
   ) {
     frontlineFieldsBulkAction(
       contentType: $contentType
       contentTypeId: $contentTypeId
       newFields: $newFields
       updatedFields: $updatedFields
+      removedFieldIds: $removedFieldIds
     ) {
       _id
     }
@@ -45,8 +49,8 @@ export const FORM_BULK_ACTION = gql`
 `;
 
 export const FORM_REMOVE = gql`
-  mutation FormsRemove($id: String!) {
-    formsRemove(_id: $id)
+  mutation FormsRemove($_ids: [String]) {
+    formsRemove(_ids: $_ids)
   }
 `;
 
@@ -61,6 +65,7 @@ export const FORM_EDIT = gql`
     $buttonText: String
     $numberOfPages: Int
     $leadData: JSON
+    $integrationId: String
   ) {
     formsEdit(
       _id: $id
@@ -72,7 +77,25 @@ export const FORM_EDIT = gql`
       buttonText: $buttonText
       numberOfPages: $numberOfPages
       leadData: $leadData
+      integrationId: $integrationId
     ) {
+      _id
+    }
+  }
+`;
+
+export const FORM_TOGGLE_STATUS = gql`
+  mutation FormsToggleStatus($ids: [String]!, $status: String) {
+    formsToggleStatus(_ids: $ids, status: $status)
+  }
+`;
+
+export const CRAETE_LEAD_INTEGRATION = gql`
+  mutation IntegrationsCreateLeadIntegration(
+    $name: String!
+    $channelId: String
+  ) {
+    integrationsCreateLeadIntegration(name: $name, channelId: $channelId) {
       _id
     }
   }

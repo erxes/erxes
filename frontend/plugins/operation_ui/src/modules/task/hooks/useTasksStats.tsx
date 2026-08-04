@@ -1,14 +1,14 @@
-import { useQuery } from '@apollo/client';
-import { useMemo } from 'react';
-import { GET_TASKS } from '@/task/graphql/queries/getTasks';
-import { useProjects } from '@/project/hooks/useGetProjects';
-import { ITask } from '@/task/types';
-import { IProject } from '@/project/types';
-import { useTags } from 'ui-modules';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/operation/constants/priorityLabels';
-import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
+import { useProjects } from '@/project/hooks/useGetProjects';
+import { IProject } from '@/project/types';
+import { GET_TASKS } from '@/task/graphql/queries/getTasks';
+import { ITask } from '@/task/types';
+import { useQuery } from '@apollo/client';
 import { useNonNullMultiQueryState } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { currentUserState, useTags } from 'ui-modules';
 
 export interface IStatItem {
   id: string;
@@ -38,6 +38,7 @@ export const useTasksStats = ({
   teamId,
   userId,
 }: UseTasksStatsProps): UseTasksStatsReturn => {
+  const { t } = useTranslation('operation');
   const currentUser = useAtomValue(currentUserState);
   const {
     searchValue,
@@ -267,7 +268,7 @@ export const useTasksStats = ({
           id: projectId,
           name:
             project?.name ||
-            (projectId === 'no-project' ? 'No Project' : 'Unknown Project'),
+            (projectId === 'no-project' ? t('no-project-label') : t('unknown-project')),
           totalTasks: stats.total,
           completedTasks: stats.completed,
           startedTasks: stats.started,

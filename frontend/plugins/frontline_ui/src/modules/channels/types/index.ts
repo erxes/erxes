@@ -22,6 +22,9 @@ export interface IChannel {
   memberCount: number;
   pipelineCount: number;
   responseTemplateCount: number;
+  formCount: number;
+  integrationCount?: number;
+  integrationKinds?: string[];
 }
 
 export interface IChannelMember {

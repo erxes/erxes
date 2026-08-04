@@ -94,7 +94,15 @@ export const groupByCategoryAggregator = (isCount = false) => {
                 {
                   $setIsSubset: [
                     '$category.similarities.fieldId',
-                    '$customFieldsData.field',
+                    {
+                      $map: {
+                        input: {
+                          $objectToArray: { $ifNull: ['$propertiesData', {}] },
+                        },
+                        as: 'property',
+                        in: '$$property.k',
+                      },
+                    },
                   ],
                 },
               ],

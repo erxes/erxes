@@ -1,23 +1,15 @@
-import { FormsBreadCrumb } from '@/forms/components/FormsBreadCrumb';
+import { ChannelFormsSubHeader } from '@/channels/components/settings/channel-details/ChannelFormsSubHeader';
 import { FormsList } from '@/forms/components/FormsList';
-import { IconPlus } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
-import { Link, useParams } from 'react-router-dom';
-import { SettingsHeader } from 'ui-modules';
+import { useEffect } from 'react';
 
 export const FormsPage = () => {
-  const { channelId } = useParams<{ channelId: string }>();
+  useEffect(() => {
+    import('./FormDetailPage');
+  }, []);
+
   return (
     <>
-      <SettingsHeader>
-        <FormsBreadCrumb />
-        <Button className="ml-auto" asChild>
-          <Link to={`/settings/frontline/forms/${channelId}/create`}>
-            <IconPlus />
-            Create form
-          </Link>
-        </Button>
-      </SettingsHeader>
+      <ChannelFormsSubHeader />
       <FormsList />
     </>
   );

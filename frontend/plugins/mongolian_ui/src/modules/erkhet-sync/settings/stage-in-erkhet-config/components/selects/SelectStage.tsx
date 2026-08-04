@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useGetSalesStages } from '../../hooks/useGetSalesStages';
 import {
   SelectTrigger,
@@ -89,13 +90,14 @@ const SelectStageValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, stages } = useSelectStageContext();
   const selectedStage = stages?.find((stage) => stage._id === value);
 
   if (!selectedStage) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select stage'}
+        {placeholder || t('select-stage')}
       </span>
     );
   }
@@ -127,13 +129,14 @@ const SelectStageCommandItem = ({ stage }: { stage: IStage }) => {
 };
 
 const SelectStageContent = () => {
+  const { t } = useTranslation('mongolian');
   const { stages, pipelineId, loading, error } = useSelectStageContext();
 
   const renderContent = useCallback(() => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -141,7 +144,7 @@ const SelectStageContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error')}: {error.message}
         </div>
       );
     }
@@ -149,13 +152,13 @@ const SelectStageContent = () => {
     return stages?.map((stage) => (
       <SelectStageCommandItem key={stage._id} stage={stage} />
     ));
-  }, [loading, error, stages]);
+  }, [loading, error, stages, t]);
 
-  const emptyMessage = pipelineId ? 'No stage found' : 'Pipeline not selected';
+  const emptyMessage = pipelineId ? t('no-stage-found') : t('pipeline-not-selected');
 
   return (
     <Command>
-      <Command.Input placeholder="Search stage" />
+      <Command.Input placeholder={t('search-stage')} />
       <Command.Empty>
         <span className="text-muted-foreground">{emptyMessage}</span>
       </Command.Empty>

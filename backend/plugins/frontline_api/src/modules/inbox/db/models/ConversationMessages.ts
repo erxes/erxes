@@ -26,7 +26,7 @@ export interface IMessageModel extends Model<IMessageDocument> {
 export const loadClass = (models: IModels) => {
   class Message {
     /**
-     * Retreives message
+     * Retrieves message
      */
     public static async getMessage(_id: string) {
       const message = await models.ConversationMessages.findOne({ _id }).lean();
@@ -109,10 +109,18 @@ export const loadClass = (models: IModels) => {
         ? true
         : stripHtml(content).result.trim().length > 0;
 
+      // Structured payloads (e.g. a Discord poll on `extraData`) are valid
+      // "content" on their own, just like attachments — the bubble renders them.
+      const hasStructuredContent =
+        Boolean(doc.extraData) &&
+        typeof doc.extraData === 'object' &&
+        Object.keys(doc.extraData).length > 0;
+
       if (
         doc.contentType !== MESSAGE_TYPES.VIDEO_CALL &&
         attachments.length === 0 &&
-        !contentValid
+        !contentValid &&
+        !hasStructuredContent
       ) {
         throw new Error('Content is required');
       }
@@ -121,15 +129,27 @@ export const loadClass = (models: IModels) => {
         content?: string;
         firstRespondedUserId?: string;
         firstRespondedDate?: Date;
+        assignedUserId?: string;
       } = {};
 
-      if (!doc.fromBot && !doc.internal) {
+      // Don't blank the conversation's list preview for a content-less message
+      // (poll/attachment-only) — keep whatever preview was set for it upstream.
+      if (!doc.fromBot && !doc.internal && doc.content) {
         modifier.content = doc.content;
       }
 
       if (!conversation.firstRespondedUserId) {
         modifier.firstRespondedUserId = userId;
         modifier.firstRespondedDate = new Date();
+      }
+
+      if (
+        userId &&
+        !doc.internal &&
+        !doc.fromBot &&
+        !conversation.assignedUserId
+      ) {
+        modifier.assignedUserId = userId;
       }
 
       await models.Conversations.updateConversation(

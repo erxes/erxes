@@ -21,6 +21,7 @@ export const types = `
   input ColorDefinitionInput {
     DEFAULT: String
     foreground: String
+    navigationVariant: String
   }
   input MessengerColorThemeInput {
     primary: ColorDefinitionInput
@@ -40,6 +41,20 @@ export const types = `
     isReceiveWebCall: Boolean
   }
 
+  type MessengerAppCredentials {
+    integrationId: String
+    description: String
+    buttonText: String
+    url: String
+  }
+
+  type MessengerApp {
+    _id: String
+    kind: String
+    showInInbox: Boolean
+    credentials: MessengerAppCredentials
+  }
+
   type Integration @key(fields: "_id") {
    _id: String!
     kind: String!
@@ -50,7 +65,7 @@ export const types = `
     tagIds: [String]
     createdAt: Date
     tags: [Tag]
-
+    brandId: String
     leadData: JSON
     messengerData: JSON
     ticketConfigId: JSON
@@ -62,6 +77,7 @@ export const types = `
 
     channel: Channel
 
+    websiteMessengerApps: [MessengerApp]
 
     healthStatus: JSON
     form : Form
@@ -72,6 +88,7 @@ export const types = `
     details: JSON
     callData: CloudflareCallsData
     facebookPage: JSON
+    instagramPage: JSON
   }
   type IntegrationRespone {
     list: [Integration],
@@ -83,7 +100,6 @@ export const types = `
     total: Int
     byTag: JSON
     byChannel: JSON
-    byBrand: JSON
     byKind: JSON
     byStatus: JSON
   }
@@ -98,6 +114,7 @@ export const types = `
     type: String
     text: String
     link: String
+    contentType: String
     isEditing: Boolean
   }
   input MessengerOnlineHoursSchema {
@@ -118,6 +135,21 @@ export const types = `
     url: String
   }
 
+  input WebsiteAppCredentials {
+    integrationId: String
+    description: String
+    buttonText: String
+    url: String
+  }
+
+  input WebsiteApp {
+    _id: String
+    kind: String
+    showInInbox: Boolean
+    credentials: WebsiteAppCredentials
+    scopeBrandIds: [String]
+  }
+
   input IntegrationMessengerData {
     _id: String
     notifyCustomer: Boolean
@@ -126,6 +158,7 @@ export const types = `
     botShowInitialMessage: Boolean
     botCheck: Boolean
     botGreetMessage: String
+    automationId: String
     getStarted: Boolean
     persistentMenus: [BotPersistentMenuTypeMessenger]
     availabilityMethod: String
@@ -145,11 +178,16 @@ export const types = `
     forceLogoutWhenResolve: Boolean
     showVideoCallRequest: Boolean
     hideWhenOffline: Boolean
+    websiteApps: [WebsiteApp]
   }
 
   input MessengerUiOptions {
     logo: String
+    launcherLogo: String
     primary: ColorDefinitionInput
+    backgroundColor: String
+    heroStyleVariant: String
+    navigationVariant: String
   }
 
   input OperatorInput {
@@ -199,7 +237,6 @@ export const queries = `
 export const mutations = `
   integrationsCreateMessengerOnboarding(
     channelId: String!,
-    brandName: String!,
     languageCode: String
     color: String
     logo:String
@@ -209,8 +246,8 @@ export const mutations = `
   integrationsEditMessengerOnboarding(
     _id: String!,
     channelId: String!,
-    brandName: String!,
     languageCode: String
+    brandId: String!
     color: String
     logo:String
   ): Integration
@@ -219,11 +256,13 @@ export const mutations = `
     channelId: String!,
     name: String!,
     languageCode: String
+    brandId: String!
     ): Integration
 
   integrationsEditMessengerIntegration(
     _id: String!,
     channelId: String!,
+    brandId: String!
     name: String!,
     languageCode: String
   ): Integration
@@ -231,7 +270,8 @@ export const mutations = `
   integrationsSaveMessengerAppearanceData(
     _id: String!,
     channelId: String!,
-    uiOptions: MessengerUiOptions): Integration
+    uiOptions: MessengerUiOptions,
+    brandId: String!): Integration
 
   integrationsSaveMessengerColorTheme(
     _id: String!,
@@ -241,6 +281,7 @@ export const mutations = `
   integrationsSaveMessengerConfigs(
     _id: String!,
     channelId: String!,
+    brandId: String!,
     messengerData: IntegrationMessengerData,
     callData: IntegrationCallData
     ): Integration
@@ -250,9 +291,10 @@ export const mutations = `
     channelId: String!,
     name: String!,
     accountId: String,
+    brandId: String!,
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, details: JSON): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, brandId: String, details: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!, kind: String): JSON
@@ -276,5 +318,5 @@ export const mutations = `
 
   integrationsSaveMessengerTicketData(
     _id: String!,
-    configId: String!): Integration
+    configId: String): Integration
 `;

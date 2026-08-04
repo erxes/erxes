@@ -232,5 +232,3 @@ export const fieldQueries = {
   //     return models.Fields.findOne({ contentType, code });
   //   },
 };
-
-//checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);

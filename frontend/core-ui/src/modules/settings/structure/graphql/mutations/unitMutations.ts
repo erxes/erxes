@@ -25,6 +25,7 @@ const returnFields = `
   description
   supervisorId
   title
+  userIds
   userCount
 `;
 

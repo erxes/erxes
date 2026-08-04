@@ -11,6 +11,7 @@ export const GET_TICKET = gql`
       labelIds
       tagIds
       assigneeId
+      assignedMembers
       userId
       startDate
       targetDate
@@ -22,6 +23,15 @@ export const GET_TICKET = gql`
       number
       pipelineId
       isSubscribed
+      state
+      propertiesData
+      attachments {
+        name
+        url
+        size
+        type
+        duration
+      }
     }
   }
 `;

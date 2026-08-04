@@ -1,4 +1,4 @@
-import { IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
+import { IconAlignJustified, IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -17,8 +17,10 @@ import { IBrand } from '../types';
 import { useState } from 'react';
 import { useBrandsEdit } from '@/settings/brands/hooks/useBrandsEdit';
 import { TFunction } from 'i18next';
+import { brandsMoreColumn } from './BrandsMoreColumn';
 
 export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
+  brandsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IBrand>,
   {
     id: 'name',
@@ -137,7 +139,7 @@ export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label={t('code')} icon={IconHash} />,
+    header: () => <RecordTable.InlineHead label={t('code')} icon={IconAlignJustified} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

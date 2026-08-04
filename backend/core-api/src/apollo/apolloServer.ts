@@ -8,6 +8,7 @@ import {
   apolloCommonTypes,
   generateApolloContext,
   wrapApolloResolvers,
+  expectedErrorPlugin,
 } from 'erxes-api-shared/utils';
 import { gql } from 'graphql-tag';
 import { generateModels } from '../connectionResolvers';
@@ -45,7 +46,10 @@ export const initApolloServer = async (app, httpServer) => {
         resolvers: wrapApolloResolvers(resolvers),
       },
     ]),
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      expectedErrorPlugin,
+    ],
   });
 
   await apolloServer.start();

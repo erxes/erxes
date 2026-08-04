@@ -9,7 +9,7 @@ export const ctaxRowSchema = schemaWrapper(
     number: { type: String },
     kind: { type: String, enum: CtaxRowKinds.ALL },
     formula: { type: String, optional: true },
-    formula_text: { type: String, optional: true },
+    formulaText: { type: String, optional: true },
     status: {
       type: String,
       enum: CTAX_ROW_STATUS.ALL,

@@ -56,9 +56,14 @@ export const CreateBranchForm = () => {
     });
   };
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.stopPropagation();
+    form.handleSubmit(onSubmit)(event);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-3 p-3 pb-10">
           <Form.Field
             control={form.control}
@@ -128,9 +133,9 @@ export const CreateBranchForm = () => {
 
 export function SelectBranchCreateContainer({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const { setNewBranchName } = useSelectBranchesContext();
   return (
     <div className="overflow-auto">

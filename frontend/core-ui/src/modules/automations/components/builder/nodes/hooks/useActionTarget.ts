@@ -1,49 +1,12 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
-import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
-import { useMemo } from 'react';
 import {
-  IAutomationsActionConfigConstants,
-  TAutomationAction,
-} from 'ui-modules';
+  getConnectedPreviousActions,
+  getTriggerOfAction,
+} from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import { useMemo } from 'react';
 
-function getConnectionsBefore(
-  targetId: string,
-  actions: TAutomationAction[],
-  actionsConst: IAutomationsActionConfigConstants[],
-) {
-  const map = new Map(actions.map((a) => [a.id, a]));
-  let result: TAutomationAction[] = [];
-
-  function findPrevious(currentId: string) {
-    const prev = actions.find(({ nextActionId, config, type }) => {
-      if (nextActionId === currentId) {
-        return true;
-      } else {
-        const { folks = [] } =
-          actionsConst.find((actionConst) => actionConst.type === type) || {};
-        for (const folk of folks) {
-          if (config[folk.key] === currentId) {
-            return true;
-          }
-        }
-      }
-      const optionalConnects = config?.optionalConnects || [];
-      for (const connect of optionalConnects) {
-        if (connect.actionId === currentId) {
-          return true;
-        }
-      }
-    });
-    if (prev) {
-      result = [prev, ...result]; // add to the beginning
-      findPrevious(prev.id);
-    }
-  }
-
-  findPrevious(targetId);
-  return result;
-}
+const ACTION_TYPES_CANNOT_BE_SELECTED_AS_TARGET = ['waitEvent'];
 
 export const useActionTarget = ({
   actionId,
@@ -62,18 +25,21 @@ export const useActionTarget = ({
         : undefined,
     [actionId, actions, triggers, actionFolks],
   );
-
   const actionTypesCanBeTarget = actionsConst
     .filter(({ isTargetSource }) => isTargetSource)
     .map(({ type }) => type);
   const connectedPreviousActions = actionId
-    ? getConnectionsBefore(actionId, actions, actionsConst)
+    ? getConnectedPreviousActions(actionId, actions, actionFolks)
     : [];
 
   // Filter to only those previous actions whose type can be a target
   const actionsCanBeTarget = connectedPreviousActions.filter(
     ({ type, config }, index) => {
       let isActionCanBeTarget = actionTypesCanBeTarget.includes(type);
+
+      if (ACTION_TYPES_CANNOT_BE_SELECTED_AS_TARGET.includes(type)) {
+        return false;
+      }
 
       if (type === 'findObject') {
         isActionCanBeTarget =
@@ -91,13 +57,14 @@ export const useActionTarget = ({
       actionsCanBeTarget.find((a) => a.id === targetActionId) || {};
 
     if (type === 'findObject') {
-      selectedActionType = config?.propertyType;
+      selectedActionType = config?.objectType;
     } else {
       const { targetSourceType } = actionConstMap.get(type ?? '') || {};
 
       selectedActionType = targetSourceType || type;
     }
   }
+
   return {
     selectedActionType,
     actionsCanBeTarget,

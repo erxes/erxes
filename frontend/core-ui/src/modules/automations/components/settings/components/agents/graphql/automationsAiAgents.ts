@@ -1,40 +1,48 @@
 import { gql } from '@apollo/client';
 
 const commonAIAgentParams = `
-    $name: String,
-    $description: String,
-    $provider: String,
-    $prompt: String,
-    $instructions: String,
-    $files: JSON,
-    $config: JSON
+  $name: String,
+  $description: String,
+  $connection: JSON,
+  $runtime: JSON,
+  $context: JSON
 `;
 
 const commonAIAgentParamsDef = `
-    name: $name,
-    description: $description,
-    provider: $provider,
-    prompt: $prompt,
-    instructions: $instructions,
-    files: $files,
-    config: $config
+  name: $name,
+  description: $description,
+  connection: $connection,
+  runtime: $runtime,
+  context: $context
 `;
 
 export const AUTOMATIONS_AI_AGENT_ADD = gql`
-    mutation AutomationsAiAgentAdd(${commonAIAgentParams}) {
-      automationsAiAgentAdd(${commonAIAgentParamsDef})
-    }
+  mutation AutomationsAiAgentAdd(${commonAIAgentParams}) {
+    automationsAiAgentAdd(${commonAIAgentParamsDef})
+  }
 `;
 
 export const AUTOMATIONS_AI_AGENT_EDIT = gql`
-    mutation AutomationsAiAgentEdit($id: String!,${commonAIAgentParams}) {
-      automationsAiAgentEdit(_id: $id,${commonAIAgentParamsDef})
-    }
+  mutation AutomationsAiAgentEdit($id: String!, ${commonAIAgentParams}) {
+    automationsAiAgentEdit(_id: $id, ${commonAIAgentParamsDef})
+  }
+`;
+
+export const AUTOMATIONS_AI_AGENT_REMOVE = gql`
+  mutation AutomationsAiAgentRemove($id: String!) {
+    automationsAiAgentRemove(_id: $id)
+  }
+`;
+
+export const AUTOMATIONS_AI_AGENT_REINDEX = gql`
+  mutation AutomationsAiAgentReindex($id: String!, $fileId: String) {
+    automationsAiAgentReindex(_id: $id, fileId: $fileId)
+  }
 `;
 
 export const AUTOMATIONS_AI_AGENT_DETAIL = gql`
-  query AutomationsAiAgentDetail {
-    automationsAiAgentDetail
+  query AutomationsAiAgentDetail($id: String) {
+    automationsAiAgentDetail(_id: $id)
   }
 `;
 
@@ -43,36 +51,27 @@ export const AUTOMATIONS_AI_AGENTS = gql`
     automationsAiAgents(kind: $kind)
   }
 `;
-export const START_AI_TRAINING = gql`
-  mutation StartAiTraining($agentId: String!) {
-    startAiTraining(agentId: $agentId) {
-      agentId
-      totalFiles
-      processedFiles
-      status
-      error
+
+export const AUTOMATIONS_AI_AGENT_TOTAL_COUNTS = gql`
+  query AutomationsAiAgentTotalCounts {
+    automationsAiAgentTotalCounts
+  }
+`;
+
+export const AUTOMATIONS_AI_AGENT_HEALTH = gql`
+  query AutomationsAiAgentHealth($agentId: String!) {
+    automationsAiAgentHealth(agentId: $agentId) {
+      ready
+      checkedAt
+      errors
+      warnings
+      checks
     }
   }
 `;
 
-export const GET_TRAINING_STATUS = gql`
-  query GetTrainingStatus($agentId: String!) {
-    getTrainingStatus(agentId: $agentId) {
-      agentId
-      totalFiles
-      processedFiles
-      status
-      error
-    }
-  }
-`;
-
-export const GENERATE_AGENT_MESSAGE = gql`
-  mutation GenerateAgentMessage($agentId: String!, $question: String!) {
-    generateAgentMessage(agentId: $agentId, question: $question) {
-      message
-      relevantFile
-      similarity
-    }
+export const AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES = gql`
+  query automationsAiAgentKnowledgeSourceStatuses($agentId: String!) {
+    automationsAiAgentKnowledgeSourceStatuses(agentId: $agentId)
   }
 `;

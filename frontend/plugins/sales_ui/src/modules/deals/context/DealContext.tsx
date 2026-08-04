@@ -8,13 +8,11 @@ import {
 import { ISelectBoardsContext } from '../types/boards';
 import { ISelectPipelinesContext } from '../types/pipelines';
 import { ISelectStagesContext } from '../types/stages';
-import { useConformityEdit } from '../cards/hooks/useConformity';
 
 interface DealsContextType {
   addDeals: ReturnType<typeof useDealsAdd>['addDeals'];
   editDeals: ReturnType<typeof useDealsEdit>['editDeals'];
   removeDeals: ReturnType<typeof useDealsRemove>['removeDeals'];
-  editConformity: ReturnType<typeof useConformityEdit>['editConformity'];
   loading: boolean;
   error: any;
 }
@@ -30,26 +28,19 @@ export const DealsProvider = ({ children }: { children: ReactNode }) => {
     error: errorRemove,
   } = useDealsRemove();
 
-  const {
-    editConformity,
-    loading: loadingEditConformity,
-    error: errorEditConformity,
-  } = useConformityEdit();
-
   const loading =
-    loadingAdd || loadingEdit || loadingRemove || loadingEditConformity;
-  const error = errorAdd || errorEdit || errorRemove || errorEditConformity;
+    loadingAdd || loadingEdit || loadingRemove;
+  const error = errorAdd || errorEdit || errorRemove;
 
   const value = useMemo(
     () => ({
       addDeals,
       editDeals,
       removeDeals,
-      editConformity,
       loading,
       error,
     }),
-    [addDeals, editDeals, removeDeals, editConformity, loading, error],
+    [addDeals, editDeals, removeDeals, loading, error],
   );
 
   return (

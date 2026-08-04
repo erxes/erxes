@@ -16,8 +16,35 @@ import {
 import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
+  getDiscountSortedProducts,
   getRemBranchId,
+  isDiscountSortField,
+  pushDiscountRangeFilters,
+  type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
+
+const getPropertyFieldId = (field: string) =>
+  field.replace('propertiesData.', '');
+
+const getProductPropertyValue = (product: any, fieldId: string) =>
+  product?.propertiesData?.[fieldId];
+
+const getProductPropertyIds = (product: any) =>
+  Object.keys(product.propertiesData || {});
+
+const isPropertyField = (field: string) => field.includes('propertiesData.');
+
+const propertyExistsFilter = (fieldIds: string[]) => ({
+  $or: [
+    ...fieldIds.map((fieldId) => ({
+      [`propertiesData.${fieldId}`]: { $exists: true },
+    })),
+  ],
+});
+
+const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
+  [`propertiesData.${fieldId}`]: { $regex: regex },
+});
 
 export interface ICommonParams {
   sortField?: string;
@@ -37,12 +64,11 @@ export interface IProductParams extends ICommonParams {
   tags?: string[];
   excludeTags?: string[];
   tagWithRelated?: boolean;
-  pipelineId?: string;
-  boardId?: string;
   segment?: string;
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
+  isSimilarity?: boolean;
   categoryMeta?: string;
   image?: string;
 
@@ -50,6 +76,11 @@ export interface IProductParams extends ICommonParams {
   maxRemainder?: number;
   minPrice?: number;
   maxPrice?: number;
+  minDiscountValue?: number;
+  maxDiscountValue?: number;
+  minDiscountPercent?: number;
+  maxDiscountPercent?: number;
+  discountConditions?: Record<string, unknown>;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -85,10 +116,16 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
     maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -99,6 +136,25 @@ const generateFilter = async (
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] },
   };
+
+  if (isSimilarity) {
+    const similarityGroups = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.find',
+      input: { query: { status: { $ne: 'deleted' } } },
+      defaultValue: [],
+    });
+
+    const starProductIds = (similarityGroups || [])
+      .map((group) => group.starProductId)
+      .filter(Boolean);
+
+    $and.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
 
   if (type) {
     filter.type = type;
@@ -120,17 +176,8 @@ const generateFilter = async (
     let tagIds: string[] = tags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -147,17 +194,8 @@ const generateFilter = async (
     let tagIds: string[] = excludeTags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -278,6 +316,14 @@ const generateFilter = async (
     });
   }
 
+  pushDiscountRangeFilters($and, config, branchId, {
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+  });
+
   const lastFilter = { ...filter, $and };
 
   if (isKiosk) {
@@ -370,7 +416,7 @@ const productQueries = {
       page: params?.page ?? 1,
     };
 
-    let filter = await generateFilter(subdomain, models, config, params);
+    const filter = await generateFilter(subdomain, models, config, params);
 
     let sortParams: any = { code: 1 };
 
@@ -393,6 +439,23 @@ const productQueries = {
         groupedSimilarity,
         ...paginationArgs,
       });
+    }
+
+    if (isDiscountSortField(sortField)) {
+      const products = await getDiscountSortedProducts({
+        models,
+        filter,
+        config,
+        params,
+      });
+
+      return checkRemainders(
+        subdomain,
+        models,
+        config,
+        products,
+        branchId || '',
+      );
     }
 
     const paginatedProducts = await paginate(
@@ -429,6 +492,124 @@ const productQueries = {
     return models.Products.find(filter).countDocuments();
   },
 
+  async poscProductBulkSimilarity(
+    _root,
+    { _id, branchId }: { _id: string; branchId?: string },
+    { models, subdomain, config }: IContext,
+  ) {
+    const product = await models.Products.getProduct({ _id });
+
+    const { similarityId } = product || {};
+
+    if (!similarityId) {
+      return null;
+    }
+
+    const members = await models.Products.find({
+      similarityId: similarityId,
+      status: { $ne: PRODUCT_STATUSES.DELETED },
+      tokens: { $in: [config.token] },
+    })
+      .sort({ code: 1 })
+      .lean();
+
+    const similarityGroup = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.findOne',
+      input: { _id: similarityId },
+      defaultValue: null,
+    });
+
+    const { propertiesData, starProductId } = similarityGroup || {};
+
+    const selection: Record<string, string[]> = propertiesData || {};
+
+    let fieldIds = Object.keys(selection);
+
+    if (!fieldIds.length) {
+      fieldIds = [
+        ...new Set(
+          members.flatMap((member) => Object.keys(member.propertiesData || {})),
+        ),
+      ];
+    }
+
+    const fields = fieldIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'fields',
+          action: 'find',
+          input: {
+            query: { _id: { $in: fieldIds } },
+            projection: {},
+            sort: {},
+          },
+          defaultValue: [],
+        })
+      : [];
+
+    const fieldNameById = {};
+    const optionLabelByValue: Record<string, Record<string, string>> = {};
+
+    for (const field of fields || []) {
+      fieldNameById[field._id] = field.name || field.text;
+
+      optionLabelByValue[field._id] = {};
+      for (const option of field.options || []) {
+        optionLabelByValue[field._id][option.value] = option.label;
+      }
+    }
+
+    const labelOf = (fieldId: string, value: string) =>
+      optionLabelByValue[fieldId]?.[value] ?? value;
+
+    const propertyValueOf = (member: any, fieldId: string) => {
+      const value = member.propertiesData?.[fieldId];
+      return Array.isArray(value) ? value[0] : value;
+    };
+
+    const valuesOf = (fieldId: string) => {
+      if (selection[fieldId]?.length) {
+        return selection[fieldId];
+      }
+
+      return [
+        ...new Set(
+          members
+            .map((member) => propertyValueOf(member, fieldId))
+            .filter((value) => value != null),
+        ),
+      ];
+    };
+
+    const products = await checkRemainders(
+      subdomain,
+      models,
+      config,
+      members.length ? members : [product],
+      branchId || '',
+    );
+
+    const fieldList = fieldIds.map((fieldId) => ({
+      fieldId,
+      title: fieldNameById[fieldId] || fieldId,
+      values: valuesOf(fieldId).map((value) => ({
+        value,
+        label: labelOf(fieldId, value),
+      })),
+    }));
+
+    return {
+      _id: similarityId,
+      starProductId,
+      products,
+      fields: fieldList,
+    };
+  },
+
   async poscProductSimilarities(
     _root,
     {
@@ -453,26 +634,22 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
-      const customFieldIds = (product.customFieldsData || []).map(
-        (cf) => cf.field,
-      );
+      const customFieldIds = getProductPropertyIds(product);
 
       const matchedMasks = codeMasks.filter((cm) => {
         const mask = similarityGroups[cm];
         const filterFieldDef = mask.filterField || 'code';
         const regexer = getRegex(cm);
 
-        if (filterFieldDef.includes('customFieldsData.')) {
+        if (isPropertyField(filterFieldDef)) {
+          const fieldId = getPropertyFieldId(filterFieldDef);
           if (
-            !(product.customFieldsData || []).find(
-              (cfd) =>
-                cfd.field === filterFieldDef.replace('customFieldsData.', '') &&
-                cfd.stringValue?.match(regexer),
+            !String(getProductPropertyValue(product, fieldId) || '').match(
+              regexer,
             )
           ) {
             return false;
@@ -510,22 +687,13 @@ const productQueries = {
         const matched = similarityGroups[matchedMask];
         const filterFieldDef = matched.filterField || 'code';
 
-        if (filterFieldDef.includes('customFieldsData.')) {
-          codeRegexs.push({
-            $and: [
-              {
-                'customFieldsData.field': filterFieldDef.replace(
-                  'customFieldsData.',
-                  '',
-                ),
-              },
-              {
-                'customFieldsData.stringValue': {
-                  $in: [getRegex(matchedMask)],
-                },
-              },
-            ],
-          });
+        if (isPropertyField(filterFieldDef)) {
+          codeRegexs.push(
+            propertyRegexFilter(
+              getPropertyFieldId(filterFieldDef),
+              getRegex(matchedMask),
+            ),
+          );
         } else {
           codeRegexs.push({
             [filterFieldDef]: { $in: [getRegex(matchedMask)] },
@@ -546,13 +714,13 @@ const productQueries = {
           {
             $or: codeRegexs,
           },
-          {
-            'customFieldsData.field': { $in: fieldIds },
-          },
+          propertyExistsFilter(fieldIds),
         ],
       };
 
-      let products = await models.Products.find(filters).sort({ code: 1 });
+      let products: ProductWithRemainder[] = await models.Products.find(
+        filters,
+      ).sort({ code: 1 });
       if (!products.length) {
         products = await checkRemainders(
           subdomain,
@@ -588,7 +756,7 @@ const productQueries = {
       $and: [
         {
           categoryId: category._id,
-          'customFieldsData.field': { $in: fieldIds },
+          ...propertyExistsFilter(fieldIds),
         },
       ],
     };
@@ -740,22 +908,20 @@ const productQueries = {
     { models, subdomain, config }: IContext,
   ) {
     const product = await models.Products.getProduct({ _id: productId });
-    const d = {};
-    // const d = await sendPricingMessage({
-    //   subdomain,
-    //   action: 'getQuantityRules',
-    //   data: {
-    //     departmentId: config.departmentId,
-    //     branchId: config.branchId,
-    //     products: [
-    //       { ...product, unitPrice: (product.prices || {})[config.token] },
-    //     ],
-    //   },
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
+    const response = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'pricing',
+      action: 'getQuantityRules',
+      input: {
+        departmentId: config.departmentId,
+        branchId: config.branchId,
+        products: [{ ...product, unitPrice: product.prices?.[config.token] }],
+      },
+      defaultValue: {},
+    });
 
-    return JSON.stringify(d);
+    return JSON.stringify(response ?? {});
   },
 };
 markResolvers(productQueries, {

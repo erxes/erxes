@@ -1,4 +1,5 @@
 import { IModels } from '~/connectionResolvers';
+import { extractPropertiesData } from '~/meta/import-export/utils';
 
 const generateTagIds = async (models: IModels, tags: string = '') => {
   const tagNames = tags.split(',');
@@ -30,6 +31,8 @@ export async function prepareCustomerDoc(
   state: 'lead' | 'customer',
 ): Promise<any> {
   const doc: any = { ...row };
+  await extractPropertiesData(models, doc);
+
   doc.createdAt = new Date();
   doc.updatedAt = new Date();
   doc.state = state;
@@ -40,7 +43,7 @@ export async function prepareCustomerDoc(
     doc.phones = [doc.primaryPhone];
   }
   if (doc.sex) {
-    doc.sex = parseInt(doc.sex);
+    doc.sex = Number.parseInt(doc.sex);
   }
   if (doc?.tags) {
     doc.tagIds = await generateTagIds(models, doc?.tags);

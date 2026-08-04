@@ -11,15 +11,19 @@ export const PRODUCTS_ADD = gql`
     $variants: JSON
     $barcodeDescription: String
     $unitPrice: Float
+    $duration: Float
+    $durationType: ProductDurationType
     $code: String
-    $customFieldsData: JSON
+    $propertiesData: JSON
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
+    $videos: [AttachmentInput]
     $pdfAttachment: PdfAttachmentInput
     $vendorId: String
     $scopeBrandIds: [String]
     $uom: String
     $subUoms: JSON
+    $currency: String
   ) {
     productsAdd(
       name: $name
@@ -31,15 +35,19 @@ export const PRODUCTS_ADD = gql`
       variants: $variants
       barcodeDescription: $barcodeDescription
       unitPrice: $unitPrice
+      duration: $duration
+      durationType: $durationType
       code: $code
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
       attachment: $attachment
       attachmentMore: $attachmentMore
+      videos: $videos
       pdfAttachment: $pdfAttachment
       vendorId: $vendorId
       scopeBrandIds: $scopeBrandIds
       uom: $uom
       subUoms: $subUoms
+      currency: $currency
     ) {
       _id
       attachment {
@@ -48,18 +56,21 @@ export const PRODUCTS_ADD = gql`
       categoryId
       code
       createdAt
-      customFieldsData
+      propertiesData
       description
       tagIds
       name
       shortName
       uom
       unitPrice
+      duration
+      durationType
       type
       vendor {
         _id
         primaryName
       }
+      currency
     }
   }
 `;
@@ -74,11 +85,18 @@ export const PRODUCTS_EDIT = gql`
     $description: String
     $unitPrice: Float
     $code: String
-    $customFieldsData: JSON
+    $propertiesData: JSON
     $vendorId: String
     $uom: String
     $barcodeDescription: String
     $barcodes: [String]
+    $currency: String
+    $variants: JSON
+    $subUoms: JSON
+    $scopeBrandIds: [String]
+    $attachment: AttachmentInput
+    $attachmentMore: [AttachmentInput]
+    $videos: [AttachmentInput]
   ) {
     productsEdit(
       _id: $_id
@@ -89,13 +107,21 @@ export const PRODUCTS_EDIT = gql`
       description: $description
       unitPrice: $unitPrice
       code: $code
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
       vendorId: $vendorId
       barcodes: $barcodes
       uom: $uom
       barcodeDescription: $barcodeDescription
+      currency: $currency
+      variants: $variants
+      subUoms: $subUoms
+      scopeBrandIds: $scopeBrandIds
+      attachment: $attachment
+      attachmentMore: $attachmentMore
+      videos: $videos
     ) {
       _id
+      name
     }
   }
 `;

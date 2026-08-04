@@ -1,37 +1,103 @@
 'use client';
 
-import { Resizable, Sheet, cn, useQueryState } from 'erxes-ui';
+import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
+import { DealActivityTab } from './DealActivityTab';
 import {
-  SalesDetailLeftSidebar,
-  SalesDetailTabContent,
-} from '@/deals/cards/components/detail/SalesDetailLeftSidebar';
-import { useEffect, useState } from 'react';
+  Empty,
+  FocusSheet,
+  ScrollArea,
+  Tabs,
+  useFocusSheet,
+  useQueryState,
+} from 'erxes-ui';
+import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 
 import { DealsProvider } from '@/deals/context/DealContext';
 import { IDeal } from '@/deals/types/deals';
-import Overview from '@/deals/cards/components/detail/overview/Overview';
-import Products from '@/deals/cards/components/detail/product/components/Products';
-import { SalesDetailActions } from '@/deals/cards/components/detail/SalesDetailActions';
+import { Overview } from '@/deals/cards/components/detail/overview/Overview';
+import { Products } from '@/deals/cards/components/detail/product/components/Products';
 import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItemDetailHeader';
+import { SalesItemSidebar } from './SalesItemSidebar';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
+import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
+import { useTranslation } from 'react-i18next';
+
+const SalesItemDetailView = () => {
+  const { isSidebarOpen } = useFocusSheet();
+  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { deal, loading, error, refetch } = useDealDetail();
+
+  return (
+    <FocusSheet.View
+      loading={loading}
+      error={!!error}
+      notFound={!deal}
+      notFoundState={<SalesItemDetailEmptyState />}
+      errorState={<SalesItemDetailErrorState />}
+      className={!isSidebarOpen ? 'lg:w-[calc(100vw-1rem)] sm:max-w-none' : ''}
+    >
+      <SalesItemDetailHeader deal={deal || ({} as IDeal)} />
+      <FocusSheet.Content>
+        <FocusSheet.SideBar>
+          <SalesItemSidebar />
+        </FocusSheet.SideBar>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0">
+            <Tabs
+              value={selectedTab ?? 'overview'}
+              onValueChange={setSelectedTab}
+              className="h-full"
+            >
+              <Tabs.Content value="overview" className="h-full">
+                <ScrollArea className="h-full">
+                  <Overview key={deal?._id} deal={deal || ({} as IDeal)} />
+                </ScrollArea>
+              </Tabs.Content>
+              <Tabs.Content value="properties" className="h-full">
+                <ScrollArea className="h-full">
+                  <div className="w-full xl:max-w-6xl mx-auto p-6">
+                    <FieldsInDetail
+                      key={`${deal?._id || ''}-${JSON.stringify(
+                        deal?.propertiesData || {},
+                      )}`}
+                      fieldContentType="sales:deal"
+                      propertiesData={deal?.propertiesData || {}}
+                      mutateHook={useDealCustomFieldEdit}
+                      id={deal?._id || ''}
+                    />
+                  </div>
+                </ScrollArea>
+              </Tabs.Content>
+              <Tabs.Content value="activity" className="h-full">
+                <DealActivityTab dealId={deal?._id || ''} />
+              </Tabs.Content>
+              <Tabs.Content value="products" className="h-full p-6">
+                <Products deal={deal || ({} as IDeal)} refetch={refetch} />
+              </Tabs.Content>
+            </Tabs>
+          </div>
+        </div>
+        <RelationWidgetSideTabs
+          contentId={deal?._id || ''}
+          contentType="sales:deal"
+          hookOptions={{
+            hiddenModules: ['deals'],
+          }}
+        />
+      </FocusSheet.Content>
+    </FocusSheet.View>
+  );
+};
 
 export const SalesItemDetail = () => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
-  const { deal, loading, refetch } = useDealDetail();
 
-  const [isOpen, setIsOpen] = useState(
-    (!!activeDealId || !!salesItemId) && !loading,
-  );
-
-  useEffect(() => {
-    setIsOpen((!!activeDealId || !!salesItemId) && !loading);
-  }, [activeDealId, salesItemId, loading]);
+  const isOpen = Boolean(activeDealId) || Boolean(salesItemId);
 
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
     if (!open) {
       setActiveDealId(null);
       setSalesItemId(null);
@@ -39,42 +105,46 @@ export const SalesItemDetail = () => {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+    <FocusSheet open={isOpen} onOpenChange={handleOpenChange}>
       <DealsProvider>
-        <Sheet.View
-          className={cn(
-            'p-0 md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl',
-          )}
-          onEscapeKeyDown={(e) => e.preventDefault()}
-        >
-          <SalesItemDetailHeader deal={deal || ({} as IDeal)} />
-          <Sheet.Content className="overflow-hidden">
-            <div className="flex h-full flex-auto overflow-hidden">
-              <div className="flex flex-col flex-auto min-h-full overflow-hidden">
-                <Resizable.PanelGroup
-                  direction="horizontal"
-                  className="flex-auto h-full overflow-hidden"
-                >
-                  <Resizable.Panel>
-                    <SalesDetailLeftSidebar>
-                      <SalesDetailTabContent value="overview">
-                        <Overview deal={deal || ({} as IDeal)} />
-                      </SalesDetailTabContent>
-                      <SalesDetailTabContent value="products">
-                        <Products
-                          deal={deal || ({} as IDeal)}
-                          refetch={refetch}
-                        />
-                      </SalesDetailTabContent>
-                    </SalesDetailLeftSidebar>
-                  </Resizable.Panel>
-                  <SalesDetailActions />
-                </Resizable.PanelGroup>
-              </div>
-            </div>
-          </Sheet.Content>
-        </Sheet.View>
+        <SalesItemDetailView />
       </DealsProvider>
-    </Sheet>
+    </FocusSheet>
+  );
+};
+
+const SalesItemDetailEmptyState = () => {
+  const { t } = useTranslation('sales');
+  return (
+    <div className="flex items-center justify-center h-full">
+      <Empty>
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconCloudExclamation />
+          </Empty.Media>
+          <Empty.Title>{t('deal-not-found')}</Empty.Title>
+          <Empty.Description>{t('no-deal-with-id')}</Empty.Description>
+        </Empty.Header>
+      </Empty>
+    </div>
+  );
+};
+
+const SalesItemDetailErrorState = () => {
+  const { t } = useTranslation('sales');
+  const { error } = useDealDetail();
+
+  return (
+    <div className="flex items-center justify-center h-full">
+      <Empty>
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconAlertCircle />
+          </Empty.Media>
+          <Empty.Title>{t('error')}</Empty.Title>
+          <Empty.Description>{error?.message}</Empty.Description>
+        </Empty.Header>
+      </Empty>
+    </div>
   );
 };

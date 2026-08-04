@@ -13,7 +13,7 @@ export const telnyxWebhookDataFactory = (params: ITelnyxWebhookData) => ({
   data: {
     event_type: faker.word.sample(),
     id: faker.string.uuid(),
-    occured_at: new Date().toISOString(),
+    occurred_at: new Date().toISOString(),
     record_type: faker.word.sample(),
     payload: {
       completed_at: new Date().toISOString(),

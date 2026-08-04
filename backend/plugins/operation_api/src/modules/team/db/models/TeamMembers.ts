@@ -16,7 +16,10 @@ export interface ITeamMemberModel extends Model<ITeamMemberDocument> {
   ): Promise<ITeamMemberDocument>;
 
   createTeamMembers(members: ITeamMember[]): Promise<ITeamMemberDocument[]>;
-  removeTeamMember(teamId: string, memberId: string): Promise<ITeamMemberDocument>;
+  removeTeamMember(
+    teamId: string,
+    memberId: string,
+  ): Promise<ITeamMemberDocument>;
 }
 
 export const loadTeamMemberClass = (models: IModels) => {
@@ -36,16 +39,17 @@ export const loadTeamMemberClass = (models: IModels) => {
         throw new Error('Team member not found');
       }
 
-      if (teamMember.role === TeamMemberRoles.ADMIN) {
-        const adminsCount = await models.TeamMember.countDocuments({
-          teamId: teamMember.teamId,
-          role: TeamMemberRoles.ADMIN,
-        });
+      // ** Deprecated
 
-        if (adminsCount === 1) {
-          throw new Error('Admin cannot be removed');
-        }
-      }
+      // if (teamMember.role === TeamMemberRoles.ADMIN) {
+      //   const adminsCount = await models.TeamMember.countDocuments({
+      //     teamId: teamMember.teamId,
+      //   });
+
+      //   if (adminsCount === 1) {
+      //     throw new Error('Admin cannot be removed');
+      //   }
+      // }
 
       return models.TeamMember.findOneAndUpdate({ _id }, { $set: { role } });
     }
@@ -61,9 +65,11 @@ export const loadTeamMemberClass = (models: IModels) => {
         throw new Error('Team member not found');
       }
 
-      if (teamMember.role === TeamMemberRoles.ADMIN) {
-        throw new Error('Admin cannot be removed');
-      }
+      // ** Deprecated
+
+      // if (teamMember.role === TeamMemberRoles.ADMIN) {
+      //   throw new Error('Admin cannot be removed');
+      // }
 
       return models.TeamMember.deleteOne({ teamId, memberId });
     }

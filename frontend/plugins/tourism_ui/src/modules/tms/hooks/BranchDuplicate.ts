@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { CREATE_BRANCH } from '@/tms/graphql/mutation';
 import { IBranch } from '../types/branch';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface DuplicateBranchVariables {
   name: string;
@@ -10,6 +11,8 @@ interface DuplicateBranchVariables {
   managerIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   erxesAppToken?: string;
   permissionConfig?: any[];
   uiOptions?: Record<string, any>;
@@ -21,6 +24,7 @@ interface UseBranchDuplicateOptions {
 }
 
 export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
+  const { t } = useTranslation('tourism');
   const [createBranch, { loading }] = useMutation(CREATE_BRANCH);
 
   const duplicateBranch = async (variables: {
@@ -45,6 +49,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
     branch: IBranch,
     refetch?: () => Promise<any>,
   ) => {
+    const prepaid = branch.prepaid ?? false;
+
     try {
       await duplicateBranch({
         variables: {
@@ -54,13 +60,15 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
           managerIds: branch.managerIds || [],
           paymentIds: branch.paymentIds || [],
           paymentTypes: branch.paymentTypes || [],
+          prepaid,
+          prepaidPercent: prepaid ? branch.prepaidPercent : undefined,
           erxesAppToken: branch.erxesAppToken,
           permissionConfig: branch.permissionConfig || [],
           uiOptions: branch.uiOptions || {},
         },
         onCompleted: async () => {
           toast({
-            title: 'Branch duplicated successfully',
+            title: t('branch-duplicated-successfully'),
           });
           if (refetch) {
             await refetch();
@@ -69,8 +77,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
       });
     } catch (error) {
       toast({
-        title: 'Failed to duplicate branch',
-        description: error?.message || 'Unknown error occurred',
+        title: t('failed-to-duplicate-branch'),
+        description: error?.message || t('unknown-error-occurred'),
         variant: 'destructive',
       });
       throw error;

@@ -6,22 +6,53 @@ import {
   Sheet,
   Separator,
   ScrollArea,
-  Tooltip,
-  Spinner,
-  cn,
+  SkeletonArray,
+  useQueryState,
+  fixNum,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
+import { useState } from 'react';
+import { IconPlus, IconX } from '@tabler/icons-react';
 import { useProducts } from '../hooks/useProducts';
 import { useInView } from 'react-intersection-observer';
 import { AddProduct } from './AddProduct';
 import { useDebounce } from 'use-debounce';
 import { GET_PRODUCTS } from '../graphql/queries/productsQueries';
+import { SelectCompany } from '../../contacts/components/SelectCompany';
+import { SelectCategory } from '../categories/components/SelectCategory';
 
 interface SelectProductsProps {
-  onSelect: (productIds: string[], products?: IProduct[]) => void;
-  children: React.ReactNode;
+  onSelect: (
+    productIds: string[],
+    products?: IProduct[],
+  ) => void | Promise<void>;
+  children?: React.ReactNode;
   productIds?: string[];
+  initialProducts?: IProduct[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  selectionLimit?: number;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  submitLabel?: React.ReactNode;
+  cancelLabel?: React.ReactNode;
+  selectedLabel?: React.ReactNode;
+  isSelectionValid?: (productIds: string[], products: IProduct[]) => boolean;
+}
+
+interface SelectProductsBulkContentProps
+  extends
+    Pick<
+      SelectProductsProps,
+      | 'onSelect'
+      | 'productIds'
+      | 'initialProducts'
+      | 'selectionLimit'
+      | 'isSelectionValid'
+    >,
+    Required<
+      Pick<SelectProductsProps, 'submitLabel' | 'cancelLabel' | 'selectedLabel'>
+    > {
+  setOpen: (open: boolean) => void;
 }
 
 interface ProductsListProps {
@@ -29,30 +60,98 @@ interface ProductsListProps {
   setSelectedProducts: React.Dispatch<React.SetStateAction<IProduct[]>>;
   selectedProductIds: string[];
   setSelectedProductIds: React.Dispatch<React.SetStateAction<string[]>>;
+  selectionLimit?: number;
 }
+
+interface ProductListItemProps {
+  product: IProduct;
+  disabled: boolean;
+  onSelect: (product: IProduct) => void;
+}
+
+const ProductListItem = ({
+  product,
+  disabled,
+  onSelect,
+}: ProductListItemProps) => (
+  <Button
+    variant="ghost"
+    className="min-h-9 h-auto w-full justify-start font-normal whitespace-nowrap text-left"
+    disabled={disabled}
+    onClick={() => onSelect(product)}
+  >
+    <div className="flex flex-1 gap-2 items-center">
+      <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
+        {product.code}
+      </span>
+      <span className="truncate">{product.name}</span>
+      <span className="ml-auto flex items-center gap-2 shrink-0">
+        <span className="text-xs tabular-nums font-medium">
+          <span className="text-muted-foreground font-normal mr-0.5">
+            {product.currency ?? ''}
+          </span>
+          {fixNum(product.unitPrice).toLocaleString()}
+        </span>
+        <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
+          {product.remainder.remainder ?? 0} {product.uom ?? ''}
+        </span>
+      </span>
+    </div>
+    <IconPlus className="ml-2 shrink-0" />
+  </Button>
+);
 
 export const SelectProductsBulk = ({
   onSelect,
   children,
   productIds,
+  initialProducts,
+  open,
+  onOpenChange,
+  selectionLimit,
+  title = 'Select Products',
+  description,
+  submitLabel = 'Add Many Products',
+  cancelLabel = 'Cancel',
+  selectedLabel = 'Added',
+  isSelectionValid,
 }: SelectProductsProps) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const resolvedOpen = open ?? internalOpen;
+
+  const setOpen = (nextOpen: boolean) => {
+    if (open === undefined) {
+      setInternalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>{children}</Sheet.Trigger>
-      <Sheet.View className="sm:max-w-5xl">
+    <Sheet open={resolvedOpen} onOpenChange={setOpen}>
+      {children && <Sheet.Trigger asChild>{children}</Sheet.Trigger>}
+      <Sheet.View className="sm:max-w-6xl">
         <Sheet.Header>
           <div>
-            <Sheet.Title>Select Products</Sheet.Title>
+            <Sheet.Title>{title}</Sheet.Title>
+            {description && (
+              <Sheet.Description>{description}</Sheet.Description>
+            )}
           </div>
           <Sheet.Close />
         </Sheet.Header>
-        <SelectProductsBulkContent
-          setOpen={setOpen}
-          onSelect={onSelect}
-          productIds={productIds}
-        />
+        {resolvedOpen && (
+          <SelectProductsBulkContent
+            setOpen={setOpen}
+            onSelect={onSelect}
+            productIds={productIds}
+            initialProducts={initialProducts}
+            selectionLimit={selectionLimit}
+            submitLabel={submitLabel}
+            cancelLabel={cancelLabel}
+            selectedLabel={selectedLabel}
+            isSelectionValid={isSelectionValid}
+          />
+        )}
       </Sheet.View>
     </Sheet>
   );
@@ -62,46 +161,66 @@ const SelectProductsBulkContent = ({
   setOpen,
   onSelect,
   productIds,
-}: {
-  setOpen: (open: boolean) => void;
-  onSelect: (productIds: string[], products?: IProduct[]) => void;
-  productIds?: string[];
-}) => {
-  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<IProduct[]>([]);
-
-  useEffect(() => {
-    if (productIds?.length) {
-      setSelectedProductIds(productIds);
-    }
-  }, [productIds]);
+  initialProducts,
+  selectionLimit,
+  submitLabel,
+  cancelLabel,
+  selectedLabel,
+  isSelectionValid,
+}: SelectProductsBulkContentProps) => {
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>(
+    productIds || [],
+  );
+  const [selectedProducts, setSelectedProducts] = useState<IProduct[]>(
+    initialProducts || [],
+  );
+  const [submitting, setSubmitting] = useState(false);
 
   const handleAddProduct = (data: { productsAdd: { _id: string } }) => {
+    if (
+      selectionLimit !== undefined &&
+      selectedProductIds.length >= selectionLimit
+    ) {
+      return;
+    }
     setSelectedProductIds((prev) => [...prev, data.productsAdd._id]);
   };
 
-  const handleSelect = () => {
-    onSelect(
-      selectedProducts.map((p) => p._id),
-      selectedProducts,
-    );
-    setOpen(false);
+  const handleSelect = async () => {
+    setSubmitting(true);
+    try {
+      await onSelect(selectedProductIds, selectedProducts);
+      setOpen(false);
+    } catch {
+      // The consuming mutation displays its own error state.
+    } finally {
+      setSubmitting(false);
+    }
   };
+  const allSelectedProductsResolved = selectedProductIds.every((productId) =>
+    selectedProducts.some((product) => product._id === productId),
+  );
+  const selectionLimitReached =
+    selectionLimit !== undefined && selectedProductIds.length >= selectionLimit;
+  const selectionIsValid =
+    isSelectionValid?.(selectedProductIds, selectedProducts) ?? true;
 
   return (
     <>
-      <Sheet.Content className="grid grid-cols-2 overflow-hidden">
+      <Sheet.Content className="grid overflow-hidden grid-cols-2">
         <ProductsList
           selectedProducts={selectedProducts}
           selectedProductIds={selectedProductIds}
           setSelectedProductIds={setSelectedProductIds}
           setSelectedProducts={setSelectedProducts}
+          selectionLimit={selectionLimit}
         />
         <SelectedProductsList
           selectedProducts={selectedProducts}
           selectedProductIds={selectedProductIds}
           setSelectedProductIds={setSelectedProductIds}
           setSelectedProducts={setSelectedProducts}
+          selectedLabel={selectedLabel}
         />
       </Sheet.Content>
       <Sheet.Footer className="sm:justify-between">
@@ -110,14 +229,29 @@ const SelectProductsBulkContent = ({
             onCompleted: handleAddProduct,
             refetchQueries: [GET_PRODUCTS],
           }}
-        />
-        <div className="flex items-center gap-2">
+        >
+          <Button variant="outline" disabled={selectionLimitReached}>
+            <IconPlus />
+            Create new product
+          </Button>
+        </AddProduct>
+        <div className="ml-auto flex gap-2 items-center">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">
-              Cancel
+              {cancelLabel}
             </Button>
           </Sheet.Close>
-          <Button onClick={handleSelect}>Add Many Products</Button>
+          <Button
+            onClick={handleSelect}
+            disabled={
+              submitting ||
+              selectedProductIds.length === 0 ||
+              !allSelectedProductsResolved ||
+              !selectionIsValid
+            }
+          >
+            {submitLabel}
+          </Button>
         </div>
       </Sheet.Footer>
     </>
@@ -128,82 +262,122 @@ const ProductsList = ({
   setSelectedProducts,
   selectedProductIds,
   setSelectedProductIds,
+  selectionLimit,
 }: ProductsListProps) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
+  const [companyId, setCompanyId] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [pipelineId] = useQueryState<string>('pipelineId');
 
-  const { products, handleFetchMore, totalCount } = useProducts({
-    variables: {
-      searchValue: debouncedSearch,
-    },
-  });
+  const { products, handleFetchMore, totalCount, loading, fetchingMore } =
+    useProducts({
+      fetchPolicy: 'network-only',
+      variables: {
+        searchValue: debouncedSearch,
+        vendorId: companyId || undefined,
+        categoryIds: categoryId ? [categoryId] : undefined,
+        pipelineId: pipelineId || undefined,
+      },
+    });
 
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
   });
 
   const handleProductSelect = (product: IProduct) => {
+    if (
+      selectionLimit !== undefined &&
+      selectedProductIds.length >= selectionLimit
+    ) {
+      return;
+    }
     setSelectedProducts((prev) => [...prev, product]);
     setSelectedProductIds((prev) => [...prev, product._id]);
   };
 
+  const selectionLimitReached =
+    selectionLimit !== undefined && selectedProductIds.length >= selectionLimit;
+  const initialLoading = loading && !products.length;
+  const unselectedProducts = products.filter(
+    (product) => !selectedProductIds.includes(product._id),
+  );
+  const selectedResultCount = products.filter((product) =>
+    selectedProductIds.includes(product._id),
+  ).length;
+  const availableTotalCount = Math.max(totalCount - selectedResultCount, 0);
+
+  // with a pipeline the server already orders its initial categories first,
+  // so re-sorting here would scatter them back into the rest of the list
+  const availableProducts = pipelineId
+    ? unselectedProducts
+    : [...unselectedProducts].sort(
+        (a, b) => (b.remainder?.remainder ?? 0) - (a.remainder?.remainder ?? 0),
+      );
+
   return (
-    <div className="border-r overflow-hidden flex flex-col">
+    <div className="flex overflow-hidden flex-col border-r">
       <div className="p-4">
-        <div className="flex items-center gap-4">
-          <Input
-            placeholder="Search products"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="flex gap-4 justify-between items-center">
+          <div className="flex flex-1 gap-4 items-center">
+            <Input
+              placeholder="Search products"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2 items-center shrink-0">
+            <SelectCompany
+              mode="single"
+              value={companyId || ''}
+              onValueChange={(value) => {
+                if (companyId === value) setCompanyId('');
+                else setCompanyId(value as string);
+              }}
+              className="max-w-40"
+            />
+
+            <SelectCategory
+              selected={categoryId}
+              onSelect={(value) => {
+                if (typeof value !== 'string') {
+                  return;
+                }
+                setCategoryId(value === categoryId ? '' : value);
+              }}
+              variant="outline"
+            />
+          </div>
         </div>
-        <div className="text-accent-foreground text-xs mt-4">
-          {totalCount} results
+        <div className="mt-4 text-xs text-accent-foreground">
+          {!initialLoading && `${availableTotalCount} results`}
         </div>
       </div>
       <Separator />
-      <ScrollArea>
-        <div className="p-4 flex flex-col gap-1">
-          <Tooltip.Provider>
-            {products.map((product) => {
-              const isSelected = selectedProductIds.includes(product._id);
-              return (
-                <Tooltip key={product._id}>
-                  <Tooltip.Trigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        'min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left',
-                        isSelected && 'bg-primary/10 hover:bg-primary/10',
-                      )}
-                      onClick={() => handleProductSelect(product)}
-                    >
-                      <div>{product.name}</div>
-                      {isSelected ? (
-                        <IconCheck className="ml-auto" />
-                      ) : (
-                        <IconPlus className="ml-auto" />
-                      )}
-                    </Button>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content>
-                    <span className="opacity-50">#</span> {product.code}
-                  </Tooltip.Content>
-                </Tooltip>
-              );
-            })}
+      <div className="overflow-auto flex-1">
+        <div className="flex flex-col gap-1 p-4 min-w-max">
+          {initialLoading ? (
+            <SkeletonArray count={8} className="w-full h-9" />
+          ) : (
+            availableProducts.map((product) => (
+              <ProductListItem
+                key={product._id}
+                product={product}
+                disabled={selectionLimitReached}
+                onSelect={handleProductSelect}
+              />
+            ))
+          )}
 
-            {products.length < totalCount && (
-              <div className="flex items-center gap-2 px-2 h-8" ref={bottomRef}>
-                <Spinner containerClassName="flex-none" />
-                <span className="text-accent-foreground animate-pulse">
-                  Loading more products...
-                </span>
-              </div>
-            )}
-          </Tooltip.Provider>
+          {products.length < totalCount && (
+            <div className="flex min-h-px flex-col gap-1" ref={bottomRef}>
+              {fetchingMore && (
+                <SkeletonArray count={3} className="w-full h-9" />
+              )}
+            </div>
+          )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 };
@@ -213,7 +387,8 @@ const SelectedProductsList = ({
   selectedProductIds,
   setSelectedProducts,
   setSelectedProductIds,
-}: ProductsListProps) => {
+  selectedLabel,
+}: ProductsListProps & { selectedLabel: React.ReactNode }) => {
   const handleRemoveProduct = (productId: string) => {
     setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
     setSelectedProductIds((prev) => prev.filter((id) => id !== productId));
@@ -221,15 +396,17 @@ const SelectedProductsList = ({
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 flex flex-col gap-1">
-        <div className="text-accent-foreground text-xs px-3 mb-1">Added</div>
+      <div className="flex flex-col gap-1 p-4">
+        <div className="px-3 mb-1 text-xs text-accent-foreground">
+          {selectedLabel}
+        </div>
         {selectedProductIds.map((productId) => {
           const product = selectedProducts.find((p) => p._id === productId);
           return (
             <Button
               key={productId}
               variant="ghost"
-              className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
+              className="justify-start max-w-full h-auto font-normal text-left whitespace-normal min-h-9"
               onClick={() => handleRemoveProduct(productId)}
             >
               <ProductsInline

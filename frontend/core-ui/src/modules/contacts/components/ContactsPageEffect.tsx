@@ -10,6 +10,8 @@ import { ContactsPath } from '@/types/paths/ContactsPath';
 export const ContactsPageEffect = () => {
   const isMatchingLocation = useIsMatchingLocation(ContactsPath.Index);
   const [contactId] = useQueryState<string>('contactId');
+  const [companyId] = useQueryState<string>('companyId');
+  const [cpUserId] = useQueryState<string>('cpUserId');
   const setHotkeyScope = useSetHotkeyScope();
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export const ContactsPageEffect = () => {
         break;
       }
       case isMatchingLocation(ContactsPath.Companies): {
-        if (contactId) {
+        if (companyId) {
           setHotkeyScope(ContactsHotKeyScope.CompanyEditSheet);
           break;
         }
@@ -41,8 +43,17 @@ export const ContactsPageEffect = () => {
         setHotkeyScope(ContactsHotKeyScope.CompaniesPage);
         break;
       }
+      case isMatchingLocation(ContactsPath.ClientPortalUsers): {
+        if (cpUserId) {
+          setHotkeyScope(ContactsHotKeyScope.ClientPortalUserEditSheet);
+          break;
+        }
+
+        setHotkeyScope(ContactsHotKeyScope.ClientPortalUsersPage);
+        break;
+      }
     }
-  }, [isMatchingLocation, setHotkeyScope, contactId]);
+  }, [isMatchingLocation, setHotkeyScope, contactId, companyId, cpUserId]);
 
   return <></>;
 };

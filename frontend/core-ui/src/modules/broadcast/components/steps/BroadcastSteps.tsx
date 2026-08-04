@@ -1,3 +1,4 @@
+import { IBroadcastMethodEnum } from '@/broadcast/types';
 import { useBroadcastAdd } from '@/broadcast/hooks/useBroadcastAdd';
 import { useBroadcastForm } from '@/broadcast/hooks/useBroadcastForm';
 import {
@@ -13,7 +14,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { BROADCAST_MESSAGE_METHOD_KINDS } from '../../constants';
+import { prepareBroadcastVariables } from '../../utils/prepareBroadcastVariables';
 import { BroadcastPreview } from '../BroadcastPreview';
 import { BroadcastConfigStep } from './BroadcastConfigStep';
 import { BroadcastTargetStep } from './BroadcastTargetStep';
@@ -29,16 +30,39 @@ const BROADCAST_STEPS = [
     title: 'Broadcast Config',
     description: 'Configure, Write and Compose your broadcast',
     content: BroadcastConfigStep,
-    validateFields: ['fromUserId', 'email.subject', 'email.content'],
+    validateFields: [
+      'fromEmail',
+      'email.subject',
+      'email.replyTo',
+      'email.content',
+    ],
   },
 ];
+
+const getConfigValidateFields = (method?: string | null) => {
+  if (method === 'notification') {
+    return ['cpId', 'notification.title', 'notification.content'];
+  }
+
+  if (method === 'messenger') {
+    return [
+      'fromUserId',
+      'messenger.brandId',
+      'messenger.content',
+      'messenger.sentAs',
+      'messenger.kind',
+    ];
+  }
+
+  return ['fromEmail', 'email.subject', 'email.replyTo', 'email.content'];
+};
 
 export const BroadcastSteps = ({
   setOpen,
 }: {
   setOpen: (open: boolean) => void;
 }) => {
-  const [method] = useQueryState<string>('method');
+  const [method] = useQueryState<IBroadcastMethodEnum>('method');
   const removeQueryStateByKey = useRemoveQueryStateByKey();
   const { toast } = useToast();
 
@@ -55,21 +79,12 @@ export const BroadcastSteps = ({
   };
 
   const onSubmit = (data: any, action?: 'draft' | 'live') => {
-    if (action === 'draft') {
-      data['isDraft'] = true;
-    }
-
-    if (action === 'live') {
-      data['isLive'] = true;
-    }
-
-    if (method) {
-      data['method'] = method;
-      data['kind'] = BROADCAST_MESSAGE_METHOD_KINDS[method];
+    if (!method) {
+      return;
     }
 
     addBroadcast({
-      variables: data,
+      variables: prepareBroadcastVariables(data, method, action),
       onCompleted: () => {
         toast({
           variant: 'default',
@@ -88,11 +103,30 @@ export const BroadcastSteps = ({
     }
 
     const currentStep = BROADCAST_STEPS[step - 1];
+    const validateFields =
+      step - 1 === 1
+        ? getConfigValidateFields(method)
+        : currentStep?.validateFields;
 
-    if (currentStep && currentStep.validateFields) {
-      const isValid = await form.trigger(currentStep.validateFields as any);
+    if (validateFields) {
+      const isValid = await form.trigger(validateFields as any);
 
       if (!isValid) {
+        return;
+      }
+    }
+
+    if (method === 'notification' && step - 1 === 1) {
+      const notification = form.getValues('notification');
+
+      if (!notification?.inApp && !notification?.isMobile) {
+        toast({
+          variant: 'destructive',
+          title: 'Select a notification channel',
+          description:
+            'Enable in-app or mobile & web push before saving the campaign.',
+        });
+
         return;
       }
     }

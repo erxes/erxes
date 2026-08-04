@@ -1,11 +1,11 @@
-import { Breadcrumb } from 'erxes-ui';
-import { IconArrowLeft } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
 import { PipelineDetail } from '@/pipelines/components/PipelineDetail';
-import { useParams } from 'react-router-dom';
-import { Button } from 'erxes-ui';
+import { IconArrowLeft } from '@tabler/icons-react';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const PipelineDetailPage = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string; pipelineId: string }>();
 
   return (
@@ -20,7 +20,7 @@ export const PipelineDetailPage = () => {
                 >
                   <Button variant="ghost">
                     <IconArrowLeft size={16} className="stroke-foreground" />
-                    Pipelines
+                    {t('pipelines')}
                   </Button>
                 </Link>
               </Breadcrumb.Link>

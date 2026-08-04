@@ -4,9 +4,77 @@ import { generateModels } from './connectionResolvers';
 import resolvers from './apollo/resolvers';
 import { router } from './routes';
 import segments from './meta/segments';
-import { startPlugin } from 'erxes-api-shared/utils';
+import { sendTRPCMessage, startPlugin } from 'erxes-api-shared/utils';
+import { afterProcess } from '~/meta/afterProcess';
 import { typeDefs } from './apollo/typeDefs';
 import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
+import { notifications } from './meta/notifications';
+import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
+import {
+  createCoreModuleProducerHandler,
+  TImportExportProducers,
+  TGetExportDataInput,
+  TGetExportHeadersInput,
+} from 'erxes-api-shared/core-modules';
+import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
+import { permissions } from '~/meta/permissions';
+import { salesReferences } from './meta/references';
+import { documents } from './meta/documents';
+import { handleCreateDealFromPayment } from '~/modules/sales/meta/payments/createDealFromPayment';
+
+import { beforeResolvers } from '~/meta/beforeResolvers';
+
+const handleDealPaymentCallback = async (subdomain: string, data: any) => {
+  const { contentTypeId, amount = 0, _id } = data;
+  const paidAmount = Number(amount || 0);
+  const models = await generateModels(subdomain);
+  const oldDeal = await models.Deals.getDeal(contentTypeId);
+
+  const updateResult = await models.Deals.updateOne(
+    { _id: contentTypeId, 'mobileAmounts._id': { $ne: _id } },
+    {
+      $addToSet: {
+        mobileAmounts: {
+          _id,
+          amount: paidAmount,
+        },
+      },
+      $inc: {
+        mobileAmount: paidAmount,
+      },
+    },
+  );
+
+  if (!updateResult.modifiedCount) {
+    return;
+  }
+
+  const updatedDeal = await models.Deals.getDeal(contentTypeId);
+
+  await subscriptionWrapper(models, {
+    action: 'update',
+    deal: updatedDeal,
+    oldDeal,
+  });
+};
+
+const handlePosOrderPaymentCallback = async (subdomain: string, data: any) => {
+  const posToken = data?.data?.posToken;
+
+  if (!posToken) {
+    return;
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'posclient',
+    method: 'query',
+    module: 'posclient',
+    action: 'paymentCallbackClient',
+    input: data,
+    defaultValue: null,
+  });
+};
 
 startPlugin({
   name: 'sales',
@@ -48,23 +116,80 @@ startPlugin({
   meta: {
     automations,
     segments,
+    documents,
+    references: salesReferences,
     tags: { types: [{ type: 'deal', description: 'Sales' }] },
-    notificationModules: [
-      {
-        name: 'deals',
-        description: 'Deals',
-        icon: 'IconChecklist',
+    properties: {
+      types: [
+        {
+          description: 'Sales pipelines',
+          type: 'deal',
+        },
+      ],
+    },
+    notifications,
+    payments: {
+      transactionCallback: async () => {
+        // TODO: implement transaction callback if necessary
+      },
+      createDealFromPayment: async ({ subdomain }, data) => {
+        if (data?.status !== 'paid') {
+          return;
+        }
+
+        return handleCreateDealFromPayment(subdomain, data);
+      },
+      callback: async ({ subdomain }, data) => {
+        const { status, contentType } = data;
+
+        if (status !== 'paid') {
+          return;
+        }
+
+        if (contentType === 'sales:deal') {
+          return handleDealPaymentCallback(subdomain, data);
+        }
+
+        if (
+          [
+            'sales:pos.orders',
+            'sales:order',
+            'sales:posOrder',
+            'sales:posOrders',
+          ].includes(contentType)
+        ) {
+          return handlePosOrderPaymentCallback(subdomain, data);
+        }
+      },
+    },
+    afterProcess,
+    beforeResolvers,
+    permissions,
+    importExport: {
+      export: {
         types: [
-          { name: 'dealAssignee', text: 'Deal assignee' },
-          { name: 'dealStatus', text: 'Deal status changed' },
+          {
+            label: 'POS Items',
+            contentType: 'sales:pos.posItems',
+            permissions: ['posItemsExportManage'],
+          },
         ],
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { pos: posExportHandlers },
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { pos: posExportHandlers },
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
       },
-      {
-        name: 'note',
-        description: 'Note',
-        icon: 'IconNote',
-        types: [{ name: 'note', text: 'Mentioned in note' }],
-      },
-    ],
+    },
   },
 });

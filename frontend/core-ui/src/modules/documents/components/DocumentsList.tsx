@@ -7,16 +7,16 @@ export const DocumentsList = ({ documents }: { documents: any }) => {
   const removeQuery = useRemoveQueryStateByKey();
 
   return (
-    <Sidebar collapsible="none" className="w-full">
+    <Sidebar collapsible="none" className="w-full border-r bg-muted/20">
       <Sidebar.Group>
         <Sidebar.GroupLabel
-          className="gap-2 cursor-pointer"
+          className="h-12 cursor-pointer gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
           onClick={() => {
             removeQuery('documentId');
           }}
         >
           <IconArrowLeft />
-          Documents
+          All documents
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -26,7 +26,7 @@ export const DocumentsList = ({ documents }: { documents: any }) => {
                   isActive={_id === documentId}
                   onClick={() => setDocumentId(_id)}
                 >
-                  <span className="truncate">{name}</span>
+                  <span className="truncate">{name || 'Untitled'}</span>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

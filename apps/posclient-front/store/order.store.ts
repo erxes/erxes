@@ -32,7 +32,7 @@ import {
 } from "./cart.store"
 import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
-import { fixNum } from '@/lib/utils'
+import { fixNum } from "@/lib/utils"
 
 // order
 export const activeOrderIdAtom = atomWithStorage<string | null>(
@@ -41,13 +41,17 @@ export const activeOrderIdAtom = atomWithStorage<string | null>(
 )
 export const orderNumberAtom = atom<string>("")
 export const buttonTypeAtom = atom<string | null>(null)
-export const isShowAtom = atom(false);
-export const orderIdAtom = atom<string | null>(null);
-export const previousOrderCountRefAtom = atom(0);
+export const isShowAtom = atom(false)
+export const orderIdAtom = atom<string | null>(null)
+export const previousOrderCountRefAtom = atom(0)
 
 // customer
 export const customerAtom = atom<Customer | null>(null)
 export const customerTypeAtom = atom<CustomerType>("")
+
+// broker
+export const brokerAtom = atomWithStorage<Customer | null>("broker", null)
+export const brokerTypeAtom = atom<string>("customer")
 
 // order type
 export const orderTypeAtom = atom<IOrderType>("eat")
@@ -119,7 +123,7 @@ export const splitOrderItemsAtom = atom<{
 
   const getItems = (type: "main" | "sub") =>
     get(cartAtom).map((item) => {
-      const percentCount = fixNum((item.count * percent)) / 100
+      const percentCount = fixNum(item.count * percent) / 100
       return {
         ...item,
         count: type === "main" ? item.count - percentCount : percentCount,
@@ -133,7 +137,10 @@ export const splitOrderItemsAtom = atom<{
 })
 
 export const payByProductTotalAtom = atom<number>((get) =>
-  get(payByProductAtom).reduce((prev, pr) => prev + fixNum(pr.count * pr.unitPrice), 0)
+  get(payByProductAtom).reduce(
+    (prev, pr) => prev + fixNum(pr.count * pr.unitPrice),
+    0
+  )
 )
 export const paidProductsAtom = atomWithStorage<PayByProductItem[]>(
   "paidProducts",
@@ -172,8 +179,6 @@ export const askSaveAtom = atom((get) =>
 // cashier
 export const orderUserAtom = atom<IOrderUser | null>(null)
 
-
-
 // reset
 export const setInitialAtom = atom(
   () => "",
@@ -183,6 +188,8 @@ export const setInitialAtom = atom(
     set(cartChangedAtom, false)
     set(customerAtom, null)
     set(customerTypeAtom, "")
+    set(brokerAtom, null)
+    set(brokerTypeAtom, "customer")
     set(orderTypeAtom, (get(allowTypesAtom) || [])[0] || "eat")
     set(registerNumberAtom, "")
     set(billTypeAtom, null)
@@ -235,6 +242,8 @@ export const setOrderStatesAtom = atom(
       isPre,
       directDiscount,
       directIsAmount,
+      brokerType,
+      brokerId,
     }: IOrder
   ) => {
     set(activeOrderIdAtom, _id || null)
@@ -249,6 +258,11 @@ export const setOrderStatesAtom = atom(
     }
 
     set(customerTypeAtom, customerType || "")
+    const currentBroker = get(brokerAtom)
+    if (!brokerId || brokerId !== currentBroker?._id) {
+      set(brokerAtom, null)
+    }
+    set(brokerTypeAtom, brokerType || "customer")
     askSaveAtom && set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
     set(billTypeAtom, billType || "1")
@@ -270,7 +284,7 @@ export const setOrderStatesAtom = atom(
   }
 )
 export const setOnOrderChangeAtom = atom(
-  () => { },
+  () => {},
   (get, set) => {
     set(refetchUserAtom, true)
     set(refetchOrderAtom, true)
@@ -280,16 +294,21 @@ export const setOnOrderChangeAtom = atom(
 
 export const openCancelDialogAtom = atom<string | null>(null)
 
-export const setOpenCancelDialogAtom = atom(get => null, (get, set) => {
-  const totalPaidAmount = get(getTotalPaidAmountAtom)
-  const activeOrderId = get(activeOrderIdAtom)
-  if (typeof totalPaidAmount === 'number' &&
-    totalPaidAmount <= 0 &&
-    activeOrderId &&
-    get(openCancelDialogAtom) !== activeOrderId) {
-    set(openCancelDialogAtom, activeOrderId)
+export const setOpenCancelDialogAtom = atom(
+  (get) => null,
+  (get, set) => {
+    const totalPaidAmount = get(getTotalPaidAmountAtom)
+    const activeOrderId = get(activeOrderIdAtom)
+    if (
+      typeof totalPaidAmount === "number" &&
+      totalPaidAmount <= 0 &&
+      activeOrderId &&
+      get(openCancelDialogAtom) !== activeOrderId
+    ) {
+      set(openCancelDialogAtom, activeOrderId)
+    }
   }
-})
+)
 
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),
@@ -307,4 +326,6 @@ export const orderValuesAtom = atom((get) => ({
   buttonType: get(buttonTypeAtom),
   dueDate: get(dueDateAtom),
   isPre: get(isPreAtom),
+  brokerType: get(brokerTypeAtom) || null,
+  brokerId: get(brokerAtom)?._id || null,
 }))

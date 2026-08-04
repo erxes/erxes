@@ -27,7 +27,7 @@ const resolvers = {
   },
 
   paidAmounts: async (order: IPosOrderDocument, _, { models }: IContext) => {
-    if (!order.paidAmounts || !order.paidAmounts.length) {
+    if (!order.paidAmounts?.length) {
       return;
     }
 
@@ -35,7 +35,7 @@ const resolvers = {
       token: order.posToken,
     }).lean();
 
-    if (!pos || !pos.paymentTypes || !pos.paymentTypes.length) {
+    if (!pos?.paymentTypes?.length) {
       return order.paidAmounts;
     }
 
@@ -64,6 +64,48 @@ const resolvers = {
       action: 'findOne',
       input: { _id: order.userId },
     });
+  },
+
+  brokerName: async (order, _, { subdomain }) => {
+    if (!order.brokerId || !order.brokerType) return null;
+
+    if (order.brokerType === 'user') {
+      const user = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'users',
+        action: 'findOne',
+        input: { _id: order.brokerId },
+        defaultValue: null,
+      });
+      return user?.username || null;
+    }
+
+    if (order.brokerType === 'company') {
+      const company = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'companies',
+        action: 'findOne',
+        input: { _id: order.brokerId },
+        defaultValue: null,
+      });
+      return company?.primaryName || null;
+    }
+
+    const customer = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'customers',
+      action: 'findOne',
+      input: { _id: order.brokerId },
+      defaultValue: null,
+    });
+    if (!customer) return null;
+    const name = [customer.firstName, customer.lastName]
+      .filter(Boolean)
+      .join(' ');
+    return name || customer.primaryEmail || customer.code || null;
   },
 };
 

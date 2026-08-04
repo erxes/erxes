@@ -1,8 +1,14 @@
-import { authCookieOptions, escapeRegExp } from 'erxes-api-shared/utils';
+import {
+  authCookieOptions,
+  escapeRegExp,
+  markResolvers,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 
 // import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 // import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '@/posclient/@types/orderItems';
+import { IPosUserDocument } from '@/posclient/@types/posUsers';
 import fetch from 'node-fetch';
 import { IEbarimtDocument } from '@/posclient/db/definitions/putResponses';
 
@@ -17,14 +23,149 @@ import {
   validateConfig,
 } from '~/modules/posclient/utils/syncUtils';
 import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
-import { syncRemainders } from '~/modules/posclient/utils/products';
+import {
+  syncDiscounts,
+  syncRemainders,
+} from '~/modules/posclient/utils/products';
+import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-const configMutations = {
+type PosSyncConfigResponse = {
+  error?: string;
+  pos?: Record<string, unknown>;
+  adminUsers?: IPosUserDocument[];
+  cashiers?: IPosUserDocument[];
+  productGroups?: unknown[];
+  slots?: unknown[];
+};
+
+const POS_CONFIG_NOT_FOUND_ERRORS = new Set([
+  'not found pos',
+  'not found pos by token',
+]);
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
+const isPosConfigNotFoundError = (message?: string) =>
+  POS_CONFIG_NOT_FOUND_ERRORS.has((message || '').trim().toLowerCase());
+
+const handlePosSyncConfigError = async ({
+  models,
+  config,
+  error,
+}: {
+  models: IContext['models'];
+  config: IContext['config'];
+  error?: string;
+}): Promise<boolean> => {
+  if (!error) {
+    return false;
+  }
+
+  if (isPosConfigNotFoundError(error)) {
+    await models.Configs.removeConfig(config._id);
+    return true;
+  }
+
+  throw new Error(`Can not sync POS config from sales: ${error}`);
+};
+
+const syncPosConfig = async ({
+  models,
+  subdomain,
+  config,
+  type,
+}: {
+  models: IContext['models'];
+  subdomain: string;
+  config: IContext['config'];
+  type: string;
+}) => {
+  const address = await getServerAddress(subdomain);
+
+  const { token } = config;
+  let responseData: PosSyncConfigResponse;
+
+  try {
+    const response = await fetch(`${address}/pos-sync-config`, {
+      headers: {
+        'POS-TOKEN': config.token || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, type }),
+      timeout: 300000,
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    responseData = await response.json();
+  } catch (e: unknown) {
+    throw new Error(
+      `Can not fetch POS config from sales: ${getErrorMessage(e)}`,
+    );
+  }
+
+  const {
+    pos = {},
+    adminUsers = [],
+    cashiers = [],
+    productGroups = [],
+    slots = [],
+  } = responseData;
+
+  switch (type) {
+    case 'config':
+      if (
+        await handlePosSyncConfigError({
+          models,
+          config,
+          error: responseData.error,
+        })
+      ) {
+        break;
+      }
+
+      if (pos.status === 'deleted') {
+        await models.Configs.removeConfig(config._id);
+        break;
+      }
+
+      await models.Configs.updateConfig(config._id, {
+        ...(await extractConfig(subdomain, pos)),
+        token: config.token,
+      });
+      await importUsers(models, cashiers, config.token);
+      await importUsers(models, adminUsers, config.token, true);
+      break;
+    case 'products':
+      await preImportProducts(models, token, productGroups);
+      await importProducts(subdomain, models, token, productGroups);
+      break;
+    case 'slots':
+      await importSlots(models, token, slots);
+      break;
+    case 'productsConfigs':
+      await models.ProductsConfigs.createOrUpdateConfig({
+        code: 'similarityGroup',
+        value: responseData,
+      });
+      break;
+  }
+
+  return 'success';
+};
+
+const configMutations: Record<string, Resolver> = {
   posConfigsFetch: async (
     _root,
     { token },
-    { models, subdomain }: IContext,
+    { models, subdomain, posUser }: IContext,
   ) => {
+    assertPosUser(posUser);
     const address = await getServerAddress(subdomain);
 
     const config = await models.Configs.createConfig(token, 'init');
@@ -54,7 +195,7 @@ const configMutations = {
       });
       await importUsers(models, cashiers, token);
       await importUsers(models, adminUsers, token, true);
-      await importSlots(models, slots, token);
+      await importSlots(models, token, slots);
       await importProducts(subdomain, models, token, productGroups);
     } catch (e) {
       await models.Configs.deleteOne({ token });
@@ -72,59 +213,19 @@ const configMutations = {
   },
 
   async syncConfig(_root, { type }, { models, subdomain, config }: IContext) {
-    const address = await getServerAddress(subdomain);
-
-    const { token } = config;
-    const response = await fetch(`${address}/pos-sync-config`, {
-      headers: {
-        'POS-TOKEN': config.token || '',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token, type }),
-      timeout: 300000,
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-    const responseData = await response.json();
-
-    const {
-      pos = {},
-      adminUsers = [],
-      cashiers = [],
-      productGroups = [],
-      slots = [],
-    } = responseData;
-
-    switch (type) {
-      case 'config':
-        await models.Configs.updateConfig(config._id, {
-          ...(await extractConfig(subdomain, pos)),
-          token: config.token,
-        });
-        await importUsers(models, cashiers, config.token);
-        await importUsers(models, adminUsers, config.token, true);
-        break;
-      case 'products':
-        await preImportProducts(models, token, productGroups);
-        await importProducts(subdomain, models, token, productGroups);
-        break;
-      case 'slots':
-        await importSlots(models, slots, token);
-        break;
-      case 'productsConfigs':
-        await models.ProductsConfigs.createOrUpdateConfig({
-          code: 'similarityGroup',
-          value: responseData,
-        });
-        break;
-    }
-    return 'success';
+    return syncPosConfig({ models, subdomain, config, type });
   },
 
-  async syncOrders(_root, _param, { models, subdomain, config }: IContext) {
+  async cpSyncConfig(_root, { type }, { models, subdomain, config }: IContext) {
+    return syncPosConfig({ models, subdomain, config, type });
+  },
+
+  async syncOrders(
+    _root,
+    _param,
+    { models, subdomain, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
     const unSyncedPutResponses: IEbarimtDocument[] =
       await models.PutResponses.find({ synced: { $ne: true } })
         .sort({ paidDate: 1 })
@@ -147,7 +248,7 @@ const configMutations = {
       ],
     };
 
-    let sumCount = await models.Orders.find({
+    const sumCount = await models.Orders.find({
       ...orderFilter,
     }).countDocuments();
     const orders = await models.Orders.find({ ...orderFilter })
@@ -181,11 +282,17 @@ const configMutations = {
     }
 
     if (data.length) {
-      // await sendPosMessage({
-      //   subdomain,
-      //   action: 'createOrUpdateOrdersMany',
-      //   data: { posToken: config.token, syncOrders: data },
-      // });
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'sales',
+        module: 'pos',
+        action: 'createOrUpdateOrdersMany',
+        input: {
+          posToken: config.token,
+          syncOrders: data,
+        },
+      });
     }
 
     return {
@@ -195,7 +302,9 @@ const configMutations = {
     };
   },
 
-  async deleteOrders(_root, _param, { models }: IContext) {
+  async deleteOrders(_root, _param, { models, posUser }: IContext) {
+    assertPosUser(posUser);
+
     // const orderFilter = {
     //   synced: false,
     //   status: ORDER_STATUSES.NEW
@@ -229,12 +338,20 @@ const configMutations = {
 
     return 'chosen';
   },
+
   refetchRemainder: async (
     _root,
     { categoryId, searchValue }: { categoryId?: string; searchValue?: string },
-    { models, subdomain, config }: IContext,
+    { models, subdomain, config, posUser }: IContext,
   ) => {
-    const { token } = config;
+    assertPosUser(posUser);
+
+    const { token, saveRemainder } = config;
+
+    if (!saveRemainder) {
+      return 'needless';
+    }
+
     const $and: any[] = [{}];
 
     const filter: any = {
@@ -279,14 +396,22 @@ const configMutations = {
       $and.push({ categoryId: { $in: relatedCategoryIds } });
     }
 
-    await syncRemainders(
-      subdomain,
-      models,
-      config,
-      await models.Products.find({ ...filter }).lean(),
-    );
+    const products = await models.Products.find({ ...filter }).lean();
+
+    await syncRemainders(subdomain, models, config, products);
+    await syncDiscounts(subdomain, models, products);
+
     return 'success';
   },
 };
 
+markResolvers(configMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 export default configMutations;
+
+configMutations.cpSyncConfig.wrapperConfig = {
+  forClientPortal: true,
+};

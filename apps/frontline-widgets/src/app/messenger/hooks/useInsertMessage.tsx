@@ -19,7 +19,9 @@ export const useInsertMessage = () => {
   );
   const customerId =
     widgetsMessengerConnect?.customerId || getLocalStorageItem('customerId');
-  const handleInsertMessage = (options?: MutationHookOptions) => {
+  const handleInsertMessage = (
+    options?: MutationHookOptions & { variables?: { payload?: string } },
+  ) => {
     return insertMessage({
       ...options,
       variables: {

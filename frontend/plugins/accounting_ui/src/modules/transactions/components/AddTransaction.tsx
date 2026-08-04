@@ -102,17 +102,15 @@ export const AddTransaction = ({
         >
           Хангамжийн зарлага
         </AddTransactionItem>
-        {
-          !inForm && (
-            <AddTransactionItem
-              journal={TrJournalEnum.INV_MOVE}
-              onClick={onClick}
-              inForm={inForm}
-            >
-              Дотоод хөдөлгөөн
-            </AddTransactionItem>
-          )
-        }
+        {!inForm && (
+          <AddTransactionItem
+            journal={TrJournalEnum.INV_MOVE}
+            onClick={onClick}
+            inForm={inForm}
+          >
+            Дотоод хөдөлгөөн
+          </AddTransactionItem>
+        )}
         <AddTransactionItem
           journal={TrJournalEnum.INV_SALE}
           onClick={onClick}
@@ -120,13 +118,43 @@ export const AddTransaction = ({
         >
           Борлуулалт
         </AddTransactionItem>
-        <AddTransactionItem disabled>
-          Борлуулалт (ажил үйлчилгээ)
+        <AddTransactionItem
+          journal={TrJournalEnum.INV_SALE_RETURN}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Борлуулалт буцаалт
         </AddTransactionItem>
+
         <DropdownMenu.Label>Үндсэн хөрөнгө</DropdownMenu.Label>
-        <AddTransactionItem disabled>Орлого</AddTransactionItem>
-        <AddTransactionItem disabled>Акт</AddTransactionItem>
-        <AddTransactionItem disabled>Хөдөлгөөн</AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.FXA_INCOME}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Орлого
+        </AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.FXA_OUT}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Акт
+        </AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.FXA_MOVE}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Хөдөлгөөн
+        </AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.FXA_SALE}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Борлуулалт
+        </AddTransactionItem>
         <AddTransactionItem disabled>Тохируулга</AddTransactionItem>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -159,7 +187,7 @@ const AddTransactionItem = ({
     );
   }
   return (
-    <DropdownMenu.Item onClick={() => onClick && onClick(journal)}>
+    <DropdownMenu.Item onClick={() => onClick?.(journal)}>
       {children}
     </DropdownMenu.Item>
   );

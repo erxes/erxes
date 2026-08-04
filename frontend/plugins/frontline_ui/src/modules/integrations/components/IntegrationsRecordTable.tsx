@@ -1,67 +1,214 @@
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
+  Button,
+  CommandBar,
   Input,
   RecordTable,
   RecordTableInlineCell,
   PopoverScoped,
+  Empty,
+  Separator,
+  Spinner,
+  toast,
+  useConfirm,
 } from 'erxes-ui';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { IIntegrationDetail } from '../types/Integration';
-import { useIntegrations } from '../hooks/useIntegrations';
+import {
+  INTEGRATIONS_PER_PAGE,
+  useIntegrations,
+} from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
 import { useState } from 'react';
-import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration';
-import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
-import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
+import { integrationMoreColumn } from './IntegrationMoreColumn';
+import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
+import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
+import { INTEGRATIONS } from '../constants/integrations';
+import { useTranslation } from 'react-i18next';
 
-export const IntegrationsRecordTable = ({
-  Actions,
-}: {
-  Actions: (props: {
-    cell: Cell<IIntegrationDetail, unknown>;
-  }) => React.ReactNode;
-}) => {
+export const IntegrationsRecordTable = () => {
+  const { t } = useTranslation('frontline');
   const params = useParams();
+  const isDiscord =
+    params?.integrationType === IntegrationType.DISCORD_MESSENGER;
+  const columns = useIntegrationTypeColumns(isDiscord);
+  const integrationName =
+    INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name;
 
-  const { integrations, loading, handleFetchMore } = useIntegrations({
+  const { integrations, loading, pageInfo, handleFetchMore } = useIntegrations({
     variables: {
       kind: params?.integrationType,
       channelId: params?.id,
+      ...(isDiscord ? { limit: INTEGRATIONS_PER_PAGE } : {}),
     },
     skip: !params?.integrationType,
     errorPolicy: 'all',
   });
 
+  if (!integrations?.length && !loading) {
+    return (
+      <Empty className="w-full h-full rounded-lg bg-accent">
+        <Empty.Header>
+          <Empty.Media>
+            <div className="rounded-sm border-dashed border-2 bg-muted flex items-center justify-center aspect-square w-20 text-muted-foreground">
+              <IconMessagesOff />
+            </div>
+          </Empty.Media>
+          <Empty.Title>
+            {t('no-integration-found', {
+              defaultValue: 'No {{name}} found',
+              name: integrationName,
+            })}
+          </Empty.Title>
+          <Empty.Description>
+            {t('get-started-adding-integration', {
+              defaultValue: 'Get started by adding your first {{name}}.',
+              name: integrationName,
+            })}
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    );
+  }
+
+  const table = (
+    <RecordTable className="w-full">
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+        {loading && <RecordTable.RowSkeleton rows={40} />}
+        <RecordTable.RowList />
+        <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+      </RecordTable.Body>
+    </RecordTable>
+  );
+
   return (
     <RecordTable.Provider
-      columns={integrationTypeColumns({ Actions })}
+      columns={columns}
       data={(integrations || []).filter((integration) => integration)}
-      stickyColumns={['name']}
+      stickyColumns={
+        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
+      }
     >
-      <RecordTable.Scroll>
-        <RecordTable className="w-full">
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
+      {isDiscord ? (
+        <RecordTable.CursorProvider
+          hasPreviousPage={pageInfo?.hasPreviousPage}
+          hasNextPage={pageInfo?.hasNextPage}
+          dataLength={integrations?.length}
+          sessionKey={`frontline_integrations_${params?.integrationType}_${params?.id}`}
+        >
+          {table}
+        </RecordTable.CursorProvider>
+      ) : (
+        <RecordTable.Scroll>{table}</RecordTable.Scroll>
+      )}
+      {isDiscord && <IntegrationsCommandBar />}
     </RecordTable.Provider>
   );
 };
 
-const NameField = ({ cell }: { cell: Cell<IIntegrationDetail, unknown> }) => {
+const IntegrationsCommandBar = () => {
+  const { t } = useTranslation('frontline');
+  const { table } = RecordTable.useRecordTable();
+  const { confirm } = useConfirm();
+  const client = useApolloClient();
+  const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION);
+
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const ids = selectedRows.map((row) => row.original._id as string);
+
+  const handleDelete = () => {
+    confirm({
+      message: t('confirm-delete-selected-integrations', {
+        defaultValue:
+          "Delete {{count}} selected integrations? This can't be undone.",
+        count: ids.length,
+      }),
+    }).then(async () => {
+      let failed = 0;
+      for (const id of ids) {
+        try {
+          await removeIntegration({ variables: { id } });
+        } catch {
+          failed += 1;
+        }
+      }
+
+      table.resetRowSelection();
+
+      let refreshFailed = false;
+      try {
+        const results = await client.refetchQueries({
+          include: ['Integrations'],
+        });
+        refreshFailed = results.some(
+          (result) => result.error || result.errors?.length,
+        );
+      } catch {
+        refreshFailed = true;
+      }
+
+      const succeeded = ids.length - failed;
+      const description = [
+        failed
+          ? t('integrations-removed-with-failures', {
+              defaultValue: '{{succeeded}} removed, {{failed}} failed',
+              succeeded,
+              failed,
+            })
+          : t('integrations-removed', {
+              defaultValue: '{{count}} integrations removed',
+              count: succeeded,
+            }),
+        refreshFailed &&
+          t('integrations-refresh-failed', {
+            defaultValue:
+              'Could not refresh the list. Reload the page to see the latest data.',
+          }),
+      ]
+        .filter(Boolean)
+        .join(' ');
+
+      toast(
+        failed || refreshFailed
+          ? { title: t('error'), description, variant: 'destructive' }
+          : { title: t('success'), description, variant: 'success' },
+      );
+    });
+  };
+
+  return (
+    <CommandBar open={selectedRows.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>
+          {t('n-selected', { count: selectedRows.length })}
+        </CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          disabled={loading}
+          onClick={handleDelete}
+        >
+          {loading ? <Spinner /> : <IconTrash />}
+          {t('delete')}
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
+  );
+};
+
+const NameField = ({
+  cell,
+}: {
+  cell: CellContext<IIntegrationDetail, unknown>;
+}) => {
   const [name, setName] = useState(cell.row.original.name);
   const { editIntegrationField } = useIntegrationEditField(cell.row.original);
   const handleSave = () => {
@@ -103,83 +250,71 @@ const NameField = ({ cell }: { cell: Cell<IIntegrationDetail, unknown> }) => {
 export const BrandField = ({
   cell,
 }: {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
-  return <></>;
+  return null;
 };
 
-export const integrationTypeColumns = ({
-  Actions,
-}: {
-  Actions: (props: {
-    cell: Cell<IIntegrationDetail, unknown>;
-  }) => React.ReactNode;
-}): ColumnDef<IIntegrationDetail>[] => [
-  {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
-    cell: ({ cell }) => <NameField cell={cell} />,
-    size: 300,
-  },
-  {
-    id: 'isActive',
-    accessorKey: 'isActive',
-    header: () => <RecordTable.InlineHead label="Status" />,
-    cell: ({ cell }) => {
-      const status = cell.getValue() as boolean;
-      return (
-        <RecordTableInlineCell>
-          <Badge
-            className="text-xs capitalize mx-auto"
-            variant={status ? 'success' : 'destructive'}
-          >
-            {status ? 'Active' : 'Inactive'}
-          </Badge>
-        </RecordTableInlineCell>
-      );
+export const useIntegrationTypeColumns = (
+  withSelection = false,
+): ColumnDef<IIntegrationDetail>[] => {
+  const { t } = useTranslation('frontline');
+  return [
+    integrationMoreColumn(),
+    ...(withSelection
+      ? [RecordTable.checkboxColumn as ColumnDef<IIntegrationDetail>]
+      : []),
+    {
+      id: 'name',
+      accessorKey: 'name',
+      header: () => <RecordTable.InlineHead label={t('name')} />,
+      cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
+        <NameField cell={cell} />
+      ),
+      size: 300,
     },
-    size: 100,
-  },
-  {
-    id: 'healthStatus',
-    accessorKey: 'healthStatus',
-    header: () => <RecordTable.InlineHead label="Health status" />,
-    cell: ({ cell }) => {
-      const { status } = cell.getValue() as IIntegrationDetail['healthStatus'];
+    {
+      id: 'isActive',
+      accessorKey: 'isActive',
+      header: () => <RecordTable.InlineHead label={t('status')} />,
+      cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
+        const status = cell.getValue() as boolean;
+        return (
+          <RecordTableInlineCell>
+            <Badge
+              className="text-xs capitalize mx-auto"
+              variant={status ? 'success' : 'destructive'}
+            >
+              {status ? t('active', 'Active') : t('inactive', 'Inactive')}
+            </Badge>
+          </RecordTableInlineCell>
+        );
+      },
+      size: 100,
+    },
+    {
+      id: 'healthStatus',
+      accessorKey: 'healthStatus',
+      header: () => <RecordTable.InlineHead label={t('health-status')} />,
+      cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
+        const healthStatus =
+          cell.getValue() as IIntegrationDetail['healthStatus'];
+        const status = healthStatus?.status;
 
-      return (
-        <RecordTableInlineCell>
-          <Badge
-            className="text-xs capitalize mx-auto"
-            variant={status === 'healthy' ? 'success' : 'destructive'}
-          >
-            {status}
-          </Badge>
-        </RecordTableInlineCell>
-      );
+        return (
+          <RecordTableInlineCell>
+            {status ? (
+              <Badge
+                className="text-xs capitalize mx-auto"
+                variant={status === 'healthy' ? 'success' : 'destructive'}
+              >
+                {status}
+              </Badge>
+            ) : null}
+          </RecordTableInlineCell>
+        );
+      },
+      size: 120,
     },
-    size: 120,
-  },
-  {
-    id: 'action-group',
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ cell }) => {
-      const { isActive, _id, name } = cell.row.original;
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { integrationType } = useParams();
-      return (
-        <RecordTableInlineCell>
-          {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
-          IntegrationType.FACEBOOK_POST === integrationType ? (
-            <FacebookIntegrationRepair cell={cell} />
-          ) : null}
-          <Actions cell={cell} />
-          <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
-          <RemoveIntegration _id={_id} name={name} />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 120,
-  },
-];
+  ];
+};

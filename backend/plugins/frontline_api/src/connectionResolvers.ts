@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
-import { createGenerateModels } from 'erxes-api-shared/utils';
+import {
+  createGenerateModels,
+  ScopedEventHandlers,
+} from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
@@ -96,6 +99,11 @@ import {
   ICallQueueStatisticsModel,
   loadCallQueueClass,
 } from '@/integrations/call/db/models/QueueStatistics';
+import {
+  ICallSessionModel,
+  loadCallSessionClass,
+} from '@/integrations/call/db/models/CallSessions';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 import { ICallOperatorDocuments } from '@/integrations/call/@types/operators';
 import { ICallConfigDocument } from '@/integrations/call/@types/config';
@@ -107,6 +115,28 @@ import {
   IFacebookBotModel,
   loadFacebookBotClass,
 } from '@/integrations/facebook/db/models/Bots';
+
+// Discord integration models
+import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
+import { IDiscordCustomerDocument } from '@/integrations/discord/@types/customers';
+import { IDiscordConversationDocument } from '@/integrations/discord/@types/conversations';
+import { IDiscordConversationMessageDocument } from '@/integrations/discord/@types/conversationMessages';
+import {
+  IDiscordBotModel,
+  loadDiscordBotClass,
+} from '@/integrations/discord/db/models/Bots';
+import {
+  IDiscordCustomerModel,
+  loadDiscordCustomerClass,
+} from '@/integrations/discord/db/models/Customers';
+import {
+  IDiscordConversationModel,
+  loadDiscordConversationClass,
+} from '@/integrations/discord/db/models/Conversations';
+import {
+  IDiscordConversationMessageModel,
+  loadDiscordConversationMessageClass,
+} from '@/integrations/discord/db/models/ConversationMessages';
 
 import {
   ICustomerImapDocument,
@@ -193,6 +223,63 @@ import {
 } from '@/knowledgebase/db/models/Category';
 import { ITopicModel, loadTopicClass } from '@/knowledgebase/db/models/Topic';
 
+// Instagram imports
+import {
+  IInstagramIntegrationModel,
+  loadInstagramIntegrationClass,
+} from '@/integrations/instagram/db/models/Integrations';
+import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
+import {
+  IInstagramAccountModel,
+  loadInstagramAccountClass,
+} from '@/integrations/instagram/db/models/Accounts';
+import { IInstagramAccountDocument } from '@/integrations/instagram/@types/accounts';
+import {
+  IInstagramCustomerModel,
+  loadInstagramCustomerClass,
+} from '@/integrations/instagram/db/models/Customers';
+import { IInstagramCustomerDocument } from '@/integrations/instagram/@types/customers';
+import {
+  IInstagramConversationModel,
+  loadInstagramConversationClass,
+} from '@/integrations/instagram/db/models/Conversations';
+import { IInstagramConversationDocument } from '@/integrations/instagram/@types/conversations';
+import {
+  IInstagramConversationMessageModel,
+  loadInstagramConversationMessageClass,
+} from '@/integrations/instagram/db/models/ConversationMessages';
+import { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
+import {
+  IInstagramCommentConversationModel,
+  loadInstagramCommentConversationClass,
+} from '@/integrations/instagram/db/models/Comment_conversations';
+import { IInstagramCommentConversationDocument } from '@/integrations/instagram/@types/comment_conversations';
+import {
+  IInstagramCommentConversationReplyModel,
+  loadInstagramCommentConversationReplyClass,
+} from '@/integrations/instagram/db/models/Comment_conversations_reply';
+import { IInstagramCommentConversationReplyDocument } from '@/integrations/instagram/@types/comment_conversations_reply';
+import {
+  IInstagramPostConversationModel,
+  loadInstagramPostConversationClass,
+} from '@/integrations/instagram/db/models/PostConversations';
+import { IInstagramPostConversationDocument } from '@/integrations/instagram/@types/postConversations';
+import {
+  IInstagramLogModel,
+  loadInstagramLogClass,
+} from '@/integrations/instagram/db/models/Logs';
+import { IInstagramLogDocument } from '@/integrations/instagram/@types/logs';
+import {
+  IInstagramBotModel,
+  loadInstagramBotClass,
+} from '@/integrations/instagram/db/models/Bots';
+import { IInstagramBotDocument } from '@/integrations/instagram/@types/bots';
+
+import {
+  IInstagramConfigModel,
+  loadInstagramConfigClass,
+} from '@/integrations/instagram/db/models/Config';
+import { IInstagramConfigDocument } from './modules/integrations/instagram/@types/config';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -213,6 +300,19 @@ export interface IModels {
   FacebookLogs: IFacebookLogModel;
   FacebookPostConversations: IFacebookPostConversationModel;
   FacebookConfigs: IFacebookConfigModel;
+  //instagram
+  InstagramIntegrations: IInstagramIntegrationModel;
+  InstagramAccounts: IInstagramAccountModel;
+  InstagramCustomers: IInstagramCustomerModel;
+  InstagramConversations: IInstagramConversationModel;
+  InstagramConversationMessages: IInstagramConversationMessageModel;
+  InstagramCommentConversation: IInstagramCommentConversationModel;
+  InstagramCommentConversationReply: IInstagramCommentConversationReplyModel;
+  InstagramLogs: IInstagramLogModel;
+  InstagramPostConversations: IInstagramPostConversationModel;
+  InstagramBots: IInstagramBotModel;
+  InstagramConfigs: IInstagramConfigModel;
+
   //call
   CallIntegrations: ICallIntegrationModel;
   CallCustomers: ICallCustomerModel;
@@ -221,8 +321,16 @@ export interface IModels {
   CallOperators: ICallOperatorModel;
   CallCdrs: ICallCdrModel;
   CallQueueStatistics: ICallQueueStatisticsModel;
+  CallSessions: ICallSessionModel;
 
   FacebookBots: IFacebookBotModel;
+
+  // discord
+  DiscordBots: IDiscordBotModel;
+  DiscordCustomers: IDiscordCustomerModel;
+  DiscordConversations: IDiscordConversationModel;
+  DiscordConversationMessages: IDiscordConversationMessageModel;
+
   //imap
   ImapCustomers: ICustomerImapModel;
   ImapIntegrations: IIntegrationImapModel;
@@ -257,13 +365,17 @@ export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
   serverTiming: any;
+  commonQuerySelector: Record<string, any>;
 }
 
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+
+  const frontlineEventHandlers = eventHandlers('frontline');
 
   //response templates
   models.ResponseTemplates = db.model<
@@ -283,7 +395,7 @@ export const loadClasses = (
 
   models.Ticket = db.model<ITicketDocument, ITicketModel>(
     'frontline_tickets',
-    loadTicketClass(models),
+    loadTicketClass(models, frontlineEventHandlers('tickets', 'tickets')),
   );
   models.Activity = db.model<IActivityDocument, IActivityModel>(
     'frontline_ticket_activities',
@@ -368,6 +480,63 @@ export const loadClasses = (
     IFacebookConfigDocument,
     IFacebookConfigModel
   >('facebook_configs', loadFacebookConfigClass(models));
+
+  // Instagram models
+  models.InstagramIntegrations = db.model<
+    IInstagramIntegrationDocument,
+    IInstagramIntegrationModel
+  >('instagram_integrations', loadInstagramIntegrationClass(models));
+  models.InstagramAccounts = db.model<
+    IInstagramAccountDocument,
+    IInstagramAccountModel
+  >('instagram_accounts', loadInstagramAccountClass(models));
+  models.InstagramCustomers = db.model<
+    IInstagramCustomerDocument,
+    IInstagramCustomerModel
+  >('instagram_customers', loadInstagramCustomerClass(models));
+  models.InstagramConversations = db.model<
+    IInstagramConversationDocument,
+    IInstagramConversationModel
+  >('instagram_conversations', loadInstagramConversationClass(models));
+  models.InstagramConversationMessages = db.model<
+    IInstagramConversationMessageDocument,
+    IInstagramConversationMessageModel
+  >(
+    'instagram_conversation_messages',
+    loadInstagramConversationMessageClass(models),
+  );
+  models.InstagramCommentConversation = db.model<
+    IInstagramCommentConversationDocument,
+    IInstagramCommentConversationModel
+  >(
+    'instagram_comment_conversations',
+    loadInstagramCommentConversationClass(models),
+  );
+  models.InstagramCommentConversationReply = db.model<
+    IInstagramCommentConversationReplyDocument,
+    IInstagramCommentConversationReplyModel
+  >(
+    'instagram_comment_conversations_reply',
+    loadInstagramCommentConversationReplyClass(models),
+  );
+  models.InstagramPostConversations = db.model<
+    IInstagramPostConversationDocument,
+    IInstagramPostConversationModel
+  >('instagram_post_conversations', loadInstagramPostConversationClass(models));
+  models.InstagramLogs = db.model<IInstagramLogDocument, IInstagramLogModel>(
+    'instagram_logs',
+    loadInstagramLogClass(models),
+  );
+  models.InstagramBots = db.model<IInstagramBotDocument, IInstagramBotModel>(
+    'instagram_bots',
+    loadInstagramBotClass(models),
+  );
+
+  models.InstagramConfigs = db.model<
+    IInstagramConfigDocument,
+    IInstagramConfigModel
+  >('instagram_configs', loadInstagramConfigClass(models));
+
   //call models
   models.CallIntegrations = db.model<
     ICallIntegrationDocument,
@@ -399,10 +568,34 @@ export const loadClasses = (
     ICallQueueStatisticsModel
   >('calls_queue_statistics', loadCallQueueClass());
 
+  models.CallSessions = db.model<ICallSessionDocument, ICallSessionModel>(
+    'calls_sessions',
+    loadCallSessionClass(models),
+  );
+
   models.FacebookBots = db.model<IFacebookBotDocument, IFacebookBotModel>(
     'facebook_messengers_bots',
-    loadFacebookBotClass(models),
+    loadFacebookBotClass(models, subdomain),
   );
+
+  // discord models
+  models.DiscordBots = db.model<IDiscordBotDocument, IDiscordBotModel>(
+    'discord_bots',
+    loadDiscordBotClass(models),
+  );
+  models.DiscordCustomers = db.model<
+    IDiscordCustomerDocument,
+    IDiscordCustomerModel
+  >('customers_discord', loadDiscordCustomerClass(models));
+  models.DiscordConversations = db.model<
+    IDiscordConversationDocument,
+    IDiscordConversationModel
+  >('conversations_discord', loadDiscordConversationClass(models));
+  models.DiscordConversationMessages = db.model<
+    IDiscordConversationMessageDocument,
+    IDiscordConversationMessageModel
+  >('conversation_messages_discord', loadDiscordConversationMessageClass(models));
+
   //imap models
   models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
     'imap_customers',

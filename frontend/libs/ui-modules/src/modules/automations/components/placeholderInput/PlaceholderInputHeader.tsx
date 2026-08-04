@@ -23,17 +23,25 @@ function PlaceholderInputHeaderComponent() {
       </ToggleGroup>
       <Popover>
         <Popover.Trigger asChild>
-          <Button variant="ghost" aria-label="Show shortcuts">
+          <Button variant="ghost" size="icon" aria-label="Show shortcuts">
             <IconHelpOctagon />
           </Button>
         </Popover.Trigger>
-        <Popover.Content>
-          <div className="font-medium mb-2">Shortcuts</div>
-          <ul className="space-y-1">
+        <Popover.Content className="w-72">
+          <div className="font-medium">Shortcuts</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Use these triggers to open a suggestion picker while typing.
+          </div>
+          <ul className="mt-3 space-y-2">
             {suggestions.map(({ type, title, trigger }) => (
-              <li key={type} className="flex items-center justify-between">
-                <span className="text-muted-foreground">{title}</span>
-                <span className="font-mono text-xs">{trigger}</span>
+              <li
+                key={type}
+                className="flex items-center justify-between rounded-md border px-2.5 py-2"
+              >
+                <span className="text-sm text-foreground">{title}</span>
+                <span className="rounded border bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                  {trigger}
+                </span>
               </li>
             ))}
           </ul>

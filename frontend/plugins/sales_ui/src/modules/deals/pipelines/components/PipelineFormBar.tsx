@@ -2,34 +2,25 @@ import {
   Button,
   Form,
   Sheet,
-  Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
-  useToast,
-  Input,
-  Dialog,
 } from 'erxes-ui';
-import {
-  IconGitBranch,
-  IconPlus,
-  IconAlertTriangle,
-} from '@tabler/icons-react';
-import { PipelineHotKeyScope, TPipelineForm } from '@/deals/types/pipelines';
+import { IconGitBranch, IconPlus } from '@tabler/icons-react';
+import { PipelineHotKeyScope } from '@/deals/types/pipelines';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  usePipelineAdd,
-  usePipelineDetail,
-  usePipelineEdit,
-} from '@/deals/boards/hooks/usePipelines';
+import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
 
 import { PipelineForm } from './PipelineForm';
-import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
 import { useStages } from '@/deals/stage/hooks/useStages';
+import { usePipelineFormSubmit } from '@/deals/pipelines/hooks/usePipelineFormSubmit';
+import { usePipelineFormSync } from '@/deals/pipelines/hooks/usePipelineFormSync';
 
 export function PipelineFormBar() {
+  const { t } = useTranslation('sales');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -39,7 +30,7 @@ export function PipelineFormBar() {
 
   const {
     methods,
-    methods: { reset, handleSubmit },
+    methods: { reset },
   } = usePipelineForm();
 
   const { stages: initialStages, loading: stagesLoading } = useStages({
@@ -49,7 +40,6 @@ export function PipelineFormBar() {
     },
   });
 
-  const { toast } = useToast();
   const [open, setOpen] = useState<boolean>(false);
 
   const setHotkeyScope = useSetHotkeyScope();
@@ -57,34 +47,20 @@ export function PipelineFormBar() {
 
   const { pipelineDetail } = usePipelineDetail();
 
-  useEffect(() => {
-    if (initialStages?.length) {
-      const mappedStages = initialStages.map((stage) => ({
-        _id: stage._id || '',
-        code: stage.code || '',
-        name: stage.name || '',
-        type: stage.type || '',
-        visibility: stage.visibility || 'public',
-        status: stage.status || 'active',
-        age: stage.age || 0,
-        canMoveMemberIds: stage.canMoveMemberIds ?? [],
-        canEditMemberIds: stage.canEditMemberIds ?? [],
-        probability: stage.probability || '',
-      }));
+  usePipelineFormSync({
+    boardId,
+    initialStages,
+    methods,
+    pipelineDetail,
+    pipelineId,
+  });
 
-      methods.setValue('stages', mappedStages, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  }, [initialStages, methods]);
-
-  const onOpen = () => {
+  const onOpen = useCallback(() => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       PipelineHotKeyScope.PipelineAddSheet,
     );
-  };
+  }, [setHotkeyScopeAndMemorizePreviousScope]);
 
   const onClose = useCallback(() => {
     setHotkeyScope(PipelineHotKeyScope.PipelineSettingsPage);
@@ -93,48 +69,23 @@ export function PipelineFormBar() {
 
     const searchParams = new URLSearchParams(location.search);
     searchParams.delete('pipelineId');
+    searchParams.delete('tab');
     navigate(`${location.pathname}?${searchParams.toString()}`, {
       replace: true,
     });
   }, [location, navigate, reset, setHotkeyScope]);
 
-  const { addPipeline, loading: addLoading } = usePipelineAdd();
-  const { pipelineEdit, loading: editLoading } = usePipelineEdit();
-
-  const submitHandler: SubmitHandler<TPipelineForm> = useCallback(
-    async (data) => {
-      const managePipeline = pipelineId ? pipelineEdit : addPipeline;
-      const successTitle = pipelineId
-        ? 'Pipeline updated successfully'
-        : 'Pipeline added successfully';
-
-      const { otherPayments, token, payment, ...rest } = data;
-
-      const variables = {
-        ...(pipelineId && { _id: pipelineId }),
-        ...rest,
-        paymentTypes: otherPayments || [],
-        erxesAppToken: token || '',
-        paymentIds: payment ? [payment] : [],
-      };
-
-      managePipeline({
-        variables,
-        onCompleted: () => {
-          toast({ title: successTitle });
-          onClose();
-        },
-      });
-    },
-    [addPipeline, pipelineEdit, pipelineId, toast, onClose],
-  );
+  const { handleFormSubmit, loading: submitLoading } = usePipelineFormSubmit({
+    methods,
+    onCompleted: onClose,
+    pipelineId,
+  });
 
   useEffect(() => {
     if (pipelineId) {
       onOpen();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search, pipelineId]);
+  }, [location.search, onOpen, pipelineId]);
 
   useScopedHotkeys(
     `c`,
@@ -147,70 +98,7 @@ export function PipelineFormBar() {
     PipelineHotKeyScope.PipelineAddSheet,
   );
 
-  const title = pipelineId ? 'Edit Pipeline' : 'Add Pipeline';
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [confirmText, setConfirmText] = useState('');
-
-  const handleConfirm = () => {
-    setShowConfirmDialog(true);
-    setConfirmText('');
-  };
-
-  const handleConfirmSubmit = () => {
-    if (confirmText.toLowerCase() === 'update') {
-      setShowConfirmDialog(false);
-      handleSubmit(submitHandler)();
-    }
-  };
-  useEffect(() => {
-    if (pipelineId && pipelineDetail) {
-      reset({
-        name: pipelineDetail?.name || '',
-        visibility: pipelineDetail?.visibility || 'public',
-        boardId: pipelineDetail?.boardId || boardId || '',
-        tagId: pipelineDetail?.tagId || '',
-        departmentIds: pipelineDetail?.departmentIds || [],
-        branchIds: pipelineDetail?.branchIds || [],
-        memberIds: pipelineDetail?.memberIds || [],
-        stages: methods.getValues('stages') || [],
-        numberConfig: pipelineDetail?.numberConfig || '',
-        numberSize: pipelineDetail?.numberSize || '',
-        nameConfig: pipelineDetail?.nameConfig || '',
-        isCheckDate: pipelineDetail?.isCheckDate || false,
-        isCheckUser: pipelineDetail?.isCheckUser || false,
-        isCheckDepartment: pipelineDetail?.isCheckDepartment || false,
-        initialCategoryIds: pipelineDetail?.initialCategoryIds || [],
-        excludeCategoryIds: pipelineDetail?.excludeCategoryIds || [],
-        excludeProductIds: pipelineDetail?.excludeProductIds || [],
-        erxesAppToken: pipelineDetail?.erxesAppToken || '',
-        paymentIds: pipelineDetail?.paymentIds || [],
-        paymentTypes: pipelineDetail?.paymentTypes || [],
-      });
-    } else {
-      reset({
-        name: '',
-        visibility: 'public',
-        boardId: boardId || '',
-        tagId: '',
-        departmentIds: [],
-        branchIds: [],
-        memberIds: [],
-        stages: [],
-        numberConfig: '',
-        numberSize: '',
-        nameConfig: '',
-        isCheckDate: false,
-        isCheckUser: false,
-        isCheckDepartment: false,
-        initialCategoryIds: [],
-        excludeCategoryIds: [],
-        excludeProductIds: [],
-        erxesAppToken: '',
-        paymentIds: [],
-        paymentTypes: [],
-      });
-    }
-  }, [pipelineId, pipelineDetail, reset, boardId, methods]);
+  const title = pipelineId ? t('edit-pipeline') : t('add-pipeline');
 
   return (
     <div className="ml-auto flex items-center gap-3">
@@ -228,7 +116,7 @@ export function PipelineFormBar() {
         >
           <Form {...methods}>
             <form
-              onSubmit={handleSubmit(submitHandler)}
+              onSubmit={handleFormSubmit}
               className=" flex flex-col gap-0 w-full h-full"
             >
               <Sheet.Header>
@@ -243,66 +131,16 @@ export function PipelineFormBar() {
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant={'ghost'} onClick={onClose}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
-                <Button
-                  type="button"
-                  disabled={addLoading || editLoading}
-                  onClick={handleConfirm}
-                >
-                  {pipelineId ? 'Update' : 'Create'}
+                <Button type="submit" disabled={submitLoading}>
+                  {pipelineId ? t('update') : t('create')}
                 </Button>
               </Sheet.Footer>
             </form>
           </Form>
         </Sheet.View>
       </Sheet>
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <Dialog.Content className="sm:max-w-[425px]">
-          <Dialog.Header>
-            <Dialog.Title className="flex items-center gap-2">
-              <IconAlertTriangle className="text-yellow-500" />
-              Confirm {pipelineId ? 'Update' : 'Create'}
-            </Dialog.Title>
-            <Dialog.Description>
-              This will permanently {pipelineId ? 'update' : 'create'} the
-              pipeline. Are you absolutely sure?
-            </Dialog.Description>
-          </Dialog.Header>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground mb-2">
-              Type "update" in the field below to confirm:
-            </p>
-            <Input
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              onKeyDown={(e) => {
-                if (
-                  e.key === 'Enter' &&
-                  confirmText.toLowerCase() === 'update'
-                ) {
-                  e.preventDefault();
-                  handleConfirmSubmit();
-                }
-              }}
-            />
-          </div>
-          <Dialog.Footer>
-            <Button
-              variant="outline"
-              onClick={() => setShowConfirmDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmSubmit}
-              disabled={confirmText.toLowerCase() !== 'update'}
-            >
-              {pipelineId ? 'Update' : 'Create'}
-            </Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
     </div>
   );
 }

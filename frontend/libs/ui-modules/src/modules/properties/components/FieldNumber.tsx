@@ -1,13 +1,15 @@
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import { NumberInput, PopoverScoped } from 'erxes-ui';
-import { SpecificFieldProps } from './Field';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import { useState } from 'react';
+import { SpecificFieldProps } from './Field';
 
 export const FieldNumber = (props: SpecificFieldProps) => {
   const { inCell } = props;
+
   if (inCell) {
     return <FieldNumberInCell {...props} />;
   }
+
   return <FieldNumberDetail {...props} />;
 };
 
@@ -41,13 +43,16 @@ export const FieldNumberInCell = (props: SpecificFieldProps) => {
 };
 
 export const FieldNumberDetail = (props: SpecificFieldProps) => {
-  const { value, handleChange, id } = props;
+  const { value, handleChange, onInputChange, id } = props;
   const [currentValue, setCurrentValue] = useState<number>(value);
   return (
     <NumberInput
       id={id}
       value={currentValue}
-      onChange={(value) => setCurrentValue(value)}
+      onChange={(v) => {
+        setCurrentValue(v);
+        onInputChange?.(v);
+      }}
       onBlur={() => currentValue !== value && handleChange(currentValue)}
     />
   );

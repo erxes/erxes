@@ -1,25 +1,22 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ICommonDocument, ICommonFields } from '~/utils';
 
-export interface IAssignment {
-  ownerId: string;
-  ownerType: string;
-  campaignId: string;
-
+export interface IAssignment extends ICommonFields {
+  segmentIds?: string[];
   status?: string;
-
-  conditions?: any;
-
-  createdBy?: string;
-  updatedBy?: string;
+  voucherId?: string;
+  voucherCampaignId?: string;
 }
 
-export interface IAssignmentDocument extends IAssignment, Document {
-  createdAt: Date;
-  updatedAt: Date;
+export interface IAssignmentDocument
+  extends IAssignment,
+    ICommonDocument,
+    Document {
+  _id: string;
 }
 
-export interface IAssignmentListParams extends ICursorPaginateParams {
+export interface IAssignmentParams extends ICursorPaginateParams {
   searchValue?: string;
   campaignId?: string;
   ownerType?: string;
@@ -27,4 +24,9 @@ export interface IAssignmentListParams extends ICursorPaginateParams {
   status?: string;
   statuses?: string[];
   awardId?: string;
+}
+
+export interface IAssignmentCheckResponse {
+  segmentId: string;
+  isIn: boolean;
 }

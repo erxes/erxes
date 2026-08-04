@@ -1,12 +1,61 @@
-import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
-import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import {
+  Breadcrumb,
+  Button,
+  PageContainer,
+  Separator,
+  ToggleGroup,
+} from 'erxes-ui';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
-import { ReportsBreadcrumbs } from '@/report/components/report-navigations/ReportsBreadcrumbs';
-import { ReportPageEffect } from '@/report/components/ReportPageEffect';
+import { CallReportsView } from '@/report/components/CallReportsView';
+import { TicketReportsList } from '@/report/components/TicketReportsList';
 
-const ReportIndexPage = () => {
+const ROUTES = {
+  overview: '/frontline/reports',
+  call: '/frontline/reports/call',
+  ticket: '/frontline/reports/ticket',
+} as const;
+
+type Section = keyof typeof ROUTES;
+
+export default function ReportIndexPage() {
+  const { t } = useTranslation('frontline');
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  let activeSection: Section = 'overview';
+
+  if (location.pathname.includes('/call')) {
+    activeSection = 'call';
+  } else if (location.pathname.includes('/ticket')) {
+    activeSection = 'ticket';
+  }
+
+  let activeSectionLabel: string | undefined;
+
+  if (activeSection === 'call') {
+    activeSectionLabel = t('call-center');
+  } else if (activeSection === 'ticket') {
+    activeSectionLabel = t('ticket');
+  }
+
+  let reportContent = <ReportsView />;
+
+  if (activeSection === 'ticket') {
+    reportContent = <TicketReportsList />;
+  } else if (activeSection === 'call') {
+    reportContent = <CallReportsView />;
+  }
+
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Frontline',
+    t('reports'),
+    activeSectionLabel,
+  );
+
   return (
     <PageContainer>
       <PageHeader>
@@ -17,19 +66,36 @@ const ReportIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/reports">
                     <IconChartHistogram />
-                    Reports
+                    {t('reports')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
-              <ReportsBreadcrumbs />
             </Breadcrumb.List>
           </Breadcrumb>
+          <Separator.Inline />
+          <ToggleGroup
+            type="single"
+            value={activeSection}
+            onValueChange={(v) => {
+              if (!v) return;
+              navigate(ROUTES[v as Section]);
+            }}
+          >
+            <ToggleGroup.Item value="overview">
+              {t('frontline-overview')}
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value="ticket">{t('ticket')}</ToggleGroup.Item>
+            <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
+          </ToggleGroup>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconChartHistogram"
+          />
         </PageHeader.Start>
       </PageHeader>
-      <ReportsView />
-      <ReportPageEffect />
+
+      {reportContent}
     </PageContainer>
   );
-};
-
-export default ReportIndexPage;
+}

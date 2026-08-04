@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 const posOrderFields = () => `
   _id: String,
   createdAt: Date,
@@ -7,6 +9,9 @@ const posOrderFields = () => `
   number: String,
   customerId: String,
   customerType: String,
+  brokerId: String,
+  brokerType: String,
+  brokerName: String,
   cashAmount: Float,
   mobileAmount: Float,
   paidAmounts: JSON,
@@ -32,6 +37,7 @@ const posOrderFields = () => `
   user: User,
   customer: CustomerPos
   syncedErkhet: Boolean,
+  accountingResponse: String,
   description: String,
   isPre: Boolean,
   origin: String,
@@ -102,6 +108,12 @@ export const types = () => `
     products: [PosProduct],
     totalCount: Float,
   }
+
+  type PosOrderListResponse {
+    list: [PosOrder]
+    totalCount: Int
+    pageInfo: PageInfo
+  }
 `;
 
 const commonQueryParams = `
@@ -127,9 +139,10 @@ const queryParams = `
   posToken: String
   types: [String]
   statuses: [String]
-  excludeStatuses: [String] 
+  excludeStatuses: [String]
   hasPaidDate: Boolean
   brandId: String
+  dealId: String
 `;
 
 const groupParams = `
@@ -148,7 +161,9 @@ const commonSubsQueryParams = `
 
 export const queries = `
   posOrders(${queryParams}): [PosOrder]
+  posOrdersList(${GQL_CURSOR_PARAM_DEFS} ${queryParams}): PosOrderListResponse
   posOrderDetail(_id: String): PosOrderDetail
+  posOrderLink(_id: String): JSON
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
   posOrdersGroupSummary(${queryParams}, ${groupParams}): JSON
@@ -163,6 +178,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: JSON, description: String): PosOrder
 `;

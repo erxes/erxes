@@ -8,7 +8,6 @@ import {
 import { IField } from '../types/fieldsTypes';
 import { useState } from 'react';
 import { SpecificFieldProps } from './Field';
-import { FieldSelectMultiple } from './FieldSelectMultiple';
 
 export const FieldSelect = (props: SpecificFieldProps) => {
   const { field, value, handleChange, id, inCell } = props;
@@ -16,10 +15,6 @@ export const FieldSelect = (props: SpecificFieldProps) => {
   const [currentValue, setCurrentValue] = useState<string>(
     typeof value === 'string' ? value : '',
   );
-
-  if (field.multiple) {
-    return <FieldSelectMultiple {...props} />;
-  }
 
   return (
     <PopoverScoped

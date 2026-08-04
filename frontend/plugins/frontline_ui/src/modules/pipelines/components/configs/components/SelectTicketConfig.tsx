@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { cn, Combobox, Command, Form, PopoverScoped } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { useGetTicketConfigs, IConfig } from '../hooks/useGetTicketConfigs';
+import { useTranslation } from 'react-i18next';
 
 interface SelectTicketConfigContextType {
   value: string;
@@ -69,13 +70,14 @@ const SelectTicketConfigValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const { value, configs } = useSelectTicketConfigContext();
   const selectedConfig = configs?.find((config) => config.id === value);
 
   if (!selectedConfig) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select config'}
+        {placeholder || t('search-config')}
       </span>
     );
   }
@@ -109,13 +111,14 @@ const SelectTicketConfigCommandItem = ({ config }: { config: IConfig }) => {
 };
 
 const SelectTicketConfigContent = () => {
+  const { t } = useTranslation('frontline');
   const { configs, channelId } = useSelectTicketConfigContext();
   return (
     <Command>
-      <Command.Input placeholder="Search config" />
+      <Command.Input placeholder={t('search-config')} />
       <Command.Empty>
         <span className="text-muted-foreground">
-          {channelId ? 'No config found' : 'Channel not selected'}
+          {channelId ? t('no-config-found') : t('channel-not-selected')}
         </span>
       </Command.Empty>
       <Command.List>

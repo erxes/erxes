@@ -12,14 +12,17 @@ const productsAdd = gql`
     $barcodeDescription: String
     $unitPrice: Float
     $code: String
-    $customFieldsData: JSON
+    $propertiesData: JSON
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
+    $videos: [AttachmentInput]
     $pdfAttachment: PdfAttachmentInput
     $vendorId: String
     $scopeBrandIds: [String]
     $uom: String
     $subUoms: JSON
+    $duration: Float
+    $durationType: ProductDurationType
   ) {
     productsAdd(
       name: $name
@@ -32,14 +35,17 @@ const productsAdd = gql`
       barcodeDescription: $barcodeDescription
       unitPrice: $unitPrice
       code: $code
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
       attachment: $attachment
       attachmentMore: $attachmentMore
+      videos: $videos
       pdfAttachment: $pdfAttachment
       vendorId: $vendorId
       scopeBrandIds: $scopeBrandIds
       uom: $uom
       subUoms: $subUoms
+      duration: $duration
+      durationType: $durationType
     ) {
       _id
       attachment {
@@ -48,7 +54,7 @@ const productsAdd = gql`
       categoryId
       code
       createdAt
-      customFieldsData
+      propertiesData
       description
       tagIds
       name
@@ -56,6 +62,8 @@ const productsAdd = gql`
       uom
       unitPrice
       type
+      duration
+      durationType
       vendor {
         _id
         primaryName
@@ -67,10 +75,25 @@ const productsAdd = gql`
 const categoryRemove = gql`
   mutation productCategoriesRemove($_id: String!) {
     productCategoriesRemove(_id: $_id)
-}`
+  }
+`;
 
 const categoryEdit = gql`
-  mutation productCategoriesEdit($_id: String!, $name: String!, $code: String!, $parentId: String, $scopeBrandIds: [String], $description: String, $attachment: AttachmentInput, $status: String, $meta: String, $maskType: String, $mask: JSON, $isSimilarity: Boolean, $similarities: JSON) {
+  mutation productCategoriesEdit(
+    $_id: String!
+    $name: String!
+    $code: String!
+    $parentId: String
+    $scopeBrandIds: [String]
+    $description: String
+    $attachment: AttachmentInput
+    $status: String
+    $meta: String
+    $maskType: String
+    $mask: JSON
+    $isSimilarity: Boolean
+    $similarities: JSON
+  ) {
     productCategoriesEdit(
       _id: $_id
       name: $name
@@ -87,9 +110,9 @@ const categoryEdit = gql`
       similarities: $similarities
     ) {
       _id
+    }
   }
-}
-`
+`;
 const productsEdit = gql`
   mutation ProductsEdit(
     $_id: String!
@@ -100,11 +123,20 @@ const productsEdit = gql`
     $description: String
     $unitPrice: Float
     $code: String
-    $customFieldsData: JSON
+    $propertiesData: JSON
     $vendorId: String
     $uom: String
     $barcodeDescription: String
     $barcodes: [String]
+    $currency: String
+    $variants: JSON
+    $subUoms: JSON
+    $scopeBrandIds: [String]
+    $attachment: AttachmentInput
+    $attachmentMore: [AttachmentInput]
+    $videos: [AttachmentInput]
+    $duration: Float
+    $durationType: ProductDurationType
   ) {
     productsEdit(
       _id: $_id
@@ -115,15 +147,76 @@ const productsEdit = gql`
       description: $description
       unitPrice: $unitPrice
       code: $code
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
       vendorId: $vendorId
-      barcodes: $barcodes 
+      barcodes: $barcodes
       uom: $uom
       barcodeDescription: $barcodeDescription
+      currency: $currency
+      variants: $variants
+      subUoms: $subUoms
+      scopeBrandIds: $scopeBrandIds
+      attachment: $attachment
+      attachmentMore: $attachmentMore
+      videos: $videos
+      duration: $duration
+      durationType: $durationType
     ) {
+      _id
+      name
+      shortName
+      type
+      code
+      categoryId
+      vendorId
+      scopeBrandIds
+      status
+      description
+      unitPrice
+      duration
+      durationType
+      barcodes
+      variants
+      barcodeDescription
+      currency
+      attachment {
+        url
+        name
+        size
+        type
+      }
+      attachmentMore {
+        url
+        name
+        size
+        type
+      }
+      videos {
+        url
+        name
+        size
+        type
+        duration
+      }
+      uom
+      subUoms
+      propertiesData
+    }
+  }
+`;
+
+const productsMerge = gql`
+  mutation ProductsMerge($productIds: [String], $productFields: JSON) {
+    productsMerge(productIds: $productIds, productFields: $productFields) {
       _id
     }
   }
 `;
 
-export const productsMutations = { productsEdit, productsAdd , categoryEdit , categoryRemove };
+export const productsMutations = {
+  productsEdit,
+  productsAdd,
+  categoryEdit,
+  categoryRemove,
+  productsMerge,
+};

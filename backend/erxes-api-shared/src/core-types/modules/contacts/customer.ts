@@ -5,6 +5,7 @@ import {
   ICustomField,
   IListParams,
   IStringMap,
+  IPropertyField,
 } from '../../common';
 import { IAddress, ILocation } from './contacts-common';
 
@@ -51,6 +52,7 @@ export interface ICustomer {
   deviceTokens?: string[];
   trackedData?: ICustomField[];
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField;
   lastSeenAt?: Date;
   isOnline?: boolean;
   sessionCount?: number;
@@ -67,12 +69,12 @@ export interface ICustomerDocument extends ICustomer, Document {
 }
 
 export interface ICustomerQueryFilterParams
-  extends ICursorPaginateParams,
-    IListParams {
+  extends ICursorPaginateParams, IListParams {
   createdAt?: Date;
   type?: string;
   status?: string;
   dateFilters?: string;
+  propertiesData?: string;
 
   tagIds?: string[];
   excludeTagIds?: string[];

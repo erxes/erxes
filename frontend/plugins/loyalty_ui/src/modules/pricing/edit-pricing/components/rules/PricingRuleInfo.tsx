@@ -1,0 +1,321 @@
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Button, InfoCard, Switch, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { useEditPricing } from '@/pricing/hooks/useEditPricing';
+import {
+  IPricingExpiryRule,
+  IPricingPlanDetail,
+  IPricingPriceRule,
+  IPricingQuantityRule,
+} from '@/pricing/types';
+import {
+  DiscountType,
+  PriceAdjustType,
+} from '@/pricing/edit-pricing/components';
+
+export interface PricingRuleConfig {
+  _id?: string;
+  ruleType: string;
+  ruleValue: string;
+  discountType: DiscountType;
+  discountValue: string;
+  priceAdjustType: PriceAdjustType;
+  priceAdjustFactor: string;
+  bonusProductId?: string | null;
+}
+
+type PricingRulePayload =
+  | IPricingQuantityRule
+  | IPricingPriceRule
+  | IPricingExpiryRule;
+
+type PricingRuleField = 'quantityRules' | 'priceRules' | 'expiryRules';
+type PricingRuleEnabledField =
+  | 'isQuantityEnabled'
+  | 'isPriceEnabled'
+  | 'isExpiryEnabled';
+
+interface PricingRuleSheetProps<T extends PricingRuleConfig> {
+  onRuleAdded?: (config: T) => void;
+  onRuleUpdated?: (config: T) => void;
+  editingRule?: T | null;
+  onEditComplete?: () => void;
+}
+
+interface PricingRuleInfoProps<T extends PricingRuleConfig> {
+  pricingId?: string;
+  pricingDetail?: IPricingPlanDetail;
+  embedded?: boolean;
+  onSaveActionChange?: (action: ReactNode | null) => void;
+  onEnabledChange?: (enabled: boolean) => void;
+  title: string;
+  rulesKey: PricingRuleField;
+  enabledKey: PricingRuleEnabledField;
+  successTitle: string;
+  errorTitle: string;
+  emptyMessage: ReactNode;
+  RuleSheet: ComponentType<PricingRuleSheetProps<T>>;
+}
+
+const parseRuleNumber = (value: string) => {
+  if (value.trim() === '') {
+    return undefined;
+  }
+
+  const numberValue = Number(value);
+
+  return Number.isNaN(numberValue) ? undefined : numberValue;
+};
+
+const mapRuleToConfig = (
+  rule: PricingRulePayload,
+  index: number,
+): PricingRuleConfig => ({
+  _id: `rule_${index}`,
+  ruleType: rule.type ?? 'exact',
+  ruleValue: rule.value === undefined ? '' : String(rule.value),
+  discountType: (rule.discountType ?? 'default') as DiscountType,
+  discountValue:
+    rule.discountValue === undefined ? '' : String(rule.discountValue),
+  priceAdjustType: (rule.priceAdjustType ?? 'none') as PriceAdjustType,
+  priceAdjustFactor:
+    rule.priceAdjustFactor === undefined ? '' : String(rule.priceAdjustFactor),
+  bonusProductId: rule.discountBonusProduct || null,
+});
+
+const mapConfigToRule = (rule: PricingRuleConfig): PricingRulePayload => ({
+  type: rule.ruleType,
+  value: parseRuleNumber(rule.ruleValue) ?? 0,
+  discountType: rule.discountType,
+  discountValue: parseRuleNumber(rule.discountValue) ?? 0,
+  discountBonusProduct: rule.bonusProductId || '',
+  priceAdjustType: rule.priceAdjustType,
+  priceAdjustFactor: parseRuleNumber(rule.priceAdjustFactor) ?? 0,
+});
+
+export const PricingRuleInfo = <T extends PricingRuleConfig>({
+  pricingId,
+  pricingDetail,
+  embedded = false,
+  onSaveActionChange,
+  onEnabledChange,
+  title,
+  rulesKey,
+  enabledKey,
+  successTitle,
+  errorTitle,
+  emptyMessage,
+  RuleSheet,
+}: PricingRuleInfoProps<T>) => {
+  const [rules, setRules] = useState<T[]>([]);
+  const [editingRule, setEditingRule] = useState<T | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [initialLoaded, setInitialLoaded] = useState(false);
+  const [enabled, setEnabled] = useState(false);
+
+  const { t } = useTranslation('loyalty');
+  const { editPricing, loading } = useEditPricing();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!pricingDetail) {
+      return;
+    }
+
+    const detailRules = pricingDetail[rulesKey] as
+      | PricingRulePayload[]
+      | undefined;
+
+    setRules((detailRules?.map(mapRuleToConfig) || []) as T[]);
+    const nextEnabled = pricingDetail[enabledKey] ?? false;
+
+    setEnabled(nextEnabled);
+    onEnabledChange?.(nextEnabled);
+    setHasChanges(false);
+    setInitialLoaded(true);
+  }, [enabledKey, onEnabledChange, pricingDetail, rulesKey]);
+
+  const markChanged = () => {
+    if (initialLoaded) {
+      setHasChanges(true);
+    }
+  };
+
+  const handleRuleAdded = (rule: T) => {
+    setRules((prev) => [
+      ...prev,
+      { ...rule, _id: rule._id || `${Date.now()}_${prev.length}` },
+    ]);
+    setEnabled(true);
+    onEnabledChange?.(true);
+    markChanged();
+  };
+
+  const handleEnabledChange = (checked: boolean) => {
+    setEnabled(checked);
+    onEnabledChange?.(checked);
+    markChanged();
+  };
+
+  const handleRuleUpdated = (rule: T) => {
+    setRules((prev) =>
+      prev.map((existingRule) =>
+        existingRule._id === rule._id
+          ? { ...existingRule, ...rule }
+          : existingRule,
+      ),
+    );
+    markChanged();
+  };
+
+  const handleRuleDelete = (rule: T) => {
+    setRules((prev) =>
+      prev.filter((existingRule) => existingRule._id !== rule._id),
+    );
+    markChanged();
+  };
+
+  const handleSaveAll = useCallback(async () => {
+    if (!pricingId) {
+      return;
+    }
+
+    const mappedRules = rules.map(mapConfigToRule);
+    try {
+      await editPricing({
+        _id: pricingId,
+        [enabledKey]: enabled,
+        [rulesKey]: mappedRules,
+      } as Parameters<typeof editPricing>[0]);
+      setHasChanges(false);
+      toast({
+        title: successTitle,
+        description: t('changes-saved'),
+      });
+    } catch {
+      toast({
+        title: errorTitle,
+        description: t('unexpected-error'),
+        variant: 'destructive',
+      });
+    }
+  }, [
+    editPricing,
+    enabled,
+    enabledKey,
+    errorTitle,
+    pricingId,
+    rules,
+    rulesKey,
+    successTitle,
+    toast,
+  ]);
+
+  useEffect(() => {
+    if (!onSaveActionChange) {
+      return;
+    }
+
+    onSaveActionChange(
+      hasChanges ? (
+        <Button
+          type="button"
+          size="sm"
+          onClick={handleSaveAll}
+          disabled={loading}
+        >
+          {loading ? t('saving') : t('save-changes')}
+        </Button>
+      ) : null,
+    );
+
+    return () => onSaveActionChange(null);
+  }, [hasChanges, loading, onSaveActionChange, handleSaveAll]);
+
+  const content = (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <Switch checked={enabled} onCheckedChange={handleEnabledChange} />
+          {t('enabled')}
+        </label>
+        <RuleSheet
+          onRuleAdded={handleRuleAdded}
+          onRuleUpdated={handleRuleUpdated}
+          editingRule={editingRule}
+          onEditComplete={() => setEditingRule(null)}
+        />
+      </div>
+
+      {rules.length === 0 ? (
+        <div className="py-6 text-sm text-center text-muted-foreground">
+          {emptyMessage}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <div className="flex flex-1 px-3 text-sm font-medium text-muted-foreground">
+            <div className="flex-1">{t('rule-type')}</div>
+            <div className="flex-1">{t('rule-value')}</div>
+            <div className="flex-1">{t('discount-type')}</div>
+            <div className="flex-1">{t('discount-value')}</div>
+            <div className="flex-1">{t('price-adjust-type')}</div>
+            <div className="flex-1">{t('price-adjust-factor')}</div>
+            <div className="w-20 text-center">{t('actions')}</div>
+          </div>
+
+          {rules.map((rule) => (
+            <div
+              key={rule._id}
+              className="flex items-center px-3 py-2 text-sm border rounded-lg"
+            >
+              <div className="flex-1 truncate">{rule.ruleType}</div>
+              <div className="flex-1 truncate">{rule.ruleValue}</div>
+              <div className="flex-1 truncate">{rule.discountType}</div>
+              <div className="flex-1 truncate">{rule.discountValue}</div>
+              <div className="flex-1 truncate">{rule.priceAdjustType}</div>
+              <div className="flex-1 truncate">{rule.priceAdjustFactor}</div>
+              <div className="flex justify-center w-20 gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={`Edit ${title.toLowerCase()} rule`}
+                  onClick={() => setEditingRule(rule)}
+                >
+                  <IconEdit size={14} />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="text-destructive"
+                  aria-label={`Delete ${title.toLowerCase()} rule`}
+                  onClick={() => handleRuleDelete(rule)}
+                >
+                  <IconTrash size={14} />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
+  return (
+    <div className="p-6 space-y-4">
+      <InfoCard title={title}>
+        <InfoCard.Content className="space-y-4">{content}</InfoCard.Content>
+      </InfoCard>
+    </div>
+  );
+};

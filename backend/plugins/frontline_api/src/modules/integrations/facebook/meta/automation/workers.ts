@@ -6,33 +6,35 @@ import {
   actionCreateMessage,
   checkMessageTrigger,
 } from '@/integrations/facebook/meta/automation/messages';
+import { ICheckTriggerData } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import {
-  ICheckTriggerData,
-  IReplacePlaceholdersData,
-} from '@/integrations/facebook/meta/automation/types/automationTypes';
-import {
-  replacePlaceHolders,
-  setProperty,
+  TAiContext,
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
-import { generateModels, IModels } from '~/connectionResolvers';
 
-const getItems = async (
-  subdomain: string,
-  module: string,
-  execution: any,
-  targetType: string,
-) => {
-  const { target } = execution;
-  if (module === targetType) {
-    return [target];
+const toISOString = (value?: Date | string) => {
+  if (!value) {
+    return undefined;
   }
-  return [];
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  return String(value);
 };
 
-const getRelatedValue = async () => {
-  return false;
+const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
+  if (message.fromBot) {
+    return 'bot' as const;
+  }
+
+  if (message.userId) {
+    return 'agent' as const;
+  }
+
+  return 'customer' as const;
 };
 
 export const facebookAutomationWorkers = {
@@ -59,20 +61,6 @@ export const facebookAutomationWorkers = {
         return { result: null };
     }
   },
-  replacePlaceHolders: async (
-    data: IReplacePlaceholdersData,
-    { models, subdomain },
-  ) => {
-    const { target, config, relatedValueProps } = data;
-
-    return await replacePlaceHolders<IModels>({
-      models,
-      subdomain,
-      customResolver: { resolver: getRelatedValue, props: relatedValueProps },
-      actionData: config,
-      target,
-    });
-  },
   checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {
     const { collectionType } = data;
     switch (collectionType) {
@@ -88,30 +76,63 @@ export const facebookAutomationWorkers = {
     }
   },
 
-  setProperties: async (
+  generateAiContext: async (
     {
-      action,
-      execution,
-      targetType,
-    }: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
-    { models, subdomain },
-  ) => {
-    const { module, rules } = action.config;
-    const relatedItems = await getItems(
-      subdomain,
-      module,
-      execution,
-      targetType,
-    );
-    return await setProperty({
-      models,
-      subdomain,
-      getRelatedValue,
-      module,
-      rules,
-      execution,
-      relatedItems,
-      targetType,
-    });
+      target,
+      triggerType,
+    }: TAutomationProducersInput[TAutomationProducers.GENERATE_AI_CONTEXT],
+    { models },
+  ): Promise<TAiContext | null> => {
+    if (!target) {
+      return null;
+    }
+
+    const context: TAiContext = {
+      version: 1,
+      input: {
+        text: typeof target.content === 'string' ? target.content : '',
+        id: target._id,
+        createdAt: toISOString(target.createdAt),
+      },
+      facts: {
+        conversationId: target.conversationId,
+        customerId: target.customerId,
+        botId: target.botId,
+        triggerType,
+      },
+      memory: {
+        scopeKey:
+          (typeof target.conversationId === 'string' &&
+            target.conversationId.trim()) ||
+          (typeof target.customerId === 'string' && target.customerId.trim()) ||
+          (typeof target._id === 'string' && target._id.trim()) ||
+          undefined,
+      },
+    };
+
+    if (!target.conversationId) {
+      return context;
+    }
+
+    const messages = await models.FacebookConversationMessages.find({
+      conversationId: target.conversationId,
+      internal: { $ne: true },
+      _id: { $ne: target._id },
+    })
+      .sort({ createdAt: -1 })
+      .limit(12)
+      .lean();
+
+    context.history = messages.reverse().map((message) => ({
+      type: 'message',
+      role: toHistoryRole(message),
+      text: message.content || '',
+      createdAt: toISOString(message.createdAt),
+      meta: {
+        id: message._id,
+      },
+    }));
+
+    return context;
   },
 };

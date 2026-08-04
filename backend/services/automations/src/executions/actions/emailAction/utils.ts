@@ -1,5 +1,43 @@
-import { AUTOMATION_EMAIL_RECIPIENTS_TYPES } from 'erxes-api-shared/core-modules';
+import {
+  AUTOMATION_EMAIL_RECIPIENTS_TYPES,
+  splitType,
+} from 'erxes-api-shared/core-modules';
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
+
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const ISO_DATE_TIME_REGEX =
+  /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})\b/g;
+
+const padDatePart = (value: number) => String(value).padStart(2, '0');
+
+/**
+ * Resolved date placeholders arrive as raw ISO timestamps, which read like
+ * database values in an email. Re-format them as "YYYY-MM-DD" in the server's
+ * local time.
+ */
+export const formatIsoDatesInText = (text: string) =>
+  text.replace(ISO_DATE_TIME_REGEX, (match) => {
+    const date = new Date(match);
+
+    if (Number.isNaN(date.getTime())) {
+      return match;
+    }
+
+    return `${date.getFullYear()}-${padDatePart(
+      date.getMonth() + 1,
+    )}-${padDatePart(date.getDate())}`;
+  });
+
+const DEAD_LINK_REGEX = /<a\s[^>]*href="(?:|-|#)"[^>]*>([\s\S]*?)<\/a>/gi;
+
+/**
+ * A link whose placeholder resolved to nothing would ship as a dead anchor,
+ * so keep the text and drop the anchor instead.
+ */
+export const stripDeadLinks = (html: string) =>
+  html.replace(DEAD_LINK_REGEX, '$1');
 
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes: Array<{
@@ -70,6 +108,25 @@ export const formatFromEmail = (sender, fromUserEmail) => {
   }
 
   return null;
+};
+
+export const normalizeEmailActionPlaceholders = (
+  value: string,
+  targetType?: string,
+) => {
+  if (!value) {
+    return value;
+  }
+
+  const [, , collectionType] = targetType ? splitType(targetType) : [];
+  const scopes = ['trigger', collectionType].filter(Boolean) as string[];
+
+  return scopes.reduce((content, scope) => {
+    return content.replace(
+      new RegExp(`{{\\s*${escapeRegExp(scope)}\\.(.*?)\\s*}}`, 'g'),
+      '{{ $1 }}',
+    );
+  }, value);
 };
 
 export const setActivityLog = async ({

@@ -16,9 +16,13 @@ const config: ModuleFederationConfig = {
   name: 'loyalty_ui',
   exposes: {
     './config': './src/config.tsx',
-    './pricing': './src/modules/pricing/Main.tsx',
-    './pricingSettings': './src/modules/pricing/Settings.tsx',
+    './loyalty': './src/modules/loyalties/SubNavigations.tsx',
+    './loyaltySettings': './src/LoyaltySettings.tsx',
+    './loyaltySettingsNavigation': './src/LoyaltySettingsNavigation.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './automationsWidget':
+      './src/widgets/automations/components/AutomationRemoteEntry.tsx',
+    './relationWidget': './src/widgets/Widgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

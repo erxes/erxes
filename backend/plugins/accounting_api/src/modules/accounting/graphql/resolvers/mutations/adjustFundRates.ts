@@ -18,7 +18,7 @@ const adjustFundRateMutations = {
    * @param {Object} doc AdjustFundRate document
    */
   async adjustFundRateAdd(
-    _root,
+    _root: unknown,
     doc: IAdjustFundRateInput,
     { models, user }: IContext,
   ) {
@@ -36,7 +36,7 @@ const adjustFundRateMutations = {
    * @param {Object} doc AdjustFundRate info
    */
   async adjustFundRateChange(
-    _root,
+    _root: unknown,
     { _id, ...doc }: { _id: string } & IAdjustFundRateInput,
     { models, user }: IContext,
   ) {
@@ -56,7 +56,7 @@ const adjustFundRateMutations = {
    * @param {string[]} adjustFundRateIds AdjustFundRate ids
    */
   async adjustFundRateRemove(
-    _root,
+    _root: unknown,
     { adjustFundRateIds }: { adjustFundRateIds: string[] },
     { models }: IContext,
   ) {

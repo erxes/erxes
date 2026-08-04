@@ -70,7 +70,7 @@ export const BroadcastTargetStep = () => {
         control={control}
         rules={{ required: 'Customer are required' }}
         render={({ field }) => (
-          <Form.Item className="h-full">
+          <Form.Item className="h-full overflow-hidden">
             <Form.Label className="flex items-center justify-between px-2">
               <div
                 className={`flex items-center gap-1`}

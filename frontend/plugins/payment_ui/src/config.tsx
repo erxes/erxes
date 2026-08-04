@@ -1,12 +1,6 @@
-import { IconCurrencyDollar } from '@tabler/icons-react';
+import { IconCurrencyDollar, IconInvoice } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-
-const PaymentNavigation = lazy(() =>
-  import('./modules/PaymentNavigation').then((module) => ({
-    default: module.PaymentNavigation,
-  })),
-);
 
 const PaymentSettingsNavigation = lazy(() =>
   import('./modules/PaymentSettingsNavigation').then((module) => ({
@@ -22,22 +16,12 @@ export const CONFIG: IUIConfig = {
       <PaymentSettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
-    name: 'payment',
-    icon: IconCurrencyDollar,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <PaymentNavigation />
-      </Suspense>
-    ),
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'invoices',
+        icon: IconInvoice,
+      },
+    ],
   },
-  modules: [
-    {
-      name: 'payment',
-      icon: IconCurrencyDollar,
-      path: 'payment',
-      // hasRelationWidget: false,
-      // hasFloatingWidget: false,
-    },
-  ],
 };

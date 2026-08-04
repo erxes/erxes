@@ -1,18 +1,19 @@
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
-import { FacebookGetAccounts } from './FacebookGetAccounts';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
   activeFacebookFormStepAtom,
+  facebookFormSheetAtom,
   resetFacebookAddStateAtom,
 } from '../states/facebookStates';
+import { FacebookGetAccounts } from './FacebookGetAccounts';
 import { FacebookGetPages } from './FacebookGetPages';
 import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';
-import { useAtom } from 'jotai';
-import { facebookFormSheetAtom } from '../states/facebookStates';
 
 export const FacebookIntegrationFormSheet = () => {
+  const { t } = useTranslation('frontline');
   const [facebookFormSheet, setFacebookFormSheet] = useAtom(
     facebookFormSheetAtom,
   );
@@ -23,15 +24,14 @@ export const FacebookIntegrationFormSheet = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Add Facebook Messenger
+            {t('add-facebook-messenger-integration')}
           </Button>
         </Sheet.Trigger>
         <Sheet.View>
           <Sheet.Header>
-            <Sheet.Title>Add Facebook Messenger</Sheet.Title>
+            <Sheet.Title>{t('add-facebook-messenger')}</Sheet.Title>
             <Sheet.Description>
-              Configure your Facebook Messenger integration to connect with your
-              Facebook pages and manage conversations.
+              {t('fb-messenger-setup-description')}
             </Sheet.Description>
             <Sheet.Close />
           </Sheet.Header>
@@ -61,15 +61,15 @@ export const FacebookIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
 
   return (
     <>
       <Sheet.Header>
-        <Sheet.Title>Add Facebook Messenger</Sheet.Title>
+        <Sheet.Title>{t('add-facebook-messenger')}</Sheet.Title>
         <Sheet.Description>
-          Configure your Facebook Messenger integration to connect with your
-          Facebook pages and manage conversations.
+          {t('fb-messenger-setup-description')}
         </Sheet.Description>
         <Sheet.Close />
       </Sheet.Header>
@@ -83,7 +83,7 @@ export const FacebookIntegrationFormLayout = ({
             variant="ghost"
             onClick={resetForm}
           >
-            Cancel
+            {t('cancel')}
           </Button>
         </Sheet.Close>
         {actions}
@@ -101,10 +101,11 @@ export const FacebookIntegrationFormSteps = ({
   step: number;
   description: string;
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <IntegrationSteps
       step={step}
-      title="Connect accounts"
+      title={t('connect-accounts')}
       stepsLength={3}
       description={description}
     />

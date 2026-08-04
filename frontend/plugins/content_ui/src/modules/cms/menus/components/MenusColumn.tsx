@@ -1,0 +1,180 @@
+import { ColumnDef, Row, Cell } from '@tanstack/react-table';
+import {
+  RecordTable,
+  RecordTableInlineCell,
+  Input,
+  Popover,
+  Combobox,
+  Command,
+} from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import {
+  IconList,
+  IconLink,
+  IconArticle,
+  IconEdit,
+  IconTrash,
+  IconGripVertical,
+} from '@tabler/icons-react';
+import { useState } from 'react';
+import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+import { useMutation } from '@apollo/client';
+import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
+import { getDepthPrefix } from '../menuUtils';
+import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { MenuItem } from '../types/menuDrawerTypes';
+
+const BADGE_CLASS =
+  'mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent';
+
+interface MoreCellProps {
+  row: Row<MenuItem>;
+  onEdit: (menu: MenuItem) => void;
+  refetch: () => void;
+}
+
+const MoreCell = ({ row, onEdit, refetch }: MoreCellProps) => {
+  const { t } = useTranslation('content');
+  const { confirm } = useConfirm();
+  const [removeMenu] = useMutation(CMS_MENU_REMOVE);
+
+  const handleEdit = () => onEdit(row.original);
+  const handleRemove = () => {
+    confirm({
+      message: t('confirm-delete-menu'),
+    }).then(async () => {
+      await removeMenu({ variables: { _id: row.original._id } });
+      refetch();
+    });
+  };
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> {t('edit')}
+            </Command.Item>
+            <Command.Item value="remove" onSelect={handleRemove}>
+              <IconTrash /> {t('remove')}
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+interface LabelCellProps {
+  cell: Cell<MenuItem, unknown>;
+  refetch: () => void;
+  isMissing: (translations?: { language: string }[]) => boolean;
+}
+
+const LabelCell = ({ cell, refetch, isMissing }: LabelCellProps) => {
+  const original = cell.row.original;
+  const missing = isMissing(original.translations);
+  const [open, setOpen] = useState(false);
+  const [label, setLabel] = useState<string>(cell.getValue() as string);
+  const [editMenu] = useMutation(CMS_MENU_EDIT);
+
+  const onSave = async () => {
+    if ((label || '') !== (original.label || '')) {
+      await editMenu({
+        variables: { _id: original._id, input: { label } },
+      });
+      refetch();
+    }
+  };
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) onSave();
+      }}
+    >
+      <RecordTableInlineCell.Trigger>
+        <span className={`leading-normal ${missing ? 'text-red-500' : ''}`}>
+          {getDepthPrefix(original.depth || 0) + (cell.getValue() as string)}
+        </span>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content>
+        <Input
+          value={label}
+          onChange={(e) => setLabel(e.currentTarget.value)}
+        />
+      </RecordTableInlineCell.Content>
+    </Popover>
+  );
+};
+
+export const useMenusColumns = (
+  onEdit: (menu: MenuItem) => void,
+  refetch: () => void,
+): ColumnDef<MenuItem>[] => {
+  const { t } = useTranslation('content');
+  const { isMissing } = useIsTranslationMissing();
+
+  return [
+    {
+      id: 'drag',
+      header: () => <span className="sr-only">{t('reorder')}</span>,
+      cell: () => (
+        <div className="flex h-full items-center justify-center text-muted-foreground">
+          <IconGripVertical size={16} />
+        </div>
+      ),
+      size: 36,
+    },
+    {
+      id: 'more',
+      header: () => <span className="sr-only">{t('more')}</span>,
+      cell: ({ row }) => (
+        <MoreCell row={row} onEdit={onEdit} refetch={refetch} />
+      ),
+      size: 33,
+    },
+    RecordTable.checkboxColumn as ColumnDef<MenuItem>,
+    {
+      id: 'label',
+      header: () => <RecordTable.InlineHead icon={IconList} label={t('label')} />,
+      accessorKey: 'label',
+      cell: ({ cell }) => (
+        <LabelCell cell={cell} refetch={refetch} isMissing={isMissing} />
+      ),
+      size: 280,
+    },
+    {
+      id: 'url',
+      header: () => <RecordTable.InlineHead icon={IconLink} label={t('url')} />,
+      accessorKey: 'url',
+      cell: ({ cell }) => (
+        <div className={BADGE_CLASS}>
+          <span className="text-sm text-gray-500">
+            {(cell.getValue() as string) || ''}
+          </span>
+        </div>
+      ),
+      size: 260,
+    },
+    {
+      id: 'kind',
+      header: () => <RecordTable.InlineHead icon={IconArticle} label={t('kind')} />,
+      accessorKey: 'kind',
+      cell: ({ cell }) => (
+        <div className={BADGE_CLASS}>
+          <span className="text-sm text-gray-500">
+            {(cell.getValue() as string) || ''}
+          </span>
+        </div>
+      ),
+      size: 140,
+    },
+  ];
+};

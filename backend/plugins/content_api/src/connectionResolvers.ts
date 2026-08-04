@@ -13,8 +13,10 @@ import {
   IPostDocument,
   IPostTagDocument,
 } from '@/cms/@types/posts';
+import { IPostViewDocument } from '@/cms/@types/postView';
 import { ITranslationDocument } from '@/cms/@types/translations';
 import { IPostModel, loadPostClass } from '@/cms/db/models/Posts';
+import { IPostViewModel, loadPostViewClass } from '@/cms/db/models/PostViews';
 import {
   ITranslationModel,
   loadTranslationClass,
@@ -23,18 +25,40 @@ import {
   ICustomPostTypeModel,
   loadCustomPostTypeClass,
 } from '@/cms/db/models/CustomPostType';
-import { ICustomFieldGroupDocument, ICustomPostTypeDocument } from '@/cms/@types/customPostType';
+import {
+  ICustomFieldGroupDocument,
+  ICustomPostTypeDocument,
+} from '@/cms/@types/customPostType';
 import { ICategoryModel, loadCategoryClass } from '@/cms/db/models/Categories';
 import { IPostTagModel, loadPostTagClass } from '@/cms/db/models/Tag';
 import { ICMSMenuItemModel, loadMenuItemClass } from '@/cms/db/models/Menu';
 import { ICMSPageModel, loadPageClass } from '@/cms/db/models/Page';
-import { ICustomFieldGroupModel, loadCustomFieldGroupClass } from '@/cms/db/models/FieldGroups';
-
+import {
+  ICustomFieldGroupModel,
+  loadCustomFieldGroupClass,
+} from '@/cms/db/models/FieldGroups';
+import { IWebModel, loadWebClass } from '@/webbuilder/db/models/Web';
+import { IWebDocument } from '@/webbuilder/@types/web';
+import {
+  IWebPageModel,
+  loadWebPageClass,
+} from '@/webbuilder/db/models/WebPage';
+import { IWebPageDocument } from '@/webbuilder/@types/webPage';
+import {
+  IWebActivityLogModel,
+  loadWebActivityLogClass,
+} from '@/webbuilder/db/models/WebActivityLog';
+import { IWebActivityLogDocument } from './modules/webbuilder/@types/webActivityLog';
 export interface IModels {
   CMS: ICMSModel;
+  Web: IWebModel;
+  WebActivityLogs: IWebActivityLogModel;
+  WebPages: IWebPageModel;
+
   Posts: IPostModel;
+  PostViews: IPostViewModel;
   Translations: ITranslationModel;
-  
+
   CustomPostTypes: ICustomPostTypeModel;
   CustomFieldGroups: ICustomFieldGroupModel;
   PostTags: IPostTagModel;
@@ -59,6 +83,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Posts = db.model<IPostDocument, IPostModel>(
     'cms_posts',
     loadPostClass(models),
+  );
+
+  models.PostViews = db.model<IPostViewDocument, IPostViewModel>(
+    'cms_post_views',
+    loadPostViewClass(models),
   );
 
   models.Translations = db.model<ITranslationDocument, ITranslationModel>(
@@ -95,6 +124,21 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'cms_pages',
     loadPageClass(models),
   );
+
+  models.Web = db.model<IWebDocument, IWebModel>(
+    'web_builder',
+    loadWebClass(models),
+  );
+
+  models.WebPages = db.model<IWebPageDocument, IWebPageModel>(
+    'web_pages',
+    loadWebPageClass(models),
+  );
+
+  models.WebActivityLogs = db.model<
+    IWebActivityLogDocument,
+    IWebActivityLogModel
+  >('web_activity_logs', loadWebActivityLogClass(models));
 
   return models;
 };

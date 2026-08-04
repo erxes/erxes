@@ -1,5 +1,20 @@
-import { SideMenu } from 'erxes-ui';
-import { useRelationWidget } from 'ui-modules';
+import { SideMenu, useSideMenuContext } from 'erxes-ui';
+import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
+import { useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { sideWidgetOpenState } from '@/inbox/states/sideWidgetOpenState';
+
+const SideWidgetStateSync = () => {
+  const { activeTab } = useSideMenuContext();
+  const setSideWidgetOpen = useSetAtom(sideWidgetOpenState);
+
+  useEffect(() => {
+    setSideWidgetOpen(!!activeTab);
+    return () => setSideWidgetOpen(false);
+  }, [activeTab, setSideWidgetOpen]);
+
+  return null;
+};
 
 export const ConversationSideWidget = ({
   customerId,
@@ -12,6 +27,7 @@ export const ConversationSideWidget = ({
 
   return (
     <SideMenu>
+      <SideWidgetStateSync />
       {relationWidgetsModules.map((module) => {
         return (
           <SideMenu.Content value={module.name} key={module.name}>
@@ -33,7 +49,7 @@ export const ConversationSideWidget = ({
             <SideMenu.Trigger
               key={module.name}
               value={module.name}
-              label={module.name}
+              label={getRelationWidgetLabel(module)}
               Icon={module.icon}
             />
           );

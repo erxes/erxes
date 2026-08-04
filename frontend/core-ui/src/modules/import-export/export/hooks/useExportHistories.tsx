@@ -17,13 +17,19 @@ interface ExportHistoriesQueryResponse {
   };
 }
 
-export function useExportHistories({ entityType }: { entityType: string }) {
+export function useExportHistories({
+  entityTypes,
+}: {
+  entityTypes?: string[];
+}) {
   const { data, loading, error, fetchMore } =
     useQuery<ExportHistoriesQueryResponse>(GET_EXPORT_HISTORIES, {
       variables: {
-        entityType,
+        entityTypes,
         limit: EXPORT_HISTORIES_PER_PAGE,
       },
+      fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true,
     });
 
   const { list = [], totalCount = 0, pageInfo } = data?.exportHistories || {};
@@ -39,6 +45,7 @@ export function useExportHistories({ entityType }: { entityType: string }) {
 
     fetchMore({
       variables: {
+        entityTypes,
         limit: EXPORT_HISTORIES_PER_PAGE,
         direction,
         cursor:
@@ -62,17 +69,14 @@ export function useExportHistories({ entityType }: { entityType: string }) {
     });
   };
 
-  const hasNextPage = pageInfo?.hasNextPage;
-  const hasPreviousPage = pageInfo?.hasPreviousPage;
-
   return {
     list,
     totalCount,
     loading,
     error,
     pageInfo,
-    hasNextPage,
-    hasPreviousPage,
+    hasNextPage: pageInfo?.hasNextPage,
+    hasPreviousPage: pageInfo?.hasPreviousPage,
     handleFetchMore,
   };
 }

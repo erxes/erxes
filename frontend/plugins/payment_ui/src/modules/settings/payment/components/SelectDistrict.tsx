@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { DISTRICTS } from '~/modules/payment/graphql/queries';
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
 };
 
 const SelectDistrict = (props: Props) => {
+  const { t } = useTranslation('payment');
   const { cityCode, value, onChange } = props;
 
   const { data } = useQuery<{
@@ -21,7 +23,7 @@ const SelectDistrict = (props: Props) => {
   return (
     <Select onValueChange={onChange} value={value} disabled={!cityCode}>
       <Select.Trigger>
-        <Select.Value placeholder="Select district" />
+        <Select.Value placeholder={t('select-district')} />
       </Select.Trigger>
       <Select.Content>
         <Select.Group>

@@ -1,7 +1,8 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Button, Resizable, Separator, Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
-import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
+import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { ConversationIntegrationDetail } from '@/integrations/components/ConversationIntegrationDetail';
@@ -24,6 +25,7 @@ export const ConversationDetailView = ({
 }: {
   conversationId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const activeConversationCandidate = useAtomValue(activeConversationState);
   const setExtraInfo = useSetAtom(messageExtraInfoState);
 
@@ -77,8 +79,8 @@ export const ConversationDetailView = ({
   }
 
   return (
-    <ConversationContext.Provider
-      value={
+    <ConversationProvider
+      conversation={
         {
           ...currentConversation,
           ...conversationDetail,
@@ -105,7 +107,7 @@ export const ConversationDetailView = ({
                   : undefined
               }
               className="text-sm text-foreground flex-none"
-              placeholder="Conversation with"
+              placeholder={t('conversation-with')}
             />
             <Button
               variant={'outline'}
@@ -113,7 +115,7 @@ export const ConversationDetailView = ({
                 navigate(`/frontline/inbox?conversationId=${conversationId}`)
               }
             >
-              Go to conversation
+              {t('go-to-conversation')}
               <IconMail />
             </Button>
           </div>
@@ -130,6 +132,6 @@ export const ConversationDetailView = ({
           </Resizable.PanelGroup>
         </div>
       </div>
-    </ConversationContext.Provider>
+    </ConversationProvider>
   );
 };

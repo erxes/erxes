@@ -16,7 +16,9 @@ export const useRemoveCompanies = () => {
             query: GET_COMPANIES,
             variables: companiesQueryVariables,
           },
-          ({ companies }) => {
+          (data) => {
+            if (!data) return;
+            const { companies } = data;
             const updatedCompanies = companies.list.filter(
               (company: ICompany) =>
                 !options?.variables?.companyIds.includes(company._id),
@@ -27,7 +29,8 @@ export const useRemoveCompanies = () => {
                 ...companies,
                 list: updatedCompanies,
                 totalCount:
-                  companies.totalCount - options?.variables?.companyIds.length || 0,
+                  companies.totalCount -
+                    options?.variables?.companyIds.length || 0,
               },
             };
           },

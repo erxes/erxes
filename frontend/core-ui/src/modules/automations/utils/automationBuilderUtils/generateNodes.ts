@@ -1,4 +1,6 @@
+import { AUTOMATION_NODE_TYPE_LIST_PROERTY } from '@/automations/constants';
 import { AutomationNodeType, NodeData } from '@/automations/types';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { generateNodePosition } from '@/automations/utils/automationBuilderUtils/nodePosition';
 import { TAutomationNodeState } from '@/automations/utils/automationFormDefinitions';
 import { Node } from '@xyflow/react';
@@ -27,6 +29,8 @@ export const generateNodeData = (
       config,
       nodeType: AutomationNodeType.Workflow,
       automationId,
+      icon: (node as any).icon || 'IconArrowsSplit2',
+      ...props,
     };
   }
 
@@ -99,11 +103,18 @@ export const generateNode = (
   nodes: TAutomationAction[] | TAutomationTrigger[] | TAutomationWorkflowNode[],
   props: any,
   generatedNodes: Node<NodeData>[],
+  flowDirection: TAutomationFlowDirection = 'horizontal',
 ) => {
   const doc: any = {
     id: node.id,
-    data: generateNodeData(node, nodeType, props),
-    position: generateNodePosition(nodes, node, generatedNodes),
+    data: generateNodeData(node, nodeType, {
+      // Every node carries the form path of its entry; consumers read this
+      // instead of rebuilding paths from nodeIndex. Callers may override it
+      // for nodes living outside the root lists (e.g. workflow members).
+      formPath: `${AUTOMATION_NODE_TYPE_LIST_PROERTY[nodeType]}.${props?.nodeIndex}`,
+      ...props,
+    }),
+    position: generateNodePosition(nodes, node, generatedNodes, flowDirection),
     isConnectable: true,
     type: nodeType,
     style: {
@@ -135,8 +146,13 @@ export const generateNodes = (
   actions: TAutomationAction[],
   workflows: TAutomationWorkflowNode[],
   props: any = {},
+  flowDirection: TAutomationFlowDirection = 'horizontal',
 ) => {
-  if (triggers.length === 0 && actions.length === 0) {
+  if (
+    triggers.length === 0 &&
+    actions.length === 0 &&
+    workflows.length === 0
+  ) {
     return [
       {
         id: 'scratch-node',
@@ -162,18 +178,19 @@ export const generateNodes = (
 
       const nodesData = nodes.map(
         (n) =>
-          ({ ...n, config: n.config ?? {} } as Extract<
+          ({ ...n, config: n.config ?? {} }) as Extract<
             TAutomationNodeState,
             { nodeTyp: typeof type }
-          >),
+          >,
       );
 
       const generatedNode = generateNode(
         nodeData,
         type,
         nodesData,
-        { ...props, nodeIndex: index },
+        { ...props, nodeIndex: index, flowDirection },
         generatedNodes,
+        flowDirection,
       );
 
       generatedNodes.push(generatedNode);

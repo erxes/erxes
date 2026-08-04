@@ -8,8 +8,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
-import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
+import { restrictToFirstScrollableAncestor, restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
 import { ColumnOrderState } from '@tanstack/react-table';
 import type { OnChangeFn } from '@tanstack/table-core';

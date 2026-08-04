@@ -1,4 +1,4 @@
-import queries from '~/modules/pos/orders/graphql/queries/queries';
+import { POS_ORDERS_QUERY } from '~/modules/pos/orders/graphql/queries/queries';
 import { useQuery } from '@apollo/client';
 import { useMemo, useCallback, useEffect } from 'react';
 import { IOrder } from '@/pos/types/order';
@@ -14,7 +14,7 @@ const POS_PER_PAGE = 30;
 
 interface UseOrdersListOptions {
   posId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UseOrdersListReturn {
@@ -72,7 +72,7 @@ export const useOrdersVariables = (options: UseOrdersListOptions = {}) => {
   const [number] = useQueryState<string>('number');
   return {
     perPage: POS_PER_PAGE,
-    ...(posId && { posId }),
+    posId: posId !== undefined ? posId : pos || undefined,
     search: (() => {
       const searchParts = [];
       if (searchValue) searchParts.push(searchValue);
@@ -81,7 +81,6 @@ export const useOrdersVariables = (options: UseOrdersListOptions = {}) => {
     })(),
     customerId: customer || company || undefined,
     userId: user || undefined,
-    posId: pos || undefined,
     types: types && types !== 'all' ? [types] : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:
@@ -99,7 +98,7 @@ export const useOrdersList = (
 ): UseOrdersListReturn => {
   const variables = useOrdersVariables(options);
   const setOrdersTotalCount = useSetAtom(posOrderTotalCountAtom);
-  const { data, loading, fetchMore } = useQuery(queries.POS_ORDERS_QUERY, {
+  const { data, loading, fetchMore } = useQuery(POS_ORDERS_QUERY, {
     variables,
   });
 
@@ -109,8 +108,8 @@ export const useOrdersList = (
   );
 
   const totalCount = useMemo(
-    () => data?.posOrders?.length || 0,
-    [data?.posOrders],
+    () => data?.posOrdersTotalCount || 0,
+    [data?.posOrdersTotalCount],
   );
 
   const handleFetchMore = useCallback(() => {
@@ -134,8 +133,7 @@ export const useOrdersList = (
   }, [ordersList.length, fetchMore, data?.posOrders]);
 
   useEffect(() => {
-    if (!totalCount) return;
-    setOrdersTotalCount(totalCount);
+    setOrdersTotalCount(totalCount ?? null);
   }, [totalCount, setOrdersTotalCount]);
 
   return {

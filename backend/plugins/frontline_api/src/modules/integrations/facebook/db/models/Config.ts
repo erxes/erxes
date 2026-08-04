@@ -12,7 +12,7 @@ export interface IFacebookConfigModel extends Model<IFacebookConfigDocument> {
   createOrUpdateConfig({
     code,
     value,
-  }: IFacebookConfig): IFacebookConfigDocument;
+  }: IFacebookConfig): Promise<IFacebookConfigDocument>;
 }
 
 export const loadFacebookConfigClass = (models: IModels) => {

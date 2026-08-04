@@ -170,8 +170,8 @@ const NewItemCell: React.FC<NewItemCellProps> = ({ tagType }) => {
         mode === 'adding-group'
           ? 'Enter group name...'
           : mode === 'adding-tag-to-group'
-          ? 'Enter tag name for this group...'
-          : 'Enter tag name...'
+            ? 'Enter tag name for this group...'
+            : 'Enter tag name...'
       }
       value={value}
       onChange={(e) => setValue(e.target.value)}
@@ -212,7 +212,7 @@ export const TagMoreColumnCell: React.FC<TagMoreColumnCellProps> = ({
       options: confirmOptions,
     }).then(async () => {
       try {
-        removeTag(_id);
+        await removeTag(_id);
       } catch (e: any) {
         console.error(e.message);
       }

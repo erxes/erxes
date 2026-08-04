@@ -1,4 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
 import { Form, Input, Select } from 'erxes-ui';
 
@@ -16,26 +17,27 @@ export const PropertyFormValidation = ({
 };
 
 export const PropertyFormStringValidation = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   return (
     <Form.Field
       name="validation"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Validation</Form.Label>
+          <Form.Label>{t('validation', 'Validation')}</Form.Label>
 
           <Select {...field} onValueChange={field.onChange}>
             <Form.Control>
               <Select.Trigger>
-                <Select.Value placeholder="Select validation" />
+                <Select.Value placeholder={t('select-validation', 'Select validation')} />
               </Select.Trigger>
             </Form.Control>
             <Select.Content>
-              <Select.Item value="text">Text</Select.Item>
-              <Select.Item value="number">Number</Select.Item>
-              <Select.Item value="url">URL</Select.Item>
-              <Select.Item value="phone">Phone</Select.Item>
-              <Select.Item value="email">Email</Select.Item>
-              <Select.Item value="password">Password</Select.Item>
+              <Select.Item value="text">{t('validation-text', 'Text')}</Select.Item>
+              <Select.Item value="number">{t('validation-number', 'Number')}</Select.Item>
+              <Select.Item value="url">{t('validation-url', 'URL')}</Select.Item>
+              <Select.Item value="phone">{t('validation-phone', 'Phone')}</Select.Item>
+              <Select.Item value="email">{t('validation-email', 'Email')}</Select.Item>
+              <Select.Item value="password">{t('validation-password', 'Password')}</Select.Item>
             </Select.Content>
           </Select>
         </Form.Item>

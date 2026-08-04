@@ -8,15 +8,17 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '../graphql/subscriptions/inboxSubscriptions';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { currentUserState } from 'ui-modules';
+import { useNotificationSound } from './useNotificationSound';
 import {
   newMessagesCountState,
   resetNewMessagesState,
 } from '@/inbox/conversations/states/newMessagesCountState';
 import { refetchConversationsAtom } from '../states/refetchConversationState';
+import { activeConversationState } from '../states/activeConversationState';
 
 export const useConversations = (
   options?: QueryHookOptions<ICursorListResponse<IConversation>>,
@@ -24,6 +26,8 @@ export const useConversations = (
   const { data, fetchMore, subscribeToMore, loading, refetch } = useQuery<
     ICursorListResponse<IConversation>
   >(GET_CONVERSATIONS, options);
+  const refetchRef = useRef(refetch);
+  refetchRef.current = refetch;
   const { _id: userId } = useAtomValue(currentUserState) || {};
 
   const { conversations } = data || {};
@@ -33,6 +37,10 @@ export const useConversations = (
     resetNewMessagesState,
   );
   const setRefetch = useSetAtom(refetchConversationsAtom);
+  const { play: playNotificationSound } = useNotificationSound();
+  const activeConversation = useAtomValue(activeConversationState);
+  const activeConversationRef = useRef(activeConversation);
+  activeConversationRef.current = activeConversation;
 
   useEffect(() => {
     setRefetch(() => refetch);
@@ -78,7 +86,7 @@ export const useConversations = (
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
-      conversationClientMessageInserted: IConversation;
+      conversationClientMessageInserted: { _id: string; conversationId: string; content: string };
     }>({
       document: CONVERSATION_CLIENT_MESSAGE_INSERTED,
       variables: {
@@ -87,16 +95,24 @@ export const useConversations = (
       updateQuery: (prev, { subscriptionData }) => {
         if (subscriptionData.data) {
           setNewMessagesCount((prev) => prev + 1);
+          const incomingConversationId =
+            subscriptionData.data.conversationClientMessageInserted.conversationId;
+          if (incomingConversationId !== activeConversationRef.current?._id) {
+            playNotificationSound();
+          }
         }
         if (!subscriptionData.data || !prev) return prev;
         const newMessage =
           subscriptionData.data.conversationClientMessageInserted;
+        const conversationId = newMessage?.conversationId;
         const index = prev.conversations.list.findIndex(
-          (conversation) => conversation._id === newMessage._id,
+          (conversation) => conversation._id === conversationId,
         );
         const list = [...prev.conversations.list];
         if (index === -1) {
-          list.unshift(newMessage);
+          // New conversation not yet in list — refetch to load the full entry
+          setTimeout(() => refetchRef.current(), 0);
+          return prev;
         } else {
           list.splice(index, 1, {
             ...list[index],

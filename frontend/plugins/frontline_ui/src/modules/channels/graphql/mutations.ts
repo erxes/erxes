@@ -93,21 +93,17 @@ const REMOVE_CHANNEL_MEMBER = gql`
       memberId
       role
       channelId
-      member {
-        _id
-        email
-        username
-        details {
-          firstName
-          lastName
-          fullName
-          avatar
-        }
-      }
     }
   }
 `;
 
+const REMOVE_CHANNEL_MEMBERS = gql`
+  mutation ChannelRemoveMembers($channelId: String!, $memberId: String!) {
+    channelRemoveMember(channelId: $channelId, memberId: $memberId) {
+      __typename
+    }
+  }
+`;
 const UPDATE_CHANNEL_MEMBER = gql`
   mutation ChannelUpdateMember($id: String!, $role: String) {
     channelUpdateMember(_id: $id, role: $role) {
@@ -137,4 +133,5 @@ export {
   ADD_CHANNEL_MEMBERS,
   REMOVE_CHANNEL_MEMBER,
   UPDATE_CHANNEL_MEMBER,
+  REMOVE_CHANNEL_MEMBERS,
 };

@@ -1,21 +1,42 @@
 import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import {
   ICompanyDocument,
   ICompanyFilterQueryParams,
+  Resolver,
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
 
-export const companyQueries = {
+export const companyQueries: Record<
+  string,
+  Resolver<undefined, unknown, IContext>
+> = {
   /**
    * Get companies
    */
   companies: async (
+    _parent: undefined,
+    params: ICompanyFilterQueryParams,
+    { models, subdomain }: IContext,
+  ) => {
+    const filter: FilterQuery<ICompanyDocument> = await generateFilter(
+      subdomain,
+      params,
+      models,
+    );
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICompanyDocument>({
+        model: models.Companies,
+        params,
+        query: filter,
+      });
+
+    return { list, totalCount, pageInfo };
+  },
+
+  cpCompanies: async (
     _parent: undefined,
     params: ICompanyFilterQueryParams,
     { models, subdomain }: IContext,
@@ -48,5 +69,6 @@ export const companyQueries = {
   },
 };
 
-moduleRequireLogin(companyQueries);
-checkPermission(companyQueries, 'companies', 'showCompanies');
+companyQueries.cpCompanies.wrapperConfig = {
+  forClientPortal: true,
+};

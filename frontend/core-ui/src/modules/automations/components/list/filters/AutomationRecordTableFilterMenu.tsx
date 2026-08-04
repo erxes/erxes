@@ -1,14 +1,14 @@
 import {
+  IconBolt,
   IconCalendar,
   IconPointerBolt,
   IconProgressCheck,
   IconSearch,
-  IconShare,
   IconTags,
   IconUser,
   IconUserUp,
 } from '@tabler/icons-react';
-import { Filter, Command } from 'erxes-ui';
+import { Command, Filter } from 'erxes-ui';
 
 export const AutomationRecordTableFilterMenu = () => {
   return (
@@ -49,7 +49,7 @@ export const AutomationRecordTableFilterMenu = () => {
             Trigger Types
           </Filter.Item>
           <Filter.Item value="actionTypes">
-            <IconShare />
+            <IconBolt />
             Action Types
           </Filter.Item>
           <Filter.Item value="tagIds">

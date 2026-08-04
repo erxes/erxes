@@ -1,0 +1,29 @@
+{
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.disableReferencedProjectLoad": true,
+  "typescript.disableSolutionSearching": true,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "javascript.disableAutomaticTypeAcquisition": true,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.next/**": true,
+    "**/dist/**": true,
+    "**/coverage/**": true,
+    "**/tmp/**": true,
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/.next": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/tmp": true,
+    "**/node_modules": true
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/tmp": true
+  }
+}

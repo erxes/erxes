@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Button,
   cn,
@@ -11,6 +11,7 @@ import {
 import { useFacebookAccounts } from '../hooks/useFacebookAccounts';
 import { IconBrandFacebook } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
   activeFacebookFormStepAtom,
   selectedFacebookAccountAtom,
@@ -22,15 +23,55 @@ import {
 import { useFacebookPages } from '../hooks/useFacebookPages';
 import { useFbAuthPopup } from '../hooks/useFbAuthPopup';
 
+
+const FacebookAccountRow = ({
+  account,
+  selectedAccount,
+  onSelect,
+}: {
+  account: { _id: string; name: string };
+  selectedAccount: string | undefined;
+  onSelect: (id: string) => void;
+}) => {
+  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(account._id);
+  return (
+    <Command.Item
+      key={account._id}
+      value={account._id}
+      onSelect={() => onSelect(account._id)}
+      className={cn(
+        'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3',
+        selectedAccount === account._id && 'text-primary',
+      )}
+    >
+      <RadioGroup.Item
+        value={account._id}
+        checked={selectedAccount === account._id}
+        className="bg-background"
+        onClick={() => onSelect(account._id)}
+      />
+      <div className="font-semibold">{account.name}</div>
+      <div className="text-sm text-muted-foreground font-mono uppercase ml-auto">
+        {pagesLoading ? (
+          <Spinner className="w-3 h-3" />
+        ) : (
+          `${facebookGetPages.length} pages`
+        )}
+      </div>
+    </Command.Item>
+  );
+};
+
 export const FacebookGetAccounts = () => {
+  const { t } = useTranslation('frontline');
   const { facebookGetAccounts, loading, refetch } = useFacebookAccounts();
-  const { facebookGetPages } = useFacebookPages();
   const [selectedAccount, setSelectedAccount] = useAtom(
     selectedFacebookAccountAtom,
   );
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
   const { popupWindow } = useFbAuthPopup(() => {
     refetch();
     setIsLoggingIn(false);
@@ -57,18 +98,18 @@ export const FacebookGetAccounts = () => {
       actions={
         <>
           <Button variant="secondary" className="bg-border" disabled>
-            Previous step
+            {t('previous-step')}
           </Button>
           <Button onClick={onNext} disabled={!selectedAccount}>
-            Next step
+            {t('next-step')}
           </Button>
         </>
       }
     >
       <FacebookIntegrationFormSteps
-        title="Connect accounts"
+        title={t('connect-accounts')}
         step={1}
-        description="Select the accounts where you want to integrate its pages with."
+        description={t('ig-select-accounts-description')}
       />
 
       <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col">
@@ -76,7 +117,7 @@ export const FacebookGetAccounts = () => {
           <div className="p-1">
             <Command.Primitive.Input asChild>
               <Input
-                placeholder="Search for an account"
+                placeholder={t('search-for-an-account')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -88,10 +129,10 @@ export const FacebookGetAccounts = () => {
               {loading ? (
                 <>
                   <Spinner className="w-3 h-3" />
-                  Loading accounts...
+                  {t('loading-accounts')}
                 </>
               ) : (
-                `${filteredAccounts.length} accounts found`
+                t('accounts-found', { count: filteredAccounts.length })
               )}
             </div>
 
@@ -104,12 +145,12 @@ export const FacebookGetAccounts = () => {
               {isLoggingIn ? (
                 <>
                   <Spinner className="w-4 h-4 mr-2" />
-                  Connecting to Facebook...
+                  {t('connecting-to-facebook')}
                 </>
               ) : (
                 <>
                   <IconBrandFacebook className="w-4 h-4 mr-2 text-blue-600" />
-                  Connect Facebook Account
+                  {t('connect-facebook-account')}
                 </>
               )}
             </Button>
@@ -124,32 +165,14 @@ export const FacebookGetAccounts = () => {
           >
             <Command.List className="max-h-none overflow-y-auto">
               {filteredAccounts.map((account) => (
-                <Command.Item
+                <FacebookAccountRow
                   key={account._id}
-                  value={account._id}
-                  onSelect={() =>
-                    setSelectedAccount(
-                      selectedAccount === account._id ? undefined : account._id,
-                    )
+                  account={account}
+                  selectedAccount={selectedAccount}
+                  onSelect={(id) =>
+                    setSelectedAccount(selectedAccount === id ? undefined : id)
                   }
-                  className={cn(
-                    'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3',
-                    selectedAccount === account._id && 'text-primary',
-                  )}
-                >
-                  <RadioGroup.Item
-                    value={account._id}
-                    checked={selectedAccount === account._id}
-                    className="bg-background"
-                    onClick={() => setSelectedAccount(account._id)}
-                  />
-                  <div className="font-semibold">{account.name}</div>
-                  {selectedAccount && facebookGetPages?.length && (
-                    <div className="text-sm text-muted-foreground font-mono uppercase ml-auto">
-                      {facebookGetPages.length} pages
-                    </div>
-                  )}
-                </Command.Item>
+                />
               ))}
             </Command.List>
           </RadioGroup>

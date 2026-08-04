@@ -6,9 +6,9 @@ export function LogDetailSheet() {
 
   return (
     <Sheet open={!!logId} onOpenChange={() => logId && setLogId(null)}>
-      <Sheet.View className="md:w-[calc(100vw-1rem)] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-5xl">
+      <Sheet.View className="md:w-[calc(100vw-1rem)] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>Log Summary</Sheet.Title>
+          <Sheet.Title>Log Details</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex-1 min-h-0 overflow-hidden">

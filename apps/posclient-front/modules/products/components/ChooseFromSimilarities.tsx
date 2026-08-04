@@ -4,7 +4,7 @@ import { similarityConfigAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
 
-import { CustomField, Group, IProduct } from "@/types/product.types"
+import { Group, IProduct } from "@/types/product.types"
 import Loader from "@/components/ui/loader"
 
 import { queries } from "../graphql"
@@ -41,14 +41,13 @@ const ChooseFromSimilarities = (
       if (products?.length) {
         setChosen(products.find((product: IProduct) => product._id === _id))
       }
-      const customFields: any = [...products]
+      const propertiesData: any = [...products]
         .sort((a: IProduct, b: IProduct) => a.unitPrice - b.unitPrice)
-        .map((product: IProduct) => product.customFieldsData)
+        .map((product: IProduct) => product.propertiesData || {})
 
       const getFieldValues = (fieldId: string) => {
-        const array: string[] = customFields.map(
-          (data: CustomField[]) =>
-            data.find((field) => field.field === fieldId)?.value
+        const array: string[] = propertiesData.map(
+          (data: Record<string, string>) => data[fieldId]
         )
         const uniqueArray: string[] = []
 
@@ -65,10 +64,10 @@ const ChooseFromSimilarities = (
 
         groups.map(
           (group: Group) =>
-          (radioData = {
-            ...radioData,
-            [group.fieldId]: getFieldValues(group.fieldId),
-          })
+            (radioData = {
+              ...radioData,
+              [group.fieldId]: getFieldValues(group.fieldId),
+            })
         )
 
         setGroups(radioData)
@@ -76,14 +75,15 @@ const ChooseFromSimilarities = (
     },
   })
   const { products, groups } = data?.poscProductSimilarities || {}
-  const { attachment, name, description, unitPrice, remainder, remainders } = chosen || {}
+  const { attachment, name, description, unitPrice, remainder, remainders } =
+    chosen || {}
 
   const flattenProducts = (products || []).map(
-    ({ customFieldsData, ...product }: IProduct) => {
+    ({ propertiesData, ...product }: IProduct) => {
       let flattenProduct: any = { ...product }
-        ; (customFieldsData || []).forEach((field) => {
-          flattenProduct[field.field] = field.value
-        })
+      Object.entries(propertiesData || {}).forEach(([fieldId, value]) => {
+        flattenProduct[fieldId] = value
+      })
       return flattenProduct
     }
   )
@@ -117,8 +117,7 @@ const ChooseFromSimilarities = (
 
   const handleAdd = () => {
     if (!!chosen) {
-      const { name, _id, unitPrice } = chosen
-      addToCart({ name, _id, unitPrice })
+      addToCart(chosen)
     }
     setOpen(false)
   }
@@ -130,8 +129,12 @@ const ChooseFromSimilarities = (
         className="max-w-[300px] mx-auto"
       />
       <ProductItemTitle>{name}</ProductItemTitle>
-      <ProductItemDescription description={description ?? ''} />
-      <ProductItemPriceWithWrapper unitPrice={unitPrice} remainder={remainder} remainders={remainders}>
+      <ProductItemDescription description={description ?? ""} />
+      <ProductItemPriceWithWrapper
+        unitPrice={unitPrice}
+        remainder={remainder}
+        remainders={remainders}
+      >
         <ProductItemButton onClick={handleAdd}>Нэмэх</ProductItemButton>
       </ProductItemPriceWithWrapper>
       {Object.keys(properties).map((id) => (

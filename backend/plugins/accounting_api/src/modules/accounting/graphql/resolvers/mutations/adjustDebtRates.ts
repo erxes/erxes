@@ -20,7 +20,7 @@ const adjustDebtRateMutations = {
    * @param {Object} doc AdjustDebtRate document
    */
   async adjustDebtRatesAdd(
-    _root,
+    _root: unknown,
     doc: IAdjustDebtRateInput,
     { models, user }: IContext,
   ) {
@@ -38,7 +38,7 @@ const adjustDebtRateMutations = {
    * @param {Object} doc AdjustDebtRate info
    */
   async adjustDebtRatesEdit(
-    _root,
+    _root: unknown,
     { _id, ...doc }: { _id: string } & IAdjustDebtRateInput,
     { models, user }: IContext,
   ) {
@@ -58,7 +58,7 @@ const adjustDebtRateMutations = {
    * @param {string[]} adjustDebtRateIds AdjustDebtRate ids
    */
   async adjustDebtRatesRemove(
-    _root,
+    _root: unknown,
     { adjustDebtRateIds }: { adjustDebtRateIds: string[] },
     { models }: IContext,
   ) {

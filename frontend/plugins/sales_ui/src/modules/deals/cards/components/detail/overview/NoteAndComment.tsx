@@ -1,168 +1,43 @@
-import {
-  BlockEditor,
-  Button,
-  Tabs,
-  cn,
-  getMentionedUserIds,
-  useBlockEditor,
-  usePreviousHotkeyScope,
-} from 'erxes-ui';
-import { IconMessageDots, IconNote, IconPaperclip } from '@tabler/icons-react';
-
-import { AssignMemberInEditor } from 'ui-modules';
-import { Block } from '@blocknote/core';
+import { dealCustomActivities } from '@/deals/cards/components/detail/DealActivityRows';
+import { Button, Separator, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ActivityLogs, AddInternalNote } from 'ui-modules';
 
-const SalesNoteAndComment = () => {
-  const [content, setContent] = useState<Block[]>();
-  const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
+const ACTIVITY_PREVIEW_LIMIT = 5;
 
-  const editor = useBlockEditor();
-
-  const {
-    // setHotkeyScopeAndMemorizePreviousScope,
-    goBackToPreviousHotkeyScope,
-  } = usePreviousHotkeyScope();
-
-  const handleChange = async () => {
-    const content = await editor?.document;
-    content.pop();
-    setContent(content as Block[]);
-    const mentionedUserIds = getMentionedUserIds(content);
-    setMentionedUserIds(mentionedUserIds);
-  };
-
-  const handleNoteSubmit = async () => {
-    if (content?.length === 0) {
-      return;
-    }
-
-    const sendContent = JSON.stringify(content);
-
-    // addConversationMessage({
-    //   variables: {
-    //     conversationId,
-    //     content: sendContent,
-    //     mentionedUserIds,
-    //     internal: isInternalNote,
-    //     extraInfo: messageExtraInfo,
-    //   },
-    //   onCompleted: () => {
-    //     setContent(undefined);
-    //     editor?.removeBlocks(content as Block[]);
-    //     setMentionedUserIds([]);
-    //     setIsInternalNote(false);
-    //   },
-    // });
-  };
-
-  const handleCommentSubmit = async () => {
-    if (content?.length === 0) {
-      return;
-    }
-  };
+export const SalesNoteAndComment = ({ dealId }: { dealId: string }) => {
+  const { t } = useTranslation('sales');
+  const [, setSelectedTab] = useQueryState<string>('tab');
+  const [totalCount, setTotalCount] = useState<number | null>(null);
 
   return (
-    <div className="flex flex-col pb-4 px-4 max-w-3xl">
-      <Tabs
-        defaultValue="note"
-        className="flex flex-col h-full px-1 md:px-2 shadow-none"
-      >
-        <Tabs.List className="grid grid-cols-2 p-1 bg-muted mb-3 md:mb-4 h-full rounded-lg border-none">
-          <Tabs.Trigger asChild value="note">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
+        <h4 className="text-sm font-medium">{t('activity')}</h4>
+        <ActivityLogs
+          targetId={dealId}
+          customActivities={dealCustomActivities}
+          variant="forward"
+          limit={ACTIVITY_PREVIEW_LIMIT}
+          onTotalCountChange={setTotalCount}
+          emptyMessage={t('no-activity-logs-found')}
+        />
+        {totalCount !== null && totalCount > ACTIVITY_PREVIEW_LIMIT && (
+          <div className="flex justify-center">
             <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
+              variant="ghost"
+              size="sm"
+              className="bg-muted hover:bg-muted"
+              onClick={() => setSelectedTab('activity')}
             >
-              <IconNote size={16} /> New note
+              {t('view-more-activities')}
             </Button>
-          </Tabs.Trigger>
-          <Tabs.Trigger asChild value="comment">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              <IconMessageDots size={16} /> New comment
-            </Button>
-          </Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="note" className="h-full">
-          <div
-            className={cn(
-              'flex flex-col h-full pt-4 pb-2 gap-1 max-w-3xl mx-auto bg-sidebar shadow-xs rounded-lg',
-            )}
-          >
-            <BlockEditor
-              editor={editor}
-              onChange={handleChange}
-              // disabled={loading}
-              className={cn('h-full w-full overflow-y-auto', 'internal-note')}
-              // onFocus={() =>
-              //   setHotkeyScopeAndMemorizePreviousScope(
-              //     InboxHotkeyScope.MessageInput,
-              //   )
-              // }
-              onBlur={() => goBackToPreviousHotkeyScope()}
-            >
-              {<AssignMemberInEditor editor={editor} />}
-            </BlockEditor>
-            <div className="flex px-6 gap-4">
-              <Button variant="outline">
-                <IconPaperclip /> Add attachment
-              </Button>
-              <Button
-                size="lg"
-                className="ml-auto"
-                // disabled={loading || content?.length === 0}
-                onClick={handleNoteSubmit}
-              >
-                Add note
-              </Button>
-            </div>
           </div>
-        </Tabs.Content>
-        <Tabs.Content
-          value="comment"
-          className="h-full shadow-none border-none rounded-none"
-        >
-          <div
-            className={cn(
-              'flex flex-col h-full py-4 gap-1 max-w-3xl mx-auto bg-sidebar shadow-xs rounded-lg',
-            )}
-          >
-            <BlockEditor
-              editor={editor}
-              onChange={handleChange}
-              // disabled={loading}
-              className={cn('h-full w-full overflow-y-auto', 'internal-note')}
-              // onFocus={() =>
-              //   setHotkeyScopeAndMemorizePreviousScope(
-              //     InboxHotkeyScope.MessageInput,
-              //   )
-              // }
-              onBlur={() => goBackToPreviousHotkeyScope()}
-            >
-              {<AssignMemberInEditor editor={editor} />}
-            </BlockEditor>
-            <div className="flex px-6 gap-4">
-              <Button variant="outline">
-                <IconPaperclip /> Add attachment
-              </Button>
-              <Button
-                size="lg"
-                className="ml-auto"
-                // disabled={loading || content?.length === 0}
-                onClick={handleCommentSubmit}
-              >
-                {/* {loading ? <Spinner size="small" /> : <IconArrowUp />} */}
-                Add comment
-              </Button>
-            </div>
-          </div>
-        </Tabs.Content>
-      </Tabs>
+        )}
+      </div>
+      <Separator className="mt-1" />
+      <AddInternalNote contentTypeId={dealId} contentType="sales:deal" />
     </div>
   );
 };
-
-export default SalesNoteAndComment;

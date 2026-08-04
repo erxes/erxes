@@ -1,10 +1,7 @@
 import { Model } from 'mongoose';
-
 import { IModels } from '~/connectionResolvers';
 import {
-  ICleaning,
   ICleaningHistory,
-  ICleaningDocument,
   ICleaningHistoryDocument,
 } from '@/pms/@types/cleanings';
 import { cleaningHistorySchema } from '@/pms/db/definitions/cleaningsHistory';

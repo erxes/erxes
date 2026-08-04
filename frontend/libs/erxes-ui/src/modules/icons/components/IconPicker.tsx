@@ -1,9 +1,8 @@
-import { Popover, Command, Combobox } from 'erxes-ui/components';
-import { IconComponent } from './IconComponent';
-import { useIcons } from 'erxes-ui/modules/icons/hooks/useIcons';
-import { useState } from 'react';
+import { Combobox, Command, Popover } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
-import { forwardRef } from 'react';
+import { useIcons } from 'erxes-ui/modules/icons/hooks/useIcons';
+import { forwardRef, useState } from 'react';
+import { IconComponent } from './IconComponent';
 
 export const IconPicker = forwardRef<
   HTMLButtonElement,

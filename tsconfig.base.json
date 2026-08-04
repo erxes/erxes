@@ -12,7 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": ["es2021", "dom"],
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
@@ -24,7 +24,9 @@
     "baseUrl": ".",
     "paths": {
       "erxes-ui": ["frontend/libs/erxes-ui/src/index.ts"],
-      "ui-modules": ["frontend/libs/ui-modules/src/index.ts"]
+      "ui-modules": ["frontend/libs/ui-modules/src/index.ts"],
+      "erxes-api-shared": ["backend/erxes-api-shared/src/index.ts"],
+      "erxes-api-shared/*": ["backend/erxes-api-shared/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

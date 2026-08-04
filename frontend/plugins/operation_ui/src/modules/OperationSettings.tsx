@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconUserSquare } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -7,6 +8,8 @@ import { TeamDetailPage } from '~/pages/TeamDetailPage';
 import { TeamMembersPage } from '~/pages/TeamMembersPage';
 import { TeamsSettingsPage } from '~/pages/TeamSettingsIndexPage';
 import { TeamStatusPage } from '~/pages/TeamStatusPage';
+import { TeamTemplatesPage } from '~/pages/TeamTemplatesPage';
+import { TemplateFormPage } from '~/pages/TemplateFormPage';
 import { OperationPaths } from '~/types/paths';
 
 const TeamsSettings = lazy(() =>
@@ -16,6 +19,7 @@ const TeamsSettings = lazy(() =>
 );
 
 const OperationSettings = () => {
+  const { t } = useTranslation('operation');
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -27,7 +31,7 @@ const OperationSettings = () => {
                 breadcrumbs={
                   <Button variant="ghost" className="font-semibold">
                     <IconUserSquare className="w-4 h-4 text-accent-foreground" />
-                    Team
+                    {t('team')}
                   </Button>
                 }
               />
@@ -47,6 +51,18 @@ const OperationSettings = () => {
           <Route
             path={OperationPaths.TeamStatus}
             element={<TeamStatusPage />}
+          />
+          <Route
+            path={OperationPaths.TeamTemplates}
+            element={<TeamTemplatesPage />}
+          />
+          <Route
+            path="templates/:id/template-new"
+            element={<TemplateFormPage />}
+          />
+          <Route
+            path="templates/:id/edit/:templateId"
+            element={<TemplateFormPage />}
           />
         </Route>
       </Routes>

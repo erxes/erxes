@@ -1,13 +1,12 @@
 import {
   IconAlignLeft,
-  IconChecks,
+  IconGitBranch,
+  IconFolder,
+  IconUsers,
   IconLabelFilled,
-  IconLock,
   IconMail,
   IconMailCheck,
-  IconRefresh,
   IconUser,
-  IconUserCheck,
 } from '@tabler/icons-react';
 import type { ColumnDef, Cell } from '@tanstack/react-table';
 import { TFunction } from 'i18next';
@@ -15,7 +14,6 @@ import { TFunction } from 'i18next';
 import {
   Avatar,
   Badge,
-  Switch,
   useQueryState,
   RecordTable,
   Popover,
@@ -26,95 +24,24 @@ import {
   readImage,
   RecordTableInlineCell,
   toast,
-  Button,
-  Spinner,
 } from 'erxes-ui';
 import { IUser } from '@/settings/team-member/types';
+import { SelectBranches, SelectDepartments, SelectUnit } from 'ui-modules';
 import { useSetAtom } from 'jotai';
-import {
-  renderingTeamMemberDetailAtom,
-  renderingTeamMemberResetPasswordAtom,
-} from '../../states/teamMemberDetailStates';
-import { SelectPositions } from 'ui-modules';
-import { useUserEdit, useUsersStatusEdit } from '../../hooks/useUserEdit';
+import { renderingTeamMemberDetailAtom } from '../../states/teamMemberDetailStates';
+import { useUserEdit } from '../../hooks/useUserEdit';
 import { ChangeEvent, useState } from 'react';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 import { format } from 'date-fns';
 import { ApolloError } from '@apollo/client';
 import { TeamMemberEmailField } from '@/settings/team-member/components/record/team-member-edit/TeammemberEmailField';
 import clsx from 'clsx';
-import { useResendInvite } from '@/settings/team-member/hooks/useResendInvite';
-import { TeamMemberRoleSelect } from '@/settings/team-member/components/record/team-member-edit/TeamMemberRoleSelect';
-const UserResetPassword = ({ cell }: { cell: Cell<IUser, unknown> }) => {
-  const [, setOpen] = useQueryState('reset_password_id');
-  const setRenderingTeamMemberResetPasswordAtom = useSetAtom(
-    renderingTeamMemberResetPasswordAtom,
-  );
-
-  const { _id } = cell.row.original;
-
-  return (
-    <Button
-      name="reset-password"
-      title="Open a password reset dialog"
-      variant={'outline'}
-      type="button"
-      className="size-6"
-      onClick={() => {
-        setOpen(_id);
-        setRenderingTeamMemberResetPasswordAtom(true);
-      }}
-    >
-      <IconLock />
-    </Button>
-  );
-};
-
-const InvitationResend = ({ cell }: { cell: Cell<IUser, unknown> }) => {
-  const { email } = cell.row.original;
-  const { resend, loading } = useResendInvite();
-  return (
-    <Button
-      name="resend-invite"
-      title="Resend invitation"
-      variant={'outline'}
-      type="button"
-      className="size-6"
-      disabled={loading}
-      onClick={() =>
-        resend({
-          variables: {
-            email,
-          },
-          onError: (error) =>
-            toast({ title: error.message, variant: 'destructive' }),
-          onCompleted: () =>
-            toast({ title: 'Invitation has been resent', variant: 'success' }),
-        })
-      }
-    >
-      {loading ? <Spinner /> : <IconRefresh />}
-    </Button>
-  );
-};
-
-const UsersActionsCell = ({ cell }: { cell: Cell<IUser, unknown> }) => {
-  return (
-    <RecordTableInlineCell className="justify-center gap-2">
-      <InvitationResend cell={cell} />
-      <UserResetPassword cell={cell} />
-    </RecordTableInlineCell>
-  );
-};
-
-const teamMemberPasswordResetColumn = {
-  id: 'actions',
-  header: 'actions',
-  cell: UsersActionsCell,
-};
+import { teamMemberMoreColumn } from './TeamMemberMoreColumn';
 
 export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
   return [
+    teamMemberMoreColumn,
+    RecordTable.checkboxColumn as ColumnDef<IUser>,
     {
       id: 'avatar',
       accessorKey: 'avatar',
@@ -254,6 +181,71 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
         );
       },
     })),
+    {
+      id: 'branchIds',
+      accessorKey: 'branchIds',
+      header: () => (
+        <RecordTable.InlineHead icon={IconGitBranch} label={t('branches')} />
+      ),
+      cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
+        const { _id } = cell.row.original;
+        const { usersEdit } = useUserEdit();
+        return (
+          <SelectBranches.InlineCell
+            scope={clsx(SettingsHotKeyScope.UsersPage, _id, 'Branch')}
+            mode="multiple"
+            value={cell.getValue() as string[]}
+            onValueChange={(value) =>
+              usersEdit({ variables: { _id, branchIds: value } })
+            }
+          />
+        );
+      },
+      size: 200,
+    },
+    {
+      id: 'departmentIds',
+      accessorKey: 'departmentIds',
+      header: () => (
+        <RecordTable.InlineHead icon={IconFolder} label={t('departments')} />
+      ),
+      cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
+        const { _id } = cell.row.original;
+        const { usersEdit } = useUserEdit();
+        return (
+          <SelectDepartments.InlineCell
+            scope={clsx(SettingsHotKeyScope.UsersPage, _id, 'Department')}
+            mode="multiple"
+            value={cell.getValue() as string[]}
+            onValueChange={(value) =>
+              usersEdit({ variables: { _id, departmentIds: value } })
+            }
+          />
+        );
+      },
+      size: 200,
+    },
+    {
+      id: 'unitId',
+      accessorKey: 'unitId',
+      header: () => (
+        <RecordTable.InlineHead icon={IconUsers} label={t('unit')} />
+      ),
+      cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
+        const { _id } = cell.row.original;
+        const { usersEdit } = useUserEdit();
+        return (
+          <SelectUnit.InlineCell
+            scope={clsx(SettingsHotKeyScope.UsersPage, _id, 'Unit')}
+            value={cell.getValue() as string}
+            onValueChange={(value) =>
+              usersEdit({ variables: { _id, unitId: value } })
+            }
+          />
+        );
+      },
+      size: 200,
+    },
     // {
     //   id: 'positionIds',
     //   accessorKey: 'positionIds',
@@ -366,48 +358,31 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
         );
       },
     },
-    {
-      id: 'isActive',
-      accessorKey: 'isActive',
-      header: () => (
-        <RecordTable.InlineHead icon={IconChecks} label={t('status')} />
-      ),
-      cell: ({ cell }) => {
-        const { _id } = cell.row.original || {};
-        const { editStatus } = useUsersStatusEdit();
-        return (
-          <RecordTableInlineCell>
-            <Switch
-              className="mx-auto"
-              checked={cell.getValue() as boolean}
-              onCheckedChange={() => {
-                editStatus({
-                  variables: {
-                    _id,
-                  },
-                });
-              }}
-            />
-          </RecordTableInlineCell>
-        );
-      },
-    },
-    {
-      id: 'role',
-      accessorKey: 'role',
-      header: () => (
-        <RecordTable.InlineHead icon={IconUserCheck} label={t('role')} />
-      ),
-      cell: ({ cell }) => {
-        const { _id } = cell.row.original || {};
-        return (
-          <TeamMemberRoleSelect
-            value={cell.getValue() as string}
-            userId={_id}
-          />
-        );
-      },
-    },
-    teamMemberPasswordResetColumn,
+    // {
+    //   id: 'isActive',
+    //   accessorKey: 'isActive',
+    //   header: () => (
+    //     <RecordTable.InlineHead icon={IconChecks} label={t('status')} />
+    //   ),
+    //   cell: ({ cell }) => {
+    //     const { _id } = cell.row.original || {};
+    //     const { editStatus } = useUsersStatusEdit();
+    //     return (
+    //       <RecordTableInlineCell>
+    //         <Switch
+    //           className="mx-auto"
+    //           checked={cell.getValue() as boolean}
+    //           onCheckedChange={() => {
+    //             editStatus({
+    //               variables: {
+    //                 _id,
+    //               },
+    //             });
+    //           }}
+    //         />
+    //       </RecordTableInlineCell>
+    //     );
+    //   },
+    // },
   ];
 };

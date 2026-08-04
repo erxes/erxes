@@ -1,9 +1,10 @@
 import { Button, Separator, SideMenu, Spinner } from 'erxes-ui';
 import {
   IconBuilding,
+  IconBuildingCog,
   IconCaretDownFilled,
-  IconPlus,
 } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 
 import { CompaniesInline } from './CompaniesInline';
 import { SelectCompaniesBulk } from './SelectCompaniesBulk';
@@ -22,6 +23,8 @@ const CompanyWidgetItem = ({
   companyId: string;
   scope: string;
 }) => {
+  const navigate = useNavigate();
+
   const { companyDetail, loading } = useCompanyDetail(
     {
       variables: {
@@ -61,60 +64,9 @@ const CompanyWidgetItem = ({
             variant="ghost"
             size="sm"
             className="w-full text-accent-foreground"
-          >
-            View details
-            <IconCaretDownFilled />
-          </Button>
-        </div>
-      </div>
-    </CompaniesInline.Provider>
-  );
-};
-
-const CompanyWidgetDetail = ({
-  companyId,
-  scope,
-}: {
-  companyId: string;
-  scope: string;
-}) => {
-  const { companyDetail, loading } = useCompanyDetail({
-    variables: {
-      _id: companyId,
-    },
-  });
-
-  const { primaryEmail, primaryPhone } = companyDetail || {};
-
-  if (loading) {
-    return (
-      <Spinner containerClassName="py-6 bg-background rounded-lg shadow-xs" />
-    );
-  }
-
-  return (
-    <CompaniesInline.Provider companies={companyDetail ? [companyDetail] : []}>
-      <div className="bg-background rounded-lg shadow-xs">
-        <div className="p-3 space-y-2">
-          <div className="flex items-center gap-2">
-            <CompaniesInline.Avatar size="xl" />
-            <CompaniesInline.Title />
-          </div>
-          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
-            Company phone
-            <span className="text-foreground">{primaryPhone || '-'}</span>
-          </div>
-          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
-            Company email
-            <span className="text-foreground">{primaryEmail || '-'}</span>
-          </div>
-        </div>
-        <Separator />
-        <div className="py-1 px-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full text-accent-foreground"
+            onClick={() =>
+              navigate(`/contacts/companies?companyId=${companyId}`)
+            }
           >
             View details
             <IconCaretDownFilled />
@@ -137,9 +89,7 @@ const CompanyWidgetContent = ({
   if (!companyIds || companyIds.length === 0) {
     return <div className="p-4">No companies found</div>;
   }
-  if (companyIds.length === 1) {
-    return <CompanyWidgetDetail companyId={companyIds[0]} scope={scope} />;
-  }
+
   return (
     <div className="p-4 space-y-2">
       {companyIds.map((companyId: string) => {
@@ -173,7 +123,7 @@ const CompanyWidgetHeader = ({
           companyIds={companyIds}
         >
           <Button variant="ghost" size="sm">
-            <IconPlus className="h-4 w-4" />
+            <IconBuildingCog className="h-4 w-4" />
           </Button>
         </SelectCompaniesBulk>
       )}

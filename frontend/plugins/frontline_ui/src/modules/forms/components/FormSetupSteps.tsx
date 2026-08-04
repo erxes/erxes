@@ -31,13 +31,7 @@ export const FormSetupSteps = () => {
             />
           </div>
           <Separator />
-          <Preview.View
-            iframeSrc={
-              '/settings/frontline/forms' +
-              FrontlinePaths.FormPreview +
-              '?inPreview=true'
-            }
-          />
+          <Preview.View iframeSrc={'/frontline/forms/preview?inPreview=true'} />
         </Preview>
       </Resizable.Panel>
     </Resizable.PanelGroup>

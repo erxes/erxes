@@ -11,15 +11,26 @@ export enum TrJournalEnum {
 
   INV_INCOME = 'invIncome',
   INV_OUT = 'invOut',
-  
+
   INV_MOVE = 'invMove',
   INV_MOVE_IN = 'invMoveIn',
-  
+
   INV_SALE = 'invSale',
   INV_SALE_OUT = 'invSaleOut',
   INV_SALE_COST = 'invSaleCost',
 
-  FIXED_ASSET = 'fixedAsset',
+  INV_SALE_RETURN = 'invSaleReturn',
+  INV_SALE_RETURN_OUT = 'invSaleReturnOut',
+  INV_SALE_RETURN_COST = 'invSaleReturnCost',
+
+  FXA_INCOME = 'fxaIncome',
+  FXA_OUT = 'fxaOut',
+  FXA_OUT_COST = 'fxaOutCost',
+  FXA_OUT_DEPRECIATION = 'fxaOutDepreciation',
+  FXA_OUT_LOSS = 'fxaOutLoss',
+  FXA_MOVE = 'fxaMove',
+  FXA_MOVE_IN = 'fxaMoveIn',
+  FXA_SALE = 'fxaSale',
 }
 
 export const TR_JOURNAL_LABELS = {
@@ -33,7 +44,7 @@ export const TR_JOURNAL_LABELS = {
 
   [TrJournalEnum.INV_INCOME]: 'Барааны орлого',
   [TrJournalEnum.INV_OUT]: 'Барааны зарлага',
-  
+
   [TrJournalEnum.INV_MOVE]: 'Дотоод хөдөлгөөн',
   [TrJournalEnum.INV_MOVE_IN]: 'Дот.Хөд орлого',
 
@@ -41,25 +52,148 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE_OUT]: 'Борлуулалт-зарлага',
   [TrJournalEnum.INV_SALE_COST]: 'Борлуулалт-ББӨ',
 
-  [TrJournalEnum.FIXED_ASSET]: 'Fixed Asset',
+  [TrJournalEnum.INV_SALE_RETURN]: 'Борлуулалтын Буцаалт',
+  [TrJournalEnum.INV_SALE_RETURN_OUT]: 'Б.Буцаалт-зарлага',
+  [TrJournalEnum.INV_SALE_RETURN_COST]: 'Б.Буцаалт-ББӨ',
+
+  [TrJournalEnum.FXA_INCOME]: 'Үндсэн хөрөнгийн орлого',
+  [TrJournalEnum.FXA_OUT]: 'Үндсэн хөрөнгийн зарлага',
+  [TrJournalEnum.FXA_OUT_COST]: 'Үндсэн хөрөнгийн өртөг хасалт',
+  [TrJournalEnum.FXA_OUT_DEPRECIATION]: 'Үндсэн хөрөнгийн хур.элэгдэл',
+  [TrJournalEnum.FXA_OUT_LOSS]: 'Үндсэн хөрөнгийн үлдэгдэл өртөг',
+  [TrJournalEnum.FXA_MOVE]: 'Үндсэн хөрөнгийн хөдөлгөөн',
+  [TrJournalEnum.FXA_MOVE_IN]: 'Үндсэн хөрөнгийн хөдөлгөөн-орлого',
+  [TrJournalEnum.FXA_SALE]: 'Үндсэн хөрөнгийн борлуулалт',
 };
 
 export const TR_PERFECT_JOURNALS = [
   TrJournalEnum.INV_MOVE,
-]
+  TrJournalEnum.FXA_MOVE,
+];
+
+export const ORIGIN_TR_JOURNALS = [
+  TrJournalEnum.MAIN,
+  TrJournalEnum.TAX,
+  TrJournalEnum.CASH,
+  TrJournalEnum.BANK,
+  TrJournalEnum.RECEIVABLE,
+  TrJournalEnum.PAYABLE,
+  TrJournalEnum.INV_INCOME,
+  TrJournalEnum.INV_OUT,
+  TrJournalEnum.INV_MOVE,
+  TrJournalEnum.INV_SALE,
+  TrJournalEnum.INV_SALE_RETURN,
+  TrJournalEnum.FXA_INCOME,
+  TrJournalEnum.FXA_OUT,
+  TrJournalEnum.FXA_MOVE,
+  TrJournalEnum.FXA_SALE,
+];
 
 export const TR_SIDES = {
   DEBIT: 'dt' as const,
   CREDIT: 'ct' as const,
   ALL: ['dt', 'ct'],
   ENUM: { DT: 'dt', CT: 'ct' } as const,
-  OPTIONS: [{ value: 'dt', label: 'debit' }, { value: 'ct', label: 'credit' }],
-  FUND_OPTIONS: [{ value: 'dt', label: 'incoming' }, { value: 'ct', label: 'outgoing' }],
-  RECEIVABLE_OPTIONS: [{ value: 'dt', label: 'open' }, { value: 'ct', label: 'close' }],
-  PAYABLE_OPTIONS: [{ value: 'dt', label: 'close' }, { value: 'ct', label: 'open' }],
-}
+  OPTIONS: [
+    { value: 'dt', label: 'Дебет' },
+    { value: 'ct', label: 'Кредит' },
+  ],
+  FUND_OPTIONS: [
+    { value: 'dt', label: 'Орлого' },
+    { value: 'ct', label: 'Зарлага' },
+  ],
+  RECEIVABLE_OPTIONS: [
+    { value: 'dt', label: 'Үүсгэх' },
+    { value: 'ct', label: 'Хаах' },
+  ],
+  PAYABLE_OPTIONS: [
+    { value: 'dt', label: 'Хаах' },
+    { value: 'ct', label: 'Үүсгэх' },
+  ],
+};
 
 export const INV_INCOME_EXPENSE_TYPES = [
-  { value: 'amount', label: 'Amount' },
-  { value: 'count', label: 'Count' }
-]
+  { value: 'amount', label: 'Дүн' },
+  { value: 'count', label: 'Тоо' },
+];
+
+export const TR_STATUSES = {
+  // future level
+  PLAN: 'plan',
+  // conversation level
+  DRAFT: 'draft',
+  MENTIONED: 'mentioned',
+  APPROVED: 'approved',
+  REJECED: 'rejeced',
+  RETURNED: 'returned',
+  // business level
+  PROGRESS: 'progress',
+  ASSIGNED: 'assigned',
+  CONFIRMED: 'confirmed',
+  CANELLED: 'canelled',
+  COMPLETE: 'complete',
+
+  ALL: [
+    'plan',
+    'draft',
+    'mentioned',
+    'approved',
+    'rejeced',
+    'returned',
+    'progress',
+    'assigned',
+    'confirmed',
+    'canelled',
+    'complete',
+  ],
+};
+
+export const TR_STATUS_LABELS: Record<string, string> = {
+  // future level
+  plan: 'Төлөвлөгөөт',
+  // conversation level
+  draft: 'Ноорог',
+  mentioned: 'Хүсэлт',
+  approved: 'Зөвшөөрсөн',
+  rejeced: 'Татгалзсан',
+  returned: 'Хариу хүсэлт',
+  // business level
+  progress: 'Хэрэгжүүлж буй',
+  assigned: 'Баталгаажуулах',
+  confirmed: 'Баталсан',
+  canelled: 'Цуцалсан',
+
+  complete: 'Бүрэн',
+};
+
+export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({
+  value: status,
+  label: TR_STATUS_LABELS[status] || status,
+}));
+
+export const TR_STATUS_GROUPS = [
+  {
+    label: 'DRAFTED',
+    values: [
+      TR_STATUSES.DRAFT,
+      TR_STATUSES.MENTIONED,
+      TR_STATUSES.APPROVED,
+      TR_STATUSES.REJECED,
+      TR_STATUSES.RETURNED,
+    ],
+  },
+  {
+    label: 'PUBLISHED',
+    values: [
+      TR_STATUSES.PROGRESS,
+      TR_STATUSES.ASSIGNED,
+      TR_STATUSES.CONFIRMED,
+      TR_STATUSES.CANELLED,
+      TR_STATUSES.COMPLETE,
+    ],
+  },
+  {
+    label: '',
+    values: [TR_STATUSES.PLAN],
+  },
+];

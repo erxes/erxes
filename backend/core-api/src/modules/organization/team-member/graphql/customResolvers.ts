@@ -1,6 +1,6 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { getUserActionsMap, USER_ROLES } from 'erxes-api-shared/core-modules';
+import { USER_ROLES } from 'erxes-api-shared/core-modules';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
@@ -127,16 +127,6 @@ export default {
     return models.Brands.find({
       _id: { $in: user.brandIds },
     }).lean();
-  },
-
-  async permissionActions(
-    user: IUserDocument,
-    _args,
-    { models: { Permissions }, subdomain }: IContext,
-  ) {
-    return getUserActionsMap(subdomain, user, (query) =>
-      Permissions.find(query),
-    );
   },
 
   async departments(user: IUserDocument, _args, { models }: IContext) {

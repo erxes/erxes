@@ -1,8 +1,13 @@
-import { FACEBOOK_BOT_DETAIL } from '@/integrations/facebook/graphql/queries/facebookBots';
+import {
+  FACEBOOK_BOT_DETAIL,
+  FACEBOOK_BOTS_LIST,
+} from '@/integrations/facebook/graphql/queries/facebookBots';
+import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { resetFacebookAddStateAtom } from '@/integrations/facebook/states/facebookStates';
 import { useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
 import { z } from 'zod';
 import {
@@ -13,6 +18,7 @@ import { facebookBotFormSchema } from '~/widgets/automations/modules/facebook/co
 import { FacebookBotDetailQueryResponse } from '~/widgets/automations/modules/facebook/components/bots/types/facebookBotTypes';
 
 export const useFacebookBotSave = () => {
+  const { t } = useTranslation('frontline');
   const [facebookBotId] = useQueryState<string>('facebookBotId');
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
 
@@ -27,15 +33,47 @@ export const useFacebookBotSave = () => {
     };
     save({
       variables,
+      update: (cache, { data }) => {
+        const savedBot = facebookBotId
+          ? data?.facebookMessengerUpdateBot
+          : data?.facebookMessengerAddBot;
+
+        if (!savedBot) {
+          return;
+        }
+
+        cache.updateQuery<{ facebookMessengerBots: IFacebookBot[] }>(
+          {
+            query: FACEBOOK_BOTS_LIST,
+          },
+          (current) => {
+            if (!current?.facebookMessengerBots) {
+              return { facebookMessengerBots: [savedBot] };
+            }
+
+            const exists = current.facebookMessengerBots.some(
+              (bot) => bot._id === savedBot._id,
+            );
+
+            return {
+              facebookMessengerBots: exists
+                ? current.facebookMessengerBots.map((bot) =>
+                    bot._id === savedBot._id ? savedBot : bot,
+                  )
+                : [savedBot, ...current.facebookMessengerBots],
+            };
+          },
+        );
+      },
       onCompleted: () => {
         toast({
-          title: 'Save successful',
+          title: t('save-successful'),
         });
       },
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: 'Something went wrong',
+          title: t('something-went-wrong'),
           description: error?.message,
         });
       },

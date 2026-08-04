@@ -32,68 +32,94 @@ const getConvertedValue = (key: string, value: string) => {
     return {
       [`start${camel}`]: parsed?.from,
       [`end${camel}`]: parsed?.to,
-    }
+    };
   }
 
   return { [key]: value + '' };
-}
+};
 
 export const useTransactionsQueryParams = () => {
-  const [queryParams] =
-    useMultiQueryState<{
-      status: string,
-      searchValue: string,
-      number: string,
-      accountIds: string,
-      accountKind: string,
-      accountExcludeIds: string,
-      accountStatus: string,
-      accountCategoryId: string,
-      accountSearchValue: string,
-      accountBrand: string,
-      accountIsOutBalance: string,
-      accountBranchId: string,
-      accountDepartmentId: string,
-      accountCurrency: string,
-      accountJournal: string,
-      brandId: string,
-      isOutBalance: string,
-      branchId: string,
-      departmentId: string,
-      currency: string,
-      journal: string,
-      statuses: string,
-      createdUserId: string,
-      modifiedUserId: string,
-      fromDate: string,
-      toDate: string,
-      report: string,
-      groupKey: string,
-      isMore: string,
-    }>([
-      'status', 'searchValue', 'number',
-      'accountIds', 'accountKind', 'accountExcludeIds', 'accountStatus',
-      'accountCategoryId', 'accountSearchValue', 'accountBrand', 'accountIsOutBalance',
-      'accountBranchId', 'accountDepartmentId', 'accountCurrency', 'accountJournal',
-      'brandId', 'isOutBalance', 'branchId', 'departmentId', 'currency', 'journal',
-      'statuses', 'createdUserId', 'modifiedUserId',
-      'fromDate', 'toDate', 'report', 'groupKey', 'isMore'
-    ]);
+  const [queryParams] = useMultiQueryState<{
+    status: string;
+    searchValue: string;
+    number: string;
+    accountIds: string;
+    accountKind: string;
+    accountExcludeIds: string;
+    accountStatus: string;
+    accountCategoryId: string;
+    accountSearchValue: string;
+    accountBrand: string;
+    accountIsOutBalance: string;
+    accountBranchId: string;
+    accountDepartmentId: string;
+    accountCurrency: string;
+    accountJournal: string;
+    brandId: string;
+    isOutBalance: string;
+    branchId: string;
+    departmentId: string;
+    currency: string;
+    journal: string;
+    statuses: string;
+    createdUserId: string;
+    modifiedUserId: string;
+    fromDate: string;
+    toDate: string;
+    report: string;
+    groupKey: string;
+    isMore: string;
+  }>([
+    'status',
+    'searchValue',
+    'number',
+    'accountIds',
+    'accountKind',
+    'accountExcludeIds',
+    'accountStatus',
+    'accountCategoryId',
+    'accountSearchValue',
+    'accountBrand',
+    'accountIsOutBalance',
+    'accountBranchId',
+    'accountDepartmentId',
+    'accountCurrency',
+    'accountJournal',
+    'brandId',
+    'isOutBalance',
+    'branchId',
+    'departmentId',
+    'currency',
+    'journal',
+    'statuses',
+    'createdUserId',
+    'modifiedUserId',
+    'fromDate',
+    'toDate',
+    'report',
+    'groupKey',
+    'isMore',
+  ]);
 
-  return queryParams
+  return queryParams;
 };
 
 export const useJouranlReportVariables = (
-  variables?: QueryHookOptions<ICursorListResponse<IJournalReport>>['variables'],
+  variables?: QueryHookOptions<
+    ICursorListResponse<IJournalReport>
+  >['variables'],
 ): any => {
   const { report, groupKey, ...queryParams } = useTransactionsQueryParams();
 
-  const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
-    if (!value) return acc;
+  const curVariables = Object.entries(queryParams).reduce(
+    (acc, [key, value]) => {
+      if (!value) return acc;
 
-    Object.assign(acc, getConvertedValue(key, value));
-    return acc;
-  }, {} as Record<string, string | boolean | Date | string[]>);
+      Object.assign(acc, getConvertedValue(key, value));
+      return acc;
+    },
+    {} as Record<string, string | boolean | Date | string[]>,
+  );
 
   const groupRule = ReportRules[report || '']?.groups?.[groupKey || 'default'];
 
@@ -101,6 +127,6 @@ export const useJouranlReportVariables = (
     ...variables,
     ...curVariables,
     report,
-    groupRule
+    groupRule,
   };
 };

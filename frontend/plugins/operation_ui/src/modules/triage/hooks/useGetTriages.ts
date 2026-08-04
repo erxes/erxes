@@ -19,8 +19,8 @@ export const useGetTriages = (
     {
       fetchPolicy: 'cache-and-network',
       variables: {
-        limit: TRIAGES_PER_PAGE,
         filter: {
+          limit: TRIAGES_PER_PAGE,
           ...options?.variables,
         },
       },
@@ -39,17 +39,23 @@ export const useGetTriages = (
     ) {
       fetchMore({
         variables: {
-          cursor: pageInfo?.endCursor,
+          filter: {
+            limit: TRIAGES_PER_PAGE,
+            ...options?.variables,
+            cursor: pageInfo?.endCursor,
+          },
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) return prev;
-          return Object.assign({}, prev, {
-            triages: mergeCursorData({
+
+          return {
+            ...prev,
+            operationGetTriageList: mergeCursorData({
               direction: EnumCursorDirection.FORWARD,
-              fetchMoreResult: fetchMoreResult.triages,
-              prevResult: prev.triages,
+              fetchMoreResult: fetchMoreResult.operationGetTriageList,
+              prevResult: prev.operationGetTriageList,
             }),
-          });
+          };
         },
       });
     }

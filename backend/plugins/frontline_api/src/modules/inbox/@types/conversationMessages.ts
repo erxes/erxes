@@ -38,6 +38,7 @@ export interface IMessage {
   formWidgetData?: any;
   botData?: any;
   messengerAppData?: any;
+  extraData?: Record<string, unknown>;
   engageData?: IEngageData;
   contentType?: string;
   botId?: string;
@@ -65,4 +66,11 @@ export interface IConversationMessageAdd {
   userId?: string;
   extraInfo?: any;
   responseTemplateId?: string;
+  poll?: {
+    question: string;
+    options: string[];
+    duration?: number;
+    allowMultiselect?: boolean;
+  };
+  replyToMessageId?: string;
 }

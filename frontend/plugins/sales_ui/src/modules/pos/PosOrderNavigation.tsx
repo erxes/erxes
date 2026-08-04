@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Button,
   Collapsible,
@@ -21,6 +21,7 @@ import {
   IconLink,
   IconSettings,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useGetPos } from '@/pos/hooks/useGetPos';
 
 type Pos = {
@@ -43,8 +44,13 @@ interface posItemProps {
 }
 
 function PosItem({ pos }: posItemProps) {
+  const { t } = useTranslation('sales');
+  const { pathname } = useLocation();
+
+  const isPosActive = pathname.includes(`/sales/pos/${pos._id}`);
+
   return (
-    <Collapsible className="group/collapsible">
+    <Collapsible className="group/collapsible" defaultOpen={isPosActive}>
       <Sidebar.Group className="p-0">
         <div className="w-full relative group/trigger hover:cursor-pointer">
           <Collapsible.Trigger asChild>
@@ -74,47 +80,47 @@ function PosItem({ pos }: posItemProps) {
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
-                name="Orders"
+                name={t('pos-orders')}
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`sales/pos/${pos._id}/orders`}
               />
               <NavigationMenuLinkItem
-                name="Pos Covers"
+                name={t('pos-covers')}
                 path={`sales/pos/${pos._id}/covers`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="Pos By Items"
+                name={t('pos-by-items')}
                 path={`sales/pos/${pos._id}/by-items`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="Pos Items"
+                name={t('pos-items')}
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`sales/pos/${pos._id}/items`}
               />
               <NavigationMenuLinkItem
-                name="Pos Summary"
+                name={t('pos-summary')}
                 path={`sales/pos/${pos._id}/summary`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="Pos Orders By Customer"
+                name={t('pos-orders-by-customer')}
                 path={`sales/pos/${pos._id}/orders-by-customer`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
-              <NavigationMenuLinkItem
-                name="Pos Orders By Subscription"
+              {/* <NavigationMenuLinkItem
+                name="POS orders by subscription"
                 path={`sales/pos/${pos._id}/orders-by-subscription`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
-              />
+              /> */}
             </Sidebar.Menu>
           </Sidebar.GroupContent>
         </Collapsible.Content>
@@ -124,26 +130,38 @@ function PosItem({ pos }: posItemProps) {
 }
 
 export function PosOrderNavigation() {
+  const { t } = useTranslation('sales');
   const location = useLocation();
   const currentUser = useAtomValue(currentUserState);
   const { pos, loading } = useGetPos({
     variables: { userId: currentUser?._id },
   });
+
   const isPos = location.pathname.startsWith('/sales/pos');
 
   if (!isPos) return null;
+
+  if (!loading && (!pos || pos.length === 0)) {
+    return null;
+  }
+
   return (
-    <NavigationMenuGroup name="POS order">
+    <NavigationMenuGroup name={t('pos-order')}>
       {loading ? (
         <LoadingSkeleton />
       ) : (
-        pos?.map((pos) => <PosItem key={pos._id} pos={pos} />)
+        <div>
+          {pos?.map((pos) => (
+            <PosItem key={pos._id} pos={pos} />
+          ))}
+        </div>
       )}
     </NavigationMenuGroup>
   );
 }
 
 const PosActionsMenu = ({ pos }: { pos: Pos }) => {
+  const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -153,13 +171,13 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
       await navigator.clipboard.writeText(posLink);
       toast({
         variant: 'default',
-        title: 'Link copied to clipboard',
+        title: t('link-copied-to-clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy link',
-        description: e instanceof Error ? e.message : 'Unknown error',
+        title: t('failed-to-copy-link'),
+        description: e instanceof Error ? e.message : t('unknown-error'),
       });
     }
   };
@@ -182,11 +200,11 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
         <DropdownMenu.Item
           className="cursor-pointer"
           onSelect={(e) => {
-            navigate(`/settings/sales/pos/details/${pos._id}`);
+            navigate(`/settings/sales/pos/${pos._id}`);
           }}
         >
           <IconSettings className="size-4" />
-          Go to pos settings
+          {t('go-to-pos-settings')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={(e) => {
@@ -195,7 +213,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
           className="cursor-pointer"
         >
           <IconLink className="size-4" />
-          Copy link
+          {t('copy-link')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

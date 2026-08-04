@@ -1,5 +1,4 @@
-import { Form, Input, Textarea } from 'erxes-ui';
-
+import { Form, Input, Textarea, ColorPicker } from 'erxes-ui';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { SelectSegment } from '../SelectSegment';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +17,7 @@ export const SegmentMetadataForm = () => {
             <Form.Item className="flex-1">
               <Form.Label>{t('name')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Input autoFocus {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -49,7 +48,11 @@ export const SegmentMetadataForm = () => {
             <Form.Item>
               <Form.Label>{t('color')}</Form.Label>
               <Form.Control>
-                <Input {...field} type="color" className="p-0" />
+                <ColorPicker
+                  className="w-20 h-8"
+                  value={field.value}
+                  onValueChange={(value: string) => field.onChange(value)}
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>

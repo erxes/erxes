@@ -1,9 +1,16 @@
-import { IconDotsVertical, IconEdit, IconTrash } from '@tabler/icons-react';
-import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
-import { Dispatch, SetStateAction } from 'react';
-import { AutomationNodesType, NodeData } from '@/automations/types';
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
+import { AutomationNodesType, NodeData } from '@/automations/types';
+import {
+  IconDots,
+  IconEdit,
+  IconSettings,
+  IconTrash,
+} from '@tabler/icons-react';
+import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
+import { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import { NodeEditMetaDataDialog } from './NodeEditMetaDataDialog';
 
 export const NodeDropdownActions = ({
   id,
@@ -13,7 +20,6 @@ export const NodeDropdownActions = ({
   data: NodeData;
 }) => {
   const {
-    fieldName,
     isOpenDialog,
     isOpenDropDown,
     isOpenRemoveAlert,
@@ -21,6 +27,7 @@ export const NodeDropdownActions = ({
     setOpenDialog,
     setOpenDropDown,
     onRemoveNode,
+    openNodeConfigurationForm,
   } = useNodeDropDownActions(id, data.nodeType);
 
   return (
@@ -37,12 +44,15 @@ export const NodeDropdownActions = ({
           variant="ghost"
           onClick={(e) => e.stopPropagation()}
           onDoubleClick={(e) => e.stopPropagation()}
+          size={'icon'}
+          className="data-[state=open]:bg-accent-foreground/10"
         >
-          <IconDotsVertical className="size-4" />
+          <IconDots className="size-4" />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
-        className="w-42"
+        align="start"
+        className="min-w-0 [&>button]:cursor-pointer"
         onClick={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
@@ -51,8 +61,18 @@ export const NodeDropdownActions = ({
           setOpenDialog={setOpenDialog}
           data={data}
           id={id}
-          fieldName={fieldName}
         />
+        <DropdownMenu.Item asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start"
+            onClick={(e) => openNodeConfigurationForm(id)}
+          >
+            <IconSettings className="size-4" />
+            Configuration
+          </Button>
+        </DropdownMenu.Item>
         <NodeRemoveActionDialog
           onRemoveNode={onRemoveNode}
           isOpenRemoveAlert={isOpenRemoveAlert}
@@ -72,6 +92,7 @@ export const NodeRemoveActionDialog = ({
   isOpenRemoveAlert: boolean;
   setOpenRemoveAlert: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <AlertDialog open={isOpenRemoveAlert} onOpenChange={setOpenRemoveAlert}>
       <AlertDialog.Trigger asChild>
@@ -79,71 +100,29 @@ export const NodeRemoveActionDialog = ({
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start"
+            className="w-full justify-start text-destructive"
             onClick={(e) => e.stopPropagation()}
             onDoubleClick={(e) => e.stopPropagation()}
           >
-            <IconTrash className="size-4 text-destructive" />
-            Delete
+            <IconTrash className="size-4" />
+            {t('delete')}
           </Button>
         </DropdownMenu.Item>
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+          <AlertDialog.Title>{t('delete-confirm-title')}</AlertDialog.Title>
           <AlertDialog.Description>
-            This action cannot be undone.
+            {t('delete-confirm-description')}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+          <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
           <AlertDialog.Action onClick={onRemoveNode}>
-            Continue
+            {t('continue')}
           </AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>
     </AlertDialog>
-  );
-};
-
-const NodeEditMetaDataDialog = ({
-  isOpenDialog,
-  setOpenDialog,
-  data,
-  id,
-  fieldName,
-}: {
-  isOpenDialog: boolean;
-  setOpenDialog: Dispatch<SetStateAction<boolean>>;
-  data: NodeData;
-  id: string;
-  fieldName:
-    | AutomationNodesType.Triggers
-    | AutomationNodesType.Actions
-    | AutomationNodesType.Workflows;
-}) => {
-  return (
-    <Dialog open={isOpenDialog} onOpenChange={setOpenDialog}>
-      <Dialog.Trigger asChild>
-        <DropdownMenu.Item asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start"
-            onClick={(e) => e.stopPropagation()}
-            onDoubleClick={(e) => e.stopPropagation()}
-          >
-            <IconEdit className="size-4" />
-            Edit
-          </Button>
-        </DropdownMenu.Item>
-      </Dialog.Trigger>
-      <NodeEditMetaDataForm
-        id={id}
-        fieldName={fieldName}
-        data={data}
-        callback={() => setOpenDialog(false)}
-      />
-    </Dialog>
   );
 };

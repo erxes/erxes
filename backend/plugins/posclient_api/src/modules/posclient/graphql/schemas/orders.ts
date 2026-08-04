@@ -45,6 +45,8 @@ export const orderTypeFields = `
   origin: String
   customer: PosCustomer
   customerType: String,
+  brokerId: String,
+  brokerType: String,
   items: [PosOrderItem]
   user: PosUser
   putResponses: [PosPutResponse]
@@ -64,6 +66,8 @@ const addEditParams = `
   branchId: String,
   customerId: String,
   customerType: String,
+  brokerId: String,
+  brokerType: String,
   deliveryInfo: JSON,
   billType: String,
   registerNumber: String,
@@ -77,8 +81,8 @@ const addEditParams = `
   isPre: Boolean,
   isSingle: Boolean,
   deviceId: String,
-  couponCode: String
-  voucherId: String
+  couponCode: String,
+  voucherId: String,
 `;
 
 export const types = `
@@ -219,6 +223,15 @@ export const mutations = `
   ordersConvertToDeal(_id: String!): Order
   afterFormSubmit(_id: String!, conversationId: String!): Order
   ordersReturn(_id: String!, cashAmount: Float, paidAmounts: [PaidAmountInput], description: String): Order
+
+
+  cpOrdersAdd(${addEditParams}): Order
+  cpOrdersEdit(_id: String!, ${addEditParams}): Order
+  cpOrderChangeSaleStatus(_id: String!, saleStatus: String): Order
+  cpOrdersCancel(_id: String!): JSON
+  cpOrdersAddPayment(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: [PaidAmountInput] ): Order
+  cpOrdersSettlePayment(_id: String!, billType: String!, registerNumber: String): PosPutResponse
+
 `;
 
 export const queries = `
@@ -230,4 +243,11 @@ export const queries = `
   ordersDeliveryInfo(orderId: String!): JSON
   fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
   convertedDealLink(_id: String!): JSON
+
+  cpCurrentOrder(${ordersQueryParams}): [Order]
+  cpFullOrders(${ordersQueryParams}): [Order]
+  cpOrderDetail(_id: String!, customerId: String): OrderDetail
+  cpOrderItemDetail(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
+  cpAddresses(orderId: String!): JSON
+  cpOrdersCheckCompany(registerNumber: String!): JSON
 `;

@@ -6,7 +6,9 @@ export default {
     return models.SyncLogs.findOne({ _id });
   },
 
-  async createdUser({ createdBy }: ISyncLogDocument) {
+  async createdUser(
+    { createdBy }: ISyncLogDocument,
+  ) {
     if (!createdBy) {
       return;
     }
@@ -15,6 +17,7 @@ export default {
       __typename: 'User',
       _id: createdBy,
     };
+
   },
 
   async content({ contentType, contentId, consumeData }: ISyncLogDocument) {

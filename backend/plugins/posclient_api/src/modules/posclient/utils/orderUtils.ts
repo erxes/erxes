@@ -45,6 +45,7 @@ export const generateOrderNumber = async (
 
   if (config?.beginNumber) {
     beginNumber = `${config.beginNumber}.`;
+    // eslint-disable-next-line no-useless-escape
     regexSuffix = `${config.beginNumber}\.[0-9]*$`;
   }
 
@@ -71,7 +72,7 @@ export const generateOrderNumber = async (
     latestOrder = latestOrders[0];
   }
 
-  if (latestOrder && latestOrder._id) {
+  if (latestOrder?._id) {
     const parts = latestOrder.number.split('_');
 
     const suffixParts = parts[1].split('.');
@@ -80,9 +81,8 @@ export const generateOrderNumber = async (
 
     const latestNum = Number.parseInt(latestSuffix, 10);
     const addend =
-      (config &&
-        config.maxSkipNumber &&
-        config.maxSkipNumber > 1 &&
+      (config?.maxSkipNumber &&
+        config?.maxSkipNumber > 1 &&
         Math.round(cryptoRandom() * (config.maxSkipNumber - 1) + 1)) ||
       1;
 
@@ -131,7 +131,7 @@ export const validateOrder = async (
     throw new Error('Products missing in order. Please add products');
   }
 
-  if (!(await validDueDate(doc, order))) {
+  if (!validDueDate(doc, order)) {
     throw new Error(
       'The due date of the pre-order must be recorded in the future',
     );
@@ -164,7 +164,7 @@ export const validateOrder = async (
     config.departmentId
   ) {
     const checkProducts = products.filter(
-      (p) => (p.isCheckRems || {})[config.token || ''] || false,
+      (p) => p.isCheckRems?.[config.token || ''] || false,
     );
 
     if (checkProducts.length) {
@@ -494,9 +494,9 @@ export const prepareOrderDoc = async (
       subdomain,
 
       pluginName: 'core',
-      module: 'uoms',
-      action: 'uoms.find',
-      input: { isForSubscription: true },
+      module: 'productUoms',
+      action: 'find',
+      input: { query: { isForSubscription: true } },
       defaultValue: [],
     });
   }
@@ -506,7 +506,7 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       Number(
-        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
+        productsOfId[item.productId]?.prices?.[config.token] ||
           item.unitPrice ||
           0,
       ).toFixed(2),
@@ -583,7 +583,7 @@ export const prepareOrderDoc = async (
       .map((cpm) => cpm.categoryId);
     const hasTakeProducIds = hasTakeItems.map((hti) => hti.productId);
     const hasTakeCatIds = hasTakeProducIds.map(
-      (htpi) => (productsOfId[htpi] || {}).categoryId,
+      (htpi) => productsOfId[htpi]?.categoryId,
     );
     const categories = await models.ProductCategories.find({
       _id: { $in: [...mapCatIds, ...hasTakeCatIds] },
@@ -634,9 +634,8 @@ export const prepareOrderDoc = async (
       for (const addProduct of takingProducts) {
         const toAddItem = toAddProducts[addProduct._id];
 
-        const fixedUnitPrice = Number(
-          ((addProduct.prices || {})[config.token] || 0).toFixed(2),
-        );
+        const fixedUnitPrice =
+          Number(addProduct.prices?.[config.token]?.toFixed(2)) || 0;
 
         items.push({
           _id: cryptoRandom().toString(),
@@ -652,18 +651,13 @@ export const prepareOrderDoc = async (
     }
   }
 
-  if (
-    doc.type === ORDER_TYPES.DELIVERY &&
-    config.deliveryConfig &&
-    config.deliveryConfig.productId
-  ) {
+  if (doc.type === ORDER_TYPES.DELIVERY && config.deliveryConfig?.productId) {
     const deliveryProd = await models.Products.findOne({
       _id: config.deliveryConfig.productId,
     }).lean();
 
     if (deliveryProd) {
-      const deliveryUnitPrice =
-        (deliveryProd.prices || {})[config.token || ''] || 0;
+      const deliveryUnitPrice = deliveryProd.prices?.[config.token || ''] || 0;
       items.push({
         _id: cryptoRandom().toString(),
         productId: deliveryProd._id,
@@ -753,25 +747,28 @@ export const checkScoreAviableSubtractScoreCampaign = async (
         continue;
       }
 
-      // await sendLoyaltiesMessage({
-      //   subdomain,
-      //   action: 'checkScoreAviableSubtract',
-      //   data: {
-      //     ownerType: order.customerType || 'customer',
-      //     ownerId: order.customerId,
-      //     campaignId: scoreCampaignId,
-      //     target: { ...order, paidAmounts },
-      //   },
-      //   isRPC: true,
-      //   defaultValue: false,
-      // }).catch((error) => {
-      //   if (error.message === 'There has no enough score to subtract') {
-      //     throw new Error(
-      //       `There has no enough score to subtract using ${title}`,
-      //     );
-      //   }
-      //   throw new Error(error.message);
-      // });
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'loyalty',
+        module: 'score',
+        action: 'checkScoreAviableSubtract',
+        input: {
+          ownerType: order.customerType || 'customer',
+          ownerId: order.customerId,
+          campaignId: scoreCampaignId,
+          actionMethod: 'subtract',
+          targetId: order._id,
+          target: { ...order, paidAmounts },
+        },
+        defaultValue: false,
+      }).catch((error) => {
+        if (error.message === 'There has no enough score to subtract') {
+          throw new Error(
+            `There has no enough score to subtract using ${title}`,
+          );
+        }
+        throw new Error(error.message);
+      });
     }
   }
 };
@@ -792,17 +789,18 @@ export const checkCouponCode = async ({
   }
 
   try {
-    // await sendLoyaltiesMessage({
-    //   subdomain: subdomain,
-    //   action: 'checkCoupon',
-    //   data: {
-    //     ownerId: customerId,
-    //     code: couponCode,
-    //     totalAmount: rawTotalAmount,
-    //   },
-    //   isRPC: true,
-    //   defaultValue: false,
-    // });
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'coupon',
+      action: 'checkCoupon',
+      input: {
+        ownerId: customerId,
+        code: couponCode,
+        totalAmount: rawTotalAmount,
+      },
+      defaultValue: false,
+    });
   } catch (error) {
     throw new Error(error.message);
   }
@@ -812,7 +810,7 @@ export const reverseItemStatus = async (
   models: IModels,
   items: IOrderItemInput[],
 ) => {
-  let newPreparedDocItems: IOrderItemInput[] = [...items];
+  const newPreparedDocItems: IOrderItemInput[] = [...items];
   try {
     const oldOrderItems = await models.OrderItems.find({
       _id: { $in: items.map((item) => item._id) },
@@ -823,7 +821,7 @@ export const reverseItemStatus = async (
           (oldItem) =>
             oldItem._id === newItem._id && oldItem.count < newItem.count,
         );
-        if (foundItem && foundItem._id) {
+        if (foundItem?._id) {
           newPreparedDocItems[index].status = ORDER_ITEM_STATUSES.CONFIRM;
 
           await models.OrderItems.updateOrderItem(foundItem._id, {

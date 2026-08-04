@@ -1,4 +1,4 @@
-import { Button, Collapsible, Spinner, cn, useConfirm } from 'erxes-ui';
+import { Button, Collapsible, Spinner, cn, useConfirm, toast } from 'erxes-ui';
 import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
 import {
   useChecklistItemsAdd,
@@ -11,45 +11,73 @@ import ChecklistItemContent from './ChecklistItemContent';
 import CircularProgressbar from '@/deals/components/common/CircularProgressbar';
 import { IconTrash } from '@tabler/icons-react';
 import SortableList from '@/deals/components/common/SortableList';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const ChecklistItem = ({ item }: { item: IChecklist }) => {
+const ChecklistItem = ({
+  item,
+  stageId,
+  dealId,
+}: {
+  item: IChecklist;
+  stageId?: string;
+  dealId?: string;
+}) => {
   const [open, setOpen] = useState(false);
 
-  const [items, setItems] = useState<IChecklistItem[]>(item.items);
+  const [items, setItems] = useState<IChecklistItem[]>(item.items ?? []);
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [hideChecked, setHideChecked] = useState(false);
 
   const { salesChecklistItemsAdd } = useChecklistItemsAdd();
   const { salesChecklistItemsReorder } = useChecklistItemsReorder();
-  const { salesChecklistsRemove, salesChecklistsRemoveLoading } =
+  const { salesChecklistsRemove, salesChecklistsRemoveLoading, error } =
     useChecklistsRemove();
   const { confirm } = useConfirm();
 
   const checkedCount = items.filter((i) => i.isChecked).length;
 
+  const { t } = useTranslation('sales');
+
+  useEffect(() => {
+    if (!Array.isArray(item.items)) return;
+
+    setItems(item.items);
+  }, [item]);
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: t('error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  }, [error]);
+
   const handleAdd = () => {
     const lines = newItem
       .split('\n')
       .map((line) => line.trim())
-      .filter((line) => line.length > 0)
-      .map((content, i) => ({
-        _id: (Date.now() + i).toString(),
-        content,
-        isChecked: false,
-        checklistId: item._id,
-      }));
+      .filter((line) => line.length > 0);
 
     if (lines.length > 0) {
-      setItems((prev) => [...prev, ...lines]);
       setNewItem('');
       setAdding(false);
-      salesChecklistItemsAdd({
-        variables: {
-          checklistId: item._id,
-          content: newItem,
-        },
+
+      lines.forEach((content, index) => {
+        salesChecklistItemsAdd({
+          variables: {
+            checklistId: item._id,
+            content,
+          },
+          onCompleted: (data) => {
+            if (data?.salesChecklistItemsAdd) {
+              setItems((prev) => [...prev, data.salesChecklistItemsAdd]);
+            }
+          },
+        });
       });
     }
   };
@@ -86,11 +114,23 @@ const ChecklistItem = ({ item }: { item: IChecklist }) => {
     e.stopPropagation();
 
     confirm({
-      message: `Are you sure you want to delete ${item.title}?`,
+      message: t('delete-checklist-confirm', { title: item.title }),
     }).then(() => {
       salesChecklistsRemove({
         variables: {
           _id: id,
+        },
+        onError: (error) => {
+          if (
+            error.message?.includes('permission') ||
+            error.message?.includes('denied')
+          ) {
+            toast({
+              title: t('permission-denied'),
+              description: t('no-permission-delete-checklist'),
+              variant: 'destructive',
+            });
+          }
         },
       });
     });
@@ -127,22 +167,22 @@ const ChecklistItem = ({ item }: { item: IChecklist }) => {
               }}
             >
               {hideChecked
-                ? `Show checked items (${checkedCount})`
-                : 'Hide Completed Items'}
+                ? t('show-checked-items', { count: checkedCount })
+                : t('hide-completed-items')}
             </Button>
           )}
 
           <Button
             variant="destructive"
             onClick={(e) => onDeleteChecklist(e, item._id)}
-            title="Delete checklist"
+            title={t('delete-checklist')}
             size="sm"
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
             className={cn(salesChecklistsRemoveLoading && 'opacity-50')}
           >
             <IconTrash />{' '}
-            {salesChecklistsRemoveLoading ? <Spinner /> : 'Delete'}
+            {salesChecklistsRemoveLoading ? <Spinner /> : t('delete')}
           </Button>
         </div>
       </Collapsible.TriggerButton>
@@ -160,6 +200,8 @@ const ChecklistItem = ({ item }: { item: IChecklist }) => {
               item={item}
               index={index}
               setItems={setItems}
+              stageId={stageId}
+              dealId={dealId}
             />
           )}
         />

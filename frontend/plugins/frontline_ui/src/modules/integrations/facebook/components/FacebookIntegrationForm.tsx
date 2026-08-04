@@ -1,26 +1,27 @@
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
-import { FacebookGetAccounts } from './FacebookGetAccounts';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import {
+  FbIntegrationProvider,
+  useFbIntegrationContext,
+} from '../contexts/FbIntegrationContext';
 import {
   activeFacebookFormStepAtom,
   facebookFormSheetAtom,
   resetFacebookAddStateAtom,
 } from '../states/facebookStates';
+import { FacebookGetAccounts } from './FacebookGetAccounts';
 import { FacebookGetPages } from './FacebookGetPages';
 import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';
-import { useAtom } from 'jotai';
-import {
-  FbIntegrationProvider,
-  useFbIntegrationContext,
-} from '../contexts/FbIntegrationContext';
 
 export const FacebookIntegrationFormSheet = ({
   isPost,
 }: {
   isPost?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [facebookFormSheet, setFacebookFormSheet] = useAtom(
     facebookFormSheetAtom,
   );
@@ -32,8 +33,7 @@ export const FacebookIntegrationFormSheet = ({
           <Sheet.Trigger asChild>
             <Button>
               <IconPlus />
-              Add Facebook{' '}
-              {isPost ? 'Post Integration' : 'Messenger integration'}
+              {isPost ? t('add-facebook-post-integration') : t('add-facebook-messenger-integration')}
             </Button>
           </Sheet.Trigger>
           <Sheet.View>
@@ -64,13 +64,14 @@ export const FacebookIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
   const { isPost } = useFbIntegrationContext();
 
   return (
     <>
       <Sheet.Header>
-        <Sheet.Title>Add Facebook {isPost ? 'Post' : 'Messenger'}</Sheet.Title>
+        <Sheet.Title>{isPost ? t('add-facebook-post') : t('add-facebook-messenger')}</Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
       <Sheet.Content className="flex flex-col overflow-hidden">
@@ -83,7 +84,7 @@ export const FacebookIntegrationFormLayout = ({
             variant="ghost"
             onClick={resetForm}
           >
-            Cancel
+            {t('cancel')}
           </Button>
         </Sheet.Close>
         {actions}
@@ -100,10 +101,11 @@ export const FacebookIntegrationFormSteps = ({
   step: number;
   description: string;
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <IntegrationSteps
       step={step}
-      title="Connect accounts"
+      title={t('connect-accounts')}
       stepsLength={3}
       description={description}
     />

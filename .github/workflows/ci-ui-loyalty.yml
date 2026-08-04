@@ -1,0 +1,65 @@
+name: CI plugin--loyalty_ui
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '[0-9]*'
+    paths:
+      - 'frontend/plugins/loyalty_ui/**'
+      - 'frontend/libs/**'
+      - '.github/workflows/ci-ui-loyalty.yml'
+  pull_request:
+    paths:
+      - 'frontend/plugins/loyalty_ui/**'
+      - 'frontend/libs/**'
+      - '.github/workflows/ci-ui-loyalty.yml'
+
+permissions:
+  actions: read
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  loyalty_ui-ci:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build loyalty UI
+        run: |
+          export NX_DAEMON=false
+          pnpm nx build loyalty_ui
+
+      - name: Push to Cloudflare R2
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            FOLDER="${{ github.ref_name }}"
+          else
+            FOLDER="latest"
+          fi
+          aws configure set default.s3.max_concurrent_requests 50
+          aws configure set default.s3.multipart_chunksize 16MB
+          aws s3 cp dist/frontend/plugins/loyalty_ui s3://erxes-next/$FOLDER/loyalty_ui/ \
+            --recursive \
+            --no-progress \
+            --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com

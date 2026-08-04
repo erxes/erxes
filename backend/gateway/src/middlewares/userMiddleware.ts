@@ -1,9 +1,7 @@
 import * as dotenv from 'dotenv';
 
-import { USER_ROLES, userActionsMap } from 'erxes-api-shared/core-modules';
 import {
   getSubdomain,
-  PERMISSION_ROLES,
   redis,
   setClientPortalHeader,
   setCPUserHeader,
@@ -11,20 +9,80 @@ import {
 } from 'erxes-api-shared/utils';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { createHash } from 'crypto';
 import fetch from 'node-fetch';
 import { generateModels, IModels } from '../connectionResolver';
 
 dotenv.config();
 
+const DEBUG_GATEWAY_AUTH = process.env.DEBUG_GATEWAY_AUTH === 'true';
+
+const shouldDebugAuth = (req: Request) =>
+  DEBUG_GATEWAY_AUTH && req.originalUrl.startsWith('/graphql');
+
+const hashToken = (token: string) =>
+  createHash('sha256').update(token).digest('hex').slice(0, 12);
+
+const debugAuth = (
+  req: Request & { user?: any; cpUser?: any; clientPortal?: any },
+  event: string,
+  extra: Record<string, unknown> = {},
+) => {
+  if (!shouldDebugAuth(req)) {
+    return;
+  }
+
+  console.log(
+    JSON.stringify({
+      scope: 'gateway-auth',
+      event,
+      method: req.method,
+      path: req.originalUrl,
+      hostname: req.hostname,
+      hasUser: Boolean(req.user?._id),
+      hasClientPortalUser: Boolean(req.cpUser?._id),
+      ...extra,
+    }),
+  );
+};
+
+const getBearerToken = (req: Request) => {
+  const authorization = req.headers.authorization;
+
+  if (!authorization) {
+    return '';
+  }
+
+  if (Array.isArray(authorization)) {
+    throw new Error('Multiple authorization headers');
+  }
+
+  const match = authorization.match(/^Bearer\s+(\S+)$/i);
+
+  return match?.[1] || '';
+};
+
+// skipcq: JS-R1005 — legacy middleware complexity
 export default async function userMiddleware(
   req: Request & { user?: any; cpUser?: any; clientPortal?: any },
   res: Response,
   next: NextFunction,
 ) {
+  const startedAt = Date.now();
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
 
+  debugAuth(req, 'start', {
+    hasAuthorizationHeader: Boolean(req.headers.authorization),
+    hasAuthCookie: Boolean(req.cookies?.['auth-token']),
+    hasClientAuthToken: Boolean(
+      req.headers['client-auth-token'] || req.cookies?.['client-auth-token'],
+    ),
+    hasClientPortalToken: Boolean(req.headers['x-app-token']),
+  });
+
   if (Array.isArray(erxesCoreToken)) {
+    debugAuth(req, 'invalid-erxes-core-token-header');
     return res.status(400).json({ error: `Multiple erxes-core-tokens found` });
   }
 
@@ -64,19 +122,42 @@ export default async function userMiddleware(
         };
       }
     } catch {
+      debugAuth(req, 'website-token-check-error', {
+        durationMs: Date.now() - startedAt,
+      });
       return next();
     }
 
+    debugAuth(req, 'website-token-accepted', {
+      durationMs: Date.now() - startedAt,
+    });
     return next();
   }
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();
-  const subdomain = getSubdomain(req);
+  let subdomain: string;
+
+  try {
+    subdomain = getSubdomain(req);
+  } catch (e: unknown) {
+    debugAuth(req, 'missing-hostname', {
+      error: e instanceof Error ? e.message : 'unknown',
+      durationMs: Date.now() - startedAt,
+    });
+
+    return res.status(400).json({ error: 'Hostname is required' });
+  }
 
   let models: IModels;
   try {
     models = await generateModels(subdomain);
   } catch (e: unknown) {
+    debugAuth(req, 'generate-models-error', {
+      subdomain,
+      error: e instanceof Error ? e.message : 'unknown',
+      durationMs: Date.now() - startedAt,
+    });
+
     if (e instanceof Error) {
       return res.status(500).json({ error: e.message });
     } else {
@@ -87,77 +168,52 @@ export default async function userMiddleware(
 
   if (appToken) {
     try {
-      const { app }: any = jwt.verify(
-        appToken,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
+      const appInDb = await models.Apps.findOne({
+        token: appToken,
+        status: 'active',
+      });
 
-      if (app && app._id) {
-        const appInDb = await models.Apps.findOne({ _id: app._id });
-
-        if (appInDb) {
-          const permissions = await models.Permissions.find({
-            groupId: appInDb.userGroupId,
-            allowed: true,
-          }).lean();
-
-          const user = await models.Users.findOne({
-            role: USER_ROLES.SYSTEM,
-            groupIds: { $in: [app.userGroupId] },
-            appId: app._id,
-          }).lean();
-
-          if (user) {
-            const key = `user_permissions_${user._id}`;
-            const cachedPermissions = await redis.get(key);
-
-            if (
-              !cachedPermissions ||
-              (cachedPermissions && cachedPermissions === '{}')
-            ) {
-              const userPermissions = await models.Permissions.find({
-                userId: user._id,
-              });
-              const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds },
-              });
-
-              const actionMap = await userActionsMap(
-                userPermissions,
-                groupPermissions,
-                user,
-              );
-
-              await redis.set(key, JSON.stringify(actionMap));
-            }
-
-            req.user = {
-              _id: user._id || 'userId',
-              ...user,
-              role: USER_ROLES.SYSTEM,
-              isOwner: appInDb.allowAllPermission || false,
-              customPermissions: permissions.map((p) => ({
-                action: p.action,
-                allowed: p.allowed,
-                requiredActions: p.requiredActions,
-              })),
-            };
-          }
-        }
+      if (!appInDb) {
+        debugAuth(req, 'invalid-app-token', {
+          subdomain,
+          durationMs: Date.now() - startedAt,
+        });
+        return res.status(401).json({ error: 'Invalid app token' });
       }
 
-      setUserHeader(req.headers, req.user);
+      await models.Apps.updateOne(
+        { _id: appInDb._id },
+        { $set: { lastUsedAt: new Date() } },
+      );
 
-      return next();
+      // Forward the app as an authenticated system principal so plugin
+      // resolvers behind login/permission wrappers accept machine calls.
+      // Mirrors the JWT path's setUserHeader below; without this a valid
+      // app token authenticates the request but every wrapped mutation
+      // still fails "Login required".
+      if (!req.user) {
+        req.user = {
+          _id: `app:${appInDb._id}`,
+          username: appInDb.name,
+          isOwner: appInDb.allowAllPermission === true,
+        } as any;
+        setUserHeader(req.headers, req.user);
+      }
     } catch (e) {
       console.error(e);
+      debugAuth(req, 'app-token-error', {
+        subdomain,
+        error: e instanceof Error ? e.message : 'unknown',
+        durationMs: Date.now() - startedAt,
+      });
 
       return next();
     }
   }
 
   const clientPortalToken = req.headers['x-app-token'];
-  const clientAuthToken = req.headers['client-auth-token'] || req.cookies['client-auth-token'];
+  const clientAuthToken =
+    req.headers['client-auth-token'] || req.cookies['client-auth-token'];
 
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
@@ -173,6 +229,10 @@ export default async function userMiddleware(
       });
 
       if (!clientPortal) {
+        debugAuth(req, 'client-portal-not-found', {
+          subdomain,
+          durationMs: Date.now() - startedAt,
+        });
         return next();
       }
 
@@ -197,27 +257,60 @@ export default async function userMiddleware(
           if (clientPortalUser) {
             req.cpUser = clientPortalUser;
             setCPUserHeader(req.headers, req.cpUser);
+            debugAuth(req, 'client-portal-user-set', {
+              subdomain,
+              clientPortalId: String(clientPortal._id),
+              durationMs: Date.now() - startedAt,
+            });
           }
         } catch (e) {
           if (e instanceof jwt.TokenExpiredError) {
+            debugAuth(req, 'client-auth-token-expired', {
+              subdomain,
+              durationMs: Date.now() - startedAt,
+            });
             return next();
           } else {
             console.error(e);
+            debugAuth(req, 'client-auth-token-error', {
+              subdomain,
+              error: e instanceof Error ? e.message : 'unknown',
+              durationMs: Date.now() - startedAt,
+            });
           }
         }
       }
 
-      return next();
+      // return next();
     } catch (e) {
       console.error(e);
+      debugAuth(req, 'client-portal-token-error', {
+        subdomain,
+        error: e instanceof Error ? e.message : 'unknown',
+        durationMs: Date.now() - startedAt,
+      });
 
       return next();
     }
   }
 
-  const token = req.cookies['auth-token'];
+  let bearerToken = '';
+
+  try {
+    bearerToken = getBearerToken(req);
+  } catch (e) {
+    if (e instanceof Error) {
+      return res.status(400).json({ error: e.message });
+    }
+  }
+
+  const token = bearerToken || req.cookies['auth-token'];
 
   if (!token) {
+    debugAuth(req, 'no-user-token', {
+      subdomain,
+      durationMs: Date.now() - startedAt,
+    });
     return next();
   }
 
@@ -229,53 +322,88 @@ export default async function userMiddleware(
     );
     const user = decoded.user;
 
-    const userDoc = await models.Users.findOne(
-      { _id: user._id },
-      '_id email details isOwner groupIds brandIds username code departmentIds',
-    ).lean();
-
-    if (!userDoc) {
+    if (!user?._id) {
+      debugAuth(req, 'decoded-user-missing-id', {
+        subdomain,
+        tokenHash: hashToken(token),
+        decodedKeys: Object.keys(decoded || {}),
+        durationMs: Date.now() - startedAt,
+      });
       return next();
     }
 
-    let userRole = await models.Roles.findOne({ userId: userDoc._id }).lean();
+    const userDoc = await models.Users.findOne(
+      { _id: user._id },
+      '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions',
+    ).lean();
 
-    if (!userRole) {
-      const role = userDoc.isOwner
-        ? PERMISSION_ROLES.OWNER
-        : PERMISSION_ROLES.MEMBER;
-
-      userRole = await models.Roles.create({
-        userId: userDoc._id,
-        role,
+    if (!userDoc) {
+      debugAuth(req, 'user-not-found', {
+        subdomain,
+        userId: user._id,
+        tokenHash: hashToken(token),
+        durationMs: Date.now() - startedAt,
       });
+      return next();
     }
 
     const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
 
     // invalid token access.
     if (!validatedToken) {
+      debugAuth(req, 'redis-user-token-missing', {
+        subdomain,
+        userId: user._id,
+        tokenHash: hashToken(token),
+        durationMs: Date.now() - startedAt,
+      });
       return next();
     }
 
     // save user in request
-    req.user = { ...userDoc, role: userRole.role };
+    req.user = { ...userDoc };
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
+
+    if (decoded.typ === 'oauth_access') {
+      req.user.oauthClientId = decoded.clientId || '';
+      req.user.oauthScopes = String(decoded.scope || '')
+        .split(/\s|,/)
+        .map((scope) => scope.trim())
+        .filter(Boolean);
+    }
 
     const hostname = await redis.get('hostname');
 
     if (!hostname) {
       redis.set('hostname', process.env.DOMAIN || 'http://localhost:3001');
     }
+
+    setUserHeader(req.headers, req.user);
+    debugAuth(req, 'user-header-set', {
+      subdomain,
+      userId: req.user._id,
+      tokenHash: hashToken(token),
+      durationMs: Date.now() - startedAt,
+    });
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
+      debugAuth(req, 'user-token-expired', {
+        subdomain,
+        tokenHash: token ? hashToken(token) : '',
+        durationMs: Date.now() - startedAt,
+      });
       return next();
     } else {
       console.error(e);
+      debugAuth(req, 'user-token-error', {
+        subdomain,
+        error: e instanceof Error ? e.message : 'unknown',
+        tokenHash: token ? hashToken(token) : '',
+        durationMs: Date.now() - startedAt,
+      });
     }
   }
-  setUserHeader(req.headers, req.user);
 
   return next();
 }

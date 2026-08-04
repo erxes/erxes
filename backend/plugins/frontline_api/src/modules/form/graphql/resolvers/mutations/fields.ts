@@ -1,7 +1,6 @@
 import { IOrderInput } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { IField, IFieldDocument } from '~/modules/form/db/definitions/fields';
-import { markResolvers } from 'erxes-api-shared/utils';
 
 export interface IFieldsEdit extends IField {
   _id: string;
@@ -18,6 +17,7 @@ export interface IFieldsBulkAddAndEditParams {
   contentTypeId: string;
   newFields: IField[];
   updatedFields: IFieldsEdit[];
+  removedFieldIds: string[];
 }
 
 export const fieldMutations = {
@@ -50,7 +50,7 @@ export const fieldMutations = {
     args: IFieldsBulkAddAndEditParams,
     { user, models }: IContext,
   ) {
-    const { contentType, contentTypeId, newFields, updatedFields } = args;
+    const { contentType, contentTypeId, newFields, updatedFields, removedFieldIds } = args;
     const tempFieldIdsMap: { [key: string]: string } = {};
     const response: IFieldDocument[] = [];
     const logicalFields: IField[] = [];
@@ -84,9 +84,10 @@ export const fieldMutations = {
       const logics = f.logics || [];
 
       for (const logic of logics) {
-        if (f.logics && !logic.fieldId && logic.tempFieldId) {
-          f.logics[logics.indexOf(logic)].fieldId =
-            tempFieldIdsMap[logic.tempFieldId];
+        if (logic.fieldId && tempFieldIdsMap[logic.fieldId]) {
+          logic.fieldId = tempFieldIdsMap[logic.fieldId];
+        } else if (!logic.fieldId && logic.tempFieldId) {
+          logic.fieldId = tempFieldIdsMap[logic.tempFieldId];
         }
       }
 
@@ -107,9 +108,10 @@ export const fieldMutations = {
     for (const { _id, ...doc } of updatedFields || []) {
       if (doc.logics) {
         for (const logic of doc.logics) {
-          if (!logic.fieldId && logic.tempFieldId) {
-            doc.logics[doc.logics.indexOf(logic)].fieldId =
-              tempFieldIdsMap[logic.tempFieldId];
+          if (logic.fieldId && tempFieldIdsMap[logic.fieldId]) {
+            logic.fieldId = tempFieldIdsMap[logic.fieldId];
+          } else if (!logic.fieldId && logic.tempFieldId) {
+            logic.fieldId = tempFieldIdsMap[logic.tempFieldId];
           }
         }
       }
@@ -120,6 +122,10 @@ export const fieldMutations = {
       });
 
       response.push(field);
+    }
+
+    if (removedFieldIds?.length > 0) {
+      await models.Fields.deleteMany({ _id: { $in: removedFieldIds } });
     }
 
     const parentFields = response.filter((f) => f.type === 'parentField');
@@ -236,25 +242,3 @@ export const fieldMutations = {
 //     skipPermission: true,
 //   },
 // });
-
-// checkPermission(fieldMutations, "fieldsAdd", "manageForms");
-// checkPermission(fieldMutations, "fieldsBulkAction", "manageForms");
-// checkPermission(fieldMutations, "fieldsEdit", "manageForms");
-// checkPermission(fieldMutations, "fieldsRemove", "manageForms");
-// checkPermission(fieldMutations, "fieldsUpdateOrder", "manageForms");
-// checkPermission(fieldMutations, "fieldsUpdateVisible", "manageForms");
-// checkPermission(fieldMutations, "fieldsUpdateSystemFields", "manageForms");
-
-// checkPermission(fieldsGroupsMutations, "fieldsGroupsAdd", "manageForms");
-// checkPermission(fieldsGroupsMutations, "fieldsGroupsEdit", "manageForms");
-// checkPermission(fieldsGroupsMutations, "fieldsGroupsRemove", "manageForms");
-// checkPermission(
-//   fieldsGroupsMutations,
-//   "fieldsGroupsUpdateVisible",
-//   "manageForms",
-// );
-// checkPermission(
-//   fieldsGroupsMutations,
-//   "fieldsGroupsUpdateOrder",
-//   "manageForms",
-// );

@@ -1,5 +1,10 @@
-import { IconMail, IconStackFront, IconTicket } from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui';
+import {
+  IconMail,
+  IconStackFront,
+  IconTicket,
+  IconBook,
+} from '@tabler/icons-react';
+import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 
 const FrontlineNavigation = lazy(() =>
@@ -20,6 +25,20 @@ const FrontlineSettingsNavigation = lazy(() =>
   })),
 );
 
+const TicketStatusPropertyInput = lazy(() =>
+  import('./modules/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
+    (module) => ({
+      default: module.TicketStatusPropertyInput,
+    }),
+  ),
+);
+
+const FormSubmissionActivityRow = lazy(() =>
+  import('./widgets/activity/FormSubmissionActivityRow').then((module) => ({
+    default: module.FormSubmissionActivityRow,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'frontline',
   path: 'frontline',
@@ -31,6 +50,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'frontline',
+    defaultPath: 'frontline/inbox',
     icon: IconStackFront,
     content: () => (
       <Suspense fallback={<div />}>
@@ -48,12 +68,28 @@ export const CONFIG: IUIConfig = {
       {
         name: 'conversation',
         icon: IconMail,
+        label: 'Conversations',
       },
       {
         name: 'ticket',
         icon: IconTicket,
+        label: 'Tickets',
       },
     ],
+    propertyInputs: {
+      ticketStatus: (props: TPropertyInputProps) => (
+        <Suspense fallback={<div />}>
+          <TicketStatusPropertyInput {...props} />
+        </Suspense>
+      ),
+    },
+    activityRows: {
+      formSubmission: (props: TActivityRowProps) => (
+        <Suspense fallback={<div />}>
+          <FormSubmissionActivityRow {...props} />
+        </Suspense>
+      ),
+    },
   },
   modules: [
     {
@@ -68,10 +104,16 @@ export const CONFIG: IUIConfig = {
       name: 'frontline',
       icon: IconMail,
       path: 'frontline',
+      hasAutomation: true,
     },
     {
       name: 'ticket',
       path: 'frontline/ticket',
+    },
+    {
+      name: 'knowledgeBase',
+      icon: IconBook,
+      path: 'frontline/knowledgebase',
     },
   ],
 };

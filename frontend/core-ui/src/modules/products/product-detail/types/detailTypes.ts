@@ -1,6 +1,7 @@
 import { CurrencyCode } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { ApolloError } from '@apollo/client';
+import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 
 export interface ProductAttachment {
   url: string;
@@ -15,6 +16,28 @@ export interface UomType {
   code?: string;
 }
 
+export interface SubUomItem {
+  _id?: string;
+  uom: string;
+  ratio: number | string;
+}
+
+export interface ProductSimilarityProduct {
+  _id: string;
+  code: string;
+  name?: string;
+  unitPrice?: number;
+  status?: string;
+  propertiesData?: Record<string, string[]>;
+}
+
+export interface ProductSimilarity {
+  _id: string;
+  propertiesData?: Record<string, string[]>;
+  starProductId?: string;
+  products?: ProductSimilarityProduct[];
+}
+
 export interface ProductDetail {
   _id?: string;
   name?: string;
@@ -25,32 +48,33 @@ export interface ProductDetail {
   code?: string;
   status?: string;
   attachment?: ProductAttachment;
-  barcodes?: string;
+  attachmentMore?: ProductAttachment[] | ProductAttachment;
+  videos?: ProductAttachment[] | ProductAttachment;
+  barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;
   uom?: string;
+  subUoms?: SubUomItem[];
   vendorId?: string;
   scopeBrandIds?: string[];
+  currency?: string;
+  duration?: number;
+  durationType?:
+    | 'minute'
+    | 'hour'
+    | 'day'
+    | 'week'
+    | 'month'
+    | 'quarter'
+    | 'year';
+  variants?: Record<string, unknown>;
+  customFieldsData?: Record<string, unknown>;
+  propertiesData?: Record<string, unknown>;
+  similarityId?: string;
+  similarity?: ProductSimilarity | null;
 }
 
-export interface ProductFormValues {
-  _id?: string;
-  name?: string;
-  barcodeDescription?: string;
-  description?: string;
-  categoryId?: string;
-  type?: string;
-  code?: string;
-  status?: string;
-  attachment?: ProductAttachment;
-  barcodes?: string;
-  shortName?: string;
-  unitPrice?: number;
-  uom?: string;
-  vendor?: string;
-  scopeBrandIds?: string[];
-  vendorId?: string;
-}
+export type { ProductFormValues };
 
 export interface ProductGeneralProps {
   form: UseFormReturn<ProductFormValues>;

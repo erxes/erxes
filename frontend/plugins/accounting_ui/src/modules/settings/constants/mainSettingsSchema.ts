@@ -9,6 +9,8 @@ export const mainSettingsSchema = z.object({
   VatAfterReceivableAccount: z.string().optional(),
   HasCtax: z.boolean(),
   CtaxPayableAccount: z.string().optional(),
+  dominantReadAccountUsers: z.array(z.string()).optional(),
+  dominantWriteAccountUsers: z.array(z.string()).optional(),
 });
 
 export type TMainSettings = z.infer<typeof mainSettingsSchema>;

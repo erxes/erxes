@@ -1,5 +1,13 @@
 export enum ProductsPath {
-  Index = '/',
-  Products = '/products',
-  Categories = '/categories',
+  Index = '/settings',
+  Products = '/settings/products',
+  Categories = '/settings/products/categories',
+  Uoms = '/settings/products/uoms',
+  GeneralConfig = '/settings/products/general-config',
+  SimilarityGroup = '/settings/products/similarity-group',
+  Similarities = '/settings/products/similarities',
+  BundleCondition = '/settings/products/bundle-condition',
+  BundleRule = '/settings/products/bundle-rule',
+  ProductRule = '/settings/products/product-rule',
+  Packages = '/settings/products/packages',
 }

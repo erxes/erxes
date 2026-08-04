@@ -41,4 +41,20 @@ export default {
       return null;
     }
   },
+
+  createdUser({ createdBy }: IFacebookBotDocument) {
+    if (!createdBy) {
+      return null;
+    }
+
+    return { _id: createdBy };
+  },
+
+  updatedUser({ updatedBy }: IFacebookBotDocument) {
+    if (!updatedBy) {
+      return null;
+    }
+
+    return { _id: updatedBy };
+  },
 };

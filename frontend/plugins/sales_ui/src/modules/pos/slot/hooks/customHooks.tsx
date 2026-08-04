@@ -10,6 +10,7 @@ import {
 } from '@xyflow/react';
 import { useAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   syncSelectedNodeAtom,
   slotDetailAtom,
@@ -29,6 +30,7 @@ export const useSlotManager = (
   initialNodes: CustomNode[] = [],
 ) => {
   const { toast } = useToast();
+  const { t } = useTranslation('sales');
 
   const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), max);
@@ -72,9 +74,8 @@ export const useSlotManager = (
     return [clampPositionForNode(DefaultNode)];
   };
 
-  const [nodes, setNodes, onNodesChangeInternal] = useNodesState<CustomNode>(
-    getInitialNodes(),
-  );
+  const [nodes, setNodes, onNodesChangeInternal] =
+    useNodesState<CustomNode>(getInitialNodes());
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
   const [selectedNode, setSelectedNode] = useAtom(syncSelectedNodeAtom);
@@ -107,8 +108,8 @@ export const useSlotManager = (
   useEffect(() => {
     if (slotsError) {
       toast({
-        title: 'Failed to load slots',
-        description: 'There was an error loading the slots data',
+        title: t('failed-to-load-slots'),
+        description: t('error-loading-slots-data'),
         variant: 'destructive',
       });
     }
@@ -117,7 +118,7 @@ export const useSlotManager = (
   const generateNextId = useCallback((currentNodes: CustomNode[]): string => {
     if (currentNodes.length === 0) return '1';
     const numericIds = currentNodes
-      .map((node) => parseInt(node.id, 10))
+      .map((node) => Number.parseInt(node.id, 10))
       .filter((id) => !isNaN(id));
     if (numericIds.length === 0) return '1';
     return String(Math.max(...numericIds) + 1);
@@ -125,7 +126,7 @@ export const useSlotManager = (
 
   const syncPositionToSlotDetail = useCallback(
     (nodeId: string, position: { x: number; y: number }) => {
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode?.id === nodeId) {
         setSlotDetail((prev) => ({
           ...prev,
           left: String(position.x),
@@ -176,7 +177,7 @@ export const useSlotManager = (
       setNodes((nds) => nds.map(updateNode));
       setHookNodes((nds) => nds.map(updateNode));
 
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode?.id === nodeId) {
         setSelectedNode({
           ...selectedNode,
           position: nextPosition,
@@ -263,7 +264,7 @@ export const useSlotManager = (
       setNodes((nds) => nds.map(updateNode));
       setHookNodes((nds) => nds.map(updateNode));
 
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode?.id === nodeId) {
         setSelectedNode({
           ...selectedNode,
           data: {
@@ -340,8 +341,8 @@ export const useSlotManager = (
         ),
       );
       toast({
-        title: 'Connection created',
-        description: `Connected ${params.source} to ${params.target}`,
+        title: t('connection-created'),
+        description: t('connected-source-to-target', { source: params.source, target: params.target }),
       });
     },
     [setEdges, toast],
@@ -419,10 +420,10 @@ export const useSlotManager = (
     setHookNodes((nds) => [...nds, newNode]);
 
     toast({
-      title: 'Slot added',
-      description: `Added new slot: ${newNode.data.label}`,
+      title: t('slot-added'),
+      description: t('added-new-slot', { label: newNode.data.label }),
     });
-  }, [generateNextId, setNodes, setHookNodes, toast, clampPositionForNode]);
+  }, [generateNextId, setNodes, setHookNodes, toast, clampPositionForNode, t]);
 
   const handleSaveSlotDetail = useCallback(async () => {
     if (!selectedNodeRef.current) return false;
@@ -470,8 +471,8 @@ export const useSlotManager = (
     );
 
     toast({
-      title: 'Slot updated',
-      description: `Updated slot: ${slotDetail.name}.`,
+      title: t('slot-updated'),
+      description: t('updated-slot', { name: slotDetail.name }),
     });
     setSidebarView('list');
     setSelectedNode(null);
@@ -493,14 +494,14 @@ export const useSlotManager = (
         eds.filter((edge) => edge.source !== id && edge.target !== id),
       );
 
-      if (selectedNodeRef.current && selectedNodeRef.current.id === id) {
+      if (selectedNodeRef.current?.id === id) {
         setSelectedNode(null);
         setSidebarView('list');
       }
 
       toast({
-        title: 'Slot deleted',
-        description: `Deleted slot: ${id}.`,
+        title: t('slot-deleted'),
+        description: t('deleted-slot', { id }),
       });
     },
     [
@@ -551,8 +552,8 @@ export const useSlotManager = (
       setNodes((nds) => [...nds, newNode]);
       setHookNodes((nds) => [...nds, newNode]);
       toast({
-        title: 'Slot duplicated',
-        description: `Duplicated slot: ${nodeToDuplicate.data.label}`,
+        title: t('slot-duplicated'),
+        description: t('duplicated-slot', { label: nodeToDuplicate.data.label }),
       });
     },
     [setNodes, setHookNodes, toast, generateNextId, clampPositionForNode],
@@ -576,8 +577,8 @@ export const useSlotManager = (
     setNodes(arrangedNodes);
     setHookNodes(arrangedNodes);
     toast({
-      title: 'Layout arranged',
-      description: 'Slots have been arranged in a grid layout',
+      title: t('layout-arranged'),
+      description: t('slots-arranged-grid'),
     });
   }, [setNodes, setHookNodes, toast, clampPositionForNode]);
 
@@ -611,26 +612,26 @@ export const useSlotManager = (
       setNodes((nds) => [...nds, newNode]);
       setHookNodes((nds) => [...nds, newNode]);
       toast({
-        title: 'Slot added',
-        description: `Added new slot: ${newNode.data.label}`,
+        title: t('slot-added'),
+        description: t('added-new-slot', { label: newNode.data.label }),
       });
     },
-    [setNodes, setHookNodes, toast, generateNextId, clampPositionForNode],
+    [setNodes, setHookNodes, toast, generateNextId, clampPositionForNode, t],
   );
 
   const handleSaveAllChanges = useCallback(async () => {
     try {
       await hookSaveSlots(posId);
       toast({
-        title: 'Changes saved',
-        description: 'All slot changes have been saved successfully',
+        title: t('changes-saved'),
+        description: t('slot-changes-saved-successfully'),
       });
       return true;
     } catch (error) {
       console.error('Failed to save changes:', error);
       toast({
-        title: 'Failed to save changes',
-        description: 'Please try again later',
+        title: t('failed-to-save-changes'),
+        description: t('please-try-again-later'),
         variant: 'destructive',
       });
       return false;

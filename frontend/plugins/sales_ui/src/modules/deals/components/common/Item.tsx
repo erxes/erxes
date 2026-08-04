@@ -128,7 +128,7 @@ export const Item = React.memo(
           <div
             className={`
               relative flex grow items-center
-              px-5 py-[18px] bg-white rounded shadow-md
+              px-5 py-[18px] bg-background rounded shadow-md
               list-none select-none
               text-gray-800 font-normal text-base
               whitespace-nowrap

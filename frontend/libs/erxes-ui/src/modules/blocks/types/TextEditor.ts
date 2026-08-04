@@ -1,4 +1,4 @@
-import {
+import type {
   DefaultReactSuggestionItem,
   SuggestionMenuProps,
 } from '@blocknote/react';
@@ -12,6 +12,9 @@ export interface BlockEditorProps {
   onBlur?: () => void;
   onPaste?: (event: ClipboardEvent) => void;
   onChange?: () => void;
+  additionalSlashMenuItems?:
+    | DefaultReactSuggestionItem[]
+    | ((editor: IBlockEditor) => DefaultReactSuggestionItem[]);
   readonly?: boolean;
   children?: React.ReactNode;
   className?: string;
@@ -19,6 +22,7 @@ export interface BlockEditorProps {
   disabled?: boolean;
   variant?: 'default' | 'outline';
   sideMenu?: boolean;
+  linkToolbar?: boolean;
 }
 
 export interface IEditorProps {
@@ -26,6 +30,7 @@ export interface IEditorProps {
   initialContent?: string;
   scope?: string;
   isHTML?: boolean;
+  uploadFile?: (file: File) => Promise<string>;
 }
 
 export type IBlockEditor = typeof BLOCK_SCHEMA.BlockNoteEditor;

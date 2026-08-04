@@ -1,20 +1,41 @@
+import { IDonate } from '@/donate/@types/donate';
 import { IContext } from '~/connectionResolvers';
-import { IDonate } from '~/modules/donate/@types/donate';
 
 export const donateMutations = {
-  async createDonate(
-    _root: undefined,
-    doc: IDonate,
-    { models, user }: IContext,
-  ) {
-    return models.Donate.createDonate(doc, user);
+  async donatesAdd(_root: undefined, doc: IDonate, { models, checkPermission }: IContext) {
+    await checkPermission('donateCreate');
+    return models.Donates.createDonate(doc, true);
   },
 
-  async removeDonate(
+  async donatesEdit(
     _root: undefined,
-    { _id }: { _id: string },
-    { models }: IContext,
+    { _id, ...doc }: { _id: string } & IDonate,
+    { models, checkPermission }: IContext,
   ) {
-    return models.Donate.removeDonate(_id);
+    await checkPermission('donateEdit');
+    return models.Donates.editDonate(_id, doc);
+  },
+
+  async donatesRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('donateRemove');
+    return models.Donates.removeDonates(_ids);
+  },
+
+  async cpDonatesAdd(_root: undefined, doc: IDonate, { models, checkPermission }: IContext) {
+    await checkPermission('donateCreate');
+    return models.Donates.createDonate({ ...doc });
+  },
+
+  async cpDonatesRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('donateRemove');
+    return models.Donates.removeDonates(_ids);
   },
 };

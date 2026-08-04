@@ -1,29 +1,35 @@
 import { IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
-import { ToggleGroup, Tooltip } from 'erxes-ui';
-import { ThemeOption, themeState } from 'erxes-ui';
+import { ThemeOption, themeState, ToggleGroup, Tooltip } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+
+const isThemeOption = (value: string): value is ThemeOption =>
+  value === 'light' || value === 'dark' || value === 'system';
 
 export const ThemeSelector = () => {
   const [theme, setTheme] = useAtom(themeState);
   const { t } = useTranslation('organization');
 
   return (
-    <div className="flex items-center gap-2 px-2 font-medium h-7 text-sm">
-      {t('change-theme')}
+    <div className="flex h-7 items-center gap-2 px-2 text-sm font-medium">
+      {t('theme')}
       <Tooltip.Provider delayDuration={100}>
         <ToggleGroup
-          value={theme}
-          type="single"
+          className="ml-auto h-6 gap-0.5 rounded bg-accent text-accent-foreground"
+          onValueChange={(value) => {
+            if (value && isThemeOption(value)) {
+              setTheme(value);
+            }
+          }}
           size="sm"
-          className="ml-auto h-6 bg-accent rounded gap-0.5 text-accent-foreground"
-          onValueChange={(value) => value && setTheme(value as ThemeOption)}
+          type="single"
+          value={theme}
         >
           <Tooltip>
             <ToggleGroup.Item
-              value="light"
-              className="data-[state=on]:bg-background h-full data-[state=on]:shadow-sm px-1 min-w-6"
               asChild
+              className="h-full min-w-6 px-1 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              value="light"
             >
               <Tooltip.Trigger>
                 <IconSun />
@@ -33,9 +39,9 @@ export const ThemeSelector = () => {
           </Tooltip>
           <Tooltip>
             <ToggleGroup.Item
-              value="dark"
-              className="data-[state=on]:bg-background h-full data-[state=on]:shadow-sm px-1 min-w-6"
               asChild
+              className="h-full min-w-6 px-1 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              value="dark"
             >
               <Tooltip.Trigger>
                 <IconMoon />
@@ -45,15 +51,14 @@ export const ThemeSelector = () => {
           </Tooltip>
           <Tooltip>
             <ToggleGroup.Item
-              value="system"
-              className="data-[state=on]:bg-background h-full data-[state=on]:shadow-sm px-1 min-w-6"
               asChild
+              className="h-full min-w-6 px-1 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              value="system"
             >
               <Tooltip.Trigger>
                 <IconDeviceLaptop />
               </Tooltip.Trigger>
             </ToggleGroup.Item>
-
             <Tooltip.Content alignOffset={4}>{t('system')}</Tooltip.Content>
           </Tooltip>
         </ToggleGroup>

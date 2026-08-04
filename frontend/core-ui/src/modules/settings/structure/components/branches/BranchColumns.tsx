@@ -1,104 +1,23 @@
-import { type Cell, type ColumnDef } from '@tanstack/table-core';
+import { type ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
-  Button,
   Input,
   RecordTable,
   RecordTableInlineCell,
   Popover,
   RecordTableTree,
-  Spinner,
   Textarea,
   TextOverflowTooltip,
-  useConfirm,
-  useQueryState,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { renderingBranchDetailAtom } from '../../states/renderingBranchDetail';
-import { IconClock, IconEdit, IconHash, IconTrash } from '@tabler/icons-react';
+import { IconHash } from '@tabler/icons-react';
 import { IBranchListItem } from '../../types/branch';
 import { SelectBranches } from 'ui-modules';
-import {
-  useBranchInlineEdit,
-  useRemoveBranch,
-} from '../../hooks/useBranchActions';
+import { useBranchInlineEdit } from '../../hooks/useBranchActions';
 import { ChangeEvent, useState } from 'react';
-
-export const BranchEditColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IBranchListItem, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('branch_id');
-  const setRenderingBranchDetail = useSetAtom(renderingBranchDetailAtom);
-  const { _id } = cell.row.original;
-  return (
-    <Button
-      onClick={() => {
-        setOpen(_id);
-        setRenderingBranchDetail(false);
-      }}
-      variant={'outline'}
-    >
-      <IconEdit size={12} />
-    </Button>
-  );
-};
-export const BranchWorkingHoursColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IBranchListItem, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('workingHoursId');
-  const setRenderingBranchDetail = useSetAtom(renderingBranchDetailAtom);
-  const { _id } = cell.row.original;
-  return (
-    <Button
-      onClick={() => {
-        setOpen(_id);
-        setRenderingBranchDetail(false);
-      }}
-      variant={'outline'}
-    >
-      <IconClock size={12} />
-    </Button>
-  );
-};
-
-export const BranchRemoveCell = ({
-  cell,
-}: {
-  cell: Cell<IBranchListItem, unknown>;
-}) => {
-  const { confirm } = useConfirm();
-  const { _id, title } = cell.row.original;
-  const { handleRemove, loading } = useRemoveBranch();
-
-  const onRemove = () => {
-    confirm({
-      message: `Are you sure you want to remove '${title}'`,
-      options: { confirmationValue: 'delete' },
-    }).then(() =>
-      handleRemove({
-        variables: {
-          ids: [_id],
-        },
-      }),
-    );
-  };
-  return (
-    <Button
-      variant={'outline'}
-      disabled={loading}
-      onClick={onRemove}
-      className="text-destructive bg-destructive/10"
-    >
-      {loading ? <Spinner /> : <IconTrash size={12} />}
-    </Button>
-  );
-};
+import { BranchesMoreColumn } from './BranchesMoreColumn';
 
 export const BranchColumns: ColumnDef<IBranchListItem>[] = [
+  BranchesMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IBranchListItem>,
   {
     id: 'code',
@@ -192,7 +111,7 @@ export const BranchColumns: ColumnDef<IBranchListItem>[] = [
     header: () => <RecordTable.InlineHead label="parent" />,
     cell: ({ cell }) => {
       const { parentId, _id, code } = cell.row.original;
-      const { branchesEdit, loading } = useBranchInlineEdit();
+      const { branchesEdit } = useBranchInlineEdit();
 
       return (
         <SelectBranches.InlineCell
@@ -218,7 +137,7 @@ export const BranchColumns: ColumnDef<IBranchListItem>[] = [
     cell: ({ cell }) => {
       const { address, _id, code } = cell.row.original;
       const [_address, setAddress] = useState<string>(address);
-      const { branchesEdit, loading } = useBranchInlineEdit();
+      const { branchesEdit } = useBranchInlineEdit();
       const [open, setOpen] = useState<boolean>(false);
 
       const onSave = () => {
@@ -263,19 +182,6 @@ export const BranchColumns: ColumnDef<IBranchListItem>[] = [
       return (
         <RecordTableInlineCell className="text-center flex w-full justify-center">
           <Badge variant={'secondary'}>{cell.getValue() as number}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'action-group',
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="flex justify-center gap-1 [&>button]:px-2">
-          <BranchWorkingHoursColumnCell cell={cell} />
-          <BranchEditColumnCell cell={cell} />
-          <BranchRemoveCell cell={cell} />
         </RecordTableInlineCell>
       );
     },

@@ -1,8 +1,9 @@
 import { useAtom } from 'jotai';
-import { pluginsConfigState } from 'ui-modules';
+import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
 
 export const useFloatingWidgets = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
+  const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
 
   if (!pluginsMetaData) {
     return [];
@@ -10,5 +11,11 @@ export const useFloatingWidgets = () => {
 
   const plugins = Object.values(pluginsMetaData);
 
-  return plugins.filter((module) => module.hasFloatingWidget);
+  return plugins.filter((plugin) => {
+    if (!plugin.hasFloatingWidget) return false;
+
+    if (!isLoaded || isWildcard) return true;
+
+    return hasPluginPermission(plugin.name);
+  });
 };

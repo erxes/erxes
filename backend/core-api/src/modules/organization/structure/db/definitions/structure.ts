@@ -8,7 +8,7 @@ import { Schema } from 'mongoose';
 const commonSchemaFields = {
   id: mongooseStringRandomId,
   title: { type: String },
-  code: { type: String, unique: true },
+  code: { type: String, unique: true, sparse: true },
   updatedBy: { type: String },
   updatedAt: { type: Date },
   createdBy: { type: String },
@@ -83,6 +83,7 @@ export const branchSchema = schemaWrapper(
     supervisorId: { type: String, optional: true },
     radius: { type: Number, label: 'Coordinate radius /M/' },
     workhours: { type: Object, label: 'WorkHours', optional: true },
+    holidays: { type: Object, label: 'Holidays', optional: true },
   }),
 );
 

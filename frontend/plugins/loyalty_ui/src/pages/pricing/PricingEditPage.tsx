@@ -1,65 +1,61 @@
+import { PricingDelete } from '@/pricing/components/PricingDelete';
+import { SelectPricing } from '@/pricing/components/SelectPricing';
 import { PricingEdit } from '@/pricing/edit-pricing/PricingEdit';
-import { usePricing } from '@/pricing/hooks/usePricing';
-import { IPricing } from '@/pricing/types';
 import { IconCoins } from '@tabler/icons-react';
-import { Breadcrumb, Button, Select } from 'erxes-ui';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 
 export const PricingEditPage = () => {
+  const { t } = useTranslation('loyalty');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { pricing, loading } = usePricing();
-
-  const currentPricing = pricing?.find((p: IPricing) => p._id === id);
+  const [saveAction, setSaveAction] = useState<ReactNode | null>(null);
 
   const handlePricingChange = (pricingId: string) => {
-    navigate(`/settings/pricing/${pricingId}`);
+    navigate(`/settings/loyalty/pricing/${pricingId}`);
+  };
+
+  const handleDeleteSuccess = () => {
+    navigate('/settings/loyalty/pricing');
   };
 
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
-        <PageHeader.Start>
+        <PageHeaderStart>
           <Breadcrumb>
             <Breadcrumb.List className="gap-2">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/settings/pricing">
+                  <Link to="/settings/loyalty/pricing">
                     <IconCoins />
-                    Pricing
+                    {t('pricing')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
-                <Select value={id} onValueChange={handlePricingChange}>
-                  <Select.Trigger className="w-[200px]">
-                    <Select.Value
-                      placeholder={
-                        loading
-                          ? 'Loading...'
-                          : currentPricing?.name || 'Select Pricing'
-                      }
-                    />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {pricing?.map((p: IPricing) => (
-                      <Select.Item key={p._id} value={p._id}>
-                        {p.name}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
+                <SelectPricing value={id} onValueChange={handlePricingChange} />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-        </PageHeader.Start>
+        </PageHeaderStart>
+
+        <PageHeaderEnd className="gap-2">
+          {id && (
+            <PricingDelete
+              pricingIds={id}
+              onDeleteSuccess={handleDeleteSuccess}
+            />
+          )}
+          {saveAction}
+        </PageHeaderEnd>
       </PageHeader>
 
-      <PricingEdit id={id} />
+      <PricingEdit key={id} id={id} onSaveActionChange={setSaveAction} />
     </div>
   );
 };
-
-export default PricingEditPage;

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useApolloClient, useMutation } from '@apollo/client';
 import { currentUserState, isCurrentUserLoadedState } from 'ui-modules';
@@ -24,6 +24,12 @@ export const useLogin = () => {
   const setIsCurrentUserLoaded = useSetAtom(isCurrentUserLoadedState);
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect') || AppPath.Index;
+  const safeRedirect =
+    redirect.startsWith('/') && !redirect.startsWith('//')
+      ? redirect
+      : AppPath.Index;
 
   const client = useApolloClient();
 
@@ -38,7 +44,7 @@ export const useLogin = () => {
       variables: { email, password },
       onCompleted() {
         setIsCurrentUserLoaded(false);
-        navigate(AppPath.Index);
+        navigate(safeRedirect, { replace: true });
       },
       onError(error) {
         toast({

@@ -1,14 +1,42 @@
+export type TFieldSelectionConfig = {
+  queryName?: string;
+  labelField?: string;
+  valueField?: string;
+  multi?: boolean;
+  component?: string;
+  [key: string]: unknown;
+};
+
+export type LogicAction = 'show' | 'hide';
+export type LogicOperator = 'is' | 'isNot';
+
+export interface IFieldLogicRule {
+  field: string;
+  operator: LogicOperator | string;
+  value: string;
+  action: LogicAction | string;
+}
+
 export type IField = {
   _id: string;
   name: string;
   code: string;
   options?: Array<{ label: string; value: string }>;
-  type?: string;
+  type: string;
   group?: string;
-  logics?: Record<string, any>;
+  groupId?: string;
+  logics?: IFieldLogicRule[] | Record<string, unknown>;
   relationType?: string;
   multiple?: boolean;
   icon?: string;
+  configs?: TFieldSelectionConfig;
+  selectionConfig?: TFieldSelectionConfig;
+  validation?: unknown;
+  selectOptions?: Array<{ label: string; value: string }>;
+  isVisible?: boolean;
+  isVisibleToCreate?: boolean;
+  isRequired?: boolean;
+  isVisibleInCard?: boolean;
 };
 
 export interface IFieldGroup {
@@ -18,7 +46,8 @@ export interface IFieldGroup {
   description: string;
   contentType: string;
   order: number;
-  logics: string;
+  logics?: Record<string, unknown>;
+  configs?: Record<string, unknown>;
 }
 
 export type mutateFunction = (
@@ -50,3 +79,34 @@ export type FieldCellValueContentProps = FieldCellValueProps & {
   handleChange: (value: unknown) => void;
   loading: boolean;
 };
+
+export type PropertyFilterOperator =
+  | 'eq'
+  | 'ne'
+  | 'contains'
+  | 'doesNotContain'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'isTrue'
+  | 'isFalse'
+  | 'in'
+  | 'notIn'
+  | 'isSet'
+  | 'isNotSet'
+  | 'fileType';
+
+export interface IPropertyFilterCondition {
+  fieldId: string;
+  type?: string;
+  operator: PropertyFilterOperator;
+  value?: unknown;
+}
+
+export interface OperatorOption {
+  value: PropertyFilterOperator;
+  label: string;
+
+  noValue?: boolean;
+}

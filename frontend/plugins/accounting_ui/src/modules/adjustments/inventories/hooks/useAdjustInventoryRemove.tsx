@@ -1,11 +1,16 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ADJUST_INVENTORIES_QUERY } from '../graphql/adjustInventoryQueries';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 import { ADJUST_INVENTORY_REMOVE } from '../graphql/adjustInventoryRemove';
 import { useNavigate } from 'react-router-dom';
 
-export const useAdjustInventoryRemove = (adjustId: string, options?: OperationVariables) => {
+export const useAdjustInventoryRemove = (
+  adjustId: string,
+  options?: OperationVariables,
+) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const [_removeMutation, { loading }] = useMutation(
     ADJUST_INVENTORY_REMOVE,
@@ -13,16 +18,15 @@ export const useAdjustInventoryRemove = (adjustId: string, options?: OperationVa
   );
 
   const removeAdjust = (options?: OperationVariables) => {
-
     return _removeMutation({
       ...options,
       variables: {
         adjustId,
-        ...options?.variables
+        ...options?.variables,
       },
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -30,11 +34,10 @@ export const useAdjustInventoryRemove = (adjustId: string, options?: OperationVa
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Inventory adjust running successfully',
+          title: t('success'),
+          description: t('inventory-adjust-running-successfully'),
         });
-        options?.onCompleted?.(data)
-
+        options?.onCompleted?.(data);
       },
       refetchQueries: [
         {
@@ -48,7 +51,7 @@ export const useAdjustInventoryRemove = (adjustId: string, options?: OperationVa
       ],
       awaitRefetchQueries: true,
       update: (cache) => {
-        const pathname = "/accounting/adjustment/inventory";
+        const pathname = '/accounting/adjustment/inventory';
         navigate(pathname);
       },
     });

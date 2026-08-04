@@ -1,9 +1,10 @@
-import { IContext, IModels } from '~/connectionResolvers';
+import { IContext } from '~/connectionResolvers';
 import {
   ICursorPaginateParams,
-  IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
+import { IAdjustDebtRateDocument } from '@/accounting/@types/adjustDebtRate';
 
 interface IQueryParams {
   ids?: string[];
@@ -21,9 +22,7 @@ interface IQueryParams {
 }
 
 export const generateFilter = async (
-  models: IModels,
   params: IQueryParams,
-  user: IUserDocument,
 ) => {
   const {
     ids,
@@ -36,7 +35,7 @@ export const generateFilter = async (
     departmentId,
   } = params;
 
-  const filter: any = {};
+  const filter: FilterQuery<IAdjustDebtRateDocument> = {};
 
   if (ids && ids.length > 0) {
     filter._id = { $in: ids };
@@ -94,11 +93,11 @@ const adjustDebtRateQueries = {
    * Adjust debt rates list
    */
   async adjustDebtRates(
-    _root,
+    _root: unknown,
     params: IQueryParams & ICursorPaginateParams,
-    { models, user }: IContext,
+    { models }: IContext,
   ) {
-    const filter = await generateFilter(models, params, user);
+    const filter = await generateFilter(params);
 
     const { sortField = 'createdAt', sortDirection = -1 } = params;
 
@@ -115,7 +114,7 @@ const adjustDebtRateQueries = {
    * Get one adjust debt rate
    */
   async adjustDebtRateDetail(
-    _root,
+    _root: unknown,
     { _id }: { _id: string },
     { models }: IContext,
   ) {

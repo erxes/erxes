@@ -32,7 +32,7 @@ export const useFbAuthPopup = (onClose?: () => void) => {
   useEffect(() => {
     if (!isPopupOpen) return;
     const timer = setInterval(() => {
-      if (popupRef.current && popupRef.current.closed) {
+      if (popupRef.current?.closed) {
         clearInterval(timer);
         setIsPopupOpen(false);
         onClose?.();

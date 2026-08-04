@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
-import { setExecutionWaitAction } from '@/bullmq/actionHandlerWorker/setWait';
-import { generateModels } from '@/connectionResolver';
-import { TAutomationWaitEventConfig } from '@/types';
+import { setExecutionWaitAction } from '../../bullmq/actionHandlerWorker/setWait';
+import { generateModels } from '../../connectionResolver';
+import { TAutomationWaitEventConfig } from '../../types';
 import {
   AUTOMATION_EXECUTION_STATUS,
   EXECUTE_WAIT_TYPES,
@@ -9,7 +9,6 @@ import {
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
-import { handleExecutionActionResponse } from '../handleExecutionActionResponse';
 import { getEnv } from 'erxes-api-shared/utils';
 const WAIT_EVENT_DESCRIPTION_MAP = {
   custom: 'Webhook is received',
@@ -37,7 +36,6 @@ export const executeWaitEvent = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
   action: IAutomationAction<TAutomationWaitEventConfig>,
-  execAction: IAutomationExecAction,
 ) => {
   const models = await generateModels(subdomain);
   const { targetType, segmentId, targetTypeId, webhookConfig } =
@@ -80,7 +78,7 @@ export const executeWaitEvent = async (
   if (targetType === 'action' && targetTypeId && segmentId) {
     const { actions = [] } = execution || {};
     const actionExecution = getLastActionExecution(actions, targetTypeId);
-    if (!actionExecution || !actionExecution?.result) {
+    if (!actionExecution?.result) {
       throw new Error(
         `Action execution not found for action ID: ${targetTypeId}. The action must be executed before it can be used in a wait event.`,
       );
@@ -133,6 +131,7 @@ export const executeWaitEvent = async (
   execution.waitingActionId = action.id;
   execution.startWaitingDate = new Date();
   execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
+  await execution.save();
 
-  await handleExecutionActionResponse(actionResponse, execution, execAction);
+  return actionResponse;
 };

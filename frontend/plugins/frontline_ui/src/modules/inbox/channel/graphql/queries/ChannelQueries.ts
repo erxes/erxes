@@ -5,6 +5,7 @@ export const CHANNEL_DETAIL_QUERY = gql`
     getChannel(_id: $id) {
       _id
       name
+      icon
     }
   }
 `;

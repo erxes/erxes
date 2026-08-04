@@ -1,7 +1,7 @@
-import { useGetConversationSourceProgress } from '@/inbox/conversations/conversation-detail/hooks/useProgressConversationSoure';
+import { useGetConversationSourceProgress } from '@/inbox/conversations/conversation-detail/hooks/useProgressConversationSource';
 import { HoverCard, Button } from 'erxes-ui';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
-import { IConversationSourceProgress } from '@/inbox/types/Conversation';
+import { useTranslation } from 'react-i18next';
 import {
   IconPhone,
   IconBrandMessenger,
@@ -17,37 +17,39 @@ const sourceIcons: Record<string, React.ReactNode> = {
   default: <IconUser className="w-4 h-4" />,
 };
 
-const ALL_STATUSES = ['new', 'open', 'closed'];
+const ALL_STATUSES = ['new', 'open', 'closed', 'resolved'] as const;
+type ProgressStatus = (typeof ALL_STATUSES)[number];
 
-export const ProgressSource = ({ customerId }: { customerId: string }) => {
+export const ProgressSource = ({ customerId }: { customerId?: string }) => {
+  const { t } = useTranslation('frontline');
   const { conversationSourceProgress } = useGetConversationSourceProgress({
     variables: { customerId },
     skip: !customerId,
-  }) as {
-    conversationSourceProgress?: IConversationSourceProgress['conversationSourceProgress'];
-  };
+  });
 
-  if (!conversationSourceProgress?.length) {
-    return (
-      <div className="p-4 text-center text-sm text-muted-foreground">
-        No conversation source data available
-      </div>
-    );
-  }
-
-  const sourceStats = conversationSourceProgress.reduce((acc, progress) => {
-    Object.entries(progress).forEach(([status, items]) => {
+  const sourceStats = ALL_STATUSES.reduce(
+    (acc, status) => {
+      const items = conversationSourceProgress?.[status] ?? [];
       items.forEach(({ source, count }) => {
         if (!acc[source]) {
-          acc[source] = { statuses: {} as Record<string, number> };
+          acc[source] = { statuses: {} as Record<ProgressStatus, number> };
           ALL_STATUSES.forEach((s) => (acc[source].statuses[s] = 0));
         }
         acc[source].statuses[status] =
           (acc[source].statuses[status] || 0) + count;
       });
-    });
-    return acc;
-  }, {} as Record<string, { statuses: Record<string, number> }>);
+      return acc;
+    },
+    {} as Record<string, { statuses: Record<ProgressStatus, number> }>,
+  );
+
+  if (Object.keys(sourceStats).length === 0) {
+    return (
+      <div className="p-4 text-center text-sm text-muted-foreground">
+        {t('no-conversation-source-data')}
+      </div>
+    );
+  }
 
   const getTotals = (statuses: Record<string, number>) => {
     const total = Object.values(statuses).reduce((sum, val) => sum + val, 0);
@@ -92,7 +94,7 @@ export const ProgressSource = ({ customerId }: { customerId: string }) => {
                       outerRadius={10}
                       data={[
                         {
-                          name: 'Progress',
+                          name: t('progress'),
                           value: percentage,
                           fill: 'var(--primary)',
                         },
@@ -145,7 +147,7 @@ export const ProgressSource = ({ customerId }: { customerId: string }) => {
                     </div>
                   ))}
                   <div className="flex justify-between text-sm font-medium">
-                    <span>Total</span>
+                    <span>{t('total')}</span>
                     <span>{total}</span>
                   </div>
                 </div>

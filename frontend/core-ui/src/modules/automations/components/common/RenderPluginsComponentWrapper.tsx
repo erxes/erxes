@@ -1,4 +1,4 @@
-import { ErrorState } from '@/automations/components/common/ErrorState';
+import { AutomationErrorState } from '@/automations/components/common/AutomationErrorState';
 import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
 import { IconInfoTriangle } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui';
@@ -24,6 +24,11 @@ export const RenderPluginsComponentWrapper = ({
 
   const { isEnabled } = useAutomationsRemoteModules(pluginName);
 
+  // Dashed plugin names map to underscore MF container names (see
+  // useAutomationsRemoteModules / core-api get-frontend-plugins `remoteName()`),
+  // so the remote is "erxes_agent_ui", never "erxes-agent_ui".
+  const remoteContainerName = `${pluginName.replaceAll('-', '_')}_ui`;
+
   if (!isEnabled) {
     return (
       <p className="flex flex-row gap-2 items-center size-full justify-center">
@@ -37,13 +42,16 @@ export const RenderPluginsComponentWrapper = ({
     <Suspense fallback={<Spinner />}>
       <ErrorBoundary
         FallbackComponent={({ resetErrorBoundary }) => (
-          <ErrorState onRetry={resetErrorBoundary} />
+          <AutomationErrorState onRetry={resetErrorBoundary} />
         )}
       >
         <RenderPluginsComponent
-          pluginName={`${pluginName}_ui`}
+          pluginName={remoteContainerName}
           remoteModuleName="automationsWidget"
-          props={props}
+          props={{
+            ...props,
+            moduleName,
+          }}
         />
       </ErrorBoundary>
     </Suspense>

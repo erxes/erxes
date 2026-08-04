@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Label, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import { SelectBoardFormItem } from '@/pricing/hooks/useSelectBoard';
@@ -18,6 +19,7 @@ export const Stage = ({ pricingId, pricingDetail }: StageProps) => {
   const [hasChanges, setHasChanges] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
 
+  const { t } = useTranslation('loyalty');
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
 
@@ -60,13 +62,13 @@ export const Stage = ({ pricingId, pricingDetail }: StageProps) => {
         stageId: stageId || undefined,
       });
       toast({
-        title: 'Stage updated',
-        description: 'Changes have been saved successfully.',
+        title: t('stage-updated'),
+        description: t('changes-saved'),
       });
     } catch {
       toast({
-        title: 'Failed to update stage',
-        description: 'An unexpected error occurred.',
+        title: t('failed-to-update-stage'),
+        description: t('unexpected-error'),
         variant: 'destructive',
       });
     }
@@ -76,31 +78,31 @@ export const Stage = ({ pricingId, pricingDetail }: StageProps) => {
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label>BOARD</Label>
+          <Label>{t('board-caps')}</Label>
           <SelectBoardFormItem
             value={boardId}
             onValueChange={handleBoardChange}
-            placeholder="Choose a board"
+            placeholder={t('choose-a-board')}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>PIPELINE</Label>
+          <Label>{t('pipeline-caps')}</Label>
           <SelectPipelineFormItem
             value={pipelineId}
             onValueChange={handlePipelineChange}
             boardId={boardId}
-            placeholder="Choose a pipeline"
+            placeholder={t('choose-a-pipeline')}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>STAGE</Label>
+          <Label>{t('stage-caps')}</Label>
           <SelectStageFormItem
             value={stageId}
             onValueChange={handleStageChange}
             pipelineId={pipelineId}
-            placeholder="Choose a stage"
+            placeholder={t('choose-a-stage')}
           />
         </div>
       </div>
@@ -108,7 +110,7 @@ export const Stage = ({ pricingId, pricingDetail }: StageProps) => {
       {hasChanges && (
         <div className="flex justify-end pt-4 border-t">
           <Button onClick={handleSave} disabled={loading}>
-            Save Changes
+            {t('save-changes')}
           </Button>
         </div>
       )}

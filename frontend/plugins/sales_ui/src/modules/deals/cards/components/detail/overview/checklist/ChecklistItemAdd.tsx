@@ -1,4 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+
 
 const ChecklistItemAdd = ({
   adding,
@@ -15,12 +17,13 @@ const ChecklistItemAdd = ({
   handleAdd: () => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }) => {
+  const { t } = useTranslation('sales');
   if (adding) {
     return (
       <div className="flex flex-col gap-2 p-2">
         <textarea
           className="border border-gray-300 rounded px-2 py-1 text-sm w-full resize-none focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-          placeholder="Enter items, each on a new line"
+          placeholder={t('enter-items-each-on-new-line')}
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -32,7 +35,7 @@ const ChecklistItemAdd = ({
             onClick={handleAdd}
             className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
           >
-            Add
+            {t('add')}
           </button>
           <button
             onClick={() => {
@@ -41,7 +44,7 @@ const ChecklistItemAdd = ({
             }}
             className="px-3 py-1 rounded border hover:bg-gray-100"
           >
-            Cancel
+            {t('cancel')}
           </button>
         </div>
       </div>
@@ -61,7 +64,7 @@ const ChecklistItemAdd = ({
       }}
     >
       <IconPlus size={14} />
-      Add an item
+      {t('add-an-item')}
     </div>
   );
 };

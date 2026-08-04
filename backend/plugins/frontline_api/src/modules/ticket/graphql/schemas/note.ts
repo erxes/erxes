@@ -5,6 +5,7 @@ export const types = `
         contentId: String
         createdBy: String
         mentions: [String]
+        statusId: String
 
         createdAt: String
         updatedAt: String
@@ -26,10 +27,13 @@ const updateNoteParams = `
 
 export const queries = `
     ticketGetNote(_id: String!): Note
+    cpTicketGetNotes(ticketId: String!): [Note]
 `;
 
 export const mutations = `
     ticketCreateNote(${createNoteParams}): Note
     ticketUpdateNote(${updateNoteParams}): Note
     ticketDeleteNote(_id: String!): JSON
+
+    cpTicketCreateNote(content: String,contentId: String): Note
 `;

@@ -22,12 +22,18 @@ export const types = `
 export const queries = `
   pmsConfigs: [PmsConfig]
   pmsConfigsGetValue(code:String): PmsConfig
-  pmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
+  rooms(branchId: String): [Product]
+  extraProducts(branchId: String): [Product]
+  pmsAppointmentProducts(branchId: String): [Product]
+  pmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate:Date, startDate:Date, search: String): [Deal]
   pmsCheckRooms(skipStageIds : [String],pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
+
+  cpPmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate:Date, startDate:Date, search: String): [Deal]
+  cpPmsCheckRooms(skipStageIds : [String],pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
 `;
 
 const params = `
-   list:[PmsConfigInput]
+  list:[PmsConfigInput]
 `;
 
 export const mutations = `

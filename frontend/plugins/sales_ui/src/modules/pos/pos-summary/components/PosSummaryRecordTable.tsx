@@ -1,34 +1,58 @@
 import { RecordTable } from 'erxes-ui';
-import { PosSummaryColumns } from './PosSummaryColumns';
+import {
+  firstPosSummaryColumns,
+  secondPosSummaryColumns,
+  generateOtherPaymentColumns,
+} from './PosSummaryColumns';
 import { PosSummaryCommandBar } from '@/pos/pos-summary/components/pos-summary-command-bar/PosSummaryCommandBar';
 import { usePosSummaryList } from '~/modules/pos/pos-summary/hooks/UsePosSummaryList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
-  const { posSummaryList, handleFetchMore, loading, pageInfo } =
+  const { t } = useTranslation('sales');
+  const { posSummaryList, handleFetchMore, loading, pageInfo, columns } =
     usePosSummaryList({ posId });
-
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const allColumns = useMemo(
+    () => [
+      ...firstPosSummaryColumns(t),
+      ...generateOtherPaymentColumns(
+        posSummaryList?.[0]?.amounts || {},
+        columns,
+      ),
+      ...secondPosSummaryColumns(t),
+    ],
+    [columns, posSummaryList, t],
+  );
+  const columnsKey = allColumns.map((c) => c.id || '').join('|');
   return (
     <RecordTable.Provider
-      columns={PosSummaryColumns}
+      key={columnsKey}
+      columns={allColumns}
       data={posSummaryList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'name']}
+      tableId="pos_summary_record_table"
     >
       <RecordTable.CursorProvider
-        hasPreviousPage={pageInfo?.hasPreviousPage}
-        hasNextPage={pageInfo?.hasNextPage}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
         dataLength={posSummaryList?.length}
-        sessionKey="posSummary_cursor"
+        sessionKey="pos_summary_cursor"
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
+            {loading ? (
+              <RecordTable.RowSkeleton rows={32} />
+            ) : (
+              <RecordTable.RowList />
+            )}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />
@@ -41,10 +65,10 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No pos summary yet
+                {t('no-pos-summary-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first pos summary.
+                {t('create-first-pos-summary')}
               </p>
             </div>
           </div>

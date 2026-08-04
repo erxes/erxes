@@ -6,25 +6,32 @@ import {
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
+  SelectOperationContent,
+  SelectTriggerOperation,
+  SelectTriggerVariant,
   cn,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useEffect, useMemo, useState } from 'react';
 
 import { CustomersInline } from './CustomersInline';
+import { AddCustomer } from './AddCustomer';
 import { ICustomer } from '../types';
-import { IconUser } from '@tabler/icons-react';
+import { IconPlus, IconUser } from '@tabler/icons-react';
 import { SelectCustomerContext } from '../contexts/SelectCustomerContext';
 import { useCustomers } from '../hooks';
 import { useDebounce } from 'use-debounce';
 import { useSelectCustomerContext } from '../hooks/useSelectCustomerContext';
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectCustomerProviderProps {
   children: React.ReactNode;
   value?: string[] | string;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
+  hideAvatar?: boolean;
+  loadSelectedCustomers?: boolean;
 }
 
 const SelectCustomerProvider = ({
@@ -32,31 +39,66 @@ const SelectCustomerProvider = ({
   value,
   onValueChange,
   mode = 'single',
+  hideAvatar,
+  loadSelectedCustomers = true,
 }: SelectCustomerProviderProps) => {
   const [customers, setCustomers] = useState<ICustomer[]>([]);
-  const customerIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const [createOpen, setCreateOpen] = useState(false);
+
+  const valueIds = useMemo(() => {
+    if (!value) {
+      return [];
+    }
+
+    return Array.isArray(value) ? value : [value];
+  }, [value]);
+  const customerIds = valueIds;
+
+  const { customers: fetchedCustomers } = useCustomers({
+    variables: {
+      ids: valueIds,
+    },
+    skip: valueIds.length === 0 || !loadSelectedCustomers,
+  });
+
+  useEffect(() => {
+    if (fetchedCustomers?.length) {
+      setCustomers(fetchedCustomers);
+    }
+  }, [fetchedCustomers]);
+
   const onSelect = (customer: ICustomer) => {
     if (!customer) return;
-    if (mode === 'single') {
-      setCustomers([customer]);
-      onValueChange?.(customer._id);
-      return;
-    }
-    const arrayValue = Array.isArray(value) ? value : [];
-    const isCustomerSelected = arrayValue.includes(customer._id);
-    const newSelectedCustomerIds = isCustomerSelected
-      ? arrayValue.filter((id) => id !== customer._id)
-      : [...arrayValue, customer._id];
 
-    setCustomers((prevCustomers) => {
-      const customerMap = new Map(prevCustomers.map((c) => [c._id, c]));
-      customerMap.set(customer._id, customer);
-      return newSelectedCustomerIds
-        .map((id) => customerMap.get(id))
-        .filter((c): c is ICustomer => c !== undefined);
-    });
+    const isSingleMode = mode === 'single';
+    const multipleValue = (value as string[]) || [];
+    const isSelected = !isSingleMode && multipleValue.includes(customer._id);
+
+    const newSelectedCustomerIds = isSingleMode
+      ? [customer._id]
+      : isSelected
+        ? multipleValue.filter((t) => t !== customer._id)
+        : [...multipleValue, customer._id];
+
+    const newSelectedCustomers = isSingleMode
+      ? [customer]
+      : isSelected
+        ? customers.filter((t) => t._id !== customer._id)
+        : [...customers, customer];
+
+    setCustomers(newSelectedCustomers);
+    onValueChange?.(isSingleMode ? customer._id : newSelectedCustomerIds);
+  };
+
+  const onCreateSuccess = (customerId: string) => {
+    const newSelectedCustomerIds =
+      mode === 'single'
+        ? customerId
+        : Array.from(new Set([...valueIds, customerId]));
+
     onValueChange?.(newSelectedCustomerIds);
   };
+
   return (
     <SelectCustomerContext.Provider
       value={{
@@ -66,9 +108,17 @@ const SelectCustomerProvider = ({
         setCustomers,
         loading: false,
         error: null,
+        hideAvatar,
+        mode,
+        openCreate: () => setCreateOpen(true),
       }}
     >
       {children}
+      <AddCustomer
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={onCreateSuccess}
+      />
     </SelectCustomerContext.Provider>
   );
 };
@@ -76,7 +126,8 @@ const SelectCustomerProvider = ({
 const SelectCustomerContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { customerIds, customers } = useSelectCustomerContext();
+  const { customerIds, customers, openCreate } = useSelectCustomerContext();
+  const { t } = useTranslation('contact');
   const {
     customers: customersData,
     loading,
@@ -88,6 +139,9 @@ const SelectCustomerContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  const showCreate =
+    debouncedSearch.trim().length > 0 && !loading && !error && totalCount === 0;
+
   return (
     <Command shouldFilter={false}>
       <Command.Input
@@ -98,6 +152,12 @@ const SelectCustomerContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        {showCreate && (
+          <Command.Item onSelect={openCreate} className="font-medium">
+            <IconPlus />
+            {t('customer.add._')}
+          </Command.Item>
+        )}
         {customers?.length > 0 && (
           <>
             {customers.map((customer) => (
@@ -215,14 +275,27 @@ const SelectCustomerRoot = ({
     </SelectCustomerProvider>
   );
 };
-const SelectCustomerValue = () => {
-  const { customerIds, customers, setCustomers } = useSelectCustomerContext();
+
+const SelectCustomerValue = ({ placeholder }: { placeholder?: string }) => {
+  const { customers, customerIds, hideAvatar, setCustomers } =
+    useSelectCustomerContext();
+
+  if (hideAvatar) {
+    return (
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconUser className="w-4 h-4 text-gray-400" /> Customers +
+        {customerIds.length}
+      </span>
+    );
+  }
 
   return (
     <CustomersInline
       customerIds={customerIds}
       customers={customers}
       updateCustomers={setCustomers}
+      placeholder={placeholder || 'Select Customers'}
+      hideAvatar={hideAvatar}
     />
   );
 };
@@ -307,52 +380,79 @@ export const SelectCustomerFilterView = ({
 export const SelectCustomerFilterBar = ({
   mode = 'multiple',
   filterKey,
-  label,
+  variant,
+  scope,
+  initialValue,
+  value,
+  onValueChange,
+  hideAvatar,
 }: {
   mode?: 'single' | 'multiple';
   filterKey: string;
-  label: string;
+  variant?: `${SelectTriggerVariant}`;
+  scope?: string;
+  initialValue?: string[];
+  value?: string[];
+  hideAvatar?: boolean;
+  onValueChange?: (value: string[] | string) => void;
 }) => {
-  const [query, setQuery] = useQueryState<string[]>(filterKey);
+  const isCardVariant = variant === 'card';
+
+  const [localQuery, setLocalQuery] = useState<string[]>(
+    value || initialValue || [],
+  );
+  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
-  if (!query || query.length === 0) {
+  useEffect(() => {
+    if (isCardVariant) {
+      if (value !== undefined) {
+        setLocalQuery(value);
+      } else if (initialValue) {
+        setLocalQuery(initialValue);
+      }
+    }
+  }, [value, initialValue, isCardVariant]);
+
+  const query = isCardVariant ? localQuery : urlQuery;
+
+  if (!query && variant !== 'card') {
     return null;
   }
 
+  const handleValueChange = (value: string[] | string) => {
+    if (onValueChange) {
+      onValueChange(value);
+    }
+
+    if (isCardVariant) {
+      setLocalQuery((value as string[]) || []);
+    } else {
+      if (value && value.length > 0) {
+        setUrlQuery(value as string[]);
+      } else {
+        setUrlQuery(null);
+      }
+    }
+  };
+
   return (
-    <Filter.BarItem queryKey={filterKey}>
-      <Filter.BarName>
-        <IconUser />
-        {label}
-      </Filter.BarName>
-      <SelectCustomerProvider
-        mode={mode}
-        value={query}
-        onValueChange={(value) => {
-          const values = value as string[];
-          if (values.length > 0) {
-            setQuery(values);
-          } else {
-            setQuery(null);
-          }
-          if (mode === 'single') {
-            setOpen(false);
-          }
-        }}
-      >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={filterKey}>
-              <SelectCustomerValue />
-            </Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <SelectCustomer.Content />
-          </Combobox.Content>
-        </Popover>
-      </SelectCustomerProvider>
-    </Filter.BarItem>
+    <SelectCustomerProvider
+      mode={mode}
+      value={query || []}
+      onValueChange={handleValueChange}
+      hideAvatar={hideAvatar}
+      loadSelectedCustomers={!isCardVariant || !hideAvatar || open}
+    >
+      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+        <SelectTriggerOperation variant={variant || 'filter'}>
+          <SelectCustomerValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant={variant || 'filter'}>
+          <SelectCustomer.Content />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectCustomerProvider>
   );
 };
 

@@ -1,12 +1,14 @@
 import { Form, Input, Textarea } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { TCreatePipelineForm, TUpdatePipelineForm } from '@/pipelines/types';
+import { useTranslation } from 'react-i18next';
 
 export const CreatePipelineForm = ({
   form,
 }: {
   form: UseFormReturn<TCreatePipelineForm> | UseFormReturn<TUpdatePipelineForm>;
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
       <div className="w-full flex gap-2">
@@ -15,9 +17,9 @@ export const CreatePipelineForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>Pipeline name</Form.Label>
+              <Form.Label>{t('pipeline-name')}</Form.Label>
               <Form.Description className="sr-only">
-                Pipeline Name
+                {t('pipeline-name')}
               </Form.Description>
               <Form.Control>
                 <Input {...field} />
@@ -32,8 +34,8 @@ export const CreatePipelineForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>description</Form.Label>
-            <Form.Description className="sr-only">description</Form.Description>
+            <Form.Label>{t('description')}</Form.Label>
+            <Form.Description className="sr-only">{t('description')}</Form.Description>
             <Form.Control>
               <Textarea {...field} />
             </Form.Control>

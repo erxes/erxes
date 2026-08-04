@@ -1,14 +1,12 @@
+import { ICouponDocument, ICouponParams } from '@/coupon/@types/coupon';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { ICouponParams } from '~/modules/coupon/@types/coupon';
 
 export const couponQueries = {
-  getCoupons: async (
-    _root: undefined,
-    params: ICouponParams,
-    { models }: IContext,
-  ) => {
-    const filter: any = {};
+  async coupons(_root: undefined, params: ICouponParams, { models, checkPermission }: IContext) {
+    await checkPermission('couponView');
+    const filter: FilterQuery<ICouponDocument> = {};
 
     if (params.status) {
       filter.status = params.status;
@@ -37,19 +35,24 @@ export const couponQueries = {
       };
     }
 
+    if (params.sortField && !params.orderBy) {
+      params.orderBy = { [params.sortField]: params.sortDirection ?? -1 };
+    }
+
     return await cursorPaginate({
-      model: models.Coupon,
+      model: models.Coupons,
       params,
       query: filter,
     });
   },
 
-  getOwnerCoupons: async (
+  async couponsByOwner(
     _root: undefined,
     { ownerId, status }: { ownerId: string; status?: string },
-    { models }: IContext,
-  ) => {
-    const filter: any = {
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('couponView');
+    const filter: FilterQuery<ICouponDocument> = {
       ownerId,
     };
 
@@ -57,7 +60,7 @@ export const couponQueries = {
       filter.status = status;
     }
 
-    const coupons = await models.Coupon.find(filter);
+    const coupons = await models.Coupons.find(filter);
 
     const couponMap = new Map();
 
@@ -71,7 +74,7 @@ export const couponQueries = {
         entry.coupons.push(coupon);
         entry.count += 1;
       } else {
-        const campaign = await models.Campaign.findOne({
+        const campaign = await models.CouponCampaigns.findOne({
           _id: campaignId,
         }).lean();
 

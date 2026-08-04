@@ -2,6 +2,7 @@ import {
   ICursorPaginateParams,
   ICustomField,
   IListParams,
+  IPropertyField,
 } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
@@ -71,6 +72,7 @@ export interface IDeal {
     startDate?: string;
   };
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField[];
   score?: number;
   number?: string;
   data?: any;
@@ -80,8 +82,13 @@ export interface IDeal {
   parentId?: string;
 
   productsData?: IProductData[];
+  mobileAmount?: number;
+  mobileAmounts?: Array<{ _id?: string; amount: number }>;
   paymentsData?: IPaymentsData;
   extraData?: any;
+  brokerType?: 'customer' | 'company' | 'user';
+  brokerId?: string;
+  sourceInvoiceId?: string;
 }
 
 export interface IDealDocument extends IDeal, Document {
@@ -89,7 +96,7 @@ export interface IDealDocument extends IDeal, Document {
   createdAt?: Date;
   updatedAt?: Date;
 
-  customProperties?: Record<string, any>[];
+  customProperties?: Record<string, any>;
 }
 
 export interface IDate {
@@ -116,6 +123,7 @@ export interface IDealQueryParams extends IListParams, ICursorPaginateParams {
   stageChangedStartDate?: Date;
   stageChangedEndDate?: Date;
   noSkipArchive?: boolean;
+  status?: string;
   tagIds?: string[];
   number?: string;
   productIds?: string[];

@@ -1,7 +1,7 @@
 export const steps = [
-  'General information',
-  'Payments',
-  'Permissions',
-  'Appearance',
-  'Pipeline config',
+  'general-information',
+  'payments-step',
+  'permissions',
+  'appearance',
+  'pipeline-config',
 ];

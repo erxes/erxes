@@ -1,7 +1,8 @@
 export const SETTINGS_ROUTES = {
-  '/settings/ebarimt': 'Ebarimt config',
-  '/settings/ebarimt/stage-in': 'Stage in Ebarimt config',
-  '/settings/ebarimt/return': 'Stage in Return Ebarimt config',
-  '/settings/ebarimt/product-rules-on-tax': 'Product rules on TAX',
-  '/settings/ebarimt/product-groups': 'Product groups',
+  '': 'ebarimt-config',
+  'stage-in': 'stage-in-ebarimt-config',
+  'stage-return': 'stage-in-return-ebarimt-config',
+  'pos-in': 'pos-in-ebarimt-config',
+  'product-rules-on-tax': 'product-rules-on-tax',
+  'product-groups': 'product-groups',
 };

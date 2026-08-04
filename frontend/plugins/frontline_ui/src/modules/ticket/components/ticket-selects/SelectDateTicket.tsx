@@ -10,6 +10,7 @@ import {
   Button,
   Form,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
 
@@ -27,6 +28,7 @@ interface DateSelectContextType {
   loading?: boolean;
   error?: ApolloError;
   variant: DateSelectVariant;
+  disabled?: boolean;
 }
 
 const DateSelectContext = React.createContext<DateSelectContextType | null>(
@@ -61,6 +63,7 @@ export const DateSelectProvider = ({
 };
 
 const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('frontline');
   const { value } = useDateSelectContext();
 
   if (!value) {
@@ -68,7 +71,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
       <>
         <IconCalendarPlus className="text-accent-foreground" />
         <span className="text-accent-foreground font-medium">
-          {placeholder || 'Select date...'}
+          {placeholder || t('select-date')}
         </span>
       </>
     );
@@ -105,7 +108,7 @@ export const DateSelectTrigger = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { variant } = useDateSelectContext();
+  const { variant, disabled } = useDateSelectContext();
   if (variant === DateSelectVariant.TABLE) {
     return (
       <RecordTableInlineCell.Trigger>{children}</RecordTableInlineCell.Trigger>
@@ -113,7 +116,7 @@ export const DateSelectTrigger = ({
   }
   if (variant === DateSelectVariant.CARD) {
     return (
-      <Popover.Trigger asChild>
+      <Popover.Trigger asChild disabled={disabled}>
         <Button
           variant="ghost"
           className="text-muted-foreground font-semibold px-1"
@@ -126,7 +129,7 @@ export const DateSelectTrigger = ({
     );
   }
   return (
-    <Combobox.TriggerBase className="w-fit h-7">
+    <Combobox.TriggerBase className="w-fit h-7" disabled={disabled}>
       {children}
     </Combobox.TriggerBase>
   );
@@ -138,13 +141,16 @@ export const DateSelectTicketRoot = ({
   type,
   scope,
   variant = DateSelectVariant.TABLE,
+  disabled,
 }: {
   value?: Date | string;
   id?: string;
   type: 'startDate' | 'targetDate';
   scope?: string;
   variant?: `${DateSelectVariant}`;
+  disabled?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const { updateTicket, loading, error } = useUpdateTicket();
 
@@ -170,10 +176,11 @@ export const DateSelectTicketRoot = ({
       variant={variant as DateSelectVariant}
       loading={loading}
       error={error}
+      disabled={disabled}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
-          <DateSelectValue placeholder="Not specified" />
+          <DateSelectValue placeholder={t('not-specified')} />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
           <DateSelectContent />

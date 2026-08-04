@@ -1,23 +1,47 @@
-import { RecordTable } from 'erxes-ui';
-import { orderColumns } from '@/pos/orders/components/OrderColumns';
+import {
+  firstOrderColumns,
+  generateOtherPaymentColumns,
+  secondOrderColumns,
+} from '@/pos/orders/components/OrderColumns';
 import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { RecordTable, Spinner } from 'erxes-ui';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
+  const { t } = useTranslation('sales');
   const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList({
     posId,
   });
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { posOrdersSummary } = usePosOrdersSummary({ posId });
+
+  const allColumns = useMemo(
+    () => [
+      ...firstOrderColumns(t),
+      ...generateOtherPaymentColumns(t, posOrdersSummary),
+      ...secondOrderColumns(t),
+    ],
+    [posOrdersSummary, t],
+  );
+  const columnsKey = allColumns.map((c) => c.id || '').join('|');
+
+  if (loading) return <Spinner />;
 
   return (
     <RecordTable.Provider
-      columns={orderColumns}
-      data={ordersList}
+      key={columnsKey}
+      columns={allColumns}
+      data={ordersList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'number']}
+      tableId="pos_orders_record_table"
     >
       <RecordTable.CursorProvider
-        hasPreviousPage={pageInfo?.hasPreviousPage}
-        hasNextPage={pageInfo?.hasNextPage}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
         dataLength={ordersList?.length}
         sessionKey="orders_cursor"
       >
@@ -27,8 +51,11 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
+            {loading ? (
+              <RecordTable.RowSkeleton rows={32} />
+            ) : (
+              <RecordTable.RowList />
+            )}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />
@@ -41,10 +68,10 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No orders yet
+                {t('no-orders-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first order.
+                {t('create-first-order')}
               </p>
             </div>
           </div>

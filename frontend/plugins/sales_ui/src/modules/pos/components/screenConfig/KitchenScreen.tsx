@@ -1,133 +1,117 @@
-import { useState, useEffect } from 'react';
+import { Control, Controller } from 'react-hook-form';
 import { Label, Switch, Select, Input } from 'erxes-ui';
-
-interface KitchenScreenData {
-  isActive?: boolean;
-  isPrint?: boolean;
-  type?: string;
-  showType?: string;
-  value?: string;
-}
+import type { ScreenConfigFormData } from './ScreenConfig';
+import { useTranslation } from 'react-i18next';
 
 interface KitchenScreenProps {
-  data?: KitchenScreenData;
-  onChange: (data: KitchenScreenData) => void;
+  control: Control<ScreenConfigFormData>;
 }
 
-const showTypeOptions = [
-  { value: 'all', label: 'All saved orders' },
-  { value: 'paid', label: 'Paid all orders' },
-  { value: 'defined', label: 'Defined orders only' },
-];
-
-const statusChangeOptions = [
-  { value: 'manual', label: 'Manual' },
-  { value: 'time', label: 'Time' },
-];
-
-export const KitchenScreen: React.FC<KitchenScreenProps> = ({
-  data,
-  onChange,
-}) => {
-  const [isActive, setIsActive] = useState(data?.isActive ?? false);
-  const [showType, setShowType] = useState(data?.showType || 'all');
-  const [type, setType] = useState(data?.type || 'manual');
-  const [value, setValue] = useState(data?.value || '');
-
-  useEffect(() => {
-    if (data) {
-      setIsActive(data.isActive ?? false);
-      setShowType(data.showType || 'all');
-      setType(data.type || 'manual');
-      setValue(data.value || '');
-    }
-  }, [data]);
-
-  const handleChange = (updates: Partial<KitchenScreenData>) => {
-    onChange({
-      isActive,
-      showType,
-      type,
-      value,
-      ...updates,
-    });
-  };
-
+export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
+  const { t } = useTranslation('sales');
+  const showTypeOptions = [
+    { value: 'all', label: t('all-saved-orders') },
+    { value: 'paid', label: t('paid-all-orders') },
+    { value: 'defined', label: t('defined-orders-only') },
+  ];
+  const statusChangeOptions = [
+    { value: 'manual', label: t('manual') },
+    { value: 'time', label: t('time') },
+  ];
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 items-center">
-        <Switch
-          checked={isActive}
-          onCheckedChange={(checked) => {
-            setIsActive(checked);
-            handleChange({ isActive: checked });
-          }}
-        />
-        <Label>KITCHEN SCREEN</Label>
-      </div>
-
-      {isActive && (
-        <div className="pt-2 space-y-4">
-          <div className="space-y-2">
-            <Label>SHOW TYPES</Label>
-            <Select
-              value={showType}
-              onValueChange={(val) => {
-                setShowType(val);
-                handleChange({ showType: val });
-              }}
-            >
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                {showTypeOptions.map((opt) => (
-                  <Select.Item key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
+      <Controller
+        name="kitchenIsActive"
+        control={control}
+        render={({ field }) => (
+          <div className="flex gap-2 items-center">
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+            <Label>{t('KITCHEN-SCREEN')}</Label>
           </div>
+        )}
+      />
 
-          <div className="space-y-2">
-            <Label>STATUS CHANGE /LEAVE/</Label>
-            <Select
-              value={type}
-              onValueChange={(val) => {
-                setType(val);
-                handleChange({ type: val });
-              }}
-            >
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                {statusChangeOptions.map((opt) => (
-                  <Select.Item key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-          </div>
+      <Controller
+        name="kitchenIsActive"
+        control={control}
+        render={({ field }) =>
+          field.value ? (
+            <div className="pt-2 space-y-4">
+              <Controller
+                name="kitchenShowType"
+                control={control}
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <Label>{t('SHOW-TYPES')}</Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {showTypeOptions.map((opt) => (
+                          <Select.Item key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                )}
+              />
 
-          {type === 'time' && (
-            <div className="space-y-2">
-              <Label>TIME (MINUTE)</Label>
-              <Input
-                type="number"
-                value={value}
-                onChange={(e) => {
-                  setValue(e.target.value);
-                  handleChange({ value: e.target.value });
-                }}
-                placeholder="Enter time in minutes"
+              <Controller
+                name="kitchenType"
+                control={control}
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <Label>{t('STATUS-CHANGE-LEAVE')}</Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {statusChangeOptions.map((opt) => (
+                          <Select.Item key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="kitchenType"
+                control={control}
+                render={({ field }) =>
+                  field.value === 'time' ? (
+                    <Controller
+                      name="kitchenValue"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="space-y-2">
+                          <Label>{t('TIME-MINUTE')}</Label>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value || ''}
+                            placeholder={t('enter-time-in-minutes')}
+                          />
+                        </div>
+                      )}
+                    />
+                  ) : (
+                    <></>
+                  )
+                }
               />
             </div>
-          )}
-        </div>
-      )}
+          ) : (
+            <></>
+          )
+        }
+      />
     </div>
   );
 };

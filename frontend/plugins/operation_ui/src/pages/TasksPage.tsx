@@ -1,24 +1,32 @@
-import { Breadcrumb, PageSubHeader } from 'erxes-ui';
-import { useParams, useLocation } from 'react-router-dom';
-
-import { PageHeader } from 'ui-modules';
-import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
-import { Separator } from 'erxes-ui';
-import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
-import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
+import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
+import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
+import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
+import {
+  TasksExportButton,
+  TasksImportButton,
+} from '@/task/components/TasksLayout';
+import { Breadcrumb, PageSubHeader, Separator, Skeleton } from 'erxes-ui';
+import { useLocation, useParams } from 'react-router-dom';
+import { Can, FavoriteToggleIconButton, PageHeader } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
+import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
   const { pathname } = useLocation();
+  const { t } = useTranslation('operation');
 
   const basePath = teamId
     ? `/operation/team/${teamId}/tasks`
     : `/operation/tasks`;
 
   const isCreatedView = pathname === '/operation/tasks/created';
+  const taskView = !teamId && (isCreatedView ? t('created') : t('assigned'));
+  const { breadcrumb: favoriteBreadcrumb, loading: favoriteLoading } =
+    useTeamFavoriteBreadcrumb(teamId, t('tasks'), taskView);
 
   return (
     <>
@@ -33,15 +41,29 @@ export const TasksPage = () => {
                 </>
               )}
               <TaskBreadCrump link={basePath} />
+              <Breadcrumb.Item className="ml-1">
+                {favoriteLoading ? (
+                  <Skeleton className="w-8 h-8" />
+                ) : (
+                  <FavoriteToggleIconButton
+                    breadcrumb={favoriteBreadcrumb}
+                    icon="IconChecklist"
+                  />
+                )}
+              </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        <AddTaskSheet />
+        <Can action="taskCreate">
+          <AddTaskSheet />
+        </Can>
       </PageHeader>
       <div className="flex overflow-hidden w-full h-full">
         <div className="flex flex-col overflow-hidden w-full h-full">
           <PageSubHeader>
             <TasksFilter />
+            <TasksImportButton />
+            <TasksExportButton />
             <TasksViewControl />
           </PageSubHeader>
           <TasksView isCreatedView={isCreatedView} />

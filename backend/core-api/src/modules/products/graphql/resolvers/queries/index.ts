@@ -1,6 +1,9 @@
 import { categoryQueries } from './category';
 import { configQueries } from './config';
+import { packageQueries } from './package';
 import { productQueries as productMainQueries } from './product';
+import { productRuleQueries } from './rule';
+import { productSimilarityQueries } from './similarity';
 import { uomQueries } from './uoms';
 
 export const productQueries = {
@@ -8,4 +11,7 @@ export const productQueries = {
   ...configQueries,
   ...uomQueries,
   ...productMainQueries,
+  ...productRuleQueries,
+  ...productSimilarityQueries,
+  ...packageQueries,
 };

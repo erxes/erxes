@@ -7,6 +7,8 @@ const dragginWorkflowNode = z.object({
   automationId: z.string(),
   name: z.string(),
   description: z.string(),
+  // Present when a saved workflow template is being dragged from the library
+  template: z.any().optional(),
 });
 
 const draggingCommonNode = z.object({

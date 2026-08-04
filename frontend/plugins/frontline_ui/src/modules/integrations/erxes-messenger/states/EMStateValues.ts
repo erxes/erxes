@@ -31,6 +31,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
     createVariables: {
       name: config?.name,
       channelId: config?.channelId,
+      brandId: config?.brandId,
       ticketConfigId: config?.ticketConfigId,
       languageCode: settings?.languageCode || DEFAULT_LANGUAGE,
     },
@@ -38,10 +39,17 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       messengerData: {
         notifyCustomer: settings?.notifyCustomer ?? false,
         botEndpointUrl: '',
-        botShowInitialMessage: false,
+        botShowInitialMessage: config?.botSetup?.botShowInitialMessage ?? false,
         botCheck: config?.botSetup?.botCheck ?? false,
         botGreetMessage: config?.botSetup?.greetingMessage ?? '',
-        persistentMenus: config?.botSetup?.persistentMenu ?? [],
+        automationId: config?.botSetup?.automationId ?? '',
+        persistentMenus:
+          config?.botSetup?.persistentMenu?.map((item) => ({
+            text: item.text,
+            type: item.type,
+            link: item.link,
+            contentType: item.contentType,
+          })) ?? [],
         availabilityMethod: hours?.availabilityMethod || 'manual',
         isOnline: hours?.isOnline ?? false,
         timezone: hours?.timezone || '',
@@ -74,6 +82,8 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         showVideoCallRequest: settings?.showVideoCallRequest ?? false,
         links,
         externalLinks,
+        knowledgeBaseTopicId: config?.knowledgeBaseTopicId ?? '',
+        websiteApps: settings?.websiteApps ?? [],
       },
       callData: {},
     },
@@ -84,6 +94,10 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
           appearance?.primary?.foreground || DEFAULT_COLORS.FOREGROUND,
       },
       logo: appearance?.logo || '',
+      launcherLogo: appearance?.launcherLogo || '',
+      backgroundColor: appearance?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
+      heroStyleVariant: appearance?.heroStyleVariant || 'glossy',
+      navigationVariant: appearance?.navigationVariant || 'pill',
     },
   });
 });

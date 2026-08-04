@@ -14,7 +14,9 @@ const accountInputParamsDefs = `
   $departmentId: String,
   $isTemp: Boolean,
   $isOutBalance: Boolean,
-  $scopeBrandIds: [String]
+  $scopeBrandIds: [String],
+  $extra: JSON
+  $status: String,
 `;
 
 const accountInputParams = `
@@ -30,7 +32,9 @@ const accountInputParams = `
   departmentId: $departmentId,
   isTemp: $isTemp,
   isOutBalance: $isOutBalance,
-  scopeBrandIds: $scopeBrandIds
+  scopeBrandIds: $scopeBrandIds,
+  extra: $extra
+  status: $status,
 `;
 
 export const ACCOUNTS_ADD = gql`
@@ -42,7 +46,7 @@ export const ACCOUNTS_ADD = gql`
 `;
 
 export const ACCOUNTS_EDIT = gql`
-  mutation accountsEdit($_id: String!${accountInputParamsDefs}) {
+  mutation accountsEdit($_id: String!, ${accountInputParamsDefs}) {
     accountsEdit(_id: $_id, ${accountInputParams}) {
       ${ACCOUNT_FIELDS}
     }

@@ -10,14 +10,31 @@ export interface IImportExportContext<TModels = any> {
 export interface ImportHeaderDefinition {
   label: string;
   key: string;
+  aliases?: string[];
   isDefault?: boolean;
   type?: 'system' | 'customProperty';
+}
+
+export interface ImportExportTypeDefinition {
+  label: string;
+  contentType: string;
+  permissions?: string[];
 }
 
 export interface InsertImportRowsInputData {
   moduleName: string;
   collectionName: string;
   rows: any[];
+  userId: string;
+}
+export interface BatchSkipRowInputData {
+  moduleName: string;
+  collectionName: string;
+  rowData: any;
+}
+export interface BatchSkipRowArgs {
+  subdomain: string;
+  data: BatchSkipRowInputData;
 }
 
 export interface InsertImportRowsArgs {
@@ -48,13 +65,22 @@ export interface TImportHandlers {
   ) => Promise<ImportHeaderDefinition[]>;
 
   whenReady?: () => void;
+  batchSkipRow?: (
+    args: BatchSkipRowArgs,
+    ctx: IImportExportContext,
+  ) => Promise<boolean>;
 }
+
+export interface ImportConfig extends TImportHandlers {
+  types?: ImportExportTypeDefinition[];
+}
+
 export type GetExportData = {
   moduleName: string;
   collectionName: string;
   cursor?: string;
   limit: number;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   ids?: string[];
   selectedFields?: string[];
 };
@@ -67,7 +93,11 @@ export interface TExportHandlers {
   getExportHeaders: (
     args: {
       subdomain: string;
-      data: { moduleName: string; collectionName: string };
+      data: {
+        moduleName: string;
+        collectionName: string;
+        filters?: Record<string, unknown>;
+      };
     },
     ctx: IImportExportContext,
   ) => Promise<ImportHeaderDefinition[]>;
@@ -78,13 +108,37 @@ export interface TExportHandlers {
   whenReady?: () => void;
 }
 
+export interface ExportConfig extends TExportHandlers {
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportImportMeta {
+  configured: boolean;
+  hasGetImportHeaders?: boolean;
+  hasInsertImportRows?: boolean;
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportExportMeta {
+  configured: boolean;
+  hasGetExportHeaders?: boolean;
+  hasGetExportData?: boolean;
+  hasUploadFile?: boolean;
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportMeta {
+  import?: ImportExportImportMeta;
+  export?: ImportExportExportMeta;
+}
+
 export interface ImportExportConfigs {
   createContext?: (
     subdomain: string,
     context: IImportExportContext,
   ) => Promise<IImportExportContext>;
-  import?: TImportHandlers;
-  export?: TExportHandlers;
+  import?: ImportConfig;
+  export?: ExportConfig;
 }
 
 export interface ImportJobData {
@@ -93,6 +147,7 @@ export interface ImportJobData {
     importId: string;
     entityType: string;
     fileKey: string;
+    userId: string;
   };
 }
 
@@ -107,6 +162,7 @@ export interface ExportJobData {
 
 export type TGetImportHeadersOutput = ImportHeaderDefinition[];
 export type TInsertImportRowsInput = InsertImportRowsInputData;
+export type TBatchSkipRowInput = BatchSkipRowInputData;
 
 export const InsertImportRowsInputSchema = z.object({
   subdomain: z.string(),
@@ -120,6 +176,7 @@ export const InsertImportRowsInputSchema = z.object({
 export enum TImportExportProducers {
   INSERT_IMPORT_ROWS = 'insertImportRows',
   GET_IMPORT_HEADERS = 'getImportHeaders',
+  BATCH_SKIP_ROW = 'batchSkipRow',
   GET_EXPORT_HEADERS = 'getExportHeaders',
   GET_EXPORT_DATA = 'getExportData',
 }

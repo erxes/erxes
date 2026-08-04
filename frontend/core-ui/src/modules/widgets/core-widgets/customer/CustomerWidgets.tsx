@@ -12,6 +12,7 @@ export const CustomerWidgets = ({
   contentId,
   contentType,
   customerId,
+  access,
 }: IRelationWidgetProps) => {
   const { manageRelations } = useManageRelations();
   const { ownEntities, loading } = useRelations({
@@ -24,7 +25,12 @@ export const CustomerWidgets = ({
   });
 
   const handleSelectCustomers = (customerIds: string[]) => {
-    manageRelations({ contentType, contentId, relatedContentType: 'core:customer', relatedContentIds: customerIds })
+    manageRelations({
+      contentType,
+      contentId,
+      relatedContentType: 'core:customer',
+      relatedContentIds: customerIds,
+    });
   };
 
   if (loading) {
@@ -35,18 +41,20 @@ export const CustomerWidgets = ({
     ? [customerId]
     : ownEntities?.map((entity) => entity.contentId);
 
-  if (ownEntities?.length === 0) {
+  if (ownEntities?.length === 0 && !customerId) {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
+      <div className="flex flex-col flex-auto justify-center items-center gap-4 text-muted-foreground">
+        <div className="bg-background p-6 border border-dashed rounded-xl">
           <IconUserSearch />
         </div>
         <span className="text-sm">No customers to display at the moment.</span>
         <SelectCustomersBulk onSelect={handleSelectCustomers}>
-          <Button variant="outline" size="sm">
-            <IconPlus className="mr-2 h-4 w-4" />
-            Add Customer
-          </Button>
+          {access === 'write' && (
+            <Button variant="outline" size="sm">
+              <IconPlus className="mr-2 w-4 h-4" />
+              Add Customer
+            </Button>
+          )}
         </SelectCustomersBulk>
       </div>
     );
@@ -57,6 +65,7 @@ export const CustomerWidgets = ({
       customerIds={customerIds}
       scope=" "
       onManageCustomers={handleSelectCustomers}
+      access={access}
     />
   );
 };

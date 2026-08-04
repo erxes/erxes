@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   IconEdit,
   IconCopy,
@@ -5,6 +6,7 @@ import {
   IconChevronDown,
 } from '@tabler/icons-react';
 import { Popover, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface ActionMenuProps {
   onEdit: () => void;
@@ -15,7 +17,7 @@ interface ActionMenuProps {
 
 interface DropdownItem {
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   onClick: () => void;
   disabled?: boolean;
 }
@@ -26,14 +28,15 @@ export const ActionMenu = ({
   onDelete,
   duplicateLoading,
 }: ActionMenuProps) => {
-  const dropdownItems = [
+  const { t } = useTranslation('tourism');
+  const dropdownItems: DropdownItem[] = [
     {
-      label: 'Edit',
+      label: t('edit'),
       icon: <IconEdit size={16} stroke={1.5} />,
       onClick: () => onEdit(),
     },
     {
-      label: duplicateLoading ? 'Duplicating…' : 'Duplicate',
+      label: duplicateLoading ? t('duplicating') : t('duplicate'),
       icon: duplicateLoading ? (
         <Spinner className="w-4 h-4" />
       ) : (
@@ -42,13 +45,8 @@ export const ActionMenu = ({
       onClick: () => onDuplicate(),
       disabled: duplicateLoading,
     },
-    // {
-    //   label: 'Visit website',
-    //   icon: <IconWorld size={16} stroke={1.5} />,
-    //   onClick: () => window.open(branch.website, '_blank'),
-    // },
     {
-      label: 'Delete',
+      label: t('delete'),
       icon: <IconTrash size={16} stroke={1.5} />,
       onClick: () => onDelete(),
     },
@@ -62,7 +60,7 @@ export const ActionMenu = ({
           aria-label="Open action menu"
           aria-haspopup="true"
         >
-          Action
+          {t('action')}
           <IconChevronDown size={18} stroke={2} />
         </button>
       </Popover.Trigger>

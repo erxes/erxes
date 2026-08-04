@@ -6,19 +6,12 @@ import { IconChevronLeft } from '@tabler/icons-react';
 import { Button, getPluginAssetsUrl } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const ErxesMessengerDetail = lazy(() =>
   import('@/integrations/erxes-messenger/components/ErxesMessengerDetail').then(
     (module) => ({
       default: module.ErxesMessengerDetail,
-    }),
-  ),
-);
-
-const ErxesMessengerActions = lazy(() =>
-  import('@/integrations/erxes-messenger/components/ErxesMessengerDetail').then(
-    (module) => ({
-      default: module.ErxesMessengerActions,
     }),
   ),
 );
@@ -31,10 +24,10 @@ const FacebookIntegrationDetail = lazy(() =>
   ),
 );
 
-const FacebookIntegrationActions = lazy(() =>
-  import('@/integrations/facebook/components/FacebookIntegrationDetail').then(
+const ImapIntegrationDetail = lazy(() =>
+  import('@/integrations/imap/components/ImapIntegrationDetail').then(
     (module) => ({
-      default: module.FacebookIntegrationActions,
+      default: module.ImapIntegrationDetail,
     }),
   ),
 );
@@ -47,15 +40,24 @@ const CallIntegrationDetail = lazy(() =>
   ),
 );
 
-const CallIntegrationActions = lazy(() =>
-  import('@/integrations/call/components/CallIntegrationDetail').then(
+const InstagramIntegrationDetail = lazy(() =>
+  import('@/integrations/instagram/components/InstagramIntegrationDetail').then(
     (module) => ({
-      default: module.CallIntegrationActions,
+      default: module.InstagramIntegrationDetail,
+    }),
+  ),
+);
+
+const DiscordIntegrationDetail = lazy(() =>
+  import('@/integrations/discord/components/DiscordIntegrationDetail').then(
+    (module) => ({
+      default: module.DiscordIntegrationDetail,
     }),
   ),
 );
 
 export const IntegrationDetailPage = () => {
+  const { t } = useTranslation('frontline');
   const { integrationType, id } = useParams<{
     integrationType: string;
     id: string;
@@ -66,7 +68,7 @@ export const IntegrationDetailPage = () => {
     INTEGRATIONS[integrationType as keyof typeof INTEGRATIONS];
 
   return (
-    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden">
+    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden flex-1 min-h-0">
       <div>
         <Button
           variant="ghost"
@@ -80,7 +82,7 @@ export const IntegrationDetailPage = () => {
           }}
         >
           <IconChevronLeft />
-          Integrations
+          {t('integrations')}
         </Button>
       </div>
       <div className="flex gap-2">
@@ -106,23 +108,20 @@ export const IntegrationDetailPage = () => {
           <FacebookIntegrationDetail isPost />
         )}
         {integrationType === IntegrationType.CALL && <CallIntegrationDetail />}
-      </Suspense>
-      <IntegrationsRecordTable
-        Actions={({ cell }) => (
-          <>
-            {integrationType === IntegrationType.ERXES_MESSENGER && (
-              <ErxesMessengerActions cell={cell} />
-            )}
-            {(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
-              integrationType === IntegrationType.FACEBOOK_POST) && (
-              <FacebookIntegrationActions cell={cell} />
-            )}
-            {integrationType === IntegrationType.CALL && (
-              <CallIntegrationActions cell={cell} />
-            )}
-          </>
+        {integrationType === IntegrationType.IMAP && <ImapIntegrationDetail />}
+        {integrationType === IntegrationType.INSTAGRAM_MESSENGER && (
+          <InstagramIntegrationDetail />
         )}
-      />
+        {integrationType === IntegrationType.INSTAGRAM_POST && (
+          <InstagramIntegrationDetail isPost />
+        )}
+        {integrationType === IntegrationType.DISCORD_MESSENGER && (
+          <DiscordIntegrationDetail />
+        )}
+      </Suspense>
+      <div className="flex-1 min-h-0 flex flex-col">
+        <IntegrationsRecordTable />
+      </div>
     </div>
   );
 };

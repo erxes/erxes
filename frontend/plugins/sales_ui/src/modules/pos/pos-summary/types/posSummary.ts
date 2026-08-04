@@ -23,6 +23,7 @@ export interface IPosSummary {
     cashAmount: number;
     mobileAmount: number;
     invoice: number;
+    qpayAmount?: number;
   };
 }
 

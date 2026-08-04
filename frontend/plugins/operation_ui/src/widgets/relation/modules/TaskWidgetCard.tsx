@@ -5,13 +5,13 @@ import { SelectProject } from '@/task/components/task-selects/SelectProjectTask'
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { ITask } from '@/task/types';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { Button, Card, Separator } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TaskDetailSheet = lazy(() =>
   import('@/task/components/TaskDetailSheet').then((module) => ({
@@ -20,6 +20,7 @@ const TaskDetailSheet = lazy(() =>
 );
 
 export const TaskWidgetCard = ({ task }: { task: ITask }) => {
+  const { t } = useTranslation('operation');
   const {
     startDate,
     targetDate,
@@ -34,7 +35,7 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
     status,
     createdAt,
   } = task || {};
-  const [activeTask, setActiveTask] = useAtom(taskDetailSheetState);
+  const [activeTask, setActiveTask] = useTaskDetailSheet();
 
   return (
     <>
@@ -58,7 +59,7 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
           <div className="flex flex-col gap-1">
             <h5 className="font-semibold">{name}</h5>
             <div className="text-sm text-accent-foreground uppercase">
-              Task #{number}
+              {t('task-number', { number })}
             </div>
           </div>
           <div className="flex flex-wrap gap-1 pt-2 pb-1">
@@ -87,7 +88,7 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
             className="text-muted-foreground px-1 hover:bg-background pointer-events-none"
           >
             <IconCalendarEventFilled />
-            Created on:{' '}
+            {t('created-on')}{' '}
             {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
           </Button>
           <SelectAssigneeTask

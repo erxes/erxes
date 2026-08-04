@@ -1,9 +1,4 @@
-import { useState } from 'react';
-import { IBranch, ISelectBranchesProviderProps } from '../types/Branch';
-import { SelectBranchesContext } from '../contexts/SelectBranchesContext';
-import { useDebounce } from 'use-debounce';
-import { useSelectBranchesContext } from '../hooks/useSelectBranchesContext';
-import { useBranches } from '../hooks/useBranches';
+import { IconGitBranch, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -19,13 +14,33 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import { useDebounce } from 'use-debounce';
+import { SelectBranchesContext } from '../contexts/SelectBranchesContext';
+import { useBranches } from '../hooks/useBranches';
+import { useSelectBranchesContext } from '../hooks/useSelectBranchesContext';
+import { IBranch, ISelectBranchesProviderProps } from '../types/Branch';
 import { BranchBadge } from './BranchBadge';
 import {
   CreateBranchForm,
   SelectBranchCreateContainer,
 } from './CreateBranchForm';
-import React from 'react';
+
+const cacheSelectedBranch = (
+  branch: IBranch | undefined,
+  selectedBranchIds: string[],
+  setSelectedBranches: React.Dispatch<React.SetStateAction<IBranch[]>>,
+) => {
+  if (!branch || !selectedBranchIds.includes(branch._id)) return;
+
+  setSelectedBranches((previousBranches) => {
+    if (previousBranches.some(({ _id }) => _id === branch._id)) {
+      return previousBranches;
+    }
+
+    return [...previousBranches, branch];
+  });
+};
 
 export const SelectBranchesProvider = ({
   children,
@@ -35,7 +50,13 @@ export const SelectBranchesProvider = ({
 }: ISelectBranchesProviderProps) => {
   const [newBranchName, setNewBranchName] = useState<string>('');
   const [selectedBranches, setSelectedBranches] = useState<IBranch[]>([]);
-  const branchIds = !value ? [] : Array.isArray(value) ? value : [value];
+  let branchIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    branchIds = value;
+  } else if (value) {
+    branchIds = [value];
+  }
 
   const handleSelectCallback = (branch: IBranch) => {
     if (!branch) return;
@@ -47,14 +68,14 @@ export const SelectBranchesProvider = ({
     const newSelectedBranchIds = isSingleMode
       ? [branch._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== branch._id)
-      : [...multipleValue, branch._id];
+        ? multipleValue.filter((p) => p !== branch._id)
+        : [...multipleValue, branch._id];
 
     const newSelectedBranches = isSingleMode
       ? [branch]
       : isSelected
-      ? selectedBranches.filter((p) => p._id !== branch._id)
-      : [...selectedBranches, branch];
+        ? selectedBranches.filter((p) => p._id !== branch._id)
+        : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
     onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
@@ -85,7 +106,7 @@ export const SelectBranchesCommand = ({
 }) => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedBranches, branchIds } = useSelectBranchesContext();
+  const { branchIds } = useSelectBranchesContext();
   const [noBranchesSearchValue, setNoBranchesSearchValue] =
     useState<string>('');
 
@@ -116,7 +137,7 @@ export const SelectBranchesCommand = ({
         focusOnMount
       />
       <Command.List>
-        {selectedBranches?.length > 0 && (
+        {(branchIds?.length ?? 0) > 0 && (
           <>
             <div className="flex flex-wrap justify-start p-2 gap-2">
               <BranchesList />
@@ -180,7 +201,7 @@ export const SelectBranchesItem = ({
   branch: IBranch & { hasChildren: boolean };
 }) => {
   const { onSelect, branchIds } = useSelectBranchesContext();
-  const isSelected = branchIds?.some((b) => b === branch._id);
+  const isSelected = branchIds?.includes(branch._id);
   return (
     <SelectTree.Item
       key={branch._id}
@@ -202,6 +223,7 @@ export const SelectBranchesItem = ({
 export const BranchesList = ({
   placeholder,
   renderAsPlainText,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof BranchBadge>, 'onClose'> & {
   placeholder?: string;
@@ -210,9 +232,15 @@ export const BranchesList = ({
   const { value, selectedBranches, setSelectedBranches, onSelect } =
     useSelectBranchesContext();
 
-  const selectedBranchIds = Array.isArray(value) ? value : [value];
+  let selectedBranchIds: string[] = [];
 
-  if (!value || !value.length) {
+  if (Array.isArray(value)) {
+    selectedBranchIds = value;
+  } else if (value) {
+    selectedBranchIds = [value];
+  }
+
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 
@@ -224,16 +252,17 @@ export const BranchesList = ({
           branchId={branchId}
           branch={selectedBranches.find((b) => b._id === branchId)}
           renderAsPlainText={renderAsPlainText}
+          showMissingId
           variant={'secondary'}
-          onCompleted={(branch) => {
-            if (!branch) return;
-            if (selectedBranchIds.includes(branch._id)) {
-              setSelectedBranches([...selectedBranches, branch]);
-            }
-          }}
+          className={cn('min-w-0', className)}
+          onCompleted={(branch) =>
+            cacheSelectedBranch(branch, selectedBranchIds, setSelectedBranches)
+          }
           onClose={() =>
             onSelect?.(
-              selectedBranches.find((p) => p._id === branchId) as IBranch,
+              (selectedBranches.find((p) => p._id === branchId) ?? {
+                _id: branchId,
+              }) as IBranch,
             )
           }
           {...props}
@@ -244,12 +273,12 @@ export const BranchesList = ({
 };
 
 export const SelectBranchesValue = () => {
-  const { selectedBranches, mode } = useSelectBranchesContext();
+  const { branchIds, mode } = useSelectBranchesContext();
 
-  if (selectedBranches?.length > 1)
+  if (mode === 'multiple' && (branchIds?.length ?? 0) > 1)
     return (
       <span className="text-muted-foreground">
-        {selectedBranches.length} branches selected
+        {branchIds?.length} branches selected
       </span>
     );
 
@@ -313,14 +342,16 @@ const SelectBranchesBadgesView = () => {
         <BranchBadge
           key={bId}
           branchId={bId}
-          onCompleted={(branch) => {
-            if (!branch) return;
-            if (branchIds.includes(branch._id)) {
-              setSelectedBranches([...selectedBranches, branch]);
-            }
-          }}
+          showMissingId
+          onCompleted={(branch) =>
+            cacheSelectedBranch(branch, branchIds || [], setSelectedBranches)
+          }
           onClose={() =>
-            onSelect?.(selectedBranches.find((p) => p._id === bId) as IBranch)
+            onSelect?.(
+              (selectedBranches.find((p) => p._id === bId) ?? {
+                _id: bId,
+              }) as IBranch,
+            )
           }
         />
       ))}
@@ -404,6 +435,35 @@ export const SelectBranchesCommandbarItem = ({
         <RecordTableInlineCell.Content className="w-96">
           <SelectBranchesContent />
         </RecordTableInlineCell.Content>
+      </Popover>
+    </SelectBranchesProvider>
+  );
+};
+
+export const SelectBranchesComboboxItem = ({
+  onValueChange,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> & {
+  className?: string;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  return (
+    <SelectBranchesProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <SelectBranchesValue />
+        </Combobox.Trigger>
+
+        <Combobox.Content>
+          <SelectBranchesContent />
+        </Combobox.Content>
       </Popover>
     </SelectBranchesProvider>
   );
@@ -540,6 +600,7 @@ export const SelectBranches = Object.assign(SelectBranchesProvider, {
   Value: SelectBranchesValue,
   List: BranchesList,
   InlineCell: SelectBranchesInlineCell,
+  ComboboxItem: SelectBranchesComboboxItem,
   FormItem: SelectBranchesFormItem,
   FilterItem: SelectBranchesFilterItem,
   FilterView: SelectBranchesFilterView,

@@ -8,7 +8,6 @@ import {
 } from '../../@types';
 import { pipelineLabelSchema } from '../definitions/labels';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { generatePipelineLabelActivityLogs } from '~/utils/activityLogs';
 
 interface IFilter extends IPipelineLabel {
   _id?: any;
@@ -27,7 +26,9 @@ export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
   ): Promise<IPipelineLabelDocument>;
   removePipelineLabel(_id: string): Promise<IPipelineLabelDocument>;
   validateUniqueness(filter: IFilter, _id?: string): Promise<boolean>;
-  labelObject(params: ILabelObjectParams): Promise<{oldDeal: IDealDocument, deal: IDealDocument}>;
+  labelObject(
+    params: ILabelObjectParams,
+  ): Promise<{ oldDeal: IDealDocument; deal: IDealDocument }>;
 }
 
 export const loadPipelineLabelClass = (
@@ -35,7 +36,7 @@ export const loadPipelineLabelClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class PipelineLabel {
     public static async getPipelineLabel(_id: string) {
@@ -44,7 +45,10 @@ export const loadPipelineLabelClass = (
       return pipelineLabel;
     }
 
-    public static async validateUniqueness(filter: IFilter, _id?: string): Promise<boolean> {
+    public static async validateUniqueness(
+      filter: IFilter,
+      _id?: string,
+    ): Promise<boolean> {
       if (_id) filter._id = { $ne: _id };
       return !(await models.PipelineLabels.findOne(filter));
     }
@@ -59,12 +63,18 @@ export const loadPipelineLabelClass = (
         throw new Error('Label not found');
       }
 
-      const deal = await models.Deals.updateDeal(dealId, { labelIds, stageId: oldDeal.stageId });
+      const deal = await models.Deals.updateDeal(dealId, {
+        labelIds,
+        stageId: oldDeal.stageId,
+      });
 
-      return { oldDeal, deal }
+      return { oldDeal, deal };
     }
 
-    public static async createPipelineLabel(doc: IPipelineLabel, userId?: string) {
+    public static async createPipelineLabel(
+      doc: IPipelineLabel,
+      userId?: string,
+    ) {
       const isUnique = await models.PipelineLabels.validateUniqueness({
         name: doc.name,
         pipelineId: doc.pipelineId,
@@ -73,7 +83,10 @@ export const loadPipelineLabelClass = (
 
       if (!isUnique) throw new Error('Label duplicated');
 
-      const pipelineLabel = await models.PipelineLabels.create({ ...doc, userId });
+      const pipelineLabel = await models.PipelineLabels.create({
+        ...doc,
+        userId,
+      });
 
       sendDbEventLog?.({
         action: 'create',
@@ -84,7 +97,11 @@ export const loadPipelineLabelClass = (
       return pipelineLabel;
     }
 
-    public static async updatePipelineLabel(_id: string, doc: IPipelineLabel, userId?: string) {
+    public static async updatePipelineLabel(
+      _id: string,
+      doc: IPipelineLabel,
+      userId?: string,
+    ) {
       const prevLabel = await models.PipelineLabels.findOne({ _id });
       if (!prevLabel) throw new Error('Label not found');
 
@@ -113,13 +130,6 @@ export const loadPipelineLabelClass = (
         currentDocument: updatedLabel.toObject(),
         prevDocument: prevLabel.toObject(),
       });
-
-      await generatePipelineLabelActivityLogs(
-        prevLabel.toObject(),
-        updatedLabel.toObject(),
-        models,
-        createActivityLog,
-      );
 
       return updatedLabel;
     }

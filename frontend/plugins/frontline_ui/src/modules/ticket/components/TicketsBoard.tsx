@@ -1,4 +1,4 @@
-import { useGetTicketStatusesByPipeline } from '@/status/hooks/useGetTicketStatus';
+import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { useTickets } from '@/ticket/hooks/useGetTickets';
 import { ITicket } from '@/ticket/types';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -28,6 +28,8 @@ import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
 import { TicketPipelineFallback } from '@/ticket/components/TicketPipelineFallback';
+import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 
 export const TicketsBoard = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');
@@ -35,7 +37,10 @@ export const TicketsBoard = () => {
   const allTicketsMap = useAtomValue(allTicketsMapState);
   const { updateTicket } = useUpdateTicket();
 
-  const { statuses, loading } = useGetTicketStatusesByPipeline({
+  const { pipeline } = useGetPipeline(pipelineId || undefined);
+  const permissions = useTicketPermissions({ pipeline });
+
+  const { statuses, loading } = useGetAccessibleTicketStatuses({
     variables: {
       pipelineId: pipelineId || '',
       channelId: channelId || '',
@@ -53,11 +58,18 @@ export const TicketsBoard = () => {
   const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (!permissions.canMoveTicket) {
+      return;
+    }
+
     const { active, over } = event;
     if (!over) {
       return;
     }
     const activeItem = allTicketsMap[active.id as string];
+    if (!activeItem) {
+      return;
+    }
     const overItem = allTicketsMap[over.id as string];
     const overColumn =
       overItem?.statusId ||
@@ -91,6 +103,7 @@ export const TicketsBoard = () => {
       [overColumn]: (prev[overColumn] || 0) + 1,
     }));
   };
+
   if (loading) return <Spinner />;
   return (
     <Board.Provider
@@ -102,26 +115,36 @@ export const TicketsBoard = () => {
     >
       {(column) => (
         <Board id={column.id} key={column.id} sortBy="updated" className="w-80">
-          <TicketsBoardCards column={column} />
+          <TicketsBoardCards
+            column={column}
+            canCreateTicket={permissions.canCreateTicket}
+            pipelineId={pipelineId || undefined}
+            channelId={channelId || undefined}
+          />
         </Board>
       )}
     </Board.Provider>
   );
 };
 
-export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
+export const TicketsBoardCards = ({
+  column,
+  canCreateTicket,
+  pipelineId,
+  channelId,
+}: {
+  column: BoardColumnProps;
+  canCreateTicket: boolean;
+  pipelineId?: string;
+  channelId?: string;
+}) => {
   const [ticketCards, setTicketCards] = useAtom(fetchedTicketsState);
   const [ticketCountByBoard, setTicketCountByBoard] = useAtom(
     ticketCountByBoardAtom,
   );
-  const boardCards = ticketCards
-    .filter((ticket) => ticket.column === column.id)
-    .sort((a, b) => {
-      if (a.sort && b.sort) {
-        return b.sort.toString().localeCompare(a.sort.toString());
-      }
-      return 0;
-    });
+  const boardCards = ticketCards.filter(
+    (ticket) => ticket.column === column.id,
+  );
   const { tickets, totalCount, loading, handleFetchMore } = useTickets({
     variables: {
       statusId: column.id,
@@ -132,7 +155,9 @@ export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
     if (tickets) {
       setTicketCards((prev) => {
         const previoustickets = prev.filter(
-          (ticket) => !tickets.some((t) => t._id === ticket.id),
+          (ticket) =>
+            ticket.column !== column.id &&
+            !tickets.some((t) => t._id === ticket.id),
         );
         return [
           ...previoustickets,
@@ -144,10 +169,13 @@ export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
         ];
       });
       setAllticketsMap((prev) => {
-        const newtickets = tickets.reduce((acc, ticket) => {
-          acc[ticket._id] = ticket;
-          return acc;
-        }, {} as Record<string, ITicket>);
+        const newtickets = tickets.reduce(
+          (acc, ticket) => {
+            acc[ticket._id] = ticket;
+            return acc;
+          },
+          {} as Record<string, ITicket>,
+        );
         return { ...prev, ...newtickets };
       });
     }
@@ -176,7 +204,13 @@ export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
             )}
           </span>
         </h4>
-        <TicketCreateSheetTrigger statusId={column.id} />
+        {canCreateTicket && (
+          <TicketCreateSheetTrigger
+            statusId={column.id}
+            pipelineId={pipelineId}
+            channelId={channelId}
+          />
+        )}
       </Board.Header>
       <Board.Cards id={column.id} items={boardCards.map((ticket) => ticket.id)}>
         {loading ? (
@@ -232,12 +266,20 @@ export const TicketCardsFetchMore = ({
   );
 };
 
-const TicketCreateSheetTrigger = ({ statusId }: { statusId: string }) => {
+const TicketCreateSheetTrigger = ({
+  statusId,
+  pipelineId,
+  channelId,
+}: {
+  statusId: string;
+  pipelineId?: string;
+  channelId?: string;
+}) => {
   const setOpenCreateticket = useSetAtom(ticketCreateSheetState);
   const setDefaultValues = useSetAtom(ticketCreateDefaultValuesState);
 
   const handleClick = () => {
-    setDefaultValues({ statusId });
+    setDefaultValues({ statusId, pipelineId, channelId });
     setOpenCreateticket(true);
   };
 

@@ -20,6 +20,7 @@ import {
 } from 'ui-modules';
 
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useDebounce } from 'use-debounce';
 import { useGetTeamMembers } from '@/deals/boards/hooks/useGetTeamMembers';
@@ -34,6 +35,7 @@ const SelectAssigneeValue = ({
   placeholder?: string;
   variant?: `${SelectTriggerVariant}`;
 }) => {
+  const { t } = useTranslation('sales');
   const { memberIds, members, setMembers } = useSelectMemberContext();
 
   if (variant === SelectTriggerVariant.CARD) {
@@ -49,7 +51,9 @@ const SelectAssigneeValue = ({
     );
   }
 
-  return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
+  return (
+    <SelectMember.Value placeholder={placeholder || t('select-assignee')} />
+  );
 };
 
 const SelectTeamMemberContent = ({
@@ -59,6 +63,8 @@ const SelectTeamMemberContent = ({
   teamIds?: string[] | string;
   exclude: boolean;
 }) => {
+  const hasTeamFilter =
+    !!teamIds && (Array.isArray(teamIds) ? teamIds.length > 0 : true);
   const { members: teamMembers } = useGetTeamMembers({ teamIds });
   const excludeIds = teamMembers?.map((member) => member.memberId);
   const [search, setSearch] = useState('');
@@ -70,9 +76,9 @@ const SelectTeamMemberContent = ({
     variables: {
       searchValue: debouncedSearch,
       excludeIds: exclude,
-      ids: filteredIds,
+      ids: hasTeamFilter ? filteredIds : undefined,
     },
-    skip: !excludeIds || !filteredIds?.length,
+    skip: hasTeamFilter && (!excludeIds || !filteredIds?.length),
   });
   const membersList = exclude
     ? [currentUser, ...users].filter(
@@ -200,10 +206,18 @@ const SelectAssigneeDealRoot = ({
 
   const handleValueChange = (value: string | string[] | null) => {
     if (id) {
+      let assignedUserIds: string[] = [];
+
+      if (Array.isArray(value)) {
+        assignedUserIds = value;
+      } else if (value !== null) {
+        assignedUserIds = [value];
+      }
+
       editDeals({
         variables: {
           _id: id,
-          assignedUserIds: [value],
+          assignedUserIds,
         },
       });
     }
@@ -225,9 +239,7 @@ const SelectAssigneeDealRoot = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation
-          variant={variant === 'card' ? 'default' : variant}
-        >
+        <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>

@@ -7,14 +7,16 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const configTrpcRouter = t.router({
   configs: t.router({
-    findOne: t.procedure
-      .input(z.object({ query: z.any() }))
-      .query(async ({ ctx, input }) => {
-        const { query } = input;
-        const { models } = ctx;
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const query = input?.query || input?.selector || input;
+      const { models } = ctx;
 
-        return await models.Configs.findOne(query).lean();
-      }),
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
+
+      return await models.Configs.findOne(query).lean();
+    }),
     getConfig: t.procedure
       .input(z.object({ code: z.string(), defaultValue: z.any() }))
       .query(async ({ ctx, input }) => {

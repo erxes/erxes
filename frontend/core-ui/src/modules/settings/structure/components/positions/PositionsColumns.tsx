@@ -1,84 +1,24 @@
-import { Cell, ColumnDef } from '@tanstack/table-core';
+import { ColumnDef } from '@tanstack/table-core';
 import { IPositionListItem } from '../../types/position';
 import {
   Badge,
-  Button,
   Input,
   RecordTable,
   RecordTableInlineCell,
   Popover,
   RecordTableTree,
-  Spinner,
   TextOverflowTooltip,
-  useConfirm,
-  useQueryState,
 } from 'erxes-ui';
-import { IconEdit, IconHash, IconTrash } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
-import { renderingPositionDetailAtom } from '../../states/renderingPositionDetail';
+import { IconHash } from '@tabler/icons-react';
 import { SelectPositions } from 'ui-modules';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
-import {
-  usePositionInlineEdit,
-  useRemovePosition,
-} from '../../hooks/usePositionActions';
+import { usePositionInlineEdit } from '../../hooks/usePositionActions';
 import { useState } from 'react';
 import clsx from 'clsx';
-
-export const UnitEditColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IPositionListItem, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('position_id');
-  const setRenderingCustomerDetail = useSetAtom(renderingPositionDetailAtom);
-  const { _id } = cell.row.original;
-  return (
-    <Button
-      onClick={() => {
-        setOpen(_id);
-        setRenderingCustomerDetail(false);
-      }}
-      variant={'outline'}
-    >
-      <IconEdit size={12} />
-    </Button>
-  );
-};
-
-const UnitRemoveCell = ({
-  cell,
-}: {
-  cell: Cell<IPositionListItem, unknown>;
-}) => {
-  const { confirm } = useConfirm();
-  const { _id, title } = cell.row.original || {};
-  const { handleRemove, loading } = useRemovePosition();
-  const onRemove = () => {
-    confirm({
-      message: `Are you sure you want to delete "${title}" position?`,
-      options: { confirmationValue: 'delete' },
-    }).then(() =>
-      handleRemove({
-        variables: {
-          ids: [_id],
-        },
-      }),
-    );
-  };
-  return (
-    <Button
-      variant={'outline'}
-      disabled={loading}
-      onClick={onRemove}
-      className="text-destructive bg-destructive/10"
-    >
-      {loading ? <Spinner /> : <IconTrash size={12} />}
-    </Button>
-  );
-};
+import { PositionsMoreColumn } from './PositionsMoreColumn';
 
 export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
+  PositionsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IPositionListItem>,
   {
     id: 'code',
@@ -220,18 +160,6 @@ export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
       return (
         <RecordTableInlineCell className="justify-center">
           <Badge variant={'secondary'}>{cell.getValue() as number}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'action-group',
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="justify-center gap-1 [&>button]:px-2">
-          <UnitEditColumnCell cell={cell} />
-          <UnitRemoveCell cell={cell} />
         </RecordTableInlineCell>
       );
     },

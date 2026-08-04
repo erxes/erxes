@@ -1,25 +1,26 @@
+import { useGetTeamMembers } from '@/team/hooks/useGetTeamMembers';
+import { TTeamMemberForm } from '@/team/types';
 import { Combobox, Command, Form, Popover } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
+import React, { useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { useParams } from 'react-router';
 import {
   currentUserState,
   IUser,
   SelectMember,
-  useUsers,
   useSelectMemberContext,
+  useUsers,
 } from 'ui-modules';
-import { UseFormReturn } from 'react-hook-form';
-import { TTeamMemberForm } from '@/team/types';
-import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { useAtomValue } from 'jotai';
-import { useGetTeamMembers } from '@/team/hooks/useGetTeamMembers';
-import { useParams } from 'react-router';
-import React from 'react';
 
 export const MemberForm = ({
   form,
 }: {
   form: UseFormReturn<TTeamMemberForm>;
 }) => {
+  const { t } = useTranslation('operation');
   const { id: teamId } = useParams();
   return (
     <div className="flex flex-col gap-3">
@@ -28,8 +29,8 @@ export const MemberForm = ({
         name="memberIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Choose members</Form.Label>
-            <Form.Description className="sr-only">Members</Form.Description>
+            <Form.Label>{t('choose-members')}</Form.Label>
+            <Form.Description className="sr-only">{t('members')}</Form.Description>
             <SelectTeamMember
               teamId={teamId}
               mode="multiple"
@@ -64,7 +65,7 @@ export const SelectTeamMember = ({
   return (
     <SelectMember.Provider
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={(value) => onValueChange?.(value as string[] | string)}
       mode={mode}
     >
       <Popover>

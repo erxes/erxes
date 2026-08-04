@@ -1,29 +1,32 @@
+import crypto from 'crypto';
+import {
+  IAttachment,
+  IBrowserInfo,
+  Resolver,
+} from 'erxes-api-shared/core-types';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import {
   getEnv,
   graphqlPubsub,
-  isEnabled,
+  markResolvers,
   redis,
   sendTRPCMessage,
-  markResolvers,
 } from 'erxes-api-shared/utils';
-import { IAttachment, Resolver } from 'erxes-api-shared/core-types';
-import { IModels, generateModels } from '~/connectionResolvers';
+import strip from 'strip';
+import { IContext, IModels, generateModels } from '~/connectionResolvers';
 import {
   IIntegrationDocument,
   IMessengerDataMessagesItem,
 } from '~/modules/inbox/@types/integrations';
-import { IContext } from '~/connectionResolvers';
+import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
 import {
   AUTO_BOT_MESSAGES,
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   MESSAGE_TYPES,
 } from '~/modules/inbox/db/definitions/constants';
-import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
-import strip from 'strip';
-import { IBrowserInfo } from 'erxes-api-shared/core-types';
-import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
 import { trackViewPageEvent } from '~/modules/inbox/events';
+import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
 
 export const pConversationClientMessageInserted = async (
   subdomain,
@@ -74,6 +77,7 @@ export const pConversationClientMessageInserted = async (
       },
     );
   } catch (err) {
+    console.log('Error publishing subscription:', err);
     throw new Error(
       'conversationMessageInserted Error publishing subscription:',
     );
@@ -105,7 +109,7 @@ export const getMessengerData = async (
     }
 
     const languageCode = integration.languageCode || 'en';
-    const messages = (messengerData || {}).messages;
+    const messages = messengerData?.messages;
 
     if (messages) {
       messagesByLanguage = messages[languageCode];
@@ -131,7 +135,7 @@ export const getMessengerData = async (
       messengerData.hideWhenOffline &&
       messengerData.availabilityMethod === 'auto'
     ) {
-      const isOnline = await models.Integrations.isOnline(integration);
+      const isOnline = models.Integrations.isOnline(integration);
       if (!isOnline) {
         messengerData.showChat = false;
       }
@@ -153,7 +157,7 @@ export const getMessengerData = async (
   const formCodes = [] as string[];
 
   for (const app of leadApps) {
-    if (app && app.credentials) {
+    if (app.credentials) {
       formCodes.push(app.credentials.formCode);
     }
   }
@@ -164,34 +168,36 @@ export const getMessengerData = async (
     'credentials.integrationId': integration._id,
   });
   let getStartedCondition: { isSelected?: boolean } | false = false;
-  const isServiceAvailable = await isEnabled('automations');
+  const { automationId } = (messengerData || {}) as any;
 
-  if (isServiceAvailable) {
-    const getStarted = await sendTRPCMessage({
+  if (automationId) {
+    const automations = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'automations',
-      action: 'trigger.find',
+      module: 'automation',
+      action: 'find',
       input: {
         query: {
-          triggerType: 'inbox:messages',
-          botId: integration._id,
+          triggerType: 'frontline:inbox.messages',
         },
       },
-    }).catch((error) => {
-      throw error;
-    });
+    }).catch(() => []);
 
-    getStartedCondition = (
-      getStarted[0]?.triggers[0]?.config?.conditions || []
-    ).find((condition) => condition.type === 'getStarted');
+    const automation = (automations || []).find(
+      (a: any) => String(a._id) === String(automationId),
+    );
+
+    getStartedCondition =
+      (automation?.triggers || [])
+        .flatMap((t: any) => t.config?.conditions || [])
+        .find((c: any) => c.type === 'getStarted') || false;
   }
 
   return {
-    ...(messengerData || {}),
+    ...messengerData,
     getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
-    knowledgeBaseTopicId: topicId,
+    knowledgeBaseTopicId: topicId ?? messengerData?.knowledgeBaseTopicId,
     websiteApps,
     formCodes,
   };
@@ -333,7 +339,7 @@ export const widgetMutations: Record<string, Resolver> = {
     }
 
     // get or create company
-    if (companyData && companyData.name) {
+    if (companyData?.name) {
       let company = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -347,12 +353,12 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      const { customFieldsData, trackedData } = await sendTRPCMessage({
+      const fieldData = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
         module: 'fields',
-        action: 'generateCustomFieldsData',
+        action: 'generatePropertiesData',
         input: {
           query: {
             customData: companyData,
@@ -361,26 +367,12 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      companyData.customFieldsData = customFieldsData;
-      companyData.trackedData = trackedData;
+      companyData.propertiesData = fieldData?.propertiesData || {};
 
-      if (!company) {
-        companyData.primaryName = companyData.name;
-        companyData.names = [companyData.name];
+      // trackData note: trackedData is not used for now
+      // companyData.trackedData = trackedData;
 
-        company = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'companies',
-          action: 'createCompany',
-          input: {
-            query: {
-              ...companyData,
-            },
-          },
-        });
-      } else {
+      if (company) {
         company = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
@@ -406,6 +398,22 @@ export const widgetMutations: Record<string, Resolver> = {
             targets: [company],
           },
         });
+      } else {
+        companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
+
+        company = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'companies',
+          action: 'createCompany',
+          input: {
+            query: {
+              ...companyData,
+            },
+          },
+        });
       }
 
       if (customer && company) {
@@ -415,7 +423,7 @@ export const widgetMutations: Record<string, Resolver> = {
           subdomain,
           pluginName: 'core',
           method: 'mutation',
-          module: 'conformities',
+          module: 'conformity',
           action: 'create',
           input: {
             mainType: 'customer',
@@ -472,7 +480,7 @@ export const widgetMutations: Record<string, Resolver> = {
       languageCode: integration.languageCode,
       ticketConfig: ticketConfig || {},
       messengerData: await getMessengerData(models, subdomain, integration),
-      customerId: customer && customer._id,
+      customerId: customer?._id,
       visitorId: customer ? null : visitorId,
       channel: {
         _id: channel._id,
@@ -519,7 +527,7 @@ export const widgetMutations: Record<string, Resolver> = {
           videoCallRequestMessage.createdAt,
         ).getTime();
 
-        const nowTime = new Date().getTime();
+        const nowTime = Date.now();
 
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
 
@@ -533,9 +541,11 @@ export const widgetMutations: Record<string, Resolver> = {
           (config) => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS',
         ) || { value: '0' };
 
-        const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
+        const timeDelayIntValue = Number.parseInt(timeDelay.value || '0', 10);
 
-        const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
+        const timeDelayValue = Number.isNaN(timeDelayIntValue)
+          ? 0
+          : timeDelayIntValue;
 
         if (messageTime + timeDelayValue * 1000 > nowTime) {
           const defaultValue = 'Video call request has already been sent';
@@ -564,7 +574,8 @@ export const widgetMutations: Record<string, Resolver> = {
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
     const messengerData = integration.messengerData || {};
-    const { botEndpointUrl, botShowInitialMessage, botCheck } = messengerData;
+    const { botEndpointUrl, botShowInitialMessage, botCheck, automationId } =
+      messengerData;
     let botId;
     if (botCheck === true) {
       botId = integration?._id;
@@ -591,13 +602,41 @@ export const widgetMutations: Record<string, Resolver> = {
         customerId,
         integrationId,
         visitorId,
-        operatorStatus: HAS_BOTENDPOINT_URL
-          ? CONVERSATION_OPERATOR_STATUS.BOT
-          : CONVERSATION_OPERATOR_STATUS.OPERATOR,
+        operatorStatus:
+          HAS_BOTENDPOINT_URL || !!botId
+            ? CONVERSATION_OPERATOR_STATUS.BOT
+            : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: CONVERSATION_STATUSES.OPEN,
         content: conversationContent,
         ...(skillId ? { skillId } : {}),
       });
+    }
+
+    let parsedPayload: Record<string, string> | undefined;
+    let ticketFormWidgetData:
+      | { _id: string; type: string; text: string; value: string; column: number }[]
+      | undefined;
+    if (contentType === MESSAGE_TYPES.TICKET_FORM_SUBMISSION && payload) {
+      try {
+        parsedPayload = JSON.parse(payload);
+      } catch (_e) {
+        // ignore malformed payload
+      }
+      if (parsedPayload) {
+        const TICKET_FIELD_LABELS: Record<string, string> = {
+          'ticket:name': 'Ticket name',
+          'ticket:description': 'Description',
+        };
+        ticketFormWidgetData = Object.entries(parsedPayload).map(
+          ([key, value]) => ({
+            _id: key,
+            type: key === 'ticket:description' ? 'textarea' : 'input',
+            text: TICKET_FIELD_LABELS[key] || key,
+            value: String(value),
+            column: 6,
+          }),
+        );
+      }
     }
 
     const msg = await models.ConversationMessages.createMessage({
@@ -607,6 +646,7 @@ export const widgetMutations: Record<string, Resolver> = {
       contentType,
       content: message,
       botId: botId,
+      ...(ticketFormWidgetData ? { formWidgetData: ticketFormWidgetData } : {}),
     });
 
     await models.Conversations.updateOne(
@@ -642,6 +682,63 @@ export const widgetMutations: Record<string, Resolver> = {
       conversationMessageInserted: msg,
     });
 
+    console.log('[widgetsInsertMessage] trigger gate', {
+      contentType,
+      botId,
+      HAS_BOTENDPOINT_URL,
+      operatorStatus: conversation.operatorStatus,
+      parsedPayload,
+      willSendTrigger: !!(
+        botId &&
+        !HAS_BOTENDPOINT_URL &&
+        conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+      ),
+    });
+
+    if (
+      botId &&
+      !HAS_BOTENDPOINT_URL &&
+      conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+    ) {
+      graphqlPubsub.publish(
+        `conversationBotTypingStatus:${msg.conversationId}`,
+        {
+          conversationBotTypingStatus: {
+            conversationId: msg.conversationId,
+            typing: true,
+          },
+        },
+      );
+
+      console.log('[widgetsInsertMessage] sendAutomationTrigger', {
+        contentType,
+        msgContentType: msg.contentType,
+        automationId,
+        parsedPayload,
+      });
+
+      sendAutomationTrigger(
+        subdomain,
+        {
+          type: 'frontline:inbox.messages',
+          targets: [
+            {
+              ...msg.toObject(),
+              ...(parsedPayload || {}),
+              automationId: automationId || undefined,
+            },
+          ],
+        },
+        {
+          jobOptions: {
+            priority: 1,
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        },
+      );
+    }
+
     if (
       HAS_BOTENDPOINT_URL &&
       !botShowInitialMessage &&
@@ -673,7 +770,7 @@ export const widgetMutations: Record<string, Resolver> = {
         const { responses } = botRequest;
 
         const botData =
-          responses.length !== 0
+          responses.length > 0
             ? responses
             : [
                 {
@@ -687,7 +784,9 @@ export const widgetMutations: Record<string, Resolver> = {
           customerId,
           contentType,
           botData,
+          fromBot: true,
         });
+        console.log('[botContentType]', botMessage);
 
         graphqlPubsub.publish(
           `conversationBotTypingStatus:${msg.conversationId}`,
@@ -811,7 +910,7 @@ export const widgetMutations: Record<string, Resolver> = {
       customerId,
       browserInfo,
     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { subdomain }: IContext,
+    { models, subdomain }: IContext,
   ) {
     if (customerId) {
       await sendTRPCMessage({
@@ -852,7 +951,7 @@ export const widgetMutations: Record<string, Resolver> = {
     // }
 
     try {
-      await trackViewPageEvent(subdomain, {
+      await trackViewPageEvent(models, subdomain, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url },
@@ -1027,12 +1126,39 @@ export const widgetMutations: Record<string, Resolver> = {
     return msg;
   },
 
+  async widgetChangeOperatorStatus(
+    _root,
+    {
+      conversationId,
+      operatorStatus,
+    }: { conversationId: string; operatorStatus: string },
+    { models }: IContext,
+  ) {
+    if (operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR) {
+      const message = await models.ConversationMessages.createMessage({
+        conversationId,
+        botData: [{ type: 'text', text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR }],
+        fromBot: true,
+      });
+
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${message.conversationId}`,
+        { conversationMessageInserted: message },
+      );
+    }
+
+    return models.Conversations.updateOne(
+      { _id: conversationId },
+      { $set: { operatorStatus } },
+    );
+  },
+
   async widgetGetBotInitialMessage(
     _root,
     { integrationId }: { integrationId: string },
     { models }: IContext,
   ) {
-    const sessionId = `_${Math.random().toString(36).substr(2, 9)}`;
+    const sessionId = `_${crypto.randomBytes(8).toString('hex')}`;
 
     await redis.set(
       `bot_initial_message_session_id_${integrationId}`,
@@ -1063,7 +1189,7 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetTicketCreated(
     _root,
     doc: ITicketWidget,
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const { statusId, ...restFields } = doc;
     const status = await models.Status.findOne({ _id: statusId });
@@ -1083,7 +1209,7 @@ export const widgetMutations: Record<string, Resolver> = {
       pluginName: 'core',
       module: 'customers',
       action: 'find',
-      input: { _id: { $in: customerIds } },
+      input: { query: { _id: { $in: customerIds } } },
       defaultValue: [],
     });
     const validCustomerIds = customers.map((c: any) => c._id);
@@ -1099,7 +1225,8 @@ export const widgetMutations: Record<string, Resolver> = {
         modifiedAt: new Date(),
         stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc),
-        number: new Date().getTime().toString(),
+        number: Date.now().toString(),
+        createdBy: user?._id,
       });
       await sendTRPCMessage({
         subdomain,

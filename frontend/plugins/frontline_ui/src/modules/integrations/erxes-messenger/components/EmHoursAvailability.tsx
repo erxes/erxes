@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   TimeField,
   DateInput,
@@ -13,11 +14,14 @@ import {
 import { EMLayout, EMLayoutPreviousStepButton } from './EMLayout';
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { EMHOURS_SCHEMA } from '@/integrations/erxes-messenger/constants/emHoursSchema';
+import {
+  EMHOURS_SCHEMA,
+  ScheduleDay,
+} from '@/integrations/erxes-messenger/constants/emHoursSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { parseTime } from '@internationalized/date';
 import { EnumResponseRate } from '@/integrations/erxes-messenger/types/ResponseRate';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   erxesMessengerSetupHoursAtom,
   erxesMessengerSetupStepAtom,
@@ -28,9 +32,11 @@ import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
 type EMHoursAvailabilityFormValues = z.infer<typeof EMHOURS_SCHEMA>;
 
 export const EMHoursAvailability = () => {
+  const { t } = useTranslation('frontline');
+  const atomValue = useAtomValue(erxesMessengerSetupHoursAtom);
   const form = useForm<EMHoursAvailabilityFormValues>({
     resolver: zodResolver(EMHOURS_SCHEMA),
-    defaultValues: {
+    defaultValues: atomValue ?? {
       availabilityMethod: 'manual',
       isOnline: false,
       timezone: detectTimeZone(),
@@ -55,11 +61,11 @@ export const EMHoursAvailability = () => {
         className="flex-auto flex flex-col overflow-hidden"
       >
         <EMLayout
-          title="Hours availability"
+          title={t('hours-availability')}
           actions={
             <>
               <EMLayoutPreviousStepButton />
-              <Button type="submit">Next step</Button>
+              <Button type="submit">{t('next-step')}</Button>
             </>
           }
         >
@@ -69,7 +75,7 @@ export const EMHoursAvailability = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">
-                    Availability switch type
+                    {t('availability-switch-type')}
                   </Form.Label>
                   <Form.Control>
                     <RadioGroup
@@ -82,7 +88,7 @@ export const EMHoursAvailability = () => {
                           <RadioGroup.Item value="manual" />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Turn online/offline manually
+                          {t('turn-online-offline-manually')}
                         </Form.Label>
                       </Form.Item>
                       <Form.Item className="flex items-center gap-3 space-y-0">
@@ -90,7 +96,7 @@ export const EMHoursAvailability = () => {
                           <RadioGroup.Item value="auto" />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Set to follow your schedule
+                          {t('set-to-follow-your-schedule')}
                         </Form.Label>
                       </Form.Item>
                     </RadioGroup>
@@ -104,7 +110,7 @@ export const EMHoursAvailability = () => {
               name="responseRate"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Response rate</Form.Label>
+                  <Form.Label>{t('response-rate')}</Form.Label>
                   <Form.Control>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -118,7 +124,7 @@ export const EMHoursAvailability = () => {
                           <Form.Control>
                             <RadioGroup.Item value={rate} />
                           </Form.Control>
-                          <Form.Label variant="peer">few {rate}</Form.Label>
+                          <Form.Label variant="peer">{t('few-rate', { rate })}</Form.Label>
                         </Form.Item>
                       ))}
                     </RadioGroup>
@@ -131,7 +137,7 @@ export const EMHoursAvailability = () => {
               name="timezone"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Timezone</Form.Label>
+                  <Form.Label>{t('timezone')}</Form.Label>
                   <Form.Control>
                     <TimezoneSelect
                       value={field.value}
@@ -157,12 +163,11 @@ export const EMHoursAvailability = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Display operator timezone
+                      {t('display-operator-timezone')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    Display chat operator timezone set in their location in team
-                    member profiles
+                    {t('display-operator-timezone-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -181,12 +186,11 @@ export const EMHoursAvailability = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Hide messenger during offline hours
+                      {t('hide-messenger-during-offline-hours')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    Forcibly hide the messenger when you're offline. This will
-                    hide the messenger from your website visitors.
+                    {t('hide-messenger-during-offline-hours-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -199,15 +203,86 @@ export const EMHoursAvailability = () => {
   );
 };
 
+const safeParseTime = (value: string) => {
+  try {
+    return parseTime(value);
+  } catch {
+    return null;
+  }
+};
+
+const WEEKDAYS = [
+  Weekday.MONDAY,
+  Weekday.TUESDAY,
+  Weekday.WEDNESDAY,
+  Weekday.THURSDAY,
+  Weekday.FRIDAY,
+] as const;
+
+const WEEKEND_DAYS = [Weekday.SATURDAY, Weekday.SUNDAY] as const;
+const ALL_DAYS = [...WEEKDAYS, ...WEEKEND_DAYS] as const;
+
+const DEFAULT_FROM = '09:00:00';
+const DEFAULT_TO = '18:00:00';
+
+/** Set a day's work flag + default times if turning on */
+const setDayWork = (
+  form: UseFormReturn<z.infer<typeof EMHOURS_SCHEMA>>,
+  day: Weekday | ScheduleDay,
+  checked: boolean,
+) => {
+  form.setValue(`onlineHours.${day}.work` as never, checked as never);
+  if (checked) {
+    form.setValue(`onlineHours.${day}.from` as never, DEFAULT_FROM as never);
+    form.setValue(`onlineHours.${day}.to` as never, DEFAULT_TO as never);
+  }
+};
+
 export const EMHoursTimeTable = ({
   form,
 }: {
   form: UseFormReturn<z.infer<typeof EMHOURS_SCHEMA>>;
 }) => {
+  const { t } = useTranslation('frontline');
   const availabilityMethod = useWatch({
     control: form.control,
     name: 'availabilityMethod',
   });
+
+  // Watch all individual days to derive group states
+  const onlineHours = useWatch({ control: form.control, name: 'onlineHours' });
+
+  const isDayOn = (day: Weekday | ScheduleDay) => !!onlineHours?.[day]?.work;
+
+  const allOn = ALL_DAYS.every(isDayOn);
+  const weekdaysOn = WEEKDAYS.every(isDayOn);
+  const weekendOn = WEEKEND_DAYS.every(isDayOn);
+
+  /** Recomputes and syncs the three group keys based on current day states */
+  const syncGroupKeys = (
+    updatedDay?: Weekday | ScheduleDay,
+    updatedValue?: boolean,
+  ) => {
+    const isOn = (day: Weekday | ScheduleDay) =>
+      day === updatedDay ? (updatedValue ?? isDayOn(day)) : isDayOn(day);
+
+    const nextAllOn = ALL_DAYS.every(isOn);
+    const nextWeekdaysOn = WEEKDAYS.every(isOn);
+    const nextWeekendOn = WEEKEND_DAYS.every(isOn);
+
+    form.setValue(
+      `onlineHours.${ScheduleDay.DAILY}.work` as never,
+      nextAllOn as never,
+    );
+    form.setValue(
+      `onlineHours.${ScheduleDay.WEEKDAY}.work` as never,
+      nextWeekdaysOn as never,
+    );
+    form.setValue(
+      `onlineHours.${ScheduleDay.WEEKEND}.work` as never,
+      nextWeekendOn as never,
+    );
+  };
 
   if (availabilityMethod === 'manual') {
     return (
@@ -224,7 +299,7 @@ export const EMHoursTimeTable = ({
               </Form.Control>
 
               <Form.Label variant="peer" className="leading-6">
-                Visible online to visitor or customer
+                {t('visible-online-to-visitor-or-customer')}
               </Form.Label>
             </div>
             <Form.Message />
@@ -236,7 +311,61 @@ export const EMHoursTimeTable = ({
 
   return (
     <ScrollArea className="w-full ">
-      {Object.values(Weekday).map((day, index) => (
+      {/* ── Group quick-selectors ─────────────────────────────── */}
+      {(
+        [
+          {
+            key: ScheduleDay.DAILY,
+            label: 'Everyday',
+            days: ALL_DAYS,
+            checked: allOn,
+          },
+          {
+            key: ScheduleDay.WEEKDAY,
+            label: 'Weekdays',
+            days: WEEKDAYS,
+            checked: weekdaysOn,
+          },
+          {
+            key: ScheduleDay.WEEKEND,
+            label: 'Weekend',
+            days: WEEKEND_DAYS,
+            checked: weekendOn,
+          },
+        ] as const
+      ).map(({ key, label, days, checked }) => (
+        <div key={key} className="flex items-center border-b gap-3 py-3 px-1">
+          <Switch
+            checked={checked}
+            onCheckedChange={(value) => {
+              // Fan-out to individual days
+              (days as readonly (Weekday | ScheduleDay)[]).forEach((day) =>
+                setDayWork(form, day, value),
+              );
+              // Re-sync the other group keys
+              syncGroupKeys();
+              // Set this group key itself
+              form.setValue(`onlineHours.${key}.work` as never, value as never);
+            }}
+          />
+          <span
+            className={cn(
+              'font-semibold capitalize leading-7 min-w-20',
+              checked && 'mr-auto',
+            )}
+          >
+            {label}
+          </span>
+          {!checked && (
+            <span className="text-sm text-accent-foreground">
+              Not working on {label.toLowerCase()}
+            </span>
+          )}
+        </div>
+      ))}
+
+      {/* ── Individual day rows ───────────────────────────────── */}
+      {ALL_DAYS.map((day, index) => (
         <Form.Field
           name={`onlineHours.${day}.work`}
           key={index}
@@ -250,13 +379,15 @@ export const EMHoursTimeTable = ({
                     if (checked) {
                       form.setValue(
                         `onlineHours.${day}.from`,
-                        '09:00:00' as never,
+                        DEFAULT_FROM as never,
                       );
                       form.setValue(
                         `onlineHours.${day}.to`,
-                        '18:00:00' as never,
+                        DEFAULT_TO as never,
                       );
                     }
+                    // Sync group keys after updating this day
+                    syncGroupKeys(day, checked);
                   }}
                 />
               </Form.Control>
@@ -277,7 +408,9 @@ export const EMHoursTimeTable = ({
                     render={({ field }) => (
                       <Form.Item>
                         <TimeField
-                          value={field.value ? parseTime(field.value) : null}
+                          value={
+                            field.value ? safeParseTime(field.value) : null
+                          }
                           onChange={(value) => {
                             field.onChange(value?.toString());
                           }}
@@ -291,13 +424,15 @@ export const EMHoursTimeTable = ({
                       </Form.Item>
                     )}
                   />
-                  <span>to</span>
+                  <span>{t('to')}</span>
                   <Form.Field
                     name={`onlineHours.${day}.to`}
                     render={({ field }) => (
                       <Form.Item>
                         <TimeField
-                          value={field.value ? parseTime(field.value) : null}
+                          value={
+                            field.value ? safeParseTime(field.value) : null
+                          }
                           onChange={(value) => {
                             field.onChange(value?.toString());
                           }}
@@ -314,7 +449,7 @@ export const EMHoursTimeTable = ({
                 </div>
               ) : (
                 <Form.Label variant="peer" className="text-accent-foreground">
-                  Not working on this day
+                  {t('not-working-on-this-day')}
                 </Form.Label>
               )}
             </Form.Item>

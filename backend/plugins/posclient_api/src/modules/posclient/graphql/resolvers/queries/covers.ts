@@ -11,8 +11,8 @@ const coverQueries = {
       selector.userId = userId;
     }
 
-    if (!config.adminIds.includes(posUser?._id || '')) {
-      selector.userId = posUser?._id;
+    if (posUser && !(config.adminIds || []).includes(posUser._id)) {
+      selector.userId = posUser._id;
     }
 
     const dateQry: any = {};
@@ -57,7 +57,7 @@ const coverQueries = {
       filter._id = { $ne: _id };
     }
 
-    let lastCover = await models.Covers.findOne(filter)
+    const lastCover = await models.Covers.findOne(filter)
       .sort({ endDate: -1 })
       .lean();
 

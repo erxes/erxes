@@ -28,7 +28,7 @@ export default async function downloadPlugins(): Promise<void> {
   );
 
   const services = allServices.filter(
-    (service) => service.config && service.config.hasSubscriptions,
+    (service) => service.config?.hasSubscriptions,
   );
 
   await Promise.all(

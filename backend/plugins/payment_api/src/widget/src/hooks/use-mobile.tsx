@@ -1,25 +1,52 @@
-import * as React from "react"
+import * as React from 'react';
 
-const MOBILE_BREAKPOINT = 768
+const MOBILE_BREAKPOINT = 768;
+
+const getViewportWidth = () => {
+  if (typeof window === 'undefined') {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  try {
+    if (window.parent && window.parent !== window && window.parent.innerWidth) {
+      return window.parent.innerWidth;
+    }
+  } catch {
+    return window.screen?.width || window.innerWidth;
+  }
+
+  return window.screen?.width || window.innerWidth;
+};
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean>(() => {
-    if (typeof window === 'undefined') return false
-    return window.innerWidth < MOBILE_BREAKPOINT
-  })
+  const [isMobile, setIsMobile] = React.useState(
+    () => getViewportWidth() < MOBILE_BREAKPOINT,
+  );
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const updateIsMobile = () => {
+      setIsMobile(getViewportWidth() < MOBILE_BREAKPOINT);
+    };
 
-    const onChange = (event: MediaQueryListEvent) => {
-      setIsMobile(event.matches)
+    updateIsMobile();
+
+    window.addEventListener('resize', updateIsMobile);
+
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.addEventListener('resize', updateIsMobile);
+
+        return () => {
+          window.removeEventListener('resize', updateIsMobile);
+          window.parent.removeEventListener('resize', updateIsMobile);
+        };
+      }
+    } catch {
+      return () => window.removeEventListener('resize', updateIsMobile);
     }
 
-    setIsMobile(mql.matches)
+    return () => window.removeEventListener('resize', updateIsMobile);
+  }, []);
 
-    mql.addEventListener("change", onChange)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
-
-  return isMobile
+  return isMobile;
 }

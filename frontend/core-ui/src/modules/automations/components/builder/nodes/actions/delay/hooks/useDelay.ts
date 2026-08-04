@@ -82,6 +82,8 @@ export const useDelay = (config: TDelayConfigForm) => {
   return {
     form,
     control,
+    value,
+    type,
     handleValueChange,
     handleIntervalChange,
     handleSubmit,

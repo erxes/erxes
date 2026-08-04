@@ -1,6 +1,5 @@
-import { getConfig, getRemConfig } from '@/erkhet/utils';
+import { getConfig, getRemConfig, sendErkhetGet } from '@/erkhet/utils';
 import { getPureDate, sendTRPCMessage } from 'erxes-api-shared/utils';
-import fetch from 'node-fetch';
 import { IContext } from '~/connectionResolvers';
 
 const erkhetQueries = {
@@ -21,8 +20,11 @@ const erkhetQueries = {
       locationCodes?: string;
       productIds?: string[];
     },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    // Permission check
+    await checkPermission('showErkhetRemainders');
+
     const result: {
       _id: string;
       remainder: number;
@@ -63,32 +65,23 @@ const erkhetQueries = {
 
       const codes = (products || []).map((item) => item.code);
 
-      const response = await fetch(
-        configs.getRemainderApiUrl +
-          '?' +
-          new URLSearchParams({
-            kind: 'remainder',
-            api_key: configs.apiKey,
-            api_secret: configs.apiSecret,
-            check_relate: codes.length < 4 ? '1' : '',
-            accounts: remConfig.account,
-            locations: remConfig.location,
-            inventories: codes.join(','),
-          }),
-        {
-          timeout: 9000,
-        },
-      );
-
-      const jsonRes = await response.json();
-      let responseByCode = {};
+      const jsonRes = await sendErkhetGet('/get-api/', {
+        kind: 'remainder',
+        api_key: configs.apiKey,
+        api_secret: configs.apiSecret,
+        check_relate: codes.length < 4 ? '1' : '',
+        accounts: remConfig.account,
+        locations: remConfig.location,
+        inventories: codes.join(','),
+      });
+      const responseByCode: any = {};
 
       const accounts = remConfig.account.split(',') || [];
       const locations = remConfig.location.split(',') || [];
 
       for (const acc of accounts) {
         for (const loc of locations) {
-          const resp = (jsonRes[acc] || {})[loc] || {};
+          const resp = jsonRes[acc]?.[loc] || {};
           for (const invCode of Object.keys(resp)) {
             if (!Object.keys(responseByCode).includes(invCode)) {
               responseByCode[invCode] = { rem: 0, rems: [] };
@@ -138,8 +131,11 @@ const erkhetQueries = {
       endDate?: Date;
       isMore: boolean;
     },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    // Permission check
+    await checkPermission('showErkhetDebt');
+
     const result: any = {};
 
     try {
@@ -164,67 +160,64 @@ const erkhetQueries = {
         endDate:
           (endDate && getPureDate(endDate).toISOString().slice(0, 10)) || '',
         isMore: (isMore && 'True') || '',
+        ...(await getCustomerInfo(subdomain, contentType, contentId)),
       };
-
-      switch (contentType) {
-        case 'company':
-          const company = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: 'companies',
-            action: 'findOne',
-            input: { _id: contentId },
-            defaultValue: {},
-          });
-
-          sendParams.customerCode = company && company.code;
-          break;
-        case 'user':
-          const user = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: 'users',
-            action: 'findOne',
-            input: { _id: contentId },
-            defaultValue: {},
-          });
-
-          sendParams.workerEmail = user && user.email;
-          break;
-        default:
-          const customer = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: 'customers',
-            action: 'findOne',
-            input: { _id: contentId },
-            defaultValue: {},
-          });
-
-          sendParams.customerCode = customer && customer.code;
-      }
 
       if (!sendParams.customerCode && !sendParams.workerEmail) {
         return {};
       }
 
-      const response = await fetch(
-        configs.getRemainderApiUrl + '?' + new URLSearchParams(sendParams),
-        {
-          timeout: 8000,
-        },
-      );
-
-      const jsonRes = await response.json();
-      return jsonRes;
+      return await sendErkhetGet('/get-api/', sendParams);
     } catch (e) {
       console.log(e.message);
       return result;
     }
   },
+};
+
+const getCustomerInfo = async (
+  subdomain: string,
+  contentType: string,
+  contentId: string,
+) => {
+  if (contentType === 'company') {
+    const company = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'core',
+      module: 'companies',
+      action: 'findOne',
+      input: { _id: contentId },
+      defaultValue: {},
+    });
+
+    return { customerCode: company?.code };
+  }
+  if (contentType === 'user') {
+    const user = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: { _id: contentId },
+      defaultValue: {},
+    });
+
+    return { workerEmail: user?.email };
+  }
+
+  const customer = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'customers',
+    action: 'findOne',
+    input: { _id: contentId },
+    defaultValue: {},
+  });
+
+  return { customerCode: customer?.code };
 };
 
 export default erkhetQueries;

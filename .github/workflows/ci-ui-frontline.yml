@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - debug/frontline
+    tags:
+      - '[0-9]*'
     paths:
       - 'frontend/plugins/frontline_ui/**'
       - 'frontend/libs/**'
@@ -54,7 +56,12 @@ jobs:
           pnpm nx build frontline_ui
 
       - name: Sync to Cloudflare R2
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/debug/frontline' )
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/debug/frontline' || startsWith(github.ref, 'refs/tags/'))
         run: |
-          aws s3 sync dist/frontend/plugins/frontline_ui s3://erxes-next/latest/frontline_ui/ \
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            FOLDER="${{ github.ref_name }}"
+          else
+            FOLDER="latest"
+          fi
+          aws s3 sync dist/frontend/plugins/frontline_ui s3://erxes-next/$FOLDER/frontline_ui/ \
             --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com

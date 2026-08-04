@@ -13,6 +13,15 @@ export interface IProduct {
   tagIds: string[];
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
+  duration?: number;
+  durationType?:
+    | 'minute'
+    | 'hour'
+    | 'day'
+    | 'week'
+    | 'month'
+    | 'quarter'
+    | 'year';
 }
 
 export interface IProductCategory {
@@ -23,4 +32,9 @@ export interface IProductCategory {
   order: string;
   productCount: number;
   parentId: string;
+}
+
+export interface IProductType {
+  label: string;
+  value: string;
 }

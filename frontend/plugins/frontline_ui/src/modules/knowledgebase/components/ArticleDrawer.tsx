@@ -1,0 +1,695 @@
+import { useMutation } from '@apollo/client';
+import { IconUpload, IconTrash } from '@tabler/icons-react';
+import {
+  Button,
+  Editor,
+  Form,
+  Input,
+  MultipleSelector,
+  ScrollArea,
+  Select,
+  Sheet,
+  Switch,
+  Textarea,
+  Upload,
+} from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { REACTIONS } from '../constants';
+import { ADD_ARTICLE, EDIT_ARTICLE } from '../graphql/mutations';
+import { useArticles } from '../hooks/useArticles';
+import { useArticleDetail } from '../hooks/useArticleDetail';
+import type { ArticleFormData, ArticleInput } from '../types';
+import { useTranslation } from 'react-i18next';
+
+interface ArticleDrawerProps {
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly articleId?: string | null;
+  readonly categoryId: string;
+  readonly onSaved?: () => void;
+  readonly refetch?: () => void;
+}
+
+const toArticleInput = (data: ArticleFormData): ArticleInput => {
+  const { fileUrl, fileSize, fileDuration, fileName, fileType, ...clean } =
+    data;
+
+  // Ensure content is not empty
+  if (!clean.content || clean.content.trim() === '') {
+    clean.content = '<p></p>';
+  }
+
+  return clean;
+};
+
+export function ArticleDrawer({
+  isOpen,
+  onClose,
+  articleId,
+  categoryId,
+  onSaved,
+  refetch: externalRefetch,
+}: ArticleDrawerProps) {
+  const { t } = useTranslation('frontline');
+  const isEditing = !!articleId;
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const { article } = useArticleDetail(articleId);
+  const { refetch: internalRefetch } = useArticles({
+    categoryIds: [categoryId],
+  });
+  const form = useForm<ArticleFormData>({
+    defaultValues: {
+      title: '',
+      summary: '',
+      content: '<p></p>',
+      status: 'draft',
+      isPrivate: false,
+      reactionChoices: [],
+      image: undefined,
+      attachments: [],
+      pdfAttachment: undefined,
+      fileUrl: '',
+      fileSize: 0,
+      fileDuration: 0,
+      fileName: '',
+      fileType: '',
+      // customForms: [],
+    },
+  });
+
+  useEffect(() => {
+    if (article) {
+      form.reset({
+        title: article.title || '',
+        summary: article.summary || '',
+        content: article.content || '<p></p>',
+        status: article.status || 'draft',
+        isPrivate: article.isPrivate || false,
+        reactionChoices: article.reactionChoices || [],
+        image: article.image,
+        attachments: article.attachments || [],
+        pdfAttachment: article.pdfAttachment,
+        fileUrl: article.fileUrl || '',
+        fileSize: article.fileSize || 0,
+        fileDuration: article.fileDuration || 0,
+        fileName: article.fileName || '',
+        fileType: article.fileType || '',
+        // customForms: article.customForms || [],
+      });
+    } else {
+      form.reset({
+        title: '',
+        summary: '',
+        content: '<p></p>',
+        status: 'draft',
+        isPrivate: false,
+        reactionChoices: [],
+        image: undefined,
+        attachments: [],
+        pdfAttachment: undefined,
+        fileUrl: '',
+        fileSize: 0,
+        fileDuration: 0,
+        fileName: '',
+        fileType: '',
+        // customForms: [],
+      });
+    }
+  }, [article, form]);
+
+  // const { fields, append, remove } = useFieldArray({
+  //   control: form.control,
+  //   name: 'customForms',
+  // });
+
+  const [addArticle, { loading: adding }] = useMutation(ADD_ARTICLE, {
+    onCompleted: () => {
+      onClose();
+      form.reset();
+      externalRefetch?.();
+      internalRefetch();
+      onSaved?.();
+    },
+  });
+
+  const [editArticle, { loading: editing }] = useMutation(EDIT_ARTICLE, {
+    onCompleted: () => {
+      onClose();
+      form.reset();
+      externalRefetch?.();
+      internalRefetch();
+      onSaved?.();
+    },
+  });
+
+  const onSubmit = (data: ArticleFormData) => {
+    const doc = {
+      ...toArticleInput(data),
+      categoryId,
+    };
+
+    if (isEditing && articleId) {
+      editArticle({
+        variables: {
+          _id: articleId,
+          doc,
+        },
+      });
+    } else {
+      addArticle({
+        variables: {
+          doc,
+        },
+      });
+    }
+  };
+
+  return (
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <Sheet.View className="sm:max-w-2xl">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col h-full"
+          >
+            <Sheet.Header className="border-b gap-3 flex-shrink-0">
+              <Sheet.Title>
+                {isEditing ? t('kb-edit-article') : t('kb-new-article')}
+              </Sheet.Title>
+              <Sheet.Close />
+            </Sheet.Header>
+
+            <Sheet.Content className="flex-auto overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="p-4 space-y-4">
+                  <Form.Field
+                    control={form.control}
+                    name="title"
+                    rules={{ required: 'Title is required' }}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('title-label')}</Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            placeholder={t('kb-enter-article-title')}
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+
+                  <Form.Field
+                    control={form.control}
+                    name="summary"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('kb-summary')}</Form.Label>
+                        <Form.Control>
+                          <Textarea
+                            {...field}
+                            placeholder={t('kb-enter-article-summary')}
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+
+                  <Form.Field
+                    control={form.control}
+                    name="content"
+                    rules={{ required: 'Content is required' }}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('content-label')}</Form.Label>
+                        <Form.Control>
+                          <Editor
+                            initialContent={field.value}
+                            onChange={field.onChange}
+                            scope={'ArticleDrawerContentField'}
+                            isHTML
+                            className="min-h-64"
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium text-sm">
+                      {t('kb-publishing')}
+                    </h4>
+                  </div>
+
+                  <Form.Field
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('status')}</Form.Label>
+                        <Form.Control>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <Select.Trigger>
+                              <Select.Value
+                                placeholder={t('kb-select-status')}
+                              />
+                            </Select.Trigger>
+                            <Select.Content>
+                              <Select.Item value="draft">
+                                {t('kb-draft')}
+                              </Select.Item>
+                              <Select.Item value="publish">
+                                {t('kb-published')}
+                              </Select.Item>
+                              <Select.Item value="archived">
+                                {t('archived')}
+                              </Select.Item>
+                            </Select.Content>
+                          </Select>
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+
+                  <Form.Field
+                    control={form.control}
+                    name="isPrivate"
+                    render={({ field }) => (
+                      <Form.Item className="flex flex-row items-center justify-between gap-2">
+                        <Form.Label className="mb-0">
+                          {t('kb-is-private')}
+                        </Form.Label>
+                        <Form.Control>
+                          <Switch
+                            id="isPrivate"
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+
+                  <Form.Field
+                    control={form.control}
+                    name="reactionChoices"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('kb-reaction-choices')}</Form.Label>
+                        <Form.Control>
+                          <MultipleSelector
+                            options={REACTIONS}
+                            value={
+                              field.value?.map((choice) => ({
+                                value: choice,
+                                label:
+                                  REACTIONS.find(
+                                    (reaction) => reaction.value === choice,
+                                  )?.label || '',
+                              })) || []
+                            }
+                            onChange={(value) => {
+                              field.onChange(value.map((item) => item.value));
+                            }}
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium text-sm">{t('kb-media')}</h4>
+                  </div>
+
+                  <Form.Field
+                    control={form.control}
+                    name="image"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('image-label')}</Form.Label>
+                        <Form.Control>
+                          <Upload.Root
+                            value={field.value?.url || ''}
+                            onChange={(value) => {
+                              if ('url' in value) {
+                                field.onChange({
+                                  url: value.url,
+                                  name: value.fileInfo?.name || '',
+                                });
+                              }
+                            }}
+                          >
+                            <Upload.Preview />
+                            <div className="flex flex-col gap-2">
+                              <Upload.Button
+                                size="sm"
+                                variant="outline"
+                                type="button"
+                              >
+                                <IconUpload className="h-4 w-4 mr-2" />
+                                {t('kb-upload-image')}
+                              </Upload.Button>
+                              <Upload.RemoveButton
+                                size="sm"
+                                variant="outline"
+                                type="button"
+                              />
+                            </div>
+                          </Upload.Root>
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+
+                  <Form.Field
+                    control={form.control}
+                    name="attachments"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('kb-attachments')}</Form.Label>
+                        <Form.Control>
+                          <div className="space-y-2">
+                            <Upload.Root
+                              value=""
+                              onChange={(value) => {
+                                if ('url' in value) {
+                                  const newAttachment = {
+                                    url: value.url,
+                                    name: value.fileInfo?.name || '',
+                                  };
+                                  field.onChange([
+                                    ...(field.value || []),
+                                    newAttachment,
+                                  ]);
+                                }
+                              }}
+                            >
+                              <Upload.Preview />
+                              <div className="flex flex-col gap-2">
+                                <Upload.Button
+                                  size="sm"
+                                  variant="outline"
+                                  type="button"
+                                >
+                                  <IconUpload className="h-4 w-4 mr-2" />
+                                  {t('kb-add-file')}
+                                </Upload.Button>
+                              </div>
+                            </Upload.Root>
+                          </div>
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+
+                  <Form.Field
+                    control={form.control}
+                    name="pdfAttachment"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('kb-pdf-attachment')}</Form.Label>
+                        <Form.Control>
+                          <Upload.Root
+                            value={field.value?.pdf?.url || ''}
+                            onChange={(value) => {
+                              if ('url' in value) {
+                                field.onChange({
+                                  pdf: {
+                                    url: value.url,
+                                    name: value.fileInfo?.name || '',
+                                  },
+                                });
+                              }
+                            }}
+                          >
+                            <Upload.Preview />
+                            <div className="flex flex-col gap-2">
+                              <Upload.Button
+                                size="sm"
+                                variant="outline"
+                                type="button"
+                              >
+                                <IconUpload className="h-4 w-4 mr-2" />
+                                {t('kb-upload-pdf')}
+                              </Upload.Button>
+                              <Upload.RemoveButton
+                                size="sm"
+                                variant="outline"
+                                type="button"
+                              />
+                            </div>
+                          </Upload.Root>
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowMoreInfo(!showMoreInfo)}
+                    className="w-full"
+                  >
+                    {showMoreInfo ? t('kb-see-less') : t('kb-fill-more-info')}
+                  </Button>
+
+                  {showMoreInfo && (
+                    <div className="space-y-4 border-t pt-4">
+                      <h4 className="font-medium text-sm">
+                        {t('kb-file-details')}
+                      </h4>
+
+                      <Form.Field
+                        control={form.control}
+                        name="fileUrl"
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Label>{t('kb-file-url')}</Form.Label>
+                            <Form.Control>
+                              <Input
+                                {...field}
+                                placeholder={t('kb-enter-file-url')}
+                              />
+                            </Form.Control>
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+
+                      <Form.Field
+                        control={form.control}
+                        name="fileSize"
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Label>{t('kb-file-size')}</Form.Label>
+                            <Form.Control>
+                              <Input
+                                {...field}
+                                type="number"
+                                placeholder={t('kb-enter-file-size')}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  field.onChange(
+                                    value === '' ? 0 : Number(value),
+                                  );
+                                }}
+                              />
+                            </Form.Control>
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+
+                      <Form.Field
+                        control={form.control}
+                        name="fileDuration"
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Label>{t('kb-file-duration')}</Form.Label>
+                            <Form.Control>
+                              <Input
+                                {...field}
+                                type="number"
+                                placeholder={t('kb-enter-file-duration')}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  field.onChange(
+                                    value === '' ? 0 : Number(value),
+                                  );
+                                }}
+                              />
+                            </Form.Control>
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+
+                      <Form.Field
+                        control={form.control}
+                        name="fileName"
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Label>{t('kb-file-name')}</Form.Label>
+                            <Form.Control>
+                              <Input
+                                {...field}
+                                placeholder={t('kb-enter-file-name')}
+                              />
+                            </Form.Control>
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+
+                      <Form.Field
+                        control={form.control}
+                        name="fileType"
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Label>{t('type')}</Form.Label>
+                            <Form.Control>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <Select.Trigger>
+                                  <Select.Value
+                                    placeholder={t('kb-select-type')}
+                                  />
+                                </Select.Trigger>
+                                <Select.Content>
+                                  <Select.Item value="image">
+                                    {t('kb-file-type-image')}
+                                  </Select.Item>
+                                  <Select.Item value="video">
+                                    {t('kb-file-type-video')}
+                                  </Select.Item>
+                                  <Select.Item value="audio">
+                                    {t('kb-file-type-audio')}
+                                  </Select.Item>
+                                  <Select.Item value="document">
+                                    {t('kb-file-type-document')}
+                                  </Select.Item>
+                                  <Select.Item value="other">
+                                    {t('kb-file-type-other')}
+                                  </Select.Item>
+                                </Select.Content>
+                              </Select>
+                            </Form.Control>
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {/* <div className="space-y-4 border-t pt-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-sm">
+                        {t('kb-custom-forms')}
+                      </h4>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          append({
+                            id: Date.now().toString(),
+                            label: '',
+                            value: '',
+                          })
+                        }
+                      >
+                        {t('kb-add-another-form')}
+                      </Button>
+                    </div>
+
+                    {fields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="flex items-center gap-2 p-3 border rounded-lg"
+                      >
+                        <div className="flex-1 space-y-2">
+                          <Form.Field
+                            control={form.control}
+                            name={`customForms.${index}.label`}
+                            render={({ field }) => (
+                              <Form.Item>
+                                <Form.Label>{t('field-label')}</Form.Label>
+                                <Form.Control>
+                                  <Input
+                                    {...field}
+                                    placeholder={t('kb-form-label-placeholder')}
+                                  />
+                                </Form.Control>
+                                <Form.Message />
+                              </Form.Item>
+                            )}
+                          />
+                          <Form.Field
+                            control={form.control}
+                            name={`customForms.${index}.value`}
+                            render={({ field }) => (
+                              <Form.Item>
+                                <Form.Label>{t('value')}</Form.Label>
+                                <Form.Control>
+                                  <Textarea
+                                    {...field}
+                                    placeholder={t('kb-form-value-placeholder')}
+                                  />
+                                </Form.Control>
+                                <Form.Message />
+                              </Form.Item>
+                            )}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => remove(index)}
+                          className="mt-6"
+                        >
+                          <IconTrash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div> */}
+                </div>
+              </ScrollArea>
+            </Sheet.Content>
+
+            <Sheet.Footer className="flex justify-end flex-shrink-0 p-2.5 gap-1 bg-muted">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onClose}
+                className="bg-background hover:bg-background/90"
+              >
+                {t('cancel')}
+              </Button>
+              <Button
+                type="submit"
+                disabled={adding || editing}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                {adding || editing ? t('saving') : t('save')}
+              </Button>
+            </Sheet.Footer>
+          </form>
+        </Form>
+      </Sheet.View>
+    </Sheet>
+  );
+}

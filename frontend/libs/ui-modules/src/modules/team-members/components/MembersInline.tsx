@@ -1,3 +1,5 @@
+import { useSubscription } from '@apollo/client';
+import { IconUserCancel } from '@tabler/icons-react';
 import {
   Avatar,
   AvatarProps,
@@ -7,17 +9,18 @@ import {
   isUndefinedOrNull,
   readImage,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { useCallback, useEffect, useState } from 'react';
+import type { Dispatch, ReactNode, SetStateAction } from 'react';
+import { currentUserState } from 'ui-modules/states';
+
 import {
   MembersInlineContext,
   useMembersInlineContext,
-} from '../contexts/MembersInlineContext';
-import { useEffect, useState, Dispatch, SetStateAction } from 'react';
-
-import { IUser } from '../types/TeamMembers';
-import { IconUserCancel } from '@tabler/icons-react';
-import { currentUserState } from 'ui-modules/states';
-import { useAtomValue } from 'jotai';
-import { useMemberInline } from '../hooks';
+} from 'ui-modules/modules/team-members/contexts/MembersInlineContext';
+import { USER_STATUS_CHANGED } from 'ui-modules/modules/team-members/graphql/subscriptions/userStatusChanged';
+import { useMemberInline } from 'ui-modules/modules/team-members/hooks';
+import { IUser } from 'ui-modules/modules/team-members/types/TeamMembers';
 
 export const MembersInlineRoot = ({
   members,
@@ -60,7 +63,7 @@ export const MembersInlineProvider = ({
   size,
   allowUnassigned,
 }: {
-  children?: React.ReactNode;
+  children?: ReactNode;
   memberIds?: string[];
   members?: IUser[];
   placeholder?: string;
@@ -69,13 +72,35 @@ export const MembersInlineProvider = ({
   allowUnassigned?: boolean;
 }) => {
   const [_members, _setMembers] = useState<IUser[]>(members || []);
+  const [inactiveMemberIds, setInactiveMemberIds] = useState<string[]>([]);
+  const currentMembers = members || _members;
+  const activeMembers = currentMembers.filter(
+    ({ _id, isActive }) =>
+      isActive !== false && !inactiveMemberIds.includes(_id),
+  );
+  const handleMemberActiveChange = useCallback(
+    (memberId: string, isActive: boolean) => {
+      setInactiveMemberIds((currentIds) => {
+        if (isActive) {
+          return currentIds.includes(memberId)
+            ? currentIds.filter((id) => id !== memberId)
+            : currentIds;
+        }
+
+        return currentIds.includes(memberId)
+          ? currentIds
+          : [...currentIds, memberId];
+      });
+    },
+    [],
+  );
 
   return (
     <MembersInlineContext.Provider
       value={{
-        members: members || _members,
+        members: activeMembers,
         loading: false,
-        memberIds: memberIds || [],
+        memberIds: memberIds,
         placeholder: isUndefinedOrNull(placeholder)
           ? 'Select members'
           : placeholder,
@@ -85,42 +110,65 @@ export const MembersInlineProvider = ({
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
-      {memberIds
-        ?.filter((id) => !members?.some((member) => member._id === id))
-        .map((memberId) => (
-          <MemberInlineEffectComponent key={memberId} memberId={memberId} />
-        ))}
+      {memberIds?.map((memberId) => (
+        <MemberInlineEffectComponent
+          key={memberId}
+          memberId={memberId}
+          onActiveChange={handleMemberActiveChange}
+        />
+      ))}
     </MembersInlineContext.Provider>
   );
 };
 
-const MemberInlineEffectComponent = ({ memberId }: { memberId: string }) => {
+const MemberInlineEffectComponent = ({
+  memberId,
+  onActiveChange,
+}: {
+  memberId: string;
+  onActiveChange: (memberId: string, isActive: boolean) => void;
+}) => {
   const currentUser = useAtomValue(currentUserState) as IUser;
   const { updateMembers } = useMembersInlineContext();
+  const skip = !memberId || memberId === currentUser?._id;
   const { userDetail } = useMemberInline({
     variables: {
       _id: memberId,
     },
-    skip: !memberId || memberId === currentUser._id,
+    skip,
+    fetchPolicy: 'cache-and-network',
   });
+  const { data: statusChangedData } = useSubscription<{
+    userStatusChanged?: IUser;
+  }>(USER_STATUS_CHANGED, {
+    variables: { _id: memberId },
+    skip,
+  });
+  const statusChangedUser = statusChangedData?.userStatusChanged;
+  const resolvedUser =
+    statusChangedUser?._id === memberId ? statusChangedUser : userDetail;
 
   useEffect(() => {
     if (!updateMembers) return;
 
-    if (userDetail) {
+    if (resolvedUser?.isActive === false) {
+      onActiveChange(memberId, false);
+      updateMembers((prev) => prev.filter(({ _id }) => _id !== memberId));
+    } else if (resolvedUser) {
+      onActiveChange(memberId, true);
       updateMembers((prev) => {
         if (prev.some((m) => m._id === memberId)) return prev;
-        return [...prev, { ...userDetail, _id: memberId }];
+        return [...prev, { ...resolvedUser, _id: memberId }];
       });
     }
-    if (currentUser._id === memberId) {
+    if (currentUser?._id === memberId) {
+      onActiveChange(memberId, true);
       updateMembers((prev) => {
         if (prev.some((m) => m._id === memberId)) return prev;
         return [currentUser, ...prev];
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userDetail, currentUser, updateMembers]);
+  }, [resolvedUser, currentUser, memberId, onActiveChange, updateMembers]);
 
   return null;
 };
@@ -136,7 +184,9 @@ export const MembersInlineAvatar = ({
     useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
 
-  const activeMembers = members.filter((m) => memberIds?.includes(m._id));
+  const activeMembers = memberIds
+    ? members.filter((m) => memberIds.includes(m._id))
+    : members;
 
   const sortedMembers = [...activeMembers].sort((a, b) => {
     if (a._id === currentUser?._id) return -1;
@@ -165,7 +215,7 @@ export const MembersInlineAvatar = ({
           <Avatar
             className={cn(
               'bg-background',
-              members.length > 1 && 'ring-2 ring-background',
+              activeMembers.length > 1 && 'ring-2 ring-background',
               className,
             )}
             size={size || 'lg'}
@@ -182,7 +232,7 @@ export const MembersInlineAvatar = ({
     );
   };
 
-  if (members.length === 0) {
+  if (activeMembers.length === 0) {
     if (allowUnassigned) {
       return (
         <IconUserCancel className="text-muted-foreground flex-none size-4" />
@@ -191,7 +241,7 @@ export const MembersInlineAvatar = ({
     return null;
   }
 
-  if (members.length === 1) return renderAvatar(members[0]);
+  if (activeMembers.length === 1) return renderAvatar(activeMembers[0]);
 
   const withAvatar = sortedMembers.slice(0, sortedMembers.length > 3 ? 2 : 3);
   const restMembers = sortedMembers.slice(withAvatar.length);
@@ -222,13 +272,22 @@ export const MembersInlineAvatar = ({
 };
 
 export const MembersInlineTitle = ({ className }: { className?: string }) => {
-  const { members, loading, placeholder, allowUnassigned } =
-    useMembersInlineContext();
+  const {
+    members: allMembers,
+    loading,
+    placeholder,
+    allowUnassigned,
+    memberIds,
+  } = useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
-  const isCurrentUser = members.some((m) => m._id === currentUser._id);
+
+  const activeMembers = memberIds?.length
+    ? allMembers.filter((m) => memberIds.includes(m._id))
+    : allMembers;
+  const isCurrentUser = activeMembers.some((m) => m._id === currentUser._id);
 
   const getDisplayValue = () => {
-    if (!members || members.length === 0) {
+    if (!activeMembers || activeMembers.length === 0) {
       if (allowUnassigned) {
         return (
           <span className="capitalize text-muted-foreground/80">
@@ -239,21 +298,21 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
       return undefined;
     }
 
-    if (members.length === 1) {
-      return members?.[0].details?.fullName;
+    if (activeMembers.length === 1) {
+      return activeMembers?.[0].details?.fullName;
     }
 
     if (isCurrentUser) {
-      const otherMembersCount = members.length - 1;
+      const otherMembersCount = activeMembers.length - 1;
       if (otherMembersCount > 1) {
         return `You and ${otherMembersCount} others`;
       }
 
-      const otherMember = members.find((m) => m._id !== currentUser._id);
+      const otherMember = activeMembers.find((m) => m._id !== currentUser._id);
       return `You and ${otherMember?.details?.fullName}`;
     }
 
-    return `${members.length} members`;
+    return `${activeMembers.length} members`;
   };
 
   return (

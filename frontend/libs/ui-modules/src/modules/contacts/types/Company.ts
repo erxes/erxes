@@ -16,4 +16,10 @@ export interface ICompany {
   tagIds?: string[];
   score?: number;
   location?: string;
+  industry?: string[];
+  businessType?: string;
+  parentCompanyId?: string;
+  size?: number;
+  website?: string;
+  createdAt?: string;
 }

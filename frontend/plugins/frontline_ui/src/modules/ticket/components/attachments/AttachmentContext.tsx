@@ -1,0 +1,97 @@
+import { IAttachment, AttachmentContextType } from '@/ticket/types/attachments';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+import { removeTypename } from '@/utils';
+import { useConfirm } from 'erxes-ui';
+import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+
+const AttachmentContext = createContext<AttachmentContextType | null>(null);
+
+export const useAttachmentContext = () => {
+  const context = useContext(AttachmentContext);
+  if (!context) {
+    throw new Error(
+      'useAttachmentContext must be used within <AttachmentProvider>',
+    );
+  }
+  return context;
+};
+
+export const AttachmentProvider = ({
+  children,
+  ticketId,
+  initialAttachments = [],
+}: {
+  children: React.ReactNode;
+  ticketId?: string;
+  initialAttachments?: IAttachment[];
+}) => {
+  const [attachments, setAttachments] =
+    useState<IAttachment[]>(initialAttachments);
+  const [removingUrl, setRemovingUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    setAttachments(initialAttachments);
+  }, [initialAttachments]);
+
+  const addAttachment = (attachment: IAttachment) => {
+    setAttachments((prev) => [...prev, attachment]);
+  };
+
+  const resetAttachments = () => {
+    setAttachments([]);
+  };
+
+  const { updateTicket } = useUpdateTicket();
+
+  const removeAttachment = async (attachment: IAttachment) => {
+    if (!ticketId) return;
+
+    setRemovingUrl(attachment.url);
+
+    const newAttachments = attachments
+      .filter((att) => att.url !== attachment.url)
+      .map((att) => removeTypename(att));
+
+    try {
+      await updateTicket({
+        variables: { _id: ticketId, attachments: newAttachments },
+      });
+
+      setAttachments((prev) =>
+        prev.filter((att) => att.url !== attachment.url),
+      );
+    } catch (error) {
+      // handle error if needed
+      console.error('Failed to remove attachment:', error);
+    } finally {
+      setRemovingUrl(null);
+    }
+  };
+
+  const { confirm } = useConfirm();
+
+  const handleRemoveImage = (e: React.MouseEvent, attachment: IAttachment) => {
+    e.stopPropagation();
+
+    confirm({
+      message: `Are you sure you want to delete ${attachment.name}?`,
+    }).then(() => {
+      removeAttachment(attachment);
+    });
+  };
+
+  return (
+    <AttachmentContext.Provider
+      value={{
+        attachments,
+        addAttachment,
+        handleRemoveImage,
+        removingUrl,
+        resetAttachments,
+      }}
+    >
+      {children}
+    </AttachmentContext.Provider>
+  );
+};

@@ -5,7 +5,7 @@
   "customer": {
     "_": "Customer",
     "add": {
-      "_": "Customer add",
+      "_": "Add Customer",
       "upload": "Upload",
       "upload-description": "Upload 1:1, 2MB max",
       "first-name": "First name",
@@ -57,6 +57,41 @@
     "plan": "Plan",
     "owner": "Owner",
     "last-seen": "Last Seen",
-    "profile-score": "Profile Score"
-  }
+    "profile-score": "Profile Score",
+    "field": {
+      "primaryName": "Name",
+      "code": "Code",
+      "owner": "Owner",
+      "parentCompanyId": "Parent Company",
+      "email": "Email",
+      "phone": "Phone",
+      "website": "Website",
+      "industry": "Industries",
+      "location": "Headquarters country",
+      "businessType": "Business Type",
+      "size": "Size",
+      "plan": "Plan",
+      "description": "Description",
+      "owner-placeholder": "Select owner",
+      "industry-placeholder": "Select industries"
+    },
+    "add": {
+      "_": "Add Company",
+      "success-message": "Company added successfully"
+    }
+  },
+  "lead": {
+    "add": {
+      "_": "Add Lead",
+      "success-message": "Lead added successfully"
+    },
+    "detail": {
+      "lead-detail": "Lead details"
+    }
+  },
+  "upload": "Upload",
+  "upload-description": "Upload 1:1, 2MB max",
+  "save": "Save",
+  "cancel": "Cancel",
+  "success": "Success"
 }

@@ -1,7 +1,25 @@
-import { Model, Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 
-import { IMainContext } from 'erxes-api-shared/core-types';
-import { createGenerateModels } from 'erxes-api-shared/utils';
+import {
+  IAutomationWaitingActionDocument,
+  waitingActionsToExecuteSchema,
+} from './mongo/waitingActionsToExecute';
+import {
+  automationMemorySchema,
+  IAutomationMemoryDocument,
+} from './mongo/automationMemory';
+import {
+  IKnowledgeChunkDocument,
+  knowledgeChunkSchema,
+} from './mongo/knowledgeChunk';
+import {
+  aiAgentKnowledgeSourceBindingSchema,
+  IAiAgentKnowledgeSourceBindingDocument,
+} from './mongo/aiAgentKnowledgeSourceBinding';
+import {
+  aiAgentKnowledgeIndexRunSchema,
+  IAiAgentKnowledgeIndexRunDocument,
+} from './mongo/aiAgentKnowledgeIndexRun';
 import {
   AiAgentDocument,
   aiAgentSchema,
@@ -10,21 +28,18 @@ import {
   IAutomationDocument,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
-import {
-  IAutomationWaitingActionDocument,
-  waitingActionsToExecuteSchema,
-} from '@/mongo/waitingActionsToExecute';
-import {
-  aiEmbeddingSchema,
-  IAiEmbeddingDocument,
-} from 'erxes-api-shared/core-modules';
+import { IMainContext } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
 
 export interface IModels {
   Automations: Model<IAutomationDocument>;
   Executions: Model<IAutomationExecutionDocument>;
   WaitingActions: Model<IAutomationWaitingActionDocument>;
-  AiEmbeddings: Model<IAiEmbeddingDocument>;
   AiAgents: Model<AiAgentDocument>;
+  AutomationMemory: Model<IAutomationMemoryDocument>;
+  KnowledgeChunks: Model<IKnowledgeChunkDocument>;
+  AiAgentKnowledgeSourceBindings: Model<IAiAgentKnowledgeSourceBindingDocument>;
+  AiAgentKnowledgeIndexRuns: Model<IAiAgentKnowledgeIndexRunDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -50,13 +65,35 @@ export const loadClasses = (db: Connection, subdomain: string): IModels => {
     Model<IAutomationWaitingActionDocument>
   >('automations_waiting_actions_execute', waitingActionsToExecuteSchema);
 
-  models.AiEmbeddings = db.model<
-    IAiEmbeddingDocument,
-    Model<IAiEmbeddingDocument>
-  >('ai_embeddings', aiEmbeddingSchema);
   models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
     'automations_ai_agents',
     aiAgentSchema,
+  );
+
+  models.AutomationMemory = db.model<
+    IAutomationMemoryDocument,
+    Model<IAutomationMemoryDocument>
+  >('automations_memory', automationMemorySchema);
+
+  models.KnowledgeChunks = db.model<
+    IKnowledgeChunkDocument,
+    Model<IKnowledgeChunkDocument>
+  >('automations_knowledge_chunks', knowledgeChunkSchema);
+
+  models.AiAgentKnowledgeSourceBindings = db.model<
+    IAiAgentKnowledgeSourceBindingDocument,
+    Model<IAiAgentKnowledgeSourceBindingDocument>
+  >(
+    'automations_ai_agent_knowledge_source_bindings',
+    aiAgentKnowledgeSourceBindingSchema,
+  );
+
+  models.AiAgentKnowledgeIndexRuns = db.model<
+    IAiAgentKnowledgeIndexRunDocument,
+    Model<IAiAgentKnowledgeIndexRunDocument>
+  >(
+    'automations_ai_agent_knowledge_index_runs',
+    aiAgentKnowledgeIndexRunSchema,
   );
 
   return models;

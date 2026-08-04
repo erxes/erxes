@@ -12,6 +12,7 @@ export interface ITriage {
   type: string;
   number: number;
   priority: number;
+  status: number;
 }
 
 export interface ITriageUpdate extends ITriage {
@@ -32,9 +33,18 @@ export interface ITriageFilter
   updatedAt?: Date;
 }
 
-export interface ITriageInput {
+export interface ITriageAddInput {
   name: string;
   description: string;
   teamId: string;
   priority: number;
+  status: number;
+}
+
+export interface ITriageUpdateInput {
+  name?: string;
+  description?: string;
+  teamId?: string;
+  priority?: number;
+  status?: number;
 }

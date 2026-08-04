@@ -16,10 +16,11 @@ import { ComponentsRoutes } from '../components/ComponentsRoutes';
 import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
-import { ProductsRoutes } from '@/app/components/ProductsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
+import { RouteErrorBoundary } from '@/error-handler/components/RouteErrorBoundary';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { OrganizationProvider } from '@/organization/providers/OrganizationProvider';
 import { useAtomValue } from 'jotai';
@@ -29,12 +30,16 @@ import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
 import { ImportExportRoutes } from '../components/ImportExportRoutes';
+import { TemplateRoutes } from '../components/TemplateRoutes';
 
 const UserConfirmInvitationPage = lazy(
   () => import('~/pages/auth/UserConfirmInvitationPage'),
 );
 const LoginPage = lazy(() => import('~/pages/auth/LoginPage'));
 const ResetPasswordPage = lazy(() => import('~/pages/auth/ResetPasswordPage'));
+const DeviceAuthorizePage = lazy(
+  () => import('~/pages/oauth/DeviceAuthorizePage'),
+);
 const CreateOwnerPage = lazy(
   () => import('~/pages/organization/CreateOwnerPage'),
 );
@@ -53,7 +58,11 @@ export const useCreateAppRouter = () => {
   const isOS = useVersion();
   return createBrowserRouter(
     createRoutesFromElements(
-      <Route element={<Providers />} loader={async () => null}>
+      <Route
+        element={<Providers />}
+        loader={async () => null}
+        errorElement={<RouteErrorBoundary />}
+      >
         <Route path={AppPath.MainOnboarding} element={<MainOnboardingPage />} />
         <Route path={AppPath.CreateOwner} element={<CreateOwnerPage />} />
         <Route element={<OrganizationProvider />}>
@@ -68,6 +77,10 @@ export const useCreateAppRouter = () => {
             element={<UserConfirmInvitationPage />}
           />
           <Route element={<UserProvider />}>
+            <Route
+              path={AppPath.OAuthDevice}
+              element={<DeviceAuthorizePage />}
+            />
             <Route
               element={
                 <OnboardingGuard>
@@ -86,40 +99,58 @@ export const useCreateAppRouter = () => {
               />
 
               <Route
-                path={AppPath.ProductsCatchAll}
-                element={<ProductsRoutes />}
-              />
-
-              <Route
                 path={AppPath.ContactsCatchAll}
-                element={<ContactsRoutes />}
+                element={
+                  <PermissionRouteGuard module="contacts">
+                    <ContactsRoutes />
+                  </PermissionRouteGuard>
+                }
               />
 
               <Route
                 path={AppPath.SegmentsCatchAll}
-                element={<SegmentRoutes />}
+                element={
+                  <PermissionRouteGuard module="segments">
+                    <SegmentRoutes />
+                  </PermissionRouteGuard>
+                }
               />
 
               <Route
                 path={AppPath.AutomationsCatchAll}
-                element={<AutomationRoutes />}
+                element={
+                  <PermissionRouteGuard module="automations">
+                    <AutomationRoutes />
+                  </PermissionRouteGuard>
+                }
               />
 
               {isOS && (
                 <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
               )}
 
-              {isOS && (
-                <Route
-                  path={AppPath.DocumentsCatchAll}
-                  element={<DocumentsRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.DocumentsCatchAll}
+                element={
+                  <PermissionRouteGuard module="documents">
+                    <DocumentsRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              <Route
+                path={AppPath.BroadcastsCatchAll}
+                element={
+                  <PermissionRouteGuard module="broadcasts">
+                    <BroadcastRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
 
               {isOS && (
                 <Route
-                  path={AppPath.BroadcastsCatchAll}
-                  element={<BroadcastRoutes />}
+                  path={AppPath.TemplatesCatchAll}
+                  element={<TemplateRoutes />}
                 />
               )}
 

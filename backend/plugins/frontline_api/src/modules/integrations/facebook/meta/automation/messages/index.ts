@@ -1,19 +1,86 @@
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
-import { IFacebookCustomerDocument } from '@/integrations/facebook/@types/customers';
 import { debugError } from '@/integrations/facebook/debuggers';
+import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { TAutomationActionConfig } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import {
-  AutomationExecutionSetWaitCondition,
-  EXECUTE_WAIT_TYPES,
   IAutomationAction,
   IAutomationExecution,
+  replaceOutputPlaceholders,
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
-import { generateMessages, getData, sendMessage } from './utils';
+import { generateModels, IModels } from '~/connectionResolvers';
+import { IFacebookConversationMessageDocument } from '../../../@types/conversationMessages';
+import {
+  generateConditionWaitToAction,
+  generateMessages,
+  getOrCreateFacebookMessageActionContext,
+  resolveMessageActionConfigTemplates,
+  sendMessage,
+} from './utils';
+
+const shouldSkipAutomatedReply = async (
+  models: IModels,
+  target: IFacebookConversationMessageDocument,
+) => {
+  const facebookConversation = await models.FacebookConversations.findOne({
+    _id: target?.conversationId,
+  }).lean();
+
+  if (!facebookConversation?.erxesApiId) {
+    return false;
+  }
+
+  const conversation = await models.Conversations.findOne({
+    _id: facebookConversation.erxesApiId,
+  }).lean();
+
+  const control = conversation?.automatedReplyControl;
+
+  if (!control || control.status === 'active') {
+    return false;
+  }
+
+  const botId = target.botId || facebookConversation.botId;
+  const bot = botId
+    ? await models.FacebookBots.findOne(
+        { _id: botId },
+        { handoffPauseMinutes: 1 },
+      ).lean()
+    : null;
+  const pauseMinutes = Math.max(1, Number(bot?.handoffPauseMinutes || 10));
+  const previousMessage = await models.FacebookConversationMessages.findOne(
+    {
+      _id: { $ne: target._id },
+      conversationId: target.conversationId,
+    },
+    { createdAt: 1 },
+  )
+    .sort({ createdAt: -1 })
+    .lean();
+  const currentMessageDate = target.createdAt
+    ? new Date(target.createdAt)
+    : new Date();
+  const latestActivityDate = previousMessage?.createdAt
+    ? new Date(previousMessage.createdAt)
+    : control.updatedAt
+    ? new Date(control.updatedAt)
+    : undefined;
+  const idleMs = latestActivityDate
+    ? currentMessageDate.getTime() - latestActivityDate.getTime()
+    : 0;
+
+  if (idleMs >= pauseMinutes * 60 * 1000) {
+    await models.Conversations.setAutomatedReplyControl(conversation._id, {
+      status: 'active',
+      reason: 'timeout_expired',
+    });
+
+    return false;
+  }
+
+  return ['handoff_requested', 'human_active'].includes(control.status);
+};
 
 export const checkMessageTrigger = async (
   subdomain: string,
@@ -22,6 +89,12 @@ export const checkMessageTrigger = async (
   const { conditions = [], botId } = config;
 
   if (target.botId !== botId) {
+    return false;
+  }
+
+  const models = await generateModels(subdomain);
+
+  if (await shouldSkipAutomatedReply(models, target)) {
     return false;
   }
 
@@ -48,6 +121,8 @@ export const checkMessageTrigger = async (
     type,
     persistentMenuIds,
     conditions: directMessageCondtions = [],
+    sourceMode = 'all',
+    sourceIds = [],
   } of conditions) {
     if (isSelected) {
       if (type === 'getStarted' && target.content === 'Get Started') {
@@ -61,12 +136,39 @@ export const checkMessageTrigger = async (
       }
 
       if (type === 'direct') {
+        if (target.entryType === 'open_thread') {
+          continue;
+        }
+
         if (directMessageCondtions?.length > 0) {
           return !!checkContentConditions(
             target?.content || '',
             directMessageCondtions,
           );
-        } else if (!!target?.content) {
+        }
+
+        if (String(target?.content || '').trim() && !payload?.btnId) {
+          return true;
+        }
+      }
+
+      if (type === 'open_thread') {
+        if (target.entryType !== 'open_thread') {
+          continue;
+        }
+
+        if (sourceMode === 'all') {
+          return true;
+        }
+
+        const openThreadSourceIds = [
+          target.openThread?.adId,
+          target.openThread?.postId,
+        ].filter(Boolean);
+
+        if (
+          openThreadSourceIds.some((sourceId) => sourceIds.includes(sourceId))
+        ) {
           return true;
         }
       }
@@ -95,12 +197,14 @@ export const actionCreateMessage = async ({
   const { config, id: actionId } = action || {};
   const [_pluginName, moduleName, collectionType] = splitType(triggerType);
 
-  if (
-    moduleName !== 'facebook' &&
-    !['messages', 'comments', 'ads'].includes(collectionType)
-  ) {
+  if (moduleName !== 'facebook') {
+    throw new Error('Unsupported module for this action');
+  }
+
+  if (!['messages', 'comments'].includes(collectionType)) {
     throw new Error('Unsupported trigger type');
   }
+
   const {
     conversation,
     customer,
@@ -109,51 +213,108 @@ export const actionCreateMessage = async ({
     senderId,
     recipientId,
     botId,
-  } = await getData(models, subdomain, collectionType, target, triggerConfig);
-
-  let result: any[] = [];
+  } = await getOrCreateFacebookMessageActionContext(
+    models,
+    subdomain,
+    collectionType,
+    target,
+    triggerConfig,
+  );
 
   try {
+    const result: IFacebookConversationMessageDocument[] = [];
+    const outputResolvedValues = await replaceOutputPlaceholders({
+      subdomain,
+      execution,
+      values: { config: config || {} },
+      keepUnresolvedPlaceholders: true,
+    });
+    const outputResolvedConfig =
+      outputResolvedValues.config as TAutomationActionConfig;
+
+    const resolvedConfig = resolveMessageActionConfigTemplates(
+      outputResolvedConfig,
+      {
+        prevAction: execution.actions?.at(-1)?.result,
+      },
+    );
+
     const messages = await generateMessages({
       subdomain,
       conversation,
       customer,
       executionId,
       actionId,
-      config,
+      config: resolvedConfig,
     });
 
     if (!messages?.length) {
       throw new Error('There are no generated messages to send.');
     }
 
-    for (const { botData, inputData, ...message } of messages) {
+    const isCommentTrigger = collectionType === 'comments';
+    const commentId = isCommentTrigger ? target?.comment_id : undefined;
+
+    const alreadyPrivateReplied = commentId
+      ? !!(await models.FacebookConversationMessages.exists({
+          'source.type': 'facebook_comment_private_reply',
+          'source.commentId': commentId,
+        }))
+      : false;
+
+    const isPrivateReplyStep = !!commentId && !alreadyPrivateReplied;
+    let didEnsureAutomatedReplyControl = false;
+    const messageSource = {
+      type: 'facebook_comment_private_reply',
+      conversationId: target?.conversationId || target?.erxesApiId,
+      messageId: target?._id,
+      commentId,
+      content: target?.content,
+    };
+
+    for (const [
+      index,
+      { botData, inputData, ...message },
+    ] of messages.entries()) {
+      const isPrivateReply = isPrivateReplyStep && index === 0;
+
       const sendReplyResult = await sendMessage(models, bot, {
         senderId,
         recipientId,
         integration,
         message,
+        commentId: isPrivateReply ? commentId : undefined,
       });
 
       if (!sendReplyResult) {
         throw new Error('Something went wrong to send this message');
       }
 
+      if (!conversation.erxesApiId) {
+        throw new Error(
+          'Conversation erxesApiId is required to create conversation message',
+        );
+      }
+
+      if (!didEnsureAutomatedReplyControl) {
+        await receiveInboxMessage(subdomain, {
+          action: 'ensure-automated-reply-control',
+          payload: JSON.stringify({
+            conversationId: conversation.erxesApiId,
+          }),
+        });
+        didEnsureAutomatedReplyControl = true;
+      }
+
       const conversationMessage =
-        await models.FacebookConversationMessages.addMessage({
+        await models.FacebookConversationMessages.addBotMessage(subdomain, {
           conversationId: conversation._id,
-          content: '<p>Bot Message</p>',
-          internal: false,
-          mid: sendReplyResult.message_id,
           botId,
           botData,
-          fromBot: true,
+          mid: sendReplyResult.message_id || sendReplyResult.mid,
+          conversationErxesApiId: conversation.erxesApiId,
+          source: isPrivateReply ? messageSource : undefined,
         });
-
-      pConversationClientMessageInserted(subdomain, {
-        ...conversationMessage,
-        conversationId: conversation.erxesApiId,
-      });
 
       result.push(conversationMessage);
     }
@@ -166,7 +327,6 @@ export const actionCreateMessage = async ({
     return {
       result,
       waitCondition: generateConditionWaitToAction({
-        config,
         conversation,
         customer,
       }),
@@ -175,24 +335,4 @@ export const actionCreateMessage = async ({
     debugError(error.message);
     throw new Error(error.message);
   }
-};
-
-const generateConditionWaitToAction = ({
-  config,
-  customer,
-  conversation,
-}: {
-  config: any;
-  conversation: IFacebookConversationDocument;
-  customer: IFacebookCustomerDocument;
-}): AutomationExecutionSetWaitCondition => {
-  return {
-    type: EXECUTE_WAIT_TYPES.CHECK_OBJECT,
-    propertyName: 'payload.btnId',
-    expectedState: {
-      conversationId: conversation._id,
-      customerId: customer.erxesApiId,
-    },
-    shouldCheckOptionalConnect: true,
-  };
 };

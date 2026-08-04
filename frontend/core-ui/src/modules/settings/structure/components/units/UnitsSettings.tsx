@@ -14,6 +14,7 @@ export function UnitsSettings() {
       <RecordTable.Provider
         data={units || []}
         columns={UnitsColumns}
+        stickyColumns={['more', 'checkbox', 'code', 'title']}
         className="m-3"
       >
         <RecordTable.Scroll>

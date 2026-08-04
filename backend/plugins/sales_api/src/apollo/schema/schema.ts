@@ -53,6 +53,29 @@ import {
   queries as posCoverQueries,
   mutations as posCoverMutations,
 } from '@/pos/graphql/schemas/covers';
+import {
+  types as AddressTypes,
+  queries as AddressQueries,
+  mutations as AddressMutations,
+} from '@/ecommerce/graphql/schema/address';
+
+import {
+  types as LastViewedItemTypes,
+  queries as LastViewedItemQueries,
+  mutations as LastViewedItemMutations,
+} from '@/ecommerce/graphql/schema/lastViewedItem';
+
+import {
+  types as ProductReviewTypes,
+  queries as ProductReviewQueries,
+  mutations as ProductReviewMutations,
+} from '@/ecommerce/graphql/schema/productReview';
+
+import {
+  types as WishlistTypes,
+  queries as WishlistQueries,
+  mutations as WishlistMutations,
+} from '@/ecommerce/graphql/schema/wishlist';
 
 import extendTypes from '@/pos/graphql/schemas/extendTypes';
 
@@ -82,6 +105,10 @@ export const types = `
   ${posTypes()},
   ${posOrderTypes()},
   ${posCoverTypes},
+  ${AddressTypes},
+  ${LastViewedItemTypes},
+  ${ProductReviewTypes},
+  ${WishlistTypes}
 `;
 
 export const queries = `
@@ -94,6 +121,11 @@ export const queries = `
   ${posQueries}
   ${posOrderQueries}
   ${posCoverQueries}
+  ${AddressQueries}
+  ${LastViewedItemQueries}
+  ${ProductReviewQueries}
+  ${WishlistQueries}
+  
 `;
 
 export const mutations = `
@@ -106,6 +138,10 @@ export const mutations = `
    ${posMutations}
    ${posOrderMutations}
    ${posCoverMutations}
+   ${AddressMutations}
+   ${LastViewedItemMutations}
+   ${ProductReviewMutations}
+   ${WishlistMutations}
 `;
 
 export default { types, queries, mutations };

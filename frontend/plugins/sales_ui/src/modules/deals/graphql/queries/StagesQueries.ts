@@ -15,8 +15,8 @@ export const commonParams = `
   $segmentData:String
   $createdStartDate: Date
   $createdEndDate: Date
-  $stateChangedStartDate: Date
-  $stateChangedEndDate: Date
+  $stageChangedStartDate: Date
+  $stageChangedEndDate: Date
   $startDateStartDate: Date
   $startDateEndDate: Date
   $closeDateStartDate: Date
@@ -38,8 +38,8 @@ export const commonParamDefs = `
   segmentData:$segmentData
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
-  stateChangedStartDate: $stateChangedStartDate
-  stateChangedEndDate: $stateChangedEndDate
+  stateChangedStartDate: $stageChangedStartDate
+  stateChangedEndDate: $stageChangedEndDate
   startDateStartDate: $startDateStartDate
   startDateEndDate: $startDateEndDate
   closeDateStartDate: $closeDateStartDate
@@ -76,6 +76,8 @@ const stageCommon = `
   status
   canMoveMemberIds
   canEditMemberIds
+  memberIds
+  departmentIds
 `;
 
 export const GET_ARCHIVED_STAGES_COUNT = gql`

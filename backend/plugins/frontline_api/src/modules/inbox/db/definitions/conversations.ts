@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import {
+  AUTOMATED_REPLY_STATUS,
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_SELECT_OPTIONS,
   CONVERSATION_STATUSES,
@@ -8,6 +9,20 @@ import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { customFieldSchema } from 'erxes-api-shared/core-modules';
 
 // Conversation schema
+const automatedReplyControlSchema = new Schema(
+  {
+    status: {
+      type: String,
+      enum: AUTOMATED_REPLY_STATUS.ALL,
+      default: AUTOMATED_REPLY_STATUS.ACTIVE,
+    },
+    pausedUntil: { type: Date, optional: true },
+    reason: { type: String, optional: true },
+    updatedAt: { type: Date, optional: true },
+    updatedBy: { type: String, optional: true },
+  },
+  { _id: false },
+);
 
 export const conversationSchemaOptions = {
   operatorStatus: {
@@ -70,6 +85,10 @@ export const conversationSchemaOptions = {
     type: 'String',
     label: 'botId',
   },
+  automatedReplyControl: {
+    type: automatedReplyControlSchema,
+    optional: true,
+  },
 };
 
 export const conversationSchema = schemaWrapper(
@@ -96,3 +115,14 @@ conversationSchema.index(
   { userRelevance: 1 },
   { partialFilterExpression: { userRelevance: { $exists: true } } },
 );
+
+conversationSchema.index({ createdAt: 1 });
+conversationSchema.index({ closedAt: 1 });
+conversationSchema.index({ assignedUserId: 1 });
+conversationSchema.index({ createdAt: 1, integrationId: 1 });
+conversationSchema.index({ createdAt: 1, assignedUserId: 1 });
+conversationSchema.index({ createdAt: 1, status: 1 });
+conversationSchema.index({ closedAt: 1, status: 1 });
+conversationSchema.index({ status: 1, updatedAt: -1, _id: -1 });
+conversationSchema.index({ integrationId: 1, updatedAt: -1, _id: -1 });
+conversationSchema.index({ assignedUserId: 1, updatedAt: -1, _id: -1 });

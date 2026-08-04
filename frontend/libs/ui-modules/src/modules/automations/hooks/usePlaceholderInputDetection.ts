@@ -1,25 +1,29 @@
 import type React from 'react';
-
 import { RefObject, useCallback, useEffect, useState } from 'react';
 import {
   SuggestionConfig,
-  SuggestionType,
+  TPlaceholderInputSuggestionType,
+  UsePlaceHolderInputProps,
 } from '../types/placeholderInputTypes';
 import {
   findActualTriggerPosition,
+  getAdjacentLockedExpressionRange,
   getDateNowContext,
   getEnclosingExpressionRangeOnBackspace,
+  getLockedExpressionRangeAtCursor,
   isAllowedDateNowEditKey,
   isInsideLockedExpression,
   shouldEnableDateSuggestions,
 } from '../utils/placeholderInputDetectionUtils';
-import { UsePlaceHolderInputProps } from '../types/placeholderInputTypes';
 
 type PlaceholderInputTriggerDetectionProps = {
   value: string;
   onChange: (value: string) => void;
   inputRef: RefObject<HTMLInputElement | HTMLTextAreaElement> | null;
-  enabledTypes?: Record<SuggestionType, boolean>;
+  suggestionPopoverRef?: RefObject<HTMLDivElement> | null;
+  isSelectionPopoverOpen?: boolean;
+  setIsSelectionPopoverOpen?: (open: boolean) => void;
+  enabledTypes?: Record<TPlaceholderInputSuggestionType, boolean>;
   suggestionTypeByTriggerMap: Map<string, SuggestionConfig>;
   allowOnlyTriggers?: boolean;
   placeholderConfig?: UsePlaceHolderInputProps['placeholderConfig'];
@@ -29,6 +33,9 @@ export function usePlaceHolderInputTriggerDetection({
   value,
   onChange,
   inputRef,
+  suggestionPopoverRef,
+  isSelectionPopoverOpen,
+  setIsSelectionPopoverOpen,
   enabledTypes,
   suggestionTypeByTriggerMap,
   allowOnlyTriggers,
@@ -39,13 +46,88 @@ export function usePlaceHolderInputTriggerDetection({
   const [searchQuery, setSearchQuery] = useState('');
   const [triggerPosition, setTriggerPosition] = useState(0);
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [selectionVersion, setSelectionVersion] = useState(0);
+  const [dismissedTriggerContext, setDismissedTriggerContext] = useState<
+    string | null
+  >(null);
+
+  const getCurrentTriggerContext = useCallback(() => {
+    if (!inputRef?.current) {
+      return null;
+    }
+
+    const cursorPos = inputRef.current.selectionStart || 0;
+    const selectionEnd = inputRef.current.selectionEnd || cursorPos;
+
+    if (selectionEnd !== cursorPos) {
+      return null;
+    }
+
+    const textBeforeCursor = (value || '').slice(0, cursorPos);
+    const lastChar = textBeforeCursor.slice(-1);
+
+    if (!suggestionTypeByTriggerMap.get(lastChar)) {
+      return null;
+    }
+
+    return `${cursorPos}:${textBeforeCursor}`;
+  }, [inputRef, suggestionTypeByTriggerMap, value]);
+
+  const snapCursorOutOfLockedExpression = useCallback(() => {
+    const node = inputRef?.current;
+
+    if (!node) {
+      return;
+    }
+
+    const start = node.selectionStart || 0;
+    const end = node.selectionEnd || start;
+
+    if (start !== end) {
+      return;
+    }
+
+    const range = getLockedExpressionRangeAtCursor(value || '', start);
+
+    if (!range) {
+      return;
+    }
+
+    const { inside, afterNow } = getDateNowContext(value || '', start);
+
+    if (inside && afterNow) {
+      return;
+    }
+
+    const distanceToStart = start - range.start;
+    const distanceToEnd = range.end - start;
+    const nextCursor =
+      distanceToStart < distanceToEnd ? range.start : range.end;
+
+    node.setSelectionRange(nextCursor, nextCursor);
+    return true;
+  }, [inputRef, value]);
+
+  const queueSnapCursorOutOfLockedExpression = useCallback(() => {
+    snapCursorOutOfLockedExpression();
+    requestAnimationFrame(() => snapCursorOutOfLockedExpression());
+    setTimeout(() => snapCursorOutOfLockedExpression(), 0);
+  }, [snapCursorOutOfLockedExpression]);
 
   // Detect trigger characters
   useEffect(() => {
     if (!inputRef?.current) return;
 
     const cursorPos = inputRef.current.selectionStart || 0;
+    const selectionEnd = inputRef.current.selectionEnd || cursorPos;
+
+    if (selectionEnd !== cursorPos) {
+      setShowSuggestions(false);
+      return;
+    }
+
     const textBeforeCursor = (value || '').slice(0, cursorPos);
+    const currentTriggerContext = `${cursorPos}:${textBeforeCursor}`;
     // lock when cursor is inside {{ }} or [[ ]]
     const { inCurly, inBracket } = isInsideLockedExpression(
       value || '',
@@ -70,9 +152,22 @@ export function usePlaceHolderInputTriggerDetection({
     const lastChar = textBeforeCursor.slice(-1);
     const { type } = suggestionTypeByTriggerMap.get(lastChar) || {};
     const isEnabled =
-      !enabledTypes || (type && enabledTypes[type as SuggestionType]);
+      !enabledTypes ||
+      (type && enabledTypes[type as TPlaceholderInputSuggestionType]);
+
+    if (
+      dismissedTriggerContext &&
+      dismissedTriggerContext !== currentTriggerContext
+    ) {
+      setDismissedTriggerContext(null);
+    }
 
     if (type && isEnabled) {
+      if (dismissedTriggerContext === currentTriggerContext) {
+        setShowSuggestions(false);
+        return;
+      }
+
       setShowSuggestions(true);
       setSuggestionType(type);
       setSearchQuery('');
@@ -82,21 +177,77 @@ export function usePlaceHolderInputTriggerDetection({
     }
 
     setShowSuggestions(false);
-  }, [value, inputRef, enabledTypes, suggestionTypeByTriggerMap]);
+  }, [
+    value,
+    inputRef,
+    enabledTypes,
+    dismissedTriggerContext,
+    selectionVersion,
+    suggestionTypeByTriggerMap,
+  ]);
+
+  useEffect(() => {
+    const node = inputRef?.current;
+
+    if (!node) {
+      return;
+    }
+
+    const handleSelectionChange = () => {
+      setSelectionVersion((current) => current + 1);
+      queueSnapCursorOutOfLockedExpression();
+    };
+
+    const handleDocumentSelectionChange = () => {
+      if (document.activeElement === node) {
+        handleSelectionChange();
+      }
+    };
+
+    node.addEventListener('click', handleSelectionChange);
+    node.addEventListener('focus', handleSelectionChange);
+    node.addEventListener('keyup', handleSelectionChange);
+    node.addEventListener('mouseup', handleSelectionChange);
+    node.addEventListener('select', handleSelectionChange);
+    document.addEventListener('selectionchange', handleDocumentSelectionChange);
+
+    return () => {
+      node.removeEventListener('click', handleSelectionChange);
+      node.removeEventListener('focus', handleSelectionChange);
+      node.removeEventListener('keyup', handleSelectionChange);
+      node.removeEventListener('mouseup', handleSelectionChange);
+      node.removeEventListener('select', handleSelectionChange);
+      document.removeEventListener(
+        'selectionchange',
+        handleDocumentSelectionChange,
+      );
+    };
+  }, [inputRef, queueSnapCursorOutOfLockedExpression]);
 
   // close on blur
   useEffect(() => {
     const node = inputRef?.current;
     if (!node) return;
-    const onBlur = () => setShowSuggestions(false);
+    const onBlur = (event: Event) => {
+      const nextTarget = (event as FocusEvent).relatedTarget as Node | null;
+      const container = suggestionPopoverRef?.current;
+
+      if (container && nextTarget && container.contains(nextTarget)) {
+        return;
+      }
+
+      setShowSuggestions(false);
+    };
     node.addEventListener('blur', onBlur);
     return () => node.removeEventListener('blur', onBlur);
-  }, [inputRef]);
+  }, [inputRef, suggestionPopoverRef]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      if (e.key === 'Escape' && showSuggestions) {
+      if (e.key === 'Escape' && (showSuggestions || isSelectionPopoverOpen)) {
+        setDismissedTriggerContext(getCurrentTriggerContext());
         setShowSuggestions(false);
+        setIsSelectionPopoverOpen?.(false);
         e.preventDefault();
         return;
       }
@@ -107,14 +258,76 @@ export function usePlaceHolderInputTriggerDetection({
 
       const text = value || '';
 
-      // Shortcut: Backspace at the end of an expression like `...}}|` or `...]]|`
+      const lockedRangeAtCursor =
+        start === end ? getLockedExpressionRangeAtCursor(text, start) : null;
+
+      if (lockedRangeAtCursor) {
+        const { inside, afterNow } = getDateNowContext(text, start);
+        const allowDateArithmetic = inside && afterNow;
+
+        if (!allowDateArithmetic) {
+          if (
+            e.key === 'ArrowLeft' ||
+            e.key === 'ArrowRight' ||
+            e.key === 'Backspace' ||
+            e.key === 'Delete'
+          ) {
+            e.preventDefault();
+            const nextCursor =
+              e.key === 'ArrowLeft' || e.key === 'Backspace'
+                ? lockedRangeAtCursor.start
+                : lockedRangeAtCursor.end;
+            inputRef.current.setSelectionRange(nextCursor, nextCursor);
+            return;
+          }
+        }
+      }
+
+      if (e.key === 'ArrowRight' && start === end) {
+        const range = getAdjacentLockedExpressionRange(text, start, 'forward');
+
+        if (range) {
+          e.preventDefault();
+          inputRef.current.setSelectionRange(range.end, range.end);
+          return;
+        }
+      }
+
+      if (e.key === 'ArrowLeft' && start === end) {
+        const range = getAdjacentLockedExpressionRange(text, start, 'backward');
+
+        if (range) {
+          e.preventDefault();
+          inputRef.current.setSelectionRange(range.start, range.start);
+          return;
+        }
+      }
+
+      // Shortcut: Backspace/Delete adjacent to an expression removes the token
+      // as a single badge-like unit.
       if (e.key === 'Backspace' && start === end) {
-        const range = getEnclosingExpressionRangeOnBackspace(text, start);
+        const range =
+          getAdjacentLockedExpressionRange(text, start, 'backward') ||
+          getEnclosingExpressionRangeOnBackspace(text, start);
         if (range) {
           e.preventDefault();
           const newValue = text.slice(0, range.start) + text.slice(range.end);
           onChange(newValue);
           // place caret at the start of removed expression
+          requestAnimationFrame(() => {
+            inputRef.current?.setSelectionRange(range.start, range.start);
+          });
+          return;
+        }
+      }
+
+      if (e.key === 'Delete' && start === end) {
+        const range = getAdjacentLockedExpressionRange(text, start, 'forward');
+
+        if (range) {
+          e.preventDefault();
+          const newValue = text.slice(0, range.start) + text.slice(range.end);
+          onChange(newValue);
           requestAnimationFrame(() => {
             inputRef.current?.setSelectionRange(range.start, range.start);
           });
@@ -168,9 +381,12 @@ export function usePlaceHolderInputTriggerDetection({
     },
     [
       showSuggestions,
+      isSelectionPopoverOpen,
       inputRef,
       value,
       allowOnlyTriggers,
+      getCurrentTriggerContext,
+      setIsSelectionPopoverOpen,
       suggestionTypeByTriggerMap,
     ],
   );
@@ -299,8 +515,10 @@ export function usePlaceHolderInputTriggerDetection({
   );
 
   const closeSuggestions = useCallback(() => {
+    setDismissedTriggerContext(getCurrentTriggerContext());
     setShowSuggestions(false);
-  }, []);
+    setIsSelectionPopoverOpen?.(false);
+  }, [getCurrentTriggerContext, setIsSelectionPopoverOpen]);
 
   return {
     showSuggestions,

@@ -136,6 +136,29 @@ export const PAYMENTS = {
     acceptedCurrencies: ['MNT', 'USD'],
   },
 
+  toki: {
+    title: 'Toki',
+    kind: 'toki',
+    apiUrl: 'https://ms-api.toki.mn',
+    actions: {
+      getToken: 'third-party-service/v1/auth/token',
+      invoice: 'third-party-service/v1/payment-request/merchant-qr',
+      checkInvoice: 'third-party-service/v1/payment-request',
+      cancelInvoice: 'third-party-service/v1/payment-request',
+    },
+    handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
+  },
+  tdb: {
+    title: 'TDB E-Commerce',
+    kind: 'tdb',
+    apiUrl: 'https://acsmc.tdbmlabs.mn:8000',   
+    actions: {
+      createOrder: '/order',
+      getOrderDetail: '/order/:orderId',
+    },
+  },
+
   ALL: [
     'qpay',
     'socialpay',
@@ -149,6 +172,8 @@ export const PAYMENTS = {
     'golomt',
     'stripe',
     'khanbank',
+    'toki',
+    'tdb',
   ],
 };
 

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import {
   Button,
@@ -102,10 +103,11 @@ const SelectLeadContent = ({ teamIds }: { teamIds?: string[] | string }) => {
 };
 
 export const SelectLeadFilterItem = () => {
+  const { t } = useTranslation('operation');
   return (
     <Filter.Item value="lead">
       <IconUser />
-      Lead
+      {t('lead')}
     </Filter.Item>
   );
 };
@@ -203,6 +205,7 @@ export const SelectLeadInlineCell = ({
   React.ComponentProps<typeof SelectLeadProvider>,
   'children' | 'onValueChange' | 'value'
 >) => {
+  const { t } = useTranslation('operation');
   const { updateProject } = useUpdateProject();
   const [open, setOpen] = useState(false);
 
@@ -228,7 +231,7 @@ export const SelectLeadInlineCell = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <RecordTableInlineCell.Trigger>
-          <SelectLeadValue placeholder="Lead not specified" />
+          <SelectLeadValue placeholder={t('lead-not-specified')} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectLeadContent teamIds={teamIds} />
@@ -239,6 +242,7 @@ export const SelectLeadInlineCell = ({
 };
 
 const SelectLeadFormValue = () => {
+  const { t } = useTranslation('operation');
   const { members, memberIds, setMembers } = useSelectMemberContext();
   return (
     <MembersInline
@@ -246,7 +250,7 @@ const SelectLeadFormValue = () => {
       members={members}
       updateMembers={setMembers}
       className="font-medium text-base text-foreground"
-      placeholder="Select lead"
+      placeholder={t('select-lead')}
     />
   );
 };
@@ -335,23 +339,34 @@ export const SelectLeadDetail = React.forwardRef<
     teamIds?: string[] | string;
     id?: string;
   }
->(({ onValueChange, className, teamIds, id, ...props }, ref) => {
+>(({ onValueChange, className, teamIds, id, value, ...props }, ref) => {
   const [open, setOpen] = useState(false);
+  const [internalValue, setInternalValue] = useState(value);
+
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
   const { updateProject } = useUpdateProject();
-  const handleValueChange = (value: string | string[] | null) => {
+  const handleValueChange = (lead: string | string[] | null) => {
+    setInternalValue(lead ?? undefined);
     if (id) {
       updateProject({
         variables: {
           _id: id,
-          leadId: value,
+          leadId: lead,
         },
       });
     }
-    value && onValueChange?.(value);
+    lead && onValueChange?.(lead);
     setOpen(false);
   };
   return (
-    <SelectLeadProvider onValueChange={handleValueChange} {...props}>
+    <SelectLeadProvider
+      onValueChange={handleValueChange}
+      value={internalValue}
+      {...props}
+    >
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase
           ref={ref}

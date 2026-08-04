@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
 import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
 import {
@@ -13,6 +14,7 @@ import { useAtom } from 'jotai';
 import { taskCreateSheetState } from '@/task/states/taskCreateSheetState';
 
 export const AddTaskSheet = () => {
+  const { t } = useTranslation('operation');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useAtom(taskCreateSheetState);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -34,7 +36,7 @@ export const AddTaskSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add task
+          {t('add-task')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>

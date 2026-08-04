@@ -1,6 +1,6 @@
 import { TmsCreateSheetHeader } from '@/tms/components/CreateTmsSheet';
 
-import { Sheet, Form, Preview, Separator, Spinner, Resizable } from 'erxes-ui';
+import { Sheet, Form, Spinner } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { TmsFormSchema, TmsFormType } from '@/tms/constants/formSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,6 +8,7 @@ import { TmsInformationFields } from '@/tms/components/TmsInformationFields';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { useBranchSubmit } from '@/tms/hooks/useBranchSubmit';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom, useSetAtom } from 'jotai';
 import { tmsFormAtom } from '@/tms/atoms/formAtoms';
 import { currentStepAtom } from '@/tms/states/tmsInformationFieldsAtoms';
@@ -15,7 +16,6 @@ import { currentStepAtom } from '@/tms/states/tmsInformationFieldsAtoms';
 interface PermissionConfig {
   type: string;
   title: string;
-  icon: string;
   config?: string;
 }
 
@@ -32,6 +32,7 @@ const CreateTmsForm = ({
   refetch?: () => Promise<any>;
   isOpen?: boolean;
 }) => {
+  const { t } = useTranslation('tourism');
   const { branchDetail, loading: detailLoading } = useBranchDetail({
     id: branchId || '',
   });
@@ -46,9 +47,13 @@ const CreateTmsForm = ({
     color,
     logo,
     favIcon,
+    language,
+    mainLanguage,
     generalManager,
     managers,
     payment,
+    prepaid,
+    prepaidPercent,
     token,
     otherPayments,
   } = formData;
@@ -60,9 +65,13 @@ const CreateTmsForm = ({
       color: color || '#4F46E5',
       logo: logo || '',
       favIcon: favIcon || '',
+      language: Array.isArray(language) ? language : [],
+      mainLanguage: mainLanguage || '',
       generalManager: Array.isArray(generalManager) ? generalManager : [],
       managers: Array.isArray(managers) ? managers : [],
-      payment: payment || '',
+      payment: Array.isArray(payment) ? payment : [],
+      prepaid: prepaid ?? false,
+      prepaidPercent: prepaid ? (prepaidPercent ?? undefined) : undefined,
       token: token || '',
       otherPayments: Array.isArray(otherPayments) ? otherPayments : [],
     },
@@ -89,8 +98,12 @@ const CreateTmsForm = ({
         generalManagerIds,
         managerIds,
         paymentIds,
+        prepaid,
+        prepaidPercent,
         erxesAppToken,
         permissionConfig,
+        language: mainLanguageFromDetail,
+        languages,
       } = branchDetail;
 
       const updatedFormData = {
@@ -98,15 +111,25 @@ const CreateTmsForm = ({
         color: uiOptions?.colors?.primary || '#4F46E5',
         logo: uiOptions?.logo || '',
         favIcon: uiOptions?.favIcon || '',
+        language: Array.isArray(languages)
+          ? languages.filter((code): code is string => typeof code === 'string')
+          : [],
+        mainLanguage:
+          typeof mainLanguageFromDetail === 'string'
+            ? mainLanguageFromDetail
+            : '',
         generalManager: generalManagerIds || [],
         managers: managerIds || [],
-        payment: Array.isArray(paymentIds) ? paymentIds[0] || '' : '',
+        payment: Array.isArray(paymentIds)
+          ? paymentIds.filter((id): id is string => typeof id === 'string')
+          : [],
+        prepaid: prepaid ?? false,
+        prepaidPercent: prepaid ? (prepaidPercent ?? undefined) : undefined,
         token: erxesAppToken || '',
         otherPayments: Array.isArray(permissionConfig)
           ? permissionConfig.map((config: PermissionConfig) => ({
               type: config.type || '',
               title: config.title || '',
-              icon: config.icon || '',
               config: config.config || '',
             }))
           : [],
@@ -122,10 +145,10 @@ const CreateTmsForm = ({
   }
 
   return (
-    <Sheet.View className="p-0 sm:max-w-8xl">
+    <Sheet.View className="h-full p-0 w-175 md:w-175 sm:max-w-175">
       {isEditMode ? (
         <Sheet.Header>
-          <Sheet.Title>Edit Tour Management System</Sheet.Title>
+          <Sheet.Title>{t('edit-tms')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
       ) : (
@@ -135,14 +158,10 @@ const CreateTmsForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex flex-col h-full"
+          className="flex flex-col w-full h-full"
         >
-          <Resizable.PanelGroup direction="horizontal">
-            <Resizable.Panel
-              className="flex flex-col"
-              defaultSize={100}
-              minSize={30}
-            >
+          <div className="flex flex-col w-full h-full min-h-0">
+            <div className="flex flex-col w-full h-full min-h-0">
               <TmsInformationFields
                 form={form}
                 onOpenChange={onOpenChange}
@@ -150,23 +169,8 @@ const CreateTmsForm = ({
                 isLoading={isLoading}
                 isOpen={isOpen}
               />
-            </Resizable.Panel>
-
-            <Resizable.Handle className="hidden md:flex" />
-            <Resizable.Panel
-              className="hidden flex-col h-full md:flex"
-              defaultSize={100}
-              minSize={30}
-            >
-              <Preview>
-                <div className="bg-background">
-                  <Preview.Toolbar path="/tourism/tms/PreviewPage?inPreview=true" />
-                </div>
-                <Separator />
-                <Preview.View iframeSrc="/tourism/tms/PreviewPage?inPreview=true" />
-              </Preview>
-            </Resizable.Panel>
-          </Resizable.PanelGroup>
+            </div>
+          </div>
         </form>
       </Form>
     </Sheet.View>

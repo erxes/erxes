@@ -4,12 +4,12 @@ import {
   useMutation,
   useQuery,
 } from '@apollo/client';
-
-import { UPDATE_PROFILE } from '@/settings/profile/graphql/mutations/updateProfile';
-import { GET_USER_DETAIL } from '@/settings/profile/graphql/queries/userDetail';
 import { toast, useConfirm } from 'erxes-ui';
-import { useAtom } from 'jotai';
+
+import { GET_USER_DETAIL } from '@/settings/profile/graphql/queries/userDetail';
+import { UPDATE_PROFILE } from '@/settings/profile/graphql/mutations/updateProfile';
 import { currentUserState } from 'ui-modules';
+import { useAtom } from 'jotai';
 
 const useProfile = (options?: OperationVariables) => {
   const [currentUser, setCurrentUser] = useAtom(currentUserState);
@@ -45,7 +45,6 @@ const useProfile = (options?: OperationVariables) => {
           });
         },
         onCompleted: ({ usersEditProfile }) => {
-          console.log('usersEditProfile', usersEditProfile)
           setCurrentUser((prev) => ({
             ...prev,
             ...usersEditProfile,

@@ -6,16 +6,15 @@ import { IInvoice, IInvoiceDocument } from '~/modules/payment/@types/invoices';
 import { invoiceSchema } from '~/modules/payment/db/definitions/invoices';
 import redis from '~/utils/redis';
 
-
-
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
-  getInvoice(doc: any, leanObject?: boolean): IInvoiceDocument;
+  getInvoice(doc: any, leanObject?: boolean): Promise<IInvoiceDocument>;
   createInvoice(doc: IInvoice, subdomain?: string): Promise<IInvoiceDocument>;
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
   checkInvoice(_id: string, subdomain: string): Promise<string>;
   removeInvoices(_ids: string[]): Promise<any>;
   markAsPaid(_id: string): Promise<string>;
+  scanBarcode(code: string): Promise<IInvoiceDocument>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -33,15 +32,16 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
-      if (!doc.amount && doc.amount === 0) {
+      console.log('[createInvoice] called');
+      if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
 
       const invoice = await models.Invoices.create(doc);
 
-      if (doc.paymentIds && doc.paymentIds.length === 1) {
+      if (doc.paymentIds?.length === 1) {
         const payment = await models.PaymentMethods.getPayment(
-          doc.paymentIds[0]
+          doc.paymentIds[0],
         );
 
         if (!payment) {
@@ -56,12 +56,12 @@ export const loadInvoiceClass = (models: IModels) => {
           description: invoice.description,
         });
 
-        const api = new ErxesPayment(payment);
+        const api = new ErxesPayment(payment, subdomain);
 
         try {
-          const reponse = await api.createInvoice(transaction);
-          transaction.response = reponse;
-          invoice.save();
+          const response = await api.createInvoice(transaction.toObject());
+          transaction.response = response;
+          await transaction.save();
 
           return invoice;
         } catch (e) {
@@ -117,8 +117,8 @@ export const loadInvoiceClass = (models: IModels) => {
           // Process transactions in parallel for better performance
           const statusChecks = await Promise.all(
             unpaidTransactions.map((transaction) =>
-              models.Transactions.checkTransaction(transaction._id, subdomain)
-            )
+              models.Transactions.checkTransaction(transaction._id, subdomain),
+            ),
           );
 
           // Update transactions atomically using bulkWrite
@@ -130,7 +130,7 @@ export const loadInvoiceClass = (models: IModels) => {
               },
               update: {
                 $set: {
-                  status: statusChecks[index] === 'paid' ? 'paid' : 'pending',
+                  status: statusChecks[index],
                 },
               },
             },
@@ -141,7 +141,7 @@ export const loadInvoiceClass = (models: IModels) => {
           }
         } catch (error) {
           console.error(
-            `Error checking transaction statuses: ${error.message}`
+            `Error checking transaction statuses: ${error.message}`,
           );
         }
       }
@@ -164,6 +164,15 @@ export const loadInvoiceClass = (models: IModels) => {
       ]);
 
       if (totalAmount.length === 0) {
+        const failed = await models.Transactions.exists({
+          invoiceId: _id,
+          status: PAYMENT_STATUS.FAILED,
+        });
+
+        if (failed) {
+          return PAYMENT_STATUS.FAILED;
+        }
+
         return PAYMENT_STATUS.PENDING;
       }
 
@@ -173,7 +182,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       await models.Invoices.updateOne(
         { _id },
-        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } }
+        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
       );
 
       return PAYMENT_STATUS.PAID;
@@ -199,6 +208,24 @@ export const loadInvoiceClass = (models: IModels) => {
       return 'removed';
     }
 
+    public static async scanBarcode(code: string) {
+      const invoice = await models.Invoices.findOneAndUpdate(
+        { invoiceNumber: code, scannedAt: null },
+        { $set: { scannedAt: new Date() } },
+        { new: true },
+      );
+
+      if (!invoice) {
+        const exists = await models.Invoices.exists({ invoiceNumber: code });
+        if (!exists) {
+          throw new Error(`Invoice not found for barcode: ${code}`);
+        }
+        throw new Error('Barcode already scanned');
+      }
+
+      return invoice;
+    }
+
     public static async markAsPaid(_id: string) {
       const invoice = await models.Invoices.getInvoice({ _id });
 
@@ -208,7 +235,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       await models.Invoices.updateOne(
         { _id },
-        { $set: { status: 'paid', resolvedAt: new Date() } }
+        { $set: { status: 'paid', resolvedAt: new Date() } },
       );
 
       return 'success';

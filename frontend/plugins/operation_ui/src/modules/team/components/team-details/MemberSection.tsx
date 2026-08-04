@@ -1,8 +1,10 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { ITeam } from '@/team/types';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const MemberSection = ({ team }: { team: ITeam }) => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
 
   return (
@@ -12,11 +14,11 @@ export const MemberSection = ({ team }: { team: ITeam }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>Manage team members</p>
+          <p>{t('manage-team-members')}</p>
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              {team.memberCount} {team.memberCount === 1 ? 'member' : 'members'}
+              {team.memberCount} {team.memberCount === 1 ? t('member') : t('members')}
             </p>
             <IconChevronRight className="w-4 h-4" />
             {/* <Popover>

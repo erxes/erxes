@@ -1,11 +1,20 @@
 import { IAttachment } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 
+export type PricingPriority = '' | 'public' | 'posBase';
+export type PricingAppliesTo =
+  | 'category'
+  | 'product'
+  | 'segment'
+  | 'vendor'
+  | 'tag'
+  | 'bundle';
+
 export interface IPricing {
   _id: string;
   name: string;
   status: 'active' | 'archived' | 'draft' | 'completed';
-  isPriority: boolean;
+  priority: PricingPriority;
   applyType: 'category' | 'product' | 'order';
   createdBy: string;
   createdAt: string;
@@ -66,7 +75,7 @@ export interface IPricingPlanDetail {
   priceAdjustType: string;
   priceAdjustFactor: number;
   bonusProduct?: string;
-  isPriority: boolean;
+  priority: PricingPriority;
   applyType: string;
 
   products?: string[];
@@ -79,6 +88,34 @@ export interface IPricingPlanDetail {
   tags?: string[];
   tagsExcluded?: string[];
 
+  customerIds?: string[];
+  customerTags?: string[];
+  customerExcludeTags?: string[];
+  customerSegmentIds?: string[];
+
+  companyIds?: string[];
+  companyTags?: string[];
+  companyExcludeTags?: string[];
+  companySegmentIds?: string[];
+
+  userIds?: string[];
+  userPositions?: string[];
+  userSegmentIds?: string[];
+
+  brokerCustomerIds?: string[];
+  brokerCustomerTags?: string[];
+  brokerCustomerExcludeTags?: string[];
+  brokerCustomerSegmentIds?: string[];
+
+  brokerCompanyIds?: string[];
+  brokerCompanyTags?: string[];
+  brokerCompanyExcludeTags?: string[];
+  brokerCompanySegmentIds?: string[];
+
+  brokerUserIds?: string[];
+  brokerUserPositions?: string[];
+  brokerUserSegmentIds?: string[];
+
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;
   startDate?: string;
@@ -86,9 +123,9 @@ export interface IPricingPlanDetail {
 
   branchIds?: string[];
   departmentIds?: string[];
-  boardId?: string;
-  pipelineId?: string;
-  stageId?: string;
+  boardId?: string | null;
+  pipelineId?: string | null;
+  stageId?: string | null;
 
   isQuantityEnabled?: boolean;
   quantityRules?: IPricingQuantityRule[];
@@ -122,6 +159,19 @@ export interface IProductCategory {
   parentId?: string;
 }
 
+export interface IPricingFixedValue {
+  _id: string;
+  pricingPlanId: string;
+  productId: string;
+  sortField?: string;
+  uom: string;
+  unitPrice: number;
+  newPrice: number;
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 export interface ProductCategoriesResponse {
   productCategories: IProductCategory[];
 }

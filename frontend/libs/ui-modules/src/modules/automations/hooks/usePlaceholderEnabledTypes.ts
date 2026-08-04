@@ -4,22 +4,26 @@ import {
   SUGGESTION_GROUPS,
 } from '../constants/placeholderInputConstants';
 import {
+  DisabledSuggestions,
   EnabledSuggestions,
   SuggestionConfig,
+  TPlaceholderInputSuggestion,
 } from '../types/placeholderInputTypes';
 
 interface UsePlaceholderEnabledTypesParams {
   enabled?: EnabledSuggestions;
+  disabled?: DisabledSuggestions;
   suggestionGroups?: string[];
   enableAll?: boolean;
   extraSuggestionConfigs?: SuggestionConfig[];
 }
 
 export function usePlaceholderEnabledTypes({
-  enabled,
+  enabled = [],
+  disabled = [],
   suggestionGroups,
   enableAll = false,
-  extraSuggestionConfigs,
+  extraSuggestionConfigs = [],
 }: UsePlaceholderEnabledTypesParams) {
   const { enabledTypes } = useMemo(() => {
     const base: Record<string, boolean> = {
@@ -30,19 +34,18 @@ export function usePlaceholderEnabledTypes({
       Object.keys(base).forEach((key) => {
         base[key] = true;
       });
-    } else if (suggestionGroups && suggestionGroups.length) {
+    } else if (suggestionGroups?.length) {
       suggestionGroups.forEach((groupName) => {
         const types = SUGGESTION_GROUPS[groupName];
-        if (types && types.length) {
+        if (types?.length) {
           types.forEach((t) => {
             base[t] = true;
           });
         }
       });
     } else if (enabled) {
-      for (const type of Object.keys(base)) {
-        const enabledValue = enabled[type];
-        base[type] = !!enabledValue;
+      for (const type of Object.values(TPlaceholderInputSuggestion)) {
+        base[type] = enabled.includes(type);
       }
     }
 
@@ -52,10 +55,16 @@ export function usePlaceholderEnabledTypes({
       }
     }
 
+    if (disabled) {
+      for (const type of disabled) {
+        base[type] = false;
+      }
+    }
+
     return {
       enabledTypes: base,
     };
-  }, [enabled, suggestionGroups, enableAll, extraSuggestionConfigs]);
+  }, [disabled, enabled, suggestionGroups, enableAll, extraSuggestionConfigs]);
 
   return { enabledTypes };
 }

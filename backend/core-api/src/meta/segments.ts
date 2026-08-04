@@ -1,10 +1,8 @@
 import {
   gatherAssociatedTypes,
   getContentType,
-  getPluginName,
   initSegmentProducers,
   splitType,
-  TAutomationProducers,
   TSegmentProducers,
 } from 'erxes-api-shared/core-modules';
 import {
@@ -25,26 +23,26 @@ export const initSegmentCoreProducers = (app: Express) =>
   initSegmentProducers(app, 'core', {
     contentTypes: [
       {
-        moduleName: 'team',
-        type: 'user',
+        moduleName: 'organization',
+        type: 'users',
         description: 'Team member',
         esIndex: 'users',
       },
       {
-        moduleName: 'contact',
-        type: 'company',
+        moduleName: 'contacts',
+        type: 'companies',
         description: 'Company',
         esIndex: 'companies',
       },
       {
-        moduleName: 'contact',
-        type: 'customer',
+        moduleName: 'contacts',
+        type: 'customers',
         description: 'Customer',
         esIndex: 'customers',
       },
       {
-        moduleName: 'contact',
-        type: 'lead',
+        moduleName: 'contacts',
+        type: 'leads',
         description: 'Lead',
         esIndex: 'customers',
         notAssociated: true,

@@ -5,6 +5,7 @@ export interface IUser {
   email?: string;
   username?: string;
   isOwner?: boolean;
+  isActive?: boolean;
   configs?: any;
   isOnboarded: boolean;
   details?: {
@@ -29,11 +30,4 @@ export interface IUserGroupContext {
   setUsersGroups: (usersGroups: IUserGroup[]) => void;
   loading: boolean;
   error: string | null;
-}
-
-export interface MentionMenuProps extends SlashMenuProps {
-  loading: boolean;
-  users: IUser[];
-  handleFetchMore: () => void;
-  totalCount: number;
 }

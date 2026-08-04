@@ -3,19 +3,25 @@ import { z } from 'zod';
 export const EM_CONFIG_SCHEMA = z.object({
   name: z.string().min(1, 'Name is required'),
   channelId: z.string(),
-  ticketConfigId: z.string().optional(),
+  brandId: z.string().optional().nullable(),
+  ticketConfigId: z.string().optional().nullable(),
+  knowledgeBaseTopicId: z.string().optional().nullable(),
   botSetup: z
     .object({
       greetingMessage: z.string().optional(),
       persistentMenu: z
         .array(
           z.object({
-            title: z.string().optional(),
+            text: z.string().optional(),
             type: z.enum(['button', 'link']).optional(),
+            link: z.string().optional(),
+            contentType: z.string().optional().default('text'),
           }),
         )
         .optional(),
       botCheck: z.boolean().optional(),
+      botShowInitialMessage: z.boolean().optional(),
+      automationId: z.string().optional().nullable(),
     })
     .optional(),
   cloudflareCallsSetup: z

@@ -5,7 +5,7 @@ import { ICustomer } from 'ui-modules';
 import { useCustomersVariables } from '@/contacts/customers/hooks/useCustomers';
 
 export const useRemoveCustomers = () => {
-  const { customersQueryVariables } = useCustomersVariables();
+  const customersQueryVariables = useCustomersVariables();
   const [_removeCustomers, { loading }] = useMutation(CUSTOMERS_REMOVE);
 
   const removeCustomers = async (
@@ -21,10 +21,11 @@ export const useRemoveCustomers = () => {
             query: GET_CUSTOMERS,
             variables: customersQueryVariables,
           },
-          ({ customers }) => {
+          (data) => {
+            if (!data) return;
+            const { customers } = data;
             const updatedCustomers = customers.list.filter(
-              (customer: ICustomer) =>
-                !options?.variables?.customerIds.includes(customer._id),
+              (customer: ICustomer) => !customerIds.includes(customer._id),
             );
 
             return {
