@@ -23,6 +23,7 @@
 
 - Creates, updates, links, removes, and reports accounting transactions.
 - Supports main, cash, bank, receivable, payable, tax, inventory, and fixed asset journal handlers.
+- Exposes inventory price lookup helpers for current cost and last completed income price by product.
 - Accepts Erkhet migration batches at `/pl:accounting/migration/erkhet/transactions`; by default it validates and resolves source codes, then raw-saves the supplied transaction documents without recalculating journal side effects.
 
 ## Architecture
@@ -39,6 +40,7 @@
 ### Provides
 
 - GraphQL accounting schema and resolvers from `src/modules/accounting/graphql`.
+- GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`, returning each requested product's last completed inventory income unit price or `0`.
 - HTTP route `/pl:accounting/migration/erkhet/transactions` for token-protected Erkhet batch imports.
 - Transaction model methods such as `createPTransaction`, `updatePTransaction`, `createTransaction`, and `updateTransaction`.
 
@@ -59,6 +61,7 @@
 - Erkhet migration raw-save mode must not invent accounting calculations that should come from Erkhet payloads.
 - External source codes must be validated and resolved before transaction documents are saved.
 - Fixed asset master records are matched by code during migration; missing codes must fail the batch.
+- Last income price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 
 ## Validation
 
@@ -70,6 +73,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-03` — `Inventory Last Income Price Query`
+
+- **Summary:** Inventory price lookup now exposes last completed income unit prices with `0` defaults for products without purchase history.
+- **Affected areas:** `src/modules/accounting/graphql/resolvers/queries/inventories.ts`, `src/modules/accounting/graphql/schemas/inventories.ts`.
+- **Contracts changed:** Added GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`.
 
 ### `2026-08-03` — `Erkhet Raw Batch Migration`
 

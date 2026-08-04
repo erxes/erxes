@@ -26,14 +26,14 @@ const ORG_PAIRS: { source: string; target: string }[] = [
   { source: 'greatdate', target: 'newgreatdate' },
   { source: 'tsembiibuteel', target: 'tsembiibuteelnew' },
   { source: 'tsembiiauto', target: 'tsembiiautonew' },
-  {source:'hanammongol',  target:'hanammongolnew'},
+  { source: 'hanammongol', target: 'hanammongolnew' },
   { source: 'dermaestheticllc', target: 'dermaestheticnew' },
   { source: 'dboil', target: 'dboilnew' },
   { source: 'msh', target: 'mshnew' },
   { source: 'restaurantmsh', target: 'restaurantmshnew' },
   { source: 'ssr', target: 'ssrnew' },
-  {source:'mshrestaurant', target:'mshrestaurantnew'},
-  {source:"newmilestone", target:"nnewmilestone"},
+  { source: 'mshrestaurant', target: 'mshrestaurantnew' },
+  { source: 'newmilestone', target: 'nnewmilestone' },
   { source: 'sukgarden', target: 'sukgardennew' },
   { source: 'tansagamttan', target: 'tansagamttannew' },
   { source: 'burensukh', target: 'burensukhnew' },
@@ -42,15 +42,14 @@ const ORG_PAIRS: { source: string; target: string }[] = [
   { source: 'monalisa', target: 'newmonalisa' },
   { source: 'celimax', target: 'newcelimax' },
   { source: 'aanaamandakh', target: 'newaanaamandakh' },
-  {source:'mkh', target:'mandukhai'},
+  { source: 'mkh', target: 'mandukhai' },
   { source: 'ikhnaydfitnessclub', target: 'newikhnaydfitnessclub' },
   { source: 'uggmongolia', target: 'newuggmongolia' },
   { source: 'centreoptic', target: 'centreopticnew' },
-  {source:'nutrigums', target:'nutrigumsnew'},
+  { source: 'nutrigums', target: 'nutrigumsnew' },
   { source: 'dts', target: 'dtsdistribution' },
   { source: 'tic4x4andoutdoor', target: 'ticoutdoor' },
   { source: 'flowerhotel', target: 'flowerhotelmn' },
-
 ];
 
 function extractDbName(url: string): string {
@@ -59,19 +58,31 @@ function extractDbName(url: string): string {
 }
 
 const COLLECTIONS = [
-  'uoms',
-  'products_configs',
-  'product_categories',
-  'products',
-  'product_packages',
-  'product_similarities',
+  // deal pipeline
+  'sales_boards',
+  'sales_pipelines',
+  'sales_stages',
+  'sales_pipeline_labels',
+  'deals',
+  'sales_checklists',
+  'sales_checklist_items',
+
+  // pos
+  'product_groups',
+  'pos',
+  'pos_orders',
+  'pos_slots',
+  'pos_covers',
+
+  // ecommerce
+  'ecommerce_productreview',
+  'ecommerce_wishlist',
+  'ecommerce_lastvieweditem',
+  'ecommerce_address',
 ];
 
 const UNIQUE_FIELDS: Record<string, string[]> = {
-  products: ['code'],
-  uoms: ['code'],
-  products_configs: ['code'],
-  product_categories: ['code'],
+  deals: ['number'],
 };
 
 type CollectionStats = {
@@ -129,6 +140,11 @@ async function migrateByReplace(
   return stats;
 }
 
+/**
+ * Dedup-aware insert for collections with unique indexes. Skips any source doc
+ * whose `_id` or any unique field already exists in the target (or earlier in
+ * this run), inserts the rest verbatim.
+ */
 async function migrateWithDedup(
   srcCol: Collection,
   dstCol: Collection,
@@ -359,8 +375,7 @@ async function main() {
         if (failed.length > 0 || totals.errors > 0) {
           failedPairs.push({
             pair: `${source} → ${target}`,
-            error:
-              failed.join('; ') || `${totals.errors} write error(s)`,
+            error: failed.join('; ') || `${totals.errors} write error(s)`,
           });
         }
       } catch (err: any) {

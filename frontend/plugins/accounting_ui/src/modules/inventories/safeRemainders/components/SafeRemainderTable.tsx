@@ -37,7 +37,8 @@ export const SafeRemainderTable = () => {
     <RecordTable.Provider
       columns={safeRemainderColumns}
       data={isInitialLoading ? [] : safeRemainders || []}
-      stickyColumns={[]}
+      stickyColumns={['more']}
+      tableId="accounting_safe_remainders_record_table"
       className="m-3"
     >
       <RecordTable.Scroll>
@@ -46,12 +47,13 @@ export const SafeRemainderTable = () => {
           <RecordTable.Body>
             <RecordTable.RowList />
             {isInitialLoading && <SafeRemainderInitialSkeleton rows={20} />}
-            {!isInitialLoading && totalCount > (safeRemainders?.length ?? 0) && (
-              <RecordTable.RowSkeleton
-                rows={4}
-                handleInView={handleFetchMore}
-              />
-            )}
+            {!isInitialLoading &&
+              totalCount > (safeRemainders?.length ?? 0) && (
+                <RecordTable.RowSkeleton
+                  rows={4}
+                  handleInView={handleFetchMore}
+                />
+              )}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
