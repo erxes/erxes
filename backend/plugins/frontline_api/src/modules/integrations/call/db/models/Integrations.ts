@@ -8,16 +8,12 @@ import {
 import { integrationSchema } from '@/integrations/call/db/definitions/integrations';
 
 export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
-  getIntegrations(
-    userId: string,
-  ): Promise<ICallIntegration[]>;
+  getIntegrations(userId: string): Promise<ICallIntegration[]>;
   getIntegration(
     userId: string,
     integrationId: string,
   ): Promise<ICallIntegrationDocument>;
-  getIntegrationQueuesByUser(
-    userId: string,
-  ): Promise<string[]>;
+  getIntegrationQueuesByUser(userId: string): Promise<string[]>;
 }
 
 export const loadCallIntegrationClass = (models: IModels) => {

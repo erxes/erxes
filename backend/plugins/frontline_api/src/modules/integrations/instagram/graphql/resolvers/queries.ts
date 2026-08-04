@@ -208,7 +208,7 @@ export const instagramQueries = {
     { models }: IContext,
   ) {
     const conversation = await models.Conversations.findOne({ _id });
-   if (conversation) {
+    if (conversation) {
       return conversation;
     }
     return models.InstagramCommentConversation.findOne({ _id });
@@ -438,7 +438,9 @@ export const instagramQueries = {
           ? facebookPageTokensMap[facebookPageId]
           : undefined;
         if (!accessToken) {
-          debugInstagram(`Access token missing for page ID: ${instagramPageId}`);
+          debugInstagram(
+            `Access token missing for page ID: ${instagramPageId}`,
+          );
           return [];
         }
 

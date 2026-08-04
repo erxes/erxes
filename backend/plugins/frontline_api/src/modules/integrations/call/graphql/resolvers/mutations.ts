@@ -207,7 +207,8 @@ const callsMutations = {
       user,
     );
 
-    const status = callTransferResponse?.status ?? callTransferResponse?.response?.status;
+    const status =
+      callTransferResponse?.status ?? callTransferResponse?.response?.status;
     if (status === 0 || callTransferResponse?.response?.need_apply) {
       return 'success';
     }
