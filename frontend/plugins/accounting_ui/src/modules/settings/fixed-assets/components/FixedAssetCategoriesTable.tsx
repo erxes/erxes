@@ -175,6 +175,7 @@ export const FixedAssetCategoriesTable = () => {
       stickyColumns={['more', 'checkbox', 'code']}
       className="m-3"
       Commandbar={FixedAssetCategoriesCommandbar}
+      tableId="accounting_fixed_asset_categories_record_table"
     />
   );
 };

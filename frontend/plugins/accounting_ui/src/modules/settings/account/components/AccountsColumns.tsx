@@ -136,6 +136,7 @@ export const AccountMoreColumnCell = ({
 
 export const accountMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: AccountMoreColumnCell,
   size: 33,
 };

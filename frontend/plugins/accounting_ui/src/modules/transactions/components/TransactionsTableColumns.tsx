@@ -23,7 +23,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
-import { TR_JOURNAL_LABELS, TR_STATUS_LABELS, TrJournalEnum } from '../types/constants';
+import {
+  TR_JOURNAL_LABELS,
+  TR_STATUS_LABELS,
+  TrJournalEnum,
+} from '../types/constants';
 import { ITransaction } from '../types/Transaction';
 
 // Create named components for cell renderers to fix React Hook usage
@@ -171,13 +175,17 @@ const AccountCell = ({ row }: any) => {
 
   const handleEditAccount = () => {
     navigate(
-      `/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${
+        originId || _id
       }`,
     );
   };
 
   return (
-    <RecordTableInlineCell onClick={handleEditAccount} className="cursor-pointer">
+    <RecordTableInlineCell
+      onClick={handleEditAccount}
+      className="cursor-pointer"
+    >
       {codes.map((code, i) => {
         const count = infoByCode[code];
         const tot = count > 1 ? `(${count})` : '';
@@ -204,7 +212,8 @@ const TransactionMoreColumnCell = ({
   const { removeTransactions } = useTransactionsRemove();
   const handleEditAcc = () => {
     navigate(
-      `/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${
+        originId || _id
       }`,
     );
   };
@@ -242,6 +251,7 @@ const TransactionMoreColumnCell = ({
 
 const transactionMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TransactionMoreColumnCell,
   size: 33,
 };

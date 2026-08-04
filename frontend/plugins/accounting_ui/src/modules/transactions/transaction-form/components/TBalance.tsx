@@ -86,6 +86,7 @@ export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
       columns={columns}
       data={data || []}
       stickyColumns={['more', 'account']}
+      tableId="accounting_transaction_balance_record_table"
       className="m-3"
     >
       <RecordTable.Scroll>
