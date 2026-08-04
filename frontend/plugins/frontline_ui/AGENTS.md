@@ -53,20 +53,20 @@
 
 ## Architecture
 
-| Area                | Path                                                              | Responsibility                                             |
-| ------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------- |
-| Host registration   | `src/config.tsx`                                                  | `CONFIG` — navigation, settings, widgets, property inputs   |
-| Federation          | `module-federation.config.ts`                                     | Remote name `frontline_ui` and its exposes                  |
-| Routes              | `src/modules/FrontlineMain.tsx`, `src/pages/`                     | Routed pages for inbox, ticket, forms, call, channels       |
-| Settings            | `src/modules/FrontlineSettings.tsx`                               | Settings routes                                             |
-| Inbox               | `src/modules/inbox/`                                              | Conversations, channels, brands, integrations               |
-| Ticket              | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/` | Ticket boards, pipelines, statuses                     |
-| Forms               | `src/modules/forms/`                                              | Form builder, preview, submissions                          |
-| Knowledge base      | `src/modules/knowledgebase/`                                      | Topics, categories, articles                                |
-| Automation widgets  | `src/widgets/automations/modules/<module>/`                       | Per-module trigger/action/bot/history components            |
-| FB message action   | `src/widgets/automations/modules/facebook/components/action/`     | Message sequence form, provider, constants, states          |
-| FB post composer    | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading |
-| Notifications       | `src/widgets/notifications/`                                      | Notification remote entries                                 |
+| Area               | Path                                                                                                                              | Responsibility                                            |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Host registration  | `src/config.tsx`                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs |
+| Federation         | `module-federation.config.ts`                                                                                                     | Remote name `frontline_ui` and its exposes                |
+| Routes             | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                     | Routed pages for inbox, ticket, forms, call, channels     |
+| Settings           | `src/modules/FrontlineSettings.tsx`                                                                                               | Settings routes                                           |
+| Inbox              | `src/modules/inbox/`                                                                                                              | Conversations, channels, brands, integrations             |
+| Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                            | Ticket boards, pipelines, statuses                        |
+| Forms              | `src/modules/forms/`                                                                                                              | Form builder, preview, submissions                        |
+| Knowledge base     | `src/modules/knowledgebase/`                                                                                                      | Topics, categories, articles                              |
+| Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                       | Per-module trigger/action/bot/history components          |
+| FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                     | Message sequence form, provider, constants, states        |
+| FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading      |
+| Notifications      | `src/widgets/notifications/`                                                                                                      | Notification remote entries                               |
 
 ## Contracts
 

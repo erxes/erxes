@@ -42,7 +42,9 @@ export const loginMiddleware = async (req, res) => {
   const conf = {
     client_id: app.appId,
     client_secret: app.appSecret,
-    scope: FACEBOOK_PERMISSIONS + ',pages_read_engagement,pages_show_list,pages_manage_posts',
+    scope:
+      FACEBOOK_PERMISSIONS +
+      ',pages_read_engagement,pages_show_list,pages_manage_posts',
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
