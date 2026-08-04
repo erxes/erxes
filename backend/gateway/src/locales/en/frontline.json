@@ -1095,6 +1095,7 @@
   "if-not-reply": "If Not Reply",
   "action-requires-trigger": "This action must be part of a chain that starts with a trigger",
   "max-five-messages": "You can only add up to 5 messages per action",
+  "single-message-comment-flow": "A comment reply can only send one message. Add a button and continue the flow in the next action.",
   "specific-post": "Specific post",
   "any-post": "Any post",
   "all-send-message-entries": "All send message entries",
