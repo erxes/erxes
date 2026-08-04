@@ -200,6 +200,7 @@ const ReserveRemMoreColumnCell = ({
 
 export const reserveRemMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ReserveRemMoreColumnCell,
   size: 33,
 };

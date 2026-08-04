@@ -30,6 +30,15 @@ export const formatIsoDatesInText = (text: string) =>
     )}-${padDatePart(date.getDate())}`;
   });
 
+const DEAD_LINK_REGEX = /<a\s[^>]*href="(?:|-|#)"[^>]*>([\s\S]*?)<\/a>/gi;
+
+/**
+ * A link whose placeholder resolved to nothing would ship as a dead anchor,
+ * so keep the text and drop the anchor instead.
+ */
+export const stripDeadLinks = (html: string) =>
+  html.replace(DEAD_LINK_REGEX, '$1');
+
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes: Array<{
     type: string;

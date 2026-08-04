@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { JOURNALS } from '@/accounting/@types/constants';
+import { JOURNALS, TR_STATUSES } from '@/accounting/@types/constants';
 import { activeCost } from '~/modules/accounting/utils/inventories';
 
 const configQueries = {
@@ -9,27 +9,33 @@ const configQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('accountsRead');
+    const safeProductIds = productIds || [];
+    const result: Record<string, number> = {};
+    for (const productId of safeProductIds) {
+      result[productId] = 0;
+    }
+
     const aggByProductId = await models.Transactions.aggregate([
       {
         $match: {
           journal: JOURNALS.INV_INCOME,
-          'details.productId': { $in: productIds },
+          status: { $in: TR_STATUSES.ACTIVE },
+          'details.productId': { $in: safeProductIds },
         },
       },
       { $unwind: '$details' },
-      { $match: { 'details.productId': { $in: productIds } } },
-      { $sort: { date: -1 } },
+      { $match: { 'details.productId': { $in: safeProductIds } } },
+      { $sort: { date: -1, createdAt: -1, _id: -1 } },
       {
         $group: {
-          _id: 'details.productId',
+          _id: '$details.productId',
           price: { $first: '$details.unitPrice' },
         },
       },
     ]);
 
-    const result = {};
     for (const productIdPrice of aggByProductId) {
-      result[productIdPrice._id] = productIdPrice.price;
+      result[productIdPrice._id] = productIdPrice.price || 0;
     }
 
     // { [productId: string]: number }

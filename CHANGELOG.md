@@ -1,5 +1,93 @@
 # Changelog
 
+## [3.0.69](https://github.com/erxes/erxes/compare/3.0.68...3.0.69) (2026-08-04)
+
+
+### Bug Fixes
+
+* **accounting:** add record table column selectors ([#8867](https://github.com/erxes/erxes/issues/8867)) ([2745433](https://github.com/erxes/erxes/commit/2745433ad5b389c430a6b1806a21fc358f8bf0d1))
+* **operation:** allow bulk status change for tasks without a team-scoped route ([#8884](https://github.com/erxes/erxes/issues/8884)) ([f63e5dc](https://github.com/erxes/erxes/commit/f63e5dccc64d641202db9f7465972733b22e7852))
+* **saas-migrations:** migrate form fields missed by contentType filter ([6746c77](https://github.com/erxes/erxes/commit/6746c77f791bea59ec6e223f94f797ec1063217d))
+* update tagsSelect to display selected tags count and add showSelectedTagsOutside prop to DealTagsChip ([#8892](https://github.com/erxes/erxes/issues/8892)) ([f123c83](https://github.com/erxes/erxes/commit/f123c83c7739e4f66efe4b9bad10e688f03bfdd2))
+
+
+### Features
+
+* **frontline:** add single message limit for comment replies and update UI components ([b825e8d](https://github.com/erxes/erxes/commit/b825e8d9cb4427c4d447dedd9b57426779c8fc6b))
+* operation implement github integration feature ([#8582](https://github.com/erxes/erxes/issues/8582)) ([3865678](https://github.com/erxes/erxes/commit/38656786c1b6c746608dd9560e4b90330e9dff9f))
+* **saas-migrations:** add multi-org sales migration script ([600cdad](https://github.com/erxes/erxes/commit/600cdad0d25499fa8ded7a6f9f767357ce040492))
+
+
+### Performance Improvements
+
+* **frontline:** only show active members in channel members list ([#8882](https://github.com/erxes/erxes/issues/8882)) ([ffb74e8](https://github.com/erxes/erxes/commit/ffb74e84e44f70f473e9796cb2c785d14c1e985a))
+* improve bulk selection and actions on products ([#8876](https://github.com/erxes/erxes/issues/8876)) ([ec237df](https://github.com/erxes/erxes/commit/ec237dff88cd10125ad8ef082bb4bad449938b62))
+
+
+### Reverts
+
+* "feat: operation implement github integration feature ([#8582](https://github.com/erxes/erxes/issues/8582))" ([#8895](https://github.com/erxes/erxes/issues/8895)) ([e61c666](https://github.com/erxes/erxes/commit/e61c6665aa7b756edbdd2d80b8e47c78ffaa14e4))
+
+## [3.0.68](https://github.com/erxes/erxes/compare/3.0.67...3.0.68) (2026-08-03)
+
+
+### Bug Fixes
+
+* inventory journals with unitPrice ([#8873](https://github.com/erxes/erxes/issues/8873)) ([8973d08](https://github.com/erxes/erxes/commit/8973d086d939a3b2ffe1337c6f5b40266b0aeda1))
+
+
+
+## [3.0.67](https://github.com/erxes/erxes/compare/3.0.66...3.0.67) (2026-08-03)
+
+
+### Bug Fixes
+
+* add deactivate and resend invite bulk actions ([#8843](https://github.com/erxes/erxes/issues/8843)) ([89f950f](https://github.com/erxes/erxes/commit/89f950f6c784e41bbbcf078efbdc549f2f3edae4))
+* **contacts:** defer card customer queries ([#8887](https://github.com/erxes/erxes/issues/8887)) ([5b5cad0](https://github.com/erxes/erxes/commit/5b5cad05bec33877033453382f89d9e4ad0cd153))
+* email sender confirm ([#8881](https://github.com/erxes/erxes/issues/8881)) ([cca62bb](https://github.com/erxes/erxes/commit/cca62bb996fd9d45617e2089b713e93ac570e23d))
+* icon was rendering it directly as object instead of JSX element ([fdeb64c](https://github.com/erxes/erxes/commit/fdeb64ca4673b5e7e771f18de5673a03a2d89a1d))
+* improve selector and category flows ([#8840](https://github.com/erxes/erxes/issues/8840)) ([b0f314c](https://github.com/erxes/erxes/commit/b0f314c3af3b06162ea0f129b59aea6870df3ee0))
+* **payment:** preserve failed TDB invoice status  ([5a34268](https://github.com/erxes/erxes/commit/5a342687a583636cecbad059d23489f97994074c))
+* **saas-migrations:** install wordpress import deps in the migration image ([68e89c7](https://github.com/erxes/erxes/commit/68e89c7b18eb6aa7a3ee34553501732f83e70b15))
+* **saas-migrations:** upload wordpress media without erxes-api-shared ([eaec533](https://github.com/erxes/erxes/commit/eaec533336756d321006a3f61afa22a14ec5699b))
+* **sales:** align deal settings layout ([#8879](https://github.com/erxes/erxes/issues/8879)) ([2b4846c](https://github.com/erxes/erxes/commit/2b4846c4308ffc532f6d6dcb9b587b84cc40f962))
+* **sales:** apply date filters to stage forecasts ([#8885](https://github.com/erxes/erxes/issues/8885)) ([6d53728](https://github.com/erxes/erxes/commit/6d5372818b8c8effc7d7ccd693fc2455cbb07313))
+* **sendgrid:** add error logging for rejected webhook signatures ([d7249c8](https://github.com/erxes/erxes/commit/d7249c86a890ed4c081dc27f4c3e184f030b07f0))
+* **tracker:** add logging for incoming SendGrid request body ([dd09617](https://github.com/erxes/erxes/commit/dd096175f3ee858ca579efb521a0549ed9e30a8e))
+
+
+### Features
+
+* **email:** implement link insertion functionality in email actions ([6e0fafd](https://github.com/erxes/erxes/commit/6e0fafd83bd271971e858db074e5ef0d2133d729))
+* **payment:** Add expired status handling for TDB payment check  ([62b0294](https://github.com/erxes/erxes/commit/62b0294294aa9a3e08c8eedf0bd7dc7a7f55e68f))
+* **saas-migrations:** report wordpress media transfer progress ([a3272a6](https://github.com/erxes/erxes/commit/a3272a6ba0579a5999bdf248e03603bfccbb8907))
+* **ticket:** add custom resolvers for ticket links and enhance output definitions ([c296aef](https://github.com/erxes/erxes/commit/c296aef5a5926b5042974942696d1d1d447d4ab4))
+
+
+### Performance Improvements
+
+* **mongolian:** add record table column selector ([#8861](https://github.com/erxes/erxes/issues/8861)) ([036ff47](https://github.com/erxes/erxes/commit/036ff478f7b5287dcf58c974194aae061da3c0d7))
+
+## [3.0.66](https://github.com/erxes/erxes/compare/3.0.65...3.0.66) (2026-08-03)
+
+
+### Features
+
+* implement email delivery system with SES, SMTP, and sender verification ([#8866](https://github.com/erxes/erxes/issues/8866)) ([fc47ac9](https://github.com/erxes/erxes/commit/fc47ac9aacf7ebacbc17ef36301f0db9b773b9b3))
+* **payment:** auto-create sales deal and send QR ticket on paid invoice  ([2c2e10f](https://github.com/erxes/erxes/commit/2c2e10fcbf28fb5319e1531e51d0549ef552260d))
+
+## [3.0.65](https://github.com/erxes/erxes/compare/3.0.64...3.0.65) (2026-08-03)
+
+
+### Bug Fixes
+
+* **payment:** register Toki callback handler in controller ([#8875](https://github.com/erxes/erxes/issues/8875)) ([a11d7c6](https://github.com/erxes/erxes/commit/a11d7c68a9436a2e001e957f4f12b29cb1871b75))
+
+
+### Features
+
+* **accounting:** fixedassets journals ([#8231](https://github.com/erxes/erxes/issues/8231)) ([7e3c028](https://github.com/erxes/erxes/commit/7e3c0288a870e76e6de1ce8668e0c1059e509bc6))
+
 ## [3.0.64](https://github.com/erxes/erxes/compare/3.0.63...3.0.64) (2026-08-01)
 
 

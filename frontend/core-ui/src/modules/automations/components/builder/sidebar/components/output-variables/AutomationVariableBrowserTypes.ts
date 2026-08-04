@@ -6,6 +6,7 @@ export type TAutomationOutputVariable = {
   key: string;
   label: string;
   exposure?: 'placeholder' | 'reference';
+  isLink?: boolean;
   field?: string;
   /** Plain sub-fields of an array/object value, expanded inline without a reference lookup. */
   fields?: TAutomationOutputVariable[];
@@ -68,6 +69,7 @@ export type TAutomationVariableBrowserProps = {
   sourceNodes?: TAutomationVariableSourceNode[];
   emptyState?: TAutomationVariableEmptyState | null;
   onInsertVariable?: (payload: TAutomationVariableDragPayload) => void;
+  onInsertVariableAsLink?: (payload: TAutomationVariableDragPayload) => void;
   sourceSectionTitle?: string;
   className?: string;
 };

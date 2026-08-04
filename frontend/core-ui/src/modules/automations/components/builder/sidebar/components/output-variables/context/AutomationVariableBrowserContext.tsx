@@ -8,6 +8,7 @@ type TAutomationVariableBrowserContext = ReturnType<
   className?: string;
   emptyState?: TAutomationVariableBrowserProps['emptyState'];
   onInsertVariable?: TAutomationVariableBrowserProps['onInsertVariable'];
+  onInsertVariableAsLink?: TAutomationVariableBrowserProps['onInsertVariableAsLink'];
   sourceNodes: NonNullable<TAutomationVariableBrowserProps['sourceNodes']>;
   sourceSectionTitle: string;
 };
@@ -20,6 +21,7 @@ export const AutomationVariableBrowserProvider = ({
   className,
   emptyState,
   onInsertVariable,
+  onInsertVariableAsLink,
   sourceNode,
   sourceNodes,
   sourceSectionTitle = 'Selected Node',
@@ -33,6 +35,7 @@ export const AutomationVariableBrowserProvider = ({
         className,
         emptyState,
         onInsertVariable,
+        onInsertVariableAsLink,
         sourceNodes: sourceNodes ?? [],
         sourceSectionTitle,
       }}

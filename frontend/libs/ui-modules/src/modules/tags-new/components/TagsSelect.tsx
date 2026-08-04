@@ -18,7 +18,7 @@ import type { VariantProps } from 'class-variance-authority';
 import React, { useState, useEffect, useMemo, forwardRef } from 'react';
 import { TagInline } from './TagInline';
 import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
-import { IconCheck, IconPlus, IconTags } from '@tabler/icons-react';
+import { IconCheck, IconPlus, IconTag, IconTags } from '@tabler/icons-react';
 import { TagBadge } from 'ui-modules/modules/tags-new/components/TagBadge';
 import { useTagAdd } from 'ui-modules/modules/tags-new/hooks/useTagAdd';
 import { TAG_DEFAULT_COLORS } from 'ui-modules/modules/tags-new/constants';
@@ -147,17 +147,22 @@ const TagsSelectValue = ({
   showValue?: boolean;
   placeholder?: string;
 }) => {
-  const { selectedTags, mode } = useTagsSelectContext();
+  const { selectedTags } = useTagsSelectContext();
 
-  const text = useMemo(() => {
-    if (selectedTags.length === 0 || !showValue)
-      return placeholder || 'Select Tag';
-    if (mode === 'single') return selectedTags[0].name;
-    if (selectedTags.length === 1) return selectedTags[0].name;
-    return `${selectedTags.length} tags selected`;
-  }, [selectedTags, mode, showValue, placeholder]);
+  if (showValue && selectedTags.length > 0) {
+    return (
+      <span className="flex gap-1 items-center text-muted-foreground">
+        <IconTag className="w-4 h-4 text-gray-400" /> Tag +{selectedTags.length}
+      </span>
+    );
+  }
 
-  return <span>{text}</span>;
+  return (
+    <span className="flex gap-1 items-center">
+      <IconTags className="size-4" />
+      {placeholder || 'Select Tag'}
+    </span>
+  );
 };
 
 TagsSelectValue.displayName = 'TagsSelectValue';
@@ -189,8 +194,7 @@ const TagsSelectTrigger = forwardRef<
         {...props}
         className={cn('w-min text-sm font-medium shadow-xs', props.className)}
       >
-        <IconTags />
-        <TagsSelectValue showValue={false} placeholder={placeholder} />
+        <TagsSelectValue showValue={showValue} placeholder={placeholder} />
       </Button>
     </Popover.Trigger>
   );

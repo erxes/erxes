@@ -10,8 +10,9 @@
   },
   "dependencies": {
     "erxes-api-shared": "workspace:*",
+    "@aws-sdk/client-s3": "3.913.0",
     "fast-xml-parser": "5.10.1",
-    "nanoid": "3.3.11",
+    "file-type": "20.5.0",
     "undici": "6.27.0"
   }
 }
