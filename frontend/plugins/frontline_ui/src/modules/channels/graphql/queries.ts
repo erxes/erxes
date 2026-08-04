@@ -54,6 +54,7 @@ const GET_CHANNEL_MEMBERS = gql`
         _id
         email
         username
+        isActive
         details {
           firstName
           lastName
