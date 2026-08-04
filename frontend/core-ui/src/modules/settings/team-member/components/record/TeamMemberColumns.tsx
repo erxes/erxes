@@ -384,7 +384,5 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
     //     );
     //   },
     // },
-
-    teamMemberMoreColumn,
   ];
 };
