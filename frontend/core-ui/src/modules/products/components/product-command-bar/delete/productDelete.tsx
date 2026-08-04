@@ -2,8 +2,7 @@ import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useRemoveProducts } from '@/products/product-detail/hooks/useRemoveProduct';
-import type { ReactNode } from 'react';
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { BeforeResolverAvailability, Can } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
