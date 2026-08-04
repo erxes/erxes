@@ -13,9 +13,6 @@ export interface ITriage {
   number: number;
   priority: number;
   status: number;
-  githubIssueNumber?: number;
-  githubIssueUrl?: string;
-  githubRepoName?: string;
 }
 
 export interface ITriageUpdate extends ITriage {
@@ -29,7 +26,9 @@ export interface ITriageDocument extends ITriage, Document {
 }
 
 export interface ITriageFilter
-  extends ICursorPaginateParams, IListParams, ITriage {
+  extends ICursorPaginateParams,
+    IListParams,
+    ITriage {
   createdAt?: Date;
   updatedAt?: Date;
 }
