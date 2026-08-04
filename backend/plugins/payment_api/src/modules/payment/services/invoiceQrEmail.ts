@@ -18,8 +18,8 @@ const buildQrTableHtml = (code: string): string => {
             (_, c) => `
             <td width="${cell}" height="${cell}"
               style="width:${cell}px;height:${cell}px;background:${
-              data[r * size + c] ? '#000' : '#fff'
-            };padding:0;border:none;font-size:0;line-height:0;"></td>
+                data[r * size + c] ? '#000' : '#fff'
+              };padding:0;border:none;font-size:0;line-height:0;"></td>
           `,
           ).join('')}
         </tr>

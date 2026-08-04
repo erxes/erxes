@@ -1,7 +1,6 @@
 import { Document } from 'mongoose';
 import { ITransaction } from './transactions';
 
-
 export interface IInvoice {
   invoiceNumber: string;
   amount: number;

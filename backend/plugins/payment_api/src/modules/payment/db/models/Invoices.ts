@@ -228,7 +228,10 @@ export const loadInvoiceClass = (models: IModels) => {
         throw new Error('Invoice is not paid');
       }
 
-      const quantity = Math.max(1, Math.floor(Number(invoice.data?.quantity) || 1));
+      const quantity = Math.max(
+        1,
+        Math.floor(Number(invoice.data?.quantity) || 1),
+      );
 
       if (quantity > 1 && (index === null || index < 1 || index > quantity)) {
         throw new Error('Invalid ticket code');

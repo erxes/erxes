@@ -74,8 +74,6 @@ export default {
     }
   },
 
-
-
   idOfProvider(invoice: IInvoiceDocument) {
     return '';
     // const apiResponse: any = invoice.apiResponse || {};
