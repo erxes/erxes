@@ -19,6 +19,15 @@ export default {
     return invoice.description || invoice.invoiceNumber;
   },
 
+  ticketCount(invoice: IInvoiceDocument) {
+    const quantity = Math.floor(Number((invoice.data as any)?.quantity) || 1);
+    return Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
+  },
+
+  scannedCount(invoice: IInvoiceDocument) {
+    return invoice.scannedCodes?.length || 0;
+  },
+
   async remainingAmount(
     invoice: IInvoiceDocument,
     _args,

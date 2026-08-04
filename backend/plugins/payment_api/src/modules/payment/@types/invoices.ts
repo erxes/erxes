@@ -17,6 +17,8 @@ export interface IInvoice {
   createdAt: Date;
   resolvedAt?: Date;
   scannedAt?: Date;
+  scannedCodes?: string[];
+  qrEmailSentAt?: Date;
   redirectUri?: string;
   paymentIds: string[];
   callback?: string;

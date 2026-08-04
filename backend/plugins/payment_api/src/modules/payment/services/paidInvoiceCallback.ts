@@ -1,6 +1,7 @@
 import { splitType } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IPaymentDealConfig } from '~/modules/payment/@types/payment';
+import { sendInvoiceQrEmailOnce } from '~/modules/payment/services/invoiceQrEmail';
 
 const JOB_OPTIONS = {
   attempts: 3,
@@ -28,12 +29,29 @@ export const resolvePaymentForInvoice = async (models: any, invoice: any) => {
 
 export const enqueuePaidInvoiceCallback = (
   subdomain: string,
+  models: any,
   invoice: any,
   payment: PaymentLike,
   logPrefix: string,
 ) => {
   const sendEmailOnPayment = payment?.sendEmailOnPayment !== false;
   const dealConfig = payment?.dealConfig;
+
+  if (!sendEmailOnPayment) {
+    process.stdout.write(
+      `[${logPrefix}] Skipped QR email for invoice ${invoice._id}: sendEmailOnPayment is off on the payment method\n`,
+    );
+  } else if (!invoice.email) {
+    process.stdout.write(
+      `[${logPrefix}] Skipped QR email for invoice ${invoice._id}: invoice has no email\n`,
+    );
+  } else {
+    sendInvoiceQrEmailOnce(subdomain, models, invoice).catch((err) => {
+      process.stderr.write(
+        `[${logPrefix}] Failed to send QR email for invoice ${invoice._id}: ${err.message}\n`,
+      );
+    });
+  }
 
   const baseData = {
     ...invoice,
