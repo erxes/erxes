@@ -10,7 +10,6 @@ import { TeamsSettingsPage } from '~/pages/TeamSettingsIndexPage';
 import { TeamStatusPage } from '~/pages/TeamStatusPage';
 import { TeamTemplatesPage } from '~/pages/TeamTemplatesPage';
 import { TemplateFormPage } from '~/pages/TemplateFormPage';
-import { GithubIntegrationPage } from '~/pages/GithubIntegrationPage';
 import { OperationPaths } from '~/types/paths';
 
 const TeamsSettings = lazy(() =>
@@ -66,10 +65,6 @@ const OperationSettings = () => {
             element={<TemplateFormPage />}
           />
         </Route>
-        <Route
-          path={OperationPaths.GithubIntegration}
-          element={<GithubIntegrationPage />}
-        />
       </Routes>
     </Suspense>
   );

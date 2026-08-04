@@ -32,11 +32,6 @@ export interface ITask {
   createdAt?: Date | string;
   statusChangedDate?: Date | string;
   statusType?: number;
-  githubIssueNumber?: number;
-  githubIssueUrl?: string;
-  githubRepoName?: string;
-  githubPrNumber?: number;
-  githubPrUrl?: string;
 }
 
 export interface ITaskUpdate extends ITask {

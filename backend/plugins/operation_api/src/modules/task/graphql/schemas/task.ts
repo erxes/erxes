@@ -22,9 +22,6 @@ export const types = `
     estimatePoint: Int
     statusChangedDate: Date
     number: Int
-    githubIssueNumber: Int
-    githubIssueUrl: String
-    githubRepoName: String
   }
 
   type TaskListResponse {

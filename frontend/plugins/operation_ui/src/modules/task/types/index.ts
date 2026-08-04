@@ -36,9 +36,6 @@ export interface ITask {
   cycleId?: string;
   milestoneId?: string;
   convertedFromId?: string;
-  githubIssueNumber?: number;
-  githubIssueUrl?: string;
-  githubRepoName?: string;
 }
 
 export interface ITaskStatus {
