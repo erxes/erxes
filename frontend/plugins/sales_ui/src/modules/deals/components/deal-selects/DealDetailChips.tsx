@@ -72,7 +72,11 @@ export const DealAssigneeChip = ({
   );
 };
 
-export const DealTagsChip = ({ value, onValueChange }: ChipProps) => {
+export const DealTagsChip = ({
+  value,
+  onValueChange,
+  showSelectedTagsOutside = true,
+}: ChipProps & { showSelectedTagsOutside?: boolean }) => {
   const { t } = useTranslation('sales');
   let tagIds: string[] = [];
 
@@ -90,8 +94,12 @@ export const DealTagsChip = ({ value, onValueChange }: ChipProps) => {
       onValueChange={onValueChange}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <TagsSelect.Trigger variant="outline" placeholder={t('select-tags')} />
-        <TagsSelect.SelectedList />
+        <TagsSelect.Trigger
+          variant="outline"
+          placeholder={t('select-tags')}
+          showValue
+        />
+        {showSelectedTagsOutside ? <TagsSelect.SelectedList /> : null}
         <Combobox.Content>
           <TagsSelect.Content />
         </Combobox.Content>
