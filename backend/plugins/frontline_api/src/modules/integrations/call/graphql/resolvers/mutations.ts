@@ -75,7 +75,13 @@ const callsMutations = {
     };
   },
 
-  async callsUpdateConfigs(_root, { configsMap }, { models }: IContext) {
+  async callsUpdateConfigs(
+    _root,
+    { configsMap },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     await models.CallConfigs.updateConfigs(configsMap);
 
     return { status: 'ok' };

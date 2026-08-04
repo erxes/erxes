@@ -47,7 +47,13 @@ export const instagramQueries = {
     return models.InstagramIntegrations.findOne({ erxesApiId });
   },
 
-  async instagramGetConfigs(_root, _args, { models }: IContext) {
+  async instagramGetConfigs(
+    _root,
+    _args,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     return models.InstagramConfigs.find({}).lean();
   },
 
@@ -202,7 +208,7 @@ export const instagramQueries = {
     { models }: IContext,
   ) {
     const conversation = await models.Conversations.findOne({ _id });
-    if (conversation) {
+   if (conversation) {
       return conversation;
     }
     return models.InstagramCommentConversation.findOne({ _id });
@@ -224,7 +230,7 @@ export const instagramQueries = {
       models.InstagramConversations,
     );
 
-   if (conversation) {
+    if (conversation) {
       if (limit) {
         const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 

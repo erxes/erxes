@@ -12,7 +12,13 @@ import {
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { TCreateBotInputDoc } from '../../db/models/Bots';
 export const facebookMutations = {
-  async facebookUpdateConfigs(_root, { configsMap }, { subdomain }: IContext) {
+  async facebookUpdateConfigs(
+    _root,
+    { configsMap },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     await updateConfigs(subdomain, configsMap);
 
     return { status: 'ok' };

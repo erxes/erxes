@@ -10,7 +10,7 @@ import { integrationSchema } from '@/integrations/call/db/definitions/integratio
 export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
   getIntegrations(
     userId: string,
-  ): Promise<ICallIntegrationDocument>;
+  ): Promise<ICallIntegration[]>;
   getIntegration(
     userId: string,
     integrationId: string,
