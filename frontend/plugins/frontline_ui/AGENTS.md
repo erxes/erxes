@@ -47,22 +47,26 @@
   postback/link buttons and optional connects.
 - Caps the Facebook message sequence at one message when the action is attached
   to a comment trigger, and explains why in the sequence header.
+- Composes Facebook page posts from the integrations sidebar: channel and page
+  selection, message, optional link, drag-and-drop image upload (max 10), and a
+  permalink to the published post.
 
 ## Architecture
 
-| Area                | Path                                                              | Responsibility                                             |
-| ------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------- |
-| Host registration   | `src/config.tsx`                                                  | `CONFIG` — navigation, settings, widgets, property inputs   |
-| Federation          | `module-federation.config.ts`                                     | Remote name `frontline_ui` and its exposes                  |
-| Routes              | `src/modules/FrontlineMain.tsx`, `src/pages/`                     | Routed pages for inbox, ticket, forms, call, channels       |
-| Settings            | `src/modules/FrontlineSettings.tsx`                               | Settings routes                                             |
-| Inbox               | `src/modules/inbox/`                                              | Conversations, channels, brands, integrations               |
-| Ticket              | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/` | Ticket boards, pipelines, statuses                     |
-| Forms               | `src/modules/forms/`                                              | Form builder, preview, submissions                          |
-| Knowledge base      | `src/modules/knowledgebase/`                                      | Topics, categories, articles                                |
-| Automation widgets  | `src/widgets/automations/modules/<module>/`                       | Per-module trigger/action/bot/history components            |
-| FB message action   | `src/widgets/automations/modules/facebook/components/action/`     | Message sequence form, provider, constants, states          |
-| Notifications       | `src/widgets/notifications/`                                      | Notification remote entries                                 |
+| Area               | Path                                                                                                                              | Responsibility                                            |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Host registration  | `src/config.tsx`                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs |
+| Federation         | `module-federation.config.ts`                                                                                                     | Remote name `frontline_ui` and its exposes                |
+| Routes             | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                     | Routed pages for inbox, ticket, forms, call, channels     |
+| Settings           | `src/modules/FrontlineSettings.tsx`                                                                                               | Settings routes                                           |
+| Inbox              | `src/modules/inbox/`                                                                                                              | Conversations, channels, brands, integrations             |
+| Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                            | Ticket boards, pipelines, statuses                        |
+| Forms              | `src/modules/forms/`                                                                                                              | Form builder, preview, submissions                        |
+| Knowledge base     | `src/modules/knowledgebase/`                                                                                                      | Topics, categories, articles                              |
+| Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                       | Per-module trigger/action/bot/history components          |
+| FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                     | Message sequence form, provider, constants, states        |
+| FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading      |
+| Notifications      | `src/widgets/notifications/`                                                                                                      | Notification remote entries                               |
 
 ## Contracts
 
@@ -99,6 +103,10 @@
   Facebook message action (`messages`, `maxMessages`, `addMessage`, form
   helpers); components read it through `useReplyMessageAction` rather than
   prop drilling.
+- `useFacebookPostImages` owns the post composer's attachments (upload state,
+  storage keys) and `useFacebookPostTargets` owns its channel and page
+  selection; both live inside the sheet body, so closing the sheet unmounts the
+  draft — the same reset-on-close behavior as `CreateBrand`.
 - Jotai is reserved for plugin-wide client state; component-local state stays in
   `useState`.
 
@@ -113,6 +121,15 @@
   obtain it.
 - Remote entries must switch on the node type via `splitAutomationNodeType` and
   return `null` for unknown content types.
+- A post carries images or a link preview, never both; only files whose storage
+  key matches the readable-key pattern may be attached, because any other key
+  cannot be read back for publishing.
+- File pickers use the shared `Dropzone`/`DropzoneEmptyState`/`DropzoneContent`
+  composition with `useErxesUpload`; uploaded files render through
+  `Attachments.Root` and its `Preview`/`Files` parts. Do not hand-roll a drop
+  area or an attachment tile.
+- The message input ignores drops while a dialog is open, so a composer dialog
+  keeps its own dropzone (`isDialogOpen` in `MessageInput.tsx`).
 - Exposed modules stay lazy-loaded and wrapped in `Suspense`.
 - Routed pages use `h-full`, never `h-dvh`/`h-screen`.
 - New user-facing strings need a key in the gateway-owned `frontline` locale
@@ -132,6 +149,50 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-04` — Rebuild the post composer on the standard sheet and dropzone
+
+- **Summary:** The composer now follows the `CreateBrand` sheet shape
+  (uncontrolled `Sheet`, `Sheet.Close` cancel, state inside the sheet body) and
+  uses the shared `Dropzone`/`DropzoneEmptyState`/`DropzoneContent` for picking
+  files and `Attachments.Root`/`Attachments.Preview` for the uploaded ones,
+  instead of a hand-rolled drop area, thumbnail grid, and filename list; help
+  and rejected filenames render as `Alert`, the empty and loading states use
+  `Empty` and `Spinner`, and the channel picker is a searchable
+  `Popover` + `Combobox` + `Command` like `SelectChannel.FormItem`.
+- **Affected areas:**
+  `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`,
+  `.../components/FacebookPostImagesField.tsx`,
+  `.../hooks/useFacebookPostImages.tsx`,
+  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned)
+- **Contracts changed:** `None`
+
+### `2026-08-04` — Drop the unused `imageUrls` variable from the post mutation
+
+- **Summary:** `FACEBOOK_CREATE_POST` no longer declares or passes `$imageUrls`,
+  which no caller ever set, and the two post-composer locale keys that no
+  component reads (`create-post`, `posting`) were removed from the gateway
+  `frontline` namespace.
+- **Affected areas:**
+  `src/modules/integrations/facebook/graphql/mutations/fbPost.ts`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned)
+- **Contracts changed:** `None`
+
+### `2026-08-04` — Split the Facebook post composer into hooks and fields
+
+- **Summary:** `FacebookPostSheet` no longer drills nine props into its form:
+  attachment state moved to `useFacebookPostImages`, channel/page loading to
+  `useFacebookPostTargets`, and the uploader UI to `FacebookPostImagesField`;
+  the message input's dialog-drop guard is now one shared helper.
+- **Affected areas:**
+  `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`,
+  `.../components/FacebookPostImagesField.tsx` (new),
+  `.../hooks/useFacebookPostImages.tsx` (new),
+  `.../hooks/useFacebookPostTargets.tsx` (new),
+  `.../constants/FbPostSchema.ts`,
+  `src/modules/inbox/conversations/conversation-detail/components/MessageInput.tsx`
+- **Contracts changed:** `None`
 
 ### `2026-08-04` — Cap comment-triggered Facebook message actions at one message
 

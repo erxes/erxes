@@ -63,3 +63,53 @@ export const getConfig = async (
 export const resetConfigsCache = async () => {
   await redis.set(CACHE_NAME, '');
 };
+
+export const FACEBOOK_POST_KIND = 'facebook-post';
+
+export interface IFacebookApp {
+  appId: string;
+  appSecret: string;
+  isSeparate: boolean;
+}
+
+export const resolveFacebookApp = async (
+  models: IModels,
+  kind?: string,
+): Promise<IFacebookApp> => {
+  const appId = (await getConfig(models, 'FACEBOOK_APP_ID')) || '';
+  const appSecret = (await getConfig(models, 'FACEBOOK_APP_SECRET')) || '';
+
+  if (kind !== FACEBOOK_POST_KIND) {
+    return { appId, appSecret, isSeparate: false };
+  }
+
+  const postAppId = (await getConfig(models, 'FACEBOOK_POST_APP_ID')) || '';
+  const postAppSecret =
+    (await getConfig(models, 'FACEBOOK_POST_APP_SECRET')) || '';
+
+  if (!postAppId || !postAppSecret || postAppId === appId) {
+    return { appId, appSecret, isSeparate: false };
+  }
+
+  return { appId: postAppId, appSecret: postAppSecret, isSeparate: true };
+};
+
+export const facebookAppSelector = (app: IFacebookApp) => {
+  if (app.isSeparate) {
+    return { appId: app.appId };
+  }
+
+  return {
+    $or: [
+      { appId: { $exists: false } },
+      { appId: null },
+      { appId: '' },
+      { appId: app.appId },
+    ],
+  };
+};
+
+export const facebookAccountSelector = (uid: string, app: IFacebookApp) => ({
+  uid,
+  ...facebookAppSelector(app),
+});

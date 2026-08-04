@@ -13,6 +13,10 @@ import {
 } from '@/integrations/facebook/@types/utils';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
+import {
+  facebookAppSelector,
+  resolveFacebookApp,
+} from '@/integrations/facebook/commonUtils';
 
 const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
@@ -101,20 +105,35 @@ export const facebookQueries = {
   async facebookGetConfigs(_root, _args, { models }: IContext) {
     return await models.FacebookConfigs.find({});
   },
-  async facebookGetAccounts(_root, { kind }: IKind, { models }: IContext) {
-    return models.FacebookAccounts.find({ kind });
+  async facebookGetAccounts(
+    _root,
+    { kind, integrationKind }: IKind & { integrationKind?: string },
+    { models }: IContext,
+  ) {
+    const app = await resolveFacebookApp(models, integrationKind);
+
+    return models.FacebookAccounts.find(
+      { kind, ...facebookAppSelector(app) },
+      { token: 0, tokenSecret: 0 },
+    );
   },
 
-  async facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
-    return models.FacebookIntegrations.find({ kind });
+  facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
+    return models.FacebookIntegrations.find(
+      { kind },
+      { facebookPageTokensMap: 0 },
+    );
   },
 
-  async facebookGetIntegrationDetail(
+  facebookGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
     { models }: IContext,
   ) {
-    return models.FacebookIntegrations.findOne({ erxesApiId });
+    return models.FacebookIntegrations.findOne(
+      { erxesApiId },
+      { facebookPageTokensMap: 0 },
+    );
   },
 
   async facebookGetComments(
