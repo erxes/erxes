@@ -129,12 +129,15 @@ export const CreatePipeline = () => {
   );
 
   // The sheet lives in a shared atom, so leaving this surface with it open
-  // would otherwise reopen it on the way back.
+  // would otherwise reopen it on the way back and strand the hotkey scope on
+  // the sheet. The effect above cannot do this: its cleanup runs on every
+  // `open` change, not just on unmount.
   useEffect(
     () => () => {
       setOpen(false);
+      setHotkeyScope(PipelineHotkeyScope.PipelineSettingsPage);
     },
-    [setOpen],
+    [setHotkeyScope, setOpen],
   );
 
   if (!channelId) return null;
