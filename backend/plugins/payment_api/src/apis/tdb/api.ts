@@ -144,7 +144,6 @@ export class TDBAPI extends BaseAPI {
       },
       data: { order: payload },
     }).then((r) => r.json());
-
     return response;
   }
 
@@ -175,8 +174,9 @@ export class TDBAPI extends BaseAPI {
       case 'REFUSED':
       case 'REJECTED':
       case 'VOIDED':
-      case 'EXPIRED':
         return PAYMENT_STATUS.FAILED;
+      case 'EXPIRED':
+        return PAYMENT_STATUS.EXPIRED;
 
       default:
         return PAYMENT_STATUS.PENDING;

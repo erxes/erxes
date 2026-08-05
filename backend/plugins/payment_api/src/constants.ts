@@ -184,7 +184,8 @@ export const PAYMENT_STATUS = {
   FAILED: 'failed',
   CANCELLED: 'cancelled',
   REJECTED: 'rejected',
-  ALL: ['paid', 'pending', 'refunded', 'failed', 'cancelled', 'rejected'],
+  EXPIRED: 'expired',
+  ALL: ['paid', 'pending', 'refunded', 'failed', 'cancelled', 'rejected', 'expired'],
 };
 
 export const PAYMENT_METHOD_STATUS = {
