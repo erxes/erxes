@@ -394,8 +394,7 @@ export const MessageInput = ({
       variables: {
         conversationId,
         content: sendContent,
-        mentionedUserIds:
-          isDiscord && !isInternalNote ? [] : mentionedUserIds,
+        mentionedUserIds: isDiscord && !isInternalNote ? [] : mentionedUserIds,
         internal: isInternalNote,
         extraInfo: messageExtraInfo,
         attachments: allAttachments,

@@ -23,6 +23,8 @@ export const invoiceSchema = schemaWrapper(
     createdAt: { type: Date, default: Date.now },
     resolvedAt: { type: Date },
     scannedAt: { type: Date },
+    scannedCodes: { type: [String], default: [] },
+    qrEmailSentAt: { type: Date },
     data: { type: Schema.Types.Mixed },
     apiResponse: { type: Schema.Types.Mixed },
     callback: { type: String },

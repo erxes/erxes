@@ -1,4 +1,8 @@
-import { getConfig } from '@/integrations/facebook/commonUtils';
+import {
+  facebookAccountSelector,
+  getConfig,
+  resolveFacebookApp,
+} from '@/integrations/facebook/commonUtils';
 import {
   debugFacebook,
   debugRequest,
@@ -10,12 +14,18 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { generateModels } from '~/connectionResolvers';
 
+const readKindFromState = (state?: string): string | undefined =>
+  new URLSearchParams(state?.split('?')[1]).get('kind') ?? undefined;
+
 export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
-  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
+  const kind =
+    (req.query.kind as string) || readKindFromState(req.query.state as string);
+
+  const app = await resolveFacebookApp(models, kind);
+
   const FACEBOOK_PERMISSIONS = await getConfig(
     models,
     'FACEBOOK_PERMISSIONS',
@@ -30,20 +40,26 @@ export const loginMiddleware = async (req, res) => {
     `${API_DOMAIN}/pl:frontline/facebook/fblogin`,
   );
   const conf = {
-    client_id: FACEBOOK_APP_ID,
-    client_secret: FACEBOOK_APP_SECRET,
-    scope: FACEBOOK_PERMISSIONS + ',pages_read_engagement,pages_show_list',
+    client_id: app.appId,
+    client_secret: app.appSecret,
+    scope:
+      FACEBOOK_PERMISSIONS +
+      ',pages_read_engagement,pages_show_list,pages_manage_posts',
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
   debugRequest(debugFacebook, req);
 
   if (!req.query.code) {
+    const state = kind
+      ? `${API_DOMAIN}/pl:frontline/facebook?kind=${encodeURIComponent(kind)}`
+      : `${API_DOMAIN}/pl:frontline/facebook`;
+
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: `${API_DOMAIN}/pl:frontline/facebook`,
+      state,
     });
 
     if (!req.query.error) {
@@ -75,31 +91,29 @@ export const loginMiddleware = async (req, res) => {
       access_token,
     );
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
-    const account = await models.FacebookAccounts.findOne({
-      uid: userAccount.id,
-    });
-    let accountId: string;
+    const account = await models.FacebookAccounts.findOne(
+      facebookAccountSelector(userAccount.id, app),
+    );
     if (account) {
       await models.FacebookAccounts.updateOne(
         { _id: account._id },
-        { $set: { token: access_token } },
+        { $set: { token: access_token, appId: app.appId } },
       );
       const integrations = await models.FacebookIntegrations.find({
         accountId: account._id,
       });
-      accountId = account._id;
 
       for (const integration of integrations) {
         await repairIntegrations(subdomain, integration.erxesApiId);
       }
     } else {
-      const newAccount = await models.FacebookAccounts.create({
+      await models.FacebookAccounts.create({
         token: access_token,
         name,
         kind: 'facebook',
         uid: userAccount.id,
+        appId: app.appId,
       });
-      accountId = newAccount._id;
     }
 
     const reactAppUrl = !DOMAIN.includes('zrok')
