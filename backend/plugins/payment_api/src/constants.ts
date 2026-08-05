@@ -152,7 +152,7 @@ export const PAYMENTS = {
   tdb: {
     title: 'TDB E-Commerce',
     kind: 'tdb',
-    apiUrl: 'https://acsmc.tdbmlabs.mn:8000',   
+    apiUrl: 'https://acsmc.tdbmlabs.mn:8000',
     actions: {
       createOrder: '/order',
       getOrderDetail: '/order/:orderId',
@@ -185,7 +185,15 @@ export const PAYMENT_STATUS = {
   CANCELLED: 'cancelled',
   REJECTED: 'rejected',
   EXPIRED: 'expired',
-  ALL: ['paid', 'pending', 'refunded', 'failed', 'cancelled', 'rejected', 'expired'],
+  ALL: [
+    'paid',
+    'pending',
+    'refunded',
+    'failed',
+    'cancelled',
+    'rejected',
+    'expired',
+  ],
 };
 
 export const PAYMENT_METHOD_STATUS = {
