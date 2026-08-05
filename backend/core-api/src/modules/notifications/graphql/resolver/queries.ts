@@ -159,7 +159,7 @@ export const notificationQueries = {
           ...params,
           orderBy: generateOrderByNotifications(params?.orderBy),
         },
-        query: { ...filter, userId: user._id, isArchived: { $ne: true } },
+        query: { ...filter, userId: user._id },
       });
 
     return {
@@ -189,7 +189,6 @@ export const notificationQueries = {
     return await models.Notifications.countDocuments({
       userId: user._id,
       isRead: false,
-      isArchived: { $ne: true },
     });
   },
 

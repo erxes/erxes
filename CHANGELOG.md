@@ -1,3 +1,21 @@
+
+
+## [3.0.70](https://github.com/erxes/erxes/compare/3.0.69...3.0.70) (2026-08-04)
+
+
+### Bug Fixes
+
+* **sales:** search deals by customer phone ([#8890](https://github.com/erxes/erxes/issues/8890)) ([329cf2f](https://github.com/erxes/erxes/commit/329cf2fe850459225a0f1ba394b240f87efb4b07))
+* skip ebarimt on deal ([61ebc05](https://github.com/erxes/erxes/commit/61ebc05d42e00c0fbf4fe19af4eb96e81b8aed3f))
+* standardize bulk command bar actions on team member([#8889](https://github.com/erxes/erxes/issues/8889)) ([7855c3b](https://github.com/erxes/erxes/commit/7855c3bc4041a238f6ab3ac6d9ca25430e3ae1db))
+
+
+### Features
+
+* **facebook:** compose UI, image/carousel posts, post guards, per-app credentials  ([ca81157](https://github.com/erxes/erxes/commit/ca811573ceee078fa4320d068f23eb9a43a4a135))
+* **frontline:** split pasted form options into separate tags  ([60d0770](https://github.com/erxes/erxes/commit/60d077038f9510c14431d61bcb160aa3f3a5eeed))
+* **payment:** per-ticket QR codes with idempotent email and scan tracking ([6487c80](https://github.com/erxes/erxes/commit/6487c802b550b8dbece6f2649fbfe31926c8be70))
+
 # Changelog
 
 ## [3.0.69](https://github.com/erxes/erxes/compare/3.0.68...3.0.69) (2026-08-04)
