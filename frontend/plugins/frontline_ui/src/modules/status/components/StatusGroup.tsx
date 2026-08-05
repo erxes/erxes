@@ -259,34 +259,34 @@ export const StatusGroup = ({
 
     // A failure halfway leaves the earlier writes persisted, and rolling the
     // list back locally would only hide that until the next refetch.
-    const writes = newOrder
-      .map((status, index) =>
-        status.order === index
-          ? null
-          : updateStatus({
+    const writes = newOrder.flatMap((status, index) =>
+      status.order === index
+        ? []
+        : [
+            updateStatus({
               awaitRefetchQueries: true,
               variables: { id: status._id, order: index },
             }),
-      )
-      .filter(Boolean);
+          ],
+    );
 
     try {
-      const results = await Promise.all(writes);
+      // Every write has to settle before the guard lifts: a rejected one would
+      // otherwise leave its siblings in flight, and their refetches would land
+      // unguarded and start the rows jumping again.
+      const results = await Promise.allSettled(writes);
 
-      if (results.some((result) => !result?.data)) {
+      const hasFailure = results.some((result) =>
+        result.status === 'rejected' ? true : !result.value?.data,
+      );
+
+      if (hasFailure) {
         toast({
           title: t('error'),
           description: t('reorder-failed'),
           variant: 'destructive',
         });
       }
-    } catch (error) {
-      toast({
-        title: t('error'),
-        description:
-          error instanceof Error ? error.message : t('reorder-failed'),
-        variant: 'destructive',
-      });
     } finally {
       setIsReordering(false);
     }

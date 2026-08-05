@@ -4,7 +4,10 @@ import * as React from 'react';
 import { Button, ButtonProps } from './button';
 import { cn } from 'erxes-ui/lib';
 
-export type DragHandleProps = Omit<ButtonProps, 'children' | 'size'>;
+export type DragHandleProps = Omit<
+  ButtonProps,
+  'asChild' | 'children' | 'size'
+>;
 
 export const DragHandle = React.forwardRef<HTMLButtonElement, DragHandleProps>(
   ({ className, variant = 'ghost', ...props }, ref) => (
@@ -17,6 +20,7 @@ export const DragHandle = React.forwardRef<HTMLButtonElement, DragHandleProps>(
       size="icon"
       variant={variant}
       {...props}
+      asChild={false}
     >
       <IconGripVertical className="size-4" stroke={1.5} />
     </Button>
