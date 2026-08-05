@@ -1,10 +1,12 @@
-import { IconTrashX, IconEdit } from '@tabler/icons-react';
+import { IconCalculator, IconTrashX, IconEdit } from '@tabler/icons-react';
 import { Button, Spinner, useQueryState } from 'erxes-ui';
 import { useAdjustFundRateRemove } from '../hooks/useAdjustFundRateRemove';
 import { useAdjustFundRateDetail } from '../hooks/useAdjustFundRateDetail';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { EditAdjustFundRate } from './AdjustFundRateForm';
+import { useAdjustFundRateRun } from '../hooks/useAdjustFundRateRun';
+import type { IAdjustFundRateDetail } from '../types/AdjustFundRate';
 
 const DetailField = ({ label, value }: { label: string; value: string }) => (
   <div>
@@ -12,6 +14,9 @@ const DetailField = ({ label, value }: { label: string; value: string }) => (
     <p className="font-medium">{value || '-'}</p>
   </div>
 );
+
+const formatAmount = (amount?: number) =>
+  typeof amount === 'number' ? amount.toLocaleString() : '-';
 
 export const AdjustFundRateDetail = () => {
   const [id] = useQueryState<string>('id');
@@ -24,6 +29,9 @@ export const AdjustFundRateDetail = () => {
 
   const { removeAdjustFundRate, loading: removeLoading } =
     useAdjustFundRateRemove();
+  const { runAdjustFundRate, loading: runLoading } = useAdjustFundRateRun(
+    id || '',
+  );
 
   if (loading) {
     return (
@@ -43,12 +51,20 @@ export const AdjustFundRateDetail = () => {
     }
   };
 
+  const handleRun = () => {
+    runAdjustFundRate();
+  };
+
   return (
     <div className="p-6">
       <div className="bg-card rounded-lg shadow-sm">
         <div className="p-6 border-b flex justify-between items-center">
           <h2 className="text-2xl font-bold">Fund Rate Adjustment</h2>
           <div className="flex gap-2">
+            <Button onClick={handleRun} disabled={runLoading}>
+              {runLoading ? <Spinner /> : <IconCalculator size={16} />}
+              Calculate
+            </Button>
             <Button variant="outline" onClick={() => setEditOpen(true)}>
               <IconEdit size={16} />
               Edit
@@ -118,27 +134,45 @@ export const AdjustFundRateDetail = () => {
                     <th className="text-right p-3 font-medium">
                       Currency Balance
                     </th>
+                    <th className="text-right p-3 font-medium">Difference</th>
                     <th className="text-center p-3 font-medium">Transaction</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {adjustFundRate.details.map((detail: any) => (
-                    <tr key={detail._id} className="border-b">
-                      <td className="p-3">{detail.accountId}</td>
-                      <td className="p-3 text-right font-mono">
-                        {detail.mainBalance?.toLocaleString() || '-'}
-                      </td>
-                      <td className="p-3 text-right font-mono">
-                        {detail.currencyBalance?.toLocaleString() || '-'}
-                      </td>
-                      <td className="p-3 text-center text-sm text-muted-foreground">
-                        {detail.transactionId || '-'}
-                      </td>
-                    </tr>
-                  ))}
+                  {adjustFundRate.details.map(
+                    (detail: IAdjustFundRateDetail) => (
+                      <tr key={detail._id} className="border-b">
+                        <td className="p-3">
+                          <div className="font-medium">
+                            {detail.accountCode || detail.accountId}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {detail.accountName || '-'}
+                          </div>
+                        </td>
+                        <td className="p-3 text-right font-mono">
+                          {formatAmount(detail.mainBalance)}
+                        </td>
+                        <td className="p-3 text-right font-mono">
+                          {formatAmount(detail.currencyBalance)}
+                        </td>
+                        <td className="p-3 text-right font-mono">
+                          {formatAmount(detail.diff)}
+                        </td>
+                        <td className="p-3 text-center text-sm text-muted-foreground">
+                          {detail.transactionId || '-'}
+                        </td>
+                      </tr>
+                    ),
+                  )}
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+        {(!adjustFundRate.details || adjustFundRate.details.length === 0) && (
+          <div className="p-6 border-t text-sm text-muted-foreground">
+            No calculated account balances yet.
           </div>
         )}
       </div>

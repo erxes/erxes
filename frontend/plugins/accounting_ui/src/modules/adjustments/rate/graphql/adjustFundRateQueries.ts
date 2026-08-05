@@ -52,8 +52,12 @@ export const ADJUST_FUND_RATE_DETAIL_QUERY = gql`
       details {
         _id
         accountId
+        accountCode
+        accountName
+        accountCurrency
         mainBalance
         currencyBalance
+        diff
         transactionId
         createdAt
         updatedAt

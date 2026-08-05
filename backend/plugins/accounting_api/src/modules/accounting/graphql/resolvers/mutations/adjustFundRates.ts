@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { runAdjustFundRate } from '../../../utils/adjustFundRates';
 
 interface IAdjustFundRateInput {
   date: Date;
@@ -20,8 +21,10 @@ const adjustFundRateMutations = {
   async adjustFundRateAdd(
     _root: unknown,
     doc: IAdjustFundRateInput,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAdjustInventories');
+
     const adjustFundRate = await models.AdjustFundRates.createAdjustFundRate({
       ...doc,
       createdBy: user._id,
@@ -38,8 +41,10 @@ const adjustFundRateMutations = {
   async adjustFundRateChange(
     _root: unknown,
     { _id, ...doc }: { _id: string } & IAdjustFundRateInput,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAdjustInventories');
+
     await models.AdjustFundRates.getAdjustFundRate(_id);
 
     const updated = await models.AdjustFundRates.updateAdjustFundRate(_id, {
@@ -58,13 +63,28 @@ const adjustFundRateMutations = {
   async adjustFundRateRemove(
     _root: unknown,
     { adjustFundRateIds }: { adjustFundRateIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('removeAdjustInventories');
+
     for (const _id of adjustFundRateIds) {
       await models.AdjustFundRates.removeAdjustFundRate(_id);
     }
 
     return { status: 'ok' };
+  },
+
+  async adjustFundRateRun(
+    _root: unknown,
+    { _id }: { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageTransactions');
+
+    const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
+
+    return runAdjustFundRate(models, user._id, adjust);
   },
 };
 

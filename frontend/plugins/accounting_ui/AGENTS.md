@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-04`
+- **Last synchronized:** `2026-08-05`
 
 ## Scope
 
@@ -22,7 +22,10 @@
 ## Current Capabilities
 
 - Displays, creates, updates, prints, and removes accounting transactions.
+- Keeps transaction form main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates.
 - Provides fund and debt currency rate adjustment list/detail routes under `/accounting/adjustment/fundRate` and `/accounting/adjustment/debRate`.
+- Opens fund rate adjustment create and edit forms in accounting sheet panels.
+- Allows fund rate adjustments to be calculated from the detail page and displays calculated account balances, differences, and linked transaction ids.
 - Supports inventory income, out, move, sale, and sale return transaction forms with tax-aware amount editing.
 - Fills inventory sale prices from product master `unitPrice`, income prices from the last completed inventory income price, and out/move cost prices from current inventory cost.
 - Provides accounting settings, reports, remainder views, and fixed asset adjustment screens.
@@ -48,6 +51,7 @@
 ### Consumes
 
 - Accounting GraphQL queries and mutations from the accounting API plugin.
+- Fund rate adjustment detail consumes enriched calculated balance fields and `adjustFundRateRun`.
 - Core product, branch, department, customer, and company data through public GraphQL and `ui-modules`.
 - UI primitives, forms, tables, popovers, hotkey controls, and toast feedback from `erxes-ui`.
 
@@ -73,6 +77,24 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-05` — `Currency Amount Manual Sync`
+
+- **Summary:** Cash transaction foreign-currency and main amount fields sync in either manual edit direction without overwriting the active input.
+- **Affected areas:** `src/modules/transactions/transaction-form/components/helpers/CurrencyForm.tsx`, `src/modules/transactions/transaction-form/components/forms/CashForm.tsx`, `src/modules/transactions/transaction-form/components/GeneralFormFields.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-05` — `Fund Rate Sheet Forms`
+
+- **Summary:** Fund rate adjustment create and edit forms now open as accounting sheet panels instead of dialogs.
+- **Affected areas:** `src/modules/adjustments/rate/components/AdjustFundRateForm.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-05` — `Fund Rate Calculation UI`
+
+- **Summary:** Fund rate adjustment detail pages can trigger calculation and show account balance, currency balance, difference, and transaction results.
+- **Affected areas:** `src/modules/adjustments/rate/graphql`, `src/modules/adjustments/rate/hooks`, `src/modules/adjustments/rate/components/AdjustFundRateDetail.tsx`.
+- **Contracts changed:** Consumes `adjustFundRateRun` and enriched fund rate detail fields from accounting API.
 
 ### `2026-08-04` — `Adjustment Route Merge Recovery`
 

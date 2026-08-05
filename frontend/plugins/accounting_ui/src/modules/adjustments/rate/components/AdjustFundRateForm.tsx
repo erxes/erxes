@@ -5,11 +5,12 @@ import {
   Button,
   CurrencyField,
   DatePicker,
-  Dialog,
   Form,
+  Sheet,
   Spinner,
   Textarea,
 } from 'erxes-ui';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import type { CurrencyCode } from 'erxes-ui/types';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,20 +29,17 @@ const getCurrencyCode = (value: string) =>
 export const AddAdjustFundRate = () => {
   const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           Add Fund Rate Adjustment
         </Button>
-      </Dialog.Trigger>
-      <Dialog.ContentCombined
-        title="Fund Rate Adjustment"
-        description="Create a new fund rate adjustment"
-      >
+      </Sheet.Trigger>
+      <AccountingSheet title="Create Fund Rate Adjustment">
         <AdjustFundRateFormContent setOpen={setOpen} />
-      </Dialog.ContentCombined>
-    </Dialog>
+      </AccountingSheet>
+    </Sheet>
   );
 };
 
@@ -55,17 +53,14 @@ export const EditAdjustFundRate = ({
   adjustFundRate: IAdjustFundRate;
 }) => {
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.ContentCombined
-        title="Edit Fund Rate Adjustment"
-        description="Update fund rate adjustment"
-      >
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <AccountingSheet title="Edit Fund Rate Adjustment">
         <AdjustFundRateFormContent
           setOpen={setOpen}
           adjustFundRate={adjustFundRate}
         />
-      </Dialog.ContentCombined>
-    </Dialog>
+      </AccountingSheet>
+    </Sheet>
   );
 };
 
@@ -155,14 +150,10 @@ const AdjustFundRateFormContent = ({
   return (
     <Form {...form}>
       <form
-        className="p-6 flex-auto overflow-auto"
+        className="flex flex-col flex-1 min-h-0 bg-background"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h3 className="text-lg font-bold mb-4">
-          {adjustFundRate ? 'Edit' : 'Create'} Fund Rate Adjustment
-        </h3>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
           <Form.Field
             control={form.control}
             name="mainCurrency"
@@ -323,7 +314,7 @@ const AdjustFundRateFormContent = ({
             control={form.control}
             name="description"
             render={({ field }) => (
-              <Form.Item className="col-span-2">
+              <Form.Item>
                 <Form.Label>Description</Form.Label>
                 <Form.Control>
                   <Textarea
@@ -338,17 +329,20 @@ const AdjustFundRateFormContent = ({
           />
         </div>
 
-        <Dialog.Footer className="mt-6">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              Cancel
-            </Button>
-          </Dialog.Close>
+        <Sheet.Footer className="px-5 border-t bg-background shrink-0">
+          <Button
+            variant="outline"
+            type="button"
+            size="lg"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
             Save
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

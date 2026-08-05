@@ -4,8 +4,12 @@ export const types = () => `
   type AdjustFundRateDetail @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String!
     accountId: String
+    accountCode: String
+    accountName: String
+    accountCurrency: String
     mainBalance: Float
     currencyBalance: Float
+    diff: Float
     transactionId: String
     createdAt: Date
     updatedAt: Date
@@ -67,5 +71,6 @@ export const queries = `
 export const mutations = `
   adjustFundRateAdd(${adjustFundRateParams}): AdjustFundRate
   adjustFundRateChange(_id: String!, ${adjustFundRateParams}): AdjustFundRate
+  adjustFundRateRun(_id: String!): AdjustFundRate
   adjustFundRateRemove(adjustFundRateIds: [String!]!): JSON
 `;

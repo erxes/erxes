@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-04`
+- **Last synchronized:** `2026-08-05`
 
 ## Scope
 
@@ -24,6 +24,7 @@
 - Creates, updates, links, removes, and reports accounting transactions.
 - Supports main, cash, bank, receivable, payable, tax, inventory, and fixed asset journal handlers.
 - Exposes fund and debt currency rate adjustment schemas, models, GraphQL queries, and mutations alongside current accounting modules.
+- Calculates fund currency rate adjustments by reading cash/bank foreign-currency account balances, storing account balance details, and generating linked exchange-difference transactions.
 - Exposes inventory price lookup helpers for current cost and last completed income price by product.
 - Accepts Erkhet migration batches at `/pl:accounting/migration/erkhet/transactions`; by default it validates and resolves source codes, then raw-saves the supplied transaction documents without recalculating journal side effects.
 
@@ -41,7 +42,7 @@
 ### Provides
 
 - GraphQL accounting schema and resolvers from `src/modules/accounting/graphql`.
-- GraphQL fund/debt rate adjustment queries and mutations through `adjustFundRates`, `adjustDebtRates`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustDebtRatesAdd`, and `adjustDebtRatesEdit`.
+- GraphQL fund/debt rate adjustment queries and mutations through `adjustFundRates`, `adjustDebtRates`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateRun`, `adjustDebtRatesAdd`, and `adjustDebtRatesEdit`.
 - GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`, returning each requested product's last completed inventory income unit price or `0`.
 - HTTP route `/pl:accounting/migration/erkhet/transactions` for token-protected Erkhet batch imports.
 - Transaction model methods such as `createPTransaction`, `updatePTransaction`, `createTransaction`, and `updateTransaction`.
@@ -55,6 +56,7 @@
 
 - Tenant-scoped MongoDB models generated through `generateModels(subdomain)`.
 - Fund and debt rate adjustments persist in `adjust_fund_rates` and `adjust_debt_rates` with embedded account balance details.
+- Fund rate adjustment runs create linked `exchangeDiff` accounting transactions and store the parent transaction id on the adjustment plus account-side transaction ids on details.
 - Accounting transaction documents store journal, side, details, source content IDs, parent/ptr grouping, and migration metadata in `extraData`.
 - Fixed asset instance and adjustment collections are owned by this plugin.
 
@@ -76,6 +78,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-05` — `Fund Rate Adjustment Calculation`
+
+- **Summary:** Fund rate adjustments now calculate cash/bank foreign-currency balances and generate linked exchange-difference transactions on run.
+- **Affected areas:** `src/modules/accounting/utils/adjustFundRates.ts`, `src/modules/accounting/graphql/schemas/adjustFundRate.ts`, fund rate resolvers and model removal lifecycle.
+- **Contracts changed:** Added mutation `adjustFundRateRun(_id: String!): AdjustFundRate` and enriched detail fields `accountCode`, `accountName`, `accountCurrency`, and `diff`.
 
 ### `2026-08-04` — `Fund Debt Rate Merge Recovery`
 

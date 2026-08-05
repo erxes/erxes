@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp, fixNum } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IAdjustFundRateDocument } from '@/accounting/@types/adjustRateFundDetails';
 
@@ -85,8 +85,10 @@ const adjustFundRateQueries = {
   async adjustFundRates(
     _root: unknown,
     params: IQueryParams & ICursorPaginateParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustInventories');
+
     const filter = await generateFilter(params);
 
     const { sortField = 'createdAt', sortDirection = -1 } = params;
@@ -106,9 +108,43 @@ const adjustFundRateQueries = {
   async adjustFundRateDetail(
     _root: unknown,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    return models.AdjustFundRates.getAdjustFundRate(_id);
+    await checkPermission('readAdjustInventories');
+
+    const adjustFundRate = await models.AdjustFundRates.getAdjustFundRate(_id);
+    const accountIds = [
+      ...new Set(
+        (adjustFundRate.details || []).map((detail) => detail.accountId),
+      ),
+    ];
+    const accounts = await models.Accounts.find(
+      { _id: { $in: accountIds } },
+      { _id: 1, code: 1, name: 1, currency: 1 },
+    ).lean();
+    const accountById = new Map(
+      accounts.map((account) => [account._id, account]),
+    );
+
+    return {
+      ...adjustFundRate,
+      details: (adjustFundRate.details || []).map((detail) => {
+        const account = accountById.get(detail.accountId);
+        const diff = fixNum(
+          (detail.currencyBalance || 0) * (adjustFundRate.spotRate || 0) -
+            (detail.mainBalance || 0),
+          2,
+        );
+
+        return {
+          ...detail,
+          accountCode: account?.code,
+          accountName: account?.name,
+          accountCurrency: account?.currency,
+          diff,
+        };
+      }),
+    };
   },
 };
 

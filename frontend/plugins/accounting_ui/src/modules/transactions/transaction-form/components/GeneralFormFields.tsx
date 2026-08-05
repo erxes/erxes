@@ -112,7 +112,10 @@ export const AmountField = ({
   index,
   detIndex,
   labelTxt,
-}: ICommonFieldProps) => (
+  onValueChange,
+}: ICommonFieldProps & {
+  onValueChange?: (value: number) => void;
+}) => (
   <Form.Field
     control={form.control}
     name={`trDocs.${index}.details.${detIndex ?? 0}.amount`}
@@ -122,7 +125,10 @@ export const AmountField = ({
         <Form.Control>
           <CurrencyField.ValueInput
             value={field.value}
-            onChange={field.onChange}
+            onChange={(value) => {
+              field.onChange(value);
+              onValueChange?.(value || 0);
+            }}
           />
         </Form.Control>
       </Form.Item>

@@ -20,8 +20,12 @@ export interface IAdjustFundRate {
 export interface IAdjustFundRateDetail {
   _id: string;
   accountId: string;
+  accountCode?: string;
+  accountName?: string;
+  accountCurrency?: string;
   mainBalance: number;
   currencyBalance: number;
+  diff?: number;
   transactionId?: string;
   createdAt: Date;
   updatedAt?: Date;
