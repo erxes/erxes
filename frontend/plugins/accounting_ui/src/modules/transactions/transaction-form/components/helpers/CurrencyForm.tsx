@@ -35,7 +35,8 @@ const CurrencyFormBody = ({
     variables: { date, currency: detail.account?.currency },
     skip:
       providedSpotRate !== undefined ||
-      !detail?.account?.currency || detail?.account?.currency === mainCurrency,
+      !detail?.account?.currency ||
+      detail?.account?.currency === mainCurrency,
   });
   const spotRate = providedSpotRate ?? fetchedSpotRate;
 
@@ -51,9 +52,7 @@ const CurrencyFormBody = ({
 
     const multipler = detail.account?.kind === 'active' ? 1 : -1;
     return (
-      (detail.customRate - spotRate) *
-      (detail.currencyAmount || 0) *
-      multipler
+      (detail.customRate - spotRate) * (detail.currencyAmount || 0) * multipler
     );
   }, [spotRate, detail.customRate, detail.currencyAmount, detail.account]);
 
