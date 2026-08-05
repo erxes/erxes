@@ -9,7 +9,7 @@ import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TUpdatePipelineForm } from '@/pipelines/types';
-import { PipelineConfig } from './PipelineConfig';
+import { PipelineConfig } from '@/pipelines/components/PipelineConfig';
 
 export const PipelineDetail = () => {
   const { t } = useTranslation('frontline');

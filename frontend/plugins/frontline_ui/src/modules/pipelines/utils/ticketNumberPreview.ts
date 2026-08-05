@@ -1,7 +1,9 @@
-const NUMBER_CONFIG_TOKENS: [RegExp, (now: Date) => string][] = [
-  [/\{year\}/g, (now) => now.getFullYear().toString()],
-  [/\{month\}/g, (now) => `0${now.getMonth() + 1}`.slice(-2)],
-  [/\{day\}/g, (now) => `0${now.getDate()}`.slice(-2)],
+import { format } from 'date-fns';
+
+const NUMBER_CONFIG_TOKENS: [RegExp, string][] = [
+  [/\{year\}/g, 'yyyy'],
+  [/\{month\}/g, 'MM'],
+  [/\{day\}/g, 'dd'],
 ];
 
 export const MIN_TICKET_NUMBER_SIZE = 1;
@@ -38,7 +40,7 @@ export const buildTicketNumberPreview = (
   if (size === null) return null;
 
   const prefix = NUMBER_CONFIG_TOKENS.reduce(
-    (config, [token, resolve]) => config.replace(token, resolve(now)),
+    (config, [token, pattern]) => config.replace(token, format(now, pattern)),
     numberConfig ?? '',
   );
 

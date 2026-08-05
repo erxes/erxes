@@ -19,7 +19,7 @@ import {
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { TICKET_FORM_FIELDS } from '../constant';
+import { TICKET_FORM_FIELDS } from '@/pipelines/components/configs/constant';
 import { configCreateModalAtom } from '../states';
 
 const ConfigRowSkeleton = () => (

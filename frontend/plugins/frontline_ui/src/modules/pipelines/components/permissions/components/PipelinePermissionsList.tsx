@@ -19,7 +19,7 @@ import { SelectMember } from 'ui-modules';
 import { useGetTicketStatusesByPipeline } from '@/status/hooks/useGetTicketStatus';
 import { useUpdateTicketStatus } from '@/status/hooks/useUpdateTicketStatus';
 import { PipelineSection } from '@/pipelines/components/PipelineSection';
-import { PermissionRule } from './PermissionRule';
+import { PermissionRule } from '@/pipelines/components/permissions/components/PermissionRule';
 import { StatusPermissionControl } from './StatusPermissionControl';
 import { PipelineVisibility } from './PipelineVisibility';
 import { VISIBILITY_RULES } from '../constant';

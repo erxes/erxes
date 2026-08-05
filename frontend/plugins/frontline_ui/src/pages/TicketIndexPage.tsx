@@ -6,9 +6,14 @@ import {
   Separator,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { Can, PageHeader, Import, createFavoriteBreadcrumb } from 'ui-modules';
+import {
+  Can,
+  createFavoriteBreadcrumb,
+  Export,
+  Import,
+  PageHeader,
+} from 'ui-modules';
 import { useTranslation } from 'react-i18next';
-import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { IconTicket } from '@tabler/icons-react';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import {

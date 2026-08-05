@@ -221,6 +221,22 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-05` — Shared primitives and import paths
+
+- **Summary:** The drag handles and the clickable status and configuration rows
+  are `Button`/`DragHandle` from `erxes-ui` instead of raw `<button>` elements,
+  `PipelineSidebar` gets its active tab from `NavLink`, the ticket number
+  preview formats its date tokens with `date-fns`, and every import this plugin
+  adds now resolves through a package root or a `@/` alias.
+- **Affected areas:** `src/modules/status/components/StatusGroup.tsx`,
+  `src/modules/pipelines/components/{PipelineSidebar,PipelineConfig,PipelineDetail}.tsx`,
+  `src/modules/pipelines/components/configs/components/{ConfigList,TicketBasicFields}.tsx`,
+  `src/modules/pipelines/components/permissions/components/PipelinePermissionsList.tsx`,
+  `src/modules/pipelines/utils/ticketNumberPreview.ts`,
+  `src/pages/TicketIndexPage.tsx`
+- **Contracts changed:** `None` in this plugin. `DragHandle` was added to
+  `erxes-ui` as a shared component at the maintainer's request.
+
 ### `2026-08-05` — IconPicker value type compatibility in channel forms
 
 - **Summary:** Passed `field.value ?? undefined` to `IconPicker` in channel forms to satisfy `value?: string` when `icon` schema is nullable (`string | null | undefined`).
@@ -352,16 +368,5 @@
   `.../components/FacebookPostImagesField.tsx`,
   `.../hooks/useFacebookPostImages.tsx`,
   `src/modules/integrations/components/ChooseIntegrationType.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned)
-- **Contracts changed:** `None`
-
-### `2026-08-04` — Drop the unused `imageUrls` variable from the post mutation
-
-- **Summary:** `FACEBOOK_CREATE_POST` no longer declares or passes `$imageUrls`,
-  which no caller ever set, and the two post-composer locale keys that no
-  component reads (`create-post`, `posting`) were removed from the gateway
-  `frontline` namespace.
-- **Affected areas:**
-  `src/modules/integrations/facebook/graphql/mutations/fbPost.ts`,
   `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned)
 - **Contracts changed:** `None`

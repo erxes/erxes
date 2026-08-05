@@ -5,8 +5,8 @@ import {
   BOARD_NUMBERS,
 } from '@/pipelines/constants/pipelines';
 import { PipelineSection } from '@/pipelines/components/PipelineSection';
-import { Attribution } from './Attribution';
-import { TicketNumberPreview } from './TicketNumberPreview';
+import { Attribution } from '@/pipelines/components/Attribution';
+import { TicketNumberPreview } from '@/pipelines/components/TicketNumberPreview';
 import { useTranslation } from 'react-i18next';
 import { TUpdatePipelineForm } from '@/pipelines/types';
 
