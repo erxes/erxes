@@ -1,13 +1,10 @@
-import { TICKET_STATUS_FORM_SCHEMA } from '@/settings/schema/ticketStatus';
 import {
   addingStatusState,
   editingStatusState,
 } from '@/settings/states/StatusStates';
-import {
-  StatusInlineIcon,
-  StatusInlineLabel,
-} from '@/status/components/StatusInline';
-import { useAddTicketStatus } from '@/status/hooks/useAddTicketStatus';
+import { StatusInlineIcon } from '@/status/components/StatusInline';
+import { StatusSheet } from '@/status/components/StatusSheet';
+import { TICKET_STATUS_TYPE_NAMES } from '@/status/constants';
 import { useDeleteTicketStatus } from '@/status/hooks/useDeleteTicketStatus';
 import { useGetTicketStatus } from '@/status/hooks/useGetTicketStatus';
 import { useUpdateTicketStatus } from '@/status/hooks/useUpdateTicketStatus';
@@ -16,15 +13,20 @@ import {
   closestCenter,
   DndContext,
   DragEndEvent,
-  DragMoveEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
+  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { CSS } from '@dnd-kit/utilities';
 import {
   IconDots,
   IconEdit,
@@ -35,39 +37,43 @@ import {
 import {
   Button,
   cn,
-  ColorPicker,
   DropdownMenu,
-  Form,
-  Input,
   Skeleton,
   TextOverflowTooltip,
   useToast,
 } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
 
-const StatusSkeleton = () => {
-  return (
-    <div className="flex items-center justify-between py-2 pl-1 pr-2 rounded my-1 shadow-xs cursor-default group relative">
-      <div className="absolute inset-0 rounded" />
-      <span className="flex items-center gap-1">
-        <IconGripVertical className="invisible w-4 h-4" stroke={1.5} />
-        <Skeleton className="size-7" />
-        <div className="flex flex-col">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-2 w-16 mt-1" />
-        </div>
-      </span>
-      <Button variant="ghost" size="icon" disabled={true}>
-        <IconDots />
-      </Button>
+const STATUS_ROW_CLASSNAME =
+  'group relative flex min-h-11 items-center gap-2 rounded-md border bg-background px-2 py-1.5 transition-colors';
+
+const StatusSwatch = ({
+  color,
+  statusType,
+}: {
+  color?: string;
+  statusType: number;
+}) => (
+  <span
+    className="flex size-7 flex-none items-center justify-center rounded"
+    style={{ backgroundColor: `${color || '#000000'}25` }}
+  >
+    <StatusInlineIcon statusType={statusType} color={color} />
+  </span>
+);
+
+const StatusSkeleton = () => (
+  <div className={STATUS_ROW_CLASSNAME}>
+    <IconGripVertical className="size-4 flex-none opacity-0" stroke={1.5} />
+    <Skeleton className="size-7 flex-none rounded" />
+    <div className="flex flex-col gap-1">
+      <Skeleton className="h-3.5 w-24" />
+      <Skeleton className="h-2.5 w-16" />
     </div>
-  );
-};
+  </div>
+);
 
 export const Status = ({
   status,
@@ -76,6 +82,8 @@ export const Status = ({
   status: ITicketStatus;
   isDragDisabled: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
+  const setEditingStatus = useSetAtom(editingStatusState);
   const {
     attributes,
     listeners,
@@ -89,51 +97,57 @@ export const Status = ({
   });
 
   const style = {
-    transform: transform ? `translate3d(0, ${transform.y}px, 0)` : undefined,
+    transform: CSS.Translate.toString(transform),
     transition,
   };
 
-  const dragProps = isDragDisabled ? {} : { ...attributes, ...listeners };
+  const openEditSheet = () => setEditingStatus(status._id);
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
       className={cn(
-        'flex items-center justify-between py-2 pl-1 pr-2 rounded my-1 shadow-xs cursor-default group relative',
-        isDragging && 'cursor-grabbing shadow-lg',
+        STATUS_ROW_CLASSNAME,
+        'cursor-pointer hover:bg-accent',
+        isDragging && 'z-10 cursor-grabbing bg-accent shadow-md',
       )}
+      onClick={openEditSheet}
+      onKeyDown={(event) => {
+        // Space on the grip starts a keyboard drag; only the row itself edits.
+        if (event.target !== event.currentTarget) return;
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        openEditSheet();
+      }}
+      ref={setNodeRef}
+      role="button"
+      style={style}
+      tabIndex={0}
     >
-      <div className="absolute inset-0 rounded" {...dragProps} />
-      <span className="flex items-center gap-2">
-        <IconGripVertical
-          className={cn(
-            'w-4 h-4 transition-all',
-            isDragDisabled
-              ? 'opacity-0'
-              : 'group-hover:opacity-100 opacity-0 hover:cursor-move',
-          )}
-          stroke={1.5}
-        />
-        <Button
-          size={'icon'}
-          variant={'secondary'}
-          className="cursor-default hover:bg-muted relative"
-          style={{
-            backgroundColor: status.color ? `${status.color}25` : '#00000025',
-            color: status.color || '#000000',
-          }}
-        >
-          <StatusInlineIcon statusType={status.type} color={status.color} />
-        </Button>
-        <div className="flex flex-col">
-          <span className="capitalize">{status.name}</span>
+      <button
+        aria-label={t('reorder')}
+        className={cn(
+          'flex size-5 flex-none cursor-grab items-center justify-center rounded text-accent-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
+          isDragDisabled && 'invisible',
+        )}
+        onClick={(event) => event.stopPropagation()}
+        type="button"
+        {...attributes}
+        {...listeners}
+      >
+        <IconGripVertical className="size-4" stroke={1.5} />
+      </button>
+      <StatusSwatch color={status.color} statusType={status.type} />
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="truncate text-sm capitalize leading-tight">
+          {status.name}
+        </span>
+        {!!status.description && (
           <TextOverflowTooltip
-            className="text-muted-foreground max-w-36 z-10"
+            className="max-w-44 text-xs leading-tight text-muted-foreground"
             value={status.description}
           />
-        </div>
-      </span>
+        )}
+      </div>
       <StatusOptionMenu statusId={status._id} statusType={status.type} />
     </div>
   );
@@ -172,29 +186,24 @@ const StatusOptionMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button
+          className="relative ml-auto"
+          onClick={(event) => event.stopPropagation()}
+          size="icon"
+          variant="ghost"
+        >
           <IconDots />
         </Button>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content
-        side="bottom"
-        alignOffset={-160}
-        className="min-w-48 text-sm"
-        align="start"
-      >
-        <DropdownMenu.Item
-          onClick={(e) => {
-            e.stopPropagation();
-            setEditingStatus(statusId);
-          }}
-        >
+      <DropdownMenu.Content align="end" className="min-w-40">
+        <DropdownMenu.Item onSelect={() => setEditingStatus(statusId)}>
           <IconEdit />
           {t('edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
           className="text-destructive"
-          onClick={handleDeleteStatus}
+          onSelect={handleDeleteStatus}
         >
           <IconTrash />
           {t('delete')}
@@ -204,189 +213,50 @@ const StatusOptionMenu = ({
   );
 };
 
-export const StatusForm = ({
+export const StatusGroup = ({
+  isLast,
   statusType,
-  editingStatus,
 }: {
+  isLast?: boolean;
   statusType: number;
-  editingStatus?: ITicketStatus;
 }) => {
-  const { t } = useTranslation('frontline');
-  const { addStatus } = useAddTicketStatus();
-  const { toast } = useToast();
-  const { updateStatus } = useUpdateTicketStatus();
-  const { pipelineId } = useParams();
-  const setAddingStatus = useSetAtom(addingStatusState);
-  const setEditingStatus = useSetAtom(editingStatusState);
-
-  const isEditing = !!editingStatus;
-
-  const form = useForm<z.infer<typeof TICKET_STATUS_FORM_SCHEMA>>({
-    resolver: zodResolver(TICKET_STATUS_FORM_SCHEMA),
-    defaultValues: {
-      name: editingStatus?.name || '',
-      description: editingStatus?.description || '',
-      color: editingStatus?.color || '#000000',
-    },
-  });
-
-  useEffect(() => {
-    form.setFocus('name');
-  }, [form]);
-
-  const onSubmit = (data: z.infer<typeof TICKET_STATUS_FORM_SCHEMA>) => {
-    const { name, description, color } = data;
-
-    if (isEditing && editingStatus) {
-      updateStatus({
-        variables: {
-          id: editingStatus._id,
-          name,
-          description,
-          color: color?.length && color.length > 2 ? color : '',
-        },
-        onCompleted: () => {
-          setEditingStatus(null);
-        },
-      });
-    } else {
-      addStatus({
-        variables: { name, description, color, pipelineId, type: statusType },
-        onCompleted: () => {
-          setAddingStatus(null);
-        },
-        onError: (error) => {
-          toast({
-            title: t('error'),
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
-      });
-    }
-  };
-
-  const handleCancel = () => {
-    if (isEditing) {
-      setEditingStatus(null);
-    } else {
-      setAddingStatus(null);
-    }
-  };
-
-  return (
-    <div
-      className={cn(
-        'flex items-center justify-between py-2 pl-1 pr-2 rounded my-1 shadow-xs cursor-default group overflow-x-auto',
-      )}
-    >
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, (errors) => {
-            toast({
-              title: t('error'),
-              description: Object.entries(errors)[0][1].message,
-              variant: 'destructive',
-            });
-          })}
-        >
-          <span className="flex items-center gap-1">
-            <IconGripVertical className="invisible w-4 h-4" stroke={1.5} />
-            <Form.Field
-              control={form.control}
-              name="color"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <ColorPicker.Provider
-                      value={field.value || '#000000'}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                    >
-                      <ColorPicker.Trigger asChild>
-                        <Button
-                          size={'icon'}
-                          variant={'secondary'}
-                          className="cursor-default hover:bg-muted m-0 size-7 p-0 flex items-center justify-center bg-accent shadow-none hover:cursor-pointer"
-                          style={{
-                            backgroundColor: field.value
-                              ? `${field.value}25`
-                              : undefined,
-                          }}
-                        >
-                          <StatusInlineIcon
-                            statusType={statusType}
-                            color={field.value}
-                          />
-                        </Button>
-                      </ColorPicker.Trigger>
-                      <ColorPicker.Content />
-                    </ColorPicker.Provider>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            ></Form.Field>
-
-            <span className="flex items-center w-auto gap-1 ">
-              <Form.Field
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input placeholder={t('name')} {...field} className="w-full" />
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <Form.Item className="w-full">
-                    <Form.Control>
-                      <Input
-                        placeholder={t('description')}
-                        {...field}
-                        className="w-full"
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
-            </span>
-            <Button variant="ghost" onClick={handleCancel}>
-              {t('cancel')}
-            </Button>
-            <Button type="submit">{isEditing ? t('update') : t('save')}</Button>
-          </span>
-        </form>
-      </Form>
-    </div>
-  );
-};
-
-export const StatusGroup = ({ statusType }: { statusType: number }) => {
   const { t } = useTranslation('frontline');
   const { statuses = [], loading } = useGetTicketStatus({
     variables: { type: statusType },
   });
   const { updateStatus } = useUpdateTicketStatus();
   const { toast } = useToast();
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
   const [addingStatus, setAddingStatus] = useAtom(addingStatusState);
   const editingStatusId = useAtomValue(editingStatusState);
   const [_statuses, _setStatuses] = useState<ITicketStatus[]>([]);
+  const [isReordering, setIsReordering] = useState(false);
 
   useEffect(() => {
+    // Each reorder write refetches the list, and those refetches land one by
+    // one in whatever order the server answers. Adopting them mid-flight is
+    // what makes the rows jump, so the local order stays authoritative until
+    // every write has settled.
+    if (isReordering) return;
+
     if (JSON.stringify(statuses) !== JSON.stringify(_statuses)) {
       _setStatuses(statuses);
     }
-  }, [_statuses, statuses]);
+  }, [_statuses, isReordering, statuses]);
 
   const isDragDisabled = _statuses.length <= 1 || editingStatusId !== null;
+  const isAddingHere = addingStatus === statusType;
+  const isEditingSomewhere = addingStatus !== null || editingStatusId !== null;
+  const editingStatus = _statuses.find(
+    (status) => status._id === editingStatusId,
+  );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;
@@ -398,91 +268,112 @@ export const StatusGroup = ({ statusType }: { statusType: number }) => {
 
     const newOrder = arrayMove(_statuses, oldIndex, newIndex);
     const previousOrder = _statuses;
+
+    setIsReordering(true);
     _setStatuses(newOrder);
 
-    newOrder.forEach((status, index) => {
-      if (status.order !== index) {
-        updateStatus({
-          variables: {
-            id: status._id,
-            order: index,
-          },
-          onError: (error) => {
-            _setStatuses(previousOrder);
-            toast({
-              title: t('error'),
-              description: error.message,
-              variant: 'destructive',
-            });
-          },
-        });
-      }
-    });
-  };
+    const writes = newOrder
+      .map((status, index) =>
+        status.order === index
+          ? null
+          : updateStatus({
+              awaitRefetchQueries: true,
+              variables: { id: status._id, order: index },
+            }),
+      )
+      .filter(Boolean);
 
-  const handleDragMove = (event: DragMoveEvent) => {
-    const { delta } = event;
-    if (delta) {
-      delta.x = 0;
+    try {
+      const results = await Promise.all(writes);
+
+      if (results.some((result) => !result?.data)) {
+        _setStatuses(previousOrder);
+      }
+    } catch (error) {
+      _setStatuses(previousOrder);
+      toast({
+        title: t('error'),
+        description: error instanceof Error ? error.message : undefined,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsReordering(false);
     }
   };
-  return (
-    <div className="w-full p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 justify-between w-full bg-accent py-1 pr-2 pl-4 rounded-md">
-          <div className="flex items-center gap-2 ">
-            <p className="text-base font-medium">
-              <StatusInlineLabel statusType={statusType} />
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setAddingStatus(statusType)}
-            disabled={addingStatus !== null || editingStatusId !== null}
-            className="size-6"
-          >
-            <IconPlus className="stroke-foreground" />
-          </Button>
-        </div>
-      </div>
 
-      <DndContext
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        onDragMove={handleDragMove}
-      >
-        <SortableContext
-          items={_statuses.map((status) => status._id)}
-          strategy={verticalListSortingStrategy}
+  const isEmpty = !loading && _statuses.length === 0;
+
+  return (
+    <div className="group/stage flex gap-3">
+      <div className="flex w-4 flex-none flex-col items-center pt-1.5">
+        <StatusInlineIcon statusType={statusType} />
+        {!isLast && <span aria-hidden className="mt-1 w-px flex-1 bg-border" />}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-2 pb-5">
+        <div className="flex h-7 items-center gap-2">
+          <h3 className="font-mono text-xs font-semibold uppercase text-accent-foreground">
+            {t(TICKET_STATUS_TYPE_NAMES[statusType])}
+          </h3>
+          {!loading && !isEmpty && (
+            <span className="font-mono text-xs text-muted-foreground">
+              {_statuses.length}
+            </span>
+          )}
+          {!isEmpty && (
+            <Button
+              aria-label={t('add')}
+              className="ml-auto"
+              disabled={loading || isEditingSomewhere}
+              onClick={() => setAddingStatus(statusType)}
+              size="icon"
+              variant="outline"
+            >
+              <IconPlus />
+            </Button>
+          )}
+        </div>
+        <DndContext
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis]}
+          onDragEnd={handleDragEnd}
+          sensors={sensors}
         >
-          {loading
-            ? Array.from({ length: 2 }).map((_, index) => (
-                <StatusSkeleton key={index} />
-              ))
-            : _statuses.map((status) => {
-                if (editingStatusId === status._id) {
-                  return (
-                    <StatusForm
-                      key={status._id}
-                      statusType={statusType}
-                      editingStatus={status}
-                    />
-                  );
-                }
-                return (
+          <SortableContext
+            items={_statuses.map((status) => status._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {loading
+              ? Array.from({ length: 2 }).map((_, index) => (
+                  <StatusSkeleton key={index} />
+                ))
+              : _statuses.map((status) => (
                   <Status
+                    isDragDisabled={isDragDisabled}
                     key={status._id}
                     status={status}
-                    isDragDisabled={isDragDisabled}
                   />
-                );
-              })}
-          {addingStatus === statusType && (
-            <StatusForm statusType={statusType} />
-          )}
-        </SortableContext>
-      </DndContext>
+                ))}
+          </SortableContext>
+        </DndContext>
+
+        {isEmpty && (
+          <Button
+            className="w-full justify-start text-muted-foreground"
+            disabled={isEditingSomewhere}
+            onClick={() => setAddingStatus(statusType)}
+            variant="outline"
+          >
+            <IconPlus />
+            {t('add')}
+          </Button>
+        )}
+
+        <StatusSheet
+          editingStatus={editingStatus}
+          open={isAddingHere || !!editingStatus}
+          statusType={statusType}
+        />
+      </div>
     </div>
   );
 };

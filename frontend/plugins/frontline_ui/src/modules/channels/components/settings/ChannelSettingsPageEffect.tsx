@@ -13,10 +13,6 @@ export const ChannelSettingsPageEffect = () => {
 
   useEffect(() => {
     switch (true) {
-      case isMatchingLocation(FrontlinePaths.PipelineDetail): {
-        setHotkeyScope(PipelineHotkeyScope.PipelineDetail);
-        break;
-      }
       case isMatchingLocation(FrontlinePaths.ResponseDetail): {
         setHotkeyScope(ResponseHotkeyScope.ResponseDetail);
         break;

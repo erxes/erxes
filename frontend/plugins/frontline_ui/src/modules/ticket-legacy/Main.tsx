@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router';
 
 const Ticket = lazy(() =>
   import('~/pages/TicketIndexPage').then((module) => ({
-    default: module.default,
+    default: module.TicketsIndexPage,
   })),
 );
 

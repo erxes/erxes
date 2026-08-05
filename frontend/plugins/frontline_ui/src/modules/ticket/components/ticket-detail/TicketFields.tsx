@@ -14,7 +14,6 @@ import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { ITicket } from '@/ticket/types';
-import { IAttachment } from '@/ticket/types/attachments';
 import { Block } from '@blocknote/core';
 import { IconSquareToggle, IconTags, IconTrash } from '@tabler/icons-react';
 import {
@@ -53,9 +52,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     isSubscribed: _isSubscribed,
     state: ticketState,
     attachments,
-  } = ticket || {};
-  const startDate = (ticket as any)?.startDate;
-  const description = (ticket as any)?.description;
+    startDate,
+    description,
+  } = ticket;
   const isFirstRun = React.useRef(true);
   const isRemovedRef = React.useRef(false);
   const [state, setState] = useState(ticketState || 'active');
@@ -78,11 +77,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       ) {
         return parsed as Block[];
       }
-    } catch (error) {
-      console.debug(
-        'Failed to parse description as JSON, treating as plain text:',
-        error,
-      );
+    } catch {
       const lines = desc.split('\n');
       if (lines.length === 0) return undefined;
 
@@ -158,16 +153,16 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     isSubscribed: boolean;
   }) => {
     return (
-      <div
-        className="space-x-2 flex items-center gap-2"
+      <Button
+        type="button"
+        variant="ghost"
+        disabled={!canEditTicket}
         onClick={() => {
           setSubscribe(!isSubscribed);
         }}
       >
-        <Button variant="ghost">
-          <legend>{isSubscribed ? t('unsubscribe') : t('subscribe')}</legend>
-        </Button>
-      </div>
+        {isSubscribed ? t('unsubscribe') : t('subscribe')}
+      </Button>
     );
   };
 
@@ -227,11 +222,12 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           variant: 'success',
           description: t('ticket-deleted-successfully'),
         });
-      } catch (e: any) {
+      } catch (error) {
         isRemovedRef.current = false;
         toast({
           title: t('error'),
-          description: e.message,
+          description:
+            error instanceof Error ? error.message : t('ticket-not-found'),
           variant: 'destructive',
         });
       }
@@ -247,8 +243,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         name: debouncedName,
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedName]);
+  }, [debouncedName, _name, ticketId, updateTicket]);
   useEffect(() => {
     if (isRemovedRef.current || !ticketId) return;
     if (!debouncedDescriptionContent) return;
@@ -265,8 +260,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         description: JSON.stringify(debouncedDescriptionContent),
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedDescriptionContent]);
+  }, [debouncedDescriptionContent, description, ticketId, updateTicket]);
 
   useEffect(() => {
     if (isFirstRun.current) {
@@ -283,12 +277,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         },
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubscribed, _isSubscribed, ticketId]);
+  }, [isSubscribed, _isSubscribed, ticketId, updateTicket]);
   return (
     <AttachmentProvider
       ticketId={ticketId}
-      initialAttachments={attachments || ([] as IAttachment[])}
+      initialAttachments={attachments || []}
     >
       <div className="flex flex-col gap-3 h-full px-5 py-8">
         <Input
@@ -306,7 +299,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             updateTicket({
               variables: {
                 _id: ticketId,
-                tagIds: newTagIds,
+                tagIds: Array.isArray(newTagIds) ? newTagIds : [newTagIds],
               },
             });
           }}

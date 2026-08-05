@@ -19,11 +19,13 @@ export const ChannelForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>{t('icon')}</Form.Label>
-              <Form.Description className="sr-only">{t('icon')}</Form.Description>
+              <Form.Description className="sr-only">
+                {t('icon')}
+              </Form.Description>
               <Form.Control>
                 <IconPicker
                   onValueChange={field.onChange}
-                  value={field.value}
+                  value={field.value || undefined}
                   className="w-min"
                 />
               </Form.Control>

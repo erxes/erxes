@@ -4,18 +4,21 @@ import {
   Form,
   Kbd,
   Sheet,
+  Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
 import { usePipelineAdd } from '@/pipelines/hooks/useAddPipeline';
-import React, { useState } from 'react';
+import { useAtom } from 'jotai';
+import React, { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { CREATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TCreatePipelineForm } from '@/pipelines/types';
 import { PipelineHotkeyScope } from '@/pipelines/types/PipelineHotkeyScope';
+import { createPipelineSheetState } from '@/pipelines/states/pipelineStates';
 import { useNavigate } from 'react-router';
 import { CreatePipelineForm } from './CreatePipelineForm';
 import { useParams } from 'react-router-dom';
@@ -34,35 +37,34 @@ export const CreatePipeline = () => {
     },
   });
 
-  const { addPipeline } = usePipelineAdd();
+  const { addPipeline, loading } = usePipelineAdd();
   const { toast } = useToast();
 
   const navigate = useNavigate();
 
-  const [_open, _setOpen] = useState<boolean>(false);
+  const [_open, _setOpen] = useAtom(createPipelineSheetState);
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
 
-  const onOpen = () => {
-    _setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(
-      PipelineHotkeyScope.PipelineAddSheet,
-    );
-  };
+  useEffect(() => {
+    if (_open) {
+      setHotkeyScopeAndMemorizePreviousScope(
+        PipelineHotkeyScope.PipelineAddSheet,
+      );
+      return;
+    }
 
-  const onClose = () => {
     setHotkeyScope(PipelineHotkeyScope.PipelineSettingsPage);
-    _setOpen(false);
-  };
+  }, [_open, setHotkeyScope, setHotkeyScopeAndMemorizePreviousScope]);
 
   useScopedHotkeys(
     `c`,
-    () => onOpen(),
+    () => _setOpen(true),
     PipelineHotkeyScope.PipelineSettingsPage,
   );
   useScopedHotkeys(
     `esc`,
-    () => onClose(),
+    () => _setOpen(false),
     PipelineHotkeyScope.PipelineAddSheet,
   );
   const submitHandler: SubmitHandler<TCreatePipelineForm> = React.useCallback(
@@ -88,11 +90,11 @@ export const CreatePipeline = () => {
           }),
       });
     },
-    [addPipeline, toast, _setOpen, form, navigate, channelId],
+    [addPipeline, toast, _setOpen, form, navigate, channelId, t],
   );
   if (!channelId) return null;
   return (
-    <Sheet open={_open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+    <Sheet open={_open} onOpenChange={_setOpen}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -114,10 +116,17 @@ export const CreatePipeline = () => {
               <CreatePipelineForm form={form} />
             </Sheet.Content>
             <Sheet.Footer>
-              <Button variant={'secondary'} onClick={onClose}>
+              <Button
+                disabled={loading}
+                onClick={() => _setOpen(false)}
+                type="button"
+                variant="secondary"
+              >
                 {t('cancel')}
               </Button>
-              <Button type="submit">{t('create')}</Button>
+              <Button disabled={loading} type="submit">
+                {loading ? <Spinner /> : t('create')}
+              </Button>
             </Sheet.Footer>
           </form>
         </Form>

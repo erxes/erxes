@@ -1,4 +1,4 @@
-import { Button, Popover, PopoverScoped, ToggleGroup } from 'erxes-ui';
+import { Button, Popover, PopoverScoped, Spinner, ToggleGroup } from 'erxes-ui';
 import {
   IconAdjustmentsHorizontal,
   IconLayoutKanban,
@@ -42,7 +42,9 @@ export const TicketsViewControl = () => {
           className="grid grid-cols-2 gap-2"
           value={view}
           onValueChange={(value) => {
-            setView(value as 'list' | 'grid');
+            if (value !== 'list' && value !== 'grid') return;
+
+            setView(value);
             setIsOpen(false);
           }}
         >
@@ -76,7 +78,7 @@ export const TicketsView = () => {
   const view = useAtomValue(ticketViewAtom);
 
   return (
-    <Suspense>
+    <Suspense fallback={<Spinner containerClassName="py-20" />}>
       {view === 'list' ? <TicketsRecordTable /> : <TicketsBoard />}
       <TicketDetailSheet />
     </Suspense>

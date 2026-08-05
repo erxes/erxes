@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { Button, Form, Sheet, Spinner, toast, useConfirm } from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, toast } from 'erxes-ui';
 import { usePipelineConfigForm } from '../hooks/usePipelineConfigForm';
 import { useSaveTicketsConfig } from '../hooks/useSaveTicketsConfig';
 import { type SubmitHandler } from 'react-hook-form';
@@ -15,7 +15,7 @@ export const CreateConfig = () => {
   const { saveTicketsConfig, loading } = useSaveTicketsConfig();
   const { methods } = usePipelineConfigForm();
 
-  const { handleSubmit, reset, control } = methods;
+  const { handleSubmit, reset } = methods;
 
   const onSubmit: SubmitHandler<TPipelineConfig> = useCallback(
     (data) => {
@@ -41,7 +41,7 @@ export const CreateConfig = () => {
         },
       });
     },
-    [saveTicketsConfig, reset],
+    [saveTicketsConfig, reset, setOpen, t],
   );
 
   useEffect(() => {

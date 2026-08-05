@@ -21,7 +21,6 @@ export const UPDATE_PIPELINE_PERMISSIONS_FORM_SCHEMA = z.object({
   branchOnly: z.boolean(),
   myTicketsOnly: z.boolean(),
   departmentOnly: z.boolean(),
-  allowAllUsers: z.boolean(),
   selectedUsers: z.array(z.string()),
   visibility: z.enum(['public', 'private']),
   memberIds: z.array(z.string()),

@@ -1,6 +1,11 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+const TICKET_DETAIL_TABS = [
+  { value: 'overview', labelKey: 'overview' },
+  { value: 'properties', label: 'Properties' },
+] as const;
+
 export const TicketSidebar = () => {
   const { t } = useTranslation('frontline');
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -11,15 +16,16 @@ export const TicketSidebar = () => {
         <Sidebar.GroupLabel>{t('general')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
-            {['overview', 'properties'].map((tab) => (
-              <Sidebar.MenuItem key={tab}>
+            {TICKET_DETAIL_TABS.map((tab) => (
+              <Sidebar.MenuItem key={tab.value}>
                 <Sidebar.MenuButton
                   isActive={
-                    selectedTab === tab || (tab === 'overview' && !selectedTab)
+                    selectedTab === tab.value ||
+                    (tab.value === 'overview' && !selectedTab)
                   }
-                  onClick={() => setSelectedTab(tab)}
+                  onClick={() => setSelectedTab(tab.value)}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {'labelKey' in tab ? t(tab.labelKey) : tab.label}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

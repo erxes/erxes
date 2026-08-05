@@ -36,8 +36,12 @@ export const TicketDetailSheet = ({
       <FocusSheet.View
         loading={loading}
         error={!!error}
-        notFound={!ticket}
-        notFoundState={<div>{t('ticket-not-found')}</div>}
+        notFound={!loading && !ticket}
+        notFoundState={
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            {t('ticket-not-found')}
+          </div>
+        }
         errorState={
           <div className="flex items-center justify-center h-full">
             <Empty>

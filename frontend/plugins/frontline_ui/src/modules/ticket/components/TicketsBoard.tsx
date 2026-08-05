@@ -45,9 +45,10 @@ export const TicketsBoard = () => {
       pipelineId: pipelineId || '',
       channelId: channelId || '',
     },
+    skip: !pipelineId,
   });
 
-  const columns = statuses?.map((status) => ({
+  const columns = statuses.map((status) => ({
     id: status.value,
     name: status.label,
     type: status.type.toString(),
@@ -66,28 +67,28 @@ export const TicketsBoard = () => {
     if (!over) {
       return;
     }
-    const activeItem = allTicketsMap[active.id as string];
+    const activeItem = allTicketsMap[String(active.id)];
     if (!activeItem) {
       return;
     }
-    const overItem = allTicketsMap[over.id as string];
+    const overItem = allTicketsMap[String(over.id)];
     const overColumn =
       overItem?.statusId ||
-      columns?.find((col) => col.id === over.id)?.id ||
-      columns?.[0]?.id;
+      columns.find((col) => col.id === over.id)?.id ||
+      columns[0]?.id;
 
-    if (activeItem?.statusId === overColumn) {
+    if (!overColumn || activeItem.statusId === overColumn) {
       return;
     }
     updateTicket({
       variables: {
-        _id: activeItem?._id,
+        _id: activeItem._id,
         statusId: overColumn,
       },
     });
     setTickets((prev) =>
       prev.map((ticket) => {
-        if (ticket.id === activeItem?._id) {
+        if (ticket.id === activeItem._id) {
           return {
             ...ticket,
             column: overColumn,
@@ -99,12 +100,19 @@ export const TicketsBoard = () => {
     );
     setTicketCountByBoard((prev) => ({
       ...prev,
-      [activeItem?.statusId]: prev[activeItem?.statusId] - 1 || 0,
+      [activeItem.statusId]: prev[activeItem.statusId] - 1 || 0,
       [overColumn]: (prev[overColumn] || 0) + 1,
     }));
   };
 
-  if (loading) return <Spinner />;
+  if (!pipelineId) {
+    return <TicketPipelineFallback />;
+  }
+
+  if (loading) {
+    return <Spinner containerClassName="py-20" />;
+  }
+
   return (
     <Board.Provider
       columns={columns}
@@ -169,20 +177,17 @@ export const TicketsBoardCards = ({
         ];
       });
       setAllticketsMap((prev) => {
-        const newtickets = tickets.reduce(
-          (acc, ticket) => {
-            acc[ticket._id] = ticket;
-            return acc;
-          },
-          {} as Record<string, ITicket>,
-        );
+        const newtickets = tickets.reduce((acc, ticket) => {
+          acc[ticket._id] = ticket;
+          return acc;
+        }, {} as Record<string, ITicket>);
         return { ...prev, ...newtickets };
       });
     }
   }, [tickets, setTicketCards, setAllticketsMap, column.id]);
 
   useEffect(() => {
-    if (totalCount) {
+    if (totalCount !== undefined) {
       setTicketCountByBoard((prev) => ({
         ...prev,
         [column.id]: totalCount || 0,

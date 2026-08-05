@@ -1,191 +1,205 @@
+import { usePipelineRemove } from '@/pipelines/hooks/usePipelineRemove';
+import { IPipeline } from '@/pipelines/types';
 import {
-  Skeleton,
-  Table,
-  TextOverflowTooltip,
+  IconCalendarPlus,
+  IconCalendarUp,
+  IconGitBranch,
+  IconPlus,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import {
   Button,
+  Combobox,
+  Command,
+  Empty,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
   Spinner,
   useConfirm,
-  ScrollArea,
-  Tooltip,
-  IconComponent,
 } from 'erxes-ui';
-import { format } from 'date-fns';
-import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
-import { useNavigate } from 'react-router-dom';
-import { MembersInline } from 'ui-modules';
-import { IconGitBranch, IconTrash } from '@tabler/icons-react';
-import { CreatePipeline } from '@/pipelines/components/CreatePipeline';
-import { usePipelineRemove } from '@/pipelines/hooks/usePipelineRemove';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
+import { createPipelineSheetState } from '@/pipelines/states/pipelineStates';
+import { useSetAtom } from 'jotai';
 
-export const DeletePipeline = ({ pipelineId }: { pipelineId: string }) => {
-  const confirmationValue = 'delete';
-  const confirmationMessage = 'Are you sure you want to delete this pipeline?';
-  const { removePipeline, loading } = usePipelineRemove();
-  const { confirm } = useConfirm();
-  const onDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    confirm({
-      message: confirmationMessage,
-      options: { confirmationValue },
-    }).then(() => {
-      removePipeline({ variables: { id: pipelineId } });
-    });
-  };
+type PipelineCellProps = {
+  cell: Cell<IPipeline, unknown>;
+};
+
+const PipelineNameCell = ({ cell }: PipelineCellProps) => {
+  const navigate = useNavigate();
+  const { _id, channelId } = cell.row.original;
+
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="aspect-square text-muted-foreground hover:text-destructive hover:bg-transparent group-hover/row:visible invisible transition-all duration-50 ease-linear"
-      onClick={onDelete}
-      disabled={loading}
+    <RecordTableInlineCell
+      onClick={() =>
+        navigate(`/settings/frontline/channels/${channelId}/pipelines/${_id}`)
+      }
     >
-      {loading ? <Spinner size={'sm'} /> : <IconTrash />}
-    </Button>
+      <span className="flex items-center gap-2 font-medium">
+        <IconGitBranch className="size-4 shrink-0 text-muted-foreground" />
+        {cell.getValue() as string}
+      </span>
+    </RecordTableInlineCell>
   );
 };
+
+const PipelineCreatedByCell = ({ cell }: PipelineCellProps) => {
+  return (
+    <RecordTableInlineCell>
+      {cell.row.original.createdUser?.details?.fullName || '—'}
+    </RecordTableInlineCell>
+  );
+};
+
+const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
+  const { t } = useTranslation('frontline');
+  const { confirm } = useConfirm();
+  const { removePipeline, loading } = usePipelineRemove();
+  const { _id } = cell.row.original;
+
+  const onRemove = () => {
+    confirm({
+      message: 'Are you sure you want to delete this pipeline?',
+      options: { confirmationValue: 'delete' },
+    }).then(() => {
+      removePipeline({ variables: { id: _id } });
+    });
+  };
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="size-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item
+              className="text-destructive"
+              disabled={loading}
+              onSelect={onRemove}
+              value="delete"
+            >
+              {loading ? <Spinner size="sm" /> : <IconTrash />}
+              {t('delete')}
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+const usePipelineColumns = (): ColumnDef<IPipeline>[] => {
+  const { t } = useTranslation('frontline');
+
+  return [
+    {
+      id: 'more',
+      cell: PipelineMoreCell,
+      size: 33,
+    },
+    {
+      accessorKey: 'name',
+      header: () => <RecordTable.InlineHead label={t('name')} />,
+      cell: PipelineNameCell,
+      size: 360,
+    },
+    {
+      id: 'createdUser',
+      header: () => (
+        <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />
+      ),
+      cell: PipelineCreatedByCell,
+      size: 180,
+    },
+    {
+      accessorKey: 'createdAt',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconCalendarPlus}
+          label={t('created-at')}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      ),
+      size: 160,
+    },
+    {
+      accessorKey: 'updatedAt',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconCalendarUp}
+          label={t('col-updated-at')}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      ),
+      size: 160,
+    },
+  ];
+};
+
 export const PipelinesList = ({ channelId }: { channelId: string }) => {
   const { t } = useTranslation('frontline');
+  const columns = usePipelineColumns();
+  const setCreatePipelineOpen = useSetAtom(createPipelineSheetState);
   const { pipelines, loading } = useGetPipelines({
     variables: {
       filter: { channelId },
     },
   });
-  const navigate = useNavigate();
-  const onClick = (pipelineId: string) => {
-    navigate(
-      `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`,
-    );
-  };
 
-  if (!loading && (!pipelines || pipelines.length === 0)) {
+  if (!loading && pipelines?.length === 0) {
     return (
-      <div className=" h-full w-full px-8 flex justify-center">
-        <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-          <div className="mb-6">
-            <IconGitBranch
-              size={64}
-              className="text-muted-foreground mx-auto mb-4"
-            />
-            <h3 className="text-xl font-semibold mb-2">{t('no-pipelines-yet')}</h3>
-            <p className="text-muted-foreground max-w-md">
-              {t('no-pipelines-description')}
-            </p>
-          </div>
-          <CreatePipeline />
-        </div>
-      </div>
+      <Empty className="m-3 rounded-lg bg-sidebar">
+        <Empty.Header>
+          <Empty.Media>
+            <IconGitBranch />
+          </Empty.Media>
+          <Empty.Title>{t('no-pipelines-yet')}</Empty.Title>
+          <Empty.Description>{t('no-pipelines-description')}</Empty.Description>
+        </Empty.Header>
+        <Empty.Content>
+          <Button onClick={() => setCreatePipelineOpen(true)} type="button">
+            <IconPlus />
+            {t('create-pipeline')}
+          </Button>
+        </Empty.Content>
+      </Empty>
     );
   }
+
   return (
-    <div className="overflow-hidden h-full px-8">
-      <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
-        <Table>
-          <Table.Header>
-            <Table.Row className="rounded-t-md">
-              <Table.Head className="pl-2">{t('col-title')}</Table.Head>
-              <Table.Head className="w-32 whitespace-nowrap">
-                {t('created-by')}
-              </Table.Head>
-              <Table.Head className="w-32">{t('created-at')}</Table.Head>
-              <Table.Head className="w-32">{t('col-updated-at')}</Table.Head>
-              <Table.Head className="w-10"></Table.Head>
-            </Table.Row>
-          </Table.Header>
-        </Table>
-        <ScrollArea className="h-[calc(100vh-200px)]">
-          <Table>
-            <Table.Body>
-              {loading
-                ? Array.from({ length: 3 }).map((_, index) => (
-                    <TableRowSkeleton key={index} />
-                  ))
-                : pipelines?.map((pipeline: any) => (
-                    <Table.Row
-                      key={pipeline._id}
-                      onClick={() => onClick(pipeline._id)}
-                      className="hover:cursor-pointer shadow-xs group/row"
-                    >
-                      <Table.Cell className="font-medium border-none pl-2">
-                        <span className="w-full flex gap-2 text-base font-medium">
-                          <IconComponent
-                            name={pipeline.icon}
-                            className="size-4"
-                          />
-                          <TextOverflowTooltip value={pipeline.name} />
-                        </span>
-                      </Table.Cell>
-
-                      <Table.Cell className="font-medium border-none pl-2 w-32">
-                        {pipeline.createdUser ? (
-                          <MembersInline.Provider
-                            memberIds={[pipeline.createdUser._id]}
-                          >
-                            <span className="w-full flex gap-2 items-center">
-                              <MembersInline.Avatar />
-                              <MembersInline.Title />
-                            </span>
-                          </MembersInline.Provider>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">
-                            —
-                          </span>
-                        )}
-                      </Table.Cell>
-
-                      <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
-                        <DateDisplay date={pipeline.createdAt} />
-                      </Table.Cell>
-                      <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
-                        <DateDisplay date={pipeline.updatedAt} />
-                      </Table.Cell>
-                      <Table.Cell className="border-none px-2 w-10">
-                        <DeletePipeline pipelineId={pipeline._id} />
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-            </Table.Body>
-          </Table>
-        </ScrollArea>
-      </div>
-    </div>
+    <RecordTable.Provider
+      className="m-3"
+      columns={columns}
+      stickyColumns={['name']}
+      data={pipelines || []}
+    >
+      <RecordTable>
+        <RecordTable.Header />
+        <RecordTable.Body>
+          {loading && <RecordTable.RowSkeleton rows={8} />}
+          <RecordTable.RowList />
+        </RecordTable.Body>
+      </RecordTable>
+    </RecordTable.Provider>
   );
 };
-
-const TableRowSkeleton = () => (
-  <Table.Row className="shadow-xs">
-    <Table.Cell className="w-10 border-none pl-3">
-      <Skeleton className="h-4 w-4" />
-    </Table.Cell>
-    <Table.Cell className="w-auto pl-8 border-none">
-      <Skeleton className="h-4 w-10" />
-    </Table.Cell>
-    <Table.Cell className="w-20 border-none">
-      <Skeleton className="h-4 w-5" />
-    </Table.Cell>
-    <Table.Cell className="w-32 pr-8 border-none">
-      <Skeleton className="h-4 w-16" />
-    </Table.Cell>
-    <Table.Cell className="w-32 border-none">
-      <Skeleton className="h-4 w-16" />
-    </Table.Cell>
-    <Table.Cell className="w-10 border-none">
-      <Skeleton className="h-4 w-4" />
-    </Table.Cell>
-  </Table.Row>
-);
-
-export const DateDisplay = ({ date }: { date: string }) => (
-  <Tooltip.Provider>
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <div className="text-muted-foreground text-xs cursor-default">
-          {date ? format(new Date(date), 'MMM d, yyyy') : ''}
-        </div>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        {date ? format(new Date(date), 'MMM d, yyyy HH:mm') : ''}
-      </Tooltip.Content>
-    </Tooltip>
-  </Tooltip.Provider>
-);

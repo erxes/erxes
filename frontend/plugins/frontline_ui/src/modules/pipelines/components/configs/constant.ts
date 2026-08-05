@@ -7,22 +7,22 @@ export enum TICKET_FORM_FIELDS_KEY {
 
 export const TICKET_FORM_FIELDS = [
   {
-    label: 'Name',
+    label: 'name',
     key: TICKET_FORM_FIELDS_KEY.NAME,
     path: 'formFields.name',
   },
   {
-    label: 'Description',
+    label: 'description',
     key: TICKET_FORM_FIELDS_KEY.DESCRIPTION,
     path: 'formFields.description',
   },
   {
-    label: 'Attachment',
+    label: 'attachment',
     key: TICKET_FORM_FIELDS_KEY.ATTACHMENT,
     path: 'formFields.attachment',
   },
   {
-    label: 'Tags',
+    label: 'tags',
     key: TICKET_FORM_FIELDS_KEY.TAGS,
     path: 'formFields.tags',
   },

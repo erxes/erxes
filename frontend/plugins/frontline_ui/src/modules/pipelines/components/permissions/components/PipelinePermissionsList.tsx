@@ -1,10 +1,10 @@
 import {
-  InfoCard,
   Button,
-  Form,
-  Spinner,
-  PopoverScoped,
   Combobox,
+  Form,
+  PopoverScoped,
+  Spinner,
+  toast,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
@@ -18,10 +18,13 @@ import { PermissionState, StatusItem } from '@/pipelines/types';
 import { SelectMember } from 'ui-modules';
 import { useGetTicketStatusesByPipeline } from '@/status/hooks/useGetTicketStatus';
 import { useUpdateTicketStatus } from '@/status/hooks/useUpdateTicketStatus';
-import { PermissionCheckbox } from './PermissionCheckbox';
+import { PipelineSection } from '@/pipelines/components/PipelineSection';
+import { PermissionRule } from './PermissionRule';
 import { StatusPermissionControl } from './StatusPermissionControl';
 import { PipelineVisibility } from './PipelineVisibility';
 import { VISIBILITY_RULES } from '../constant';
+
+const INITIAL_STATUS_COUNT = 5;
 
 export const PipelinePermissionsList = memo(() => {
   const { t } = useTranslation('frontline');
@@ -33,8 +36,8 @@ export const PipelinePermissionsList = memo(() => {
   const { updatePipeline } = useUpdatePipeline();
   const { updateStatus } = useUpdateTicketStatus();
 
-  const [visibleStatusCount, setVisibleStatusCount] = useState(5);
-  const INITIAL_STATUS_COUNT = 5;
+  const [visibleStatusCount, setVisibleStatusCount] =
+    useState(INITIAL_STATUS_COUNT);
 
   const form = useForm<PermissionState>({
     resolver: zodResolver(UPDATE_PIPELINE_PERMISSIONS_FORM_SCHEMA),
@@ -44,7 +47,6 @@ export const PipelinePermissionsList = memo(() => {
       branchOnly: false,
       myTicketsOnly: false,
       departmentOnly: false,
-      allowAllUsers: true,
       selectedUsers: [],
       visibility: 'public',
       memberIds: [],
@@ -68,7 +70,7 @@ export const PipelinePermissionsList = memo(() => {
 
   const initialValuesRef = useRef<PermissionState | null>(null);
   const isUpdatingRef = useRef(false);
-  const prevVisibilityRef = useRef<string | null>(null);
+  const prevVisibilityRef = useRef<PermissionState['visibility'] | null>(null);
 
   useEffect(() => {
     if (!pipeline) return;
@@ -83,7 +85,6 @@ export const PipelinePermissionsList = memo(() => {
         branchOnly: pipeline.isCheckBranch || false,
         myTicketsOnly: pipeline.isCheckUser || false,
         departmentOnly: pipeline.isCheckDepartment || false,
-        allowAllUsers: true,
         selectedUsers: pipeline.excludeCheckUserIds || [],
         visibility: (pipeline.visibility?.trim() || 'public') as
           | 'public'
@@ -128,7 +129,6 @@ export const PipelinePermissionsList = memo(() => {
       formValues.branchOnly !== initialValues.branchOnly ||
       formValues.myTicketsOnly !== initialValues.myTicketsOnly ||
       formValues.departmentOnly !== initialValues.departmentOnly ||
-      formValues.allowAllUsers !== initialValues.allowAllUsers ||
       formValues.visibility !== initialValues.visibility ||
       JSON.stringify(formValues.selectedUsers) !==
         JSON.stringify(initialValues.selectedUsers) ||
@@ -153,143 +153,144 @@ export const PipelinePermissionsList = memo(() => {
         .then(() => {
           initialValuesRef.current = { ...formValues };
         })
-        .catch((error) => {
-          console.error('Failed to update pipeline:', error);
+        .catch((error: Error) => {
+          // Put the surface back on the last saved values, otherwise the next
+          // render sees the same pending change and retries the failed save
+          // forever.
+          toast({
+            title: t('error'),
+            description: error.message,
+            variant: 'destructive',
+          });
+          form.reset(initialValues);
         })
         .finally(() => {
           isUpdatingRef.current = false;
         });
     }
-  }, [formValues, pipeline, pipelineId, updatePipeline]);
+  }, [form, formValues, pipeline, pipelineId, t, updatePipeline]);
 
   if (pipelineLoading || statusesLoading) {
-    return (
-      <div className="flex items-center justify-center p-10 shrink-0">
-        <Spinner />
-      </div>
-    );
+    return <Spinner containerClassName="py-32" />;
   }
 
   return (
     <Form {...form}>
-      <div className="flex flex-col h-full min-h-0">
-        <InfoCard
-          className="flex flex-col flex-1 min-h-0"
-          title={t('pipeline-permissions')}
-          description={t('pipeline-permissions-description')}
-        >
-          <InfoCard.Content
-            className="flex-1 overflow-y-auto p-0 pb-24"
-            style={{ minHeight: 0 }}
+      <form>
+        <div className="flex flex-col divide-y">
+          <PipelineSection title={t('pipeline-visibility')}>
+            <PipelineVisibility control={form.control} />
+          </PipelineSection>
+
+          <PipelineSection
+            description={t('control-ticket-visibility')}
+            title={t('visibility-rules')}
           >
-            <div className="divide-y">
-              <section className="p-6 space-y-6">
-                <div>
-                  <h3 className="text-base font-semibold">{t('visibility-rules')}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t('control-ticket-visibility')}
-                  </p>
-                </div>
+            <div className="flex flex-col divide-y">
+              {VISIBILITY_RULES.map((rule) => (
+                <div key={rule.name}>
+                  <Form.Field
+                    control={form.control}
+                    name={rule.name}
+                    render={({ field }) => (
+                      <PermissionRule field={field} label={t(rule.label)} />
+                    )}
+                  />
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  {VISIBILITY_RULES.map((rule) => (
-                    <Form.Field
-                      key={rule.name}
-                      control={form.control}
-                      name={rule.name as any}
-                      render={({ field }) => (
-                        <PermissionCheckbox
-                          field={field}
-                          title={t(rule.title)}
-                          description={t(rule.description)}
-                        />
-                      )}
-                    />
-                  ))}
-                </div>
-                {myTicketsOnly && (
-                  <section className="p-6 bg-muted/20 space-y-4">
-                    <h3 className="text-base font-semibold">{t('user-access')}</h3>
-
+                  {rule.name === 'myTicketsOnly' && myTicketsOnly && (
                     <Form.Field
                       control={form.control}
                       name="selectedUsers"
                       render={({ field }) => (
-                        <SelectMember.Provider
-                          value={field.value || []}
-                          onValueChange={(val) =>
-                            field.onChange(val as string[])
-                          }
-                          mode="multiple"
-                        >
-                          <PopoverScoped>
-                            <Combobox.Trigger className="w-full h-10 rounded-lg border bg-background">
-                              <SelectMember.Value placeholder={t('select-team-members')} />
-                            </Combobox.Trigger>
-                            <Combobox.Content>
-                              <SelectMember.Content />
-                            </Combobox.Content>
-                          </PopoverScoped>
-                        </SelectMember.Provider>
+                        <Form.Item className="pb-3">
+                          <Form.Label>
+                            {t('members-see-all-tickets')}
+                          </Form.Label>
+                          <Form.Control>
+                            <SelectMember.Provider
+                              mode="multiple"
+                              onValueChange={(value) =>
+                                field.onChange(
+                                  Array.isArray(value) ? value : [],
+                                )
+                              }
+                              value={field.value}
+                            >
+                              <PopoverScoped>
+                                <Combobox.Trigger className="w-full">
+                                  <SelectMember.Value
+                                    placeholder={t('select-team-members')}
+                                  />
+                                </Combobox.Trigger>
+                                <Combobox.Content>
+                                  <SelectMember.Content />
+                                </Combobox.Content>
+                              </PopoverScoped>
+                            </SelectMember.Provider>
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
                       )}
                     />
-                  </section>
-                )}
-                <div className="pt-6 border-t">
-                  <h4 className="text-sm font-medium mb-4">
-                    {t('pipeline-visibility')}
-                  </h4>
-                  <PipelineVisibility control={form.control} />
-                </div>
-              </section>
-
-              {statuses?.length > 0 && (
-                <section className="p-6 space-y-4">
-                  <h3 className="text-base font-semibold">
-                    {t('status-permissions')}
-                  </h3>
-
-                  <div className="grid gap-4">
-                    {statuses
-                      .slice(0, visibleStatusCount)
-                      .map((status: StatusItem) => (
-                        <StatusPermissionControl
-                          key={status.value}
-                          status={status}
-                          values={form.getValues()}
-                          updateStatus={updateStatus}
-                        />
-                      ))}
-                  </div>
-
-                  {statuses.length > INITIAL_STATUS_COUNT && (
-                    <div className="flex justify-center pt-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (visibleStatusCount >= statuses.length) {
-                            setVisibleStatusCount(INITIAL_STATUS_COUNT);
-                          } else {
-                            setVisibleStatusCount((prev) =>
-                              Math.min(prev + 5, statuses.length),
-                            );
-                          }
-                        }}
-                      >
-                        {visibleStatusCount >= statuses.length
-                          ? t('show-less')
-                          : t('show-n-more', { count: Math.min(5, statuses.length - visibleStatusCount) })}
-                      </Button>
-                    </div>
                   )}
-                </section>
-              )}
+                </div>
+              ))}
             </div>
-          </InfoCard.Content>
-        </InfoCard>
-      </div>
+          </PipelineSection>
+
+          {statuses.length > 0 && (
+            <PipelineSection title={t('status-permissions')}>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col divide-y">
+                  {statuses
+                    .slice(0, visibleStatusCount)
+                    .map((status: StatusItem) => (
+                      <StatusPermissionControl
+                        key={status.value}
+                        status={status}
+                        updateStatus={updateStatus}
+                        values={form.getValues()}
+                      />
+                    ))}
+                </div>
+
+                {statuses.length > INITIAL_STATUS_COUNT && (
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      if (visibleStatusCount >= statuses.length) {
+                        setVisibleStatusCount(INITIAL_STATUS_COUNT);
+                        return;
+                      }
+
+                      setVisibleStatusCount((previousCount) =>
+                        Math.min(
+                          previousCount + INITIAL_STATUS_COUNT,
+                          statuses.length,
+                        ),
+                      );
+                    }}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    {visibleStatusCount >= statuses.length
+                      ? t('show-less')
+                      : t('show-n-more', {
+                          count: Math.min(
+                            INITIAL_STATUS_COUNT,
+                            statuses.length - visibleStatusCount,
+                          ),
+                        })}
+                  </Button>
+                )}
+              </div>
+            </PipelineSection>
+          )}
+        </div>
+      </form>
     </Form>
   );
 });
+
+PipelinePermissionsList.displayName = 'PipelinePermissionsList';

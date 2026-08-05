@@ -20,7 +20,7 @@ import { TicketsFilter } from '@/ticket/components/TicketsFilter';
 import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
 
-const TicketsIndexPage = () => {
+export const TicketsIndexPage = () => {
   const { t } = useTranslation('frontline');
   const variables = useTicketsVariables();
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
@@ -30,6 +30,7 @@ const TicketsIndexPage = () => {
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;
+
     return filters;
   };
 
@@ -59,24 +60,24 @@ const TicketsIndexPage = () => {
           <AddTicketSheet />
         </PageHeader.End>
       </PageHeader>
-      <PageSubHeader>
+      <PageSubHeader className="items-center">
         <TicketsFilter />
-        <Can action="ticketsImportManage">
-          <Import
-            pluginName="frontline"
-            moduleName="ticket"
-            collectionName="ticket"
-          />
-        </Can>
-        <Can action="ticketsExportManage">
-          <Export
-            pluginName="frontline"
-            moduleName="ticket"
-            collectionName="ticket"
-            getFilters={getFilters}
-          />
-        </Can>
-        <div>
+        <div className="ml-auto flex items-center gap-1">
+          <Can action="ticketsImportManage">
+            <Import
+              pluginName="frontline"
+              moduleName="ticket"
+              collectionName="ticket"
+            />
+          </Can>
+          <Can action="ticketsExportManage">
+            <Export
+              pluginName="frontline"
+              moduleName="ticket"
+              collectionName="ticket"
+              getFilters={getFilters}
+            />
+          </Can>
           <TicketsViewControl />
           <TicketsSortControl />
         </div>
@@ -86,5 +87,3 @@ const TicketsIndexPage = () => {
     </PageContainer>
   );
 };
-
-export default TicketsIndexPage;

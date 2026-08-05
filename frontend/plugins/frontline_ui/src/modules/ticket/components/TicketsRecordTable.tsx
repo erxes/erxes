@@ -24,21 +24,23 @@ export const TicketsRecordTable = () => {
     });
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const columns = useTicketsColumns();
 
   useEffect(() => {
     if (isUndefinedOrNull(totalCount)) return;
     setTicketTotalCount(totalCount);
   }, [totalCount, setTicketTotalCount]);
 
+  if (!pipelineId) {
+    return <TicketPipelineFallback />;
+  }
+
   return (
-    <div className="flex flex-col overflow-hidden h-full relative">
-      {!loading && !pipelineId && (
-        <TicketPipelineFallback className="absolute inset-0" />
-      )}
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
       <RecordTable.Provider
-        columns={useTicketsColumns()}
-        data={tickets || (loading ? [{}] : [])}
-        className="m-3 h-full"
+        columns={columns}
+        data={tickets || []}
+        className="m-3 flex-1"
         stickyColumns={['more', 'checkbox', 'name']}
       >
         <RecordTable.CursorProvider
