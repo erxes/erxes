@@ -1,8 +1,8 @@
 import { TPipelineConfig } from '@/pipelines/types';
 import { Control, Path, UseFormReturn, useWatch } from 'react-hook-form';
-import { Button, cn, Form, Input, Label, Switch } from 'erxes-ui';
+import { cn, DragHandle, Form, Input, Label, Switch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { TICKET_FORM_FIELDS } from '../constant';
+import { TICKET_FORM_FIELDS } from '@/pipelines/components/configs/constant';
 import {
   DndContext,
   KeyboardSensor,
@@ -20,7 +20,6 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useState, useEffect } from 'react';
-import { IconGripVertical } from '@tabler/icons-react';
 
 type TicketFormField = (typeof TICKET_FORM_FIELDS)[number];
 
@@ -59,16 +58,7 @@ const SortableFieldRow = ({
       }}
     >
       <div className="flex items-center gap-2">
-        <Button
-          aria-label={t('reorder')}
-          className="size-5 flex-none cursor-grab px-0 text-muted-foreground active:cursor-grabbing"
-          size="icon"
-          variant="ghost"
-          {...attributes}
-          {...listeners}
-        >
-          <IconGripVertical className="size-4" stroke={1.5} />
-        </Button>
+        <DragHandle aria-label={t('reorder')} {...attributes} {...listeners} />
         <Form.Field
           control={control}
           name={`formFields.${ticketField.key}.isShow` as Path<TPipelineConfig>}

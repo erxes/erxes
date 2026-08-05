@@ -34,7 +34,14 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { Button, cn, DropdownMenu, Skeleton, useToast } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  DragHandle,
+  DropdownMenu,
+  Skeleton,
+  useToast,
+} from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -105,19 +112,15 @@ export const Status = ({
       ref={setNodeRef}
       style={style}
     >
-      <Button
+      <DragHandle
         aria-label={t('reorder')}
         className={cn(
-          'size-5 flex-none cursor-grab px-0 text-accent-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
+          'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
           isDragDisabled && 'invisible',
         )}
-        size="icon"
-        variant="ghost"
         {...attributes}
         {...listeners}
-      >
-        <IconGripVertical className="size-4" stroke={1.5} />
-      </Button>
+      />
       <Button
         className="h-auto min-w-0 flex-1 justify-start whitespace-normal px-0 py-0 text-left font-normal hover:bg-transparent"
         onClick={openEditSheet}
