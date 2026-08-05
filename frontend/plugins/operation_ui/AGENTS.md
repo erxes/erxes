@@ -28,14 +28,14 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| --- | --- | --- |
-| Federation | `frontend/plugins/operation_ui/module-federation.config.ts` | Exposes plugin entry points and defines host-owned shared dependencies. |
-| Registration | `frontend/plugins/operation_ui/src/config.tsx` | Registers routes, navigation, modules, settings, and widgets with the host. |
-| Routes | `frontend/plugins/operation_ui/src/modules/OperationMain.tsx` | Maps operation paths to pages and nested layouts. |
-| Features | `frontend/plugins/operation_ui/src/modules` | Owns task, project, team, cycle, triage, activity, template, and navigation UI. |
-| Pages | `frontend/plugins/operation_ui/src/pages` | Composes route-level operation pages. |
-| Widgets | `frontend/plugins/operation_ui/src/widgets` | Exposes relation, notification, and automation integrations. |
+| Area         | Path                                                          | Responsibility                                                                  |
+| ------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Federation   | `frontend/plugins/operation_ui/module-federation.config.ts`   | Exposes plugin entry points and defines host-owned shared dependencies.         |
+| Registration | `frontend/plugins/operation_ui/src/config.tsx`                | Registers routes, navigation, modules, settings, and widgets with the host.     |
+| Routes       | `frontend/plugins/operation_ui/src/modules/OperationMain.tsx` | Maps operation paths to pages and nested layouts.                               |
+| Features     | `frontend/plugins/operation_ui/src/modules`                   | Owns task, project, team, cycle, triage, activity, template, and navigation UI. |
+| Pages        | `frontend/plugins/operation_ui/src/pages`                     | Composes route-level operation pages.                                           |
+| Widgets      | `frontend/plugins/operation_ui/src/widgets`                   | Exposes relation, notification, and automation integrations.                    |
 
 ## Contracts
 
