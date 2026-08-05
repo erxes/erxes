@@ -56,20 +56,20 @@
 
 ## Architecture
 
-| Area                | Path                                                              | Responsibility                                             |
-| ------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------- |
-| Host registration   | `src/config.tsx`                                                  | `CONFIG` — navigation, settings, widgets, property inputs   |
-| Federation          | `module-federation.config.ts`                                     | Remote name `frontline_ui` and its exposes                  |
-| Routes              | `src/modules/FrontlineMain.tsx`, `src/pages/`                     | Routed pages for inbox, ticket, forms, call, channels       |
-| Settings            | `src/modules/FrontlineSettings.tsx`                               | Settings routes                                             |
-| Inbox               | `src/modules/inbox/`                                              | Conversations, channels, brands, integrations               |
-| Ticket              | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/` | Ticket boards, pipelines, statuses                     |
-| Pipeline route      | `src/pages/PipelineLayoutPage.tsx`, `src/modules/pipelines/components/PipelineSidebar.tsx`, `src/modules/pipelines/constants/pipelineTabs.ts` | Pipeline layout shell, sidebar rail, and the surface list both are built from |
-| Forms               | `src/modules/forms/`                                              | Form builder, preview, submissions                          |
-| Knowledge base      | `src/modules/knowledgebase/`                                      | Topics, categories, articles                                |
-| Automation widgets  | `src/widgets/automations/modules/<module>/`                       | Per-module trigger/action/bot/history components            |
-| FB message action   | `src/widgets/automations/modules/facebook/components/action/`     | Message sequence form, provider, constants, states          |
-| Notifications       | `src/widgets/notifications/`                                      | Notification remote entries                                 |
+| Area               | Path                                                                                                                                          | Responsibility                                                                |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Host registration  | `src/config.tsx`                                                                                                                              | `CONFIG` — navigation, settings, widgets, property inputs                     |
+| Federation         | `module-federation.config.ts`                                                                                                                 | Remote name `frontline_ui` and its exposes                                    |
+| Routes             | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                 | Routed pages for inbox, ticket, forms, call, channels                         |
+| Settings           | `src/modules/FrontlineSettings.tsx`                                                                                                           | Settings routes                                                               |
+| Inbox              | `src/modules/inbox/`                                                                                                                          | Conversations, channels, brands, integrations                                 |
+| Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                        | Ticket boards, pipelines, statuses                                            |
+| Pipeline route     | `src/pages/PipelineLayoutPage.tsx`, `src/modules/pipelines/components/PipelineSidebar.tsx`, `src/modules/pipelines/constants/pipelineTabs.ts` | Pipeline layout shell, sidebar rail, and the surface list both are built from |
+| Forms              | `src/modules/forms/`                                                                                                                          | Form builder, preview, submissions                                            |
+| Knowledge base     | `src/modules/knowledgebase/`                                                                                                                  | Topics, categories, articles                                                  |
+| Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                                   | Per-module trigger/action/bot/history components                              |
+| FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                                 | Message sequence form, provider, constants, states                            |
+| Notifications      | `src/widgets/notifications/`                                                                                                                  | Notification remote entries                                                   |
 
 ## Contracts
 
@@ -209,7 +209,6 @@
 - **Summary:** Passed `field.value ?? undefined` to `IconPicker` in channel forms to satisfy `value?: string` when `icon` schema is nullable (`string | null | undefined`).
 - **Affected areas:** `src/modules/channels/components/settings/channel-details/UpdateChannelForm.tsx`, `src/modules/channels/components/settings/channels-list/ChannelForm.tsx`
 - **Contracts changed:** `None`
-
 
 ### `2026-08-06` — Status rows: steady reorder and click to edit
 

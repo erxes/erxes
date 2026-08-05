@@ -19,12 +19,7 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
-import {
-  Control,
-  FieldValues,
-  UseFormReturn,
-  useWatch,
-} from 'react-hook-form';
+import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
 
 interface SelectStatusContextType {
   value: string;
