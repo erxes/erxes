@@ -178,7 +178,6 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     const newState = state === 'active' ? 'archived' : 'active';
     const previousState = state;
 
-    // Optimistically update the UI
     setState(newState);
 
     updateTicket({

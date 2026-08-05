@@ -222,10 +222,8 @@ export const StatusGroup = ({
   const [isReordering, setIsReordering] = useState(false);
 
   useEffect(() => {
-    // Each reorder write refetches the list, and those refetches land one by
-    // one in whatever order the server answers. Adopting them mid-flight is
-    // what makes the rows jump, so the local order stays authoritative until
-    // every write has settled.
+    // Every reorder write refetches the list, and adopting those refetches as
+    // they land one by one is what makes the rows jump mid-drag.
     if (isReordering) return;
 
     if (JSON.stringify(statuses) !== JSON.stringify(_statuses)) {
@@ -255,10 +253,8 @@ export const StatusGroup = ({
     setIsReordering(true);
     _setStatuses(newOrder);
 
-    // One write per moved status, so a failure halfway leaves the earlier ones
-    // persisted. Rolling the list back locally would only hide that until the
-    // next refetch, so the refetched server order is adopted either way and a
-    // failure is reported instead of undone.
+    // A failure halfway leaves the earlier writes persisted, and rolling the
+    // list back locally would only hide that until the next refetch.
     const writes = newOrder
       .map((status, index) =>
         status.order === index
