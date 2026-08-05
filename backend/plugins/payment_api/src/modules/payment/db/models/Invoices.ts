@@ -164,6 +164,15 @@ export const loadInvoiceClass = (models: IModels) => {
       ]);
 
       if (totalAmount.length === 0) {
+        const expired = await models.Transactions.exists({
+          invoiceId: _id,
+          status: PAYMENT_STATUS.EXPIRED,
+        });
+
+        if (expired) {
+          return PAYMENT_STATUS.EXPIRED;
+        }
+
         const failed = await models.Transactions.exists({
           invoiceId: _id,
           status: PAYMENT_STATUS.FAILED,
