@@ -117,10 +117,10 @@ export const ConfigList = () => {
         <ConfigRowSkeleton />
       ) : (
         <div className="flex h-12 items-center gap-3 rounded-md border bg-background px-2 transition-colors hover:bg-accent">
-          <button
-            className="flex min-w-0 flex-1 items-center gap-3 rounded text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+          <Button
+            className="h-auto min-w-0 flex-1 justify-start gap-3 whitespace-normal px-0 py-0 text-left font-normal hover:bg-transparent"
             onClick={() => setConfigId(ticketConfig.id)}
-            type="button"
+            variant="ghost"
           >
             <span className="flex size-7 flex-none items-center justify-center rounded bg-primary/10 text-primary">
               <IconMessageCog className="size-4" />
@@ -135,7 +135,7 @@ export const ConfigList = () => {
                   : t('no-fields-to-preview')}
               </span>
             </span>
-          </button>
+          </Button>
           <ConfigMenu configId={ticketConfig.id} />
         </div>
       )}

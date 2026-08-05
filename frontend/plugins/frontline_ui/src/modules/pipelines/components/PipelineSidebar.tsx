@@ -4,23 +4,16 @@ import {
 } from '@/pipelines/constants/pipelineTabs';
 import { Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 
 export const PipelineSidebar = () => {
   const { t } = useTranslation('frontline');
-  const { pathname } = useLocation();
   const { id: channelId, pipelineId } = useParams<{
     id: string;
     pipelineId: string;
   }>();
 
   if (!channelId || !pipelineId) return null;
-
-  const basePath = getPipelinePath(channelId, pipelineId, '');
-  const activeSegment = pathname
-    .slice(basePath.length)
-    .replace(/^\//, '')
-    .split('/')[0];
 
   return (
     <Sidebar
@@ -38,14 +31,16 @@ export const PipelineSidebar = () => {
                 className="flex-none md:flex-auto"
                 key={labelKey}
               >
-                <Sidebar.MenuButton
-                  asChild
-                  isActive={activeSegment === segment}
+                <NavLink
+                  end
+                  to={getPipelinePath(channelId, pipelineId, segment)}
                 >
-                  <Link to={getPipelinePath(channelId, pipelineId, segment)}>
-                    <span className="truncate">{t(labelKey)}</span>
-                  </Link>
-                </Sidebar.MenuButton>
+                  {({ isActive }) => (
+                    <Sidebar.MenuButton asChild={false} isActive={isActive}>
+                      <span className="truncate">{t(labelKey)}</span>
+                    </Sidebar.MenuButton>
+                  )}
+                </NavLink>
               </Sidebar.MenuItem>
             ))}
           </Sidebar.Menu>

@@ -105,22 +105,23 @@ export const Status = ({
       ref={setNodeRef}
       style={style}
     >
-      <button
+      <Button
         aria-label={t('reorder')}
         className={cn(
-          'flex size-5 flex-none cursor-grab items-center justify-center rounded text-accent-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
+          'size-5 flex-none cursor-grab px-0 text-accent-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
           isDragDisabled && 'invisible',
         )}
-        type="button"
+        size="icon"
+        variant="ghost"
         {...attributes}
         {...listeners}
       >
         <IconGripVertical className="size-4" stroke={1.5} />
-      </button>
-      <button
-        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+      </Button>
+      <Button
+        className="h-auto min-w-0 flex-1 justify-start whitespace-normal px-0 py-0 text-left font-normal hover:bg-transparent"
         onClick={openEditSheet}
-        type="button"
+        variant="ghost"
       >
         <StatusSwatch color={status.color} statusType={status.type} />
         <span className="flex min-w-0 flex-col gap-1">
@@ -136,7 +137,7 @@ export const Status = ({
             </span>
           )}
         </span>
-      </button>
+      </Button>
       <StatusOptionMenu statusId={status._id} statusType={status.type} />
     </div>
   );

@@ -1,6 +1,6 @@
 import { TPipelineConfig } from '@/pipelines/types';
 import { Control, Path, UseFormReturn, useWatch } from 'react-hook-form';
-import { cn, Form, Input, Label, Switch } from 'erxes-ui';
+import { Button, cn, Form, Input, Label, Switch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { TICKET_FORM_FIELDS } from '../constant';
 import {
@@ -59,15 +59,16 @@ const SortableFieldRow = ({
       }}
     >
       <div className="flex items-center gap-2">
-        <button
-          aria-label={t(ticketField.label)}
-          className="cursor-grab rounded text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
-          type="button"
+        <Button
+          aria-label={t('reorder')}
+          className="size-5 flex-none cursor-grab px-0 text-muted-foreground active:cursor-grabbing"
+          size="icon"
+          variant="ghost"
           {...attributes}
           {...listeners}
         >
           <IconGripVertical className="size-4" stroke={1.5} />
-        </button>
+        </Button>
         <Form.Field
           control={control}
           name={`formFields.${ticketField.key}.isShow` as Path<TPipelineConfig>}
