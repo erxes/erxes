@@ -59,6 +59,18 @@ const StatusSheetForm = ({
     form.setFocus('name');
   }, [form]);
 
+  const onCompleted = () => {
+    toast({ title: t('success') });
+    onClose();
+  };
+
+  const onError = (error: Error) =>
+    toast({
+      title: t('error'),
+      description: error.message,
+      variant: 'destructive',
+    });
+
   const onSubmit = ({ name, description, color }: TStatusForm) => {
     if (isEditing) {
       updateStatus({
@@ -68,14 +80,16 @@ const StatusSheetForm = ({
           description,
           color: color?.length && color.length > 2 ? color : '',
         },
-        onCompleted: onClose,
+        onCompleted,
+        onError,
       });
       return;
     }
 
     addStatus({
       variables: { name, description, color, pipelineId, type: statusType },
-      onCompleted: onClose,
+      onCompleted,
+      onError,
     });
   };
 
@@ -201,11 +215,13 @@ export const StatusSheet = ({
   return (
     <Sheet open={open} onOpenChange={(nextOpen) => !nextOpen && handleClose()}>
       <Sheet.View className="p-0 sm:max-w-md">
-        <StatusSheetForm
-          editingStatus={editingStatus}
-          onClose={handleClose}
-          statusType={statusType}
-        />
+        {open && (
+          <StatusSheetForm
+            editingStatus={editingStatus}
+            onClose={handleClose}
+            statusType={statusType}
+          />
+        )}
       </Sheet.View>
     </Sheet>
   );

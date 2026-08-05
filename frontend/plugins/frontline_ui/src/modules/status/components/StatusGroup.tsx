@@ -251,11 +251,14 @@ export const StatusGroup = ({
     if (oldIndex === -1 || newIndex === -1) return;
 
     const newOrder = arrayMove(_statuses, oldIndex, newIndex);
-    const previousOrder = _statuses;
 
     setIsReordering(true);
     _setStatuses(newOrder);
 
+    // One write per moved status, so a failure halfway leaves the earlier ones
+    // persisted. Rolling the list back locally would only hide that until the
+    // next refetch, so the refetched server order is adopted either way and a
+    // failure is reported instead of undone.
     const writes = newOrder
       .map((status, index) =>
         status.order === index
@@ -271,13 +274,17 @@ export const StatusGroup = ({
       const results = await Promise.all(writes);
 
       if (results.some((result) => !result?.data)) {
-        _setStatuses(previousOrder);
+        toast({
+          title: t('error'),
+          description: t('reorder-failed'),
+          variant: 'destructive',
+        });
       }
     } catch (error) {
-      _setStatuses(previousOrder);
       toast({
         title: t('error'),
-        description: error instanceof Error ? error.message : undefined,
+        description:
+          error instanceof Error ? error.message : t('reorder-failed'),
         variant: 'destructive',
       });
     } finally {

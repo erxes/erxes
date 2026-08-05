@@ -118,14 +118,23 @@ export const CreatePipeline = () => {
   }, [open, setHotkeyScope, setHotkeyScopeAndMemorizePreviousScope]);
 
   useScopedHotkeys(
-    `c`,
+    'c',
     () => setOpen(true),
     PipelineHotkeyScope.PipelineSettingsPage,
   );
   useScopedHotkeys(
-    `esc`,
+    'esc',
     () => setOpen(false),
     PipelineHotkeyScope.PipelineAddSheet,
+  );
+
+  // The sheet lives in a shared atom, so leaving this surface with it open
+  // would otherwise reopen it on the way back.
+  useEffect(
+    () => () => {
+      setOpen(false);
+    },
+    [setOpen],
   );
 
   if (!channelId) return null;

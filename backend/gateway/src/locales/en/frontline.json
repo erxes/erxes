@@ -37,6 +37,7 @@
   "confirm-delete-channel": "Are you sure you want to delete this channel?",
   "edit": "Edit",
   "reorder": "Reorder",
+  "reorder-failed": "Some statuses could not be reordered.",
   "delete": "Delete",
   "filter": "Filter...",
   "error": "Error",

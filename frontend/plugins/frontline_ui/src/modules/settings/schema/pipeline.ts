@@ -1,6 +1,7 @@
 import {
   MAX_TICKET_NUMBER_SIZE,
   MIN_TICKET_NUMBER_SIZE,
+  parseTicketNumberSize,
 } from '@/pipelines/utils/ticketNumberPreview';
 import { z } from 'zod';
 
@@ -11,22 +12,9 @@ const PIPELINE_FORM_BASE_SCHEMA = z.object({
   numberSize: z
     .string()
     .optional()
-    .refine(
-      (value) => {
-        if (!value) return true;
-
-        const size = Number.parseInt(value, 10);
-
-        return (
-          !Number.isNaN(size) &&
-          size >= MIN_TICKET_NUMBER_SIZE &&
-          size <= MAX_TICKET_NUMBER_SIZE
-        );
-      },
-      {
-        message: `${MIN_TICKET_NUMBER_SIZE}-${MAX_TICKET_NUMBER_SIZE}`,
-      },
-    ),
+    .refine((value) => !value || parseTicketNumberSize(value) !== null, {
+      message: `${MIN_TICKET_NUMBER_SIZE}-${MAX_TICKET_NUMBER_SIZE}`,
+    }),
   nameConfig: z.string().optional(),
 });
 

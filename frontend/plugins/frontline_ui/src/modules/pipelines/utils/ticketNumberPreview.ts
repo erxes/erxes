@@ -12,6 +12,18 @@ export type TTicketNumberPreview = {
   sequence: string;
 };
 
+export const parseTicketNumberSize = (numberSize: string): number | null => {
+  if (!/^\d+$/.test(numberSize.trim())) return null;
+
+  const size = Number(numberSize.trim());
+
+  if (size < MIN_TICKET_NUMBER_SIZE || size > MAX_TICKET_NUMBER_SIZE) {
+    return null;
+  }
+
+  return size;
+};
+
 // Mirrors `generateTicketNumber` in `frontline_api`: no fractional part means
 // the pipeline does not number its tickets at all.
 export const buildTicketNumberPreview = (
@@ -21,15 +33,9 @@ export const buildTicketNumberPreview = (
 ): TTicketNumberPreview | null => {
   if (!numberSize) return null;
 
-  const size = Number.parseInt(numberSize, 10);
+  const size = parseTicketNumberSize(numberSize);
 
-  if (
-    Number.isNaN(size) ||
-    size < MIN_TICKET_NUMBER_SIZE ||
-    size > MAX_TICKET_NUMBER_SIZE
-  ) {
-    return null;
-  }
+  if (size === null) return null;
 
   const prefix = NUMBER_CONFIG_TOKENS.reduce(
     (config, [token, resolve]) => config.replace(token, resolve(now)),
