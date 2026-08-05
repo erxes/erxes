@@ -25,11 +25,9 @@ export const Attribution = ({ config, value, onChange }: Props) => {
     }
 
     const characters = ['_', '-', '/', ' '];
-    const newValue = characters.includes(val)
-      ? value + val
-      : value + `{${val}}`;
+    const token = characters.includes(val) ? val : `{${val}}`;
 
-    onChange(newValue);
+    onChange(`${value}${token}`);
     setOpen(false);
   };
 

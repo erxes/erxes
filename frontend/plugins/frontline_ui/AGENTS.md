@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-06`
+- **Last synchronized:** `2026-08-05`
 
 ## Scope
 
@@ -221,13 +221,13 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-06` — IconPicker value type compatibility in channel forms
+### `2026-08-05` — IconPicker value type compatibility in channel forms
 
 - **Summary:** Passed `field.value ?? undefined` to `IconPicker` in channel forms to satisfy `value?: string` when `icon` schema is nullable (`string | null | undefined`).
 - **Affected areas:** `src/modules/channels/components/settings/channel-details/UpdateChannelForm.tsx`, `src/modules/channels/components/settings/channels-list/ChannelForm.tsx`
 - **Contracts changed:** `None`
 
-### `2026-08-06` — Status rows: steady reorder and click to edit
+### `2026-08-05` — Status rows: steady reorder and click to edit
 
 - **Summary:** Dragging a status no longer jumps while its writes are in flight,
   the grip became the only drag handle so clicking a row opens the edit sheet,
@@ -236,7 +236,7 @@
   `backend/gateway/src/locales/{en,mn}/frontline.json` (`reorder`)
 - **Contracts changed:** `None`
 
-### `2026-08-06` — Working-area cleanup
+### `2026-08-05` — Working-area cleanup
 
 - **Summary:** The create-pipeline sheet moved behind `createPipelineSheetState`
   so the header trigger and the empty state drive one sheet and one hotkey
@@ -253,7 +253,7 @@
 - **Contracts changed:** `PipelineHotkeyScope.PipelineDetail` removed (it had no
   hotkey bound to it).
 
-### `2026-08-06` — Pipelines list lost its sub-header
+### `2026-08-05` — Pipelines list lost its sub-header
 
 - **Summary:** The pipelines list no longer renders a `PageSubHeader` that only
   repeated the breadcrumb's own "Pipelines" crumb; `Create pipeline` moved into
@@ -263,7 +263,7 @@
   `src/modules/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb.tsx`
 - **Contracts changed:** `None`
 
-### `2026-08-06` — General and Configuration surfaces
+### `2026-08-05` — General and Configuration surfaces
 
 - **Summary:** General is now grouped into `Pipeline`, `Number`, and `Name`
   sections whose titles replace the field labels, with the attribute picker as
@@ -308,10 +308,9 @@
 
 - **Summary:** Ticket statuses became one section per status type with an inline
   add row, Configuration dropped a `RecordTable` built for many rows in favor of
-  a single-config row, Permissions became three sections with one ambient save
-  indicator, every card/tray/bordered box was replaced by hairline-separated
-  sections, and the unused contact-type selector and `allowAllUsers` field were
-  removed.
+  a single-config row, Permissions became three sections that save on change,
+  every card/tray/bordered box was replaced by hairline-separated sections, and
+  the unused contact-type selector and `allowAllUsers` field were removed.
 - **Affected areas:** `src/modules/status/components/{Statuses,StatusGroup}.tsx`,
   `src/modules/pipelines/components/configs/components/{ConfigList,ConfigsForm,CreateConfig,ConfigDetails,TicketBasicFields}.tsx`,
   `src/modules/pipelines/components/permissions/components/{PipelinePermissionsList,PermissionCheckbox,StatusPermissionControl,PipelineVisibility}.tsx`,

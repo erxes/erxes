@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 const TICKET_DETAIL_TABS = [
   { value: 'overview', labelKey: 'overview' },
-  { value: 'properties', label: 'Properties' },
+  { value: 'properties', labelKey: 'properties' },
 ] as const;
 
 export const TicketSidebar = () => {
@@ -25,7 +25,7 @@ export const TicketSidebar = () => {
                   }
                   onClick={() => setSelectedTab(tab.value)}
                 >
-                  {'labelKey' in tab ? t(tab.labelKey) : tab.label}
+                  {t(tab.labelKey)}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

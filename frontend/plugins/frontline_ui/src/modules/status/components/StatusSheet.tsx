@@ -22,7 +22,7 @@ import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 
 type TStatusForm = z.infer<typeof TICKET_STATUS_FORM_SCHEMA>;
@@ -44,6 +44,7 @@ const StatusSheetForm = ({
 
   const isEditing = !!editingStatus;
   const isSaving = adding || updating;
+  const submitLabel = isEditing ? t('update') : t('save');
 
   const form = useForm<TStatusForm>({
     resolver: zodResolver(TICKET_STATUS_FORM_SCHEMA),
@@ -172,7 +173,7 @@ const StatusSheetForm = ({
             {t('cancel')}
           </Button>
           <Button disabled={isSaving} type="submit">
-            {isSaving ? <Spinner /> : isEditing ? t('update') : t('save')}
+            {isSaving ? <Spinner /> : submitLabel}
           </Button>
         </Sheet.Footer>
       </form>

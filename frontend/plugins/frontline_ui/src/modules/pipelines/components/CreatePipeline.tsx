@@ -19,67 +19,41 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TCreatePipelineForm } from '@/pipelines/types';
 import { PipelineHotkeyScope } from '@/pipelines/types/PipelineHotkeyScope';
 import { createPipelineSheetState } from '@/pipelines/states/pipelineStates';
-import { useNavigate } from 'react-router';
 import { CreatePipelineForm } from './CreatePipelineForm';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-export const CreatePipeline = () => {
+const CreatePipelineSheetForm = ({
+  channelId,
+  onClose,
+}: {
+  channelId: string;
+  onClose: () => void;
+}) => {
   const { t } = useTranslation('frontline');
-  const { id: channelId } = useParams<{ id: string }>();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { addPipeline, loading } = usePipelineAdd();
 
   const form = useForm<TCreatePipelineForm>({
     resolver: zodResolver(CREATE_PIPELINE_FORM_SCHEMA),
     defaultValues: {
       name: '',
       description: '',
-      channelId: channelId || '',
+      channelId,
     },
   });
 
-  const { addPipeline, loading } = usePipelineAdd();
-  const { toast } = useToast();
-
-  const navigate = useNavigate();
-
-  const [_open, _setOpen] = useAtom(createPipelineSheetState);
-  const setHotkeyScope = useSetHotkeyScope();
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
-
-  useEffect(() => {
-    if (_open) {
-      setHotkeyScopeAndMemorizePreviousScope(
-        PipelineHotkeyScope.PipelineAddSheet,
-      );
-      return;
-    }
-
-    setHotkeyScope(PipelineHotkeyScope.PipelineSettingsPage);
-  }, [_open, setHotkeyScope, setHotkeyScopeAndMemorizePreviousScope]);
-
-  useScopedHotkeys(
-    `c`,
-    () => _setOpen(true),
-    PipelineHotkeyScope.PipelineSettingsPage,
-  );
-  useScopedHotkeys(
-    `esc`,
-    () => _setOpen(false),
-    PipelineHotkeyScope.PipelineAddSheet,
-  );
   const submitHandler: SubmitHandler<TCreatePipelineForm> = React.useCallback(
     async (data) => {
       addPipeline({
-        variables: {
-          ...data,
-          channelId,
-        },
-        onCompleted: (data) => {
+        variables: { ...data, channelId },
+        onCompleted: (response) => {
           form.reset();
-          _setOpen(false);
+          onClose();
           toast({ title: t('success') });
           navigate(
-            `/settings/frontline/channels/${channelId}/pipelines/${data.createPipeline._id}`,
+            `/settings/frontline/channels/${channelId}/pipelines/${response.createPipeline._id}`,
           );
         },
         onError: (error) =>
@@ -90,11 +64,74 @@ export const CreatePipeline = () => {
           }),
       });
     },
-    [addPipeline, toast, _setOpen, form, navigate, channelId, t],
+    [addPipeline, channelId, form, navigate, onClose, t, toast],
   );
-  if (!channelId) return null;
+
   return (
-    <Sheet open={_open} onOpenChange={_setOpen}>
+    <Form {...form}>
+      <form
+        className="flex flex-col gap-0 size-full"
+        onSubmit={form.handleSubmit(submitHandler)}
+      >
+        <Sheet.Header>
+          <Sheet.Title>{t('add-pipeline')}</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+        <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
+          <CreatePipelineForm form={form} />
+        </Sheet.Content>
+        <Sheet.Footer>
+          <Button
+            disabled={loading}
+            onClick={onClose}
+            type="button"
+            variant="secondary"
+          >
+            {t('cancel')}
+          </Button>
+          <Button disabled={loading} type="submit">
+            {loading ? <Spinner /> : t('create')}
+          </Button>
+        </Sheet.Footer>
+      </form>
+    </Form>
+  );
+};
+
+export const CreatePipeline = () => {
+  const { t } = useTranslation('frontline');
+  const { id: channelId } = useParams<{ id: string }>();
+
+  const [open, setOpen] = useAtom(createPipelineSheetState);
+  const setHotkeyScope = useSetHotkeyScope();
+  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+
+  useEffect(() => {
+    if (open) {
+      setHotkeyScopeAndMemorizePreviousScope(
+        PipelineHotkeyScope.PipelineAddSheet,
+      );
+      return;
+    }
+
+    setHotkeyScope(PipelineHotkeyScope.PipelineSettingsPage);
+  }, [open, setHotkeyScope, setHotkeyScopeAndMemorizePreviousScope]);
+
+  useScopedHotkeys(
+    `c`,
+    () => setOpen(true),
+    PipelineHotkeyScope.PipelineSettingsPage,
+  );
+  useScopedHotkeys(
+    `esc`,
+    () => setOpen(false),
+    PipelineHotkeyScope.PipelineAddSheet,
+  );
+
+  if (!channelId) return null;
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -103,33 +140,10 @@ export const CreatePipeline = () => {
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0">
-        <Form {...form}>
-          <form
-            className="flex flex-col gap-0 size-full"
-            onSubmit={form.handleSubmit(submitHandler)}
-          >
-            <Sheet.Header>
-              <Sheet.Title>{t('add-pipeline')}</Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
-              <CreatePipelineForm form={form} />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button
-                disabled={loading}
-                onClick={() => _setOpen(false)}
-                type="button"
-                variant="secondary"
-              >
-                {t('cancel')}
-              </Button>
-              <Button disabled={loading} type="submit">
-                {loading ? <Spinner /> : t('create')}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
+        <CreatePipelineSheetForm
+          channelId={channelId}
+          onClose={() => setOpen(false)}
+        />
       </Sheet.View>
     </Sheet>
   );

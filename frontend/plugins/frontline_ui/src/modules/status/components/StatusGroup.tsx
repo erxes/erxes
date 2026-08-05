@@ -34,20 +34,13 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  DropdownMenu,
-  Skeleton,
-  TextOverflowTooltip,
-  useToast,
-} from 'erxes-ui';
+import { Button, cn, DropdownMenu, Skeleton, useToast } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const STATUS_ROW_CLASSNAME =
-  'group relative flex min-h-11 items-center gap-2 rounded-md border bg-background px-2 py-1.5 transition-colors';
+  'group relative flex min-h-11 items-center gap-2 rounded-md border bg-background px-2 py-1.5 transition-colors hover:bg-accent';
 
 const StatusSwatch = ({
   color,
@@ -107,21 +100,10 @@ export const Status = ({
     <div
       className={cn(
         STATUS_ROW_CLASSNAME,
-        'cursor-pointer hover:bg-accent',
         isDragging && 'z-10 cursor-grabbing bg-accent shadow-md',
       )}
-      onClick={openEditSheet}
-      onKeyDown={(event) => {
-        // Space on the grip starts a keyboard drag; only the row itself edits.
-        if (event.target !== event.currentTarget) return;
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
-        openEditSheet();
-      }}
       ref={setNodeRef}
-      role="button"
       style={style}
-      tabIndex={0}
     >
       <button
         aria-label={t('reorder')}
@@ -129,25 +111,32 @@ export const Status = ({
           'flex size-5 flex-none cursor-grab items-center justify-center rounded text-accent-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
           isDragDisabled && 'invisible',
         )}
-        onClick={(event) => event.stopPropagation()}
         type="button"
         {...attributes}
         {...listeners}
       >
         <IconGripVertical className="size-4" stroke={1.5} />
       </button>
-      <StatusSwatch color={status.color} statusType={status.type} />
-      <div className="flex min-w-0 flex-col gap-1">
-        <span className="truncate text-sm capitalize leading-tight">
-          {status.name}
+      <button
+        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+        onClick={openEditSheet}
+        type="button"
+      >
+        <StatusSwatch color={status.color} statusType={status.type} />
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="truncate text-sm capitalize leading-tight">
+            {status.name}
+          </span>
+          {Boolean(status.description) && (
+            <span
+              className="truncate text-xs leading-tight text-muted-foreground"
+              title={status.description}
+            >
+              {status.description}
+            </span>
+          )}
         </span>
-        {!!status.description && (
-          <TextOverflowTooltip
-            className="max-w-44 text-xs leading-tight text-muted-foreground"
-            value={status.description}
-          />
-        )}
-      </div>
+      </button>
       <StatusOptionMenu statusId={status._id} statusType={status.type} />
     </div>
   );
@@ -186,12 +175,7 @@ const StatusOptionMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button
-          className="relative ml-auto"
-          onClick={(event) => event.stopPropagation()}
-          size="icon"
-          variant="ghost"
-        >
+        <Button className="flex-none" size="icon" variant="ghost">
           <IconDots />
         </Button>
       </DropdownMenu.Trigger>

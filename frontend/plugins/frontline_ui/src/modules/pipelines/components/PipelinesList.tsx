@@ -57,20 +57,35 @@ const PipelineCreatedByCell = ({ cell }: PipelineCellProps) => {
   );
 };
 
-const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
+const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const { removePipeline, loading } = usePipelineRemove();
-  const { _id } = cell.row.original;
 
   const onRemove = () => {
     confirm({
-      message: 'Are you sure you want to delete this pipeline?',
+      message: t('confirm-remove-pipeline'),
       options: { confirmationValue: 'delete' },
     }).then(() => {
-      removePipeline({ variables: { id: _id } });
+      removePipeline({ variables: { id: pipelineId } });
     });
   };
+
+  return (
+    <Command.Item
+      className="text-destructive"
+      disabled={loading}
+      onSelect={onRemove}
+      value="delete"
+    >
+      {loading ? <Spinner size="sm" /> : <IconTrash />}
+      {t('delete')}
+    </Command.Item>
+  );
+};
+
+const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
+  const { _id } = cell.row.original;
 
   return (
     <Popover>
@@ -80,15 +95,7 @@ const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item
-              className="text-destructive"
-              disabled={loading}
-              onSelect={onRemove}
-              value="delete"
-            >
-              {loading ? <Spinner size="sm" /> : <IconTrash />}
-              {t('delete')}
-            </Command.Item>
+            <PipelineDeleteItem pipelineId={_id} />
           </Command.List>
         </Command>
       </Combobox.Content>

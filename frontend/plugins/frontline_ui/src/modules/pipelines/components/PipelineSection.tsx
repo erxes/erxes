@@ -16,7 +16,7 @@ export const PipelineSection = ({
       <h2 className="font-mono text-xs font-medium uppercase text-accent-foreground">
         {title}
       </h2>
-      {!!description && (
+      {Boolean(description) && (
         <p className="text-sm text-muted-foreground">{description}</p>
       )}
     </div>

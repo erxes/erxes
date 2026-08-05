@@ -29,7 +29,7 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
@@ -57,6 +57,8 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   } = ticket;
   const isFirstRun = React.useRef(true);
   const isRemovedRef = React.useRef(false);
+  const selectedTagIds = useMemo(() => tagIds ?? [], [tagIds]);
+  const initialAttachments = useMemo(() => attachments ?? [], [attachments]);
   const [state, setState] = useState(ticketState || 'active');
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -281,7 +283,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   return (
     <AttachmentProvider
       ticketId={ticketId}
-      initialAttachments={attachments || []}
+      initialAttachments={initialAttachments}
     >
       <div className="flex flex-col gap-3 h-full px-5 py-8">
         <Input
@@ -292,7 +294,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           disabled={!canEditTicket}
         />{' '}
         <TagsSelect.Provider
-          value={tagIds || []}
+          value={selectedTagIds}
           mode="multiple"
           type="frontline:ticket"
           onValueChange={(newTagIds: string[] | string) => {

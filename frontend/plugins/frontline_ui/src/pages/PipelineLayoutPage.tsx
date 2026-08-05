@@ -26,7 +26,7 @@ export const PipelineLayoutPage = () => {
   }
 
   return (
-    <div className="flex flex-auto flex-col overflow-hidden md:flex-row">
+    <div className="flex h-full flex-auto flex-col overflow-hidden md:flex-row">
       <PipelineSidebar />
       <ScrollArea className="min-w-0 flex-1">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">

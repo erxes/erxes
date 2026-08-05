@@ -5,5 +5,9 @@ export const ChannelPipelinesPage = () => {
   const { id: channelId } = useParams<{ id: string }>();
   if (!channelId) return null;
 
-  return <PipelinesList channelId={channelId} />;
+  return (
+    <div className="h-full">
+      <PipelinesList channelId={channelId} />
+    </div>
+  );
 };
