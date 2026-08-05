@@ -204,3 +204,5 @@ export const dealSchema = schemaWrapper(
     },
   ),
 );
+dealSchema.index({ stageId: 1, status: 1, createdAt: -1, _id: 1 });
+dealSchema.index({ stageId: 1, number: 1 });
