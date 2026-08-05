@@ -112,8 +112,8 @@ const comparePrices = async ({
 
       if (foundProduct.unitPrice === resPrice) {
         console.log(
-    `[MSD] Match: ${itemNo} | erxes=${foundProduct.unitPrice} | BC=${resPrice}`,
-  );
+          `[MSD] Match: ${itemNo} | erxes=${foundProduct.unitPrice} | BC=${resPrice}`,
+        );
         result.match.items.push(item);
       } else {
         result.update.items.push(item);
@@ -277,8 +277,8 @@ export const msdynamicCheckMutations = {
       action: 'find',
       input: { query: productQry },
       defaultValue: [],
-    }); 
-     
+    });
+
     const exchangeRates = config.exchangeRateApi
       ? ((await getExchangeRates(config)) ?? {})
       : {};
