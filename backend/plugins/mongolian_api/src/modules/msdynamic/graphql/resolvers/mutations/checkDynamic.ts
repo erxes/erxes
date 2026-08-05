@@ -163,6 +163,7 @@ export const msdynamicCheckMutations = {
 
     const products = await sendTRPCMessage({
       subdomain,
+      method: 'mutation',
       pluginName: 'core',
       module: 'products',
       action: 'find',
@@ -266,6 +267,7 @@ export const msdynamicCheckMutations = {
 
     const products = await sendTRPCMessage({
       subdomain,
+      method: 'mutation',
       pluginName: 'core',
       module: 'products',
       action: 'find',
@@ -337,6 +339,7 @@ export const msdynamicCheckMutations = {
 
       const result = await sendTRPCMessage({
         subdomain,
+        method:'mutation',
         pluginName: 'core',
         module: 'products',
         action: 'updateProduct',
