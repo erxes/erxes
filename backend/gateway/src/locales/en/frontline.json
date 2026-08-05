@@ -760,6 +760,7 @@
   "customers-email": "Customer's email",
   "customers-phone": "Customer's phone",
   "company-name": "Company's name",
+  "pipeline-updated-successfully": "Pipeline updated successfully",
   "pipeline-removed-successfully": "Pipeline removed successfully",
   "no-call-integration-found": "No call integration found for this user.",
   "no-queues-assigned": "The selected integration has no assigned queues.",
