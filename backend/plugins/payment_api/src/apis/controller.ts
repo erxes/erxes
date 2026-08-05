@@ -87,9 +87,10 @@ export const callbackHandler = async (req, res) => {
 
     if (
       transaction.status === PAYMENT_STATUS.CANCELLED ||
-      transaction.status === PAYMENT_STATUS.FAILED
+      transaction.status === PAYMENT_STATUS.FAILED ||
+      transaction.status === PAYMENT_STATUS.EXPIRED
     ) {
-      return res.status(400).send('Payment failed or cancelled');
+      return res.status(400).send('Payment failed, cancelled or expired');
     }
 
     if (transaction.status === PAYMENT_STATUS.PAID) {
