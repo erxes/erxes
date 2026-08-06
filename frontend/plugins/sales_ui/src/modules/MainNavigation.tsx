@@ -1,4 +1,4 @@
-import { IconCashRegister, IconSandbox } from '@tabler/icons-react';
+import { IconCashRegister, IconSandbox, IconChartBar } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 
@@ -15,6 +15,11 @@ export const MainNavigation = () => {
         name={t('pos')}
         icon={IconCashRegister}
         path="sales/pos"
+      />
+      <NavigationMenuLinkItem
+        name="Reports"
+        icon={IconChartBar}
+        path="sales/reports"
       />
     </>
   );
