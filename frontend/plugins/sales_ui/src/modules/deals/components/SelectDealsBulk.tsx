@@ -137,7 +137,7 @@ const DealsList = ({
 
   const { deals, handleFetchMore, totalCount } = useDeals({
     variables: {
-      searchValue: debouncedSearch,
+      search: debouncedSearch,
     },
   });
 

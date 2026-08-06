@@ -15,7 +15,7 @@ export const PosIndexPage = () => {
   useEffect(() => {
     if (!loading && posList && posList.length > 0) {
       const firstPos = posList[0];
-      navigate(`/sales/pos/${firstPos._id}/orders`);
+      navigate(`/sales/pos/${firstPos._id}/orders`, { replace: true });
     }
   }, [loading, posList, navigate]);
 

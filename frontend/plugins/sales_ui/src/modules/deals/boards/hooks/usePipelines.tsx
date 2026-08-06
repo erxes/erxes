@@ -1,4 +1,21 @@
 import {
+  MutationHookOptions,
+  QueryHookOptions,
+  useApolloClient,
+  useMutation,
+  useQuery,
+  useSubscription,
+} from '@apollo/client';
+import {
+  EnumCursorDirection,
+  ICursorListResponse,
+  toast,
+  useQueryState,
+  useToast,
+} from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+
+import {
   ADD_PIPELINE,
   ARCHIVE_PIPELINE,
   COPY_PIPELINE,
@@ -7,32 +24,72 @@ import {
   UPDATE_PIPELINE_ORDER,
 } from '@/deals/graphql/mutations/PipelinesMutations';
 import {
-  EnumCursorDirection,
-  ICursorListResponse,
-  toast,
-  useQueryState,
-  useToast,
-} from 'erxes-ui';
-import {
-  GET_PIPELINES,
   GET_PIPELINE_DETAIL,
+  GET_PIPELINES,
 } from '@/deals/graphql/queries/PipelinesQueries';
-import {
-  MutationHookOptions,
-  QueryHookOptions,
-  useMutation,
-  useQuery,
-  useApolloClient,
-} from '@apollo/client';
-
+import { PIPELINE_LIST_CHANGED } from '@/deals/graphql/subscriptions/pipelineListChange';
 import { IPipeline } from '@/deals/types/pipelines';
-import { useTranslation } from 'react-i18next';
 
 const PIPELINES_PER_PAGE = 20;
+
+interface IPipelineArchiveData {
+  salesPipelinesArchive: boolean;
+}
+
+interface IPipelineArchiveVariables {
+  _id: string;
+}
+
+interface IPipelineListChangedData {
+  salesPipelineListChanged: {
+    _id: string;
+    action: string;
+    data: {
+      status?: string;
+    };
+  };
+}
 
 export const usePipelines = (
   options?: QueryHookOptions<ICursorListResponse<IPipeline>>,
 ) => {
+  useSubscription<IPipelineListChangedData>(PIPELINE_LIST_CHANGED, {
+    skip: options?.skip,
+    onData: ({ client, data: result }) => {
+      const event = result.data?.salesPipelineListChanged;
+      const status = event?.data?.status;
+
+      if (event?.action !== 'statusChanged' || !event._id || !status) {
+        return;
+      }
+
+      const pipelineCacheId = client.cache.identify({
+        __typename: 'SalesPipeline',
+        _id: event._id,
+      });
+
+      if (pipelineCacheId) {
+        client.cache.modify({
+          id: pipelineCacheId,
+          fields: {
+            status: () => status,
+          },
+        });
+      }
+
+      void client
+        .refetchQueries({
+          include: ['SalesPipelines', 'SalesBoards'],
+        })
+        .catch((error: unknown) => {
+          toast({
+            title: error instanceof Error ? error.message : String(error),
+            variant: 'destructive',
+          });
+        });
+    },
+  });
+
   const { data, loading, error, fetchMore } = useQuery<
     ICursorListResponse<IPipeline>
   >(GET_PIPELINES, {
@@ -47,6 +104,9 @@ export const usePipelines = (
     totalCount = 0,
     pageInfo,
   } = data?.salesPipelines || {};
+  const visiblePipelines = options?.variables?.isAll
+    ? pipelines
+    : pipelines?.filter(({ status }) => status !== 'archived');
 
   const handleFetchMore = () => {
     if (totalCount <= (pipelines?.length || 0)) return;
@@ -73,7 +133,14 @@ export const usePipelines = (
     });
   };
 
-  return { pipelines, loading, error, handleFetchMore, pageInfo, totalCount };
+  return {
+    pipelines: visiblePipelines,
+    loading,
+    error,
+    handleFetchMore,
+    pageInfo,
+    totalCount,
+  };
 };
 
 export const usePipelineRemove = (
@@ -85,7 +152,7 @@ export const usePipelineRemove = (
     variables: {
       ...options?.variables,
     },
-    refetchQueries: ['SalesPipelines'],
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
@@ -117,8 +184,12 @@ export const usePipelineAdd = () => {
     addPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards'],
       awaitRefetchQueries: true,
+      update: (cache) => {
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'salesStages' });
+        cache.gc();
+      },
       onError: (error) => {
         toast({
           title: error.message,
@@ -143,21 +214,24 @@ export const usePipelineEdit = () => {
     editPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines', 'SalesStages'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards', 'SalesStages'],
       awaitRefetchQueries: true,
       update: (cache, { data: { salesPipelinesEdit } }) => {
-        if (!salesPipelinesEdit) return;
-        cache.modify({
-          id: cache.identify(salesPipelinesEdit),
-          fields: Object.keys(variables || {}).reduce(
-            (fields: Record<string, () => any>, field) => {
-              fields[field] = () => variables?.[field];
-              return fields;
-            },
-            {},
-          ),
-          optimistic: true,
-        });
+        if (salesPipelinesEdit) {
+          cache.modify({
+            id: cache.identify(salesPipelinesEdit),
+            fields: Object.keys(variables || {}).reduce(
+              (fields: Record<string, () => unknown>, field) => {
+                fields[field] = () => variables?.[field];
+                return fields;
+              },
+              {},
+            ),
+            optimistic: true,
+          });
+        }
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'salesStages' });
+        cache.gc();
       },
       onError: (error) => {
         toast({
@@ -172,15 +246,42 @@ export const usePipelineEdit = () => {
 };
 
 export const usePipelineArchive = (
-  options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
+  options?: MutationHookOptions<
+    IPipelineArchiveData,
+    IPipelineArchiveVariables
+  >,
 ) => {
   const { t } = useTranslation('sales');
-  const [archivePipeline, { loading, error }] = useMutation(ARCHIVE_PIPELINE, {
+  const [archivePipeline, { loading, error }] = useMutation<
+    IPipelineArchiveData,
+    IPipelineArchiveVariables
+  >(ARCHIVE_PIPELINE, {
     ...options,
+    optimisticResponse: {
+      salesPipelinesArchive: true,
+    },
     variables: {
       ...options?.variables,
     },
-    refetchQueries: ['SalesPipelines'],
+    update: (cache, _result, { variables }) => {
+      if (!variables?._id) return;
+
+      const pipelineCacheId = cache.identify({
+        __typename: 'SalesPipeline',
+        _id: variables._id,
+      });
+
+      if (!pipelineCacheId) return;
+
+      cache.modify({
+        id: pipelineCacheId,
+        fields: {
+          status: (currentStatus: string) =>
+            currentStatus === 'active' ? 'archived' : 'active',
+        },
+      });
+    },
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
@@ -211,7 +312,7 @@ export const usePipelineCopy = (
     variables: {
       ...options?.variables,
     },
-    refetchQueries: ['SalesPipelines'],
+    refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
@@ -244,7 +345,7 @@ export const usePipelineUpdateOrder = (
       variables: {
         ...options?.variables,
       },
-      refetchQueries: ['SalesPipelines'],
+      refetchQueries: ['SalesPipelines', 'SalesBoards'],
       awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
@@ -291,25 +392,32 @@ export const usePipelinesBulkRemove = () => {
       );
 
       const failures = results.filter((result) => result.status === 'rejected');
-      if (failures.length > 0) {
-        throw new Error(t('failed-to-delete-pipelines', { count: failures.length }));
-      }
 
-      // Single refetch after all operations complete
-      client.refetchQueries({ include: ['SalesPipelines'] });
+      // Some deletions can land even when others fail, so refresh before
+      // reporting either outcome — and wait for it, or the caller sees
+      // "success" while the table still lists removed pipelines.
+      await client.refetchQueries({
+        include: ['SalesPipelines', 'SalesBoards'],
+      });
+
+      if (failures.length > 0) {
+        throw new Error(
+          t('failed-to-delete-pipelines', { count: failures.length }),
+        );
+      }
 
       toast({
         title: t('success'),
         variant: 'success',
         description: t('pipelines-deleted'),
       });
-    } catch (e: any) {
+    } catch (error) {
       toast({
         title: t('error'),
-        description: e.message,
+        description: error instanceof Error ? error.message : t('error'),
         variant: 'destructive',
       });
-      throw e;
+      throw error;
     }
   };
 

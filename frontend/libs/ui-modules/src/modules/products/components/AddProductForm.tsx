@@ -34,8 +34,10 @@ import { useAddProduct } from '../hooks/useProductsAdd';
 import { IProductFormValues } from '../types';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
+  PRODUCT_VIDEO_LIMIT,
   ProductPrimaryImageUpload,
   ProductSecondaryImagesUpload,
+  ProductVideosUpload,
   toProductAttachmentItem,
   toProductAttachmentList,
   type ProductAttachmentItem,
@@ -911,6 +913,36 @@ function AddProductAttachmentMore({
   );
 }
 
+function AddProductVideos({
+  form,
+}: {
+  form: UseFormReturn<IProductFormValues>;
+}) {
+  const { t } = useTranslation('product', { keyPrefix: 'add' });
+  const videos = form.watch('videos');
+
+  const files = useMemo(() => toProductAttachmentList(videos), [videos]);
+
+  const syncForm = useCallback(
+    (next: AttachmentItem[]) => {
+      form.setValue('videos', next as IProductFormValues['videos']);
+    },
+    [form],
+  );
+
+  return (
+    <InfoCard title={t('videos') || 'Videos'} className="h-full">
+      <InfoCard.Content className="h-full">
+        <ProductVideosUpload
+          value={files}
+          onChange={syncForm}
+          maxVideos={PRODUCT_VIDEO_LIMIT}
+        />
+      </InfoCard.Content>
+    </InfoCard>
+  );
+}
+
 function AddProductFormAttachmentsAndExtra({
   form,
 }: {
@@ -926,6 +958,9 @@ function AddProductFormAttachmentsAndExtra({
         <div className="col-span-2 h-full">
           <AddProductAttachmentMore form={form} />
         </div>
+      </div>
+      <div className="pt-4">
+        <AddProductVideos form={form} />
       </div>
       <div className="pt-4">
         <InfoCard title={t('more-info')}>

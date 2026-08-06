@@ -1,38 +1,120 @@
-import { IconCheck, IconChevronLeft } from '@tabler/icons-react';
-import { Command, useFilterContext, useMultiQueryState } from 'erxes-ui';
+import { useState } from 'react';
+import { IconWallet } from '@tabler/icons-react';
+import {
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useFilterQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
+import { INVOICES_CURSOR_SESSION_KEY } from '~/modules/payment/hooks/use-invoices';
 
-export const InvoiceKindFilter = () => {
+const SelectInvoiceKindContent = ({
+  value,
+  onValueChange,
+}: {
+  value: string;
+  onValueChange: (kind: string) => void;
+}) => {
   const { t } = useTranslation('payment');
-  const [queries, setQueries] = useMultiQueryState<{ kind?: string }>(['kind']);
-  const { kind } = queries;
-  const { setView } = useFilterContext();
 
   return (
-    <Command shouldFilter={false}>
+    <Command>
+      <Command.Input placeholder={t('search')} />
+      <Command.Empty>
+        <span className="text-muted-foreground">{t('no-results-found')}</span>
+      </Command.Empty>
       <Command.List>
-        <Command.Item
-          value="back"
-          className="cursor-pointer text-sm text-muted-foreground"
-          onSelect={() => setView('root')}
-        >
-          <IconChevronLeft className="w-3 h-3" />
-          {t('back')}
-        </Command.Item>
-        <Command.Separator />
-        {Object.entries(PAYMENT_KINDS).map(([value, config]) => (
+        {Object.entries(PAYMENT_KINDS).map(([kind, config]) => (
           <Command.Item
-            key={value}
-            value={value}
-            className="cursor-pointer text-sm"
-            onSelect={() => setQueries({ kind: value })}
+            key={kind}
+            value={kind}
+            onSelect={() => onValueChange(kind)}
           >
-            {config.name}
-            {kind === value && <IconCheck className="ml-auto" />}
+            <span className="font-medium">{config.name}</span>
+            <Combobox.Check checked={value === kind} />
           </Command.Item>
         ))}
       </Command.List>
     </Command>
   );
+};
+
+const SelectInvoiceKindFilterItem = () => {
+  const { t } = useTranslation('payment');
+
+  return (
+    <Filter.Item value="kind">
+      <IconWallet />
+      {t('kind')}
+    </Filter.Item>
+  );
+};
+
+const SelectInvoiceKindFilterView = () => {
+  const [kind, setKind] = useFilterQueryState<string>(
+    'kind',
+    INVOICES_CURSOR_SESSION_KEY,
+  );
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Filter.View filterKey="kind">
+      <SelectInvoiceKindContent
+        value={kind || ''}
+        onValueChange={(value) => {
+          setKind(value);
+          resetFilterState();
+        }}
+      />
+    </Filter.View>
+  );
+};
+
+const SelectInvoiceKindFilterBar = () => {
+  const [kind, setKind] = useFilterQueryState<string>(
+    'kind',
+    INVOICES_CURSOR_SESSION_KEY,
+  );
+  const [open, setOpen] = useState(false);
+  const { t } = useTranslation('payment');
+  const { resetFilterState } = useFilterContext();
+
+  const kindLabel = kind
+    ? (PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind)
+    : undefined;
+
+  return (
+    <Filter.BarItem queryKey="kind">
+      <Filter.BarName>
+        <IconWallet />
+        {t('kind')}
+      </Filter.BarName>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <Filter.BarButton filterKey="kind">{kindLabel}</Filter.BarButton>
+        </Popover.Trigger>
+        <Combobox.Content>
+          <SelectInvoiceKindContent
+            value={kind || ''}
+            onValueChange={(value) => {
+              setKind(value || null);
+              resetFilterState();
+              setOpen(false);
+            }}
+          />
+        </Combobox.Content>
+      </Popover>
+    </Filter.BarItem>
+  );
+};
+
+export const SelectInvoiceKind = {
+  Content: SelectInvoiceKindContent,
+  FilterItem: SelectInvoiceKindFilterItem,
+  FilterView: SelectInvoiceKindFilterView,
+  FilterBar: SelectInvoiceKindFilterBar,
 };

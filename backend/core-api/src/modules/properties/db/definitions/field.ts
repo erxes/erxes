@@ -43,6 +43,19 @@ export const fieldSchema = schemaWrapper(
       options: { type: [fieldOptionSchema], label: 'Options' },
       icon: { type: String, label: 'Icon' },
 
+      isVisible: { type: Boolean, label: 'Visible', default: true },
+      isVisibleToCreate: {
+        type: Boolean,
+        label: 'Visible to create',
+        default: false,
+      },
+      isRequired: { type: Boolean, label: 'Required', default: false },
+      isVisibleInCard: {
+        type: Boolean,
+        label: 'Visible in card',
+        default: false,
+      },
+
       createdBy: { type: String, label: 'Created By' },
       updatedBy: { type: String, label: 'Updated By' },
     },

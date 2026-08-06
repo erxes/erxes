@@ -18,7 +18,7 @@ const columns: (
   segmentMoreColumn,
   {
     ...RecordTable.checkboxColumn,
-    size: 20,
+    size: 33,
   } as ColumnDef<{ order: string; hasChildren: boolean } & ISegment>,
   {
     id: 'name',

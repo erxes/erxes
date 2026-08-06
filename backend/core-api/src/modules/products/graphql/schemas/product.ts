@@ -29,6 +29,7 @@ export const types = `
     tagIds: [String]
     attachment: Attachment
     attachmentMore: [Attachment]
+    videos: [Attachment]
     vendorId: String
     scopeBrandIds: [String]
     uom: String
@@ -154,6 +155,7 @@ export const mutationParams = `
   propertiesData: JSON
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
+  videos: [AttachmentInput],
   vendorId: String,
   scopeBrandIds: [String],
   uom: String,

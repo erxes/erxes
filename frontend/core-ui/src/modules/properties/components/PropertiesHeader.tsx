@@ -1,7 +1,7 @@
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
-import { IconHierarchy2 } from '@tabler/icons-react';
+import { IconHierarchy2, IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { AddPropertyGroup } from './PropertyGroupAdd';
 
@@ -26,7 +26,10 @@ export function PropertiesHeader() {
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild className="capitalize">
                   <Link to={`/settings/properties?type=${type}`}>
-                    {t(`content-type.${type.replace(':', '-')}`, type.replace(':', ' '))}{' '}
+                    {t(
+                      `content-type.${type.replace(':', '-')}`,
+                      type.replace(':', ' '),
+                    )}{' '}
                     {t('properties-suffix', 'properties')}
                   </Link>
                 </Button>
@@ -37,6 +40,16 @@ export function PropertiesHeader() {
       </PageHeader.Start>
       <PageHeader.End>
         <AddPropertyGroup />
+        {type && (
+          <Can action="fieldsManage">
+            <Button asChild>
+              <Link to={`/settings/properties/${type}/add`}>
+                <IconPlus />
+                {t('add-field', 'Add field')}
+              </Link>
+            </Button>
+          </Can>
+        )}
       </PageHeader.End>
     </PageHeader>
   );

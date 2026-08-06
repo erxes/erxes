@@ -20,6 +20,7 @@ export interface IRelationModules {
   name: string;
   pluginName: string;
   icon: Icon;
+  label?: string;
 }
 
 export const RelationWidgetContext = createContext<{

@@ -86,5 +86,5 @@ export const makeScoreMoreColumn = () => ({
   cell: ({ cell }: { cell: Cell<IScoreLog, unknown> }) => (
     <ScoreMoreColumnCell cell={cell} />
   ),
-  size: 30,
+  size: 33,
 });

@@ -7,6 +7,16 @@ export type TFieldSelectionConfig = {
   [key: string]: unknown;
 };
 
+export type LogicAction = 'show' | 'hide';
+export type LogicOperator = 'is' | 'isNot';
+
+export interface IFieldLogicRule {
+  field: string;
+  operator: LogicOperator | string;
+  value: string;
+  action: LogicAction | string;
+}
+
 export type IField = {
   _id: string;
   name: string;
@@ -15,7 +25,7 @@ export type IField = {
   type: string;
   group?: string;
   groupId?: string;
-  logics?: Record<string, unknown>;
+  logics?: IFieldLogicRule[] | Record<string, unknown>;
   relationType?: string;
   multiple?: boolean;
   icon?: string;
@@ -23,6 +33,10 @@ export type IField = {
   selectionConfig?: TFieldSelectionConfig;
   validation?: unknown;
   selectOptions?: Array<{ label: string; value: string }>;
+  isVisible?: boolean;
+  isVisibleToCreate?: boolean;
+  isRequired?: boolean;
+  isVisibleInCard?: boolean;
 };
 
 export interface IFieldGroup {

@@ -59,5 +59,5 @@ export const agentMoreColumn = {
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
   cell: AgentMoreColumnCell,
-  size: 25,
+  size: 33,
 };

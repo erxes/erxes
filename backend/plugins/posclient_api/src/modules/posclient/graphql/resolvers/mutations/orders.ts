@@ -1069,6 +1069,34 @@ const orderMutations: Record<string, Resolver> = {
     );
   }, // end ordersSettlePayment()
 
+    async cpOrdersSettlePayment(
+    _root,
+    { _id, billType, registerNumber }: ISettlePaymentParams,
+    { config, models, subdomain, posUser }: IContext,
+  ) {
+
+    const order = await models.Orders.getOrder(_id);
+
+    if (!ORDER_TYPES.SALES.includes(order.type || '')) {
+      throw new Error(
+        'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой',
+      );
+    }
+
+    return await prepareSettlePayment(
+      subdomain,
+      models,
+      order,
+      config,
+      {
+        _id,
+        billType,
+        registerNumber,
+      },
+      posUser,
+    );
+  }, // end ordersSettlePayment()
+
   async ordersConvertToDeal(
     _root,
     params,
@@ -1499,6 +1527,9 @@ orderMutations.cpOrdersCancel.wrapperConfig = {
 };
 
 orderMutations.cpOrdersAddPayment.wrapperConfig = {
+  forClientPortal: true,
+};
+orderMutations.cpOrdersSettlePayment.wrapperConfig = {
   forClientPortal: true,
 };
 

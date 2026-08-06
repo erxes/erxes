@@ -1,30 +1,40 @@
 'use client';
 
 import { PIPELINE_CHANGED } from '@/deals/graphql/subscriptions/pipelineChange';
-import {
-  useAllDealsMap,
-  useDealsBoard,
-} from '@/deals/states/dealsBoardState';
+import { useAllDealsMap, useDealsBoard } from '@/deals/states/dealsBoardState';
 import { IDeal } from '@/deals/types/deals';
-import { useSubscription } from '@apollo/client';
+import { useApolloClient, useSubscription } from '@apollo/client';
+
+type ISalesPipelinesChange =
+  | {
+      _id: string;
+      processId?: string;
+      action: 'orderUpdated';
+      data: {
+        item: IDeal;
+        aboveItemId?: string;
+        destinationStageId: string;
+        oldStageId?: string;
+      };
+    }
+  | {
+      _id: string;
+      processId?: string;
+      action: 'stageStatusChanged';
+      data: {
+        stageId: string;
+        status: string;
+      };
+    };
 
 interface ISalesPipelinesChangedPayload {
-  salesPipelinesChanged: {
-    _id: string;
-    processId?: string;
-    action: string;
-    data: {
-      item: IDeal;
-      aboveItemId?: string;
-      destinationStageId: string;
-      oldStageId?: string;
-    };
-  };
+  salesPipelinesChanged: ISalesPipelinesChange;
 }
 
 export const usePipelineChanged = (pipelineId?: string) => {
   const [, setBoardState] = useDealsBoard();
   const [, setAllDealsMap] = useAllDealsMap();
+  const client = useApolloClient();
 
   useSubscription<ISalesPipelinesChangedPayload>(PIPELINE_CHANGED, {
     variables: { _id: pipelineId },
@@ -33,15 +43,19 @@ export const usePipelineChanged = (pipelineId?: string) => {
       const payload = result.data?.salesPipelinesChanged;
       if (!payload?.data) return;
 
-      const { processId, action, data: changeData } = payload;
+      const { processId } = payload;
 
       if (processId && processId === localStorage.getItem('processId')) {
         return;
       }
 
-      if (action !== 'orderUpdated') return;
-      
-      const { item, aboveItemId, destinationStageId, oldStageId } = changeData;
+      if (payload.action === 'stageStatusChanged') {
+        void client.refetchQueries({ include: ['SalesStages'] });
+        return;
+      }
+
+      const { item, aboveItemId, destinationStageId, oldStageId } =
+        payload.data;
 
       if (!item?._id || !destinationStageId) return;
 
@@ -64,9 +78,7 @@ export const usePipelineChanged = (pipelineId?: string) => {
           ),
         ];
 
-        let destIndex = aboveItemId
-          ? destinationItems.indexOf(aboveItemId)
-          : 0;
+        let destIndex = aboveItemId ? destinationItems.indexOf(aboveItemId) : 0;
 
         if (destIndex < 0) {
           destIndex = 0;

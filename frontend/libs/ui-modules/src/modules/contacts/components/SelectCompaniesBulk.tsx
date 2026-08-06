@@ -250,6 +250,7 @@ const SelectedCompaniesList = ({
       <div className="p-4 flex flex-col gap-1">
         <div className="text-accent-foreground text-xs px-3 mb-1">Added</div>
         {selectedCompanyIds.map((companyId) => {
+          const company = selectedCompanies.find((c) => c._id === companyId);
           return (
             <Button
               key={companyId}
@@ -257,7 +258,10 @@ const SelectedCompaniesList = ({
               className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
               onClick={() => handleRemoveCompany(companyId)}
             >
-              <CompaniesInline companyIds={[companyId]} />
+              <CompaniesInline
+                companies={company ? [company] : undefined}
+                companyIds={[companyId]}
+              />
               <IconX className="ml-auto" />
             </Button>
           );

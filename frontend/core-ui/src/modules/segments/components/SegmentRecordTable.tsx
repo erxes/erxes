@@ -21,7 +21,7 @@ export function SegmentsRecordTable() {
       >
         <RecordTableTree id="segments" ordered>
           <RecordTable.Scroll>
-            <RecordTable className="w-full">
+            <RecordTable>
               <RecordTable.Header />
               <RecordTable.Body>
                 <RecordTable.RowList Row={RecordTableTree.Row} />

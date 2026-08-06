@@ -17,13 +17,9 @@ import {
   IconToggleLeft,
   IconTrash,
 } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
-import {
-  stageInEbarimtDetailAtom,
-  IStageInEbarimtConfigRow,
-} from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
+import { IStageInEbarimtConfigRow } from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { AddStageInEBarimtConfig } from './AddStageInEBarimtConfig';
@@ -60,12 +56,10 @@ const StageInEBarimtConfigTitleCell = ({
   cell: Cell<IStageInEbarimtConfigRow, unknown>;
 }) => {
   const [, setOpen] = useQueryState('stage_in_ebarimt_id');
-  const setDetail = useSetAtom(stageInEbarimtDetailAtom);
   return (
     <RecordTableInlineCell
       className="cursor-pointer"
       onClick={() => {
-        setDetail(cell.row.original);
         setOpen(cell.row.original._id);
       }}
     >
@@ -81,12 +75,10 @@ const StageInEBarimtConfigMoreCell = ({
 }) => {
   const { t } = useTranslation('mongolian');
   const [, setOpen] = useQueryState('stage_in_ebarimt_id');
-  const setDetail = useSetAtom(stageInEbarimtDetailAtom);
   const { removeStageInEbarimtConfig } = useRemoveStageInEbarimtConfig();
   const { confirm } = useConfirm();
 
   const handleEdit = () => {
-    setDetail(cell.row.original);
     setOpen(cell.row.original._id);
   };
 

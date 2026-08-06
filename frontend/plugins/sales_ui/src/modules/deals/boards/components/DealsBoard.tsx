@@ -1,13 +1,17 @@
 'use client';
 
 import {
+  DealsBoardItem,
   DealsBoardState,
   useAllDealsMap,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ColumnPaginationState } from '@/deals/types/boards';
+import type {
+  BoardDealColumn,
+  ColumnPaginationState,
+} from '@/deals/types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
@@ -76,11 +80,13 @@ export const DealsBoard = () => {
     useColumnPagination(PAGE_SIZE);
 
   const queryVariables = useMemo(
-    () => getDealsQueryVariables(searchParams),
+    () =>
+      getDealsQueryVariables(searchParams, {
+        includeArchivedMode: false,
+      }),
     [searchParams],
   );
 
-  const archivedOnly = searchParams.get('archivedOnly') === 'true';
   const queryVariablesKey = useMemo(
     () => JSON.stringify(queryVariables),
     [queryVariables],
@@ -89,14 +95,15 @@ export const DealsBoard = () => {
     () => columns.map((column: { _id: string }) => column._id).join(','),
     [columns],
   );
+  const boardStateMatchesColumns =
+    boardState?.columns.length === columns.length &&
+    columns.every((column: { _id: string }) =>
+      boardState.columns.some((boardColumn) => boardColumn._id === column._id),
+    );
 
   useEffect(() => {
     resetColumnsRef.current = columns;
   }, [columnIdsKey, columns]);
-
-  useEffect(() => {
-    setBoardState(null);
-  }, [archivedOnly, setBoardState]);
 
   useEffect(() => {
     const resetColumns = resetColumnsRef.current;
@@ -234,8 +241,7 @@ export const DealsBoard = () => {
         });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setBoardState, setAllDealsMap],
+    [changeDeals, setBoardState, setAllDealsMap, updateStagesOrder],
   );
 
   const columnPaginationState = useMemo((): Record<
@@ -261,10 +267,13 @@ export const DealsBoard = () => {
     return <NoStagesWarning />;
   }
 
-  if (!boardState) return null;
+  if (!boardState || !boardStateMatchesColumns) {
+    return <StagesLoading />;
+  }
 
   return (
-    <GenericBoard<any, any>
+    <GenericBoard<DealsBoardItem, BoardDealColumn>
+      key={pipelineId}
       initialState={boardState}
       onStateChange={handleStateChange}
       renderCard={(deal) => <DealsBoardCard deal={deal} />}

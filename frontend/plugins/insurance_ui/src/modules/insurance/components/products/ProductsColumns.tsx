@@ -30,7 +30,7 @@ export const createProductsColumns = (
     cell: ({ cell }) => (
       <ProductsMoreColumn cell={cell} onEdit={onEdit} onDelete={onDelete} />
     ),
-    size: 26,
+    size: 33,
   },
   RecordTable.checkboxColumn as ColumnDef<InsuranceProduct>,
   {

@@ -122,6 +122,7 @@ export interface IDealQueryParams extends IListParams, ICursorPaginateParams {
   stageChangedStartDate?: Date;
   stageChangedEndDate?: Date;
   noSkipArchive?: boolean;
+  status?: string;
   tagIds?: string[];
   number?: string;
   productIds?: string[];

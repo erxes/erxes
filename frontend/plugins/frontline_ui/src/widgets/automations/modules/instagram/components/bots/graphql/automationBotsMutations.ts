@@ -4,7 +4,7 @@ const INSTAGRAM_BOT_PARAMS = `
   $name: String,
   $accountId: String,
   $pageId: String,
-  $persistentMenus: [BotPersistentMenuInput],
+  $persistentMenus: [InstagramBotPersistentMenuInput],
   $greetText: String,
   $tag: String,
   $isEnabledBackBtn: Boolean,

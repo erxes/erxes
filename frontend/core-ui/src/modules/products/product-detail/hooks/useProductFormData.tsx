@@ -69,6 +69,7 @@ export function getProductFormDefaultValues(
     unitPrice: productDetail.unitPrice ?? 0,
     attachment: toSingleAttachment(productDetail.attachment),
     attachmentMore: toAttachmentMore(productDetail.attachmentMore),
+    videos: toAttachmentMore(productDetail.videos),
     customFieldsData:
       productDetail.customFieldsData || productDetail.propertiesData || {},
     currency: productDetail.currency || '',
