@@ -1,38 +1,30 @@
-import { REMOVE_CHANNEL_MEMBERS } from '@/channels/graphql';
 import { useApolloClient, useMutation } from '@apollo/client';
 import { useState } from 'react';
+import { REMOVE_CHANNEL } from '../graphql/mutations';
 
-interface IChannelMemberRemoveMutationResponse {
-  channelRemoveMember: { __typename: string } | null;
-}
-
-export interface IChannelMembersRemoveResult {
+export interface IChannelsRemoveResult {
   removedIds: string[];
   failedCount: number;
   error?: Error;
   refreshFailed: boolean;
 }
 
-export const useChannelMembersRemove = () => {
+export const useChannelsRemove = () => {
   const client = useApolloClient();
-  const [singleMemberRemove] =
-    useMutation<IChannelMemberRemoveMutationResponse>(REMOVE_CHANNEL_MEMBERS);
+  const [removeChannel] = useMutation(REMOVE_CHANNEL);
   const [loading, setLoading] = useState(false);
 
-  const removeMembers = async (
-    memberIds: string[],
-    channelId: string,
-  ): Promise<IChannelMembersRemoveResult> => {
+  const removeChannels = async (
+    channelIds: string[],
+  ): Promise<IChannelsRemoveResult> => {
     setLoading(true);
 
     try {
       const results = await Promise.allSettled(
-        memberIds.map((memberId) =>
-          singleMemberRemove({ variables: { channelId, memberId } }),
-        ),
+        channelIds.map((id) => removeChannel({ variables: { id } })),
       );
 
-      const removedIds = memberIds.filter(
+      const removedIds = channelIds.filter(
         (_, index) => results[index].status === 'fulfilled',
       );
       const rejected = results.filter(
@@ -45,7 +37,7 @@ export const useChannelMembersRemove = () => {
       if (removedIds.length) {
         try {
           const refetched = await client.refetchQueries({
-            include: ['GetChannelMembers'],
+            include: ['GetChannels'],
           });
           refreshFailed = refetched.some(
             (result) => result.error || result.errors?.length,
@@ -66,5 +58,5 @@ export const useChannelMembersRemove = () => {
     }
   };
 
-  return { removeMembers, loading };
+  return { removeChannels, loading };
 };
