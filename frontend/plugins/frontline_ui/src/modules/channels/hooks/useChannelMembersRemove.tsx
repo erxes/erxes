@@ -1,70 +1,20 @@
 import { REMOVE_CHANNEL_MEMBERS } from '@/channels/graphql';
-import { useApolloClient, useMutation } from '@apollo/client';
-import { useState } from 'react';
+import { useBulkRemove } from '@/channels/hooks/useBulkRemove';
+import { useMutation } from '@apollo/client';
 
 interface IChannelMemberRemoveMutationResponse {
   channelRemoveMember: { __typename: string } | null;
 }
 
-export interface IChannelMembersRemoveResult {
-  removedIds: string[];
-  failedCount: number;
-  error?: Error;
-  refreshFailed: boolean;
-}
-
 export const useChannelMembersRemove = () => {
-  const client = useApolloClient();
   const [singleMemberRemove] =
     useMutation<IChannelMemberRemoveMutationResponse>(REMOVE_CHANNEL_MEMBERS);
-  const [loading, setLoading] = useState(false);
+  const { bulkRemove, loading } = useBulkRemove(['GetChannelMembers']);
 
-  const removeMembers = async (
-    memberIds: string[],
-    channelId: string,
-  ): Promise<IChannelMembersRemoveResult> => {
-    setLoading(true);
-
-    try {
-      const results = await Promise.allSettled(
-        memberIds.map((memberId) =>
-          singleMemberRemove({ variables: { channelId, memberId } }),
-        ),
-      );
-
-      const removedIds = memberIds.filter(
-        (_, index) => results[index].status === 'fulfilled',
-      );
-      const rejected = results.filter(
-        (result): result is PromiseRejectedResult =>
-          result.status === 'rejected',
-      );
-
-      let refreshFailed = false;
-
-      if (removedIds.length) {
-        try {
-          const refetched = await client.refetchQueries({
-            include: ['GetChannelMembers'],
-          });
-          refreshFailed = refetched.some(
-            (result) => result.error || result.errors?.length,
-          );
-        } catch {
-          refreshFailed = true;
-        }
-      }
-
-      return {
-        removedIds,
-        failedCount: rejected.length,
-        error: rejected[0]?.reason as Error | undefined,
-        refreshFailed,
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
+  const removeMembers = (memberIds: string[], channelId: string) =>
+    bulkRemove(memberIds, (memberId) =>
+      singleMemberRemove({ variables: { channelId, memberId } }),
+    );
 
   return { removeMembers, loading };
 };
