@@ -70,8 +70,8 @@ export const renderTicketRelationFilterValue: TRenderRelationValueInput = ({
 
     case 'frontline:status': {
       const pipelineId =
-        (allConditions.find((c) => c.key === 'pipelineId')
-          ?.value as string) || '';
+        (allConditions.find((c) => c.key === 'pipelineId')?.value as string) ||
+        '';
       return (
         <TicketExportStatusPicker
           value={value}

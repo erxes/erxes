@@ -65,7 +65,13 @@ export function ExportFieldSelection({
     handleSelectDefaults,
     handleToggleField,
     recordFilters,
-  } = useExportFieldSelection({ entityType, filters, open, onConfirm, onOpenChange });
+  } = useExportFieldSelection({
+    entityType,
+    filters,
+    open,
+    onConfirm,
+    onOpenChange,
+  });
 
   // If entityDisplayName is provided, use it; otherwise, derive the name from entityType
   const getEntityName = () => {
@@ -105,9 +111,7 @@ export function ExportFieldSelection({
                 {header.label}
               </span>
               <div className="flex-shrink-0 flex flex-wrap items-start gap-1 pt-px">
-                {header.isDefault && (
-                  <Badge variant="default">Suggested</Badge>
-                )}
+                {header.isDefault && <Badge variant="default">Suggested</Badge>}
               </div>
             </div>
             <p className="text-xs text-muted-foreground break-all mt-0.5">

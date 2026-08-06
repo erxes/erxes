@@ -67,7 +67,10 @@ export const buildTicketExportRow = (
     : '';
 
   const tagNames = joinNames(ticket.tagIds, maps?.tagMap || new Map());
-  const companyNames = joinNames(ticket.companyIds, maps?.companyMap || new Map());
+  const companyNames = joinNames(
+    ticket.companyIds,
+    maps?.companyMap || new Map(),
+  );
   const customerNames = joinNames(
     ticket.customerFieldData?.customerIds,
     maps?.customerMap || new Map(),

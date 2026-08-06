@@ -1,7 +1,10 @@
 import { useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { GET_EXPORT_HEADERS } from '../../graphql/export/exportQueries';
-import { TExportHeader, TSystemFieldCondition } from '../../types/export/exportTypes';
+import {
+  TExportHeader,
+  TSystemFieldCondition,
+} from '../../types/export/exportTypes';
 import { useExportRecordFilters } from './useExportRecordFilters';
 
 export const useExportFieldSelection = ({

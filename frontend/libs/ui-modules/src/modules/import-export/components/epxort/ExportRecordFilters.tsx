@@ -75,7 +75,10 @@ const PickerValueInput = ({
 }) => {
   if (header.fieldType === 'select') {
     return (
-      <Select value={(condition.value as string) || ''} onValueChange={onChange}>
+      <Select
+        value={(condition.value as string) || ''}
+        onValueChange={onChange}
+      >
         <Select.Trigger className="w-full">
           <Select.Value placeholder="Select value" />
         </Select.Trigger>
@@ -106,7 +109,12 @@ const PickerValueInput = ({
   if (renderRelationValueInput) {
     return (
       <div className="w-full [&_button]:w-full">
-        {renderRelationValueInput({ header, condition, allConditions, onChange })}
+        {renderRelationValueInput({
+          header,
+          condition,
+          allConditions,
+          onChange,
+        })}
       </div>
     );
   }
@@ -139,7 +147,9 @@ const ConditionRow = ({
   const isPicker =
     header?.fieldType === 'relation' || header?.fieldType === 'select';
   const operators = operatorsFor(header?.fieldType);
-  const activeOperator = operators.find((op) => op.value === condition.operator);
+  const activeOperator = operators.find(
+    (op) => op.value === condition.operator,
+  );
   const noValue = !!activeOperator?.noValue;
 
   return (
@@ -157,7 +167,11 @@ const ConditionRow = ({
               return;
             }
             const nextOperators = operatorsFor(nextHeader?.fieldType);
-            onChange({ key, operator: nextOperators[0].value, value: undefined });
+            onChange({
+              key,
+              operator: nextOperators[0].value,
+              value: undefined,
+            });
           }}
         >
           <Select.Trigger className="flex-1">
@@ -193,7 +207,9 @@ const ConditionRow = ({
       )}
 
       {condition.key && !isPicker && (
-        <div className={cn('grid gap-2', noValue ? 'grid-cols-1' : 'grid-cols-2')}>
+        <div
+          className={cn('grid gap-2', noValue ? 'grid-cols-1' : 'grid-cols-2')}
+        >
           <Select
             value={condition.operator}
             onValueChange={(operator) =>
