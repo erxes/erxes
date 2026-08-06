@@ -87,6 +87,7 @@ export const TourRecordTable = ({
         data={rowData}
         className="h-full"
         stickyColumns={['more', 'checkbox', 'name']}
+        tableId="tourism_tours_record_table"
       >
         <TourCommandBar
           branchId={branchId}
