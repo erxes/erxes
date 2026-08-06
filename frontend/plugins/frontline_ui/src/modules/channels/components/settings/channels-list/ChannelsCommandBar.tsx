@@ -35,9 +35,7 @@ export const ChannelsDelete = () => {
       const { removedIds, failedCount, error, refreshFailed } =
         await removeChannels(channelIds);
 
-      rows
-        .filter((row) => removedIds.includes(row.original._id))
-        .forEach((row) => row.toggleSelected(false));
+      table.resetRowSelection();
 
       const description = [
         failedCount

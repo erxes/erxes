@@ -26,7 +26,6 @@ export const MemberCommandBar = () => {
         <MemberRemoveButtonCommandBar
           memberIds={rows.map((row) => row.original.memberId)}
           channelId={channelId || ''}
-          rows={rows}
         />
       </CommandBar.Bar>
     </CommandBar>

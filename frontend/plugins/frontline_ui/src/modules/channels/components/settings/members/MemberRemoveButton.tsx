@@ -1,20 +1,17 @@
 import { useChannelMembersRemove } from '@/channels/hooks/useChannelMembersRemove';
-import { IChannelMember } from '@/channels/types';
 import { IconTrash } from '@tabler/icons-react';
-import { Row } from '@tanstack/table-core';
-import { Button, Spinner, useConfirm, useToast } from 'erxes-ui';
+import { Button, RecordTable, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const MemberRemoveButtonCommandBar = ({
   memberIds,
   channelId,
-  rows,
 }: {
   memberIds: string[];
   channelId: string;
-  rows: Row<IChannelMember>[];
 }) => {
   const { t } = useTranslation('frontline');
+  const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeMembers, loading } = useChannelMembersRemove();
@@ -30,9 +27,7 @@ export const MemberRemoveButtonCommandBar = ({
       const { removedIds, failedCount, error, refreshFailed } =
         await removeMembers(memberIds, channelId);
 
-      rows
-        .filter((row) => removedIds.includes(row.original.memberId))
-        .forEach((row) => row.toggleSelected(false));
+      table.resetRowSelection();
 
       const description = [
         failedCount

@@ -106,7 +106,7 @@ export const useChannelsColumns = (
         const { _id } = cell.row.original;
         const memberUsers = (membersByChannel[_id] ?? [])
           .map((channelMember) => channelMember.member)
-          .filter(Boolean);
+          .filter((member) => member && member.isActive !== false);
 
         if (memberUsers.length === 0) {
           return (
