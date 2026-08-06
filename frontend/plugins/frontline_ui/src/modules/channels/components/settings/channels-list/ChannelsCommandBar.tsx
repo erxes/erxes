@@ -32,9 +32,8 @@ export const ChannelsDelete = () => {
       }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
-      const { removedIds, failedCount, refreshFailed } = await removeChannels(
-        channelIds,
-      );
+      const { removedIds, failedCount, refreshFailed } =
+        await removeChannels(channelIds);
 
       rows
         .filter((row) => removedIds.includes(row.original._id))
