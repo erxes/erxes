@@ -184,12 +184,13 @@ export const afterMutationHandlers = async (
       });
     }
 
-    const fallbackEmailResponses: EbarimtEmailResponse[] =
-      ebarimtResponses.map((response) => ({
+    const fallbackEmailResponses: EbarimtEmailResponse[] = ebarimtResponses.map(
+      (response) => ({
         ...config,
         ...response,
         description: (config.withDescription && deal.description) || '',
-      }));
+      }),
+    );
     let emailResponses = fallbackEmailResponses;
 
     if (!config.skipEbarimt) {
