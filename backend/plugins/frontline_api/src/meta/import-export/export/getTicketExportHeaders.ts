@@ -31,7 +31,12 @@ export async function getTicketExportHeaders(
       fieldType: 'relation',
       relationKind: 'frontline:status',
     },
-    { label: 'Status Type', key: 'statusType', isDefault: true, fieldType: 'text' },
+    {
+      label: 'Status Type',
+      key: 'statusType',
+      isDefault: true,
+      fieldType: 'text',
+    },
     { label: 'State', key: 'state', isDefault: true, fieldType: 'text' },
     {
       label: 'Assignee',
@@ -57,7 +62,12 @@ export async function getTicketExportHeaders(
     { label: 'Number', key: 'number', fieldType: 'number' },
     { label: 'Start Date', key: 'startDate', fieldType: 'date' },
     { label: 'Due Date', key: 'targetDate', fieldType: 'date' },
-    { label: 'Created At', key: 'createdAt', isDefault: true, fieldType: 'date' },
+    {
+      label: 'Created At',
+      key: 'createdAt',
+      isDefault: true,
+      fieldType: 'date',
+    },
     { label: 'Updated At', key: 'updatedAt', fieldType: 'date' },
     { label: 'Branch', key: 'branchIds' },
     { label: 'Department', key: 'departmentIds' },
