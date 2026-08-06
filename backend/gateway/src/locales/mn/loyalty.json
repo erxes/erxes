@@ -677,6 +677,7 @@
   "quantity-rules-updated": "Тоо хэмжээний дүрмүүд шинэчлэгдлээ",
   "failed-to-update-quantity-rules": "Тоо хэмжээний дүрмүүдийг шинэчлэхэд алдаа гарлаа",
   "no-quantity-rules": "Тоо хэмжээний дүрэм байхгүй байна. \"Дүрэм нэмэх\" товчийг дарж нэмнэ үү.",
+  "pricing-rule-added": "{{rule}} дүрэм нэмэгдлээ",
   "common-rule-updated": "Нийтлэг дүрэм шинэчлэгдлээ",
   "failed-to-update-common-rule": "Нийтлэг дүрэм шинэчлэхэд алдаа гарлаа",
   "failed-to-load-pricing-details": "Үнэ тогтоолтын дэлгэрэнгүйг ачааллахад алдаа гарлаа: {{message}}",

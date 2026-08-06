@@ -7,12 +7,12 @@ export interface IRepeatValue {
 
 export interface IRepeatRule {
   type: string;
-  dayStartValue: Date;
-  dayEndValue: Date;
+  dayStartValue?: Date;
+  dayEndValue?: Date;
   weekValue: IRepeatValue[];
   monthValue: IRepeatValue[];
-  yearStartValue: Date;
-  yearEndValue: Date;
+  yearStartValue?: Date;
+  yearEndValue?: Date;
 }
 
 export interface IRepeatRuleDocument extends IRepeatRule, Document {

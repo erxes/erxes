@@ -45,5 +45,8 @@ export const PRICING_STEPS = [
   { value: 'general', title: 'general' },
   { value: 'options', title: 'options' },
   { value: 'participants', title: 'participants' },
-  { value: 'rules', title: 'rules' },
+  { value: 'common', title: 'common' },
+  { value: 'quantity', title: 'quantity' },
+  { value: 'price', title: 'price' },
+  { value: 'expiry', title: 'expiry' },
 ];

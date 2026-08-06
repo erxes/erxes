@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, DatePicker, Form, Select, Sheet } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
+import { type Control, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
 import { PricingTimeSelect } from '@/pricing/components/PricingTimeSelect';
@@ -92,6 +92,126 @@ const MONTH_DAYS = [
   }),
 ];
 
+interface RepeatFieldProps {
+  control: Control<RepeatRuleConfig>;
+  label: string;
+  requiredMessage: string;
+}
+
+interface RepeatDateFieldProps extends RepeatFieldProps {
+  name: 'startDate' | 'endDate';
+  placeholder: string;
+  validate?: (value?: string | null) => boolean | string;
+}
+
+const RepeatDateField = ({
+  control,
+  name,
+  label,
+  placeholder,
+  requiredMessage,
+  validate,
+}: RepeatDateFieldProps) => (
+  <Form.Field
+    control={control}
+    name={name}
+    rules={{
+      required: requiredMessage,
+      ...(validate ? { validate } : {}),
+    }}
+    render={({ field }) => (
+      <Form.Item>
+        <Form.Label>{label}</Form.Label>
+        <Form.Control>
+          <DatePicker
+            value={parseDateValue(field.value)}
+            placeholder={placeholder}
+            onChange={(value) =>
+              field.onChange(
+                formatDateValue(value instanceof Date ? value : undefined),
+              )
+            }
+          />
+        </Form.Control>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);
+
+interface RepeatTimeFieldProps extends RepeatFieldProps {
+  name: 'startTime' | 'endTime';
+}
+
+const RepeatTimeField = ({
+  control,
+  name,
+  label,
+  requiredMessage,
+}: RepeatTimeFieldProps) => (
+  <Form.Field
+    control={control}
+    name={name}
+    rules={{ required: requiredMessage }}
+    render={({ field }) => (
+      <Form.Item>
+        <Form.Label>{label}</Form.Label>
+        <Form.Control>
+          <PricingTimeSelect
+            value={field.value || null}
+            onValueChange={(value) => field.onChange(value ?? null)}
+            aria-label={label}
+          />
+        </Form.Control>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);
+
+interface RepeatSelectFieldProps extends RepeatFieldProps {
+  name: 'weekDay' | 'monthDay';
+  placeholder: string;
+  options: { value: string; label: string }[];
+  translate: (key: string) => string;
+}
+
+const RepeatSelectField = ({
+  control,
+  name,
+  label,
+  placeholder,
+  requiredMessage,
+  options,
+  translate,
+}: RepeatSelectFieldProps) => (
+  <Form.Field
+    control={control}
+    name={name}
+    rules={{ required: requiredMessage }}
+    render={({ field }) => (
+      <Form.Item>
+        <Form.Label>{label}</Form.Label>
+        <Form.Control>
+          <Select value={field.value || ''} onValueChange={field.onChange}>
+            <Select.Trigger className="w-full">
+              <Select.Value placeholder={placeholder} />
+            </Select.Trigger>
+            <Select.Content>
+              {options.map((option) => (
+                <Select.Item key={option.value} value={option.value}>
+                  {translate(option.label)}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </Form.Control>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);
+
 export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
   onRuleAdded,
   onRuleUpdated,
@@ -123,6 +243,17 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
       form.reset(editingRule);
     }
   }, [editingRule, form]);
+
+  useEffect(() => {
+    form.clearErrors([
+      'startDate',
+      'endDate',
+      'startTime',
+      'endTime',
+      'weekDay',
+      'monthDay',
+    ]);
+  }, [ruleType, form]);
 
   const handleClose = () => {
     form.reset();
@@ -158,15 +289,13 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
         }
       }}
     >
-      {!isEditing && (
-        <Sheet.Trigger asChild>
-          <Button type="button" variant="outline">
-            <IconPlus size={16} className="mr-2" /> {t('add-rule')}
-          </Button>
-        </Sheet.Trigger>
-      )}
+      <Sheet.Trigger asChild>
+        <Button type="button" variant="outline" disabled={isEditing}>
+          <IconPlus size={16} className="mr-2" /> {t('add-rule')}
+        </Button>
+      </Sheet.Trigger>
 
-      <Sheet.View className="flex-col h-full p-0 sm:max-w-xl">
+      <Sheet.View className="inset-y-0 right-0 h-dvh rounded-none border-l p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
             {isEditing ? t('edit-repeat-rule') : t('add-repeat-rule')}
@@ -222,149 +351,73 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                 {/* Rule value section depends on ruleType */}
                 {ruleType === 'everyYear' && (
                   <div className="grid grid-cols-2 gap-4">
-                    <Form.Field
+                    <RepeatDateField
                       control={form.control}
                       name="startDate"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('start-date')}</Form.Label>
-                          <Form.Control>
-                            <DatePicker
-                              value={parseDateValue(field.value)}
-                              placeholder={t('select-start-date')}
-                              onChange={(value) =>
-                                field.onChange(
-                                  formatDateValue(
-                                    value instanceof Date ? value : undefined,
-                                  ),
-                                )
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
+                      label={t('start-date')}
+                      placeholder={t('select-start-date')}
+                      requiredMessage={t('fill-required-fields')}
                     />
 
-                    <Form.Field
+                    <RepeatDateField
                       control={form.control}
                       name="endDate"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('end-date')}</Form.Label>
-                          <Form.Control>
-                            <DatePicker
-                              value={parseDateValue(field.value)}
-                              placeholder={t('select-end-date')}
-                              onChange={(value) =>
-                                field.onChange(
-                                  formatDateValue(
-                                    value instanceof Date ? value : undefined,
-                                  ),
-                                )
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
+                      label={t('end-date')}
+                      placeholder={t('select-end-date')}
+                      requiredMessage={t('fill-required-fields')}
+                      validate={(value) => {
+                        const startDate = form.getValues('startDate');
+
+                        return (
+                          !value ||
+                          !startDate ||
+                          value > startDate ||
+                          t('end-date-after-start')
+                        );
+                      }}
                     />
                   </div>
                 )}
 
                 {ruleType === 'everyDay' && (
                   <div className="grid grid-cols-2 gap-4">
-                    <Form.Field
+                    <RepeatTimeField
                       control={form.control}
                       name="startTime"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('start-time')}</Form.Label>
-                          <Form.Control>
-                            <PricingTimeSelect
-                              value={field.value || null}
-                              onValueChange={(value) =>
-                                field.onChange(value ?? null)
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
+                      label={t('start-time')}
+                      requiredMessage={t('fill-required-fields')}
                     />
 
-                    <Form.Field
+                    <RepeatTimeField
                       control={form.control}
                       name="endTime"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>{t('end-time')}</Form.Label>
-                          <Form.Control>
-                            <PricingTimeSelect
-                              value={field.value || null}
-                              onValueChange={(value) =>
-                                field.onChange(value ?? null)
-                              }
-                            />
-                          </Form.Control>
-                        </Form.Item>
-                      )}
+                      label={t('end-time')}
+                      requiredMessage={t('fill-required-fields')}
                     />
                   </div>
                 )}
 
                 {ruleType === 'everyWeek' && (
-                  <Form.Field
+                  <RepeatSelectField
                     control={form.control}
                     name="weekDay"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('rule-value')}</Form.Label>
-                        <Form.Control>
-                          <Select
-                            value={field.value || ''}
-                            onValueChange={field.onChange}
-                          >
-                            <Select.Trigger className="w-full">
-                              <Select.Value placeholder={t('select-a-weekday')} />
-                            </Select.Trigger>
-                            <Select.Content>
-                              {WEEK_DAYS.map((day) => (
-                                <Select.Item key={day.value} value={day.value}>
-                                  {t(day.label)}
-                                </Select.Item>
-                              ))}
-                            </Select.Content>
-                          </Select>
-                        </Form.Control>
-                      </Form.Item>
-                    )}
+                    label={t('rule-value')}
+                    placeholder={t('select-a-weekday')}
+                    requiredMessage={t('fill-required-fields')}
+                    options={WEEK_DAYS}
+                    translate={t}
                   />
                 )}
 
                 {ruleType === 'everyMonth' && (
-                  <Form.Field
+                  <RepeatSelectField
                     control={form.control}
                     name="monthDay"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('rule-value')}</Form.Label>
-                        <Form.Control>
-                          <Select
-                            value={field.value || ''}
-                            onValueChange={field.onChange}
-                          >
-                            <Select.Trigger className="w-full">
-                              <Select.Value placeholder={t('select-a-day')} />
-                            </Select.Trigger>
-                            <Select.Content>
-                              {MONTH_DAYS.map((day) => (
-                                <Select.Item key={day.value} value={day.value}>
-                                  {t(day.label)}
-                                </Select.Item>
-                              ))}
-                            </Select.Content>
-                          </Select>
-                        </Form.Control>
-                      </Form.Item>
-                    )}
+                    label={t('rule-value')}
+                    placeholder={t('select-a-day')}
+                    requiredMessage={t('fill-required-fields')}
+                    options={MONTH_DAYS}
+                    translate={t}
                   />
                 )}
               </div>

@@ -1,5 +1,5 @@
-import React, { type ReactNode } from 'react';
-import { Badge, Spinner } from 'erxes-ui';
+import React from 'react';
+import { Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { GeneralInfo } from '@/pricing/edit-pricing/components/general/GeneralInfo';
@@ -13,7 +13,6 @@ interface MainContentProps {
   pricingDetail?: IPricingPlanDetail;
   loading: boolean;
   error?: Error;
-  onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
 export const PricingMainContent: React.FC<MainContentProps> = ({
@@ -22,7 +21,6 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
   pricingDetail,
   loading,
   error,
-  onSaveActionChange,
 }) => {
   const { t } = useTranslation('loyalty');
 
@@ -30,28 +28,16 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
     switch (activeStep) {
       case 'general':
         return (
-          <GeneralInfo
-            pricingId={pricingId}
-            pricingDetail={pricingDetail}
-            onSaveActionChange={onSaveActionChange}
-          />
+          <GeneralInfo pricingId={pricingId} pricingDetail={pricingDetail} />
         );
       case 'options':
         return (
-          <OptionsInfo
-            pricingId={pricingId}
-            pricingDetail={pricingDetail}
-            onSaveActionChange={onSaveActionChange}
-          />
+          <OptionsInfo pricingId={pricingId} pricingDetail={pricingDetail} />
         );
       case 'participants':
         if (pricingDetail?.priority === 'posBase') {
           return (
-            <GeneralInfo
-              pricingId={pricingId}
-              pricingDetail={pricingDetail}
-              onSaveActionChange={onSaveActionChange}
-            />
+            <GeneralInfo pricingId={pricingId} pricingDetail={pricingDetail} />
           );
         }
 
@@ -59,7 +45,6 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
           <ParticipantsInfo
             pricingId={pricingId}
             pricingDetail={pricingDetail}
-            onSaveActionChange={onSaveActionChange}
           />
         );
       case 'rules':
@@ -72,16 +57,11 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
             pricingId={pricingId}
             pricingDetail={pricingDetail}
             activeStep={activeStep}
-            onSaveActionChange={onSaveActionChange}
           />
         );
       default:
         return (
-          <GeneralInfo
-            pricingId={pricingId}
-            pricingDetail={pricingDetail}
-            onSaveActionChange={onSaveActionChange}
-          />
+          <GeneralInfo pricingId={pricingId} pricingDetail={pricingDetail} />
         );
     }
   };
@@ -106,18 +86,6 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
 
   return (
     <div className="flex flex-col flex-1 h-full overflow-hidden">
-      <div className="flex items-center px-6 py-4 border-b border-border bg-background shrink-0">
-        <div className="flex w-fit max-w-full min-w-0 items-center gap-4">
-          <h1 className="min-w-0 whitespace-normal break-words text-xl font-semibold leading-7 text-foreground">
-            {pricingDetail?.name || t('new-pricing')}
-          </h1>
-
-          <Badge variant="secondary" className="text-xs shrink-0">
-            {pricingDetail?.applyType || t('na')}
-          </Badge>
-        </div>
-      </div>
-
       <div className="flex-1 mb-12 overflow-y-auto">{renderContent()}</div>
     </div>
   );

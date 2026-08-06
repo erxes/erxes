@@ -45,6 +45,7 @@ const CategoryField = ({
             }
           />
         </Form.Control>
+        <Form.Message />
       </Form.Item>
     )}
   />
@@ -73,6 +74,7 @@ const ProductField = ({
             }
           />
         </Form.Control>
+        <Form.Message />
       </Form.Item>
     )}
   />
@@ -100,6 +102,7 @@ const TagField = ({
             }
           />
         </Form.Control>
+        <Form.Message />
       </Form.Item>
     )}
   />
@@ -159,8 +162,10 @@ export const GeneralTargetFields = ({
               <SelectSegment
                 selected={field.value || undefined}
                 onSelect={field.onChange}
+                nullable
               />
             </Form.Control>
+            <Form.Message />
           </Form.Item>
         )}
       />
@@ -184,6 +189,7 @@ export const GeneralTargetFields = ({
                 }
               />
             </Form.Control>
+            <Form.Message />
           </Form.Item>
         )}
       />

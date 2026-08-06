@@ -9,8 +9,10 @@ import {
   GeneralPricingDocument,
   GeneralPricingStatus,
 } from '@/pricing/edit-pricing/components/general/types';
-
-export const GENERAL_FORM_ID = 'pricing-general-form';
+export {
+  PRICING_TARGET_FIELD_NAMES as GENERAL_TARGET_FIELD_NAMES,
+  getPricingTargetValidationError as getGeneralTargetValidationError,
+} from '@/pricing/utils/targetValidation';
 
 export const GENERAL_FORM_DEFAULT_VALUES: GeneralFormValues = {
   name: '',
@@ -44,8 +46,15 @@ const getPricingAppliesTo = (applyType: string) =>
   PRICING_APPLIES_TO_OPTIONS.find(({ value }) => value === applyType)?.value ||
   'category';
 
-export const normalizeMultipleValue = (value: string | string[]) =>
-  Array.isArray(value) ? value : [value];
+export const normalizeMultipleValue = (
+  value?: string | string[] | null,
+): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+
+  return value ? [value] : [];
+};
 
 export const getGeneralFormValues = (
   pricingDetail: IPricingPlanDetail,
@@ -85,6 +94,15 @@ export const getGeneralPricingDocument = (
     priority: priorityFromFormValue(values.priority),
     isStartDateEnabled: Boolean(values.startDate),
     isEndDateEnabled: Boolean(values.endDate),
+    products: [],
+    productsExcluded: [],
+    productsBundle: [],
+    categories: [],
+    categoriesExcluded: [],
+    segments: [],
+    vendors: [],
+    tags: [],
+    tagsExcluded: [],
   };
 
   if (values.startDate) {

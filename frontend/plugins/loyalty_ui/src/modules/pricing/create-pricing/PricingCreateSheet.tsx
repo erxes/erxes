@@ -23,6 +23,7 @@ import {
   isDateRangeValid,
   parseDateValue,
 } from '@/pricing/utils/date';
+import { getPricingTargetValidationError } from '@/pricing/utils/targetValidation';
 
 interface PricingCreateSheetProps {
   trigger?: React.ReactNode;
@@ -45,60 +46,6 @@ interface PricingFormValues {
   excludeTagIds: string[];
   bundleProductIds: string[];
 }
-
-type TargetFieldName =
-  | 'productCategoryIds'
-  | 'appliesProductIds'
-  | 'segmentId'
-  | 'vendorCompanyIds'
-  | 'productTagIds'
-  | 'bundleProductIds';
-
-const getTargetValidationError = (
-  values: PricingFormValues,
-  t: (key: string) => string,
-): { field: TargetFieldName; message: string } | null => {
-  switch (values.appliesTo) {
-    case 'category':
-      return values.productCategoryIds.length
-        ? null
-        : {
-            field: 'productCategoryIds',
-            message: t('select-at-least-one-category'),
-          };
-    case 'product':
-      return values.appliesProductIds.length
-        ? null
-        : {
-            field: 'appliesProductIds',
-            message: t('select-at-least-one-product'),
-          };
-    case 'segment':
-      return values.segmentId
-        ? null
-        : { field: 'segmentId', message: t('select-a-segment') };
-    case 'vendor':
-      return values.vendorCompanyIds.length
-        ? null
-        : {
-            field: 'vendorCompanyIds',
-            message: t('select-at-least-one-vendor'),
-          };
-    case 'tag':
-      return values.productTagIds.length
-        ? null
-        : { field: 'productTagIds', message: t('select-at-least-one-tag') };
-    case 'bundle':
-      return values.bundleProductIds.length
-        ? null
-        : {
-            field: 'bundleProductIds',
-            message: t('select-at-least-one-bundle-product'),
-          };
-    default:
-      return null;
-  }
-};
 
 export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   const { t } = useTranslation('loyalty');
@@ -140,7 +87,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
     ]);
   }, [appliesTo, form]);
 
-  const targetValidationError = getTargetValidationError(formValues, t);
+  const targetValidationError = getPricingTargetValidationError(formValues, t);
 
   const isFormValid =
     formValues.name.trim().length > 0 &&
@@ -168,7 +115,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       return;
     }
 
-    const targetError = getTargetValidationError(values, t);
+    const targetError = getPricingTargetValidationError(values, t);
 
     if (targetError) {
       form.setError(targetError.field, {
