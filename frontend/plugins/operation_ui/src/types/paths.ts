@@ -5,4 +5,5 @@ export enum OperationPaths {
   TeamMembers = 'members/:id',
   TeamStatus = 'status/:id',
   TeamTemplates = 'templates/:id',
+  GithubIntegration = 'github-integration',
 }

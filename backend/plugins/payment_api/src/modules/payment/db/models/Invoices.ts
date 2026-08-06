@@ -209,21 +209,54 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async scanBarcode(code: string) {
-      const invoice = await models.Invoices.findOneAndUpdate(
-        { invoiceNumber: code, scannedAt: null },
+      const invoice =
+        (await models.Invoices.findOne({ 'ticketCodes.code': code })) ||
+        (await models.Invoices.findOne({ invoiceNumber: code }));
+
+      if (!invoice) {
+        throw new Error(`Invoice not found for barcode: ${code}`);
+      }
+
+      if (invoice.status !== 'paid') {
+        throw new Error('Invoice is not paid');
+      }
+
+      const hasTicketCodes =
+        Array.isArray(invoice.ticketCodes) && invoice.ticketCodes.length > 0;
+
+      if (hasTicketCodes) {
+        const scanned = await models.Invoices.findOneAndUpdate(
+          {
+            _id: invoice._id,
+            ticketCodes: { $elemMatch: { code, scannedAt: null } },
+          },
+          {
+            $set: {
+              'ticketCodes.$.scannedAt': new Date(),
+              scannedAt: new Date(),
+            },
+          },
+          { new: true },
+        );
+
+        if (!scanned) {
+          throw new Error('Barcode already scanned');
+        }
+
+        return scanned;
+      }
+
+      const scanned = await models.Invoices.findOneAndUpdate(
+        { _id: invoice._id, scannedAt: null },
         { $set: { scannedAt: new Date() } },
         { new: true },
       );
 
-      if (!invoice) {
-        const exists = await models.Invoices.exists({ invoiceNumber: code });
-        if (!exists) {
-          throw new Error(`Invoice not found for barcode: ${code}`);
-        }
+      if (!scanned) {
         throw new Error('Barcode already scanned');
       }
 
-      return invoice;
+      return scanned;
     }
 
     public static async markAsPaid(_id: string) {

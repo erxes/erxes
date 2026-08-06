@@ -6,17 +6,20 @@ const ADD_CHANNEL = gql`
     $icon: String
     $description: String
     $memberIds: [String]
+    $scope: String
   ) {
     channelAdd(
       name: $name
       icon: $icon
       description: $description
       memberIds: $memberIds
+      scope: $scope
     ) {
       _id
       icon
       name
       description
+      scope
       createdAt
       updatedAt
       memberCount

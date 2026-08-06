@@ -36,13 +36,14 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
   };
 
   const { reauth, loading: authLoading } = useIntegrationReauth(
-    '/pl:frontline/facebook/fblogin',
+    `/pl:frontline/facebook/fblogin?kind=${
+      integrationType || 'facebook-messenger'
+    }`,
     FACEBOOK_AUTH_SUCCESS_MESSAGE,
     runRepair,
   );
 
   const handleRepair = () => {
-
     if (isUnhealthy) {
       reauth();
     } else {

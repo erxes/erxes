@@ -1,14 +1,7 @@
 import { useFacebookAccounts } from '@/integrations/facebook/hooks/useFacebookAccounts';
 import { selectedFacebookAccountAtom } from '@/integrations/facebook/states/facebookStates';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  Command,
-  Input,
-  RadioGroup,
-  Spinner,
-} from 'erxes-ui';
+import { Button, cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -72,7 +65,6 @@ const FacebookBotPageAccountsStepContent = ({
   facebookGetAccounts: {
     _id: string;
     name: string;
-    accessToken: string;
     pageId: string | null;
     pageName: string | null;
   }[];

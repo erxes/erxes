@@ -48,6 +48,8 @@ export interface IInvoice {
   invoiceNumber: string;
   status: string;
   scannedAt?: Date;
+  scannedCount?: number;
+  ticketCount?: number;
   transactions: {
     amount: number;
     createdAt: Date;
