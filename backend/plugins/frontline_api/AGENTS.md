@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-04`
+- **Last synchronized:** `2026-08-06`
 
 ## Scope
 
@@ -87,7 +87,9 @@
 - GraphQL subgraph on port `3304` (queries, mutations, subscriptions) federated
   by the gateway.
 - tRPC `appRouter` consumed by other services.
-- Express webhook routes `/facebook/*` and `/instagram/*`.
+- Express webhook routes `/facebook/*` and `/instagram/*`, including the OAuth
+  entry points `/facebook/fblogin`, `/facebook/kind/:kind/fblogin`, and
+  `/instagram/iglogin`.
 - Automation constants (`triggers`, `actions`, `bots`, AI knowledge sources) and
   worker producers exported from `src/meta/automations.ts`.
 - Permissions, notification types, segment definitions, references, and
@@ -118,6 +120,11 @@
 
 ## Local Invariants
 
+- The Facebook OAuth `state` must stay a query-less url. When
+  `FACEBOOK_LOGIN_REDIRECT_URL` points at the shared authorize redirector, that
+  service builds the callback as `${state}/fblogin?code=...`, so any query
+  string in `state` lands before the `/fblogin` path and 404s. Extra context
+  such as the integration kind travels as a `/kind/<kind>` path segment.
 - Facebook/Instagram Send API calls that carry a `tag` must also carry
   `messaging_type: 'MESSAGE_TAG'`; a `sender_action` request must carry neither.
   `handleFacebookMessage.ts` is the reference implementation.
@@ -156,6 +163,17 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-06` — Fix the Facebook login callback behind the authorize redirector
+
+- **Summary:** The OAuth `state` carries the integration kind as a
+  `/kind/<kind>` path segment instead of a `?kind=` query string, and
+  `/facebook/kind/:kind/fblogin` accepts the redirector callback, so returning
+  from Facebook no longer lands on `/facebook` with `Cannot GET /facebook`.
+- **Affected areas:**
+  `src/modules/integrations/facebook/middlewares/loginMiddleware.ts`,
+  `src/modules/integrations/facebook/routes.ts`
+- **Contracts changed:** new HTTP route `GET /facebook/kind/:kind/fblogin`
 
 ### `2026-08-04` — Drop the unreachable `imageUrls` path from page posting
 
