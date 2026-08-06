@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from 'erxes-ui';
 import { Dialog } from 'erxes-ui/components/dialog';
 
-import ConfigForm from './Form'; // ensure this is the modern form
+import ConfigForm from './Form';
 import { IKhanbankConfigsItem } from '../types';
 
 type Props = {
@@ -18,8 +18,11 @@ const Row = ({ config, remove, refetch }: Props) => {
     remove(config._id);
   };
 
-  const handleSubmit = async () => {
-    if (refetch) await refetch();
+  const handleSubmit = () => {
+    if (refetch) {
+      refetch();
+    }
+
     setOpen(false);
   };
 
