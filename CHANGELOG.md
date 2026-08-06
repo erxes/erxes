@@ -1,5 +1,26 @@
 
 
+## [3.0.71](https://github.com/erxes/erxes/compare/3.0.70...3.0.71) (2026-08-06)
+
+
+### Bug Fixes
+
+* add success toast for pipeline update ([#8905](https://github.com/erxes/erxes/issues/8905)) ([c0dda82](https://github.com/erxes/erxes/commit/c0dda822461f44aba5f058a2a074eba0a649992a))
+* **frontline:** keep facebook oauth state query-less so login callback resolves ([dc58351](https://github.com/erxes/erxes/commit/dc583516089ab56a50c0abdf5f44a9e0977abca3))
+* logs for checkprice ([#8903](https://github.com/erxes/erxes/issues/8903)) ([7ca2936](https://github.com/erxes/erxes/commit/7ca2936227108312dd5af141448fe6fe3b227d79))
+* mask frontline integrations config secret ([#8899](https://github.com/erxes/erxes/issues/8899)) ([68ee7d3](https://github.com/erxes/erxes/commit/68ee7d3603539ced3782764abe03d90fb079c4e9))
+* payment corporate gateway ([#8893](https://github.com/erxes/erxes/issues/8893)) ([c247152](https://github.com/erxes/erxes/commit/c2471522dc5c6217655888357dd67d32dcf0cfd0))
+* stop filtering on non existing archived field ([e26abed](https://github.com/erxes/erxes/commit/e26abeda215a210434d4c798e928fecd5db48bea))
+* trpc method to mutation when fetching and updating products in the msdynamic ([#8901](https://github.com/erxes/erxes/issues/8901)) ([b2d9be1](https://github.com/erxes/erxes/commit/b2d9be139a0b843b1cac22a5063bbea5ef155386))
+
+
+### Features
+
+* **frontline:** channel scope ([44a8f52](https://github.com/erxes/erxes/commit/44a8f52190182ef3fe1e91c249d86fce40d4756a))
+* operation plugin github integration ([#8904](https://github.com/erxes/erxes/issues/8904)) ([68d53a5](https://github.com/erxes/erxes/commit/68d53a555dbfd489df4c74773a868d20de3198f0))
+* **payment:** add manual invoice creation with ticket delivery ([ed9c731](https://github.com/erxes/erxes/commit/ed9c73193f9ed5ac9e427c34fffc6968a81a590d))
+* **payment:** deliver QR tickets as PDF with per-ticket tokens  ([1331d40](https://github.com/erxes/erxes/commit/1331d4068f246f283103ec0ff2a4426f9bf656db))
+
 ## [3.0.70](https://github.com/erxes/erxes/compare/3.0.69...3.0.70) (2026-08-04)
 
 
