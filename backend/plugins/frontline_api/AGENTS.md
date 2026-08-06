@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-04`
+- **Last synchronized:** `2026-08-06`
 
 ## Scope
 
@@ -138,6 +138,20 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-06` — Knowledge base articles support whole-source AI indexing
+
+- **Summary:** The knowledge base AI source now streams every published article
+  through a cursor-paginated batch when the agent selects the whole scope,
+  instead of only resolving an explicit article id list. Single-document
+  refreshes narrow that batch with `candidateSourceIds`.
+- **Affected areas:**
+  `src/modules/knowledgebase/meta/automations.ts`
+  (`frontlineAiKnowledgeProvider.loadAiKnowledgeDocumentBatch`),
+  `src/meta/automations.ts` (knowledge source declaration)
+- **Contracts changed:** The `knowledgebase.article` knowledge source declares
+  `supportsFullScope: true`, and its `loadAiKnowledgeDocumentBatch` handler
+  honours the new `scope: 'all' | 'selected'` producer input.
 
 ### `2026-08-04` — Stop message-level Graph errors from marking integrations unhealthy
 

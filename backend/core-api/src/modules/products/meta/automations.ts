@@ -25,6 +25,7 @@ type TProductKnowledgeConfig = {
 };
 
 type TProductKnowledgeBatchInput = {
+  scope?: 'all' | 'selected';
   sourceIds?: string[];
   candidateSourceIds?: string[];
   config?: Record<string, unknown>;
@@ -116,6 +117,7 @@ const resolveCategoryTreeIds = async (
 
 const buildProductKnowledgeSelector = async ({
   models,
+  scope,
   sourceIds = [],
   candidateSourceIds = [],
   config,
@@ -133,7 +135,10 @@ const buildProductKnowledgeSelector = async ({
     models,
     normalizedConfig.excludeCategoryIds,
   );
+  // Without an explicit 'all' scope a filter is required, so an unconfigured
+  // source never indexes the whole catalog by accident.
   const hasScope =
+    scope === 'all' ||
     !!includedProductIds.length ||
     !!includedCategoryIds.length ||
     !!normalizedConfig.excludeProductIds.length ||
@@ -274,6 +279,7 @@ const findProductKnowledgeBatch = async (
   const { hasScope, selector, totalSelector } =
     await buildProductKnowledgeSelector({
       models,
+      scope: input.scope,
       sourceIds: input.sourceIds,
       candidateSourceIds: input.candidateSourceIds,
       config: input.config,
@@ -367,6 +373,7 @@ export const coreProductAiKnowledgeProvider = {
     }
 
     return findProductKnowledgeBatch(models, {
+      scope: data.scope,
       sourceIds: data.sourceIds,
       candidateSourceIds: data.candidateSourceIds,
       config: data.config,

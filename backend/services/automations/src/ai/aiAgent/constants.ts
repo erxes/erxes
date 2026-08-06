@@ -38,9 +38,13 @@ export const AI_AGENT_DEFAULTS = {
   cloudflareAiGatewayBaseUrl: 'https://gateway.ai.cloudflare.com/v1',
   cloudflareAiGatewayMode: 'compat',
   temperature: 0.2,
-  maxTokens: 500,
+  maxTokens: 2000,
   timeoutMs: 15000,
 } as const;
+
+// gpt-5 models bill internal reasoning against the completion budget, so a low
+// cap can return no visible text at all.
+export const AI_AGENT_REASONING_MODEL_MIN_MAX_TOKENS = 2000;
 
 export const AI_AGENT_LIMITS = {
   maxNameChars: 80,

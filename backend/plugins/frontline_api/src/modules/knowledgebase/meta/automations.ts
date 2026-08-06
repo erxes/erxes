@@ -8,6 +8,8 @@ import type { IModels } from '~/connectionResolvers';
 export const FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY =
   'knowledgebase.article';
 
+const SCOPE_DEFAULT_LIMIT = 500;
+
 const getKnowledgeArticleUpdatedAt = (article: {
   modifiedDate?: Date;
   createdDate?: Date;
@@ -44,14 +46,53 @@ export const frontlineAiKnowledgeProvider = {
   async loadAiKnowledgeDocumentBatch(
     {
       sourceKey,
+      scope,
       sourceIds = [],
+      candidateSourceIds = [],
       cursor,
       limit,
+      skipTotalCount,
     }: TAutomationProducersInput['loadAiKnowledgeDocumentBatch'],
     { models }: { models: IModels },
   ) {
     if (sourceKey !== FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY) {
       throw new Error(`Unsupported AI knowledge source: ${sourceKey}`);
+    }
+
+    if (scope === 'all') {
+      const scopeLimit = Math.min(
+        Math.max(Math.floor(limit || SCOPE_DEFAULT_LIMIT), 1),
+        5000,
+      );
+      // A single-document refresh narrows the scope to the changed article.
+      const publishedSelector = {
+        status: 'publish',
+        ...(candidateSourceIds.length
+          ? { _id: { $in: candidateSourceIds } }
+          : {}),
+      };
+      const [totalCount, articles] = await Promise.all([
+        skipTotalCount
+          ? Promise.resolve(0)
+          : models.Article.countDocuments(publishedSelector),
+        models.Article.find({
+          ...publishedSelector,
+          ...(cursor ? { _id: { $gt: cursor } } : {}),
+        })
+          .sort({ _id: 1 })
+          .limit(scopeLimit)
+          .lean(),
+      ]);
+      const hasMore = articles.length === scopeLimit;
+
+      return {
+        documents: articles
+          .map(toKnowledgeDocument)
+          .filter((article) => article.content.trim().length > 0),
+        totalCount,
+        nextCursor: hasMore ? articles[articles.length - 1]?._id : undefined,
+        hasMore,
+      };
     }
 
     if (!sourceIds.length) {

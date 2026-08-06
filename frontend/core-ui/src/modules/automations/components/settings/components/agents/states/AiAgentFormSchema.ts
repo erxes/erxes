@@ -34,6 +34,7 @@ const aiAgentKnowledgeSourceSchema = z.object({
   pluginName: z.string(),
   moduleName: z.string(),
   key: z.string(),
+  scope: z.enum(['all', 'selected']).optional(),
   sourceIds: z.array(z.string()).max(1000).default([]),
   config: z.record(z.unknown()).default({}),
 });
@@ -143,6 +144,7 @@ type TAiAgentKnowledgeSourceInput = {
   pluginName?: unknown;
   moduleName?: unknown;
   key?: unknown;
+  scope?: unknown;
   sourceIds?: unknown;
   config?: unknown;
 };
@@ -323,10 +325,16 @@ const normalizeAiAgentKnowledgeSources = (sources: unknown[] = []) =>
           ]
         : [];
 
+      const scope: 'all' | 'selected' | undefined =
+        current.scope === 'all' || current.scope === 'selected'
+          ? current.scope
+          : undefined;
+
       return {
         pluginName,
         moduleName,
         key,
+        ...(scope ? { scope } : {}),
         sourceIds,
         config: isRecord(current.config) ? { ...current.config } : {},
       };

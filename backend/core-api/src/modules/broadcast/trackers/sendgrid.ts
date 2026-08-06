@@ -183,14 +183,14 @@ export const sendgridTracker = async (req: Request, res: Response) => {
   const events: ISendgridEvent[] = Array.isArray(req.body) ? req.body : [];
   const isShared = !!getEnv({ name: 'SENDGRID_WEBHOOK_PUBLIC_KEY' });
 
+  let foreign = 0;
+
   for (const event of events) {
     try {
       const subdomain = (event.Subdomain as string) || requestSubdomain;
 
       if (isShared && !event.Subdomain) {
-        console.error(
-          `SendGrid event without a subdomain, skipped: ${event.sg_event_id}`,
-        );
+        foreign++;
 
         continue;
       }
@@ -201,6 +201,14 @@ export const sendgridTracker = async (req: Request, res: Response) => {
     } catch (error) {
       console.error(`Failed to handle SendGrid event: ${error.message}`);
     }
+  }
+
+  // Counted rather than listed: on a shared provider account most of a batch
+  // belongs to other systems, and one line per event buries everything else.
+  if (foreign) {
+    console.log(
+      `Skipped ${foreign}/${events.length} SendGrid events carrying no subdomain`,
+    );
   }
 
   return res.end('success');

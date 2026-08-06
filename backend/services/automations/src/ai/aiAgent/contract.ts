@@ -30,6 +30,7 @@ const aiAgentKnowledgeSourceSchema = z.object({
   pluginName: z.string().trim().min(1),
   moduleName: z.string().trim().min(1),
   key: z.string().trim().min(1),
+  scope: z.enum(['all', 'selected']).optional(),
   sourceIds: z.array(z.string().trim().min(1)).max(1000).default([]),
   config: z.record(z.unknown()).default({}),
 });

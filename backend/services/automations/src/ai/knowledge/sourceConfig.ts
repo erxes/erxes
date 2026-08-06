@@ -136,5 +136,19 @@ export const hasProductScopeSelection = (
   );
 };
 
+// Legacy: before `scope` existed, a product source with a selection was the
+// only one that streamed its whole configured scope.
+export const resolveKnowledgeSourceScope = (
+  source: TAiAgentKnowledgeSource,
+): 'all' | 'selected' => {
+  if (source.scope) {
+    return source.scope;
+  }
+
+  return isProductKnowledgeSource(source) && hasProductScopeSelection(source)
+    ? 'all'
+    : 'selected';
+};
+
 export const isMaterializedKnowledgeSource = (source: TAiAgentKnowledgeSource) =>
-  isProductKnowledgeSource(source) && hasProductScopeSelection(source);
+  resolveKnowledgeSourceScope(source) === 'all';

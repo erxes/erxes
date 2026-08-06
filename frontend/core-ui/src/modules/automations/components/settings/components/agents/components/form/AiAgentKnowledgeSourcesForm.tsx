@@ -10,8 +10,12 @@ export const AiAgentKnowledgeSourcesForm = () => {
   const { t } = useTranslation('automations');
   const { statuses, indexedCount, indexingCount } =
     useAiAgentKnowledgeSourceStatuses();
-  const { knowledgeSources, handleSourceIdsChange, handleSourceEnabledChange } =
-    useAiAgentKnowledgeSourceSelections();
+  const {
+    knowledgeSources,
+    handleSourceIdsChange,
+    handleSourceEnabledChange,
+    handleSourceScopeChange,
+  } = useAiAgentKnowledgeSourceSelections();
   const { railItems, resolvedKey, setActiveKey, activeSource } =
     useAiAgentKnowledgeSourceRail(knowledgeSources);
 
@@ -41,6 +45,7 @@ export const AiAgentKnowledgeSourcesForm = () => {
               statuses,
               handleSourceIdsChange,
               handleSourceEnabledChange,
+              handleSourceScopeChange,
             }}
           >
             <AiAgentKnowledgeSourcePanel

@@ -13,27 +13,6 @@ const buildContextSection = (files: TAiAgentLoadedContextFile[]) => {
   return files.map(({ name, content }) => `# ${name}\n${content}`).join('\n\n');
 };
 
-const isProductCatalogContextFile = (file: TAiAgentLoadedContextFile) =>
-  file.key === 'selected-product-catalog' ||
-  file.id === 'selected-product-catalog';
-
-const buildProductCatalogSection = (files: TAiAgentLoadedContextFile[]) => {
-  const productCatalogFiles = files.filter(isProductCatalogContextFile);
-
-  if (!productCatalogFiles.length) {
-    return '';
-  }
-
-  return productCatalogFiles
-    .map(({ name, content }) => `# ${name}\n${content}`)
-    .join('\n\n');
-};
-
-const buildReferenceContextSection = (files: TAiAgentLoadedContextFile[]) =>
-  buildContextSection(
-    files.filter((file) => !isProductCatalogContextFile(file)),
-  );
-
 const buildMemorySection = (memory?: Record<string, unknown>) => {
   if (!memory || !Object.keys(memory).length) {
     return '';
@@ -106,14 +85,10 @@ const buildAutomationSystemInstruction = (
       'Your job is to produce the exact final reply requested by the instruction.',
       'Do not simulate back-and-forth, and do not invent missing facts.',
       'Use only the provided instruction, source data, memory, and context documents.',
-      'Context may come from multiple partial sources: uploaded files, knowledge base articles, and indexed product catalog context.',
-      'No single uploaded file, article, or list is a complete closed catalog unless it explicitly says it is the only allowed source.',
-      'If a product appears in any provided context source, do not deny it only because another source omits it.',
-      'For product existence and product facts, indexed product catalog context has priority over uploaded files and knowledge base articles.',
-      'If indexed product catalog context includes a product, treat it as a real catalog product and use its explicit product facts such as name, code, status, and description.',
-      'Never say a product is unavailable when indexed product catalog context lists that product as active, even if an uploaded file or article mentions a smaller product list.',
+      'Context documents are partial: retrieval returns only what matched this message, so absence from them is not proof that something does not exist.',
+      'If an item appears in any provided context source, do not deny it because another source omits it.',
       'Do not infer stock availability, delivery timing, discounts, or policies unless a context source explicitly states them.',
-      'Do not invent means: do not mention products, prices, stock, or policies that are absent from all provided context sources.',
+      'Do not mention items, prices, or policies that are absent from all provided context sources.',
       'If information is missing, stay generic rather than fabricating details.',
       ...outputFormatRules,
       'If the instruction asks for an email template, return a ready-to-use email body unless the instruction explicitly asks for a subject line or another structure.',
@@ -268,8 +243,7 @@ export const buildAiActionMessages = ({
   memory?: Record<string, unknown>;
 }): TAiBridgeMessage[] => {
   const inputText = buildAiInputFromContext({ inputData, aiContext });
-  const productCatalogSection = buildProductCatalogSection(files);
-  const contextSection = buildReferenceContextSection(files);
+  const contextSection = buildContextSection(files);
   const memorySection = buildMemorySection(memory);
   const automationSystemInstruction =
     buildAutomationSystemInstruction(actionConfig);
@@ -277,9 +251,6 @@ export const buildAiActionMessages = ({
   const systemContent = [
     systemPrompt?.trim()
       ? `Agent system prompt (highest priority):\n${systemPrompt.trim()}`
-      : '',
-    productCatalogSection
-      ? `Authoritative indexed product catalog context (highest priority product source):\n\n${productCatalogSection}\n\nProduct catalog decision rule: if the latest customer message refers to a product listed in this section, treat that product as present in the configured product catalog. Do not deny it because uploaded files, knowledge base articles, or previous assistant messages mention a smaller or different product list. Use only explicit facts from this section for code, status, stock, and other product details.`
       : '',
     automationSystemInstruction
       ? `Automation execution rules:\n${automationSystemInstruction}`

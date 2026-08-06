@@ -1,6 +1,7 @@
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import {
   findSourceSelection,
+  hasSourceSelection,
   isSameSource,
   TAiAgentKnowledgeSourceSelections,
 } from '@/automations/components/settings/components/agents/utils/aiAgentKnowledgeSources';
@@ -32,13 +33,15 @@ export const useAiAgentKnowledgeSourceSelections = () => {
       isSameSource(selection, source),
     );
     const nextKnowledgeSources = [...knowledgeSources];
-    const hasMeaningfulConfig = !!config && Object.keys(config).length > 0;
+    const scope =
+      sourceIndex === -1 ? undefined : knowledgeSources[sourceIndex].scope;
 
-    if (sourceIds.length || hasMeaningfulConfig) {
+    if (hasSourceSelection({ scope, sourceIds, config: config || {} })) {
       const selection = {
         pluginName: source.pluginName,
         moduleName: source.moduleName,
         key: source.key,
+        ...(scope ? { scope } : {}),
         sourceIds,
         config: config || {},
       };
@@ -75,5 +78,53 @@ export const useAiAgentKnowledgeSourceSelections = () => {
     );
   };
 
-  return { knowledgeSources, handleSourceIdsChange, handleSourceEnabledChange };
+  const handleSourceScopeChange = (
+    source: TAiKnowledgeSourceConfig,
+    scope: 'all' | 'selected',
+  ) => {
+    const sourceIndex = knowledgeSources.findIndex((selection) =>
+      isSameSource(selection, source),
+    );
+    const existing = sourceIndex === -1 ? undefined : knowledgeSources[sourceIndex];
+    const sourceIds = existing?.sourceIds || [];
+    const config = existing?.config || {};
+    const nextKnowledgeSources = [...knowledgeSources];
+
+    // Narrowing back to an empty selection leaves nothing to index.
+    if (
+      scope === 'selected' &&
+      !hasSourceSelection({ scope, sourceIds, config })
+    ) {
+      if (sourceIndex !== -1) {
+        nextKnowledgeSources.splice(sourceIndex, 1);
+      }
+
+      updateSelections(nextKnowledgeSources);
+      return;
+    }
+
+    const selection = {
+      pluginName: source.pluginName,
+      moduleName: source.moduleName,
+      key: source.key,
+      scope,
+      sourceIds,
+      config,
+    };
+
+    if (sourceIndex === -1) {
+      nextKnowledgeSources.push(selection);
+    } else {
+      nextKnowledgeSources[sourceIndex] = selection;
+    }
+
+    updateSelections(nextKnowledgeSources);
+  };
+
+  return {
+    knowledgeSources,
+    handleSourceIdsChange,
+    handleSourceEnabledChange,
+    handleSourceScopeChange,
+  };
 };
