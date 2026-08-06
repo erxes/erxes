@@ -1,7 +1,6 @@
 import PDFDocument from 'pdfkit';
 import * as QRCode from 'qrcode';
 
-
 const toLatin1 = (value: string): string =>
   (value || '')
     .replace(/[—–]/g, '-')
@@ -9,7 +8,6 @@ const toLatin1 = (value: string): string =>
     .filter((char) => char.charCodeAt(0) <= 0xff)
     .join('')
     .trim();
-
 
 export const buildTicketsPdf = async (
   codes: string[],

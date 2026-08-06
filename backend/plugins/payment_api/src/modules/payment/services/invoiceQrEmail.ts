@@ -31,7 +31,6 @@ export const sendInvoiceQrEmail = async (subdomain: string, invoice: any) => {
 
   const codes = getTicketCodes(invoice);
 
-
   const pdf = await buildTicketsPdf(codes, title);
   const pdfBase64 = pdf.toString('base64');
 
@@ -119,7 +118,6 @@ export const sendInvoiceQrEmailOnce = async (
     code: generateTicketCode(),
     scannedAt: null,
   }));
-
 
   const claimed = await models.Invoices.findOneAndUpdate(
     { _id: invoice._id, qrEmailSentAt: null },
