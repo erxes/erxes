@@ -92,30 +92,30 @@
 
 ## Architecture
 
-| Area               | Path                                                                                                                              | Responsibility                                                                                 |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Area               | Path                                                                                                                              | Responsibility                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Host registration  | `src/config.tsx`                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes |
-| Federation         | `module-federation.config.ts`                                                                                                     | Remote name `frontline_ui` and its exposes                                                     |
-| Routes             | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                          |
-| Navigation groups  | `src/modules/FrontlineSubGroups.tsx`                                                                                              | Route-aware sidebar sub-groups for every frontline page                                        |
-| Settings routes    | `src/modules/FrontlineSettings.tsx`                                                                                               | Top-level frontline settings routes and their page chrome                                      |
-| Channel picker     | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                          | Scope-filtered channel list bound to the `channelId` query param                               |
-| Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header  |
-| Nav header count   | `src/modules/inbox/channel/components/UnreadSummary.tsx`                                                                          | The "N unread" figure in a group header's actions slot                                         |
-| Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                         |
-| Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                 | `conversationCounts` reads per integration type inside one channel                             |
-| Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                   |
-| Channel settings   | `src/modules/channels`                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                         |
-| Personal channel   | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                  | Profile page for the user's private inbox                                                      |
-| Inbox              | `src/modules/inbox/`                                                                                                              | Conversations, messages, filters, channels, brands, integrations                               |
-| Integrations       | `src/modules/integrations/`                                                                                                       | Per-provider connect forms and detail views                                                    |
-| Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                            | Ticket boards, pipelines, statuses                                                             |
-| Forms              | `src/modules/forms/`                                                                                                              | Form builder, preview, submissions                                                             |
-| Knowledge base     | `src/modules/knowledgebase/`                                                                                                      | Topics, categories, articles                                                                   |
-| Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                       | Per-module trigger/action/bot/history components                                               |
-| FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                     | Message sequence form, provider, constants, states                                             |
-| FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading                                           |
-| Notifications      | `src/widgets/notifications/`                                                                                                      | Notification remote entries                                                                    |
+| Federation         | `module-federation.config.ts`                                                                                                     | Remote name `frontline_ui` and its exposes                                                       |
+| Routes             | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                            |
+| Navigation groups  | `src/modules/FrontlineSubGroups.tsx`                                                                                              | Route-aware sidebar sub-groups for every frontline page                                          |
+| Settings routes    | `src/modules/FrontlineSettings.tsx`                                                                                               | Top-level frontline settings routes and their page chrome                                        |
+| Channel picker     | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                          | Scope-filtered channel list bound to the `channelId` query param                                 |
+| Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header   |
+| Nav header count   | `src/modules/inbox/channel/components/UnreadSummary.tsx`                                                                          | The "N unread" figure in a group header's actions slot                                           |
+| Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                           |
+| Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                 | `conversationCounts` reads per integration type inside one channel                               |
+| Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                     |
+| Channel settings   | `src/modules/channels`                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                           |
+| Personal channel   | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                  | Profile page for the user's private inbox                                                        |
+| Inbox              | `src/modules/inbox/`                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                 |
+| Integrations       | `src/modules/integrations/`                                                                                                       | Per-provider connect forms and detail views                                                      |
+| Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                            | Ticket boards, pipelines, statuses                                                               |
+| Forms              | `src/modules/forms/`                                                                                                              | Form builder, preview, submissions                                                               |
+| Knowledge base     | `src/modules/knowledgebase/`                                                                                                      | Topics, categories, articles                                                                     |
+| Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                       | Per-module trigger/action/bot/history components                                                 |
+| FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                     | Message sequence form, provider, constants, states                                               |
+| FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading                                             |
+| Notifications      | `src/widgets/notifications/`                                                                                                      | Notification remote entries                                                                      |
 
 ## Contracts
 
@@ -155,13 +155,13 @@
   `GetChannelMembers`, `ChannelAdd` (accepts an optional `scope` variable this
   UI does not send), `ChannelUpdate`, `IntegrationsCreateExternalIntegration`,
   `IntegrationsGetUsedTypes`, `IntegrationsGetUsedTypesByChannel(channelId?,
-  scope?)` — the latter is already restricted server-side to channels the caller
+scope?)` — the latter is already restricted server-side to channels the caller
   can see, so the UI never has to filter its result.
 - `frontline_api` GraphQL subscription `conversationClientMessageInserted(userId)`
   — published to every member of the channel a customer message landed in, for
   every integration kind, so one subscription covers all of a user's channels.
 - `frontline_api` GraphQL `conversationCounts(only, channelId?, brandId?,
-  awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
+awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `only: "byIntegrationTypes"` keys by integration kind, `only: "byIntegrations"`
   keys by integration id (Discord). Counts are open + new conversations; passing
   `awaitingResponse: "true"` narrows them to the ones the customer spoke last in.

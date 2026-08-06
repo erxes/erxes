@@ -29,7 +29,10 @@ export const channelMutations = {
     if (!user?._id) throw new Error('Unauthorized');
     const userId = user._id;
 
-    if (scope && !Object.values(ChannelScopes).includes(scope as ChannelScopes)) {
+    if (
+      scope &&
+      !Object.values(ChannelScopes).includes(scope as ChannelScopes)
+    ) {
       throw new Error(
         `Unknown channel scope "${scope}". Use "team" or "personal".`,
       );

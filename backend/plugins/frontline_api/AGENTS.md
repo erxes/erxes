@@ -84,25 +84,25 @@
 
 ## Architecture
 
-| Area                 | Path                                                                       | Responsibility                                                                                          |
-| -------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Bootstrap            | `src/main.ts`                                                              | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface            |
-| Models               | `src/connectionResolvers.ts`                                               | Per-subdomain model container for all modules                                                           |
-| GraphQL              | `src/apollo/`                                                              | Aggregated `typeDefs` and `resolvers` across modules                                                    |
-| tRPC                 | `src/init-trpc.ts`                                                         | `appRouter` for service-to-service calls                                                                |
-| HTTP                 | `src/routes.ts`                                                            | Mounts `/facebook` and `/instagram` webhook routers                                                     |
-| Platform extensions  | `src/meta/`                                                                | automations, permissions, notifications, segments, references, import/export                            |
-| Channels             | `src/modules/channel/`                                                     | Channel + ChannelMember models, schema, resolvers, role checks                                          |
-| Inbox                | `src/modules/inbox/`                                                       | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                |
+| Area                 | Path                                                                        | Responsibility                                                                                          |
+| -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Bootstrap            | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface           |
+| Models               | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                           |
+| GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                    |
+| tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                |
+| HTTP                 | `src/routes.ts`                                                             | Mounts `/facebook` and `/instagram` webhook routers                                                     |
+| Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                            |
+| Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                          |
+| Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`               |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
-| Integrations         | `src/modules/integrations/<kind>/`                                         | facebook, instagram, imap, discord, call, trpc                                                          |
-| FB automation        | `src/modules/integrations/facebook/meta/automation/`                       | Comment/message triggers and actions, bot message generation                                            |
-| FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`         | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
-| FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                         | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
-| Ticket               | `src/modules/ticket/`                                                      | Boards, pipelines, statuses, tickets, activities, notes                                                 |
-| Forms                | `src/modules/form/`                                                        | Forms, fields, submissions                                                                              |
-| Knowledge base       | `src/modules/knowledgebase/`                                               | Topics, categories, articles, AI knowledge source                                                       |
-| Migrations           | `src/migrations/`                                                          | Plugin-owned data migrations                                                                            |
+| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, trpc                                                          |
+| FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
+| FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
+| FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
+| Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                 |
+| Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                              |
+| Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                       |
+| Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                            |
 
 ## Contracts
 
@@ -140,7 +140,7 @@
   `channelUpdate` deliberately exposes no `scope` argument, so a channel's scope
   is fixed at creation.
 - GraphQL: `integrationsCreateExternalIntegration(kind, channelId, name,
-  accountId, brandId, data)` — `channelId` is **nullable** for every kind;
+accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   omitting it attaches the integration to the caller's personal channel and
   provisions that channel if it does not exist yet.
 - GraphQL: `integrationsGetUsedTypes` and

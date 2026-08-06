@@ -609,8 +609,8 @@ const SelectMessengerAutomation = ({
           {loading
             ? t('loading')
             : selected
-            ? selected.name
-            : t('select-an-automation')}
+              ? selected.name
+              : t('select-an-automation')}
         </span>
       </Combobox.Trigger>
       <Combobox.Content>
