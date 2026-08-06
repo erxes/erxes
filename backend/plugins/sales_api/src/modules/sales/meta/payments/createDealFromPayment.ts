@@ -2,7 +2,6 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types/deal';
 import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
-import { sendDealBarcodeEmail } from '~/modules/sales/meta/payments/sendDealBarcodeEmail';
 
 const getString = (
   data: Record<string, any>,
@@ -106,21 +105,6 @@ export const handleCreateDealFromPayment = async (
   });
 
   await subscriptionWrapper(models, { action: 'create', deal });
-
-  const shouldSendEmail =
-    typeof data.sendBarcodeEmail === 'boolean'
-      ? data.sendBarcodeEmail
-      : data.sendEmailOnPayment !== false;
-
-  if (shouldSendEmail && data.email) {
-    await sendDealBarcodeEmail(subdomain, {
-      email: data.email,
-      code: data.invoiceNumber || data._id,
-      title: deal.name || 'Deal',
-      amount: data.amount,
-      currency: data.currency,
-    }).catch(() => undefined);
-  }
 
   return deal;
 };
