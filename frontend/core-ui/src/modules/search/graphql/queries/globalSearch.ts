@@ -76,6 +76,7 @@ export const GLOBAL_SEARCH_PRODUCTS = gql`
       code
       unitPrice
     }
+    productsTotalCount(searchValue: $searchValue)
   }
 `;
 

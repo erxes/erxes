@@ -35,7 +35,29 @@ interface ICursorList<T> {
   totalCount: number;
 }
 
-export const useGlobalSearch = (searchValue: string) => {
+export interface IGlobalSearchResult {
+  loading: boolean;
+  customers: IGlobalSearchCustomer[];
+  customersTotalCount: number;
+  companies: IGlobalSearchCompany[];
+  companiesTotalCount: number;
+  products: IGlobalSearchProduct[];
+  productsTotalCount: number;
+  teamMembers: IGlobalSearchTeamMember[];
+  teamMembersTotalCount: number;
+  conversations: IGlobalSearchConversation[];
+  conversationsTotalCount: number;
+  tickets: IGlobalSearchTicket[];
+  ticketsTotalCount: number;
+  channels: IGlobalSearchChannel[];
+  channelsTotalCount: number;
+  forms: IGlobalSearchForm[];
+  formsTotalCount: number;
+  deals: IGlobalSearchDeal[];
+  dealsTotalCount: number;
+}
+
+export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   const pluginsConfig = useAtomValue(pluginsConfigState);
   const hasFrontline = !!pluginsConfig?.[FRONTLINE_PLUGIN];
   const hasSales = !!pluginsConfig?.[SALES_PLUGIN];
@@ -59,6 +81,7 @@ export const useGlobalSearch = (searchValue: string) => {
 
   const { data: productsData, loading: productsLoading } = useQuery<{
     products: IGlobalSearchProduct[];
+    productsTotalCount: number;
   }>(GLOBAL_SEARCH_PRODUCTS, {
     variables: { searchValue, perPage: limit },
     skip,
@@ -128,7 +151,7 @@ export const useGlobalSearch = (searchValue: string) => {
   const conversations = [
     ...(openData?.conversations?.list || []),
     ...(closedData?.conversations?.list || []),
-  ];
+  ].slice(0, limit);
   const tickets = ticketsData?.getTickets?.list || [];
   const allChannels = channelsData?.getChannels || [];
   const channels = allChannels.slice(0, limit);
@@ -147,18 +170,6 @@ export const useGlobalSearch = (searchValue: string) => {
     formsLoading ||
     dealsLoading;
 
-  const groups = [
-    customers,
-    companies,
-    products,
-    teamMembers,
-    conversations,
-    tickets,
-    channels,
-    forms,
-    deals,
-  ];
-
   return {
     loading,
     customers,
@@ -166,7 +177,7 @@ export const useGlobalSearch = (searchValue: string) => {
     companies,
     companiesTotalCount: companiesData?.companies?.totalCount || 0,
     products,
-    productsTotalCount: products.length,
+    productsTotalCount: productsData?.productsTotalCount ?? products.length,
     teamMembers,
     teamMembersTotalCount: teamMembersData?.users?.totalCount || 0,
     conversations,
@@ -181,6 +192,5 @@ export const useGlobalSearch = (searchValue: string) => {
     formsTotalCount: formsData?.forms?.totalCount || 0,
     deals,
     dealsTotalCount: dealsData?.deals?.totalCount || 0,
-    isEmpty: !loading && groups.every((group) => group.length === 0),
   };
 };
