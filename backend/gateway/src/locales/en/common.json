@@ -106,5 +106,21 @@
     "plugins": "Plugins",
     "exit": "Exit {{name}}",
     "modules": "{{name}} modules"
+  },
+  "global-search": {
+    "placeholder": "Search",
+    "loading": "Loading...",
+    "no-results": "No results",
+    "contacts": "Contacts",
+    "companies": "Companies",
+    "conversations": "Conversations",
+    "tickets": "Tickets",
+    "unnamed": "Unnamed",
+    "deals": "Deals",
+    "products": "Products",
+    "team-members": "Team members",
+    "channels": "Channels",
+    "forms": "Forms",
+    "hint": "Search contacts, conversations, tickets, deals, products and more"
   }
 }

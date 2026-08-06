@@ -1,3 +1,4 @@
+import { GlobalSearch } from '@/search/components/GlobalSearch';
 import { VisitedPageTabsShortcutGuide } from '@/navigation/components/VisitedPageTabsShortcutGuide';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
@@ -417,6 +418,7 @@ export const VisitedPageTabs = () => {
           {tabItems}
         </VisitedPageTabsContent>
       </div>
+      <GlobalSearch />
       <Button
         aria-keyshortcuts={toggleTabsAriaShortcut}
         aria-label={t('navigation.hide-tabs-row')}

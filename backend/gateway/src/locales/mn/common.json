@@ -107,5 +107,21 @@
     "plugins": "Плагинууд",
     "exit": "{{name}}-ээс гарах",
     "modules": "{{name}} модулиуд"
+  },
+  "global-search": {
+    "placeholder": "Хайх",
+    "loading": "Ачаалж байна...",
+    "no-results": "Илэрц олдсонгүй",
+    "contacts": "Харилцагчид",
+    "companies": "Байгууллагууд",
+    "conversations": "Харилцаа",
+    "tickets": "Тикет",
+    "unnamed": "Нэргүй",
+    "deals": "Гэрээ",
+    "products": "Бараа",
+    "team-members": "Ажилтнууд",
+    "channels": "Сувгууд",
+    "forms": "Формууд",
+    "hint": "Харилцагч, харилцаа, тикет, гэрээ, бараа зэргээс хайх"
   }
 }
