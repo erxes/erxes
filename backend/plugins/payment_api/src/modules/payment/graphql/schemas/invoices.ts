@@ -51,6 +51,7 @@ export const inputs = `
     phone: String
     email: String
     description: String
+    status: String
     customerId: String
     customerType: String
     contentType: String
