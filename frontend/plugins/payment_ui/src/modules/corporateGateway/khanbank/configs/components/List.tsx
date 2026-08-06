@@ -3,7 +3,7 @@ import { Button } from 'erxes-ui';
 import { Card } from 'erxes-ui/components/card';
 import { Dialog } from 'erxes-ui/components/dialog';
 
-import ConfigForm from './Form'; // make sure this points to modern form
+import ConfigForm from './Form';
 import Row from './Row';
 import { IKhanbankConfigsItem } from '../types';
 
@@ -18,17 +18,56 @@ type Props = {
 const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = async () => {
-    if (refetch) await refetch();
+  const handleSubmit = () => {
+    if (refetch) {
+      refetch();
+    }
+
     setOpen(false);
   };
 
+  let content;
+
+  if (loading) {
+    content = (
+      <p className="text-sm text-muted-foreground">Loading...</p>
+    );
+  } else if (configs.length === 0) {
+    content = (
+      <div className="text-center py-8 text-sm text-muted-foreground">
+        No configurations found.
+      </div>
+    );
+  } else {
+    content = (
+      <table className="w-full text-sm">
+        <thead className="border-b text-muted-foreground">
+          <tr className="text-left text-sm font-medium">
+            <th className="py-2">Name</th>
+            <th className="py-2 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {configs.map((config) => (
+            <Row
+              key={config._id}
+              config={config}
+              remove={remove}
+              refetch={refetch}
+            />
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-medium">Khan Bank Corporate Gateway</h2>
+          <h2 className="text-base font-medium">
+            Khan Bank Corporate Gateway
+          </h2>
           <p className="text-sm font-normal text-muted-foreground">
             Manage your Khan Bank integration settings.
           </p>
@@ -37,32 +76,8 @@ const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
         <Button onClick={() => setOpen(true)}>+ Add Config</Button>
       </div>
 
-      {/* Table */}
-      <Card className="p-4">
-        {loading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        ) : configs.length === 0 ? (
-          <div className="text-center py-8 text-sm text-muted-foreground">
-            No configurations found.
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b text-muted-foreground">
-              <tr className="text-left text-sm font-medium">
-                <th className="py-2">Name</th>
-                <th className="py-2 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {configs.map((config) => (
-                <Row key={config._id} config={config} remove={remove} />
-              ))}
-            </tbody>
-          </table>
-        )}
-      </Card>
+      <Card className="p-4">{content}</Card>
 
-      {/* Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
