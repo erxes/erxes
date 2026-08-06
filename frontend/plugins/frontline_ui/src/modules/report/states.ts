@@ -282,3 +282,23 @@ export const getReportPropertyFilterAtom = (cardId: string) =>
       },
     ),
   );
+
+export const reportGroupPropertyFilterState = atom<Record<string, string>>({});
+
+const groupPropertyFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+
+export const getReportGroupPropertyFilterAtom = (cardId: string) =>
+  getOrCreate(groupPropertyFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportGroupPropertyFilterState)[cardId] || '',
+      (get, set, newValue: string) => {
+        set(reportGroupPropertyFilterState, {
+          ...get(reportGroupPropertyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );

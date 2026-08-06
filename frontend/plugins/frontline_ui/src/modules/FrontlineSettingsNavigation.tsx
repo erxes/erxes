@@ -15,6 +15,12 @@ export const FrontlineSettingsNavigation = () => {
 
           <SettingsNavigationMenuLinkItem
             pathPrefix={FrontlinePaths.Frontline}
+            path={FrontlinePaths.PersonalChannel}
+            name="Personal channel"
+          />
+
+          <SettingsNavigationMenuLinkItem
+            pathPrefix={FrontlinePaths.Frontline}
             path={FrontlinePaths.IntegrationConfig}
             name="Integrations Config"
           />

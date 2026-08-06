@@ -5,7 +5,6 @@ import mongoose, {
   Schema,
 } from 'mongoose';
 import { nanoid } from 'nanoid';
-import { installRevertCaptureHooks } from './revertCapture';
 
 import {
   buildCursorQuery,
@@ -106,7 +105,10 @@ export const cursorPaginate = async <T extends Document>({
 
   const baseQuery: FilterQuery<T> = cursor
     ? {
-        $and: [query || {}, buildCursorQuery(cursor, orderBy, direction, formatter)],
+        $and: [
+          query || {},
+          buildCursorQuery(cursor, orderBy, direction, formatter),
+        ],
       }
     : { ...(query || {}) };
 
@@ -265,11 +267,6 @@ export const checkCollectionCodeDuplication = async (
 export const schemaWrapper = (schema: Schema) => {
   schema.add({ _id: mongooseStringRandomId });
   schema.add({ processId: { type: String, optional: true } });
-
-  // Dynamic point-in-time-revert capture: auto-journal destructive writes for
-  // every wrapped schema with no per-model code. Always on — every schema is
-  // journaled from boot so no change is ever silently left unrecoverable.
-  installRevertCaptureHooks(schema);
 
   return schema;
 };

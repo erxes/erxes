@@ -55,7 +55,13 @@ export const SelectDepartmentsProvider = ({
   const [selectedDepartments, setSelectedDepartments] = useState<IDepartment[]>(
     [],
   );
-  const departmentIds = !value ? [] : Array.isArray(value) ? value : [value];
+  let departmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    departmentIds = value;
+  } else if (value) {
+    departmentIds = [value];
+  }
 
   const handleSelectCallback = (department: IDepartment) => {
     if (!department) return;
@@ -67,14 +73,14 @@ export const SelectDepartmentsProvider = ({
     const newSelectedDepartmentIds = isSingleMode
       ? [department._id]
       : isSelected
-      ? multipleValue.filter((d) => d !== department._id)
-      : [...multipleValue, department._id];
+        ? multipleValue.filter((d) => d !== department._id)
+        : [...multipleValue, department._id];
 
     const newSelectedDepartments = isSingleMode
       ? [department]
       : isSelected
-      ? selectedDepartments.filter((d) => d._id !== department._id)
-      : [...selectedDepartments, department];
+        ? selectedDepartments.filter((d) => d._id !== department._id)
+        : [...selectedDepartments, department];
 
     setSelectedDepartments(newSelectedDepartments);
     onValueChange?.(isSingleMode ? department._id : newSelectedDepartmentIds);
@@ -234,7 +240,13 @@ export const DepartmentsList = ({
   const { value, selectedDepartments, setSelectedDepartments, onSelect } =
     useSelectDepartmentsContext();
 
-  const selectedDepartmentIds = Array.isArray(value) ? value : [value];
+  let selectedDepartmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    selectedDepartmentIds = value;
+  } else if (value) {
+    selectedDepartmentIds = [value];
+  }
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;

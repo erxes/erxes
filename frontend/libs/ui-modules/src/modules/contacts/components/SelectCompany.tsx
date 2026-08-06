@@ -21,6 +21,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 
 import { CompaniesInline } from './CompaniesInline';
+import { AddCompany } from './AddCompany';
 import { ICompany } from '../types';
 import { useCompanies } from 'ui-modules/modules/contacts/hooks/useCompanies';
 import { useDebounce } from 'use-debounce';
@@ -42,10 +43,15 @@ const SelectCompanyProvider = ({
   hideAvatar,
 }: SelectCompanyProviderProps) => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
   const companyIds = companies.map((c) => c._id);
 
   const valueIds = useMemo(() => {
-    return !value ? [] : Array.isArray(value) ? value : [value];
+    if (!value) {
+      return [];
+    }
+
+    return Array.isArray(value) ? value : [value];
   }, [value]);
 
   const { companies: fetchedCompanies } = useCompanies({
@@ -56,14 +62,10 @@ const SelectCompanyProvider = ({
   });
 
   useEffect(() => {
-    if (
-      fetchedCompanies &&
-      fetchedCompanies.length > 0 &&
-      companies.length === 0
-    ) {
+    if (fetchedCompanies?.length) {
       setCompanies(fetchedCompanies);
     }
-  }, [fetchedCompanies, companies.length]);
+  }, [fetchedCompanies]);
 
   const onSelect = (company: ICompany) => {
     if (!company) return;
@@ -85,6 +87,26 @@ const SelectCompanyProvider = ({
     onValueChange?.(newSelectedCompanyIds);
   };
 
+  const onCreateSuccess = (companyId: string, company?: ICompany) => {
+    const newSelectedCompanyIds =
+      mode === 'single'
+        ? companyId
+        : Array.from(new Set([...valueIds, companyId]));
+
+    // Keep the created company around so it renders straight away instead of
+    // waiting for the list query to catch up.
+    if (company) {
+      setCompanies((prev) => {
+        if (mode === 'single') return [company];
+        return prev.some((c) => c._id === companyId)
+          ? prev
+          : [...prev, company];
+      });
+    }
+
+    onValueChange?.(newSelectedCompanyIds);
+  };
+
   return (
     <SelectCompanyContext.Provider
       value={{
@@ -96,9 +118,15 @@ const SelectCompanyProvider = ({
         error: null,
         hideAvatar,
         mode,
+        openCreate: () => setCreateOpen(true),
       }}
     >
       {children}
+      <AddCompany
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={onCreateSuccess}
+      />
     </SelectCompanyContext.Provider>
   );
 };
@@ -106,7 +134,8 @@ const SelectCompanyProvider = ({
 const SelectCompanyContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { companyIds, companies } = useSelectCompanyContext();
+  const { companyIds, companies, openCreate } = useSelectCompanyContext();
+  const { t } = useTranslation('contact');
   const {
     companies: companiesData,
     loading,
@@ -118,6 +147,8 @@ const SelectCompanyContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  const showCreate =
+    debouncedSearch.trim().length > 0 && !loading && !error && totalCount === 0;
 
   return (
     <Command shouldFilter={false}>
@@ -129,6 +160,12 @@ const SelectCompanyContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        {showCreate && (
+          <Command.Item onSelect={openCreate} className="font-medium">
+            <IconPlus />
+            {t('customer.detail.add-company')}
+          </Command.Item>
+        )}
         {companies?.length > 0 && (
           <>
             {companies.map((company) => (

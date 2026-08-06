@@ -67,6 +67,42 @@ export const getPostDetails = async (
   }
 };
 
+export const createPagePost = async (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  message: string,
+  link?: string,
+): Promise<{ id: string }> => {
+  let pageAccessToken;
+
+  try {
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+  } catch (e) {
+    debugError(`Error occurred while getting page access token: ${e.message}`);
+    throw new Error('Page access token not found');
+  }
+
+  const doc: { message: string; link?: string } = { message };
+
+  if (link) {
+    doc.link = link;
+  }
+
+  try {
+    // Requires the pages_manage_posts permission on the page token.
+    const response: any = await graphRequest.post(
+      `${pageId}/feed`,
+      pageAccessToken,
+      doc,
+    );
+
+    return response;
+  } catch (e) {
+    debugError(`Error occurred while creating facebook post: ${e.message}`);
+    throw new Error(e.message);
+  }
+};
+
 export const createAWS = async (subdomain: string) => {
   const {
     AWS_FORCE_PATH_STYLE,

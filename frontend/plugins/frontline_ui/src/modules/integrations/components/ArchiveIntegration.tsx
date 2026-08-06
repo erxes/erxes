@@ -16,7 +16,11 @@ export const ArchiveIntegration = ({
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const [archiveIntegration, { loading }] = useMutation(ARCHIVE_INTEGRATION, {
-    refetchQueries: ['Integrations'],
+    refetchQueries: [
+      'Integrations',
+      'IntegrationsGetUsedTypes',
+      'IntegrationsGetUsedTypesByChannel',
+    ],
     onCompleted() {
       toast({
         title: isActive ? t('integration-archived') : t('integration-unarchived'),

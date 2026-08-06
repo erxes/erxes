@@ -119,6 +119,12 @@ ${BASE_STYLES}
     .label-item:last-child {
       break-after: auto;
       page-break-after: auto;
+    }
+
+    .label-fit {
+      width: 100%;
+      text-align: left;
+      overflow-wrap: break-word;
     }`;
 
 const sheetStyles = (
@@ -218,6 +224,129 @@ export const syncPageHeight = (iframe: HTMLIFrameElement, config: any) => {
   style.textContent = `@page { size: ${width}mm ${paperHeight}mm; margin: 0; }`;
 
   return paperHeight;
+};
+
+export const waitForImages = async (iframe: HTMLIFrameElement) => {
+  const doc = iframe.contentDocument;
+
+  if (!doc) {
+    return;
+  }
+
+  const pending = Array.from(doc.images).filter((image) => !image.complete);
+
+  await Promise.all(
+    pending.map(
+      (image) =>
+        new Promise<void>((resolve) => {
+          image.addEventListener('load', () => resolve(), { once: true });
+          image.addEventListener('error', () => resolve(), { once: true });
+        }),
+    ),
+  );
+};
+
+const fitRatio = (box: HTMLElement, content: HTMLElement) => {
+  const availableHeight = box.clientHeight;
+  const availableWidth = box.clientWidth;
+
+  const naturalHeight = content.scrollHeight;
+  const naturalWidth = content.scrollWidth;
+
+  if (!availableHeight || !availableWidth || !naturalHeight || !naturalWidth) {
+    return 1;
+  }
+
+  return Math.min(
+    availableHeight / naturalHeight,
+    availableWidth / naturalWidth,
+    1,
+  );
+};
+
+export const transformLabels = (iframe: HTMLIFrameElement, config: any) => {
+  const { type } = resolveSize(config);
+
+  if (type !== PAPER_TYPES.ROLL) {
+    return;
+  }
+
+  const doc = iframe.contentDocument;
+
+  if (!doc) {
+    return;
+  }
+
+  const userScale = (Number(config.scale) || 100) / 100;
+  const offsetX = Number(config.offsetX) || 0;
+  const offsetY = Number(config.offsetY) || 0;
+
+  const shift = `translate(${offsetX}mm, ${offsetY}mm)`;
+
+  const fits = Array.from(doc.querySelectorAll<HTMLElement>('.label-fit'));
+
+  if (!fits.length) {
+    const container = doc.querySelector<HTMLElement>('.scaled-content');
+
+    if (container) {
+      container.style.transformOrigin = 'top left';
+      container.style.transform = `${shift} scale(${userScale})`;
+    }
+
+    return;
+  }
+
+  for (const fit of fits) {
+    const box = fit.parentElement;
+
+    fit.style.transform = '';
+
+    const ratio = box ? fitRatio(box, fit) : 1;
+
+    fit.style.transformOrigin = 'top left';
+    fit.style.transform = `${shift} scale(${ratio * userScale})`;
+  }
+};
+
+export const buildLabelPages = (iframe: HTMLIFrameElement, config: any) => {
+  const { isContinuous } = resolveSize(config);
+
+  const doc = iframe.contentDocument;
+
+  if (!doc) {
+    return [];
+  }
+
+  const styles = Array.from(doc.querySelectorAll('style'))
+    .map((style) => style.textContent || '')
+    .join('\n')
+    .replace(/@page\s*\{[^}]*\}/g, '');
+
+  const container = doc.querySelector('.scaled-content');
+
+  if (!container) {
+    return [];
+  }
+
+  const items = Array.from(doc.querySelectorAll('.label-item'));
+
+  const bodies =
+    isContinuous || !items.length
+      ? [container.innerHTML]
+      : items.map((item) => item.outerHTML);
+
+  return bodies.map(
+    (body) => `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>${styles}</style>
+  </head>
+  <body>
+    <div class="scaled-content">${body}</div>
+  </body>
+</html>`,
+  );
 };
 
 export const layout = (

@@ -28,23 +28,24 @@ interface ISalesDealChangedPayload {
 export const useDealDetail = (
   options?: QueryHookOptions<{ dealDetail: IDeal }>,
 ) => {
-  const [activeDealId] = useAtom(dealDetailSheetState);
-  const [salesItemId] = useQueryState('salesItemId');
+  const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
+  const [salesItemId, setSalesItemId] = useQueryState('salesItemId');
 
   const passedId = options?.variables?._id;
   const finalId = passedId || salesItemId || activeDealId;
 
-  const { data, loading, error, subscribeToMore, refetch } = useQuery<{
-    dealDetail: IDeal;
-  }>(GET_DEAL_DETAIL, {
-    ...options,
-    variables: {
-      ...options?.variables,
-      _id: finalId,
-    },
-    skip: !finalId,
-    fetchPolicy: options?.fetchPolicy || 'cache-and-network',
-  });
+  const { data, previousData, loading, error, subscribeToMore, refetch } =
+    useQuery<{
+      dealDetail: IDeal;
+    }>(GET_DEAL_DETAIL, {
+      ...options,
+      variables: {
+        ...options?.variables,
+        _id: finalId,
+      },
+      skip: !finalId,
+      fetchPolicy: options?.fetchPolicy || 'cache-and-network',
+    });
 
   useEffect(() => {
     if (!salesItemId) return;
@@ -78,7 +79,21 @@ export const useDealDetail = (
       document: DEAL_CHANGED,
       variables: { _id: finalId },
       updateQuery: (prev, { subscriptionData }) => {
-        const changedDeal = subscriptionData?.data?.salesDealChanged?.deal;
+        const dealChange = subscriptionData?.data?.salesDealChanged;
+
+        if (dealChange?.action === 'delete') {
+          if (activeDealId === finalId) {
+            setActiveDealId(null);
+          }
+
+          if (salesItemId === finalId) {
+            setSalesItemId(null);
+          }
+
+          return prev;
+        }
+
+        const changedDeal = dealChange?.deal;
 
         if (!changedDeal) {
           return prev;
@@ -112,9 +127,18 @@ export const useDealDetail = (
     });
 
     return unsubscribe;
-  }, [finalId, refetch, subscribeToMore]);
+  }, [
+    activeDealId,
+    finalId,
+    refetch,
+    salesItemId,
+    setActiveDealId,
+    setSalesItemId,
+    subscribeToMore,
+  ]);
 
-  const deal = data?.dealDetail;
+  const deal =
+    data?.dealDetail || (!finalId ? previousData?.dealDetail : undefined);
 
   return { deal, loading: loading && !deal, error, refetch };
 };
