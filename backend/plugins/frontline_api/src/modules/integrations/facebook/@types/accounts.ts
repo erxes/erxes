@@ -8,6 +8,7 @@ export interface IFacebookAccount {
   scope?: string;
   name: string;
   uid: string;
+  appId?: string;
 }
 
 export type IFacebookAccountDocument = HydratedDocument<IFacebookAccount>;

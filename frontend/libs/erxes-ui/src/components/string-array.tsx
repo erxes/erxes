@@ -3,6 +3,7 @@
 import { type Tag, TagInput } from 'emblor';
 import { cn } from 'erxes-ui/lib';
 import { useState } from 'react';
+import { handleStringArrayPaste } from '../utils/string-array';
 
 export function StringArrayInput({
   value,
@@ -11,6 +12,7 @@ export function StringArrayInput({
   placeholder,
   styleClasses,
   onBlur,
+  splitOnPaste = false,
 }: {
   value: string[];
   onValueChange: (value: string[]) => void;
@@ -25,8 +27,10 @@ export function StringArrayInput({
     };
   };
   onBlur?: () => void;
+  splitOnPaste?: boolean;
 }) {
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
+
   return (
     <TagInput
       activeTagIndex={activeTagIndex}
@@ -58,6 +62,11 @@ export function StringArrayInput({
       }}
       tags={value.map((tag) => ({ id: tag, text: tag }))}
       onBlur={onBlur}
+      inputProps={{
+        onPaste: (event) =>
+          splitOnPaste &&
+          handleStringArrayPaste({ event, value, onValueChange }),
+      }}
     />
   );
 }

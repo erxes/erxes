@@ -27,6 +27,8 @@ export const types = `
     createdAt: Date
     resolvedAt: Date
     scannedAt: Date
+    scannedCount: Int
+    ticketCount: Int
     redirectUri: String
     paymentIds: [String]
 

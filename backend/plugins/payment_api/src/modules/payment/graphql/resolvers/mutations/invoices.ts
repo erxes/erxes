@@ -83,7 +83,13 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
 
       const payment = await resolvePaymentForInvoice(models, invoice);
 
-      enqueuePaidInvoiceCallback(subdomain, invoice, payment, 'invoicesCheck');
+      enqueuePaidInvoiceCallback(
+        subdomain,
+        models,
+        invoice,
+        payment,
+        'invoicesCheck',
+      );
 
       if (invoice.callback) {
         // Fire callback – do not await
@@ -133,6 +139,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
 
       enqueuePaidInvoiceCallback(
         subdomain,
+        models,
         invoice,
         payment,
         'cpInvoicesCheck',
@@ -176,18 +183,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { code }: { code: string },
     { models }: IContext,
   ) {
-    const invoice = await models.Invoices.findOne({
-      invoiceNumber: code,
-    }).lean();
-
-    if (!invoice) {
-      throw new Error('Invoice not found');
-    }
-
-    if (invoice.status !== 'paid') {
-      throw new Error('Invoice is not paid');
-    }
-
     const scanned = await models.Invoices.scanBarcode(code);
 
     graphqlPubsub.publish(`invoiceUpdated:${scanned._id}`, {
@@ -264,10 +259,6 @@ mutations.invoicesCheck.wrapperConfig = {
 };
 
 mutations.cpInvoiceCreate.wrapperConfig = {
-  skipPermission: true,
-};
-
-mutations.invoiceScanBarcode.wrapperConfig = {
   skipPermission: true,
 };
 

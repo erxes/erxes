@@ -77,6 +77,8 @@ export const INVOICES = gql`
         invoiceNumber
         status
         scannedAt
+        scannedCount
+        ticketCount
         transactions {
           amount
           createdAt

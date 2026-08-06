@@ -1,7 +1,6 @@
 import { Document } from 'mongoose';
 import { ITransaction } from './transactions';
 
-
 export interface IInvoice {
   invoiceNumber: string;
   amount: number;
@@ -17,6 +16,8 @@ export interface IInvoice {
   createdAt: Date;
   resolvedAt?: Date;
   scannedAt?: Date;
+  ticketCodes?: { code: string; scannedAt?: Date | null }[];
+  qrEmailSentAt?: Date;
   redirectUri?: string;
   paymentIds: string[];
   callback?: string;

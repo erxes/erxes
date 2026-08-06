@@ -95,7 +95,7 @@ export const afterMutationHandlers = async (
 
   const ebarimtResponses: any[] = [];
 
-  if (config.skipPutData) {
+  if (config.skipEbarimt) {
     const { status, msg, data, innerData } = await getEbarimtData({
       config,
       doc: ebarimtData,
