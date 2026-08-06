@@ -1,5 +1,12 @@
 
 
+## [3.0.72](https://github.com/erxes/erxes/compare/3.0.71...3.0.72) (2026-08-06)
+
+
+### Bug Fixes
+
+* **frontline:** make the Facebook post + button reachable  ([82ca7ca](https://github.com/erxes/erxes/commit/82ca7ca270132c4f975e2c3ae38276d5a4ebadad))
+
 ## [3.0.71](https://github.com/erxes/erxes/compare/3.0.70...3.0.71) (2026-08-06)
 
 
