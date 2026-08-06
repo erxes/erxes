@@ -8,7 +8,13 @@ import { sendReply } from '@/integrations/instagram/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 
 export const instagramMutations = {
-  async instagramUpdateConfigs(_root, { configsMap }, { subdomain }: IContext) {
+  async instagramUpdateConfigs(
+    _root,
+    { configsMap },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     await updateConfigs(subdomain, configsMap);
 
     return { status: 'ok' };
