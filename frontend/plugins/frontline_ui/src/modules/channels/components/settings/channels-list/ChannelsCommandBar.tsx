@@ -32,7 +32,7 @@ export const ChannelsDelete = () => {
       }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
-      const { removedIds, failedCount, refreshFailed } =
+      const { removedIds, failedCount, error, refreshFailed } =
         await removeChannels(channelIds);
 
       rows
@@ -50,6 +50,7 @@ export const ChannelsDelete = () => {
               defaultValue: '{{count}} channels removed',
               count: removedIds.length,
             }),
+        failedCount && error?.message,
         refreshFailed &&
           t('channels-refresh-failed', {
             defaultValue:

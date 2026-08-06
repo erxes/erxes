@@ -27,10 +27,8 @@ export const MemberRemoveButtonCommandBar = ({
         count: memberIds.length,
       }),
     }).then(async () => {
-      const { removedIds, failedCount, refreshFailed } = await removeMembers(
-        memberIds,
-        channelId,
-      );
+      const { removedIds, failedCount, error, refreshFailed } =
+        await removeMembers(memberIds, channelId);
 
       rows
         .filter((row) => removedIds.includes(row.original.memberId))
@@ -46,6 +44,7 @@ export const MemberRemoveButtonCommandBar = ({
           : t('channel-members-deleted', {
               defaultValue: 'Channel members deleted successfully',
             }),
+        failedCount && error?.message,
         refreshFailed &&
           t('channel-members-refresh-failed', {
             defaultValue:
