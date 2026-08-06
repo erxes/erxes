@@ -1,0 +1,74 @@
+name: CI plugin--erxes-agent_api
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/plugins/erxes-agent_api/**'
+      - 'backend/erxes-api-shared/**'
+      - '.github/workflows/ci-api-erxes-agent.yml'
+  pull_request:
+    paths:
+      - 'backend/plugins/erxes-agent_api/**'
+      - 'backend/erxes-api-shared/**'
+      - '.github/workflows/ci-api-erxes-agent.yml'
+
+env:
+  NX_DAEMON: false
+
+jobs:
+  erxes-agent_api-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2.4.1
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Set environment variables
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Build shared module
+        run: pnpm nx build erxes-api-shared
+
+      - name: Build erxes-agent_api
+        run: pnpm nx build erxes-agent_api
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image (multi-platform)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
+        with:
+          context: .
+          file: backend/plugins/erxes-agent_api/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            erxes/erxes-next-erxes-agent_api:latest
+            erxes/erxes-next-erxes-agent_api:${{ env.DATE }}-${{ env.SHORT_SHA }}
