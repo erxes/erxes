@@ -1,9 +1,57 @@
 import { getIntegrationsKinds } from '@/inbox/utils';
 import { IContext } from '~/connectionResolvers';
-import { cursorPaginate, markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  markResolvers,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { IChannelDocument } from '@/channel/@types/channel';
+import { ChannelScopes, IChannelDocument } from '@/channel/@types/channel';
+import { visibleChannelsFilter } from '@/channel/utils';
+import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import { IModels } from '~/connectionResolvers';
+import { FilterQuery } from 'mongoose';
+
+/**
+ * Conversations per integration kind, in one pass. Conversations point at an
+ * integration rather than a kind, so the ids are grouped first and then folded
+ * back onto the kind that owns them.
+ */
+const countConversationsByKind = async (
+  models: IModels,
+  integrations: Array<{ _id: string; kind: string }>,
+  extraFilter: FilterQuery<unknown> = {},
+): Promise<Record<string, number>> => {
+  const kindByIntegrationId = new Map(
+    integrations.map(({ _id, kind }) => [_id, kind]),
+  );
+
+  const grouped = await models.Conversations.aggregate<{
+    _id: string;
+    count: number;
+  }>([
+    {
+      $match: {
+        integrationId: { $in: [...kindByIntegrationId.keys()] },
+        ...extraFilter,
+      },
+    },
+    { $group: { _id: '$integrationId', count: { $sum: 1 } } },
+  ]);
+
+  const counts: Record<string, number> = {};
+
+  for (const { _id, count } of grouped) {
+    const kind = kindByIntegrationId.get(_id);
+
+    if (kind) {
+      counts[kind] = (counts[kind] || 0) + count;
+    }
+  }
+
+  return counts;
+};
 
 const generateFilterQuery = async ({
   subdomain,
@@ -154,6 +202,96 @@ export const integrationQueries = {
     } catch (error) {
       console.error('Error in integrationsGetUsedTypes:', error);
       throw new Error('Failed to fetch used integration types');
+    }
+  },
+
+  /**
+   * Get used integration types of the caller's channels, optionally narrowed
+   * to one channel or to a channel scope
+   */
+  async integrationsGetUsedTypesByChannel(
+    _root,
+    { channelId, scope }: { channelId?: string; scope?: string },
+    { models, subdomain, user }: IContext,
+  ) {
+    if (!user?._id) {
+      throw new Error('Unauthorized');
+    }
+
+    const usedTypes: Array<{
+      _id: string;
+      name: string;
+      conversationCount: number;
+      unreadConversationCount: number;
+    }> = [];
+
+    try {
+      const kindMap = await getIntegrationsKinds();
+
+      // Never widen past what this user may already see in the channel list.
+      const conditions: FilterQuery<IChannelDocument>[] = [
+        await visibleChannelsFilter({ models, subdomain, user }),
+      ];
+
+      if (channelId) {
+        conditions.push({ _id: channelId });
+      }
+
+      if (scope) {
+        // channels saved before `scope` existed are team channels
+        conditions.push({
+          scope:
+            scope === ChannelScopes.TEAM
+              ? { $in: [ChannelScopes.TEAM, null] }
+              : scope,
+        });
+      }
+
+      const channelIds: string[] = await models.Channels.find({
+        $and: conditions,
+      }).distinct('_id');
+
+      if (!channelIds.length) {
+        return usedTypes;
+      }
+
+      const integrations = await models.Integrations.find(
+        {
+          channelId: { $in: channelIds },
+          isActive: { $ne: false },
+        },
+        { kind: 1 },
+      ).lean();
+
+      if (!integrations.length) {
+        return usedTypes;
+      }
+
+      const [conversationCounts, unreadConversationCounts] = await Promise.all([
+        countConversationsByKind(models, integrations),
+        countConversationsByKind(models, integrations, {
+          status: {
+            $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
+          },
+          readUserIds: { $ne: user._id },
+        }),
+      ]);
+
+      for (const kind of new Set(integrations.map(({ kind }) => kind))) {
+        if (kindMap[kind]) {
+          usedTypes.push({
+            _id: kind,
+            name: kindMap[kind],
+            conversationCount: conversationCounts[kind] || 0,
+            unreadConversationCount: unreadConversationCounts[kind] || 0,
+          });
+        }
+      }
+
+      return usedTypes;
+    } catch (error) {
+      console.error('Error in integrationsGetUsedTypesByChannel:', error);
+      throw new Error('Failed to fetch used integration types by channel');
     }
   },
 

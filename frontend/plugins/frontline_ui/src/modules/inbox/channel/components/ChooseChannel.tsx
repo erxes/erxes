@@ -8,9 +8,17 @@ import {
 import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
+import { ChannelScope } from '@/channels/types';
+import { channelScopeOf } from '@/channels/utils/channelScope';
 import { useTranslation } from 'react-i18next';
 
-export const ChooseChannel = () => {
+export const ChooseChannel = ({
+  scope,
+  emptyMessage,
+}: {
+  scope?: ChannelScope;
+  emptyMessage?: string;
+}) => {
   const { t } = useTranslation('frontline');
   const { channels, loading } = useGetMyChannels();
 
@@ -23,14 +31,18 @@ export const ChooseChannel = () => {
       </div>
     );
 
-  if (!channels?.length)
+  const visibleChannels = scope
+    ? channels?.filter((channel) => channelScopeOf(channel) === scope)
+    : channels;
+
+  if (!visibleChannels?.length)
     return (
       <div className="text-sm text-accent-foreground ml-3 my-4">
-        {t('no-channels-found')}
+        {emptyMessage ?? t('no-channels-found')}
       </div>
     );
 
-  return channels?.map((channel: IChannel) => (
+  return visibleChannels?.map((channel: IChannel) => (
     <ChannelItem key={channel._id} {...channel} />
   ));
 };

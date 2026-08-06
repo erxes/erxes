@@ -109,6 +109,16 @@ export const types = `
     name: String
   }
 
+  # A used integration kind inside the caller's channels. The counts cover the
+  # conversations held by that kind's integrations across the matched channels;
+  # unreadConversationCount is per-viewer.
+  type integrationsGetUsedTypesByChannel {
+    _id: String
+    name: String
+    conversationCount: Int
+    unreadConversationCount: Int
+  }
+
   input BotPersistentMenuTypeMessenger {
     _id: String
     type: String
@@ -229,6 +239,7 @@ export const queries = `
 
   allLeadIntegrations: [Integration]
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
+  integrationsGetUsedTypesByChannel(channelId: String, scope: String): [integrationsGetUsedTypesByChannel]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String, tag: String, channelId: String!, status: String, formLoadType: String): integrationsTotalCount
@@ -288,7 +299,7 @@ export const mutations = `
 
   integrationsCreateExternalIntegration(
     kind: String!,
-    channelId: String!,
+    channelId: String,
     name: String!,
     accountId: String,
     brandId: String!,
