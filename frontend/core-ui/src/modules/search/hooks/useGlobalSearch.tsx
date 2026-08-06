@@ -35,6 +35,43 @@ interface ICursorList<T> {
   totalCount: number;
 }
 
+interface ICustomersQuery {
+  customers: ICursorList<IGlobalSearchCustomer>;
+}
+
+interface ICompaniesQuery {
+  companies: ICursorList<IGlobalSearchCompany>;
+}
+
+interface IProductsQuery {
+  products: IGlobalSearchProduct[];
+  productsTotalCount: number;
+}
+
+interface ITeamMembersQuery {
+  users: ICursorList<IGlobalSearchTeamMember>;
+}
+
+interface IConversationsQuery {
+  conversations: ICursorList<IGlobalSearchConversation>;
+}
+
+interface ITicketsQuery {
+  getTickets: ICursorList<IGlobalSearchTicket>;
+}
+
+interface IChannelsQuery {
+  getChannels: IGlobalSearchChannel[];
+}
+
+interface IFormsQuery {
+  forms: ICursorList<IGlobalSearchForm>;
+}
+
+interface IDealsQuery {
+  deals: ICursorList<IGlobalSearchDeal>;
+}
+
 export interface IGlobalSearchResult {
   loading: boolean;
   customers: IGlobalSearchCustomer[];
@@ -57,140 +94,179 @@ export interface IGlobalSearchResult {
   dealsTotalCount: number;
 }
 
-export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
-  const pluginsConfig = useAtomValue(pluginsConfigState);
-  const hasFrontline = !!pluginsConfig?.[FRONTLINE_PLUGIN];
-  const hasSales = !!pluginsConfig?.[SALES_PLUGIN];
+const listOf = <T,>(page?: ICursorList<T>): T[] => page?.list ?? [];
 
-  const skip = searchValue.length < GLOBAL_SEARCH_MIN_LENGTH;
-  const limit = GLOBAL_SEARCH_PER_GROUP;
+const countOf = <T,>(page?: ICursorList<T>): number => page?.totalCount ?? 0;
 
-  const { data: customersData, loading: customersLoading } = useQuery<{
-    customers: ICursorList<IGlobalSearchCustomer>;
-  }>(GLOBAL_SEARCH_CUSTOMERS, {
-    variables: { searchValue, limit },
-    skip,
-  });
+const buildGlobalSearchResult = ({
+  loading,
+  limit,
+  customersData,
+  companiesData,
+  productsData,
+  teamMembersData,
+  openData,
+  closedData,
+  ticketsData,
+  channelsData,
+  formsData,
+  dealsData,
+}: {
+  loading: boolean;
+  limit: number;
+  customersData?: ICustomersQuery;
+  companiesData?: ICompaniesQuery;
+  productsData?: IProductsQuery;
+  teamMembersData?: ITeamMembersQuery;
+  openData?: IConversationsQuery;
+  closedData?: IConversationsQuery;
+  ticketsData?: ITicketsQuery;
+  channelsData?: IChannelsQuery;
+  formsData?: IFormsQuery;
+  dealsData?: IDealsQuery;
+}): IGlobalSearchResult => {
+  const customersPage = customersData?.customers;
+  const companiesPage = companiesData?.companies;
+  const teamMembersPage = teamMembersData?.users;
+  const openPage = openData?.conversations;
+  const closedPage = closedData?.conversations;
+  const ticketsPage = ticketsData?.getTickets;
+  const formsPage = formsData?.forms;
+  const dealsPage = dealsData?.deals;
 
-  const { data: companiesData, loading: companiesLoading } = useQuery<{
-    companies: ICursorList<IGlobalSearchCompany>;
-  }>(GLOBAL_SEARCH_COMPANIES, {
-    variables: { searchValue, limit },
-    skip,
-  });
-
-  const { data: productsData, loading: productsLoading } = useQuery<{
-    products: IGlobalSearchProduct[];
-    productsTotalCount: number;
-  }>(GLOBAL_SEARCH_PRODUCTS, {
-    variables: { searchValue, perPage: limit },
-    skip,
-  });
-
-  const { data: teamMembersData, loading: teamMembersLoading } = useQuery<{
-    users: ICursorList<IGlobalSearchTeamMember>;
-  }>(GLOBAL_SEARCH_TEAM_MEMBERS, {
-    variables: { searchValue, limit },
-    skip,
-  });
-
-  const { data: openData, loading: openLoading } = useQuery<{
-    conversations: ICursorList<IGlobalSearchConversation>;
-  }>(GLOBAL_SEARCH_CONVERSATIONS, {
-    variables: { searchValue, limit },
-    skip: skip || !hasFrontline,
-  });
-
-  const { data: closedData, loading: closedLoading } = useQuery<{
-    conversations: ICursorList<IGlobalSearchConversation>;
-  }>(GLOBAL_SEARCH_CONVERSATIONS, {
-    variables: { searchValue, limit, status: 'closed' },
-    skip: skip || !hasFrontline,
-  });
-
-  const { data: ticketsData, loading: ticketsLoading } = useQuery<{
-    getTickets: ICursorList<IGlobalSearchTicket>;
-  }>(GLOBAL_SEARCH_TICKETS, {
-    variables: {
-      filter: {
-        searchValue,
-        cursor: '',
-        direction: 'forward',
-        limit,
-        orderBy: { createdAt: -1 },
-      },
-    },
-    skip: skip || !hasFrontline,
-  });
-
-  const { data: channelsData, loading: channelsLoading } = useQuery<{
-    getChannels: IGlobalSearchChannel[];
-  }>(GLOBAL_SEARCH_CHANNELS, {
-    variables: { name: searchValue },
-    skip: skip || !hasFrontline,
-  });
-
-  const { data: formsData, loading: formsLoading } = useQuery<{
-    forms: ICursorList<IGlobalSearchForm>;
-  }>(GLOBAL_SEARCH_FORMS, {
-    variables: { searchValue, limit },
-    skip: skip || !hasFrontline,
-  });
-
-  const { data: dealsData, loading: dealsLoading } = useQuery<{
-    deals: ICursorList<IGlobalSearchDeal>;
-  }>(GLOBAL_SEARCH_DEALS, {
-    variables: { search: searchValue, limit },
-    skip: skip || !hasSales,
-  });
-
-  const customers = customersData?.customers?.list || [];
-  const companies = companiesData?.companies?.list || [];
-  const products = productsData?.products || [];
-  const teamMembers = teamMembersData?.users?.list || [];
-  const conversations = [
-    ...(openData?.conversations?.list || []),
-    ...(closedData?.conversations?.list || []),
-  ].slice(0, limit);
-  const tickets = ticketsData?.getTickets?.list || [];
-  const allChannels = channelsData?.getChannels || [];
-  const channels = allChannels.slice(0, limit);
-  const forms = formsData?.forms?.list || [];
-  const deals = dealsData?.deals?.list || [];
-
-  const loading =
-    customersLoading ||
-    companiesLoading ||
-    productsLoading ||
-    teamMembersLoading ||
-    openLoading ||
-    closedLoading ||
-    ticketsLoading ||
-    channelsLoading ||
-    formsLoading ||
-    dealsLoading;
+  const products = productsData?.products ?? [];
+  const allChannels = channelsData?.getChannels ?? [];
 
   return {
     loading,
-    customers,
-    customersTotalCount: customersData?.customers?.totalCount || 0,
-    companies,
-    companiesTotalCount: companiesData?.companies?.totalCount || 0,
+    customers: listOf(customersPage),
+    customersTotalCount: countOf(customersPage),
+    companies: listOf(companiesPage),
+    companiesTotalCount: countOf(companiesPage),
     products,
     productsTotalCount: productsData?.productsTotalCount ?? products.length,
-    teamMembers,
-    teamMembersTotalCount: teamMembersData?.users?.totalCount || 0,
-    conversations,
-    conversationsTotalCount:
-      (openData?.conversations?.totalCount || 0) +
-      (closedData?.conversations?.totalCount || 0),
-    tickets,
-    ticketsTotalCount: ticketsData?.getTickets?.totalCount || 0,
-    channels,
+    teamMembers: listOf(teamMembersPage),
+    teamMembersTotalCount: countOf(teamMembersPage),
+    conversations: [...listOf(openPage), ...listOf(closedPage)].slice(0, limit),
+    conversationsTotalCount: countOf(openPage) + countOf(closedPage),
+    tickets: listOf(ticketsPage),
+    ticketsTotalCount: countOf(ticketsPage),
+    channels: allChannels.slice(0, limit),
     channelsTotalCount: allChannels.length,
-    forms,
-    formsTotalCount: formsData?.forms?.totalCount || 0,
-    deals,
-    dealsTotalCount: dealsData?.deals?.totalCount || 0,
+    forms: listOf(formsPage),
+    formsTotalCount: countOf(formsPage),
+    deals: listOf(dealsPage),
+    dealsTotalCount: countOf(dealsPage),
   };
+};
+
+export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
+  const pluginsConfig = useAtomValue(pluginsConfigState);
+  const hasFrontline = Boolean(pluginsConfig?.[FRONTLINE_PLUGIN]);
+  const hasSales = Boolean(pluginsConfig?.[SALES_PLUGIN]);
+
+  const skip = searchValue.length < GLOBAL_SEARCH_MIN_LENGTH;
+  const skipFrontline = skip || !hasFrontline;
+  const skipSales = skip || !hasSales;
+  const limit = GLOBAL_SEARCH_PER_GROUP;
+
+  const { data: customersData, loading: customersLoading } =
+    useQuery<ICustomersQuery>(GLOBAL_SEARCH_CUSTOMERS, {
+      variables: { searchValue, limit },
+      skip,
+    });
+
+  const { data: companiesData, loading: companiesLoading } =
+    useQuery<ICompaniesQuery>(GLOBAL_SEARCH_COMPANIES, {
+      variables: { searchValue, limit },
+      skip,
+    });
+
+  const { data: productsData, loading: productsLoading } =
+    useQuery<IProductsQuery>(GLOBAL_SEARCH_PRODUCTS, {
+      variables: { searchValue, perPage: limit },
+      skip,
+    });
+
+  const { data: teamMembersData, loading: teamMembersLoading } =
+    useQuery<ITeamMembersQuery>(GLOBAL_SEARCH_TEAM_MEMBERS, {
+      variables: { searchValue, limit },
+      skip,
+    });
+
+  const { data: openData, loading: openLoading } =
+    useQuery<IConversationsQuery>(GLOBAL_SEARCH_CONVERSATIONS, {
+      variables: { searchValue, limit },
+      skip: skipFrontline,
+    });
+
+  const { data: closedData, loading: closedLoading } =
+    useQuery<IConversationsQuery>(GLOBAL_SEARCH_CONVERSATIONS, {
+      variables: { searchValue, limit, status: 'closed' },
+      skip: skipFrontline,
+    });
+
+  const { data: ticketsData, loading: ticketsLoading } =
+    useQuery<ITicketsQuery>(GLOBAL_SEARCH_TICKETS, {
+      variables: {
+        filter: {
+          searchValue,
+          cursor: '',
+          direction: 'forward',
+          limit,
+          orderBy: { createdAt: -1 },
+        },
+      },
+      skip: skipFrontline,
+    });
+
+  const { data: channelsData, loading: channelsLoading } =
+    useQuery<IChannelsQuery>(GLOBAL_SEARCH_CHANNELS, {
+      variables: { name: searchValue },
+      skip: skipFrontline,
+    });
+
+  const { data: formsData, loading: formsLoading } = useQuery<IFormsQuery>(
+    GLOBAL_SEARCH_FORMS,
+    {
+      variables: { searchValue, limit },
+      skip: skipFrontline,
+    },
+  );
+
+  const { data: dealsData, loading: dealsLoading } = useQuery<IDealsQuery>(
+    GLOBAL_SEARCH_DEALS,
+    {
+      variables: { search: searchValue, limit },
+      skip: skipSales,
+    },
+  );
+
+  const loading = [
+    customersLoading,
+    companiesLoading,
+    productsLoading,
+    teamMembersLoading,
+    openLoading,
+    closedLoading,
+    ticketsLoading,
+    channelsLoading,
+    formsLoading,
+    dealsLoading,
+  ].some(Boolean);
+
+  return buildGlobalSearchResult({
+    loading,
+    limit,
+    customersData,
+    companiesData,
+    productsData,
+    teamMembersData,
+    openData,
+    closedData,
+    ticketsData,
+    channelsData,
+    formsData,
+    dealsData,
+  });
 };
