@@ -38,6 +38,7 @@ export const CyclesMoreColumnCell = ({
 
 export const cyclesMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: CyclesMoreColumnCell,
   size: 33,
 };

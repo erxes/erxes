@@ -15,6 +15,7 @@ export const CyclesRecordTable = () => {
         data={cycles || [{}]}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}
+        tableId="operation_cycles_record_table"
       >
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
