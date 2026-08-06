@@ -3,13 +3,31 @@ import moment from 'moment';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IDoc } from './@types/common';
+import {
+  EbarimtEmailDeal,
+  EbarimtEmailResponse,
+  sendEbarimtEmail,
+} from './sendEbarimtEmail';
+import { getPutResponseDetail } from './getPutResponseDetail';
 import { getEbarimtData, getPostData } from './utils';
+
+interface AfterMutationParams {
+  deal: EbarimtEmailDeal & { description?: string };
+  destinationStageId: string;
+  processId?: string;
+  sessionCode: string;
+  sourceStageId?: string;
+  userId: string;
+}
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
 
 export const afterMutationHandlers = async (
   models: IModels,
   subdomain: string,
   processId: string,
-  params: any,
+  params: AfterMutationParams,
 ) => {
   const { destinationStageId, deal, sessionCode, userId } = params;
 
@@ -53,8 +71,8 @@ export const afterMutationHandlers = async (
             content: returnResponses,
           },
         });
-      } catch (e) {
-        throw new Error(e.message);
+      } catch (error) {
+        throw new Error(getErrorMessage(error));
       }
     }
 
@@ -93,7 +111,7 @@ export const afterMutationHandlers = async (
     pipeline.paymentTypes,
   );
 
-  const ebarimtResponses: any[] = [];
+  const ebarimtResponses: EbarimtEmailResponse[] = [];
 
   if (config.skipEbarimt) {
     const { status, msg, data, innerData } = await getEbarimtData({
@@ -139,12 +157,12 @@ export const afterMutationHandlers = async (
 
       if (putData) ebarimtResponses.push(putData);
       if (innerData) ebarimtResponses.push(innerData);
-    } catch (e) {
+    } catch (error) {
       ebarimtResponses.push({
         _id: nanoid(),
         id: 'Error',
         status: 'ERROR',
-        message: e.message,
+        message: getErrorMessage(error),
       });
     }
   }
@@ -165,7 +183,44 @@ export const afterMutationHandlers = async (
         },
       });
     }
-  } catch (e) {
-    throw new Error(e.message);
+
+    const fallbackEmailResponses: EbarimtEmailResponse[] =
+      ebarimtResponses.map((response) => ({
+        ...config,
+        ...response,
+        description: (config.withDescription && deal.description) || '',
+      }));
+    let emailResponses = fallbackEmailResponses;
+
+    if (!config.skipEbarimt) {
+      try {
+        const responseDetail = await getPutResponseDetail({
+          contentType: 'deal',
+          contentId: deal._id,
+          models,
+          subdomain,
+        });
+
+        if (responseDetail) {
+          emailResponses = [
+            {
+              ...config,
+              ...responseDetail,
+              description: (config.withDescription && deal.description) || '',
+            },
+          ];
+        }
+      } catch {
+        emailResponses = fallbackEmailResponses;
+      }
+    }
+
+    await sendEbarimtEmail({
+      deal,
+      responses: emailResponses,
+      subdomain,
+    });
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
   }
 };
