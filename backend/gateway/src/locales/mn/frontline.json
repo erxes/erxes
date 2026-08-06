@@ -760,6 +760,7 @@
   "customers-email": "Харилцагчийн имэйл",
   "customers-phone": "Харилцагчийн утас",
   "company-name": "Компанийн нэр",
+  "pipeline-updated-successfully": "Дамжлага амжилттай шинэчлэгдлээ",
   "pipeline-removed-successfully": "Дамжлага амжилттай устгагдлаа",
   "no-call-integration-found": "Энэ хэрэглэгчид зориулсан дуудлагын холболт олдсонгүй.",
   "no-queues-assigned": "Сонгосон холболтод дараалал хариуцуулагдаагүй байна.",
