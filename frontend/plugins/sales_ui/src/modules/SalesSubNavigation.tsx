@@ -124,7 +124,10 @@ function BoardItem({ board }: { board: IBoard }) {
                     isActive={isActive && pipelineId === pipeline._id}
                     onClick={() => handlePipelineClick(pipeline._id)}
                   >
-                    <span className="capitalize">{pipeline.name}</span>
+                    <TextOverflowTooltip
+                      className="capitalize flex-1 min-w-0"
+                      value={pipeline.name}
+                    />
                   </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               ))}

@@ -26,6 +26,11 @@ export const TICKET_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
           relType: 'deal',
         },
       },
+      {
+        key: 'link',
+        label: 'Ticket link',
+        resolver: 'ticketLink',
+      },
     ],
   },
 ];

@@ -1,5 +1,6 @@
 import { STRUCTURE_STATUSES } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 const getFilterOrder = async (
@@ -79,10 +80,18 @@ const getFilterOrderSearch = async (
     structureFilter.order = filterOrder;
   }
 
-  const objOrders = (await collection.find(structureFilter))
-    .map((obj) => obj.code)
-    .join('|');
-  return { $regex: new RegExp(objOrders) };
+  const structureCodes = (await collection.find(structureFilter))
+    .map((structure) => structure.code)
+    .filter(Boolean)
+    .map(escapeRegExp);
+
+  if (!structureCodes.length) {
+    return { $in: [] };
+  }
+
+  return {
+    $regex: new RegExp(`(^|/)(${structureCodes.join('|')})/`),
+  };
 };
 
 export const generateFilters = async ({

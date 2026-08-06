@@ -17,10 +17,12 @@
     "crypto-js": "^4.2.0",
     "erxes-api-shared": "workspace:^",
     "graphql-tag": "^2.12.6",
+    "pdfkit": "^0.15.0",
     "qrcode": "^1.5.0",
     "stripe": "^17.2.1"
   },
   "devDependencies": {
-    "@types/crypto-js": "^4.2.2"
+    "@types/crypto-js": "^4.2.2",
+    "@types/pdfkit": "^0.13.4"
   }
 }

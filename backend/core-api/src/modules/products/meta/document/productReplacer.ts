@@ -5,7 +5,6 @@ import { generateBarcodeSvg } from '~/modules/documents/barcode';
 import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 
 const readFileUrl = (key: string, subdomain: string) => {
-
   if (key.startsWith('http://') || key.startsWith('https://')) {
     return key;
   }
@@ -16,7 +15,20 @@ const readFileUrl = (key: string, subdomain: string) => {
     defaultValue: 'http://localhost:4000',
   });
 
-  return `${DOMAIN}/gateway/read-file?key=${encodeURIComponent(key)}`;
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  const encodedKey = encodeURIComponent(key);
+
+  if (NODE_ENV !== 'production') {
+    return `${DOMAIN}/read-file?key=${encodedKey}`;
+  }
+
+  if (VERSION === 'saas') {
+    return `${DOMAIN}/api/read-file?key=${encodedKey}`;
+  }
+
+  return `${DOMAIN}/gateway/read-file?key=${encodedKey}`;
 };
 
 const toMoney = (value?: number) => {

@@ -5,7 +5,7 @@ import { appRouter } from '~/trpc/init-trpc';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { permissions } from '~/meta/permissions';
-
+import { beforeResolvers } from '~/meta/beforeResolvers';
 
 startPlugin({
   name: 'mongolian',
@@ -43,6 +43,7 @@ startPlugin({
 
   meta: {
     afterProcess,
-    permissions, 
-  }
+    beforeResolvers,
+    permissions,
+  },
 });

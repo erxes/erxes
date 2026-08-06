@@ -24,9 +24,15 @@ export const ReturnErkhetConfigRecordTable = ({
   return (
     <ErkhetConfigRecordTable
       configs={configs}
-      columns={buildReturnErkhetConfigColumns(onEdit, onDelete, editLoading)}
+      columns={buildReturnErkhetConfigColumns(t, onEdit, onDelete, editLoading)}
+      tableId="mongolian_erkhet_return_erkhet_config_record_table"
       emptyDescription={t('create-first-return-erkhet-config')}
-      commandBar={<ReturnErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+      commandBar={
+        <ReturnErkhetConfigCommandBar
+          onDeleteMany={onDeleteMany}
+          loading={editLoading}
+        />
+      }
     />
   );
 };

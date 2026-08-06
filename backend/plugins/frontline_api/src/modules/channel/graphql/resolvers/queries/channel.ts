@@ -1,6 +1,13 @@
+import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { IChannelFilter } from '@/channel/@types/channel';
+import { teamChannelsOnly } from '@/channel/utils';
 import { canGroup } from 'erxes-api-shared/core-modules';
+
+// Sortable document paths. `memberCount` and the other counts are field
+// resolvers rather than stored fields, and `updatedAt` is not a schema path,
+// so none of them can be sorted on in the database.
+const CHANNEL_SORT_FIELDS = ['name', 'createdAt'];
 
 export const channelQueries = {
   getChannel: async (_parent: undefined, { _id }, { models }: IContext) => {
@@ -9,7 +16,11 @@ export const channelQueries = {
 
   getMyChannels: async (
     _parent: undefined,
-    { name }: { name?: string },
+    {
+      name,
+      sortField = 'createdAt',
+      sortDirection = -1,
+    }: { name?: string; sortField?: string; sortDirection?: number },
     { models, user }: IContext,
   ) => {
     if (!user?._id) throw new Error('Unauthorized');
@@ -19,7 +30,40 @@ export const channelQueries = {
     }).distinct('channelId');
 
     const nameFilter = name ? { name: { $regex: name, $options: 'i' } } : {};
-    return models.Channels.find({ _id: { $in: channelIds }, ...nameFilter });
+
+    // Sorting is resolved here rather than in the UI so the list stays ordered
+    // across refetches. Unknown fields are rejected so a client cannot sort by
+    // an arbitrary document path.
+    const orderBy: Record<string, SortOrder> = {
+      [CHANNEL_SORT_FIELDS.includes(sortField) ? sortField : 'createdAt']:
+        sortDirection === 1 ? 1 : -1,
+    };
+
+    // Collated so `name` orders the way a reader expects — Mongo's default is
+    // byte order, which files every capitalized name ahead of every lowercase
+    // one. Strength 1 ignores case and diacritics, matching the locale-aware
+    // comparison the sidebar previously did in the browser.
+    return models.Channels.find({
+      _id: { $in: channelIds },
+      ...nameFilter,
+    })
+      .sort(orderBy)
+      .collation({ locale: 'en', strength: 1 });
+  },
+
+  /*
+   * Provisioning point for a user's private inbox: the channel is created the
+   * first time it is actually asked for — opening its settings page, or
+   * connecting a personal mailbox — rather than up front for every user.
+   */
+  getPersonalChannel: async (
+    _parent: undefined,
+    _params: undefined,
+    { models, user }: IContext,
+  ) => {
+    if (!user?._id) throw new Error('Unauthorized');
+
+    return models.Channels.getPersonalChannel(user._id);
   },
 
   getChannels: async (
@@ -31,10 +75,15 @@ export const channelQueries = {
       ? { name: { $regex: params.name, $options: 'i' } }
       : {};
 
+    // This listing is team channels only, on every branch. Personal inboxes are
+    // reached through `getPersonalChannel`.
+    const scopeFilter = teamChannelsOnly();
+
     if (params.channelIds && params.channelIds.length > 0) {
       return models.Channels.find({
         _id: { $in: params.channelIds },
         ...nameFilter,
+        ...scopeFilter,
       });
     }
 
@@ -42,12 +91,19 @@ export const channelQueries = {
       const channelIds = await models.Integrations.distinct('channelId', {
         _id: params.integrationId,
       });
-      return models.Channels.find({ _id: { $in: channelIds }, ...nameFilter });
+      return models.Channels.find({
+        _id: { $in: channelIds },
+        ...nameFilter,
+        ...scopeFilter,
+      });
     }
 
     // System owners and users with showAllChannels permission see every channel.
     if (user?.isOwner || (await canGroup(subdomain, 'showAllChannels', user))) {
-      return models.Channels.find(nameFilter);
+      return models.Channels.find({
+        ...nameFilter,
+        ...scopeFilter,
+      });
     }
 
     const userId = params.userId || user?._id;
@@ -55,7 +111,11 @@ export const channelQueries = {
       const channelIds = await models.ChannelMembers.find({
         memberId: userId,
       }).distinct('channelId');
-      return models.Channels.find({ _id: { $in: channelIds }, ...nameFilter });
+      return models.Channels.find({
+        _id: { $in: channelIds },
+        ...nameFilter,
+        ...scopeFilter,
+      });
     }
 
     return [];

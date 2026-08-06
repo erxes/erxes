@@ -36,6 +36,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'accounting',
+    defaultPath: 'accounting/main',
     icon: IconCashBanknote,
     content: () => (
       <Suspense fallback={<div />}>

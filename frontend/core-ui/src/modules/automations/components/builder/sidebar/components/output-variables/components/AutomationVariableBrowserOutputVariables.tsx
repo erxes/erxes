@@ -12,6 +12,7 @@ export const AutomationVariableBrowserOutputVariables = () => {
     loading,
     mergedVariables,
     onInsertVariable,
+    onInsertVariableAsLink,
     searchValue,
     setSearchValue,
   } = useAutomationVariableBrowserContext();
@@ -40,6 +41,7 @@ export const AutomationVariableBrowserOutputVariables = () => {
           buildVariableToken={buildVariableToken}
           loading={loading}
           onInsertVariable={onInsertVariable}
+          onInsertVariableAsLink={onInsertVariableAsLink}
           sourceNode={activeSourceNode}
           variables={mergedVariables}
         />

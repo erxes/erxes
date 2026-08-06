@@ -259,7 +259,7 @@ export const DealsBoard = () => {
     return result;
   }, [pagination]);
 
-  if (columnsLoading) {
+  if (!pipelineId || columnsLoading) {
     return <StagesLoading />;
   }
 

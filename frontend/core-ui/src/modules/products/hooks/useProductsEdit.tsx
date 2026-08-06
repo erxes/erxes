@@ -7,12 +7,11 @@ export const useProductsEdit = () => {
     productsMutations.productsEdit,
   );
 
-  const mutate = ({ variables, ...options }: MutationHookOptions) => {
+  const mutate = ({ variables, ...options }: MutationHookOptions) =>
     productsEdit({
       ...options,
       variables,
     });
-  };
 
   return { productsEdit: mutate, loading };
 };

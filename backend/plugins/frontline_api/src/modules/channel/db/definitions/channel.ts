@@ -16,6 +16,12 @@ export const channelSchema = schemaWrapper(
       label: 'Description',
     },
     userId: { type: String, label: 'Created by' },
+    scope: {
+      type: String,
+      enum: ['team', 'personal'],
+      default: 'team',
+      label: 'Scope',
+    },
     conversationCount: {
       type: Number,
       default: 0,
@@ -27,6 +33,13 @@ export const channelSchema = schemaWrapper(
       label: 'Open conversation count',
     },
   }),
+);
+
+// A user owns at most one personal channel. The partial filter keeps team
+// channels — and legacy channels saved before `scope` existed — out of the index.
+channelSchema.index(
+  { createdBy: 1 },
+  { unique: true, partialFilterExpression: { scope: 'personal' } },
 );
 
 const channelMemberRole = {

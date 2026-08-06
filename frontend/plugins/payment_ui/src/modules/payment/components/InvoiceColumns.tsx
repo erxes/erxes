@@ -103,19 +103,26 @@ export const invoicesColumns = (
     header: () => (
       <RecordTable.InlineHead label={t('scanned')} icon={IconQrcode} />
     ),
-    cell: ({ cell }) => {
-      const scannedAt = cell.getValue() as string | undefined;
+    cell: ({ row }) => {
+      const { scannedAt, ticketCount = 1 } = row.original as IInvoice;
+      const scannedCount = Math.max(
+        (row.original as IInvoice).scannedCount || 0,
+        scannedAt ? 1 : 0,
+      );
+
+      if (scannedCount === 0) {
+        return (
+          <RecordTableInlineCell>
+            <Badge variant="secondary">{t('not-scanned')}</Badge>
+          </RecordTableInlineCell>
+        );
+      }
+
       return (
         <RecordTableInlineCell>
-          {scannedAt ? (
-            <RelativeDateDisplay value={scannedAt} asChild>
-              <Badge variant="success">
-                <RelativeDateDisplay.Value value={scannedAt} />
-              </Badge>
-            </RelativeDateDisplay>
-          ) : (
-            <Badge variant="secondary">{t('not-scanned')}</Badge>
-          )}
+          <Badge variant={scannedCount >= ticketCount ? 'success' : 'warning'}>
+            {scannedCount} / {ticketCount}
+          </Badge>
         </RecordTableInlineCell>
       );
     },

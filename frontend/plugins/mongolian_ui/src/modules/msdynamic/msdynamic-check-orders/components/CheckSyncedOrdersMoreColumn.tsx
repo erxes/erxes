@@ -92,6 +92,7 @@ export const getCheckSyncedOrdersMoreColumn = ({
   onResend: (orderId: string) => void;
 }) => ({
   id: 'more' as const,
+  header: () => <RecordTable.ColumnSelector />,
   cell: (info: { cell: Cell<IMSDynamicCheckOrder, unknown> }) => (
     <CheckSyncedOrdersMoreColumnCell cell={info.cell} onResend={onResend} />
   ),

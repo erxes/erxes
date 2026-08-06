@@ -1,3 +1,4 @@
+import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
 import { cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
 
@@ -10,7 +11,7 @@ export function SidebarNavigationFavorites({
 
   return (
     <section className="w-full shrink-0">
-      <Sidebar.Menu className={cn(expanded ? 'gap-1' : 'items-center gap-1')}>
+      <Sidebar.Menu className="gap-1">
         {favorites.map((item) => {
           return (
             <SidebarNavigationFavoritesItem
@@ -48,24 +49,21 @@ export function SidebarNavigationFavoritesItem({
       name={name}
       icon={Icon}
       itemClassName={cn(
-        'flex w-full shrink-0 items-center justify-center',
+        'flex w-full shrink-0 items-center justify-start',
         'h-7',
       )}
       path={pathWithoutUi}
       className={cn(
-        'rounded-md',
-        expanded
-          ? 'h-7 w-full justify-start px-2 text-sm'
-          : 'mx-auto size-7 justify-center px-0 group-data-[collapsible=icon]:[&&]:size-7! group-data-[collapsible=icon]:[&&]:p-0!',
+        'h-7 justify-start rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear',
+        expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
+        'group-data-[collapsible=icon]:[&&]:h-7! group-data-[collapsible=icon]:[&&]:w-7! group-data-[collapsible=icon]:[&&]:px-1.5!',
       )}
       label={
-        expanded ? (
-          <span className="min-w-0 flex-1 truncate">{sidebarLabel}</span>
-        ) : (
-          <span className="sr-only">{sidebarLabel}</span>
-        )
+        <NavigationRailLabel className="flex-1 truncate" expanded={expanded}>
+          {sidebarLabel}
+        </NavigationRailLabel>
       }
-      tooltipVisibility="always"
+      tooltipVisibility="collapsed"
       tooltip={{
         align: 'start',
         className:

@@ -113,6 +113,12 @@ export const dealSchema = schemaWrapper(
       // TODO remove after migration
       sourceConversationId: { type: String, optional: true },
       sourceConversationIds: { type: [String], optional: true },
+      sourceInvoiceId: {
+        type: String,
+        optional: true,
+        index: true,
+        label: 'Source invoice',
+      },
       timeTrack: {
         type: timeTrackSchema,
       },
@@ -198,3 +204,5 @@ export const dealSchema = schemaWrapper(
     },
   ),
 );
+dealSchema.index({ stageId: 1, status: 1, createdAt: -1, _id: 1 });
+dealSchema.index({ stageId: 1, number: 1 });

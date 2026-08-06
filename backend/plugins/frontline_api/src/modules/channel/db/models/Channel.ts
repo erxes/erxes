@@ -1,5 +1,6 @@
 import {
   ChannelMemberRoles,
+  ChannelScopes,
   IChannel,
   IChannelDocument,
   IChannelFilter,
@@ -22,6 +23,7 @@ export interface IChannelModel extends Model<IChannelDocument> {
     adminId: string;
     memberIds: string[];
   }): Promise<IChannelDocument>;
+  getPersonalChannel(userId: string): Promise<IChannelDocument>;
   updateChannel(
     _id: string,
     doc: IChannel,
@@ -90,6 +92,41 @@ export const loadChannelClass = (models: IModels) => {
       return channel;
     }
 
+    /*
+     * A user's private inbox. Created on demand with exactly one member — the
+     * owner, as admin — and no invite path, so the membership-based
+     * conversation filters already scope it to that user alone.
+     */
+    public static async getPersonalChannel(
+      userId: string,
+    ): Promise<IChannelDocument> {
+      if (!userId) throw new Error('User id must be supplied');
+
+      const query = { createdBy: userId, scope: ChannelScopes.PERSONAL };
+
+      const existing = await models.Channels.findOne(query);
+
+      if (existing) return existing;
+
+      try {
+        return await models.Channels.createChannel({
+          channelDoc: { name: 'Personal inbox', scope: ChannelScopes.PERSONAL },
+          adminId: userId,
+          memberIds: [],
+        });
+      } catch (e) {
+        // Two connects racing for the same personal channel: the partial unique
+        // index lets one win, and the loser reuses it.
+        if (e.code !== 11000) throw e;
+
+        const channel = await models.Channels.findOne(query);
+
+        if (!channel) throw e;
+
+        return channel;
+      }
+    }
+
     public static async updateChannel(
       _id: string,
       doc: IChannel,
@@ -106,13 +143,26 @@ export const loadChannelClass = (models: IModels) => {
       channelIds: string[],
       userId: string,
     ): Promise<IChannelDocument[]> {
-      await models.ChannelMembers.deleteMany({ memberId: userId });
+      // Bulk channel assignment must not revoke the owner's personal channel:
+      // it is the only membership that inbox holds, and losing it would hide
+      // the user's own conversations from them.
+      const personalChannelIds: string[] = await models.Channels.find({
+        createdBy: userId,
+        scope: ChannelScopes.PERSONAL,
+      }).distinct('_id');
 
-      const newRoles: IChannelMember[] = channelIds.map((channelId) => ({
+      await models.ChannelMembers.deleteMany({
         memberId: userId,
-        channelId,
-        role: ChannelMemberRoles.MEMBER,
-      }));
+        channelId: { $nin: personalChannelIds },
+      });
+
+      const newRoles: IChannelMember[] = channelIds
+        .filter((channelId) => !personalChannelIds.includes(channelId))
+        .map((channelId) => ({
+          memberId: userId,
+          channelId,
+          role: ChannelMemberRoles.MEMBER,
+        }));
       await models.ChannelMembers.createChannelMembers(newRoles);
 
       return models.Channels.find({ _id: { $in: channelIds } }).lean();

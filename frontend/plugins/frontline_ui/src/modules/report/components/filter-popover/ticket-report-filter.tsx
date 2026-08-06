@@ -27,6 +27,7 @@ import {
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
   getReportPropertyFilterAtom,
+  getReportGroupPropertyFilterAtom,
 } from '@/report/states';
 import { MemberFormContent } from '../frontline-card/MemberFormContent';
 import {
@@ -71,6 +72,8 @@ const PROPERTY_FILTER_FIELD_TYPES = new Set([
   'date',
 ]);
 
+const GROUP_PROPERTY_FIELD_TYPES = new Set(['select', 'multiSelect', 'radio']);
+
 interface TicketReportFilterProps {
   cardId: string;
 }
@@ -108,6 +111,9 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
   const [propertyFilter, setPropertyFilter] = useAtom(
     getReportPropertyFilterAtom(cardId),
   );
+  const [groupPropertyFilter, setGroupPropertyFilter] = useAtom(
+    getReportGroupPropertyFilterAtom(cardId),
+  );
 
   const { channels } = useGetChannels();
   const { fields, loading: fieldsLoading } = useFields({
@@ -115,7 +121,10 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
   });
   const filterablePropertyFields = fields.filter((field) =>
     PROPERTY_FILTER_FIELD_TYPES.has(field.type),
-  );
+  ) as IField[];
+  const groupablePropertyFields = fields.filter((field) =>
+    GROUP_PROPERTY_FIELD_TYPES.has(field.type),
+  ) as IField[];
 
   const hasFilters = Boolean(
     (channelFilter && channelFilter.length > 0) ||
@@ -127,7 +136,8 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
       (priorityFilter && priorityFilter.length > 0) ||
       (customerFilter && customerFilter.length > 0) ||
       (companyFilter && companyFilter.length > 0) ||
-      (propertyFilter && propertyFilter.length > 0),
+      (propertyFilter && propertyFilter.length > 0) ||
+      Boolean(groupPropertyFilter),
   );
 
   const handleClear = () => {
@@ -142,6 +152,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
     setCustomerFilter([]);
     setCompanyFilter([]);
     setPropertyFilter([]);
+    setGroupPropertyFilter('');
   };
 
   return (
@@ -169,6 +180,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 <Filter.Item value="properties">
                   {t('properties-label')}
                 </Filter.Item>
+                <Filter.Item value="group">{t('group-by-label')}</Filter.Item>
                 <Filter.Item value="frequency">
                   {t('frequency-label')}
                 </Filter.Item>
@@ -273,6 +285,17 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 value={propertyFilter}
                 onValueChange={setPropertyFilter}
                 fields={filterablePropertyFields}
+                loading={fieldsLoading}
+              />
+            </Command>
+          </Filter.View>
+
+          <Filter.View filterKey="group">
+            <Command shouldFilter={false}>
+              <GroupByFilterView
+                value={groupPropertyFilter}
+                onValueChange={setGroupPropertyFilter}
+                fields={groupablePropertyFields}
                 loading={fieldsLoading}
               />
             </Command>
@@ -572,6 +595,55 @@ const PropertyFilterView = ({
                 </span>
               </div>
             </Filter.Item>
+          ))}
+        </>
+      )}
+    </Command.List>
+  );
+};
+
+const GroupByFilterView = ({
+  value,
+  onValueChange,
+  fields,
+  loading,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+  fields: IField[];
+  loading: boolean;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <Command.List className="max-h-[500px] overflow-y-auto">
+      <BackButton />
+      {loading ? (
+        <Command.Empty>{t('loading')}</Command.Empty>
+      ) : (
+        <>
+          <Command.Item value="none" onSelect={() => onValueChange('')}>
+            <div className="flex items-center gap-2">
+              {!value && <IconCheck className="size-4" />}
+              <span>{t('no-grouping')}</span>
+            </div>
+          </Command.Item>
+          {fields.length === 0 && (
+            <Command.Empty>{t('no-custom-properties-found')}</Command.Empty>
+          )}
+          {fields.map((field) => (
+            <Command.Item
+              key={field._id}
+              value={field._id}
+              onSelect={() =>
+                onValueChange(value === field._id ? '' : field._id)
+              }
+            >
+              <div className="flex items-center gap-2">
+                {value === field._id && <IconCheck className="size-4" />}
+                <span className="truncate">{field.name}</span>
+              </div>
+            </Command.Item>
           ))}
         </>
       )}

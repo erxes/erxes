@@ -23,6 +23,11 @@ class ErxesPayment {
   private readonly api: any;
 
   constructor(payment: IPaymentDocument, subdomain?: string) {
+    console.log('[ErxesPayment] constructor', {
+      paymentKind: payment.kind,
+      paymentName: payment.name,
+      paymentId: payment._id,
+    });
     this.payment = payment;
 
     const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -54,6 +59,7 @@ class ErxesPayment {
         this.api = new WechatPayAPI(payment.config, this.domain);
         break;
       case 'qpayQuickqr':
+        console.log('[ErxesPayment] Using QPayQuickQrAPI');
         this.api = new QPayQuickQrAPI(payment.config, this.domain);
         break;
       case 'pocket':
@@ -72,6 +78,7 @@ class ErxesPayment {
         this.api = new KhanbankAPI(payment.config, subdomain || '');
         break;
       case 'toki':
+        console.log('[ErxesPayment] Using TokiAPI');
         this.api = new TokiAPI(payment.config, this.domain);
         break;
       case 'tdb':
@@ -96,41 +103,44 @@ class ErxesPayment {
   }
 
   async createInvoice(transaction: ITransactionDocument) {
-  if (!this.api?.createInvoice) {
-    return {
-      error: `Payment kind "${this.payment.kind}" does not support createInvoice`,
+    if (!this.api?.createInvoice) {
+      return {
+        error: `Payment kind "${this.payment.kind}" does not support createInvoice`,
+      };
+    }
+
+    const details = transaction.details || {};
+
+    const invoiceAmount = details.monpayCoupon
+      ? Math.max(transaction.amount - details.monpayCoupon, 0)
+      : transaction.amount;
+
+    const invoicePayload = {
+      ...transaction,
+      _id: transaction._id,
+      amount: invoiceAmount,
     };
-  }
-
-  const details = transaction.details || {};
-
-  const invoiceAmount = details.monpayCoupon
-    ? Math.max(transaction.amount - details.monpayCoupon, 0)
-    : transaction.amount;
-
-  const invoicePayload = {
-    ...transaction,
-    _id: transaction._id,
-    amount: invoiceAmount,
-  };
-
-  // 🔽 ADD THIS
-  console.log('[PAYMENT] About to call createInvoice', {
-    transactionId: transaction._id,
-    paymentKind: this.payment.kind,
-  });
-
-  try {
-    const response = await this.api.createInvoice(invoicePayload, this.payment);
 
     // 🔽 ADD THIS
-    console.log('[PAYMENT] createInvoice returned', response);
+    console.log('[PAYMENT] About to call createInvoice', {
+      transactionId: transaction._id,
+      paymentKind: this.payment.kind,
+    });
 
-    return response;
-  } catch (e: any) {
-    return { error: extractErrorMessage(e) };
+    try {
+      const response = await this.api.createInvoice(
+        invoicePayload,
+        this.payment,
+      );
+
+      // 🔽 ADD THIS
+      console.log('[PAYMENT] createInvoice returned', response);
+
+      return response;
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
+    }
   }
-}
 
   async checkInvoice(invoice: ITransactionDocument) {
     if (!this.api?.checkInvoice) {

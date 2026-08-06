@@ -14,6 +14,7 @@ export const CONFIG: IUIConfig = {
   icon: IconSandbox,
   navigationGroup: {
     name: 'insurance',
+    defaultPath: 'insurance/types',
     icon: IconSandbox,
     content: () => (
       <Suspense fallback={<div />}>

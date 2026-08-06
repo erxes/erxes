@@ -25,6 +25,7 @@ interface Config {
   wrapper?: {
     email?: boolean;
     unsubscribeUrl?: string;
+    postalAddress?: string;
   };
 }
 
@@ -267,8 +268,8 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
 
       let html = `<div style="margin: 16px 0;">
         <img src="${escapeHtml(src)}" alt="${escapeHtml(
-        name || '',
-      )}" width="${width}" style="${imgStyle}" />`;
+          name || '',
+        )}" width="${width}" style="${imgStyle}" />`;
 
       if (caption) {
         html += `<div style="margin-top: 8px; font-size: 14px; color: #666; font-style: italic;">${escapeHtml(
@@ -333,8 +334,26 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
     }
 
     case 'table': {
-      const { rows } = content || {};
+      const { rows, columnWidths } = content || {};
       if (!rows || !Array.isArray(rows)) return '';
+
+      const widths: number[] = (columnWidths || []).map(
+        (columnWidth: unknown) => Number(columnWidth) || 0,
+      );
+
+      const totalWidth = widths.reduce((sum, width) => sum + width, 0);
+
+      const colgroup =
+        totalWidth > 0 && widths.every((width) => width > 0)
+          ? `<colgroup>${widths
+              .map(
+                (width) =>
+                  `<col style="width: ${
+                    Math.round((width / totalWidth) * 10000) / 100
+                  }%" />`,
+              )
+              .join('')}</colgroup>`
+          : '';
 
       const tableRows = rows
         .map((row: any, rowIndex: number) => {
@@ -370,7 +389,7 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
         .join('');
 
       return `<table style="${mergeStyles(baseStyles.table, customStyle)}">
-        <tbody>${tableRows}</tbody>
+        ${colgroup}<tbody>${tableRows}</tbody>
       </table>`;
     }
 
@@ -465,6 +484,7 @@ export const blocksToHtml = (
 export const emailHtmlWrapper = (html: string, config?: Config) => {
   const maxWidth = Math.min(config?.maxWidth || DEFAULTS.maxWidth, 600);
   const unsubscribeUrl = config?.wrapper?.unsubscribeUrl;
+  const postalAddress = config?.wrapper?.postalAddress;
 
   const unsubscribeRow = unsubscribeUrl
     ? `<tr>
@@ -472,6 +492,14 @@ export const emailHtmlWrapper = (html: string, config?: Config) => {
           You are receiving this email because you have signed up for our services.
           <br />
           <a style="text-decoration: underline; color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a>
+        </td>
+      </tr>`
+    : '';
+
+  const postalAddressRow = postalAddress
+    ? `<tr>
+        <td style="padding: 0 10px 10px; color: #ccc; text-align: center; font-size: 12px;">
+          ${postalAddress}
         </td>
       </tr>`
     : '';
@@ -494,6 +522,7 @@ export const emailHtmlWrapper = (html: string, config?: Config) => {
                   </td>
                 </tr>
                 ${unsubscribeRow}
+                ${postalAddressRow}
               </table>
             </td>
           </tr>

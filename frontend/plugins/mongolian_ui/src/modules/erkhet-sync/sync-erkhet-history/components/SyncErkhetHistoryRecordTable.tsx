@@ -18,6 +18,7 @@ export const SyncErkhetHistoryRecordTable = () => {
       data={SyncHistories || []}
       className="m-3"
       stickyColumns={['more', 'createdAt']}
+      tableId="mongolian_erkhet_sync_history_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

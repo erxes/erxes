@@ -13,6 +13,7 @@ export const CREATE_TICKET = gql`
     $startDate: Date
     $targetDate: Date
     $assigneeId: String
+    $assignedMembers: [String]
     $attachments: [AttachmentInput]
   ) {
     createTicket(
@@ -27,6 +28,7 @@ export const CREATE_TICKET = gql`
       startDate: $startDate
       targetDate: $targetDate
       assigneeId: $assigneeId
+      assignedMembers: $assignedMembers
       attachments: $attachments
     ) {
       _id
@@ -37,6 +39,7 @@ export const CREATE_TICKET = gql`
       labelIds
       tagIds
       assigneeId
+      assignedMembers
       userId
       startDate
       targetDate

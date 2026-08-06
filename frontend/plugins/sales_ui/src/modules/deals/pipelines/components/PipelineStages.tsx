@@ -79,10 +79,15 @@ export const PipelineStages = ({ form, stagesLoading }: Props) => {
             }}
             renderItem={({
               value,
-              index,
               ...sortableProps
             }: PipelineStageRenderItemProps) => {
-              if (index === undefined) {
+              // Sortable can still render a removed stage, so resolve the index
+              // by id instead of trusting its own order.
+              const stageIndex = fields.findIndex(
+                (field) => field.id === value,
+              );
+
+              if (stageIndex === -1) {
                 return null;
               }
 
@@ -91,10 +96,10 @@ export const PipelineStages = ({ form, stagesLoading }: Props) => {
                   {...sortableProps}
                   key={String(value)}
                   value={value}
-                  index={index}
+                  index={stageIndex}
                   control={control}
-                  stage={fields[index]}
-                  onRemoveStage={() => remove(index)}
+                  stage={fields[stageIndex]}
+                  onRemoveStage={() => remove(stageIndex)}
                 />
               );
             }}

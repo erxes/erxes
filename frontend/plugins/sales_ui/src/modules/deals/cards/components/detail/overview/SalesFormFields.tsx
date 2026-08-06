@@ -175,6 +175,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         />
         <DealTagsChip
           value={optimisticTags.value}
+          showSelectedTagsOutside={false}
           onValueChange={(value) =>
             optimisticTags.setValue(normalizeMultiValue(value))
           }

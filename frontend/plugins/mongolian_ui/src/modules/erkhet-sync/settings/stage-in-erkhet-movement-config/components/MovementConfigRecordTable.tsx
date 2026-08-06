@@ -1,13 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { TMovementErkhetConfig } from '../types';
+import { TMovementConfigRow, TMovementErkhetConfig } from '../types';
 import { buildMovementConfigColumns } from './MovementConfigColumns';
 import { MovementConfigCommandBar } from './MovementConfigCommandBar';
 import { ErkhetConfigRecordTable } from '../../shared/components/ErkhetConfigRecordTable';
 
-type TConfigRow = TMovementErkhetConfig & { _id: string };
-
 interface Props {
-  configs: TConfigRow[];
+  configs: TMovementConfigRow[];
   onEdit: (id: string, data: TMovementErkhetConfig) => Promise<void>;
   onDelete: (id: string) => void;
   onDeleteMany: (ids: string[]) => Promise<void>;
@@ -25,9 +23,15 @@ export const MovementConfigRecordTable = ({
   return (
     <ErkhetConfigRecordTable
       configs={configs}
-      columns={buildMovementConfigColumns(onEdit, onDelete, editLoading)}
+      columns={buildMovementConfigColumns(t, onEdit, onDelete, editLoading)}
+      tableId="mongolian_erkhet_movement_config_record_table"
       emptyDescription={t('create-first-movement-config')}
-      commandBar={<MovementConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+      commandBar={
+        <MovementConfigCommandBar
+          onDeleteMany={onDeleteMany}
+          loading={editLoading}
+        />
+      }
     />
   );
 };

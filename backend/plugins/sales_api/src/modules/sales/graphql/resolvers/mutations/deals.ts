@@ -122,7 +122,7 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Permission denied');
     }
 
-    const removed = await models.Deals.removeDeals([item._id]);
+    await models.Deals.removeDeals([item._id]);
 
     await subscriptionWrapper(models, {
       action: 'delete',
@@ -130,7 +130,7 @@ export const dealMutations: Record<string, Resolver> = {
       oldDeal: item,
     });
 
-    return removed;
+    return item;
   },
 
   /**

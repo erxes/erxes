@@ -1,13 +1,24 @@
 import { IModels } from '~/connectionResolvers';
-import {
-  JOURNALS,
-  TR_SIDES,
-} from '~/modules/accounting/@types/constants';
+import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
 import { ITransaction } from '~/modules/accounting/@types/transaction';
 import { nanoid } from 'nanoid';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 
-const savePtr = async (models: IModels, trDocs: ITransaction[], userId: string, ptrInfo) => {
+const FXA_JOURNALS = [
+  JOURNALS.FXA_INCOME,
+  JOURNALS.FXA_OUT,
+  JOURNALS.FXA_MOVE,
+  JOURNALS.FXA_SALE,
+];
+
+const isFxaJournal = (journal?: string) => FXA_JOURNALS.includes(journal || '');
+
+const savePtr = async (
+  models: IModels,
+  trDocs: ITransaction[],
+  userId: string,
+  ptrInfo,
+) => {
   const { hasOld, parentId } = ptrInfo;
   if (hasOld) {
     const transactions = await models.Transactions.updatePTransaction(
@@ -18,7 +29,10 @@ const savePtr = async (models: IModels, trDocs: ITransaction[], userId: string, 
     return transactions?.[0]?.parentId || parentId;
   }
 
-  const transactions = await models.Transactions.createPTransaction(trDocs, userId);
+  const transactions = await models.Transactions.createPTransaction(
+    trDocs,
+    userId,
+  );
   return transactions?.[0]?.parentId || parentId;
 };
 
@@ -53,75 +67,104 @@ const getBooleanVal = (value) => {
     return true;
   }
   return false;
-}
+};
 
 const getFollowInfos = async (models: IModels, row: any, relatedData) => {
   const { accounts, branches, departments } = relatedData;
   if (JOURNALS.ALL_WITH_CURRENCIES.includes(row.journal)) {
     if (row.follow1) {
-      return { currencyDiffAccountId: accounts?.find(acc => acc.code === row.follow1)?._id }
+      return {
+        currencyDiffAccountId: accounts?.find((acc) => acc.code === row.follow1)
+          ?._id,
+      };
     }
   }
   if (JOURNALS.INV_MOVE === row.journal) {
     return {
-      moveInAccountId: accounts?.find(acc => acc.code === row.follow1)?._id,
-      moveInBranchId: branches?.find(branch => branch.code === row.follow2)?._id,
-      moveInDepartmentId: departments?.find(department => department.code === row.follow3)?._id,
-    }
+      moveInAccountId: accounts?.find((acc) => acc.code === row.follow1)?._id,
+      moveInBranchId: branches?.find((branch) => branch.code === row.follow2)
+        ?._id,
+      moveInDepartmentId: departments?.find(
+        (department) => department.code === row.follow3,
+      )?._id,
+    };
+  }
+  if (JOURNALS.FXA_MOVE === row.journal) {
+    return {
+      moveInBranchId: branches?.find((branch) =>
+        [row.follow1, row.follow2].includes(branch.code),
+      )?._id,
+      moveInDepartmentId: departments?.find((department) =>
+        [row.follow2, row.follow3].includes(department.code),
+      )?._id,
+    };
   }
   if (JOURNALS.INV_SALE === row.journal) {
     return {
-      saleOutAccountId: accounts?.find(acc => acc.code === row.follow1)?._id,
-      saleCostAccountId: accounts?.find(acc => acc.code === row.follow2)?._id,
-    }
+      saleOutAccountId: accounts?.find((acc) => acc.code === row.follow1)?._id,
+      saleCostAccountId: accounts?.find((acc) => acc.code === row.follow2)?._id,
+    };
+  }
+  if ([JOURNALS.FXA_OUT, JOURNALS.FXA_SALE].includes(row.journal)) {
+    return {
+      fixedAssetAccountId: accounts?.find((acc) => acc.code === row.follow1)
+        ?._id,
+      accumulatedDepreciationAccountId: accounts?.find(
+        (acc) => acc.code === row.follow2,
+      )?._id,
+      lossAccountId: accounts?.find((acc) => acc.code === row.follow3)?._id,
+    };
   }
   if (JOURNALS.INV_SALE_RETURN === row.journal) {
     let saleTransactionId = '';
     if (row.follow1) {
-      saleTransactionId = (
-        await models.Transactions.findOne({
-          number: row.follow1,
-          journal: JOURNALS.INV_SALE,
-        }).lean()
-      )?._id ?? '';
+      saleTransactionId =
+        (
+          await models.Transactions.findOne({
+            number: row.follow1,
+            journal: JOURNALS.INV_SALE,
+          }).lean()
+        )?._id ?? '';
     }
     return {
       saleTransactionId,
-      saleOutAccountId: accounts?.find(acc => acc.code === row.follow2)?._id,
-      saleCostAccountId: accounts?.find(acc => acc.code === row.follow3)?._id,
-    }
+      saleOutAccountId: accounts?.find((acc) => acc.code === row.follow2)?._id,
+      saleCostAccountId: accounts?.find((acc) => acc.code === row.follow3)?._id,
+    };
   }
-}
+};
 
 const getSide = (value: string) => {
-  if (['ct', 'credit', 'cr', 'кредит', 'кт', 'кр'].includes(value.toLowerCase())) {
-    return TR_SIDES.CREDIT
+  if (
+    ['ct', 'credit', 'cr', 'кредит', 'кт', 'кр'].includes(value.toLowerCase())
+  ) {
+    return TR_SIDES.CREDIT;
   }
-  return TR_SIDES.DEBIT
-}
+  return TR_SIDES.DEBIT;
+};
 
 const getTrDoc = async (models: IModels, row: any, ptrInfo, relatedData) => {
-  const {
-    users,
-    customers,
-    companies
-  } = relatedData;
+  const { users, customers, companies } = relatedData;
 
-  const journal = row.journal
+  const journal = row.journal;
   if (!JOURNALS.ALL_ORIGINS.includes(journal)) {
-    throw new Error('Зөвшөөрөгдөөгүй журнал бөглөгдсөн байна')
+    throw new Error('Зөвшөөрөгдөөгүй журнал бөглөгдсөн байна');
   }
   const { ptrId, parentId, date, number } = ptrInfo;
   let customerId = '';
   if (row.customerInfo) {
     if (row.customerType === 'company') {
-      customerId = companies
-        .find(c => [c.primaryPhone, c.primaryEmail, c.code].includes(row.customerInfo))?._id ?? '';
+      customerId =
+        companies.find((c) =>
+          [c.primaryPhone, c.primaryEmail, c.code].includes(row.customerInfo),
+        )?._id ?? '';
     } else if (row.customerType === 'user') {
-      customerId = users.find(u => u.email === row.customerInfo)?._id ?? '';
+      customerId = users.find((u) => u.email === row.customerInfo)?._id ?? '';
     } else {
-      customerId = customers
-        .find(c => [c.primaryPhone, c.primaryEmail, c.code].includes(row.customerInfo))?._id ?? '';
+      customerId =
+        customers.find((c) =>
+          [c.primaryPhone, c.primaryEmail, c.code].includes(row.customerInfo),
+        )?._id ?? '';
     }
   }
 
@@ -159,16 +202,27 @@ const getTrDoc = async (models: IModels, row: any, ptrInfo, relatedData) => {
     ctaxAmount: row.ctaxAmount ?? 0,
     details: [],
   };
-}
+};
 
 const getDetailDoc = async (row, currentTr, relatedData) => {
-  const { accounts, branches, departments, users, products } = relatedData;
+  const { accounts, branches, departments, users, products, fixedAssets } =
+    relatedData;
+  const isFxa = isFxaJournal(currentTr.journal);
+  const count = fixNum(row.count, 6);
+  const unitPrice = fixNum(row.unitPrice, 6);
+  const amount =
+    row.amount === undefined || row.amount === ''
+      ? fixNum(count * unitPrice, 6)
+      : fixNum(row.amount, 6);
+
   return {
     _id: nanoid(),
-    accountId: accounts?.find(acc => acc.code === row.accountCode)?._id,
-    branchId: branches?.find(branch => branch.code === row.branchId)?._id,
-    departmentId: departments?.find(department => department.code === row.departmentId)?._id,
-    amount: fixNum(row.amount, 6),
+    accountId: accounts?.find((acc) => acc.code === row.accountCode)?._id,
+    branchId: branches?.find((branch) => branch.code === row.branchId)?._id,
+    departmentId: departments?.find(
+      (department) => department.code === row.departmentId,
+    )?._id,
+    amount,
     currencyAmount: fixNum(row.currencyAmount, 6),
     customRate: fixNum(row.customRate, 6),
     assignedUserId:
@@ -177,16 +231,25 @@ const getDetailDoc = async (row, currentTr, relatedData) => {
       '',
 
     productId:
-      (row.productCode &&
+      (!isFxa &&
+        row.productCode &&
         products.find((prod) => prod.code === row.productCode)?._id) ||
       '',
-    count: fixNum(row.count, 6),
-    unitPrice: fixNum(row.unitPrice, 6),
+    fixedAssetId:
+      (isFxa &&
+        (row.fixedAssetCode || row.productCode) &&
+        fixedAssets.find(
+          (fixedAsset) =>
+            fixedAsset.code === (row.fixedAssetCode || row.productCode),
+        )?._id) ||
+      '',
+    count,
+    unitPrice,
 
     excludeVat: getBooleanVal(row.excludeVat),
     excludeCtax: getBooleanVal(row.excludeCtax),
   };
-}
+};
 
 const extractFollowInfos = (row) => {
   if (JOURNALS.ALL_WITH_CURRENCIES.includes(row.journal)) {
@@ -206,6 +269,17 @@ const extractFollowInfos = (row) => {
       accounts: [row.follow1, row.follow2].filter(Boolean),
     };
   }
+  if (JOURNALS.FXA_MOVE === row.journal) {
+    return {
+      branches: [row.follow1, row.follow2].filter(Boolean),
+      departments: [row.follow2, row.follow3].filter(Boolean),
+    };
+  }
+  if ([JOURNALS.FXA_OUT, JOURNALS.FXA_SALE].includes(row.journal)) {
+    return {
+      accounts: [row.follow1, row.follow2, row.follow3].filter(Boolean),
+    };
+  }
   if (JOURNALS.INV_SALE_RETURN === row.journal) {
     return {
       transactions: [row.follow1].filter(Boolean),
@@ -214,7 +288,11 @@ const extractFollowInfos = (row) => {
   }
 };
 
-const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) => {
+const getRelatedDatas = async (
+  subdomain: string,
+  models: IModels,
+  rows: any[],
+) => {
   const branchIds: string[] = [];
   const departmentIds: string[] = [];
   const userEmails: string[] = [];
@@ -222,8 +300,14 @@ const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) 
   const companyInfos: string[] = [];
   const accountCodes: string[] = [];
   const productCodes: string[] = [];
+  const fixedAssetCodes: string[] = [];
+  let currentJournal = '';
 
   for (const row of rows) {
+    if (row.journal) {
+      currentJournal = row.journal;
+    }
+
     if (row.branchId && !branchIds.includes(row.branchId))
       branchIds.push(row.branchId);
 
@@ -231,10 +315,12 @@ const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) 
       departmentIds.push(row.departmentId);
 
     if (row.assignedUserEmails) {
-      row.assignedUserEmails.split(',').filter(Boolean).forEach(email => {
-        if (!userEmails.includes(email))
-          userEmails.push(email);
-      });
+      row.assignedUserEmails
+        .split(',')
+        .filter(Boolean)
+        .forEach((email) => {
+          if (!userEmails.includes(email)) userEmails.push(email);
+        });
     }
 
     if (row.assignedUserEmail && !userEmails.includes(row.assignedUserEmail))
@@ -256,135 +342,148 @@ const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) 
     if (row.accountCode && !accountCodes.includes(row.accountCode))
       accountCodes.push(row.accountCode);
 
-    if (row.productCode && !productCodes.includes(row.productCode))
+    if (isFxaJournal(currentJournal)) {
+      const fixedAssetCode = row.fixedAssetCode || row.productCode;
+      if (fixedAssetCode && !fixedAssetCodes.includes(fixedAssetCode)) {
+        fixedAssetCodes.push(fixedAssetCode);
+      }
+    } else if (
+      JOURNALS.ALL_REAL_INV.includes(currentJournal) &&
+      row.productCode &&
+      !productCodes.includes(row.productCode)
+    ) {
       productCodes.push(row.productCode);
+    }
 
     const extracted = extractFollowInfos(row);
     if (extracted?.accounts?.length) {
-      extracted.accounts.forEach(acc => {
-        if (!accountCodes.includes(acc))
-          accountCodes.push(acc)
+      extracted.accounts.forEach((acc) => {
+        if (!accountCodes.includes(acc)) accountCodes.push(acc);
       });
     }
     if (extracted?.branches?.length) {
-      extracted.branches.forEach(branch => {
-        if (!branchIds.includes(branch))
-          branchIds.push(branch);
+      extracted.branches.forEach((branch) => {
+        if (!branchIds.includes(branch)) branchIds.push(branch);
       });
     }
     if (extracted?.departments?.length) {
-      extracted.departments.forEach(department => {
-        if (!departmentIds.includes(department))
-          departmentIds.push(department);
+      extracted.departments.forEach((department) => {
+        if (!departmentIds.includes(department)) departmentIds.push(department);
       });
     }
   }
 
   const branches = branchIds.length
     ? await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'branches',
-      action: 'find',
-      defaultValue: [],
-      input: {
-        query: {
-          $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }],
+        subdomain,
+        pluginName: 'core',
+        module: 'branches',
+        action: 'find',
+        defaultValue: [],
+        input: {
+          query: {
+            $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }],
+          },
+          fields: { _id: 1, code: 1 },
         },
-        fields: { _id: 1, code: 1 },
-      },
-    })
+      })
     : [];
 
   const departments = departmentIds.length
     ? await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'departments',
-      action: 'find',
-      defaultValue: [],
-      input: {
-        query: {
-          $or: [
-            { _id: { $in: departmentIds } },
-            { code: { $in: departmentIds } },
-          ],
+        subdomain,
+        pluginName: 'core',
+        module: 'departments',
+        action: 'find',
+        defaultValue: [],
+        input: {
+          query: {
+            $or: [
+              { _id: { $in: departmentIds } },
+              { code: { $in: departmentIds } },
+            ],
+          },
+          fields: { _id: 1, code: 1 },
         },
-        fields: { _id: 1, code: 1 },
-      },
-    })
+      })
     : [];
 
   const users = userEmails.length
     ? await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'users',
-      action: 'find',
-      defaultValue: [],
-      input: {
-        query: { email: { $in: userEmails } },
-        fields: { _id: 1, email: 1 },
-      },
-    })
+        subdomain,
+        pluginName: 'core',
+        module: 'users',
+        action: 'find',
+        defaultValue: [],
+        input: {
+          query: { email: { $in: userEmails } },
+          fields: { _id: 1, email: 1 },
+        },
+      })
     : [];
 
   const customers = customerInfos.length
     ? await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'core',
-      module: 'customers',
-      action: 'findActiveCustomers',
-      input: {
-        query: {
-          $or: [
-            { primaryEmail: { $in: customerInfos } },
-            { primaryPhone: { $in: customerInfos } },
-            { code: { $in: customerInfos } },
-          ]
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'customers',
+        action: 'findActiveCustomers',
+        input: {
+          query: {
+            $or: [
+              { primaryEmail: { $in: customerInfos } },
+              { primaryPhone: { $in: customerInfos } },
+              { code: { $in: customerInfos } },
+            ],
+          },
+          fields: { _id: 1, primaryPhone: 1, primaryEmail: 1 },
         },
-        fields: { _id: 1, primaryPhone: 1, primaryEmail: 1 },
-      },
-      defaultValue: [],
-    }) : []
+        defaultValue: [],
+      })
+    : [];
 
   const companies = companyInfos.length
     ? await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'core',
-      module: 'companies',
-      action: 'findActiveCompanies',
-      input: {
-        query: {
-          $or: [
-            { primaryEmail: { $in: companyInfos } },
-            { primaryPhone: { $in: companyInfos } },
-            { code: { $in: companyInfos } },
-          ]
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'companies',
+        action: 'findActiveCompanies',
+        input: {
+          query: {
+            $or: [
+              { primaryEmail: { $in: companyInfos } },
+              { primaryPhone: { $in: companyInfos } },
+              { code: { $in: companyInfos } },
+            ],
+          },
+          fields: { _id: 1, primaryPhone: 1, primaryEmail: 1 },
         },
-        fields: { _id: 1, primaryPhone: 1, primaryEmail: 1 },
-      },
-      defaultValue: [],
-    }) : []
+        defaultValue: [],
+      })
+    : [];
 
   const products = productCodes.length
     ? await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'core',
-      module: 'products',
-      action: 'find',
-      input: {
-        query: { code: { $in: productCodes } },
-        fields: { _id: 1, code: 1 },
-      },
-      defaultValue: [],
-    }) : []
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'products',
+        action: 'find',
+        input: {
+          query: { code: { $in: productCodes } },
+          fields: { _id: 1, code: 1 },
+        },
+        defaultValue: [],
+      })
+    : [];
 
   const accounts = accountCodes.length
     ? await models.Accounts.find({ code: { $in: accountCodes } }).lean()
+    : [];
+  const fixedAssets = fixedAssetCodes.length
+    ? await models.FixedAssets.find({ code: { $in: fixedAssetCodes } }).lean()
     : [];
 
   return {
@@ -395,6 +494,7 @@ const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) 
     companies,
     accounts,
     products,
+    fixedAssets,
   };
 };
 
@@ -473,7 +573,9 @@ export async function processTransactionRows(
         }
 
         if (currentTr)
-          currentTr.details.push(await getDetailDoc(row, currentTr, relatedData));
+          currentTr.details.push(
+            await getDetailDoc(row, currentTr, relatedData),
+          );
 
         currentSuccessRows.push(row);
       } catch (e: any) {
