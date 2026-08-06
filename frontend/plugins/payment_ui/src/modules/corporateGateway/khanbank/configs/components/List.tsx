@@ -28,8 +28,8 @@ const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold">Khan Bank Corporate Gateway</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-base font-medium">Khan Bank Corporate Gateway</h2>
+          <p className="text-sm font-normal text-muted-foreground">
             Manage your Khan Bank integration settings.
           </p>
         </div>
@@ -47,8 +47,8 @@ const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="border-b">
-              <tr className="text-left">
+            <thead className="border-b text-muted-foreground">
+  <tr className="text-left text-sm font-medium">
                 <th className="py-2">Name</th>
                 <th className="py-2 text-right">Actions</th>
               </tr>

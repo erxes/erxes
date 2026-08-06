@@ -5,7 +5,7 @@ import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 
 import GatewayCard from '../GatewayCard';
-import ConfigFormContainer from './configs/containers/Form';
+import ListContainer from './configs/containers/List';
 import { queries } from './configs/graphql';
 
 const KHANBANK_PAYMENT = PAYMENT_KINDS[PaymentKind.KHANBANK];
@@ -56,13 +56,8 @@ const KhanBankCard = () => {
           <span>{config?.consumerKey}</span>
         </div>
       }
-      form={
-        <ConfigFormContainer
-          config={config}
-          closeModal={() => setOpen(false)}
-        />
-      }
-    />
+      form={<ListContainer />}
+       />
   );
 };
 

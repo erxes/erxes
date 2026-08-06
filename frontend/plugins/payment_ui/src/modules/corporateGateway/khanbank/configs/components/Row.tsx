@@ -27,7 +27,7 @@ const Row = ({ config, remove, refetch }: Props) => {
     <>
       <tr className="border-b">
         <td className="py-3">
-          <span className="font-medium">{config.name || '-'}</span>
+          <span className="font-normal">{config.name || '-'}</span>
         </td>
 
         <td className="py-3 text-right">
