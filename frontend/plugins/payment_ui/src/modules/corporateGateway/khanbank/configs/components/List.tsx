@@ -48,7 +48,7 @@ const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b text-muted-foreground">
-  <tr className="text-left text-sm font-medium">
+              <tr className="text-left text-sm font-medium">
                 <th className="py-2">Name</th>
                 <th className="py-2 text-right">Actions</th>
               </tr>
