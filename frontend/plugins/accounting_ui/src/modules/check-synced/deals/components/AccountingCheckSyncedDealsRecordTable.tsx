@@ -50,6 +50,7 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
       data={deals || []}
       className="m-3"
       stickyColumns={['checkbox', 'toSync', 'name']}
+      tableId="accounting_check_synced_deals_record_table"
     >
       <AccountingCheckSyncedDealsCommandBar
         canSync={canSync}
@@ -66,7 +67,7 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
         sessionKey={ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}

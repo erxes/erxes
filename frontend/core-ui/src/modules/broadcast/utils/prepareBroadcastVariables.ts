@@ -49,7 +49,7 @@ export const prepareBroadcastVariables = (
     return variables;
   }
 
-  variables.fromUserId = data.fromUserId;
+  variables.fromEmail = data.fromEmail;
   variables.email = pickEmailVariables(
     data.email as Record<string, unknown> | undefined,
   );

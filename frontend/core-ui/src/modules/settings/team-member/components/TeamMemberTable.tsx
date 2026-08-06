@@ -38,6 +38,7 @@ const TeamMemberTable = () => {
       columns={[...columns, ...teamMemberCustomFieldsColumns]}
       data={users || []}
       stickyColumns={['more', 'checkbox', 'avatar', 'name']}
+      tableId="team_members_record_table"
       className="m-3"
     >
       <RecordTable.CursorProvider

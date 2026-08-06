@@ -202,6 +202,35 @@ const CommandItem = React.forwardRef<
 
 CommandItem.displayName = CommandPrimitive.Item.displayName;
 
+const CommandActionItem = ({
+  icon: Icon,
+  label,
+  onSelect,
+  disabled,
+  trailing,
+  className,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: React.ReactNode;
+  onSelect: () => void;
+  disabled?: boolean;
+  trailing?: React.ReactNode;
+  className?: string;
+}) => (
+  <CommandItem
+    className={cn('justify-between', className)}
+    onSelect={onSelect}
+    disabled={disabled}
+  >
+    <div className="flex gap-2 items-center">
+      <Icon className="size-4" />
+      <div className="flex items-center">{label}</div>
+    </div>
+    {trailing}
+  </CommandItem>
+);
+CommandActionItem.displayName = 'CommandActionItem';
+
 const CommandShortcut = ({
   className,
   ...props
@@ -225,6 +254,7 @@ export const Command = Object.assign(CommandRoot, {
   Empty: CommandEmpty,
   Group: CommandGroup,
   Item: CommandItem,
+  ActionItem: CommandActionItem,
   Shortcut: CommandShortcut,
   Separator: CommandSeparator,
   Primitive: CommandPrimitive,

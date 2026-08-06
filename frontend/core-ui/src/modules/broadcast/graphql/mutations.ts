@@ -6,6 +6,7 @@ export const BROADCAST_MESSAGE_ADD = gql`
     $kind: String
     $method: String
     $fromUserId: String
+    $fromEmail: String
     $cpId: String
     $targetType: String
     $targetIds: [String]
@@ -21,6 +22,7 @@ export const BROADCAST_MESSAGE_ADD = gql`
       kind: $kind
       method: $method
       fromUserId: $fromUserId
+      fromEmail: $fromEmail
       cpId: $cpId
 
       targetType: $targetType
@@ -56,17 +58,5 @@ export const BROADCAST_SET_LIVE = gql`
     engageMessageSetLive(_id: $_id) {
       _id
     }
-  }
-`;
-
-export const BROADCAST_MEMBER_REMOVE = gql`
-  mutation BROADCAST_MEMBER_REMOVE($email: String!) {
-    engageMessageRemoveVerifiedEmail(email: $email)
-  }
-`;
-
-export const BROADCAST_MEMBER_ADD = gql`
-  mutation BROADCAST_MEMBER_ADD($email: String!) {
-    engageMessageVerifyEmail(email: $email)
   }
 `;

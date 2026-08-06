@@ -12,7 +12,13 @@ export const SettingsNavigation = () => {
           <SettingsNavigationMenuLinkItem
             name={t('accounting')}
             icon={IconListDetails}
-            path="/"
+            path="/config"
+            pathPrefix="accounting/"
+          />
+          <SettingsNavigationMenuLinkItem
+            name="Үндсэн хөрөнгө"
+            icon={IconListDetails}
+            path="/fixed-assets"
             pathPrefix="accounting/"
           />
         </Sidebar.Menu>

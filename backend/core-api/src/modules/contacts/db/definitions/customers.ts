@@ -1,3 +1,4 @@
+
 import { Schema } from 'mongoose';
 
 import {
@@ -254,3 +255,4 @@ export const customerSchema = schemaWrapper(
 );
 
 customerSchema.index({ _id: 1, createdAt: 1, searchText: 1 });
+customerSchema.index({ state: 1, status: 1, createdAt: -1 });

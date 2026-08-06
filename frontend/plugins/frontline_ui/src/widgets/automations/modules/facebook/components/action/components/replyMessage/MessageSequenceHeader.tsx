@@ -5,7 +5,7 @@ import { REPLY_MESSAGE_ACTION_BUTTONS } from '../../constants/ReplyMessage';
 
 export const MessageSequenceHeader = () => {
   const { t } = useTranslation('frontline');
-  const { messages, addMessage } = useReplyMessageAction();
+  const { messages, maxMessages, addMessage } = useReplyMessageAction();
 
   return (
     <>
@@ -13,6 +13,14 @@ export const MessageSequenceHeader = () => {
         <Label>{t('message-sequence')}</Label>
         <Badge variant="secondary">{t('n-messages', { count: messages.length })}</Badge>
       </div>
+      {maxMessages === 1 && (
+        <p className="px-6 pb-2 text-sm text-muted-foreground">
+          {t(
+            'single-message-comment-flow',
+            'A comment reply can only send one message. Add a button and continue the flow in the next action.',
+          )}
+        </p>
+      )}
       <div className="inline-flex gap-2 overflow-x-auto w-full p-2  ">
         {REPLY_MESSAGE_ACTION_BUTTONS.map(
           ({ title, type, icon: Icon, limit }) => (
@@ -20,7 +28,7 @@ export const MessageSequenceHeader = () => {
               key={type}
               variant="outline"
               disabled={
-                messages.length >= 5 ||
+                messages.length >= maxMessages ||
                 messages.filter((message) => message.type === type).length ===
                   limit
               }

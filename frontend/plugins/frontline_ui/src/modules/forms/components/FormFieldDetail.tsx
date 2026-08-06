@@ -333,10 +333,9 @@ export const FormFieldDetail = ({
                   styleClasses={{
                     inlineTagsContainer: 'shadow-xs',
                   }}
-                  value={fieldData?.options ?? []}
-                  onValueChange={(value) =>
-                    handleValueChange('options', value as string[])
-                  }
+                  value={fieldData.options}
+                  onValueChange={(value) => handleValueChange('options', value)}
+                  splitOnPaste
                 />
               </div>
             )}

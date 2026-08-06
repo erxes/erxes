@@ -12,24 +12,42 @@
 
 ### Owns
 
-- Inbox surfaces: conversation list, conversation detail, message input, and
-  the inbox navigation sub-groups.
+- The `frontline` navigation group and settings navigation registered through
+  `src/config.tsx`.
+- Inbox surfaces: conversation list, conversation detail, message input, the
+  inbox navigation sub-groups, response templates, and integration
+  configuration screens.
 - Channel settings (list, detail, members, integrations) and channel forms.
 - Integration connect/detail UIs for IMAP, Facebook, Instagram, Discord, calls,
   and the erxes messenger.
-- Tickets, forms, knowledgebase, and report screens for the frontline plugin.
-- Automation widgets exposed under `src/widgets`.
+- Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
+  ticket surface.
+- Forms UI: form builder, preview, and submissions.
+- Knowledge base UI: topics, categories, and articles.
+- Call UI: call index, detail, and statistics pages.
+- Report screens for the frontline plugin.
+- Automation remote entries under `src/widgets` for facebook, instagram, inbox,
+  discord, knowledgebase, and ticket — trigger forms, action forms, node
+  configuration content, bot management, and execution history renderers.
+- Notification, relation, activity, and floating widgets exposed to the host.
 
 ### Does not own
 
-- Any server contract. GraphQL schema, resolvers, and data rules live in
-  `frontline_api`.
+- Any server contract. GraphQL schema, resolvers, and Facebook Send API
+  behavior live in `frontline_api`.
+- The automation builder canvas, sidebar, and node plumbing — owned by `core-ui`
+  and consumed through `ui-modules` remote-entry prop types.
 - Shared primitives — consume `erxes-ui` and `ui-modules`; never fork them or
   import Radix directly.
+- The `frontline` i18n namespace JSON, which lives in
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
 - Other plugins' modules or state.
 
 ## Current Capabilities
 
+- Runs as a Module Federation remote on port `3004`, bundled with Rspack.
+- Registers navigation, settings navigation, relation widgets, property inputs,
+  and activity rows with the host via `CONFIG` in `src/config.tsx`.
 - Inbox navigation splits into **Me** — the integration types in use by the
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
@@ -61,31 +79,58 @@
   channels.
 - Channel member management, integration attachment, and per-channel forms,
   pipelines, and response templates.
+- Renders plugin-specific automation trigger/action forms selected by node type
+  in each module's `*RemoteEntry.tsx`.
+- Facebook bot message action supports a drag-orderable message sequence of
+  text, card, quick replies, input, image, attachments, audio, and video, with
+  postback/link buttons and optional connects.
+- Caps the Facebook message sequence at one message when the action is attached
+  to a comment trigger, and explains why in the sequence header.
+- Composes Facebook page posts from the integrations sidebar: channel and page
+  selection, message, optional link, drag-and-drop image upload (max 10), and a
+  permalink to the published post.
 
 ## Architecture
 
-| Area              | Path                                            | Responsibility                                        |
-| ----------------- | ----------------------------------------------- | ----------------------------------------------------- |
-| Navigation groups | `src/modules/FrontlineSubGroups.tsx`            | Route-aware sidebar sub-groups for every frontline page |
-| Settings routes   | `src/modules/FrontlineSettings.tsx`             | Top-level frontline settings routes and their page chrome |
-| Channel picker    | `src/modules/inbox/channel/components/ChooseChannel.tsx` | Scope-filtered channel list bound to the `channelId` query param |
-| Inbox nav trees   | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx` | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header |
-| Nav header count  | `src/modules/inbox/channel/components/UnreadSummary.tsx` | The "N unread" figure in a group header's actions slot |
-| Nav group actions | `src/modules/NavigationGroupActions.tsx`         | Click guard for a `NavigationMenuGroup` `actions` slot |
-| Sidebar counts    | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx` | `conversationCounts` reads per integration type inside one channel |
-| Live unread       | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx` | Subscribes to incoming customer messages and refreshes channel unread counts |
-| Channel settings  | `src/modules/channels`                          | Channel CRUD, members, GraphQL documents, form schemas |
-| Personal channel  | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx` | Profile page for the user's private inbox |
-| Inbox             | `src/modules/inbox`                             | Conversations, messages, filters, brand picker         |
-| Integrations      | `src/modules/integrations`                      | Per-provider connect forms and detail views            |
-| Entry config      | `src/config.tsx`                                | Routes and Module Federation exposes                   |
+| Area               | Path                                                                                                                              | Responsibility                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Host registration  | `src/config.tsx`                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes |
+| Federation         | `module-federation.config.ts`                                                                                                     | Remote name `frontline_ui` and its exposes                                                     |
+| Routes             | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                          |
+| Navigation groups  | `src/modules/FrontlineSubGroups.tsx`                                                                                              | Route-aware sidebar sub-groups for every frontline page                                        |
+| Settings routes    | `src/modules/FrontlineSettings.tsx`                                                                                               | Top-level frontline settings routes and their page chrome                                      |
+| Channel picker     | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                          | Scope-filtered channel list bound to the `channelId` query param                               |
+| Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header  |
+| Nav header count   | `src/modules/inbox/channel/components/UnreadSummary.tsx`                                                                          | The "N unread" figure in a group header's actions slot                                         |
+| Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                         |
+| Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                 | `conversationCounts` reads per integration type inside one channel                             |
+| Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                   |
+| Channel settings   | `src/modules/channels`                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                         |
+| Personal channel   | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                  | Profile page for the user's private inbox                                                      |
+| Inbox              | `src/modules/inbox/`                                                                                                              | Conversations, messages, filters, channels, brands, integrations                               |
+| Integrations       | `src/modules/integrations/`                                                                                                       | Per-provider connect forms and detail views                                                    |
+| Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                            | Ticket boards, pipelines, statuses                                                             |
+| Forms              | `src/modules/forms/`                                                                                                              | Form builder, preview, submissions                                                             |
+| Knowledge base     | `src/modules/knowledgebase/`                                                                                                      | Topics, categories, articles                                                                   |
+| Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                       | Per-module trigger/action/bot/history components                                               |
+| FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                     | Message sequence form, provider, constants, states                                             |
+| FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading                                           |
+| Notifications      | `src/widgets/notifications/`                                                                                                      | Notification remote entries                                                                    |
 
 ## Contracts
 
 ### Provides
 
 - Module Federation exposes declared in `module-federation.config.ts` /
-  `src/config.tsx`.
+  `src/config.tsx`: `./config`, `./frontline`, `./frontlineSettings`,
+  `./knowledgebase`, `./automationsWidget`, `./notificationWidget`,
+  `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`.
+- `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
+  path `frontline/inbox`, relation widgets (`conversation`, `ticket`), the
+  `ticketStatus` property input, and the `formSubmission` activity row.
+- Automation remote-entry components keyed by `componentType`: `actionForm`,
+  `triggerForm`, `triggerConfigContent`, `actionNodeConfiguration`,
+  `automationBotsContent`, `historyName`, `historyActionResult`.
 - `ChooseChannel({ scope?, emptyMessage? })` — omitting `scope` lists every
   channel the user belongs to.
 - `ChooseIntegrationTypeContent({ allowedIntegrationTypes? })` from
@@ -120,19 +165,25 @@
   `only: "byIntegrationTypes"` keys by integration kind, `only: "byIntegrations"`
   keys by integration id (Discord). Counts are open + new conversations; passing
   `awaitingResponse: "true"` narrows them to the ones the customer spoke last in.
-- `erxes-ui`: `NavigationMenuGroup`, `Sheet`, `Form`, `Dialog`, `Button`,
-  `useQueryState`, `useToast`, hotkey hooks.
-- `ui-modules`: `SelectBrand`, `MembersInline`, contacts and structure selects.
-- Translations from the `frontline` i18n namespace.
+- `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
+  `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
+  `useToast`, hotkey hooks.
+- `ui-modules`: `SelectBrand`, `MembersInline`, contacts and structure selects,
+  `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
+  `AutomationActionFormProps` (which carries `trigger` and `targetType`),
+  `splitAutomationNodeType`, `generateAutomationElementId`,
+  `useAutomationRemoteFormSubmit`, `useFormValidationErrorHandler`.
+- `react-i18next` with the `frontline` namespace.
 
 ## Data and State
 
-- Apollo Client for all server state; `GET_MY_CHANNELS` backs the inbox
-  navigation and is refetched after `ChannelAdd`. `useGetMyChannels` pins
-  `sortField: 'name', sortDirection: 1` for every caller, so the list arrives
-  ordered and all consumers share one cache entry — do not vary those variables
-  per component or the query fans out into several network requests on the
-  inbox page.
+- Apollo Client for all server state; GraphQL documents live next to the feature
+  they serve and use `frontline`/module-prefixed operation names.
+- `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
+  `ChannelAdd`. `useGetMyChannels` pins `sortField: 'name', sortDirection: 1`
+  for every caller, so the list arrives ordered and all consumers share one
+  cache entry — do not vary those variables per component or the query fans out
+  into several network requests on the inbox page.
 - `IChannel.scope` is optional — channels created before the field existed
   return no value and must be treated as `team`.
 - `GET_MY_CHANNELS` selects `unreadConversationCount` but not
@@ -140,9 +191,20 @@
   to the selection only when a surface actually renders it.
 - Jotai atoms for plugin-wide UI state (`channelCreateSheetOpenState`,
   `imapFormSheetAtom`, hotkey scopes); `useQueryState` for URL-backed filters
-  such as `channelId`. `Team inbox` has no sort control and holds no sort
-  state — the order is whatever `getMyChannels` returns.
-- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`, `imapFormSchema`).
+  such as `channelId`; component-local state stays in `useState`. `Team inbox`
+  has no sort control and holds no sort state — the order is whatever
+  `getMyChannels` returns.
+- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`, `imapFormSchema`); the
+  Facebook message action schema is in
+  `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
+- `ReplyMessageProvider` is the single source of message-sequence state for the
+  Facebook message action (`messages`, `maxMessages`, `addMessage`, form
+  helpers); components read it through `useReplyMessageAction` rather than
+  prop drilling.
+- `useFacebookPostImages` owns the post composer's attachments (upload state,
+  storage keys) and `useFacebookPostTargets` owns its channel and page
+  selection; both live inside the sheet body, so closing the sheet unmounts the
+  draft — the same reset-on-close behavior as `CreateBrand`.
 
 ## Local Invariants
 
@@ -177,8 +239,29 @@
   filter to it.
 - Any mutation that changes channel membership or channel lists must refetch or
   update `GetMyChannels`, otherwise the sidebar goes stale.
+- A Facebook message action attached to a comment trigger may hold exactly one
+  message. The limit is derived in `getMaxMessagesForTrigger` and enforced in
+  both `ReplyMessageProvider.addMessage` and the `MessageSequenceHeader` add
+  buttons — keep the two in sync.
+- The trigger type reaches the action form through the `trigger` prop already
+  present on `AutomationActionFormProps`; do not add a shared-library field to
+  obtain it.
+- Remote entries must switch on the node type via `splitAutomationNodeType` and
+  return `null` for unknown content types.
+- A post carries images or a link preview, never both; only files whose storage
+  key matches the readable-key pattern may be attached, because any other key
+  cannot be read back for publishing.
+- File pickers use the shared `Dropzone`/`DropzoneEmptyState`/`DropzoneContent`
+  composition with `useErxesUpload`; uploaded files render through
+  `Attachments.Root` and its `Preview`/`Files` parts. Do not hand-roll a drop
+  area or an attachment tile.
+- The message input ignores drops while a dialog is open, so a composer dialog
+  keeps its own dropzone (`isDialogOpen` in `MessageInput.tsx`).
+- Exposed modules stay lazy-loaded and wrapped in `Suspense`.
+- Routed pages use `h-full`, never `h-dvh`/`h-screen`.
 - New user-visible strings go through `useTranslation('frontline')` with keys
-  added to both `en` and `mn` locale files.
+  added to both `en` and `mn` gateway-owned locale files; that is a
+  repository-level change and must be requested explicitly.
 
 ## Validation
 
@@ -186,6 +269,8 @@
 - `npx eslint src/...` on touched files — the project carries pre-existing lint
   errors and TypeScript errors elsewhere, so lint and typecheck the files you
   changed rather than the whole project.
+- `project.json` defines only `build`, `serve`, and `serve-static` — there is no
+  `test` target for this project; do not invent one.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -195,8 +280,11 @@
   that quiet channels fold behind the "N quiet teams" row
   and expand when it is clicked; and that creating a channel from `Team inbox`
   adds it to that group without a reload.
-- `project.json` defines only `build`, `serve`, and `serve-static` — there is no
-  `lint` or `test` target for this project.
+- Smoke: in the automation builder attach a Facebook message action to a
+  `frontline:facebook.comments` trigger and confirm the sequence header shows
+  the single-message notice and every "Add …" button is disabled once one
+  message exists; attach the same action to a `frontline:facebook.messages`
+  trigger and confirm five messages are still allowed.
 
 ## Recent Changes
 
@@ -284,19 +372,6 @@
   a caller to wrap them; `ConversationCounts` gained an `$awaitingResponse`
   variable.
 
-### `2026-08-04` — Inbox workspace toggle clears its sibling filter
-
-- **Summary:** Switching the inbox workspace tabs now writes both `mine` and
-  `unassigned` in one update, so selecting a tab clears the other tab's query
-  param and `All` clears both — previously the params only ever accumulated and
-  the active tab stuck on the first one selected.
-- **Affected areas:**
-  `src/modules/inbox/components/InboxWorkspaceToggleGroup.tsx`.
-- **Contracts changed:** None — same `mine` / `unassigned` query keys and tab
-  values; the component moved from two `useQueryState` calls to one
-  `useMultiQueryState`, and the unused route-map `TABS` constant became the tab
-  list the group renders from.
-
 ### `2026-08-04` — Integration-type tree in the inbox sidebar
 
 - **Summary:** Restructured the inbox navigation so `Me` lists the personal
@@ -311,29 +386,47 @@
   `nested` props; new `useUsedIntegrationTypesByChannel` hook and
   `IntegrationsGetUsedTypesByChannel` document.
 
-### `2026-08-04` — Sidebar integration-type list correctness
+### `2026-08-04` — Rebuild the post composer on the standard sheet and dropzone
 
-- **Summary:** Rewrote `ChooseIntegrationTypeContent` to derive its filtered
-  list with `useMemo` instead of `useState` + `useEffect`, fixing a hooks-order
-  crash (early `loading` return sat before the effect), a render loop caused by
-  the effect depending on the hook's `|| []` array identity, and filtering that
-  was both overwritten and never rendered; added an empty state.
+- **Summary:** The composer now follows the `CreateBrand` sheet shape
+  (uncontrolled `Sheet`, `Sheet.Close` cancel, state inside the sheet body) and
+  uses the shared `Dropzone`/`DropzoneEmptyState`/`DropzoneContent` for picking
+  files and `Attachments.Root`/`Attachments.Preview` for the uploaded ones,
+  instead of a hand-rolled drop area, thumbnail grid, and filename list; help
+  and rejected filenames render as `Alert`, the empty and loading states use
+  `Empty` and `Spinner`, and the channel picker is a searchable
+  `Popover` + `Combobox` + `Command` like `SelectChannel.FormItem`.
 - **Affected areas:**
-  `src/modules/integrations/components/ChooseIntegrationType.tsx`.
-- **Contracts changed:** None — the `allowedIntegrationTypes` prop now actually
-  filters the rendered list.
+  `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`,
+  `.../components/FacebookPostImagesField.tsx`,
+  `.../hooks/useFacebookPostImages.tsx`,
+  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned)
+- **Contracts changed:** `None`
 
-### `2026-08-03` — Personal channel settings route
+### `2026-08-04` — Split the Facebook post composer into hooks and fields
 
-- **Summary:** Added `/settings/frontline/personal-channel` as the profile page
-  for the user's private inbox, provisioned lazily by reading
-  `GetPersonalChannel`, and removed the scope choice from channel creation.
-- **Affected areas:** `src/modules/FrontlineSettings.tsx`,
-  `src/modules/FrontlineSettingsNavigation.tsx`, `src/modules/types/FrontlinePaths.ts`,
-  `src/modules/channels/components/settings/personal-channel/**`,
-  `src/modules/channels/hooks/useGetPersonalChannel.tsx`,
-  `src/pages/PersonalChannelPage.tsx`,
-  `src/modules/integrations/{components/IntegrationList.tsx,constants/integrations.ts}`.
-- **Contracts changed:** `IntegrationList` gained optional `channelId`,
-  `integrationTypes`, and `heading` props (all previously derived from the
-  `:id` route param, which still acts as the `channelId` fallback).
+- **Summary:** `FacebookPostSheet` no longer drills nine props into its form:
+  attachment state moved to `useFacebookPostImages`, channel/page loading to
+  `useFacebookPostTargets`, and the uploader UI to `FacebookPostImagesField`;
+  the message input's dialog-drop guard is now one shared helper.
+- **Affected areas:**
+  `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`,
+  `.../components/FacebookPostImagesField.tsx` (new),
+  `.../hooks/useFacebookPostImages.tsx` (new),
+  `.../hooks/useFacebookPostTargets.tsx` (new),
+  `.../constants/FbPostSchema.ts`,
+  `src/modules/inbox/conversations/conversation-detail/components/MessageInput.tsx`
+- **Contracts changed:** `None`
+
+### `2026-08-04` — Cap comment-triggered Facebook message actions at one message
+
+- **Summary:** A Facebook message action attached to a comment trigger now
+  accepts a single message and explains that the rest of the flow must continue
+  behind a button, matching Facebook's one-private-reply-per-comment rule.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/constants/ReplyMessage.ts`,
+  `.../action/context/ReplyMessageProvider.tsx`,
+  `.../action/components/replyMessage/MessageSequenceHeader.tsx`,
+  `.../action/components/replyMessage/MessageActionForm.tsx`
+- **Contracts changed:** `None`

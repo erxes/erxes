@@ -20,6 +20,10 @@ import {
 import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
 import { BankTransaction } from './forms/BankForm';
 import { CashTransaction } from './forms/CashForm';
+import { FxaIncomeForm } from './forms/FxaIncomeForm';
+import { FxaMoveForm } from './forms/FxaMoveForm';
+import { FxaOutForm } from './forms/FxaOutForm';
+import { FxaSaleForm } from './forms/FxaSaleForm';
 import { InvIncomeForm } from './forms/InvIncomeForm';
 import { InvMoveForm } from './forms/InvMoveForm';
 import { InvOutForm } from './forms/InvOutForm';
@@ -64,6 +68,14 @@ const TransactionForm = ({
     return <InvSaleForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_SALE_RETURN)
     return <InvSaleReturnForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.FXA_INCOME)
+    return <FxaIncomeForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.FXA_OUT)
+    return <FxaOutForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.FXA_MOVE)
+    return <FxaMoveForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.FXA_SALE)
+    return <FxaSaleForm form={form} index={index} />;
   return null;
 };
 

@@ -3,6 +3,7 @@ import { NavigationActivityRail } from '@/navigation/components/NavigationActivi
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
+import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { AppPath } from '@/types/paths/AppPath';
 import { activePluginState, Sidebar } from 'erxes-ui';
@@ -12,6 +13,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
+  const navigationGroups = usePluginsNavigationGroups();
   const { isActivityPinned, setActivityPinned, visibleActivities } =
     usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
@@ -28,6 +30,15 @@ export const MainNavigationBar = () => {
     routeActivity ||
     activities.find((activity) => activity.id === activeActivityId) ||
     activities[0];
+  const activeNavigationGroup =
+    routeActivity?.kind === 'plugin'
+      ? navigationGroups[routeActivity.id]
+      : undefined;
+  const hasNavigationPanel = Boolean(
+    isSettings ||
+    activeNavigationGroup?.contents.length ||
+    activeNavigationGroup?.subGroups.length,
+  );
 
   useEffect(() => {
     if (isSettings) {
@@ -89,13 +100,14 @@ export const MainNavigationBar = () => {
           isInboxActive={isInboxActive}
           isActivityPinned={isActivityPinned}
           isSettings={isSettings}
+          mobileExpanded={!hasNavigationPanel}
           onActivityPinnedChange={setActivityPinned}
           onSearch={() => setPaletteOpen(true)}
           onSelectInbox={handleSelectInbox}
           onSelectActivity={handleSelectActivity}
           visibleActivities={visibleActivities}
         />
-        {isMobile && <NavigationPanel />}
+        {isMobile && hasNavigationPanel && <NavigationPanel />}
       </div>
       <NavigationPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </>

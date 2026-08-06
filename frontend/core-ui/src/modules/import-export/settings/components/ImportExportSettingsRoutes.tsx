@@ -1,5 +1,5 @@
 import { ImportExportSettingsBreadcrumb } from '@/import-export/settings/components/ImportExportSettingsBreadcrumb';
-import { ImportExportSettingsSidebar } from '@/import-export/settings/components/ImportExportSettingsSidebar';
+import { ImportExportViewToggle } from '@/import-export/settings/components/ImportExportViewToggle';
 import { ImportExportSettingsPath } from '@/import-export/settings/constants/importExportSettingsPaths';
 import { PageContainer, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -25,9 +25,10 @@ const ExportHistoriesSettingsPage = lazy(() =>
 export const ImportExportSettingsRoutes = () => {
   return (
     <PageContainer>
-      <SettingsHeader breadcrumbs={<ImportExportSettingsBreadcrumb />} />
+      <SettingsHeader breadcrumbs={<ImportExportSettingsBreadcrumb />}>
+        <ImportExportViewToggle />
+      </SettingsHeader>
       <div className="flex flex-auto w-full min-w-0 overflow-hidden">
-        <ImportExportSettingsSidebar />
         <div className="flex min-w-0 flex-1 overflow-hidden">
           <Suspense
             fallback={

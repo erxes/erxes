@@ -13,6 +13,7 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { appRouter } from './init-trpc';
 import { accountImportHandlers } from './meta/import-export/import/importHandlers';
+import { router } from './routes';
 
 const accountImportTypes = [
   {
@@ -49,6 +50,7 @@ startPlugin({
     resolvers: resolvers,
   }),
   hasSubscriptions: true,
+  expressRouter: router,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'apollo',

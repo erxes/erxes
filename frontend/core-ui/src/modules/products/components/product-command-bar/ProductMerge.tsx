@@ -1,6 +1,15 @@
 import { useMutation } from '@apollo/client';
 import { IconArrowMerge, IconCheck } from '@tabler/icons-react';
-import { Button, cn, Input, ScrollArea, Sheet, Spinner, toast } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  Command,
+  Input,
+  ScrollArea,
+  Sheet,
+  Spinner,
+  toast,
+} from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can, IProduct } from 'ui-modules';
@@ -101,26 +110,43 @@ const propertiesEntries = (product: any): [string, any][] =>
 const propertyDisplay = (value: any) =>
   typeof value === 'object' ? JSON.stringify(value) : String(value);
 
+export const ProductMergeTrigger = ({
+  productCount,
+  onOpen,
+}: {
+  productCount: number;
+  onOpen: () => void;
+}) => {
+  const { t } = useTranslation('product');
+  return (
+    <Can action="productsMerge">
+      <Command.ActionItem
+        icon={IconArrowMerge}
+        label={t('merge', 'Merge')}
+        onSelect={onOpen}
+        disabled={productCount !== 2}
+      />
+    </Can>
+  );
+};
+
 export const ProductMerge = ({
   productIds,
   products,
+  open,
+  onOpenChange,
 }: {
   productIds: string[];
   products: IProduct[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) => {
   const { t } = useTranslation('product');
-  const [open, setOpen] = useState(false);
   const canMerge = products.length === 2;
 
   return (
     <Can action="productsMerge">
-      <Sheet open={open} onOpenChange={setOpen}>
-        <Sheet.Trigger asChild>
-          <Button variant="secondary" disabled={!canMerge}>
-            <IconArrowMerge />
-            {t('merge', 'Merge')}
-          </Button>
-        </Sheet.Trigger>
+      <Sheet open={open} onOpenChange={onOpenChange}>
         <Sheet.View className="flex flex-col gap-0 p-0 sm:max-w-4xl">
           <Sheet.Header className="flex-row items-center gap-3 space-y-0 border-b p-3">
             <Sheet.Title>{t('merge-products', 'Merge products')}</Sheet.Title>
@@ -133,7 +159,7 @@ export const ProductMerge = ({
             <ProductMergeBody
               productIds={productIds}
               products={products}
-              setOpen={setOpen}
+              setOpen={onOpenChange}
             />
           )}
         </Sheet.View>

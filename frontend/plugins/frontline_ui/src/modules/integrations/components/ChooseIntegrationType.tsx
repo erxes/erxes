@@ -5,12 +5,14 @@ import {
   cn,
   useMultiQueryState,
 } from 'erxes-ui';
-import { useUsedIntegrationTypes } from '../hooks/useUsedIntegrationTypes';
-import { IIntegrationType } from '../types/Integration';
 import { INTEGRATION_ICONS } from '../constants/integrationImages';
 import { IconCheck, IconInbox } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useUsedIntegrationTypes } from '../hooks/useUsedIntegrationTypes';
+import { IIntegrationType } from '../types/Integration';
+import { IntegrationType } from '@/types/Integration';
+import { FacebookPostSheet } from '../facebook/components/FacebookPostSheet';
 
 type Props = {
   allowedIntegrationTypes?: string[];
@@ -80,18 +82,18 @@ export const IntegrationTypeItem = ({
     });
   };
 
+  const canCreatePost = _id === IntegrationType.FACEBOOK_POST;
   const Icon = INTEGRATION_ICONS[_id] ?? IconInbox;
   // A source with nothing waiting recedes, so a scan of the group lands on the
   // rows that still need someone.
   const isQuiet = count === 0 && !isActive;
 
-  return (
+  const trigger = (
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
       className={cn(
-        'w-full justify-start gap-2 overflow-hidden text-left pr-2 font-medium',
-        nested ? 'pl-9' : 'pl-6',
-        isQuiet && 'text-muted-foreground',
+        'justify-start pl-7 relative overflow-hidden text-left flex-auto',
+        canCreatePost && 'bg-transparent hover:bg-transparent',
       )}
       onClick={handleClick}
     >
@@ -118,5 +120,23 @@ export const IntegrationTypeItem = ({
         <span className="shrink-0 text-xs tabular-nums">{count}</span>
       )}
     </Button>
+  );
+
+  if (!canCreatePost) {
+    return trigger;
+  }
+
+  return (
+    <div
+      className={cn(
+        'group/integration-type flex items-center w-full rounded-md pr-1',
+        isActive ? 'bg-secondary' : 'hover:bg-accent',
+      )}
+    >
+      {trigger}
+      <div className="invisible shrink-0 group-hover/integration-type:visible focus-within:visible">
+        <FacebookPostSheet />
+      </div>
+    </div>
   );
 };

@@ -25,6 +25,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'mongolian',
+    defaultPath: 'mongolian/put-response',
     icon: IconSandbox,
     content: () => (
       <Suspense fallback={<div />}>

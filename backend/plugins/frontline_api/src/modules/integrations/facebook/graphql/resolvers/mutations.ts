@@ -4,15 +4,21 @@ import {
   updateConfigs,
 } from '@/integrations/facebook/helpers';
 import { IReplyParams } from '@/integrations/facebook/@types/utils';
+import { sendReply } from '@/integrations/facebook/utils';
 import {
-  createPagePost,
-  getPostDetails,
-  sendReply,
-} from '@/integrations/facebook/utils';
+  ICreatePostArgs,
+  publishPagePost,
+} from '@/integrations/facebook/postService';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { TCreateBotInputDoc } from '../../db/models/Bots';
 export const facebookMutations = {
-  async facebookUpdateConfigs(_root, { configsMap }, { subdomain }: IContext) {
+  async facebookUpdateConfigs(
+    _root,
+    { configsMap },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     await updateConfigs(subdomain, configsMap);
 
     return { status: 'ok' };
@@ -110,47 +116,12 @@ export const facebookMutations = {
       throw new Error(e.message);
     }
   },
-  // Publish a post to a connected Facebook page. The page token must carry
-  // pages_manage_posts (granted at OAuth time via FACEBOOK_PERMISSIONS).
   async facebookCreatePost(
     _root,
-    {
-      erxesApiId,
-      pageId,
-      message,
-      link,
-    }: { erxesApiId: string; pageId: string; message: string; link?: string },
-    { models }: IContext,
+    args: ICreatePostArgs,
+    { models, subdomain, user }: IContext,
   ) {
-    const integration = await models.FacebookIntegrations.findOne({
-      erxesApiId,
-    });
-
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-
-    if (!(integration.facebookPageIds || []).includes(pageId)) {
-      throw new Error('Page is not connected to this integration');
-    }
-
-    const response = await createPagePost(
-      pageId,
-      integration.facebookPageTokensMap || {},
-      message,
-      link,
-    );
-
-    const details = await getPostDetails(
-      pageId,
-      integration.facebookPageTokensMap || {},
-      response.id,
-    );
-
-    return {
-      postId: response.id,
-      permalinkUrl: details ? details.permalink_url : null,
-    };
+    return publishPagePost(models, subdomain, args, user?._id);
   },
   async facebookMessengerAddBot(_root, args, { models, user }: IContext) {
     return await models.FacebookBots.addBot(args, {

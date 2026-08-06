@@ -29,6 +29,7 @@ export type IUIConfig = {
   settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {
     name: string;
+    defaultPath?: string;
     icon: React.ElementType;
     content: () => React.ReactNode;
     subGroup?: () => React.ReactNode;

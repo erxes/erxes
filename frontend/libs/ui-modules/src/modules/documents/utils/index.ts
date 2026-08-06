@@ -122,9 +122,18 @@ ${BASE_STYLES}
     }
 
     .label-fit {
+      display: flow-root;
       width: 100%;
       text-align: left;
       overflow-wrap: break-word;
+    }
+
+    .label-fit > :first-child {
+      margin-top: 0 !important;
+    }
+
+    .label-fit > :last-child {
+      margin-bottom: 0 !important;
     }`;
 
 const sheetStyles = (
@@ -246,22 +255,53 @@ export const waitForImages = async (iframe: HTMLIFrameElement) => {
   );
 };
 
+const FIT_MIN_RATIO = 0.1;
+const FIT_PASSES = 8;
+
 const fitRatio = (box: HTMLElement, content: HTMLElement) => {
   const availableHeight = box.clientHeight;
   const availableWidth = box.clientWidth;
 
-  const naturalHeight = content.scrollHeight;
-  const naturalWidth = content.scrollWidth;
-
-  if (!availableHeight || !availableWidth || !naturalHeight || !naturalWidth) {
+  if (!availableHeight || !availableWidth) {
     return 1;
   }
 
-  return Math.min(
-    availableHeight / naturalHeight,
-    availableWidth / naturalWidth,
-    1,
-  );
+  const fitsAt = (ratio: number) => {
+    content.style.width = `${availableWidth / ratio}px`;
+
+    return content.scrollHeight * ratio <= availableHeight;
+  };
+
+  if (fitsAt(1)) {
+    content.style.width = '';
+
+    return 1;
+  }
+
+  if (!fitsAt(FIT_MIN_RATIO)) {
+    content.style.width = '';
+
+    const naturalHeight = content.scrollHeight;
+
+    return naturalHeight ? Math.min(availableHeight / naturalHeight, 1) : 1;
+  }
+
+  let low = FIT_MIN_RATIO;
+  let high = 1;
+
+  for (let pass = 0; pass < FIT_PASSES; pass += 1) {
+    const middle = (low + high) / 2;
+
+    if (fitsAt(middle)) {
+      low = middle;
+    } else {
+      high = middle;
+    }
+  }
+
+  fitsAt(low);
+
+  return low;
 };
 
 export const transformLabels = (iframe: HTMLIFrameElement, config: any) => {
@@ -300,6 +340,7 @@ export const transformLabels = (iframe: HTMLIFrameElement, config: any) => {
     const box = fit.parentElement;
 
     fit.style.transform = '';
+    fit.style.width = '';
 
     const ratio = box ? fitRatio(box, fit) : 1;
 

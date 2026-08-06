@@ -44,6 +44,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'operation',
+    defaultPath: 'operation/projects',
     icon: IconListCheck,
     content: () => (
       <Suspense fallback={<div />}>
