@@ -1,10 +1,10 @@
-import { NetworkStatus, useQuery } from '@apollo/client';
+import { ApolloError, NetworkStatus, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
   mergeCursorData,
 } from 'erxes-ui';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FIELDS_QUERY } from '../graphql/fieldsQueries';
 import { IField } from '../types/fieldsTypes';
 
@@ -19,7 +19,7 @@ export const useFields = ({
   contentType: string;
   limit?: number;
 }) => {
-  const { data, loading, refetch, fetchMore, networkStatus } = useQuery<
+  const { data, loading, error, refetch, fetchMore, networkStatus } = useQuery<
     ICursorListResponse<IField>
   >(FIELDS_QUERY, {
     variables: {
@@ -36,6 +36,9 @@ export const useFields = ({
   const pageInfo = data?.fields?.pageInfo;
   const loadedCount = list?.length || 0;
   const requestedCountRef = useRef<number | null>(null);
+  const [pageError, setPageError] = useState<ApolloError | undefined>(
+    undefined,
+  );
 
   // Load the remaining pages so consumers get the whole field list.
   useEffect(() => {
@@ -45,6 +48,7 @@ export const useFields = ({
       networkStatus === NetworkStatus.setVariables
     ) {
       requestedCountRef.current = null;
+      setPageError(undefined);
       return;
     }
 
@@ -73,15 +77,20 @@ export const useFields = ({
           return prev;
         }
 
-        return Object.assign({}, prev, {
+        return {
+          ...prev,
+          // `mergeCursorData` widens `totalCount` and the cursors to optional,
+          // while the merged page keeps the shape the query returned.
           fields: mergeCursorData({
             direction: EnumCursorDirection.FORWARD,
             fetchMoreResult: fetchMoreResult.fields,
             prevResult: prev.fields,
-          }),
-        });
+          }) as ICursorListResponse<IField>['fields'],
+        };
       },
-    });
+      // Auto-pagination stops on the failed page instead of retrying in a
+      // loop; `refetch` restarts from the first page and clears the error.
+    }).catch((fetchMoreError: ApolloError) => setPageError(fetchMoreError));
   }, [
     networkStatus,
     limit,
@@ -126,6 +135,7 @@ export const useFields = ({
     fields: fields,
     totalCount: data?.fields?.totalCount || 0,
     loading,
+    error: error ?? pageError,
     refetch,
   };
 };
