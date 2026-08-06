@@ -9,6 +9,8 @@ export const useIntegrationAdd = () => {
     refetchQueries: [
       'Integrations',
       'IntegrationDetail',
+      'IntegrationsGetUsedTypes',
+      'IntegrationsGetUsedTypesByChannel',
       'DiscordConnectedServers',
       'DiscordTakenChannels',
     ],

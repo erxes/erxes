@@ -49,3 +49,12 @@ export const GET_INTEGRATION_KINDS = gql`
     }
   }
 `;
+
+export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql`
+  query IntegrationsGetUsedTypesByChannel($channelId: String, $scope: String) {
+    integrationsGetUsedTypesByChannel(channelId: $channelId, scope: $scope) {
+      _id
+      name
+    }
+  }
+`;

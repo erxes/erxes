@@ -207,29 +207,6 @@ export const EMConfig = () => {
                     </Form.Item>
                   )}
                 />
-                <Form.Field
-                  name="botSetup.botShowInitialMessage"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <div className="flex items-center gap-3">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer" className="leading-6">
-                          Show Initial Message
-                        </Form.Label>
-                      </div>
-                      <Form.Description>
-                        When enabled, the bot will display the greeting message
-                        as an initial message in the conversation.
-                      </Form.Description>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
                 {form.watch('botSetup.botCheck') && (
                   <Form.Field
                     name="botSetup.automationId"

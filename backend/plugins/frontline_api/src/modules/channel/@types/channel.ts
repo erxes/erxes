@@ -1,10 +1,17 @@
 import { Document } from 'mongoose';
+
+export enum ChannelScopes {
+  TEAM = 'team',
+  PERSONAL = 'personal',
+}
+
 export interface IChannel {
   name?: string;
   icon?: string;
   description?: string;
   memberIds?: string[];
   userId?: string;
+  scope?: ChannelScopes;
   conversationCount?: number;
   openConversationCount?: number;
 }
@@ -14,6 +21,7 @@ export interface IChannelsEdit extends IChannel {
 export interface IChannelDocument extends IChannel, Document {
   _id: string;
   createdAt: Date;
+  createdBy?: string;
 }
 
 export interface IChannelFilter extends IChannel {
