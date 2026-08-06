@@ -165,10 +165,7 @@ export const PropertiesGroupSection = ({
             stickyColumns={['more', 'checkbox', 'name']}
             className="rounded-md border"
           >
-            <RecordTable.Scroll
-              className="h-auto"
-              viewportClassName="max-h-96"
-            >
+            <RecordTable.Scroll className="h-auto" viewportClassName="max-h-96">
               <RecordTable>
                 <RecordTable.Header />
                 <RecordTable.Body>
