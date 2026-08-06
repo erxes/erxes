@@ -24,7 +24,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
-  channelId: string;
+  channelId?: string;
 }
 
 interface IIntegrationBasicInfo {
