@@ -37,21 +37,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       },
       subdomain,
     );
-    if (invoice.status === 'paid') {
-      const plainInvoice =
-        typeof (invoice as any).toObject === 'function'
-          ? (invoice as any).toObject()
-          : invoice;
-      const payment = await resolvePaymentForInvoice(models, plainInvoice);
-      enqueuePaidInvoiceCallback(
-        subdomain,
-        models,
-        plainInvoice,
-        payment,
-        'invoiceCreate',
-      );
-    }
-
     return invoice;
   },
 

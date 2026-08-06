@@ -34,10 +34,7 @@ export const enqueuePaidInvoiceCallback = (
   payment: PaymentLike,
   logPrefix: string,
 ) => {
-  const sendEmailOnPayment =
-    typeof invoice.data?.sendBarcodeEmail === 'boolean'
-      ? invoice.data.sendBarcodeEmail
-      : payment?.sendEmailOnPayment !== false;
+  const sendEmailOnPayment = payment?.sendEmailOnPayment !== false;
   const dealConfig = payment?.dealConfig;
 
   if (!sendEmailOnPayment) {
