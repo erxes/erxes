@@ -47,7 +47,13 @@ export const instagramQueries = {
     return models.InstagramIntegrations.findOne({ erxesApiId });
   },
 
-  async instagramGetConfigs(_root, _args, { models }: IContext) {
+  async instagramGetConfigs(
+    _root,
+    _args,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     return models.InstagramConfigs.find({}).lean();
   },
 
@@ -224,7 +230,7 @@ export const instagramQueries = {
       models.InstagramConversations,
     );
 
-   if (conversation) {
+    if (conversation) {
       if (limit) {
         const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
@@ -432,7 +438,9 @@ export const instagramQueries = {
           ? facebookPageTokensMap[facebookPageId]
           : undefined;
         if (!accessToken) {
-          debugInstagram(`Access token missing for page ID: ${instagramPageId}`);
+          debugInstagram(
+            `Access token missing for page ID: ${instagramPageId}`,
+          );
           return [];
         }
 

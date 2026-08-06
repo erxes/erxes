@@ -1,5 +1,6 @@
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { Can } from 'ui-modules';
 
 export const FrontlineSettingsNavigation = () => {
   return (
@@ -13,11 +14,13 @@ export const FrontlineSettingsNavigation = () => {
             name="Channels"
           />
 
-          <SettingsNavigationMenuLinkItem
-            pathPrefix={FrontlinePaths.Frontline}
-            path={FrontlinePaths.IntegrationConfig}
-            name="Integrations Config"
-          />
+          <Can action="integrationsEdit">
+            <SettingsNavigationMenuLinkItem
+              pathPrefix={FrontlinePaths.Frontline}
+              path={FrontlinePaths.IntegrationConfig}
+              name="Integrations Config"
+            />
+          </Can>
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>

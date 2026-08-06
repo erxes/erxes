@@ -55,6 +55,18 @@ import {
   types as TemplateTypes,
 } from '@/template/graphql/schema';
 
+import {
+  mutations as GithubConfigMutations,
+  queries as GithubConfigQueries,
+  type as GithubConfigTypes,
+} from '@/githubIntegration/graphql/schemas/githubConfig';
+
+import {
+  mutations as GithubConnectionMutations,
+  queries as GithubConnectionQueries,
+  type as GithubConnectionTypes,
+} from '@/githubIntegration/graphql/schemas/githubConnection';
+
 export const types = `
   ${TaskTypes}
   ${ProjectTypes}
@@ -66,6 +78,8 @@ export const types = `
   ${MilestoneTypes}
   ${TriageTypes}
   ${TemplateTypes}
+  ${GithubConfigTypes}
+  ${GithubConnectionTypes}
 `;
 
 export const queries = `
@@ -79,6 +93,8 @@ export const queries = `
   ${MilestoneQueries}
   ${TriageQueries}
   ${TemplateQueries}
+  ${GithubConfigQueries}
+  ${GithubConnectionQueries}
 `;
 
 export const mutations = `
@@ -91,6 +107,8 @@ export const mutations = `
   ${MilestoneMutations}
   ${TriageMutations}
   ${TemplateMutations}
+  ${GithubConfigMutations}
+  ${GithubConnectionMutations}
 `;
 
 export default { types, queries, mutations };

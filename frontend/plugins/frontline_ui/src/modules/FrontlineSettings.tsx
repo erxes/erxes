@@ -1,6 +1,7 @@
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { usePermissionCheck } from 'ui-modules';
 
 const ConfigsSettings = lazy(() => import('@/integrations-config/Settings'));
 
@@ -14,13 +15,27 @@ const FormPreviewPage = lazy(() =>
   })),
 );
 
+const IntegrationsConfigRoute = () => {
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!hasActionPermission('integrationsEdit')) {
+    return <Navigate to="/settings" replace />;
+  }
+
+  return <ConfigsSettings />;
+};
+
 const FrontlineSettings = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         <Route
           path={FrontlinePaths.IntegrationConfig}
-          element={<ConfigsSettings />}
+          element={<IntegrationsConfigRoute />}
         />
         <Route
           path={FrontlinePaths.ChannelsCatchAll}
