@@ -68,6 +68,14 @@ export async function instagramUpdateIntegrations({
     let details;
     try {
       details = doc.data ? JSON.parse(doc.data) : {};
+
+      if (
+        typeof details !== 'object' ||
+        details === null ||
+        Array.isArray(details)
+      ) {
+        throw new Error('expected an object');
+      }
     } catch (parseError) {
       return {
         status: 'error',
