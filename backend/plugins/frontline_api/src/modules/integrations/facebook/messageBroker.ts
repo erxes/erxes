@@ -63,7 +63,7 @@ export async function facebookUpdateIntegrations({
     const models = await generateModels(subdomain);
     let details;
     try {
-      details = JSON.parse(doc);
+      details = doc.data ? JSON.parse(doc.data) : {};
     } catch (parseError) {
       return {
         status: 'error',
