@@ -209,16 +209,9 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async scanBarcode(code: string) {
-      let invoice = await models.Invoices.findOne({ invoiceNumber: code });
-      let index: number | null = null;
-
-      if (!invoice) {
-        const match = code.match(/^(.+)-(\d+)$/);
-        if (match) {
-          invoice = await models.Invoices.findOne({ invoiceNumber: match[1] });
-          index = Number(match[2]);
-        }
-      }
+      const invoice =
+        (await models.Invoices.findOne({ 'ticketCodes.code': code })) ||
+        (await models.Invoices.findOne({ invoiceNumber: code }));
 
       if (!invoice) {
         throw new Error(`Invoice not found for barcode: ${code}`);
@@ -228,21 +221,34 @@ export const loadInvoiceClass = (models: IModels) => {
         throw new Error('Invoice is not paid');
       }
 
-      const quantity = Math.max(
-        1,
-        Math.floor(Number(invoice.data?.quantity) || 1),
-      );
+      const hasTicketCodes =
+        Array.isArray(invoice.ticketCodes) && invoice.ticketCodes.length > 0;
 
-      if (quantity > 1 && (index === null || index < 1 || index > quantity)) {
-        throw new Error('Invalid ticket code');
+      if (hasTicketCodes) {
+        const scanned = await models.Invoices.findOneAndUpdate(
+          {
+            _id: invoice._id,
+            ticketCodes: { $elemMatch: { code, scannedAt: null } },
+          },
+          {
+            $set: {
+              'ticketCodes.$.scannedAt': new Date(),
+              scannedAt: new Date(),
+            },
+          },
+          { new: true },
+        );
+
+        if (!scanned) {
+          throw new Error('Barcode already scanned');
+        }
+
+        return scanned;
       }
 
       const scanned = await models.Invoices.findOneAndUpdate(
-        { _id: invoice._id, scannedCodes: { $ne: code } },
-        {
-          $addToSet: { scannedCodes: code },
-          $set: { scannedAt: new Date() },
-        },
+        { _id: invoice._id, scannedAt: null },
+        { $set: { scannedAt: new Date() } },
         { new: true },
       );
 

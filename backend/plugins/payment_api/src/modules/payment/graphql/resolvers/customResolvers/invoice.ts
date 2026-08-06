@@ -20,12 +20,18 @@ export default {
   },
 
   ticketCount(invoice: IInvoiceDocument) {
+    if (invoice.ticketCodes?.length) {
+      return invoice.ticketCodes.length;
+    }
     const quantity = Math.floor(Number((invoice.data as any)?.quantity) || 1);
     return Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
   },
 
   scannedCount(invoice: IInvoiceDocument) {
-    return invoice.scannedCodes?.length || 0;
+    if (invoice.ticketCodes?.length) {
+      return invoice.ticketCodes.filter((ticket) => ticket.scannedAt).length;
+    }
+    return invoice.scannedAt ? 1 : 0;
   },
 
   async remainingAmount(

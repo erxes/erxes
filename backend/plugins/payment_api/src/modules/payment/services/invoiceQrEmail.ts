@@ -1,33 +1,6 @@
+import { randomBytes } from 'crypto';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import * as QRCode from 'qrcode';
-
-const buildQrTableHtml = (code: string): string => {
-  const qr = (QRCode as any).create(code, { errorCorrectionLevel: 'M' });
-  const { size, data } = qr.modules;
-  const cell = 6;
-
-  return `
-    <table cellpadding="0" cellspacing="0" border="0"
-      style="border-collapse:collapse;background:#fff;border:16px solid #fff">
-      ${Array.from(
-        { length: size },
-        (_, r) => `
-        <tr height="${cell}">
-          ${Array.from(
-            { length: size },
-            (_, c) => `
-            <td width="${cell}" height="${cell}"
-              style="width:${cell}px;height:${cell}px;background:${
-                data[r * size + c] ? '#000' : '#fff'
-              };padding:0;border:none;font-size:0;line-height:0;"></td>
-          `,
-          ).join('')}
-        </tr>
-      `,
-      ).join('')}
-    </table>
-  `;
-};
+import { buildTicketsPdf } from '~/modules/payment/services/ticketsPdf';
 
 const getQuantity = (invoice: any): number => {
   const raw = invoice?.data?.quantity;
@@ -35,15 +8,15 @@ const getQuantity = (invoice: any): number => {
   return Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
 };
 
-const buildTicketCodes = (invoice: any): string[] => {
-  const base = invoice.invoiceNumber || invoice._id;
-  const quantity = getQuantity(invoice);
+// Unguessable per-ticket token (16 hex chars, 64 bits of entropy).
+const generateTicketCode = (): string => randomBytes(8).toString('hex');
 
-  if (quantity <= 1) {
-    return [base];
+const getTicketCodes = (invoice: any): string[] => {
+  if (Array.isArray(invoice.ticketCodes) && invoice.ticketCodes.length) {
+    return invoice.ticketCodes.map((ticket: any) => ticket.code);
   }
-
-  return Array.from({ length: quantity }, (_, index) => `${base}-${index + 1}`);
+  // Legacy fallback for invoices created before random tokens existed.
+  return [invoice.invoiceNumber || invoice._id];
 };
 
 export const sendInvoiceQrEmail = async (subdomain: string, invoice: any) => {
@@ -56,32 +29,10 @@ export const sendInvoiceQrEmail = async (subdomain: string, invoice: any) => {
     ? `${invoice.amount.toLocaleString()} ${invoice.currency || 'MNT'}`
     : '';
 
-  const codes = buildTicketCodes(invoice);
+  const codes = getTicketCodes(invoice);
 
-  const ticketsHtml = codes
-    .map(
-      (code, index) => `
-      <tr>
-        <td style="padding:24px 32px;text-align:center;border-bottom:2px dashed #e5e7eb">
-          ${
-            codes.length > 1
-              ? `<p style="margin:0 0 8px;color:#111827;font-size:13px;font-weight:600">
-                   Тасалбар ${index + 1} / ${codes.length}
-                 </p>`
-              : ''
-          }
-          <p style="margin:0 0 16px;color:#6b7280;font-size:13px">
-            QR кодыг уншуулан нэвтрэнэ үү
-          </p>
-          <div align="center">${buildQrTableHtml(code)}</div>
-          <p style="margin:16px 0 0;color:#374151;font-size:13px;font-family:monospace">
-            ${code}
-          </p>
-        </td>
-      </tr>
-    `,
-    )
-    .join('');
+  const pdf = await buildTicketsPdf(codes, title);
+  const pdfBase64 = pdf.toString('base64');
 
   const html = `
 <!DOCTYPE html>
@@ -101,7 +52,16 @@ export const sendInvoiceQrEmail = async (subdomain: string, invoice: any) => {
               <h1 style="margin:8px 0 0;color:#fff;font-size:22px">${title}</h1>
             </td>
           </tr>
-          ${ticketsHtml}
+          <tr>
+            <td style="padding:32px;text-align:center;border-bottom:2px dashed #e5e7eb">
+              <p style="margin:0 0 8px;color:#111827;font-size:15px;font-weight:600">
+                Танд ${codes.length} тасалбар байна
+              </p>
+              <p style="margin:0;color:#6b7280;font-size:13px">
+                Хавсаргасан PDF файлаас QR кодоо уншуулан нэвтэрнэ үү.
+              </p>
+            </td>
+          </tr>
           ${
             amountStr
               ? `<tr>
@@ -136,6 +96,13 @@ export const sendInvoiceQrEmail = async (subdomain: string, invoice: any) => {
       toEmails: [invoice.email],
       title: `Тасалбар – ${title}`,
       customHtml: html,
+      attachments: [
+        {
+          filename: 'tickets.pdf',
+          path: `data:application/pdf;base64,${pdfBase64}`,
+          contentType: 'application/pdf',
+        },
+      ],
     },
     defaultValue: null,
   });
@@ -146,10 +113,15 @@ export const sendInvoiceQrEmailOnce = async (
   models: any,
   invoice: any,
 ) => {
-  // `qrEmailSentAt: null` matches both a missing field and an explicit null
+  const quantity = getQuantity(invoice);
+  const ticketCodes = Array.from({ length: quantity }, () => ({
+    code: generateTicketCode(),
+    scannedAt: null,
+  }));
+
   const claimed = await models.Invoices.findOneAndUpdate(
     { _id: invoice._id, qrEmailSentAt: null },
-    { $set: { qrEmailSentAt: new Date() } },
+    { $set: { qrEmailSentAt: new Date(), ticketCodes } },
   );
 
   if (!claimed) {
@@ -160,7 +132,7 @@ export const sendInvoiceQrEmailOnce = async (
   }
 
   try {
-    await sendInvoiceQrEmail(subdomain, invoice);
+    await sendInvoiceQrEmail(subdomain, { ...invoice, ticketCodes });
 
     process.stdout.write(
       `[invoiceQrEmail] Sent QR email for invoice ${invoice._id} to ${invoice.email}\n`,
