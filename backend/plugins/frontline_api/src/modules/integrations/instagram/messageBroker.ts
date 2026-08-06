@@ -36,7 +36,9 @@ export async function handleInstagramIntegration({ subdomain, data }) {
       response.data = await models.InstagramConfigs.find({});
     }
   } catch (e) {
-    debugError(`handleInstagramIntegration error [action=${action}]: ${e.message}`);
+    debugError(
+      `handleInstagramIntegration error [action=${action}]: ${e.message}`,
+    );
     response = {
       status: 'error',
       errorMessage: e.message,
