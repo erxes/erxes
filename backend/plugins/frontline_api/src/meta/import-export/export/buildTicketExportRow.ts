@@ -7,6 +7,12 @@ type Maps = {
   assigneeMap: Map<string, string>;
   pipelineMap: Map<string, string>;
   tagMap: Map<string, string>;
+  statusMap: Map<string, string>;
+  channelMap: Map<string, string>;
+  companyMap: Map<string, string>;
+  customerMap: Map<string, string>;
+  assigneeBranchMap: Map<string, string>;
+  assigneeDepartmentMap: Map<string, string>;
 };
 
 const joinNames = (ids: any[] | undefined, map: Map<string, string>) => {
@@ -44,7 +50,28 @@ export const buildTicketExportRow = (
     ? maps?.pipelineMap?.get(String(ticket.pipelineId)) || ''
     : '';
 
+  const statusName = ticket.statusId
+    ? maps?.statusMap?.get(String(ticket.statusId)) || ''
+    : '';
+
+  const channelName = ticket.channelId
+    ? maps?.channelMap?.get(String(ticket.channelId)) || ''
+    : '';
+
+  const branchNames = ticket.assigneeId
+    ? maps?.assigneeBranchMap?.get(String(ticket.assigneeId)) || ''
+    : '';
+
+  const departmentNames = ticket.assigneeId
+    ? maps?.assigneeDepartmentMap?.get(String(ticket.assigneeId)) || ''
+    : '';
+
   const tagNames = joinNames(ticket.tagIds, maps?.tagMap || new Map());
+  const companyNames = joinNames(ticket.companyIds, maps?.companyMap || new Map());
+  const customerNames = joinNames(
+    ticket.customerFieldData?.customerIds,
+    maps?.customerMap || new Map(),
+  );
 
   const allFields: Record<string, any> = {
     _id: formatValue(ticket._id),
@@ -52,10 +79,12 @@ export const buildTicketExportRow = (
     description: formatValue(ticket.description),
     type: formatValue(ticket.type),
     priority: formatValue(getPriorityLabel(ticket.priority)),
+    statusId: formatValue(statusName),
     statusType: formatValue(getStatusLabel(ticket.statusType)),
     state: formatValue(ticket.state),
     assigneeId: formatValue(assigneeName),
     pipelineId: formatValue(pipelineName),
+    channelId: formatValue(channelName),
     tagIds: formatValue(tagNames),
     number: formatValue(ticket.number),
     startDate: formatValue(ticket.startDate ? new Date(ticket.startDate) : ''),
@@ -64,6 +93,10 @@ export const buildTicketExportRow = (
     ),
     createdAt: formatValue(ticket.createdAt ? new Date(ticket.createdAt) : ''),
     updatedAt: formatValue(ticket.updatedAt ? new Date(ticket.updatedAt) : ''),
+    branchIds: formatValue(branchNames),
+    departmentIds: formatValue(departmentNames),
+    customerIds: formatValue(customerNames),
+    companyIds: formatValue(companyNames),
   };
 
   if (ticket.propertiesData && typeof ticket.propertiesData === 'object') {

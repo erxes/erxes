@@ -14,6 +14,7 @@ import {
   TSearchAndActionsProps,
 } from '../../types/export/exportTypes';
 import { getEntityLabelFromType } from '../../utils/entityLabel';
+import { ExportRecordFilters } from './ExportRecordFilters';
 
 export function SearchAndActions({
   onSelectAll,
@@ -52,6 +53,7 @@ export function ExportFieldSelection({
   recordCount,
   entityDisplayName,
   filters,
+  renderRelationValueInput,
 }: TExportFieldSelectionProps) {
   const {
     selectedFields,
@@ -62,6 +64,7 @@ export function ExportFieldSelection({
     handleSelectAll,
     handleSelectDefaults,
     handleToggleField,
+    recordFilters,
   } = useExportFieldSelection({ entityType, filters, open, onConfirm, onOpenChange });
 
   // If entityDisplayName is provided, use it; otherwise, derive the name from entityType
@@ -133,13 +136,25 @@ export function ExportFieldSelection({
           </div>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="px-2 flex-1 overflow-hidden flex flex-col">
+        <Sheet.Content className="px-2 pt-3 flex-1 overflow-hidden flex flex-col">
           <div className="flex flex-col min-h-0 flex-1">
             <Command className="flex-1 overflow-hidden flex flex-col min-h-0">
               <Command.Input
                 variant="primary"
                 placeholder="Search fields by name..."
               />
+              {!recordCount && (
+                <ExportRecordFilters
+                  headers={headers}
+                  conditions={recordFilters.conditions}
+                  enabled={recordFilters.enabled}
+                  onEnableToggle={recordFilters.handleEnableToggle}
+                  onAdd={recordFilters.addCondition}
+                  onChange={recordFilters.updateCondition}
+                  onRemove={recordFilters.removeCondition}
+                  renderRelationValueInput={renderRelationValueInput}
+                />
+              )}
               <div className="flex-shrink-0 py-2">
                 <SearchAndActions
                   onSelectAll={handleSelectAll}

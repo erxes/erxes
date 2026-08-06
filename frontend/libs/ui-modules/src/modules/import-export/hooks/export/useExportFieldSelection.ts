@@ -1,7 +1,8 @@
 import { useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { GET_EXPORT_HEADERS } from '../../graphql/export/exportQueries';
-import { TExportHeader } from '../../types/export/exportTypes';
+import { TExportHeader, TSystemFieldCondition } from '../../types/export/exportTypes';
+import { useExportRecordFilters } from './useExportRecordFilters';
 
 export const useExportFieldSelection = ({
   entityType,
@@ -13,9 +14,13 @@ export const useExportFieldSelection = ({
   entityType: string;
   filters?: Record<string, any>;
   open: boolean;
-  onConfirm: (selectedFields: string[]) => void;
+  onConfirm: (
+    selectedFields: string[],
+    systemFieldConditions?: TSystemFieldCondition[],
+  ) => void;
   onOpenChange: (open: boolean) => void;
 }) => {
+  const recordFilters = useExportRecordFilters();
   const { data, loading } = useQuery(GET_EXPORT_HEADERS, {
     variables: { entityType, ...(filters ? { filters } : {}) },
     skip: !open,
@@ -55,14 +60,18 @@ export const useExportFieldSelection = ({
   };
 
   const handleConfirm = () => {
+    const systemFieldConditions = recordFilters.completedConditions.length
+      ? recordFilters.completedConditions
+      : undefined;
+
     if (selectedFields.length === 0) {
       // If nothing selected, use defaults
       const defaultFields = headers
         .filter((h) => h.isDefault)
         .map((h) => h.key);
-      onConfirm(defaultFields);
+      onConfirm(defaultFields, systemFieldConditions);
     } else {
-      onConfirm(selectedFields);
+      onConfirm(selectedFields, systemFieldConditions);
     }
     onOpenChange(false);
   };
@@ -76,5 +85,6 @@ export const useExportFieldSelection = ({
     handleSelectAll,
     handleSelectDefaults,
     handleToggleField,
+    recordFilters,
   };
 };
