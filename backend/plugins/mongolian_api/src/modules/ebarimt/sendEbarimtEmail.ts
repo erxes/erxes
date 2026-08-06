@@ -255,11 +255,15 @@ export const sendEbarimtEmail = async ({
     let qrImage = '';
 
     if (response.qrData) {
-      qrImage = await QRCode.toDataURL(response.qrData, {
-        errorCorrectionLevel: 'M',
-        margin: 1,
-        width: 220,
-      });
+      try {
+        qrImage = await QRCode.toDataURL(response.qrData, {
+          errorCorrectionLevel: 'M',
+          margin: 1,
+          width: 220,
+        });
+      } catch {
+        qrImage = '';
+      }
 
       const content = qrImage.split(',')[1];
       if (content) {
