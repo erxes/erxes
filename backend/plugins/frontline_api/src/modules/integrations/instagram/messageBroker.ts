@@ -94,10 +94,12 @@ export async function instagramUpdateIntegrations({
       };
     }
 
-    await models.InstagramIntegrations.updateOne(
-      { erxesApiId: integrationId },
-      { $set: details },
-    );
+    if (Object.keys(details).length) {
+      await models.InstagramIntegrations.updateOne(
+        { erxesApiId: integrationId },
+        { $set: details },
+      );
+    }
 
     return { status: 'success' };
   } catch (e) {

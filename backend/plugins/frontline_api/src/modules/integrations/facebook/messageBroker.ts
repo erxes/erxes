@@ -90,10 +90,12 @@ export async function facebookUpdateIntegrations({
       };
     }
 
-    await models.FacebookIntegrations.updateOne(
-      { erxesApiId: integrationId },
-      { $set: details },
-    );
+    if (Object.keys(details).length) {
+      await models.FacebookIntegrations.updateOne(
+        { erxesApiId: integrationId },
+        { $set: details },
+      );
+    }
 
     return {
       status: 'success',
