@@ -1,12 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as QRCode from 'qrcode';
 import { IReceipt } from './@types';
-
-const QRCode: {
-  toDataURL: (
-    text: string,
-    options: { errorCorrectionLevel: string; margin: number; width: number },
-  ) => Promise<string>;
-} = require('qrcode');
 
 interface RelatedContact {
   primaryEmail?: string | null;
