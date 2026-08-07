@@ -42,18 +42,18 @@
 
 ## Architecture
 
-| Area              | Path                                                       | Responsibility                                                     |
-| ----------------- | ---------------------------------------------------------- | ------------------------------------------------------------------ |
-| Bootstrap         | `src/main.ts`                                              | `startPlugin({ name: 'payment', port: 3310 })`, widget static host  |
-| Gateway adapters  | `src/apis/`                                                | Per-provider invoice creation, status checks, callback parsing      |
-| Callback handler  | `src/apis/controller.ts`                                   | Verifies gateway callbacks, marks paid, calls the paid fan-out      |
-| Paid fan-out      | `src/modules/payment/services/paidInvoiceCallback.ts`      | Resolves the payment method, enqueues jobs, triggers the QR email   |
-| QR ticket email   | `src/modules/payment/services/invoiceQrEmail.ts`           | Claims `qrEmailSentAt`, generates ticket codes, sends the PDF email |
-| Ticket PDF        | `src/modules/payment/services/ticketsPdf.ts`               | Renders the QR ticket PDF buffer                                    |
-| Data model        | `src/modules/payment/db/`                                  | `Invoices`, `Transactions`, `PaymentMethods` schemas and models     |
-| GraphQL           | `src/modules/payment/graphql/`, `src/apollo/`              | `payment*` queries, mutations, custom resolvers, subscriptions      |
-| tRPC              | `src/trpc/`                                                | Service-to-service payment/invoice procedures                       |
-| Workers           | `src/workers/payments.ts`                                  | BullMQ consumer for this plugin's `payments` queue                  |
+| Area             | Path                                                  | Responsibility                                                      |
+| ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
+| Bootstrap        | `src/main.ts`                                         | `startPlugin({ name: 'payment', port: 3310 })`, widget static host  |
+| Gateway adapters | `src/apis/`                                           | Per-provider invoice creation, status checks, callback parsing      |
+| Callback handler | `src/apis/controller.ts`                              | Verifies gateway callbacks, marks paid, calls the paid fan-out      |
+| Paid fan-out     | `src/modules/payment/services/paidInvoiceCallback.ts` | Resolves the payment method, enqueues jobs, triggers the QR email   |
+| QR ticket email  | `src/modules/payment/services/invoiceQrEmail.ts`      | Claims `qrEmailSentAt`, generates ticket codes, sends the PDF email |
+| Ticket PDF       | `src/modules/payment/services/ticketsPdf.ts`          | Renders the QR ticket PDF buffer                                    |
+| Data model       | `src/modules/payment/db/`                             | `Invoices`, `Transactions`, `PaymentMethods` schemas and models     |
+| GraphQL          | `src/modules/payment/graphql/`, `src/apollo/`         | `payment*` queries, mutations, custom resolvers, subscriptions      |
+| tRPC             | `src/trpc/`                                           | Service-to-service payment/invoice procedures                       |
+| Workers          | `src/workers/payments.ts`                             | BullMQ consumer for this plugin's `payments` queue                  |
 
 ## Contracts
 
