@@ -84,6 +84,14 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
   );
 };
 
+const PipelineMoreMenu = ({ pipelineId }: { pipelineId: string }) => (
+  <Command shouldFilter={false}>
+    <Command.List>
+      <PipelineDeleteItem pipelineId={pipelineId} />
+    </Command.List>
+  </Command>
+);
+
 const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
   const { _id } = cell.row.original;
 
@@ -93,11 +101,7 @@ const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
         <RecordTable.MoreButton className="size-full" />
       </Popover.Trigger>
       <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <PipelineDeleteItem pipelineId={_id} />
-          </Command.List>
-        </Command>
+        <PipelineMoreMenu pipelineId={_id} />
       </Combobox.Content>
     </Popover>
   );

@@ -1,5 +1,5 @@
 import { IconGripVertical } from '@tabler/icons-react';
-import * as React from 'react';
+import { forwardRef } from 'react';
 
 import { Button, ButtonProps } from './button';
 import { cn } from 'erxes-ui/lib';
@@ -9,7 +9,7 @@ export type DragHandleProps = Omit<
   'asChild' | 'children' | 'size'
 >;
 
-export const DragHandle = React.forwardRef<HTMLButtonElement, DragHandleProps>(
+export const DragHandle = forwardRef<HTMLButtonElement, DragHandleProps>(
   ({ className, variant = 'ghost', ...props }, ref) => (
     <Button
       className={cn(
