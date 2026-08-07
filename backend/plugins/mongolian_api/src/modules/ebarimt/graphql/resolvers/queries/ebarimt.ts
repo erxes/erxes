@@ -5,15 +5,9 @@ import {
   regexSearchText,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
-import moment from 'moment';
-import { nanoid } from 'nanoid';
 import { IContext } from '~/connectionResolvers';
-import { IDoc } from '~/modules/ebarimt/@types';
-import {
-  getCompanyInfo,
-  getEbarimtData,
-  getPostData,
-} from '~/modules/ebarimt/utils';
+import { getPutResponseDetail } from '~/modules/ebarimt/getPutResponseDetail';
+import { getCompanyInfo } from '~/modules/ebarimt/utils';
 
 const generateFilter = async (subdomain, params) => {
   const filter: any = {};
@@ -245,101 +239,15 @@ export const putResponseQueries = {
     { subdomain, models, checkPermission }: IContext,
   ) => {
     await checkPermission('ebarimt:putResponseDetail');
-    const putHistory = await models.PutResponses.putHistory({
+
+    return getPutResponseDetail({
       contentType,
       contentId,
+      stageId,
+      isTemp,
+      models,
+      subdomain,
     });
-    if (putHistory) {
-      return putHistory;
-    }
-
-    if (!isTemp) {
-      throw new Error('Ebarimt not found');
-    }
-
-    if (contentType === 'deal') {
-      const deal = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'sales',
-        method: 'query',
-        module: 'deal',
-        action: 'findOne',
-        input: { _id: contentId },
-        defaultValue: {},
-      });
-      const dealData = deal || {};
-
-      stageId = stageId || dealData.stageId;
-
-      if (!dealData?._id || !stageId) {
-        throw new Error('Deal not found');
-      }
-
-      const configVal = await models.Configs.getConfigValue(
-        'stageInEbarimt',
-        stageId,
-      );
-
-      if (!configVal) {
-        throw new Error('Ebarimt config not found');
-      }
-
-      const config = {
-        ...(await models.Configs.getConfigValue('EBARIMT', '', {})),
-        ...configVal,
-      };
-
-      const pipeline = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'sales',
-        method: 'query',
-        module: 'pipeline',
-        action: 'findOne',
-        input: { stageId: stageId || deal.stageId },
-        defaultValue: {},
-      });
-      const pipelineData = pipeline || {};
-
-      const ebarimtData: IDoc = await getPostData(
-        subdomain,
-        models,
-        config,
-        dealData,
-        pipelineData.paymentTypes,
-      );
-      const { status, msg, data, innerData } = await getEbarimtData({
-        config,
-        doc: ebarimtData,
-      });
-
-      if (status !== 'ok' || (!data && !innerData)) {
-        return {
-          _id: nanoid(),
-          id: 'Error',
-          status: 'ERROR',
-          message: msg,
-        };
-      }
-      if (data) {
-        return {
-          _id: nanoid(),
-          ...data,
-          id: 'Түр баримт',
-          status: 'SUCCESS',
-          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
-          registerNo: config.companyRD || '',
-        };
-      }
-      if (innerData) {
-        return {
-          ...innerData,
-          id: 'Түр баримт',
-          status: 'SUCCESS',
-          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
-          registerNo: config.companyRD || '',
-        };
-      }
-    }
   },
 
   putResponsesAmount: async (
