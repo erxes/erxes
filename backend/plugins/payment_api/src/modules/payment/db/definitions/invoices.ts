@@ -3,6 +3,14 @@ import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IInvoiceDocument } from '~/modules/payment/@types/invoices';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 
+const ticketCodeSchema = new Schema(
+  {
+    code: { type: String, index: true },
+    scannedAt: { type: Date, default: null },
+  },
+  { _id: false },
+);
+
 export const invoiceSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
@@ -23,7 +31,7 @@ export const invoiceSchema = schemaWrapper(
     createdAt: { type: Date, default: Date.now },
     resolvedAt: { type: Date },
     scannedAt: { type: Date },
-    scannedCodes: { type: [String], default: [] },
+    ticketCodes: { type: [ticketCodeSchema], default: [] },
     qrEmailSentAt: { type: Date },
     data: { type: Schema.Types.Mixed },
     apiResponse: { type: Schema.Types.Mixed },

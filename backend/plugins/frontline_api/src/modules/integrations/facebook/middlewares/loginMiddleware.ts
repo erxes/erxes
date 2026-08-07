@@ -14,15 +14,42 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { generateModels } from '~/connectionResolvers';
 
-const readKindFromState = (state?: string): string | undefined =>
-  new URLSearchParams(state?.split('?')[1]).get('kind') ?? undefined;
+/**
+ * The OAuth `state` is sent back to us by the shared authorize redirector,
+ * which builds the callback url as `${state}/fblogin?code=...`. A query string
+ * in `state` would therefore end up before the `/fblogin` path, so the kind is
+ * carried as a `/kind/<kind>` path segment instead.
+ */
+const KIND_PATH_SEGMENT = '/kind/';
+
+const buildStateUrl = (apiDomain: string, kind?: string) =>
+  kind
+    ? `${apiDomain}/pl:frontline/facebook${KIND_PATH_SEGMENT}${encodeURIComponent(kind)}`
+    : `${apiDomain}/pl:frontline/facebook`;
+
+const readKindFromState = (state?: string): string | undefined => {
+  const [path] = (state || '').split('?');
+  const index = path.indexOf(KIND_PATH_SEGMENT);
+
+  if (index === -1) {
+    return undefined;
+  }
+
+  return (
+    decodeURIComponent(
+      path.slice(index + KIND_PATH_SEGMENT.length).split('/')[0],
+    ) || undefined
+  );
+};
 
 export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
   const kind =
-    (req.query.kind as string) || readKindFromState(req.query.state as string);
+    (req.query.kind as string) ||
+    (req.params.kind as string) ||
+    readKindFromState(req.query.state as string);
 
   const app = await resolveFacebookApp(models, kind);
 
@@ -51,9 +78,7 @@ export const loginMiddleware = async (req, res) => {
   debugRequest(debugFacebook, req);
 
   if (!req.query.code) {
-    const state = kind
-      ? `${API_DOMAIN}/pl:frontline/facebook?kind=${encodeURIComponent(kind)}`
-      : `${API_DOMAIN}/pl:frontline/facebook`;
+    const state = buildStateUrl(API_DOMAIN, kind);
 
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,

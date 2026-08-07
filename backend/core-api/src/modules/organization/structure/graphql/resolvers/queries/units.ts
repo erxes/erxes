@@ -3,6 +3,7 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import {
   ICursorPaginateParams,
   IListParams,
+  Resolver,
 } from 'erxes-api-shared/core-types';
 
 // Escapes regex special characters to prevent injection
@@ -10,7 +11,7 @@ function escapeRegExp(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export const unitsQueries = {
+export const unitsQueries: Record<string, Resolver> = {
   async units(
     _root,
     { searchValue }: { searchValue?: string },
@@ -66,4 +67,37 @@ export const unitsQueries = {
   async unitDetail(_root, { _id }, { models }: IContext) {
     return models.Units.getUnit({ _id });
   },
+
+  async cpUnits(
+    _root,
+    { searchValue }: { searchValue?: string },
+    { models }: IContext,
+  ) {
+    const filter: { $or?: any[] } = {};
+
+    if (searchValue) {
+      const escaped = escapeRegExp(searchValue.trim());
+      const regexOption = {
+        $regex: escaped,
+        $options: 'i',
+      };
+
+      filter.$or = [{ title: regexOption }, { description: regexOption }];
+    }
+
+    return models.Units.find(filter)
+      .select({
+        _id: 1,
+        title: 1,
+        code: 1,
+        description: 1,
+        departmentId: 1,
+        userIds: 1,
+      })
+      .sort({ title: 1 });
+  },
+};
+
+unitsQueries.cpUnits.wrapperConfig = {
+  forClientPortal: true,
 };
