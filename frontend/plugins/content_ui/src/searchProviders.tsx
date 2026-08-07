@@ -1,5 +1,10 @@
 import { IconArticle, IconFileText } from '@tabler/icons-react';
-import { defineSearchProvider, isAnObject, ISearchProvider, TSearchPayload } from 'erxes-ui';
+import {
+  defineSearchProvider,
+  isAnObject,
+  ISearchProvider,
+  TSearchPayload,
+} from 'erxes-ui';
 
 const UNNAMED = 'Unnamed';
 
@@ -13,7 +18,10 @@ const readPostsPage = (payload: TSearchPayload, alias: string) => {
   const page = payload[alias];
 
   if (!isAnObject(page)) {
-    return { nodes: [] as TPostNode[], totalCount: undefined as number | undefined };
+    return {
+      nodes: [] as TPostNode[],
+      totalCount: undefined as number | undefined,
+    };
   }
 
   const { posts, totalCount } = page as {
@@ -55,7 +63,10 @@ const readPagesPage = (payload: TSearchPayload, alias: string) => {
   const page = payload[alias];
 
   if (!isAnObject(page)) {
-    return { nodes: [] as TPageNode[], totalCount: undefined as number | undefined };
+    return {
+      nodes: [] as TPageNode[],
+      totalCount: undefined as number | undefined,
+    };
   }
 
   const { pages, totalCount } = page as {

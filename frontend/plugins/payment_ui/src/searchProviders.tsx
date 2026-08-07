@@ -1,5 +1,9 @@
 import { IconInvoice } from '@tabler/icons-react';
-import { defineSearchProvider, ISearchProvider, readCursorList } from 'erxes-ui';
+import {
+  defineSearchProvider,
+  ISearchProvider,
+  readCursorList,
+} from 'erxes-ui';
 
 const UNNAMED = 'Unnamed';
 
@@ -22,7 +26,8 @@ const invoicesSearchProvider = defineSearchProvider<TInvoiceNode>({
       body: '{ list { _id invoiceNumber amount } totalCount }',
     },
   ],
-  select: (payload) => readCursorList<TInvoiceNode>(payload, 'gs_payment_invoices'),
+  select: (payload) =>
+    readCursorList<TInvoiceNode>(payload, 'gs_payment_invoices'),
   toItem: (invoice) => ({
     id: invoice._id,
     title: invoice.invoiceNumber || UNNAMED,

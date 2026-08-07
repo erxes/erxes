@@ -1,5 +1,10 @@
 import { IconFileText, IconUser } from '@tabler/icons-react';
-import { defineSearchProvider, getPersonName, ISearchProvider, readArray } from 'erxes-ui';
+import {
+  defineSearchProvider,
+  getPersonName,
+  ISearchProvider,
+  readArray,
+} from 'erxes-ui';
 
 const UNNAMED = 'Unnamed';
 

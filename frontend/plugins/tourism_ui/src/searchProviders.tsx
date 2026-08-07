@@ -1,5 +1,9 @@
 import { IconMapPin } from '@tabler/icons-react';
-import { defineSearchProvider, ISearchProvider, readCursorList } from 'erxes-ui';
+import {
+  defineSearchProvider,
+  ISearchProvider,
+  readCursorList,
+} from 'erxes-ui';
 
 const UNNAMED = 'Unnamed';
 

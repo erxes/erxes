@@ -1,5 +1,10 @@
 import { IconBriefcase, IconTag } from '@tabler/icons-react';
-import { defineSearchProvider, ISearchProvider, readArray, readCursorList } from 'erxes-ui';
+import {
+  defineSearchProvider,
+  ISearchProvider,
+  readArray,
+  readCursorList,
+} from 'erxes-ui';
 
 const UNNAMED = 'Unnamed';
 
@@ -62,7 +67,9 @@ const posSearchProvider = defineSearchProvider<TPosNode>({
       body: '{ _id name }',
     },
   ],
-  select: (payload) => ({ nodes: readArray<TPosNode>(payload, 'gs_sales_pos') }),
+  select: (payload) => ({
+    nodes: readArray<TPosNode>(payload, 'gs_sales_pos'),
+  }),
   toItem: (pos) => ({
     id: pos._id,
     title: pos.name || UNNAMED,

@@ -26,7 +26,8 @@ export const customersSearchProvider = defineSearchProvider<TCustomerNode>({
       body: '{ list { _id firstName lastName primaryEmail primaryPhone } totalCount }',
     },
   ],
-  select: (payload) => readCursorList<TCustomerNode>(payload, 'gs_core_customers'),
+  select: (payload) =>
+    readCursorList<TCustomerNode>(payload, 'gs_core_customers'),
   toItem: (customer) => ({
     id: customer._id,
     title: getPersonName(customer, UNNAMED),
@@ -57,7 +58,8 @@ export const companiesSearchProvider = defineSearchProvider<TCompanyNode>({
       body: '{ list { _id primaryName primaryEmail primaryPhone } totalCount }',
     },
   ],
-  select: (payload) => readCursorList<TCompanyNode>(payload, 'gs_core_companies'),
+  select: (payload) =>
+    readCursorList<TCompanyNode>(payload, 'gs_core_companies'),
   toItem: (company) => ({
     id: company._id,
     title: company.primaryName || UNNAMED,

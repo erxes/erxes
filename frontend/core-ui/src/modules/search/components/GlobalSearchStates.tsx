@@ -1,4 +1,8 @@
-import { IconAlertTriangle, IconLoader2, IconSearch } from '@tabler/icons-react';
+import {
+  IconAlertTriangle,
+  IconLoader2,
+  IconSearch,
+} from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 

@@ -14,5 +14,7 @@ const INVALID_FIELD_PATTERN = /Cannot query field "([^"]+)"/;
 
 export const getInvalidFieldNames = (error?: ApolloError): string[] =>
   (error?.graphQLErrors ?? [])
-    .map((graphQLError) => graphQLError.message.match(INVALID_FIELD_PATTERN)?.[1])
+    .map(
+      (graphQLError) => graphQLError.message.match(INVALID_FIELD_PATTERN)?.[1],
+    )
     .filter((field): field is string => typeof field === 'string');

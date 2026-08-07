@@ -79,7 +79,9 @@ const teamsSearchProvider = defineSearchProvider<TTeamNode>({
       body: '{ _id name }',
     },
   ],
-  select: (payload) => ({ nodes: readArray<TTeamNode>(payload, 'gs_operation_teams') }),
+  select: (payload) => ({
+    nodes: readArray<TTeamNode>(payload, 'gs_operation_teams'),
+  }),
   toItem: (team) => ({
     id: team._id,
     title: team.name || UNNAMED,

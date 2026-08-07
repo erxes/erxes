@@ -90,12 +90,12 @@ const ticketsSearchProvider = defineSearchProvider<TTicketNode>({
     {
       alias: 'gs_frontline_tickets',
       field: 'getTickets',
-      args:
-        'filter: { searchValue: $searchValue, limit: $limit, cursor: "", direction: forward, orderBy: { createdAt: -1 } }',
+      args: 'filter: { searchValue: $searchValue, limit: $limit, cursor: "", direction: forward, orderBy: { createdAt: -1 } }',
       body: '{ list { _id name number } totalCount }',
     },
   ],
-  select: (payload) => readCursorList<TTicketNode>(payload, 'gs_frontline_tickets'),
+  select: (payload) =>
+    readCursorList<TTicketNode>(payload, 'gs_frontline_tickets'),
   toItem: (ticket) => ({
     id: ticket._id,
     title: ticket.name || UNNAMED,
