@@ -137,6 +137,7 @@ export type TAiActionExecutionResult =
       toolCalls?: TAiToolCallTrace[];
       // Tool definitions offered to the provider on this run (debugging)
       toolsOffered?: string[];
+      degraded?: boolean;
       // Set when the agent handed the conversation off to a tool route
       handoff?: {
         toolId: string;

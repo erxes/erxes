@@ -205,6 +205,13 @@ const toISOString = (value?: Date | string): string | undefined => {
   return String(value);
 };
 
+// An execution can start seconds after its message, by which time newer
+// messages exist. History must stay strictly older than the one being handled.
+const toHistoryCutoff = (value?: Date | string) => {
+  const date = value instanceof Date ? value : new Date(String(value || ''));
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
 const toHistoryRole = (message: {
   fromBot?: boolean;
   userId?: string;
@@ -360,10 +367,12 @@ export const inboxAutomationWorkers = {
 
     if (!target.conversationId) return context;
 
+    const historyCutoff = toHistoryCutoff(target.createdAt);
     const messages = await models.ConversationMessages.find({
       conversationId: target.conversationId,
       internal: { $ne: true },
       _id: { $ne: target._id },
+      ...(historyCutoff ? { createdAt: { $lt: historyCutoff } } : {}),
     })
       .sort({ createdAt: -1 })
       .limit(12)
