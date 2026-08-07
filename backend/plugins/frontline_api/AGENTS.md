@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-06`
+- **Last synchronized:** `2026-08-07`
 
 ## Scope
 
@@ -282,6 +282,28 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-07` — Indexed knowledge base articles carry their category name
+
+- **Summary:** Article documents sent for AI indexing are now titled
+  `Category › Article` and carry the category title as a keyword, so articles
+  named only `1`, `2`, `3` are still reachable by the subject that lives on
+  their category. Categories are resolved in one batched query per document
+  batch.
+- **Affected areas:** `src/modules/knowledgebase/meta/automations.ts`
+- **Contracts changed:** `None` (same `TKnowledgeDocument` shape; `title` and
+  `metadata.keywords` are richer). Existing chunks keep their old titles until
+  the source is re-indexed.
+
+### `2026-08-06` — AI context history is bounded to messages older than the trigger
+
+- **Summary:** `generateAiContext` now excludes messages created at or after the
+  triggering message, so an execution that starts seconds later no longer sees
+  newer customer messages as its own conversation history.
+- **Affected areas:** `src/modules/inbox/meta/automation/workers.ts`,
+  `src/modules/integrations/facebook/meta/automation/workers.ts`,
+  `src/modules/integrations/discord/meta/automation/workers.ts`
+- **Contracts changed:** `None` (same `TAiContext` shape; `history` is narrower)
 
 ### `2026-08-06` — Knowledge base articles support whole-source AI indexing
 

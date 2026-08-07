@@ -10,6 +10,10 @@ import {
   retrieveAiKnowledgeChunks,
 } from './retrieve';
 import { TAiKnowledgeChunk } from './types';
+import {
+  AI_SEARCH_HISTORY_LIMIT,
+  buildAiInputFromContext,
+} from '../aiAction/context';
 import { type TAiContext } from 'erxes-api-shared/core-modules';
 import {
   AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
@@ -27,58 +31,8 @@ type TAiKnowledgeRuntimeParams = {
 };
 
 const MAX_CANDIDATE_CHUNKS = 300;
-
-const stringifyRuntimeValue = (value: unknown) => {
-  if (typeof value === 'string') {
-    return value.trim();
-  }
-
-  if (value == null) {
-    return '';
-  }
-
-  if (
-    typeof value === 'number' ||
-    typeof value === 'boolean' ||
-    typeof value === 'bigint'
-  ) {
-    return String(value);
-  }
-
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch (_error) {
-    return String(value);
-  }
-};
-
-const buildRuntimeInputText = ({
-  inputData,
-  aiContext,
-}: {
-  inputData: unknown;
-  aiContext?: TAiContext | null;
-}) => {
-  const explicitInput = stringifyRuntimeValue(inputData);
-  const latestUserMessage = stringifyRuntimeValue(aiContext?.input?.text);
-  const actionInput =
-    explicitInput && explicitInput !== latestUserMessage ? explicitInput : '';
-  const history = (aiContext?.history || [])
-    .filter((item) => item.text?.trim())
-    .slice(-5)
-    .map((item) => `${item.role || item.type || 'context'}: ${item.text}`)
-    .join('\n');
-  const facts = stringifyRuntimeValue(aiContext?.facts);
-
-  return [
-    latestUserMessage ? `Latest user message:\n${latestUserMessage}` : '',
-    history ? `Relevant history:\n${history}` : '',
-    facts && facts !== '{}' ? `Known facts:\n${facts}` : '',
-    actionInput ? `Action input:\n${actionInput}` : '',
-  ]
-    .filter(Boolean)
-    .join('\n\n');
-};
+const MIN_CANDIDATE_CHUNKS_PER_SOURCE = 25;
+const ALWAYS_INCLUDED_CHUNKS_PER_SOURCE = 20;
 
 const buildActionSearchText = (actionConfig: TAiAgentActionConfig) => {
   if (actionConfig.goalType === 'generateText') {
@@ -169,9 +123,12 @@ const getCandidateChunks = async ({
         $or: [
           { topics: { $in: terms } },
           { keywords: { $in: terms } },
-          { title: { $regex: terms.join('|'), $options: 'i' } },
+          { title: { $regex: terms.map(escapeRegex).join('|'), $options: 'i' } },
         ],
       })
+        // No relevance signal on this path, so prefer the freshest content
+        // instead of natural collection order.
+        .sort({ sourceUpdatedAt: -1 })
         .limit(MAX_CANDIDATE_CHUNKS)
         .lean<IKnowledgeChunkDocument[]>(),
     );
@@ -193,17 +150,6 @@ const getCandidateChunks = async ({
     } catch (error) {
       console.error('AI knowledge text search failed:', error);
     }
-  }
-
-  if (!chunksById.size) {
-    collect(
-      await models.KnowledgeChunks.find({
-        agentId,
-        sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
-      })
-        .limit(MAX_CANDIDATE_CHUNKS)
-        .lean<IKnowledgeChunkDocument[]>(),
-    );
   }
 
   return Array.from(chunksById.values()).map(mapSharedKnowledgeDocumentToChunk);
@@ -228,12 +174,17 @@ const getSharedKnowledgeCandidateChunks = async ({
         key: source.key,
       });
 
+      // A plugin marks its staff-only documents internal, and a reply may be
+      // customer-facing. Agent-owned files carry the same flag for a different
+      // reason and are gathered on their own path.
+      const base = { sourceType, visibility: { $ne: 'internal' } };
+
       if (resolveKnowledgeSourceScope(source) === 'all') {
-        return { sourceType };
+        return base;
       }
 
       return source.sourceIds.length
-        ? { sourceType, sourceId: { $in: source.sourceIds } }
+        ? { ...base, sourceId: { $in: source.sourceIds } }
         : null;
     })
     .filter((filter): filter is NonNullable<typeof filter> => !!filter);
@@ -242,83 +193,75 @@ const getSharedKnowledgeCandidateChunks = async ({
     return [];
   }
 
-  const sourceFilter = { $or: sourceFilters };
   const terms = extractKnowledgeTerms(searchText, 32);
   const chunksById = new Map<string, TAiKnowledgeChunk>();
-  const collect = (docs: TAiKnowledgeChunk[]) => {
-    for (const doc of docs) {
+  const collect = (docs: IKnowledgeChunkDocument[]) => {
+    for (const doc of docs.map(mapSharedKnowledgeDocumentToChunk)) {
       chunksById.set(String(doc.id), doc);
     }
   };
-  const mapDocuments = (docs: IKnowledgeChunkDocument[]) =>
-    docs.map(mapSharedKnowledgeDocumentToChunk);
-
-  collect(
-    mapDocuments(
-      await models.KnowledgeChunks.find({
-        $and: [sourceFilter, { priority: 'always' }],
-      })
-        .limit(20)
-        .lean<IKnowledgeChunkDocument[]>(),
-    ),
-  );
-
-  if (!terms.length) {
-    return filterSharedKnowledgeChunksByAgentBindings({
+  const finish = () =>
+    filterSharedKnowledgeChunksByAgentBindings({
       models,
       agentId,
       chunks: Array.from(chunksById.values()),
     });
-  }
+  // A shared pool lets a large source crowd every other one out of the
+  // candidate window before scoring ever runs.
+  const perSourceLimit = Math.max(
+    Math.ceil(MAX_CANDIDATE_CHUNKS / sourceFilters.length),
+    MIN_CANDIDATE_CHUNKS_PER_SOURCE,
+  );
+  const titleMatcher = terms.length
+    ? new RegExp(terms.map(escapeRegex).join('|'), 'i')
+    : null;
 
-  const titleMatcher = new RegExp(terms.map(escapeRegex).join('|'), 'i');
-
-  collect(
-    mapDocuments(
+  for (const sourceFilter of sourceFilters) {
+    collect(
       await models.KnowledgeChunks.find({
-        $and: [
-          sourceFilter,
-          {
-            $or: [
-              { topics: { $in: terms } },
-              { keywords: { $in: terms } },
-              { title: titleMatcher },
-            ],
-          },
+        ...sourceFilter,
+        priority: 'always',
+      })
+        .limit(ALWAYS_INCLUDED_CHUNKS_PER_SOURCE)
+        .lean<IKnowledgeChunkDocument[]>(),
+    );
+
+    if (!titleMatcher) {
+      continue;
+    }
+
+    collect(
+      await models.KnowledgeChunks.find({
+        ...sourceFilter,
+        $or: [
+          { topics: { $in: terms } },
+          { keywords: { $in: terms } },
+          { title: titleMatcher },
         ],
       })
-        .limit(MAX_CANDIDATE_CHUNKS)
+        // No relevance signal on this path, so prefer the freshest content
+        // instead of natural collection order.
+        .sort({ sourceUpdatedAt: -1 })
+        .limit(perSourceLimit)
         .lean<IKnowledgeChunkDocument[]>(),
-    ),
-  );
+    );
 
-  try {
-    collect(
-      mapDocuments(
+    try {
+      collect(
         await models.KnowledgeChunks.find(
-          {
-            $and: [sourceFilter, { $text: { $search: searchText } }],
-          },
+          { ...sourceFilter, $text: { $search: searchText } },
           { score: { $meta: 'textScore' } },
         )
           .sort({ score: { $meta: 'textScore' } })
-          .limit(MAX_CANDIDATE_CHUNKS)
+          .limit(perSourceLimit)
           .lean<IKnowledgeChunkDocument[]>(),
-      ),
-    );
-  } catch (_error) {
-    return filterSharedKnowledgeChunksByAgentBindings({
-      models,
-      agentId,
-      chunks: Array.from(chunksById.values()),
-    });
+      );
+    } catch (_error) {
+      return finish();
+    }
   }
 
-  return filterSharedKnowledgeChunksByAgentBindings({
-    models,
-    agentId,
-    chunks: Array.from(chunksById.values()),
-  });
+  return finish();
 };
 
 // A shared chunk is only visible to agents that actually bound its source,
@@ -355,37 +298,27 @@ const filterSharedKnowledgeChunksByAgentBindings = async ({
   );
 };
 
-export const retrieveAiAgentKnowledgeContextFiles = async ({
+// The one place that turns a search string into ranked chunks. Both the
+// prompt-mode retrieval and the search_knowledge tool go through here.
+export const searchAiAgentKnowledge = async ({
   models,
   agentId,
   agent,
-  actionConfig,
-  inputData,
-  aiContext,
-}: TAiKnowledgeRuntimeParams): Promise<TAiAgentLoadedContextFile[]> => {
+  searchText,
+}: {
+  models: IModels;
+  agentId: string;
+  agent: TAiAgentInput;
+  searchText: string;
+}): Promise<TAiKnowledgeChunk[]> => {
   const retrieval = agent.context.retrieval;
 
-  if (!retrieval?.enabled) {
-    return [];
-  }
-
-  const inputText = buildRuntimeInputText({ inputData, aiContext });
-  const actionText = buildActionSearchText(actionConfig);
-  const searchText =
-    actionConfig.goalType === 'generateText'
-      ? inputText
-      : [actionText, inputText].filter(Boolean).join('\n\n');
-
-  if (!searchText.trim()) {
+  if (!retrieval?.enabled || !searchText.trim()) {
     return [];
   }
 
   const [agentCandidates, sharedCandidates] = await Promise.all([
-    getCandidateChunks({
-      models,
-      agentId,
-      searchText,
-    }),
+    getCandidateChunks({ models, agentId, searchText }),
     getSharedKnowledgeCandidateChunks({
       models,
       agentId,
@@ -399,7 +332,7 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
     return [];
   }
 
-  const result = retrieveAiKnowledgeChunks({
+  return retrieveAiKnowledgeChunks({
     chunks: candidates,
     query: { text: searchText },
     config: {
@@ -407,9 +340,34 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
       maxContextBytes: retrieval.maxContextBytes,
       minScore: retrieval.minScore,
     },
+  }).chunks;
+};
+
+export const retrieveAiAgentKnowledgeContextFiles = async ({
+  models,
+  agentId,
+  agent,
+  actionConfig,
+  inputData,
+  aiContext,
+}: TAiKnowledgeRuntimeParams): Promise<TAiAgentLoadedContextFile[]> => {
+  const inputText = buildAiInputFromContext({
+    inputData,
+    aiContext,
+    historyLimit: AI_SEARCH_HISTORY_LIMIT,
+  });
+  const actionText = buildActionSearchText(actionConfig);
+  const chunks = await searchAiAgentKnowledge({
+    models,
+    agentId,
+    agent,
+    searchText:
+      actionConfig.goalType === 'generateText'
+        ? inputText
+        : [actionText, inputText].filter(Boolean).join('\n\n'),
   });
 
-  if (!result.chunks.length) {
+  if (!chunks.length) {
     return [];
   }
 
@@ -418,8 +376,8 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
       id: `retrieved-knowledge:${agentId}`,
       key: `retrieved-knowledge:${agentId}`,
       name: 'Retrieved knowledge',
-      bytes: result.totalBytes,
-      content: formatAiKnowledgeChunksForPrompt(result.chunks),
+      bytes: chunks.reduce((sum, chunk) => sum + chunk.byteSize, 0),
+      content: formatAiKnowledgeChunksForPrompt(chunks),
     },
   ];
 };

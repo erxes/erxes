@@ -10,6 +10,13 @@ const aiAgentFileVersionSchema = z.object({
   uploadedAt: z.union([z.string(), z.date()]).optional(),
 });
 
+const aiAgentFileSectionSchema = z.object({
+  key: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  role: z.enum(['behavior', 'content', 'example']),
+  detected: z.boolean().optional(),
+});
+
 const aiAgentFileSchema = z.object({
   id: z.string().min(1),
   key: z.string().trim().min(1),
@@ -23,6 +30,7 @@ const aiAgentFileSchema = z.object({
   indexedAt: z.union([z.string(), z.date()]).optional(),
   contentHash: z.string().optional(),
   indexError: z.string().optional(),
+  sections: z.array(aiAgentFileSectionSchema).default([]),
   versions: z.array(aiAgentFileVersionSchema).default([]),
 });
 
@@ -74,6 +82,8 @@ const aiAgentContextSchema = z
     retrieval: z
       .object({
         enabled: z.boolean().default(true),
+        // 'tool' lets the model search on demand instead of prefilling context.
+        mode: z.enum(['prompt', 'tool']).default('prompt'),
         strategy: z.enum(['keyword', 'vector', 'hybrid']).default('keyword'),
         topK: z.number().int().min(1).max(20).default(5),
         maxContextBytes: z.number().int().min(500).max(50_000).default(8000),

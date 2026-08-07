@@ -61,6 +61,7 @@ const baseAiAgentFormSchema = z.object({
     retrieval: z
       .object({
         enabled: z.boolean().default(true),
+        mode: z.enum(['prompt', 'tool']).default('prompt'),
         strategy: z.enum(['keyword', 'vector', 'hybrid']).default('keyword'),
         topK: z.number().int().min(1).max(20).default(5),
         maxContextBytes: z.number().int().min(500).max(50000).default(8000),
@@ -175,6 +176,7 @@ export type TAiAgentFormDetail = {
     systemPrompt?: string;
     retrieval?: {
       enabled?: boolean;
+      mode?: 'prompt' | 'tool';
       strategy?: 'keyword' | 'vector' | 'hybrid';
       topK?: number;
       maxContextBytes?: number;
@@ -392,6 +394,7 @@ export const normalizeAiAgentFormValues = (
     systemPrompt: detail?.context?.systemPrompt || '',
     retrieval: {
       enabled: detail?.context?.retrieval?.enabled ?? true,
+      mode: detail?.context?.retrieval?.mode === 'tool' ? 'tool' : 'prompt',
       strategy: detail?.context?.retrieval?.strategy || 'keyword',
       topK: detail?.context?.retrieval?.topK ?? 5,
       maxContextBytes: detail?.context?.retrieval?.maxContextBytes ?? 8000,

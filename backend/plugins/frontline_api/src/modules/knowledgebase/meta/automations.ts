@@ -15,15 +15,51 @@ const getKnowledgeArticleUpdatedAt = (article: {
   createdDate?: Date;
 }) => (article.modifiedDate || article.createdDate || new Date()).toISOString();
 
-const toKnowledgeDocument = (article: {
+type TIndexableArticle = {
   _id: string;
   title?: string;
   summary?: string;
   content?: string;
+  categoryId?: string;
   isPrivate?: boolean;
   modifiedDate?: Date;
   createdDate?: Date;
-}): TKnowledgeDocument => ({
+};
+
+// Articles are often titled "1", "2", "3" with the real subject living on the
+// category, so an article indexed on its own title matches nothing.
+const findCategoryTitleById = async (
+  models: IModels,
+  articles: TIndexableArticle[],
+) => {
+  const categoryIds = [
+    ...new Set(
+      articles
+        .map((article) => article.categoryId)
+        .filter((categoryId): categoryId is string => !!categoryId),
+    ),
+  ];
+
+  if (!categoryIds.length) {
+    return new Map<string, string>();
+  }
+
+  const categories = await models.Category.find(
+    { _id: { $in: categoryIds } },
+    { title: 1 },
+  ).lean<Array<{ _id: string; title?: string }>>();
+
+  return new Map(
+    categories
+      .filter((category) => category.title?.trim())
+      .map((category) => [category._id, (category.title as string).trim()]),
+  );
+};
+
+const toKnowledgeDocument = (
+  article: TIndexableArticle,
+  categoryTitle?: string,
+): TKnowledgeDocument => ({
   source: {
     type: buildKnowledgeSourceType({
       pluginName: 'frontline',
@@ -34,13 +70,34 @@ const toKnowledgeDocument = (article: {
     version: getKnowledgeArticleUpdatedAt(article),
     updatedAt: getKnowledgeArticleUpdatedAt(article),
   },
-  title: article.title || 'Untitled knowledge base article',
+  title:
+    [categoryTitle, article.title].filter(Boolean).join(' › ') ||
+    'Untitled knowledge base article',
   content: [article.summary, article.content].filter(Boolean).join('\n\n'),
   contentFormat: 'html',
   metadata: {
     visibility: article.isPrivate ? 'internal' : 'public',
+    ...(categoryTitle ? { keywords: [categoryTitle] } : {}),
   },
 });
+
+const toKnowledgeDocuments = async (
+  models: IModels,
+  articles: TIndexableArticle[],
+) => {
+  const categoryTitleById = await findCategoryTitleById(models, articles);
+
+  return articles
+    .map((article) =>
+      toKnowledgeDocument(
+        article,
+        article.categoryId
+          ? categoryTitleById.get(article.categoryId)
+          : undefined,
+      ),
+    )
+    .filter((document) => document.content.trim().length > 0);
+};
 
 export const frontlineAiKnowledgeProvider = {
   async loadAiKnowledgeDocumentBatch(
@@ -86,9 +143,7 @@ export const frontlineAiKnowledgeProvider = {
       const hasMore = articles.length === scopeLimit;
 
       return {
-        documents: articles
-          .map(toKnowledgeDocument)
-          .filter((article) => article.content.trim().length > 0),
+        documents: await toKnowledgeDocuments(models, articles),
         totalCount,
         nextCursor: hasMore ? articles[articles.length - 1]?._id : undefined,
         hasMore,
@@ -115,9 +170,7 @@ export const frontlineAiKnowledgeProvider = {
       status: 'publish',
     }).lean();
     const nextIndex = startIndex + batchLimit;
-    const documents = articles
-      .map(toKnowledgeDocument)
-      .filter((article) => article.content.trim().length > 0);
+    const documents = await toKnowledgeDocuments(models, articles);
 
     return {
       documents,

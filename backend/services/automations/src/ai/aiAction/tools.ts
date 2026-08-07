@@ -1,7 +1,4 @@
-import {
-  TAiBridgeMessage,
-  TAiBridgeToolDefinition,
-} from '../bridge';
+import { TAiBridgeMessage, TAiBridgeToolDefinition } from '../bridge';
 import { TAiToolCallTrace } from './contract';
 
 // A tool wired for one agent run: the provider-facing definition plus how to
@@ -50,27 +47,39 @@ export const runAiToolLoop = async ({
   invoke: (
     loopMessages: TAiBridgeMessage[],
     definitions: TAiBridgeToolDefinition[],
+    isFirstTurn: boolean,
   ) => Promise<{
     text: string;
-    toolCalls?: { id: string; name: string; arguments: Record<string, unknown> }[];
-    usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
+    fallback?: boolean;
+    toolCalls?: {
+      id: string;
+      name: string;
+      arguments: Record<string, unknown>;
+    }[];
+    usage?: {
+      inputTokens?: number;
+      outputTokens?: number;
+      totalTokens?: number;
+    };
   }>;
 }) => {
-  const toolsByName = new Map(tools.map((tool) => [tool.definition.name, tool]));
+  const toolsByName = new Map(
+    tools.map((tool) => [tool.definition.name, tool]),
+  );
   const definitions = tools.map((tool) => tool.definition);
   const loopMessages = [...messages];
+  // Models re-issue the same lookup across iterations; replaying the recorded
+  // answer keeps the turn from spending a round on work already done.
+  const resultsByCall = new Map<string, unknown>();
   const trace: TAiToolCallTrace[] = [];
   const totalUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
   let handoff: TAiHandoffResult | undefined;
 
-  let providerResponse = await invoke(loopMessages, definitions);
+  let providerResponse = await invoke(loopMessages, definitions, true);
   addUsage(totalUsage, providerResponse.usage);
+  let degraded = !!providerResponse.fallback;
 
-  for (
-    let iteration = 0;
-    iteration < MAX_AI_TOOL_ITERATIONS;
-    iteration++
-  ) {
+  for (let iteration = 0; iteration < MAX_AI_TOOL_ITERATIONS; iteration++) {
     const toolCalls = providerResponse.toolCalls || [];
 
     if (!toolCalls.length) {
@@ -106,6 +115,7 @@ export const runAiToolLoop = async ({
 
     for (const call of toolCalls) {
       const tool = toolsByName.get(call.name);
+      const callKey = `${call.name}:${JSON.stringify(call.arguments || {})}`;
       let content: string;
 
       try {
@@ -113,7 +123,11 @@ export const runAiToolLoop = async ({
           throw new Error(`Unknown tool: ${call.name}`);
         }
 
-        const result = await tool.execute(call.arguments || {});
+        const result = resultsByCall.has(callKey)
+          ? resultsByCall.get(callKey)
+          : await tool.execute(call.arguments || {});
+
+        resultsByCall.set(callKey, result);
         trace.push({
           name: call.name,
           kind: 'helper',
@@ -138,8 +152,9 @@ export const runAiToolLoop = async ({
       });
     }
 
-    providerResponse = await invoke(loopMessages, definitions);
+    providerResponse = await invoke(loopMessages, definitions, false);
     addUsage(totalUsage, providerResponse.usage);
+    degraded = degraded || !!providerResponse.fallback;
   }
 
   // Usage covers every provider call of the loop, not just the last one
@@ -147,5 +162,6 @@ export const runAiToolLoop = async ({
     providerResponse: { ...providerResponse, usage: totalUsage },
     handoff,
     toolCallTrace: trace,
+    degraded,
   };
 };

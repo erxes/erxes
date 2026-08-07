@@ -150,12 +150,14 @@ export const buildOpenAiCompatibleChatBody = ({
   messages,
   responseFormat,
   tools,
+  toolChoice,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
   responseFormat?: 'json' | 'text';
   tools?: TAiBridgeToolDefinition[];
+  toolChoice?: 'auto' | 'required';
 }) => {
   const reasoningModel = isReasoningModel(connection.model);
   const body: Record<string, any> = {
@@ -183,6 +185,10 @@ export const buildOpenAiCompatibleChatBody = ({
         parameters: tool.parameters,
       },
     }));
+
+    if (toolChoice) {
+      body.tool_choice = toolChoice;
+    }
   }
 
   return body;

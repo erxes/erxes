@@ -46,6 +46,11 @@ export const AI_AGENT_DEFAULTS = {
 // cap can return no visible text at all.
 export const AI_AGENT_REASONING_MODEL_MIN_MAX_TOKENS = 2000;
 
+// Each tool round adds its results to the prompt and its planning to the
+// reasoning budget, so a tool turn needs more headroom than a plain reply —
+// otherwise the final answer is cut off mid-sentence.
+export const AI_AGENT_TOOL_LOOP_MIN_MAX_TOKENS = 4000;
+
 export const AI_AGENT_LIMITS = {
   maxNameChars: 80,
   maxDescriptionChars: 500,
