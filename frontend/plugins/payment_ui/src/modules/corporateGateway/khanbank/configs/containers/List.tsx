@@ -9,25 +9,23 @@ import { ConfigsListQueryResponse } from '../types';
 export function ListContainer() {
   const { confirm } = useConfirm();
 
-  const {
-    data,
-    loading,
-    error,
-    refetch,
-  } = useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
-    fetchPolicy: 'network-only',
-  });
+  const { data, loading, error, refetch } = useQuery<ConfigsListQueryResponse>(
+    gql(queries.listQuery),
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
 
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
- 
+
   const remove = (_id: string) => {
-  confirm({
-    message: 'Are you sure you want to remove this config?',
-  }).then(async () => {
-    try {
-      await removeMutation({
-        variables: { _id },
-      });
+    confirm({
+      message: 'Are you sure you want to remove this config?',
+    }).then(async () => {
+      try {
+        await removeMutation({
+          variables: { _id },
+        });
 
         await refetch();
 
@@ -67,7 +65,6 @@ export function ListContainer() {
   }
 
   const configs = data?.khanbankConfigsList?.list ?? [];
-
 
   return (
     <List

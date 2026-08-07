@@ -57,7 +57,7 @@ const KhanBankCard = () => {
         </div>
       }
       form={<ListContainer />}
-       />
+    />
   );
 };
 
