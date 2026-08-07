@@ -47,7 +47,6 @@ export const runAiToolLoop = async ({
   invoke: (
     loopMessages: TAiBridgeMessage[],
     definitions: TAiBridgeToolDefinition[],
-    isFirstTurn: boolean,
   ) => Promise<{
     text: string;
     fallback?: boolean;
@@ -75,7 +74,7 @@ export const runAiToolLoop = async ({
   const totalUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
   let handoff: TAiHandoffResult | undefined;
 
-  let providerResponse = await invoke(loopMessages, definitions, true);
+  let providerResponse = await invoke(loopMessages, definitions);
   addUsage(totalUsage, providerResponse.usage);
   let degraded = !!providerResponse.fallback;
 
@@ -152,7 +151,7 @@ export const runAiToolLoop = async ({
       });
     }
 
-    providerResponse = await invoke(loopMessages, definitions, false);
+    providerResponse = await invoke(loopMessages, definitions);
     addUsage(totalUsage, providerResponse.usage);
     degraded = degraded || !!providerResponse.fallback;
   }

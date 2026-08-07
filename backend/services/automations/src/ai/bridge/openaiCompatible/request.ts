@@ -1,6 +1,7 @@
 import { nativeFetch as fetch } from '../nativeFetch';
 import {
   AI_AGENT_DEFAULTS,
+  AI_AGENT_REASONING_EFFORT,
   AI_AGENT_REASONING_MODEL_MIN_MAX_TOKENS,
 } from '../../aiAgent/constants';
 import {
@@ -170,6 +171,10 @@ export const buildOpenAiCompatibleChatBody = ({
 
   if (typeof runtime.temperature === 'number' && !reasoningModel) {
     body.temperature = runtime.temperature;
+  }
+
+  if (reasoningModel) {
+    body.reasoning_effort = AI_AGENT_REASONING_EFFORT;
   }
 
   if (responseFormat === 'json') {

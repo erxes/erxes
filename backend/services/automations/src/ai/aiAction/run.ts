@@ -100,7 +100,7 @@ const buildToolInstruction = (tools: TAiToolRuntime[]) => {
   return [
     'Tools are available for this reply.',
     hasKnowledgeTool
-      ? `Call ${AI_KNOWLEDGE_TOOL_NAME} before answering any question about this organization — its policies, prices, packages, availability, schedules, structure, locations, or products. Searching costs nothing; answering from your own knowledge, or from something the user asserted earlier in this conversation, is not acceptable. Search again with different wording before concluding that something is missing.`
+      ? `A first knowledge search for this message has already run and its passages are in the context documents above. Answer from those when they cover the question. Call ${AI_KNOWLEDGE_TOOL_NAME} only when they do not — a different topic came up, or you need wording the first search would have missed. Answering from your own knowledge, or from something the user asserted earlier in this conversation, is never acceptable.`
       : '',
     hasActionTools
       ? 'Every other tool performs a real action. Its description states WHEN to call it — call it only when that condition is fully satisfied AND you can truthfully fill every required parameter from the conversation or memory. If anything is missing, do not call it; reply to the user to gather it.'
@@ -296,9 +296,11 @@ export const runAiAction = async ({
   tools?: TAiToolRuntime[];
 }) => {
   const parsedActionConfig = parseAiAgentActionConfig(actionConfig);
-  // In tool mode the model asks for knowledge itself, so nothing is prefilled.
+  // One search always runs up front. Letting the model ask for it instead costs
+  // a whole extra provider round trip on every message, and the tool stays
+  // available for the turns where this first pass was not enough.
   const retrievedContext =
-    models && agentId && agent.context.retrieval?.mode !== 'tool'
+    models && agentId
       ? await retrieveAiAgentKnowledgeContextFiles({
           subdomain,
           models,
@@ -385,10 +387,6 @@ export const runAiAction = async ({
       },
     };
 
-    const hasKnowledgeTool = (tools || []).some(
-      ({ toolId }) => toolId === AI_KNOWLEDGE_TOOL_ID,
-    );
-
     ({ providerResponse, handoff, toolCallTrace, degraded } =
       await runAiToolLoop({
         messages: withSystemDirectives(messages, [
@@ -396,16 +394,13 @@ export const runAiAction = async ({
           isProbe ? AI_SELF_DISCLOSURE_REFUSAL_RULE : '',
         ]),
         tools: tools || [],
-        invoke: (loopMessages, definitions, isFirstTurn) =>
+        invoke: (loopMessages, definitions) =>
           invokeAiProviderWithRealtimeFallback({
             agent: toolAgent,
             messages: loopMessages,
             subdomain,
             actionConfig: parsedActionConfig,
             tools: definitions,
-            // Wording alone never made the model look anything up before
-            // answering, so the opening turn of a knowledge-backed reply must.
-            toolChoice: isFirstTurn && hasKnowledgeTool ? 'required' : 'auto',
           }),
       }));
   } else {
