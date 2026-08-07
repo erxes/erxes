@@ -1,43 +1,32 @@
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { useLocation } from 'react-router-dom';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { useConfirm } from 'erxes-ui';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { ConfigsListQueryResponse } from '../types';
 
-type Props = {
-  queryParams?: any;
-};
-
-export default function ListContainer({ queryParams }: Props) {
-  const location = useLocation();
-  const isSettings = location.pathname === '/settings/khanbank';
-
-  const { data, loading, refetch } = useQuery<ConfigsListQueryResponse>(
-    gql(queries.listQuery),
-    {
+export default function ListContainer() {
+  const { data, loading, refetch } =
+    useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
       fetchPolicy: 'network-only',
-    },
-  );
-
+    });
+  const { confirm } = useConfirm();
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
-
-  const remove = async (_id: string) => {
-    const confirmed = window.confirm(
-      'Are you sure you want to remove this config?',
-    );
-
-    if (!confirmed) return;
-
+ 
+  const remove = (_id: string) => {
+  confirm({
+    message: 'Are you sure you want to remove this config?',
+  }).then(async () => {
     try {
       await removeMutation({
         variables: { _id },
       });
 
       await refetch();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
     }
-  };
+  });
+};
 
   if (loading) {
     return (
