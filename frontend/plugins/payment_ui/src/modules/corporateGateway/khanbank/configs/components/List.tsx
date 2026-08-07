@@ -9,13 +9,12 @@ import { IKhanbankConfigsItem } from '../types';
 
 type Props = {
   configs: IKhanbankConfigsItem[];
-  totalCount: number;
   loading: boolean;
   remove: (id: string) => void;
   refetch?: () => void;
 };
 
-const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
+const List = ({ configs, loading, remove, refetch }: Props) => {
   const [open, setOpen] = useState(false);
 
   const handleSubmit = () => {
