@@ -9,6 +9,52 @@ import { TGlobalSearchGroup } from '@/search/types/GlobalSearch';
 import { Command, Dialog } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+const GlobalSearchResults = ({
+  isTyping,
+  hasFailure,
+  loading,
+  hasResults,
+  groups,
+  onSelect,
+  onRetry,
+}: {
+  isTyping: boolean;
+  hasFailure: boolean;
+  loading: boolean;
+  hasResults: boolean;
+  groups: TGlobalSearchGroup[];
+  onSelect: (path: string) => void;
+  onRetry: () => void;
+}) => {
+  const hasGroupError = groups.some((group) => group.status === 'error');
+
+  return (
+    <Command.List className="styled-scroll min-h-32">
+      {!isTyping && <GlobalSearchHint />}
+
+      {isTyping && hasFailure && <GlobalSearchFailure onRetry={onRetry} />}
+
+      {isTyping && !hasFailure && loading && !hasResults && (
+        <GlobalSearchLoading />
+      )}
+
+      {isTyping && !hasFailure && !loading && !hasResults && !hasGroupError && (
+        <GlobalSearchEmpty />
+      )}
+
+      {isTyping &&
+        !hasFailure &&
+        groups.map((group) => (
+          <GlobalSearchGroup
+            key={group.key}
+            group={group}
+            onSelect={onSelect}
+          />
+        ))}
+    </Command.List>
+  );
+};
+
 export const GlobalSearchDialog = ({
   open,
   onOpenChange,
@@ -68,51 +114,5 @@ export const GlobalSearchDialog = ({
         </Command>
       </Dialog.Content>
     </Dialog>
-  );
-};
-
-const GlobalSearchResults = ({
-  isTyping,
-  hasFailure,
-  loading,
-  hasResults,
-  groups,
-  onSelect,
-  onRetry,
-}: {
-  isTyping: boolean;
-  hasFailure: boolean;
-  loading: boolean;
-  hasResults: boolean;
-  groups: TGlobalSearchGroup[];
-  onSelect: (path: string) => void;
-  onRetry: () => void;
-}) => {
-  const hasGroupError = groups.some((group) => group.status === 'error');
-
-  return (
-    <Command.List className="styled-scroll min-h-32">
-      {!isTyping && <GlobalSearchHint />}
-
-      {isTyping && hasFailure && <GlobalSearchFailure onRetry={onRetry} />}
-
-      {isTyping && !hasFailure && loading && !hasResults && (
-        <GlobalSearchLoading />
-      )}
-
-      {isTyping && !hasFailure && !loading && !hasResults && !hasGroupError && (
-        <GlobalSearchEmpty />
-      )}
-
-      {isTyping &&
-        !hasFailure &&
-        groups.map((group) => (
-          <GlobalSearchGroup
-            key={group.key}
-            group={group}
-            onSelect={onSelect}
-          />
-        ))}
-    </Command.List>
   );
 };
