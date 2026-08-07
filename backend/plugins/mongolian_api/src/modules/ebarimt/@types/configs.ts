@@ -15,6 +15,7 @@ export interface IEbarimtConfig {
   vatPercent: number;
   cityTaxPercent: number;
   skipEbarimt: boolean;
+  sendEmail?: boolean;
 
   reverseVatRules?: string[];
   reverseCtaxRules?: string[];
