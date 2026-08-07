@@ -16,7 +16,7 @@ export interface IInvoice {
   createdAt: Date;
   resolvedAt?: Date;
   scannedAt?: Date;
-  scannedCodes?: string[];
+  ticketCodes?: { code: string; scannedAt?: Date | null }[];
   qrEmailSentAt?: Date;
   redirectUri?: string;
   paymentIds: string[];

@@ -102,7 +102,13 @@ const appendRelatedMessengerMessages = async (
 };
 
 export const facebookQueries = {
-  async facebookGetConfigs(_root, _args, { models }: IContext) {
+  async facebookGetConfigs(
+    _root,
+    _args,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     return await models.FacebookConfigs.find({});
   },
   async facebookGetAccounts(

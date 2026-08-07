@@ -61,6 +61,9 @@ export type TAiKnowledgeRetrievalConfig = {
 export type TAiKnowledgeScoredChunk = {
   chunk: TAiKnowledgeChunk;
   score: number;
+  // Query evidence alone, without the priority baseline. Relevance is decided
+  // on this; `score` only orders chunks that already qualified.
+  matchScore: number;
   reasons: string[];
 };
 

@@ -53,7 +53,10 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
   const submitHandler: SubmitHandler<TChannelForm> = React.useCallback(
     async (data) => {
       addChannel({
-        variables: data,
+        // No scope is sent: this form only creates shared channels and the API
+        // defaults to `team`. A personal channel is provisioned on demand when
+        // its settings page is opened or a personal mailbox is connected.
+        variables: { ...data },
         onCompleted: (data) => {
           toast({ title: t('success') });
           navigate(`/settings/frontline/channels/${data.channelAdd._id}`);

@@ -10,6 +10,8 @@ export const ChannelForm = ({
   form: UseFormReturn<TChannelForm>;
 }) => {
   const { t } = useTranslation('frontline');
+  const scope = form.watch('scope');
+  const isTeam = scope === 'team';
   return (
     <div className="flex flex-col gap-3">
       <div className="w-full flex gap-2">

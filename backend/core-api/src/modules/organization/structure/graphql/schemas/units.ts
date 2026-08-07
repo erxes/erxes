@@ -28,7 +28,37 @@ export const UnitTypes = `
         totalCount: Int
         pageInfo: PageInfo
     }
-    
+
+    type CPUnitUserDetails {
+        avatar: String
+        fullName: String
+        shortName: String
+        position: String
+    }
+
+    type CPUnitUser {
+        _id: String
+        username: String
+        email: String
+        details: CPUnitUserDetails
+    }
+
+    type CPUnitDepartment {
+        _id: String
+        title: String
+        code: String
+        description: String
+    }
+
+    type CPUnit @cacheControl(maxAge: 3) {
+        _id: String!
+        title: String
+        code: String
+        description: String
+        department: CPUnitDepartment
+        users: [CPUnitUser]
+    }
+
 `;
 export const mutations = `
     unitsAdd(${commonUnitParams}): Unit
@@ -40,4 +70,6 @@ export const queries = `
     units(searchValue: String): [Unit]
     unitsMain(${commonParams}): UnitListQueryResponse
     unitDetail(_id: String!): Unit
+
+    cpUnits(searchValue: String): [CPUnit]
 `;

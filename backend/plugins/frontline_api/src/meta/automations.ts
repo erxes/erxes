@@ -53,6 +53,7 @@ export const automations = {
           label: 'Knowledge base articles',
           moduleName: 'knowledgebase',
           sourceSelector: 'remote-module',
+          supportsFullScope: true,
         },
       ],
     },

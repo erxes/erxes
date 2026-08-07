@@ -36,6 +36,8 @@ export const INVOICE_SCAN_BARCODE = gql`
       description
       status
       scannedAt
+      scannedCount
+      ticketCount
       createdAt
     }
   }
