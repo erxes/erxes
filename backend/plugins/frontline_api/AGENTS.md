@@ -318,6 +318,7 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - **Contracts changed:** The `knowledgebase.article` knowledge source declares
   `supportsFullScope: true`, and its `loadAiKnowledgeDocumentBatch` handler
   honours the new `scope: 'all' | 'selected'` producer input.
+
 ### `2026-08-06` — Conversation counts on channels and used integration kinds
 
 - **Summary:** Added `Channel.conversationCount` /

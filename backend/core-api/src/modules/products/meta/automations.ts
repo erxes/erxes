@@ -108,9 +108,8 @@ const resolveCategoryTreeIds = async (
     return [];
   }
 
-  const categories = await models.ProductCategories.getChildCategories(
-    categoryIds,
-  );
+  const categories =
+    await models.ProductCategories.getChildCategories(categoryIds);
 
   return uniqueStrings(categories.map((category) => category._id));
 };

@@ -123,7 +123,9 @@ const getCandidateChunks = async ({
         $or: [
           { topics: { $in: terms } },
           { keywords: { $in: terms } },
-          { title: { $regex: terms.map(escapeRegex).join('|'), $options: 'i' } },
+          {
+            title: { $regex: terms.map(escapeRegex).join('|'), $options: 'i' },
+          },
         ],
       })
         // No relevance signal on this path, so prefer the freshest content

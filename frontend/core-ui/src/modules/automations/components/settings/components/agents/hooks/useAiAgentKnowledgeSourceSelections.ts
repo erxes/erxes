@@ -85,7 +85,8 @@ export const useAiAgentKnowledgeSourceSelections = () => {
     const sourceIndex = knowledgeSources.findIndex((selection) =>
       isSameSource(selection, source),
     );
-    const existing = sourceIndex === -1 ? undefined : knowledgeSources[sourceIndex];
+    const existing =
+      sourceIndex === -1 ? undefined : knowledgeSources[sourceIndex];
     const sourceIds = existing?.sourceIds || [];
     const config = existing?.config || {};
     const nextKnowledgeSources = [...knowledgeSources];

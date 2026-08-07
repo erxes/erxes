@@ -44,7 +44,9 @@ const toStringArray = (value: unknown) =>
     ? value.filter((item): item is string => typeof item === 'string' && !!item)
     : [];
 
-const uniqueStrings = (values: string[]) => [...new Set(values.filter(Boolean))];
+const uniqueStrings = (values: string[]) => [
+  ...new Set(values.filter(Boolean)),
+];
 
 const stableValue = (value: unknown): unknown => {
   if (Array.isArray(value)) {
@@ -150,5 +152,6 @@ export const resolveKnowledgeSourceScope = (
     : 'selected';
 };
 
-export const isMaterializedKnowledgeSource = (source: TAiAgentKnowledgeSource) =>
-  resolveKnowledgeSourceScope(source) === 'all';
+export const isMaterializedKnowledgeSource = (
+  source: TAiAgentKnowledgeSource,
+) => resolveKnowledgeSourceScope(source) === 'all';
