@@ -1,6 +1,5 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { ConfigsListQueryResponse } from '../types';
@@ -50,12 +49,10 @@ export default function ListContainer({ queryParams }: Props) {
 
   const configs = data?.khanbankConfigsList?.list ?? [];
 
-  const totalCount = data?.khanbankConfigsList?.totalCount ?? 0;
 
   return (
     <List
       configs={configs}
-      totalCount={totalCount}
       loading={loading}
       remove={remove}
       refetch={refetch}

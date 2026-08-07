@@ -9,13 +9,12 @@ import { IKhanbankConfigsItem } from '../types';
 
 type Props = {
   configs: IKhanbankConfigsItem[];
-  totalCount: number;
   loading: boolean;
   remove: (id: string) => void;
   refetch?: () => void;
 };
 
-const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
+const List = ({ configs, loading, remove, refetch }: Props) => {
   const [open, setOpen] = useState(false);
 
   const handleSubmit = () => {
@@ -29,7 +28,9 @@ const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
   let content;
 
   if (loading) {
-    content = <p className="text-sm text-muted-foreground">Loading...</p>;
+    content = (
+      <p className="text-sm text-muted-foreground">Loading...</p>
+    );
   } else if (configs.length === 0) {
     content = (
       <div className="text-center py-8 text-sm text-muted-foreground">
@@ -63,7 +64,9 @@ const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-medium">Khan Bank Corporate Gateway</h2>
+          <h2 className="text-base font-medium">
+            Khan Bank Corporate Gateway
+          </h2>
           <p className="text-sm font-normal text-muted-foreground">
             Manage your Khan Bank integration settings.
           </p>
