@@ -100,16 +100,18 @@ const GlobalSearchResults = ({
         <GlobalSearchLoading />
       )}
 
-      {isTyping &&
-        !hasFailure &&
-        !loading &&
-        !hasResults &&
-        !hasGroupError && <GlobalSearchEmpty />}
+      {isTyping && !hasFailure && !loading && !hasResults && !hasGroupError && (
+        <GlobalSearchEmpty />
+      )}
 
       {isTyping &&
         !hasFailure &&
         groups.map((group) => (
-          <GlobalSearchGroup key={group.key} group={group} onSelect={onSelect} />
+          <GlobalSearchGroup
+            key={group.key}
+            group={group}
+            onSelect={onSelect}
+          />
         ))}
     </Command.List>
   );
