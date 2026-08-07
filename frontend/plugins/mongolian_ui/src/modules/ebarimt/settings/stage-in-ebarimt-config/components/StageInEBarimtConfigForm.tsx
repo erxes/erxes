@@ -64,6 +64,7 @@ const StageInEbarimtConfigCard = ({
       reverseCtaxRules: normalizeRuleIds(config.reverseCtaxRules),
       withDescription: config.withDescription || false,
       skipEbarimt: config.skipEbarimt || false,
+      sendEmail: config.sendEmail || false,
     },
   });
 
@@ -363,6 +364,13 @@ const StageInEbarimtConfigCard = ({
             <FormCheckbox
               name="skipEbarimt"
               label={t('skip-ebarimt')}
+              control={form.control}
+              labelPosition="before"
+            />
+
+            <FormCheckbox
+              name="sendEmail"
+              label={t('send-email')}
               control={form.control}
               labelPosition="before"
             />

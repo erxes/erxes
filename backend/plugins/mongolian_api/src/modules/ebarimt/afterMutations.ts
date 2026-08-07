@@ -45,8 +45,8 @@ export const afterMutationHandlers = async (
 
   if (returnConfigVal) {
     const returnConfig = {
-      ...returnConfigVal,
       ...mainConfig,
+      ...returnConfigVal,
     };
 
     const returnResponses = await models.PutResponses.returnBill(
@@ -133,7 +133,7 @@ export const afterMutationHandlers = async (
           ...data,
           id: 'Түр баримт',
           status: 'SUCCESS',
-          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
+          date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
           registerNo: config.companyRD || '',
         });
       }
@@ -142,7 +142,7 @@ export const afterMutationHandlers = async (
           ...innerData,
           id: 'Түр баримт',
           status: 'SUCCESS',
-          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
+          date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
           registerNo: config.companyRD || '',
         });
       }
@@ -183,45 +183,58 @@ export const afterMutationHandlers = async (
         },
       });
     }
-
-    const fallbackEmailResponses: EbarimtEmailResponse[] = ebarimtResponses.map(
-      (response) => ({
-        ...config,
-        ...response,
-        description: (config.withDescription && deal.description) || '',
-      }),
-    );
-    let emailResponses = fallbackEmailResponses;
-
-    if (!config.skipEbarimt) {
-      try {
-        const responseDetail = await getPutResponseDetail({
-          contentType: 'deal',
-          contentId: deal._id,
-          models,
-          subdomain,
-        });
-
-        if (responseDetail) {
-          emailResponses = [
-            {
-              ...config,
-              ...responseDetail,
-              description: (config.withDescription && deal.description) || '',
-            },
-          ];
-        }
-      } catch {
-        emailResponses = fallbackEmailResponses;
-      }
-    }
-
-    await sendEbarimtEmail({
-      deal,
-      responses: emailResponses,
-      subdomain,
-    });
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    console.error(
+      'Failed to publish eBarimt response:',
+      getErrorMessage(error),
+    );
+  }
+
+  if (config.sendEmail) {
+    try {
+      const fallbackEmailResponses: EbarimtEmailResponse[] =
+        ebarimtResponses.map((response) => ({
+          ...config,
+          ...response,
+          description: (config.withDescription && deal.description) || '',
+        }));
+      let emailResponses = fallbackEmailResponses;
+
+      if (!config.skipEbarimt) {
+        try {
+          const responseDetail = await getPutResponseDetail({
+            contentType: 'deal',
+            contentId: deal._id,
+            models,
+            subdomain,
+          });
+
+          if (responseDetail) {
+            emailResponses = [
+              {
+                ...config,
+                ...responseDetail,
+                description:
+                  (config.withDescription && deal.description) || '',
+              },
+            ];
+          }
+        } catch (error) {
+          console.error(
+            'Failed to load eBarimt detail for email:',
+            getErrorMessage(error),
+          );
+          emailResponses = fallbackEmailResponses;
+        }
+      }
+
+      await sendEbarimtEmail({
+        deal,
+        responses: emailResponses,
+        subdomain,
+      });
+    } catch (error) {
+      console.error('Failed to send eBarimt email:', getErrorMessage(error));
+    }
   }
 };
