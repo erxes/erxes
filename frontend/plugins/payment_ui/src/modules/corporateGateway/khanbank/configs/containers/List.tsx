@@ -7,10 +7,12 @@ import { ConfigsListQueryResponse } from '../types';
 export default function ListContainer() {
   const { confirm } = useConfirm();
 
-  const { data, loading, refetch } =
-    useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
+  const { data, loading, refetch } = useQuery<ConfigsListQueryResponse>(
+    gql(queries.listQuery),
+    {
       fetchPolicy: 'network-only',
-    });
+    },
+  );
 
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
 
