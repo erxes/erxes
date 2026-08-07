@@ -2,7 +2,12 @@ import { useParams } from 'react-router';
 import { useGetFormSubmissions } from '../hooks/useGetFormSubmissions';
 import { Button, Empty, Spinner, toast } from 'erxes-ui';
 import { SubmissionsTable } from './submissions-table';
-import { IconCheck, IconLink, IconListDetails } from '@tabler/icons-react';
+import {
+  IconAlertTriangle,
+  IconCheck,
+  IconLink,
+  IconListDetails,
+} from '@tabler/icons-react';
 import { useFormDetail } from '@/forms/hooks/useFormDetail';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 import { useState } from 'react';
@@ -56,7 +61,7 @@ const CopyLink = ({
 export const FormSubmissions = () => {
   const { t } = useTranslation('frontline');
   const { formId } = useParams<{ formId: string }>();
-  const { submissions, loading, pageInfo, handleFetchMore } =
+  const { submissions, loading, error, pageInfo, handleFetchMore, refetch } =
     useGetFormSubmissions({
       variables: {
         formId,
@@ -69,6 +74,24 @@ export const FormSubmissions = () => {
   if (loading) {
     return <Spinner className="py-32" />;
   }
+  if (error) {
+    return (
+      <Empty className="bg-sidebar rounded-lg m-3">
+        <Empty.Header>
+          <Empty.Media>
+            <IconAlertTriangle />
+          </Empty.Media>
+          <Empty.Title>{t('error')}</Empty.Title>
+          <Empty.Description>{t('please-try-again')}</Empty.Description>
+        </Empty.Header>
+        <Empty.Content>
+          <Button variant="outline" onClick={() => void refetch()}>
+            {t('try-again')}
+          </Button>
+        </Empty.Content>
+      </Empty>
+    );
+  }
   if (submissions?.length === 0) {
     return (
       <Empty className="bg-sidebar rounded-lg m-3">
@@ -77,9 +100,7 @@ export const FormSubmissions = () => {
             <IconListDetails />
           </Empty.Media>
           <Empty.Title>{t('no-submissions-found')}</Empty.Title>
-          <Empty.Description>
-            {t('share-link-description')}
-          </Empty.Description>
+          <Empty.Description>{t('share-link-description')}</Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <CopyLink

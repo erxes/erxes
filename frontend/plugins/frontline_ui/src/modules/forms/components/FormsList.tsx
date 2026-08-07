@@ -32,6 +32,7 @@ import { FormCommandBar } from './form-page/command-bar/form-command-bar';
 import { FormsCreateButton } from './form-page/forms-create';
 import { OpenLiveForm } from './actions/open-live-form';
 import { OpenSubmissionsAction } from './actions/open-submissions';
+import { DownloadResponsesAction } from './actions/download-responses';
 
 export const FormsList = () => {
   const { t } = useTranslation('frontline');
@@ -109,36 +110,42 @@ export const FormsMoreColumnCell = ({
   cell: Cell<IForm, unknown>;
 }) => {
   const { t } = useTranslation('frontline');
-  const { _id, status, code, channelId } = cell.row.original;
+  const { _id, status, code, channelId, name } = cell.row.original;
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
+
   return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content side="bottom" align="start">
-        <FormInstallScript
-          formId={code}
-          channelId={channelId as string}
-          inActionBar={true}
-        />
-        <DropdownMenu.Item
-          onSelect={() => {
-            navigate(
-              `/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`,
-            );
-          }}
-        >
-          <IconEdit /> {t('edit')}
-        </DropdownMenu.Item>
-        <OpenLiveForm formId={_id} channelId={channelId as string} />
-        <OpenSubmissionsAction formId={_id} />
-        <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <RemoveForm formId={_id} title={cell.row.original.name} />
-      </DropdownMenu.Content>
-    </DropdownMenu>
+    <DownloadResponsesAction formId={_id} formName={name}>
+      {(downloadResponsesAction) => (
+        <DropdownMenu>
+          <DropdownMenu.Trigger asChild>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content side="bottom" align="start">
+            <FormInstallScript
+              formId={code}
+              channelId={channelId as string}
+              inActionBar={true}
+            />
+            <DropdownMenu.Item
+              onSelect={() => {
+                navigate(
+                  `/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`,
+                );
+              }}
+            >
+              <IconEdit /> {t('edit')}
+            </DropdownMenu.Item>
+            <OpenLiveForm formId={_id} channelId={channelId as string} />
+            <OpenSubmissionsAction formId={_id} />
+            {downloadResponsesAction}
+            <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+            <RemoveForm formId={_id} title={cell.row.original.name} />
+          </DropdownMenu.Content>
+        </DropdownMenu>
+      )}
+    </DownloadResponsesAction>
   );
 };
 
@@ -180,7 +187,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
+      return (
+        <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -200,7 +209,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
+      return (
+        <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />
+      );
     },
     cell: ({ cell }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -257,7 +268,12 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-at')}
+          icon={IconCalendarEvent}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
