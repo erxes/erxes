@@ -110,10 +110,7 @@ const buildBalanceByAccount = async (
       return {
         accountId: record._id,
         mainBalance: fixNum(record.mainBalance || 0, BALANCE_PRECISION),
-        currencyBalance: fixNum(
-          record.currencyBalance || 0,
-          BALANCE_PRECISION,
-        ),
+        currencyBalance: fixNum(record.currencyBalance || 0, BALANCE_PRECISION),
         branchId: getStructureValue(adjust.branchId, account?.branchId),
         departmentId: getStructureValue(
           adjust.departmentId,

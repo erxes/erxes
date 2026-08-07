@@ -47,10 +47,7 @@ export const CashTransaction = ({
       return;
     }
 
-    form.setValue(
-      `trDocs.${index}.details.0.currencyAmount`,
-      value / spotRate,
-    );
+    form.setValue(`trDocs.${index}.details.0.currencyAmount`, value / spotRate);
   };
 
   return (
