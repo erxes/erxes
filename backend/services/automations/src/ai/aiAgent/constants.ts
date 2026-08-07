@@ -38,9 +38,23 @@ export const AI_AGENT_DEFAULTS = {
   cloudflareAiGatewayBaseUrl: 'https://gateway.ai.cloudflare.com/v1',
   cloudflareAiGatewayMode: 'compat',
   temperature: 0.2,
-  maxTokens: 500,
+  maxTokens: 2000,
   timeoutMs: 15000,
 } as const;
+
+// gpt-5 models bill internal reasoning against the completion budget, so a low
+// cap can return no visible text at all.
+export const AI_AGENT_REASONING_MODEL_MIN_MAX_TOKENS = 2000;
+
+// Each tool round adds its results to the prompt and its planning to the
+// reasoning budget, so a tool turn needs more headroom than a plain reply —
+// otherwise the final answer is cut off mid-sentence.
+export const AI_AGENT_TOOL_LOOP_MIN_MAX_TOKENS = 4000;
+
+// A support reply quotes retrieved passages; it does not need the deliberation
+// budget a reasoning model spends by default, and that budget is most of the
+// wall clock. Raise this if answers start missing the point.
+export const AI_AGENT_REASONING_EFFORT = 'low';
 
 export const AI_AGENT_LIMITS = {
   maxNameChars: 80,

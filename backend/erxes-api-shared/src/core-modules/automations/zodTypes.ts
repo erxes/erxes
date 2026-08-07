@@ -128,6 +128,8 @@ export const GenerateAiContextInputData = z.object({
 export const LoadAiKnowledgeDocumentBatchInputData = z.object({
   moduleName: z.string(),
   sourceKey: z.string(),
+  // 'all' means the whole source, so providers must not require a filter.
+  scope: z.enum(['all', 'selected']).optional(),
   sourceIds: z.array(z.string()).max(1000).optional(),
   candidateSourceIds: z.array(z.string()).max(1000).optional(),
   config: z.record(z.unknown()).optional(),
