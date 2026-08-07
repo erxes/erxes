@@ -5,28 +5,30 @@ import { mutations, queries } from '../graphql';
 import { ConfigsListQueryResponse } from '../types';
 
 export default function ListContainer() {
-  const { data, loading, refetch } =
-    useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
+  const { data, loading, refetch } = useQuery<ConfigsListQueryResponse>(
+    gql(queries.listQuery),
+    {
       fetchPolicy: 'network-only',
-    });
+    },
+  );
   const { confirm } = useConfirm();
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
- 
-  const remove = (_id: string) => {
-  confirm({
-    message: 'Are you sure you want to remove this config?',
-  }).then(async () => {
-    try {
-      await removeMutation({
-        variables: { _id },
-      });
 
-      await refetch();
-    } catch (error) {
-      console.error(error);
-    }
-  });
-};
+  const remove = (_id: string) => {
+    confirm({
+      message: 'Are you sure you want to remove this config?',
+    }).then(async () => {
+      try {
+        await removeMutation({
+          variables: { _id },
+        });
+
+        await refetch();
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  };
 
   if (loading) {
     return (
