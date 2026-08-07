@@ -28,6 +28,13 @@ const toISOString = (value?: Date | string) => {
   return value instanceof Date ? value.toISOString() : String(value);
 };
 
+// An execution can start seconds after its message, by which time newer
+// messages exist. History must stay strictly older than the one being handled.
+const toHistoryCutoff = (value?: Date | string) => {
+  const date = value instanceof Date ? value : new Date(String(value || ''));
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
 const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
   if (message.fromBot) return 'bot' as const;
   if (message.userId) return 'agent' as const;
@@ -123,7 +130,9 @@ export const discordAutomationWorkers = {
       version: 1,
       input: {
         text:
-          typeof triggerTarget.content === 'string' ? triggerTarget.content : '',
+          typeof triggerTarget.content === 'string'
+            ? triggerTarget.content
+            : '',
         id: triggerTarget._id,
         createdAt: toISOString(triggerTarget.createdAt),
       },
@@ -151,11 +160,13 @@ export const discordAutomationWorkers = {
       return context;
     }
 
+    const historyCutoff = toHistoryCutoff(triggerTarget.createdAt);
     const messages = await models.DiscordConversationMessages.find({
       conversationId: conversation._id,
       internal: { $ne: true },
       deletedAt: { $exists: false },
       messageId: { $ne: triggerTarget._id },
+      ...(historyCutoff ? { createdAt: { $lt: historyCutoff } } : {}),
     })
       .sort({ createdAt: -1 })
       .limit(12)

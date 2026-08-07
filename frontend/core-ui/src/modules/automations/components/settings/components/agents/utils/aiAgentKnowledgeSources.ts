@@ -41,6 +41,22 @@ export const getSourceStatuses = (
       status.sourceKey === source.key,
   );
 
+const hasConfigValue = (value: unknown) =>
+  Array.isArray(value) ? value.length > 0 : value !== undefined && value !== '';
+
+// Empty arrays survive in config long after their items are cleared, so key
+// presence alone never means the source is scoped.
+export const hasSourceSelection = (
+  selection?: Pick<
+    TAiAgentKnowledgeSourceSelection,
+    'scope' | 'sourceIds' | 'config'
+  >,
+) =>
+  !!selection &&
+  (selection.scope === 'all' ||
+    selection.sourceIds.length > 0 ||
+    Object.values(selection.config || {}).some(hasConfigValue));
+
 const getArrayConfigCount = (
   config: Record<string, unknown> | undefined,
   keys: string[],
@@ -50,6 +66,14 @@ const getArrayConfigCount = (
 
     return sum + (Array.isArray(value) ? value.length : 0);
   }, 0);
+
+export const getSourceSelectionLabel = (
+  selections: TAiAgentKnowledgeSourceSelections,
+  source: TAiKnowledgeSourceConfig,
+) =>
+  findSourceSelection(selections, source)?.scope === 'all'
+    ? 'All'
+    : String(getSourceSelectionCount(selections, source));
 
 export const getSourceSelectionCount = (
   selections: TAiAgentKnowledgeSourceSelections,
@@ -72,5 +96,5 @@ export const getSourceSelectionCount = (
     );
   }
 
-  return selection.sourceIds.length || 1;
+  return selection.sourceIds.length;
 };
