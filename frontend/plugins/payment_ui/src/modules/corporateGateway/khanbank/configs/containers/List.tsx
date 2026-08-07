@@ -1,5 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useConfirm } from 'erxes-ui';
+import { toast } from 'erxes-ui/hooks/use-toast';
+
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { ConfigsListQueryResponse } from '../types';
@@ -7,10 +9,14 @@ import { ConfigsListQueryResponse } from '../types';
 export default function ListContainer() {
   const { confirm } = useConfirm();
 
-  const { data, loading, refetch } =
-    useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
-      fetchPolicy: 'network-only',
-    });
+  const {
+    data,
+    loading,
+    error,
+    refetch,
+  } = useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
+    fetchPolicy: 'network-only',
+  });
 
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
  
@@ -23,17 +29,39 @@ export default function ListContainer() {
         variables: { _id },
       });
 
-      await refetch();
-    } catch (error) {
-      console.error(error);
-    }
-  });
-};
+        await refetch();
+
+        toast({
+          variant: 'success',
+          title: 'Config removed',
+          description: 'You successfully removed the config.',
+        });
+      } catch (e: any) {
+        console.error(e);
+
+        toast({
+          variant: 'destructive',
+          title: 'Something went wrong',
+          description: e.message,
+        });
+      }
+    });
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center py-10">
         <span className="text-sm text-muted-foreground">Loading...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center py-10">
+        <span className="text-sm text-destructive">
+          Failed to load configurations.
+        </span>
       </div>
     );
   }
