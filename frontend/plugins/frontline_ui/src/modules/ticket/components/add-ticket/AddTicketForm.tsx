@@ -18,13 +18,12 @@ import {
   Input,
   Separator,
   Sheet,
-  Spinner,
   useBlockEditor,
   useQueryState,
   useToast,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { TagsSelect, currentUserState } from 'ui-modules';
@@ -48,21 +47,17 @@ export const AddTicketForm = ({
     ticketCreateDefaultValuesState,
   );
 
-  const defaultValues = useMemo(() => {
-    const resolvedPipelineId =
-      defaultValuesState?.pipelineId || pipelineId || undefined;
-
-    return {
-      channelId: defaultValuesState?.channelId || channelId || undefined,
-      pipelineId: resolvedPipelineId,
-      statusId: defaultValuesState?.statusId || undefined,
-      name: '',
-      priority: 0,
-      assigneeId: resolvedPipelineId ? undefined : currentUser?._id,
-      startDate: undefined,
-      targetDate: undefined,
-    };
-  }, [channelId, currentUser?._id, defaultValuesState, pipelineId]);
+  const resolvedPipelineId = defaultValuesState?.pipelineId || pipelineId || undefined;
+  const defaultValues = {
+    channelId: defaultValuesState?.channelId || channelId || undefined,
+    pipelineId: resolvedPipelineId,
+    statusId: defaultValuesState?.statusId || undefined,
+    name: '',
+    priority: 0,
+    assigneeId: resolvedPipelineId ? undefined : currentUser?._id,
+    startDate: undefined,
+    targetDate: undefined,
+  };
   const form = useForm<TAddTicket>({
     resolver: zodResolver(addTicketSchema),
     defaultValues,
@@ -77,16 +72,18 @@ export const AddTicketForm = ({
       form.reset({ ...defaultValues, ...defaultValuesState });
       setDefaultValues(undefined);
     }
-  }, [defaultValues, defaultValuesState, form, setDefaultValues]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultValuesState, form, setDefaultValues]);
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
     if (content) {
-      setDescriptionContent(content.slice(0, -1) as Block[]);
+      content.pop();
+      setDescriptionContent(content as Block[]);
     }
   };
 
-  const onSubmit = (data: TAddTicket) => {
+  const onSubmit = async (data: TAddTicket) => {
     createTicket({
       variables: {
         ...data,
@@ -95,6 +92,11 @@ export const AddTicketForm = ({
         statusId: data.statusId,
       },
       onCompleted: (data) => {
+        toast({
+          title: t('success'),
+          description: t('ticket-created-successfully'),
+          variant: 'default',
+        });
         onClose();
         onComplete?.(data.createTicket._id);
       },
@@ -113,14 +115,10 @@ export const AddTicketForm = ({
         })}
         className="h-full flex flex-col"
       >
-        <Sheet.Header>
-          <Sheet.Title>{t('new-ticket')}</Sheet.Title>
-          <Sheet.Description className="sr-only">
-            {t('add-ticket-description')}
-          </Sheet.Description>
-          <Sheet.Close />
+        <Sheet.Header className="flex items-center gap-2 ">
+          <Sheet.Title className="">{t('new-ticket')}</Sheet.Title>
         </Sheet.Header>
-        <Sheet.Content className="flex min-h-0 flex-col gap-4 px-5 py-4">
+        <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
             name="name"
             control={form.control}
@@ -134,7 +132,6 @@ export const AddTicketForm = ({
                     placeholder={t('ticket-name')}
                   />
                 </Form.Control>
-                <Form.Message />
               </Form.Item>
             )}
           />
@@ -144,7 +141,7 @@ export const AddTicketForm = ({
             value={form.getValues('tagIds') || []}
             onValueChange={(value) => form.setValue('tagIds', value)}
           >
-            <div className="flex w-full flex-wrap items-center gap-2 rounded-lg bg-muted/50 p-3">
+            <div className="flex gap-2 w-full flex-wrap items-center">
               <Form.Field
                 name="channelId"
                 control={form.control}
@@ -172,9 +169,7 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">
-                      {t('pipeline-label')}
-                    </Form.Label>
+                    <Form.Label className="sr-only">{t('pipeline-label')}</Form.Label>
                     <SelectPipeline.FormItem
                       value={field.value || ''}
                       onValueChange={(value) => {
@@ -196,9 +191,7 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">
-                      {t('status-label')}
-                    </Form.Label>
+                    <Form.Label className="sr-only">{t('status-label')}</Form.Label>
                     <SelectStatusTicket.FormItem
                       value={field.value || ''}
                       onValueChange={(value) => field.onChange(value)}
@@ -217,9 +210,7 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">
-                      {t('priority-label')}
-                    </Form.Label>
+                    <Form.Label className="sr-only">{t('priority-label')}</Form.Label>
                     <SelectPriorityTicket.FormItem
                       value={field.value || 0}
                       onValueChange={(value) => field.onChange(value)}
@@ -232,12 +223,12 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">
-                      {t('assignee-label')}
-                    </Form.Label>
+                    <Form.Label className="sr-only">{t('assignee-label')}</Form.Label>
                     <SelectAssigneeTicket.FormItem
                       value={field.value || ''}
-                      onValueChange={field.onChange}
+                      onValueChange={(value: any) => {
+                        field.onChange(value);
+                      }}
                     />
                   </Form.Item>
                 )}
@@ -248,9 +239,7 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">
-                      {t('start-date-label')}
-                    </Form.Label>
+                    <Form.Label className="sr-only">{t('start-date-label')}</Form.Label>
                     <SelectDateTicket.FormItem
                       value={field.value}
                       placeholder={t('start-date-label')}
@@ -264,9 +253,7 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">
-                      {t('due-date-label')}
-                    </Form.Label>
+                    <Form.Label className="sr-only">{t('due-date-label')}</Form.Label>
                     <SelectDateTicket.FormItem
                       value={field.value}
                       onValueChange={(value) => field.onChange(value)}
@@ -275,16 +262,14 @@ export const AddTicketForm = ({
                   </Form.Item>
                 )}
               />
-              <IconTags className="ml-2 size-5 text-muted-foreground" />
+              <IconTags className="size-5 ml-2"></IconTags>
               <TagsSelect.SelectedList />
               <Form.Field
                 name="tagIds"
                 control={form.control}
                 render={() => (
                   <Form.Item>
-                    <Form.Label className="sr-only">
-                      {t('tags-label')}
-                    </Form.Label>
+                    <Form.Label className="sr-only">{t('tags-label')}</Form.Label>
                     <Form.Control>
                       <TagsSelect.Trigger variant="ICON" />
                     </Form.Control>
@@ -297,19 +282,19 @@ export const AddTicketForm = ({
             </div>
           </TagsSelect.Provider>
           <Separator className="my-4" />
-          <div className="min-h-56 flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             <BlockEditor
               editor={editor}
               onChange={handleDescriptionChange}
-              className="min-h-full"
+              className="read-only min-h-full"
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer>
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"
-            disabled={createTicketLoading}
+            className="bg-background hover:bg-background/90"
             onClick={() => {
               onClose();
               form.reset();
@@ -319,8 +304,12 @@ export const AddTicketForm = ({
           >
             {t('cancel')}
           </Button>
-          <Button type="submit" disabled={createTicketLoading}>
-            {createTicketLoading ? <Spinner /> : t('save')}
+          <Button
+            type="submit"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            disabled={createTicketLoading}
+          >
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

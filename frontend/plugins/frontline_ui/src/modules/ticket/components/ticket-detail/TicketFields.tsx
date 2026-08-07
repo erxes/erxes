@@ -14,6 +14,7 @@ import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { ITicket } from '@/ticket/types';
+import { IAttachment } from '@/ticket/types/attachments';
 import { Block } from '@blocknote/core';
 import { IconSquareToggle, IconTags, IconTrash } from '@tabler/icons-react';
 import {
@@ -29,7 +30,7 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
@@ -52,13 +53,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     isSubscribed: _isSubscribed,
     state: ticketState,
     attachments,
-    startDate,
-    description,
-  } = ticket;
+  } = ticket || {};
+  const startDate = (ticket as any)?.startDate;
+  const description = (ticket as any)?.description;
   const isFirstRun = React.useRef(true);
   const isRemovedRef = React.useRef(false);
-  const selectedTagIds = useMemo(() => tagIds ?? [], [tagIds]);
-  const initialAttachments = useMemo(() => attachments ?? [], [attachments]);
   const [state, setState] = useState(ticketState || 'active');
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -79,7 +78,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       ) {
         return parsed as Block[];
       }
-    } catch {
+    } catch (error) {
+      console.debug(
+        'Failed to parse description as JSON, treating as plain text:',
+        error,
+      );
       const lines = desc.split('\n');
       if (lines.length === 0) return undefined;
 
@@ -155,16 +158,16 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     isSubscribed: boolean;
   }) => {
     return (
-      <Button
-        type="button"
-        variant="ghost"
-        disabled={!canEditTicket}
+      <div
+        className="space-x-2 flex items-center gap-2"
         onClick={() => {
           setSubscribe(!isSubscribed);
         }}
       >
-        {isSubscribed ? t('unsubscribe') : t('subscribe')}
-      </Button>
+        <Button variant="ghost">
+          <legend>{isSubscribed ? t('unsubscribe') : t('subscribe')}</legend>
+        </Button>
+      </div>
     );
   };
 
@@ -178,6 +181,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     const newState = state === 'active' ? 'archived' : 'active';
     const previousState = state;
 
+    // Optimistically update the UI
     setState(newState);
 
     updateTicket({
@@ -209,7 +213,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     });
   };
 
-  const handleDeleteTicket = () => {
+  const handleDeleteTicket = async () => {
     confirm({
       message: t('confirm-delete-ticket'),
     }).then(async () => {
@@ -223,12 +227,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           variant: 'success',
           description: t('ticket-deleted-successfully'),
         });
-      } catch (error) {
+      } catch (e: any) {
         isRemovedRef.current = false;
         toast({
           title: t('error'),
-          description:
-            error instanceof Error ? error.message : t('ticket-not-found'),
+          description: e.message,
           variant: 'destructive',
         });
       }
@@ -244,7 +247,8 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         name: debouncedName,
       },
     });
-  }, [debouncedName, _name, ticketId, updateTicket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedName]);
   useEffect(() => {
     if (isRemovedRef.current || !ticketId) return;
     if (!debouncedDescriptionContent) return;
@@ -261,7 +265,8 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         description: JSON.stringify(debouncedDescriptionContent),
       },
     });
-  }, [debouncedDescriptionContent, description, ticketId, updateTicket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedDescriptionContent]);
 
   useEffect(() => {
     if (isFirstRun.current) {
@@ -278,11 +283,12 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         },
       });
     }
-  }, [isSubscribed, _isSubscribed, ticketId, updateTicket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubscribed, _isSubscribed, ticketId]);
   return (
     <AttachmentProvider
       ticketId={ticketId}
-      initialAttachments={initialAttachments}
+      initialAttachments={attachments || ([] as IAttachment[])}
     >
       <div className="flex flex-col gap-3 h-full px-5 py-8">
         <Input
@@ -293,14 +299,14 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           disabled={!canEditTicket}
         />{' '}
         <TagsSelect.Provider
-          value={selectedTagIds}
+          value={tagIds || []}
           mode="multiple"
           type="frontline:ticket"
           onValueChange={(newTagIds: string[] | string) => {
             updateTicket({
               variables: {
                 _id: ticketId,
-                tagIds: Array.isArray(newTagIds) ? newTagIds : [newTagIds],
+                tagIds: newTagIds,
               },
             });
           }}

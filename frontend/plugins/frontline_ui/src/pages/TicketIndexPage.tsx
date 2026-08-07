@@ -6,14 +6,9 @@ import {
   Separator,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import {
-  Can,
-  createFavoriteBreadcrumb,
-  Export,
-  Import,
-  PageHeader,
-} from 'ui-modules';
+import { Can, PageHeader, Import, createFavoriteBreadcrumb } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { IconTicket } from '@tabler/icons-react';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import {
@@ -25,7 +20,7 @@ import { TicketsFilter } from '@/ticket/components/TicketsFilter';
 import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
 
-export const TicketsIndexPage = () => {
+const TicketsIndexPage = () => {
   const { t } = useTranslation('frontline');
   const variables = useTicketsVariables();
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
@@ -35,7 +30,6 @@ export const TicketsIndexPage = () => {
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;
-
     return filters;
   };
 
@@ -65,24 +59,24 @@ export const TicketsIndexPage = () => {
           <AddTicketSheet />
         </PageHeader.End>
       </PageHeader>
-      <PageSubHeader className="items-center">
+      <PageSubHeader>
         <TicketsFilter />
-        <div className="ml-auto flex items-center gap-1">
-          <Can action="ticketsImportManage">
-            <Import
-              pluginName="frontline"
-              moduleName="ticket"
-              collectionName="ticket"
-            />
-          </Can>
-          <Can action="ticketsExportManage">
-            <Export
-              pluginName="frontline"
-              moduleName="ticket"
-              collectionName="ticket"
-              getFilters={getFilters}
-            />
-          </Can>
+        <Can action="ticketsImportManage">
+          <Import
+            pluginName="frontline"
+            moduleName="ticket"
+            collectionName="ticket"
+          />
+        </Can>
+        <Can action="ticketsExportManage">
+          <Export
+            pluginName="frontline"
+            moduleName="ticket"
+            collectionName="ticket"
+            getFilters={getFilters}
+          />
+        </Can>
+        <div>
           <TicketsViewControl />
           <TicketsSortControl />
         </div>
@@ -92,3 +86,5 @@ export const TicketsIndexPage = () => {
     </PageContainer>
   );
 };
+
+export default TicketsIndexPage;

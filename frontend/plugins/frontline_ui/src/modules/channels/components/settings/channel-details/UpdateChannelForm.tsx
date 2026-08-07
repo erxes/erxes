@@ -37,7 +37,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
         },
       });
     },
-    [updateChannel, channel._id, toast, t],
+    [updateChannel, channel._id],
   );
 
   return (
@@ -54,13 +54,11 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t('icon')}</Form.Label>
-                  <Form.Description className="sr-only">
-                    {t('icon')}
-                  </Form.Description>
+                  <Form.Description className="sr-only">{t('icon')}</Form.Description>
                   <Form.Control>
                     <IconPicker
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      value={field.value}
                     />
                   </Form.Control>
                   <Form.Message />

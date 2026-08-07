@@ -26,7 +26,7 @@ const Inbox = lazy(() =>
 
 const Ticket = lazy(() =>
   import('~/pages/TicketIndexPage').then((module) => ({
-    default: module.TicketsIndexPage,
+    default: module.default,
   })),
 );
 
