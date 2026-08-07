@@ -49,7 +49,6 @@ export default function ListContainer({ queryParams }: Props) {
 
   const configs = data?.khanbankConfigsList?.list ?? [];
 
-
   return (
     <List
       configs={configs}
