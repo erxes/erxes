@@ -214,8 +214,7 @@ export const afterMutationHandlers = async (
               {
                 ...config,
                 ...responseDetail,
-                description:
-                  (config.withDescription && deal.description) || '',
+                description: (config.withDescription && deal.description) || '',
               },
             ];
           }

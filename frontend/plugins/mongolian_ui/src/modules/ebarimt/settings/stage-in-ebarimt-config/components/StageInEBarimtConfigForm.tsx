@@ -388,9 +388,13 @@ const StageInEbarimtConfigCard = ({
               </AlertDialog.Trigger>
               <AlertDialog.Content>
                 <AlertDialog.Header>
-                  <AlertDialog.Title>{t('delete-configuration')}</AlertDialog.Title>
+                  <AlertDialog.Title>
+                    {t('delete-configuration')}
+                  </AlertDialog.Title>
                   <AlertDialog.Description>
-                    {t('delete-config-confirm', { title: config.title || t('untitled-config') })}
+                    {t('delete-config-confirm', {
+                      title: config.title || t('untitled-config'),
+                    })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>
                 <AlertDialog.Footer>
@@ -495,7 +499,8 @@ export const StageInEBarimtConfigForm = () => {
                   <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
                     <div className="flex justify-between items-center w-full">
                       <span>
-                        {localConfigsMap[configKey].title || t('untitled-config')}
+                        {localConfigsMap[configKey].title ||
+                          t('untitled-config')}
                       </span>
                     </div>
                   </Accordion.Trigger>

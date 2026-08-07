@@ -438,9 +438,7 @@ const billTypeCustomFieldsData = async (config, deal) => {
 
     const customDataBillType = getPropertyValue(config.dealBillType.billType);
     const customDataRegNo = getPropertyValue(config.dealBillType.regNo);
-    const customDataComName = getPropertyValue(
-      config.dealBillType.companyName,
-    );
+    const customDataComName = getPropertyValue(config.dealBillType.companyName);
 
     if (
       checkCompanyStrs.includes(customDataBillType) &&
