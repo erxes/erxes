@@ -280,7 +280,7 @@ export const sendEbarimtEmail = async ({
 
   const receiptLabel =
     deal.name || deal.number || successfulResponses[0].number;
-  const title = `И-Баримт${receiptLabel ? ` - ${receiptLabel}` : ''}`;
+  const title = receiptLabel ? `И-Баримт - ${receiptLabel}` : 'И-Баримт';
 
   await sendTRPCMessage({
     subdomain,
