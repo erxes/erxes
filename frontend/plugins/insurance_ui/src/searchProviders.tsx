@@ -67,7 +67,7 @@ const customersSearchProvider = defineSearchProvider<TInsuranceCustomerNode>({
       customer.companyName ||
       getPersonName(customer, customer.email || UNNAMED),
     description: customer.email || customer.phone || undefined,
-    path: '/insurance/customers',
+    path: `/insurance/customers/${customer.id}`,
   }),
 });
 

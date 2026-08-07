@@ -96,7 +96,7 @@ const scoreCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
   toItem: (campaign) => ({
     id: campaign._id,
     title: campaign.title || UNNAMED,
-    path: '/settings/loyalty/config/score',
+    path: `/settings/loyalty/config/score?editScoreId=${campaign._id}`,
   }),
 });
 

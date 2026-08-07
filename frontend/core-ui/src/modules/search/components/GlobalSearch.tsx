@@ -3,15 +3,9 @@ import {
   GLOBAL_SEARCH_MIN_LENGTH,
   useGlobalSearch,
 } from '@/search/hooks/useGlobalSearch';
-import { GlobalSearchGroup } from '@/search/components/GlobalSearchGroup';
-import {
-  GlobalSearchEmpty,
-  GlobalSearchFailure,
-  GlobalSearchHint,
-  GlobalSearchLoading,
-} from '@/search/components/GlobalSearchStates';
+import { GlobalSearchDialog } from '@/search/components/GlobalSearchDialog';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
-import { Button, cn, Command, Dialog } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -96,53 +90,19 @@ export const GlobalSearch = ({ className }: { className?: string }) => {
         onClick={() => setOpen(true)}
       />
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Content className="max-w-md overflow-hidden rounded-lg border-0 p-0">
-          <Dialog.Title className="sr-only">
-            {t('placeholder', 'Search')}
-          </Dialog.Title>
-          <Dialog.Description className="sr-only">
-            {t('placeholder', 'Search')}
-          </Dialog.Description>
-          <Command
-            shouldFilter={false}
-            className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2"
-          >
-            <Command.Input
-              focusOnMount
-              variant="primary"
-              placeholder={t('placeholder', 'Search')}
-              value={value}
-              onValueChange={setValue}
-            />
-            <Command.List className="styled-scroll min-h-32">
-              {!isTyping && <GlobalSearchHint />}
-
-              {isTyping && hasFailure && (
-                <GlobalSearchFailure onRetry={() => refetch()} />
-              )}
-
-              {isTyping && !hasFailure && loading && !hasResults && (
-                <GlobalSearchLoading />
-              )}
-
-              {isTyping && !hasFailure && !loading && !hasResults && (
-                <GlobalSearchEmpty />
-              )}
-
-              {isTyping &&
-                !hasFailure &&
-                groups.map((group) => (
-                  <GlobalSearchGroup
-                    key={group.key}
-                    group={group}
-                    onSelect={openResult}
-                  />
-                ))}
-            </Command.List>
-          </Command>
-        </Dialog.Content>
-      </Dialog>
+      <GlobalSearchDialog
+        open={open}
+        onOpenChange={setOpen}
+        value={value}
+        onValueChange={setValue}
+        isTyping={isTyping}
+        hasFailure={hasFailure}
+        loading={loading}
+        hasResults={hasResults}
+        groups={groups}
+        onSelect={openResult}
+        onRetry={() => refetch()}
+      />
     </>
   );
 };

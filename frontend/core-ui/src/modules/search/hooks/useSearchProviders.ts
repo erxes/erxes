@@ -26,11 +26,13 @@ export const useSearchProviders = () => {
     ]);
 
     return validated
-      .filter((provider) =>
-        provider.selections.every(
+      .map((provider) => ({
+        ...provider,
+        selections: provider.selections.filter(
           (selection) => !quarantinedFields.has(selection.field),
         ),
-      )
+      }))
+      .filter((provider) => provider.selections.length > 0)
       .sort(
         (a, b) =>
           (a.order ?? 1000) - (b.order ?? 1000) || a.key.localeCompare(b.key),

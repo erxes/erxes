@@ -8,10 +8,12 @@ import {
 
 const ALIAS_PATTERN = /^gs_[a-z0-9]+_[a-z0-9_]+$/;
 
-const printSelection = (selection: TSearchSelection): string =>
-  `${selection.alias}: ${selection.field}${
-    selection.args ? `(${selection.args})` : ''
-  }${selection.body ? ` ${selection.body}` : ''}`;
+const printSelection = (selection: TSearchSelection): string => {
+  const args = selection.args ? `(${selection.args})` : '';
+  const body = selection.body ? ` ${selection.body}` : '';
+
+  return `${selection.alias}: ${selection.field}${args}${body}`;
+};
 
 const isValidShape = (provider: ISearchProvider): string | null => {
   if (!provider || typeof provider !== 'object') {
@@ -28,6 +30,19 @@ const isValidShape = (provider: ISearchProvider): string | null => {
 
   if (!Array.isArray(provider.selections) || provider.selections.length === 0) {
     return 'missing selections';
+  }
+
+  for (const selection of provider.selections) {
+    if (
+      !selection ||
+      typeof selection !== 'object' ||
+      typeof selection.alias !== 'string' ||
+      typeof selection.field !== 'string' ||
+      (selection.args !== undefined && typeof selection.args !== 'string') ||
+      (selection.body !== undefined && typeof selection.body !== 'string')
+    ) {
+      return 'invalid selection';
+    }
   }
 
   if (typeof provider.resolve !== 'function') {
@@ -135,7 +150,7 @@ export const buildGlobalSearchDocument = (
 ): DocumentNode => {
   const cacheKey = providers
     .flatMap((provider) => provider.selections.map((s) => s.alias))
-    .sort()
+    .sort((a, b) => a.localeCompare(b))
     .join('|');
 
   const cached = documentCache.get(cacheKey);

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-06`
+- **Last synchronized:** `2026-08-07`
 
 ## Scope
 
@@ -81,6 +81,12 @@
   and report aggregations.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
+- Conversation search (`conversations(searchValue)`) matches the conversation's
+  own `content` in addition to the matched customers, so a conversation whose
+  customer has no name is still findable by what was written in it.
+  Phone-shaped search terms are detected and additionally matched against
+  customer phone numbers and call CDR `src`/`dst` numbers
+  (`src/conversationQueryBuilder.ts`).
 
 ## Architecture
 
@@ -283,6 +289,19 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-07` — Conversation search matches content and phone-shaped terms
+
+- **Summary:** `conversationQueryBuilder` now OR-matches the search term
+  against the conversation's own `content` (case-insensitive regex) alongside
+  the existing customer-name/email match, and separately detects
+  phone-shaped terms to also match customer phone numbers and, when the
+  filtered integrations include call integrations, `CallCdrs.src`/`dst`
+  digits. This backs the core-ui global search palette's conversations
+  group.
+- **Affected areas:** `src/conversationQueryBuilder.ts`.
+- **Contracts changed:** `None` — `conversations(searchValue)` behavior only,
+  no schema change.
+
 ### `2026-08-06` — Conversation counts on channels and used integration kinds
 
 - **Summary:** Added `Channel.conversationCount` /
@@ -393,12 +412,3 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   false token failure whenever an automation sent an invalid payload.
 - **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`sendReply`)
 - **Contracts changed:** `None`
-
-### `2026-08-03` — Lazy personal-channel provisioning
-
-- **Summary:** Added the `getPersonalChannel` query so a personal channel is
-  created the first time it is read, replacing any need to choose a scope at
-  channel-creation time.
-- **Affected areas:** `src/modules/channel/graphql/{schemas,resolvers/queries}/channel.ts`.
-- **Contracts changed:** New query `getPersonalChannel: Channel` with
-  get-or-create semantics.

@@ -65,7 +65,7 @@ const exchangeRatesSearchProvider = defineSearchProvider<TExchangeRateNode>({
         ? `${rate.mainCurrency} / ${rate.rateCurrency}`
         : UNNAMED,
     description: typeof rate.rate === 'number' ? String(rate.rate) : undefined,
-    path: '/settings/mongolian/exchange-rates',
+    path: `/settings/mongolian/exchange-rates?exchange_rate_id=${rate._id}`,
   }),
 });
 
