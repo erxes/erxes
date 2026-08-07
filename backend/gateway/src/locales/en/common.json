@@ -121,6 +121,9 @@
     "team-members": "Team members",
     "channels": "Channels",
     "forms": "Forms",
-    "hint": "Search contacts, conversations, tickets, deals, products and more"
+    "hint": "Search contacts, conversations, tickets, deals, products and more",
+    "load-error": "Couldn't load {{label}}",
+    "search-failed": "Couldn't load search results",
+    "retry": "Retry"
   }
 }

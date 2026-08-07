@@ -13,7 +13,7 @@ export const VisitedPageTabsShortcutGuide = () => {
   const shortcuts = [
     {
       label: tSearch('placeholder', 'Search'),
-      keys: [isMac ? '⌘' : 'Ctrl', 'K'],
+      keys: [...modifierKeys, 'K'],
     },
     { label: t('next-tab'), keys: [...modifierKeys, ']'] },
     { label: t('previous-tab'), keys: [...modifierKeys, '['] },
