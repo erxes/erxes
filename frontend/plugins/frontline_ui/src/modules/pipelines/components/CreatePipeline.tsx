@@ -45,7 +45,7 @@ const CreatePipelineSheetForm = ({
   });
 
   const submitHandler: SubmitHandler<TCreatePipelineForm> = React.useCallback(
-    async (data) => {
+    (data) => {
       addPipeline({
         variables: { ...data, channelId },
         onCompleted: (response) => {

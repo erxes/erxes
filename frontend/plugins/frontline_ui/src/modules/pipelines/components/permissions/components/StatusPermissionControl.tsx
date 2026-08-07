@@ -220,7 +220,7 @@ export const StatusPermissionControl = ({
               <SelectMember.Provider
                 mode="multiple"
                 onValueChange={(value) => {
-                  void handleMemberChange(
+                  handleMemberChange(
                     config.type,
                     Array.isArray(value) ? value : [],
                   );
