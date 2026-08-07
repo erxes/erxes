@@ -7,6 +7,25 @@ import { useEffect } from 'react';
 import { ticketTotalCountAtom } from '@/ticket/states/ticketsTotalCountState';
 import { TicketPipelineFallback } from '@/ticket/components/TicketPipelineFallback';
 import { TicketCommandBar } from './ticket-command-bar/TicketCommandbar';
+
+const TicketsTableBody = ({
+  handleFetchMore,
+  loading,
+}: {
+  handleFetchMore: ReturnType<typeof useTickets>['handleFetchMore'];
+  loading: boolean;
+}) => (
+  <RecordTable>
+    <RecordTable.Header />
+    <RecordTable.Body>
+      <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+      {loading && <RecordTable.RowSkeleton rows={40} />}
+      <RecordTable.RowList />
+      <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+    </RecordTable.Body>
+  </RecordTable>
+);
+
 export const TicketsRecordTable = () => {
   const setTicketTotalCount = useSetAtom(ticketTotalCountAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
@@ -49,19 +68,10 @@ export const TicketsRecordTable = () => {
           dataLength={tickets?.length}
           sessionKey={TICKETS_CURSOR_SESSION_KEY}
         >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {loading && <RecordTable.RowSkeleton rows={40} />}
-              <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
+          <TicketsTableBody
+            handleFetchMore={handleFetchMore}
+            loading={loading}
+          />
         </RecordTable.CursorProvider>
         <TicketCommandBar />
       </RecordTable.Provider>

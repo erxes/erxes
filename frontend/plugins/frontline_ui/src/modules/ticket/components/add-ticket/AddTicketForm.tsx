@@ -86,7 +86,7 @@ export const AddTicketForm = ({
     }
   };
 
-  const onSubmit = async (data: TAddTicket) => {
+  const onSubmit = (data: TAddTicket) => {
     createTicket({
       variables: {
         ...data,

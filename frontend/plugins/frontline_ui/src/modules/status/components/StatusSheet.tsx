@@ -42,7 +42,7 @@ const StatusSheetForm = ({
   const { addStatus, loading: adding } = useAddTicketStatus();
   const { updateStatus, loading: updating } = useUpdateTicketStatus();
 
-  const isEditing = !!editingStatus;
+  const isEditing = Boolean(editingStatus);
   const isSaving = adding || updating;
   const submitLabel = isEditing ? t('update') : t('save');
 

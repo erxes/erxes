@@ -49,6 +49,8 @@ import { useTranslation } from 'react-i18next';
 const STATUS_ROW_CLASSNAME =
   'group relative flex min-h-11 items-center gap-2 rounded-md border bg-background px-2 py-1.5 transition-colors hover:bg-accent';
 
+const STATUS_SKELETON_KEYS = ['status-skeleton-1', 'status-skeleton-2'];
+
 const StatusSwatch = ({
   color,
   statusType,
@@ -334,9 +336,7 @@ export const StatusGroup = ({
             strategy={verticalListSortingStrategy}
           >
             {loading
-              ? Array.from({ length: 2 }).map((_, index) => (
-                  <StatusSkeleton key={index} />
-                ))
+              ? STATUS_SKELETON_KEYS.map((key) => <StatusSkeleton key={key} />)
               : _statuses.map((status) => (
                   <Status
                     isDragDisabled={isDragDisabled}
@@ -361,7 +361,7 @@ export const StatusGroup = ({
 
         <StatusSheet
           editingStatus={editingStatus}
-          open={isAddingHere || !!editingStatus}
+          open={isAddingHere || Boolean(editingStatus)}
           statusType={statusType}
         />
       </div>

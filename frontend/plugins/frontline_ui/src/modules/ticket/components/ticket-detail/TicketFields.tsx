@@ -209,7 +209,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     });
   };
 
-  const handleDeleteTicket = async () => {
+  const handleDeleteTicket = () => {
     confirm({
       message: t('confirm-delete-ticket'),
     }).then(async () => {
