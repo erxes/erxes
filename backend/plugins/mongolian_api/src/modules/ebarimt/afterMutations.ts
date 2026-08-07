@@ -184,12 +184,13 @@ export const afterMutationHandlers = async (
 
       if (config.sendEmail) {
         try {
-          const emailResponses: EbarimtEmailResponse[] =
-            ebarimtResponses.map((response) => ({
+          const emailResponses: EbarimtEmailResponse[] = ebarimtResponses.map(
+            (response) => ({
               ...config,
               ...response,
               description: (config.withDescription && deal.description) || '',
-            }));
+            }),
+          );
 
           await sendEbarimtEmail({
             deal,
@@ -197,7 +198,10 @@ export const afterMutationHandlers = async (
             subdomain,
           });
         } catch (error) {
-          console.error('Failed to send eBarimt email:', getErrorMessage(error));
+          console.error(
+            'Failed to send eBarimt email:',
+            getErrorMessage(error),
+          );
         }
       }
     }
