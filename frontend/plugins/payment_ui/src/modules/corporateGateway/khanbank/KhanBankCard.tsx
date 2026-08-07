@@ -5,7 +5,7 @@ import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 
 import GatewayCard from '../GatewayCard';
-import ListContainer from './configs/containers/List';
+import { ListContainer } from './configs/containers/List';
 import { queries } from './configs/graphql';
 
 const KHANBANK_PAYMENT = PAYMENT_KINDS[PaymentKind.KHANBANK];

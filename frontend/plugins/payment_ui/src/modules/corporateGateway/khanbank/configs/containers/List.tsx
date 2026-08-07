@@ -6,15 +6,17 @@ import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { ConfigsListQueryResponse } from '../types';
 
-export default function ListContainer() {
+export function ListContainer() {
   const { confirm } = useConfirm();
 
-  const { data, loading, error, refetch } = useQuery<ConfigsListQueryResponse>(
-    gql(queries.listQuery),
-    {
-      fetchPolicy: 'network-only',
-    },
-  );
+  const {
+    data,
+    loading,
+    error,
+    refetch,
+  } = useQuery<ConfigsListQueryResponse>(gql(queries.listQuery), {
+    fetchPolicy: 'network-only',
+  });
 
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
 
@@ -34,7 +36,7 @@ export default function ListContainer() {
           title: 'Config removed',
           description: 'You successfully removed the config.',
         });
-      } catch (e: any) {
+      } catch (e) {
         console.error(e);
 
         toast({
