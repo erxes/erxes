@@ -2,6 +2,7 @@ import { IconBriefcase, IconReceipt, IconSandbox } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 const DealStagePropertyInput = lazy(() =>
   import('./modules/deals/components/deal-selects/DealStagePropertyInput').then(
@@ -96,4 +97,5 @@ export const CONFIG: IUIConfig = {
       ),
     },
   },
+  searchProviders: SEARCH_PROVIDERS,
 };

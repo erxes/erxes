@@ -381,6 +381,12 @@ export default class Builder {
 
     const orConditions: object[] = [{ customerId: { $in: customerIds } }];
 
+    if (!isPhoneSearch) {
+      orConditions.push({
+        content: { $regex: escapeRegex(value), $options: 'i' },
+      });
+    }
+
     const availableIntegrationIds: string[] =
       this.queries?.integrations?.integrationId?.$in || [];
 
