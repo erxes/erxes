@@ -13,7 +13,6 @@ export const SalesSettingsNavigation = () => {
             path="/deals"
             name={t('deals')}
           />
-
           <SettingsNavigationMenuLinkItem
             pathPrefix="sales"
             path="/pos"
