@@ -4,6 +4,7 @@ import { Button, buttonVariants } from 'erxes-ui';
 import { useState } from 'react';
 import { useExport } from '../../hooks/export/useExport';
 import { formatEntityLabel } from '../../utils/entityLabel';
+import { TRenderRelationValueInput } from '../../types/export/exportTypes';
 import { ActiveExportsPopover } from './ActiveExports';
 import { ExportFieldSelection } from './ExportFieldSelection';
 
@@ -15,6 +16,7 @@ export const Export = ({
   ids,
   getFilters,
   confirmMessage = 'Create this CSV export with the selected fields?',
+  renderRelationValueInput,
 }: {
   pluginName: string;
   moduleName: string;
@@ -23,6 +25,7 @@ export const Export = ({
   ids?: string[];
   getFilters?: () => Record<string, any>;
   confirmMessage?: string;
+  renderRelationValueInput?: TRenderRelationValueInput;
 }) => {
   const [fieldSelectionOpen, setFieldSelectionOpen] = useState(false);
   const entityType = `${pluginName}:${moduleName}.${collectionName}`;
@@ -66,6 +69,7 @@ export const Export = ({
         recordCount={ids?.length}
         entityDisplayName={entityDisplayName}
         filters={getFilters?.()}
+        renderRelationValueInput={renderRelationValueInput}
       />
     </>
   );

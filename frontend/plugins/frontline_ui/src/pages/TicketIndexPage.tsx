@@ -19,6 +19,7 @@ import { TicketsSortControl } from '@/ticket/components/TicketsSortControl';
 import { TicketsFilter } from '@/ticket/components/TicketsFilter';
 import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
+import { renderTicketRelationFilterValue } from '@/ticket/components/ticket-export/TicketExportRelationFilters';
 
 const TicketsIndexPage = () => {
   const { t } = useTranslation('frontline');
@@ -74,6 +75,7 @@ const TicketsIndexPage = () => {
             moduleName="ticket"
             collectionName="ticket"
             getFilters={getFilters}
+            renderRelationValueInput={renderTicketRelationFilterValue}
           />
         </Can>
         <div>
