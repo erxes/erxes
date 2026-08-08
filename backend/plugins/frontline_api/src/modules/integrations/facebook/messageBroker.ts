@@ -63,7 +63,15 @@ export async function facebookUpdateIntegrations({
     const models = await generateModels(subdomain);
     let details;
     try {
-      details = JSON.parse(doc);
+      details = doc.data ? JSON.parse(doc.data) : {};
+
+      if (
+        typeof details !== 'object' ||
+        details === null ||
+        Array.isArray(details)
+      ) {
+        throw new Error('expected an object');
+      }
     } catch (parseError) {
       return {
         status: 'error',
@@ -82,10 +90,12 @@ export async function facebookUpdateIntegrations({
       };
     }
 
-    await models.FacebookIntegrations.updateOne(
-      { erxesApiId: integrationId },
-      { $set: details },
-    );
+    if (Object.keys(details).length) {
+      await models.FacebookIntegrations.updateOne(
+        { erxesApiId: integrationId },
+        { $set: details },
+      );
+    }
 
     return {
       status: 'success',

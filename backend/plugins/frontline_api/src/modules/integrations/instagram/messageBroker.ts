@@ -36,7 +36,9 @@ export async function handleInstagramIntegration({ subdomain, data }) {
       response.data = await models.InstagramConfigs.find({});
     }
   } catch (e) {
-    debugError(`handleInstagramIntegration error [action=${action}]: ${e.message}`);
+    debugError(
+      `handleInstagramIntegration error [action=${action}]: ${e.message}`,
+    );
     response = {
       status: 'error',
       errorMessage: e.message,
@@ -65,7 +67,15 @@ export async function instagramUpdateIntegrations({
     const models = await generateModels(subdomain);
     let details;
     try {
-      details = JSON.parse(doc);
+      details = doc.data ? JSON.parse(doc.data) : {};
+
+      if (
+        typeof details !== 'object' ||
+        details === null ||
+        Array.isArray(details)
+      ) {
+        throw new Error('expected an object');
+      }
     } catch (parseError) {
       return {
         status: 'error',
@@ -84,10 +94,12 @@ export async function instagramUpdateIntegrations({
       };
     }
 
-    await models.InstagramIntegrations.updateOne(
-      { erxesApiId: integrationId },
-      { $set: details },
-    );
+    if (Object.keys(details).length) {
+      await models.InstagramIntegrations.updateOne(
+        { erxesApiId: integrationId },
+        { $set: details },
+      );
+    }
 
     return { status: 'success' };
   } catch (e) {
