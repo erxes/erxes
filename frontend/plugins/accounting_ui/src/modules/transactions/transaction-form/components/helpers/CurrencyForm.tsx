@@ -1,8 +1,7 @@
-import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { useGetExchangeRate } from '../../hooks/useGetExchangeRate';
 import { CurrencyField, Form } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
 import { TrJournalEnum, TR_SIDES } from '../../../types/constants';
 import { followTrDocsState } from '../../states/trStates';
@@ -13,9 +12,11 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 const CurrencyFormBody = ({
   form,
   journalIndex,
+  spotRate: providedSpotRate,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
+  spotRate?: number;
 }) => {
   const date = useWatch({
     control: form.control,
@@ -28,20 +29,16 @@ const CurrencyFormBody = ({
   });
 
   const detail = trDoc.details[0];
-  const amount = useWatch({
-    control: form.control,
-    name: `trDocs.${journalIndex}.details.0.amount`,
-  });
-  const [changingAmount, setChangingAmount] = useState(true);
-
-  const { configs } = useMainConfigs();
   const mainCurrency = 'MNT';
 
-  const { spotRate } = useGetExchangeRate({
+  const { spotRate: fetchedSpotRate } = useGetExchangeRate({
     variables: { date, currency: detail.account?.currency },
     skip:
-      !detail?.account?.currency || detail?.account?.currency === mainCurrency,
+      providedSpotRate !== undefined ||
+      !detail?.account?.currency ||
+      detail?.account?.currency === mainCurrency,
   });
+  const spotRate = providedSpotRate ?? fetchedSpotRate;
 
   const mainSide = useWatch({
     control: form.control,
@@ -49,11 +46,13 @@ const CurrencyFormBody = ({
   });
 
   const diffAmount: number = useMemo(() => {
+    if (!detail.customRate) {
+      return 0;
+    }
+
     const multipler = detail.account?.kind === 'active' ? 1 : -1;
     return (
-      ((detail.customRate || 0) - spotRate) *
-      (detail.currencyAmount || 0) *
-      multipler
+      (detail.customRate - spotRate) * (detail.currencyAmount || 0) * multipler
     );
   }, [spotRate, detail.customRate, detail.currencyAmount, detail.account]);
 
@@ -70,31 +69,24 @@ const CurrencyFormBody = ({
     value: number,
     onChange: (value: number) => void,
   ) => {
-    if (changingAmount) {
-      return setChangingAmount(false);
-    }
-    form.setValue(`trDocs.${journalIndex}.details.0.amount`, spotRate * value);
+    const nextAmount = spotRate * value;
+
     onChange(value);
+    form.setValue(`trDocs.${journalIndex}.details.0.amount`, nextAmount);
   };
 
   useEffect(() => {
-    form.setValue(
-      `trDocs.${journalIndex}.details.0.amount`,
-      spotRate * (detail.currencyAmount ?? 0),
-    );
+    const currencyAmount = detail.currencyAmount ?? 0;
+
+    if (!currencyAmount) {
+      return;
+    }
+
+    const nextAmount = spotRate * currencyAmount;
+
+    form.setValue(`trDocs.${journalIndex}.details.0.amount`, nextAmount);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spotRate]);
-
-  useEffect(() => {
-    if (spotRate) {
-      setChangingAmount(true);
-      form.setValue(
-        `trDocs.${journalIndex}.details.0.currencyAmount`,
-        amount / spotRate,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount]);
 
   useEffect(() => {
     if (!diffAmount) {
@@ -225,9 +217,11 @@ const CurrencyFormBody = ({
 export const CurrencyForm = ({
   form,
   journalIndex,
+  spotRate,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
+  spotRate?: number;
 }) => {
   const account = useWatch({
     control: form.control,
@@ -240,5 +234,11 @@ export const CurrencyForm = ({
     return null;
   }
 
-  return <CurrencyFormBody form={form} journalIndex={journalIndex} />;
+  return (
+    <CurrencyFormBody
+      form={form}
+      journalIndex={journalIndex}
+      spotRate={spotRate}
+    />
+  );
 };

@@ -39,6 +39,30 @@ const AdjustInventoryDetail = lazy(() =>
   })),
 );
 
+const AdjustFundRateList = lazy(() =>
+  import('~/pages/AdjustFundRateListPage').then((module) => ({
+    default: module.AdjustFundRateListPage,
+  })),
+);
+
+const AdjustFundRateDetail = lazy(() =>
+  import('~/pages/AdjustFundRateDetailPage').then((module) => ({
+    default: module.AdjustFundRateDetailPage,
+  })),
+);
+
+const AdjustDebtRateList = lazy(() =>
+  import('~/pages/AdjustDebtRateListPage').then((module) => ({
+    default: module.AdjustDebtRateListPage,
+  })),
+);
+
+const AdjustDebtRateDetail = lazy(() =>
+  import('~/pages/AdjustDebtRateDetailPage').then((module) => ({
+    default: module.AdjustDebtRateDetailPage,
+  })),
+);
+
 const AdjustFixedAssetList = lazy(() =>
   import('~/pages/AdjustFixedAssetListPage').then((module) => ({
     default: module.AdjustFixedAssetListPage,
@@ -117,6 +141,16 @@ const PluginAccounting = () => {
         <Route
           path="/adjustment/inventory/detail"
           element={<AdjustInventoryDetail />}
+        />
+        <Route path="/adjustment/fundRate" element={<AdjustFundRateList />} />
+        <Route
+          path="/adjustment/fundRate/detail"
+          element={<AdjustFundRateDetail />}
+        />
+        <Route path="/adjustment/debRate" element={<AdjustDebtRateList />} />
+        <Route
+          path="/adjustment/debRate/detail"
+          element={<AdjustDebtRateDetail />}
         />
         <Route path="/adjustment/fxa" element={<AdjustFixedAssetList />} />
         <Route
