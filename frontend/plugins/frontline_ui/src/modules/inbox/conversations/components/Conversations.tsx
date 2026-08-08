@@ -1,4 +1,3 @@
-import { useInView } from 'react-intersection-observer';
 import { IconLoader } from '@tabler/icons-react';
 
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
@@ -7,7 +6,6 @@ import { IConversation } from '@/inbox/types/Conversation';
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
 
 import {
-  Button,
   EnumCursorDirection,
   EnumCursorMode,
   Filter,
@@ -23,7 +21,14 @@ import { ConversationItem } from './ConversationItem';
 import { ConversationThreadList } from './ConversationChannelSection';
 import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
 import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type UIEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
 import { conversationsContainerScrollState } from '@/inbox/conversations/states/conversationsContainerScrollState';
@@ -36,16 +41,6 @@ export const Conversations = () => {
     useAtom(conversationsContainerScrollState);
   const [rerendered, setRerendered] = useState(false);
 
-  const [ref] = useInView({
-    onChange(inView) {
-      if (inView) {
-        handleFetchMore({
-          direction: EnumCursorDirection.FORWARD,
-        });
-      }
-    },
-  });
-
   useEffect(() => {
     if (
       containerRef.current &&
@@ -57,7 +52,6 @@ export const Conversations = () => {
       });
       setConversationsContainerScroll(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationsContainerScroll]);
 
   useEffect(() => {
@@ -101,22 +95,84 @@ export const Conversations = () => {
 
   const parsedDate = parseDateRangeFromString(created || '');
 
-  const { totalCount, conversations, handleFetchMore, loading, pageInfo } =
-    useConversations({
-      variables: {
-        limit: CONVERSATIONS_LIMIT,
-        channelId,
-        integrationId,
-        integrationType: integrationType,
-        unassigned,
-        status: status || '',
-        startDate: parsedDate?.from,
-        endDate: parsedDate?.to,
-        brandId,
-        searchValue,
-        cursorMode: EnumCursorMode.INCLUSIVE,
-      },
+  const {
+    totalCount,
+    conversations,
+    handleFetchMore,
+    loading,
+    loadingMore,
+    pageInfo,
+  } = useConversations({
+    variables: {
+      limit: CONVERSATIONS_LIMIT,
+      channelId,
+      integrationId,
+      integrationType: integrationType,
+      unassigned,
+      status: status || '',
+      startDate: parsedDate?.from,
+      endDate: parsedDate?.to,
+      brandId,
+      searchValue,
+      cursorMode: EnumCursorMode.INCLUSIVE,
+    },
+  });
+
+  const loadNextPage = useCallback(() => {
+    void handleFetchMore({
+      direction: EnumCursorDirection.FORWARD,
     });
+  }, [handleFetchMore]);
+
+  const handleConversationListScroll = useCallback(
+    (event: UIEvent<HTMLDivElement>) => {
+      const { clientHeight, scrollHeight, scrollTop } = event.currentTarget;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+      if (
+        distanceFromBottom <= 160 &&
+        pageInfo?.hasNextPage &&
+        !loading &&
+        !loadingMore
+      ) {
+        loadNextPage();
+      }
+    },
+    [loadNextPage, loading, loadingMore, pageInfo?.hasNextPage],
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const loadIfViewportIsUnderfilled = () => {
+      if (
+        !loading &&
+        !loadingMore &&
+        pageInfo?.hasNextPage &&
+        conversations.length > 0 &&
+        container.scrollHeight <= container.clientHeight
+      ) {
+        loadNextPage();
+      }
+    };
+
+    loadIfViewportIsUnderfilled();
+
+    const resizeObserver = new ResizeObserver(loadIfViewportIsUnderfilled);
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, [
+    conversations.length,
+    loadNextPage,
+    loading,
+    loadingMore,
+    pageInfo?.hasNextPage,
+  ]);
 
   const conversationListContextValue = useMemo(
     () => ({ conversations, loading, totalCount }),
@@ -155,31 +211,32 @@ export const Conversations = () => {
 
   return (
     <ConversationListContext.Provider value={conversationListContextValue}>
-      <div className="flex flex-col h-full overflow-hidden w-full">
+      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
         <Filter id="conversations">
           <ConversationsHeader>
             <ConversationActions />
           </ConversationsHeader>
         </Filter>
         <Separator />
-        <div className="h-full w-full overflow-y-auto" ref={containerRef}>
+        <div
+          className="min-h-0 w-full flex-1 overflow-y-auto"
+          ref={containerRef}
+          onScroll={handleConversationListScroll}
+        >
           <ConversationThreadList
             conversations={conversations || []}
             threadMap={channelMap}
             renderItem={renderConversationItem}
           />
-          {!loading && conversations?.length > 0 && pageInfo?.hasNextPage && (
-            <Button
-              variant="ghost"
-              ref={ref}
-              className="pl-6 h-8 w-full text-muted-foreground"
-              asChild
-            >
-              <div>
-                <IconLoader className="size-4 animate-spin" />
-                loading more...
-              </div>
-            </Button>
+          {conversations.length > 0 && pageInfo?.hasNextPage && (
+            <div className="flex h-8 w-full items-center justify-center gap-2 text-muted-foreground">
+              {loadingMore && (
+                <>
+                  <IconLoader className="size-4 animate-spin" />
+                  <span>loading more...</span>
+                </>
+              )}
+            </div>
           )}
         </div>
       </div>

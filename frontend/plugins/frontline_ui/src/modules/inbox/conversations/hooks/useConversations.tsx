@@ -8,7 +8,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '../graphql/subscriptions/inboxSubscriptions';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { currentUserState } from 'ui-modules';
@@ -40,6 +40,8 @@ export const useConversations = (
   const { play: playNotificationSound } = useNotificationSound();
   const activeConversation = useAtomValue(activeConversationState);
   const activeConversationRef = useRef(activeConversation);
+  const fetchingMoreRef = useRef(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   activeConversationRef.current = activeConversation;
 
   useEffect(() => {
@@ -51,42 +53,55 @@ export const useConversations = (
       refetch();
       resetNewMessagesStates();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refetchNewMessages]);
 
-  const handleFetchMore = ({
-    direction,
-  }: {
-    direction: EnumCursorDirection;
-  }) => {
-    if (!validateFetchMore({ direction, pageInfo })) {
-      return;
-    }
+  const handleFetchMore = useCallback(
+    async ({ direction }: { direction: EnumCursorDirection }) => {
+      if (
+        fetchingMoreRef.current ||
+        !validateFetchMore({ direction, pageInfo })
+      ) {
+        return;
+      }
 
-    fetchMore({
-      variables: {
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo?.endCursor
-            : pageInfo?.startCursor,
-        limit: CONVERSATIONS_LIMIT,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          conversations: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.conversations,
-            prevResult: prev.conversations,
-          }),
+      fetchingMoreRef.current = true;
+      setLoadingMore(true);
+
+      try {
+        await fetchMore({
+          variables: {
+            cursor:
+              direction === EnumCursorDirection.FORWARD
+                ? pageInfo?.endCursor
+                : pageInfo?.startCursor,
+            limit: CONVERSATIONS_LIMIT,
+          },
+          updateQuery: (prev, { fetchMoreResult }) => {
+            if (!fetchMoreResult) return prev;
+            return Object.assign({}, prev, {
+              conversations: mergeCursorData({
+                direction,
+                fetchMoreResult: fetchMoreResult.conversations,
+                prevResult: prev.conversations,
+              }),
+            });
+          },
         });
-      },
-    });
-  };
+      } finally {
+        fetchingMoreRef.current = false;
+        setLoadingMore(false);
+      }
+    },
+    [fetchMore, pageInfo],
+  );
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
-      conversationClientMessageInserted: { _id: string; conversationId: string; content: string };
+      conversationClientMessageInserted: {
+        _id: string;
+        conversationId: string;
+        content: string;
+      };
     }>({
       document: CONVERSATION_CLIENT_MESSAGE_INSERTED,
       variables: {
@@ -96,7 +111,8 @@ export const useConversations = (
         if (subscriptionData.data) {
           setNewMessagesCount((prev) => prev + 1);
           const incomingConversationId =
-            subscriptionData.data.conversationClientMessageInserted.conversationId;
+            subscriptionData.data.conversationClientMessageInserted
+              .conversationId;
           if (incomingConversationId !== activeConversationRef.current?._id) {
             playNotificationSound();
           }
@@ -134,6 +150,7 @@ export const useConversations = (
     totalCount,
     conversations: list,
     loading,
+    loadingMore,
     handleFetchMore,
     pageInfo,
   };
