@@ -48,7 +48,7 @@ export const loadDealClass = (
       }
 
       // Calculate totals
-      if (doc.productsData) {
+      if (Array.isArray(doc.productsData)) {
         doc.productsData = doc.productsData.filter((pd) => pd);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
