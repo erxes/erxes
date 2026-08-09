@@ -8,4 +8,5 @@ export enum IntegrationType {
   INSTAGRAM_MESSENGER = 'instagram-messenger',
   INSTAGRAM_POST = 'instagram-post',
   DISCORD_MESSENGER = 'discord-messenger',
+  WHATSAPP_MESSENGER = 'whatsapp-messenger',
 }

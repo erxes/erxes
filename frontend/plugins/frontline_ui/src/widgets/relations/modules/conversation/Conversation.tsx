@@ -2,6 +2,7 @@ import { useConversations } from '@/inbox/conversations/hooks/useConversations';
 import { IRelationWidgetProps, useRelations } from 'ui-modules';
 import { ConversationRelationDetails } from './ConversationDetails';
 import { ConversationReportContent } from '@/inbox/conversations/conversation-detail/components/ConversationReportContent';
+import { WhatsappContactButton } from '@/integrations/whatsapp/components/WhatsappContactButton';
 
 export const ConversationRelationWidget = ({
   contentId,
@@ -35,6 +36,11 @@ export const ConversationRelationWidget = ({
         <ConversationReportContent
           customerId={customerId}
         />
+        {contentType === 'core:customer' && (
+          <div className="flex justify-end gap-2">
+            <WhatsappContactButton customerId={customerId || contentId} />
+          </div>
+        )}
         {conversations
           ?.filter((conversation) => conversation._id !== contentId)
           .map((conversation) => {

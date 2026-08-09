@@ -74,6 +74,23 @@ export interface IMessage {
   internal?: boolean;
   botData?: unknown[];
   fromBot?: boolean;
+  /**
+   * Meta's delivery state for a message sent through the WhatsApp channel.
+   * Null on every other channel and on any WhatsApp message that has not yet
+   * had a status webhook applied to it (the gap between sending and the first
+   * "sent" receipt).
+   */
+  whatsappDelivery?: {
+    status: string;
+    error?: string | null;
+  } | null;
+  /** The message this one quotes, on WhatsApp. Null when it quotes nothing. */
+  whatsappReplyTo?: {
+    _id: string;
+    content?: string | null;
+  } | null;
+  /** This message's own wamid. Null on every non-WhatsApp message. */
+  whatsappMid?: string | null;
 }
 
 export enum ConversationStatus {

@@ -19,6 +19,9 @@ import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePol
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
+import { WhatsappMessageActions } from '@/integrations/whatsapp/components/WhatsappMessageActions';
+import { WhatsappDeliveryTicks } from '@/inbox/conversation-messages/components/WhatsappDeliveryTicks';
+import { WhatsappReplyPreview } from '@/inbox/conversation-messages/components/WhatsappReplyPreview';
 import { IconBrain, IconFile, IconSparkles } from '@tabler/icons-react';
 
 const Img = (props: JSX.IntrinsicElements['img']) => (
@@ -73,6 +76,9 @@ export const MessageItem = () => {
     isGroupConversation,
     isBotMessage,
     botData,
+    whatsappDelivery,
+    whatsappReplyTo,
+    whatsappMid,
   } = message;
 
   const poll = extraData?.poll;
@@ -135,10 +141,26 @@ export const MessageItem = () => {
         <div
           className={cn(
             'min-w-0 max-w-[428px]',
-            extraData?.discordMessageId && 'group relative',
+            (extraData?.discordMessageId || whatsappMid) && 'group relative',
           )}
           key={_id}
         >
+          {/* A message is only ever one channel, so this and the Discord bar
+              below never both apply to the same row — no conflict on the
+              shared `group`/`absolute` positioning either uses. */}
+          {whatsappMid && (
+            <div
+              className={cn(
+                'absolute bottom-0 z-10',
+                userId ? 'right-full mr-1' : 'left-full ml-1',
+              )}
+            >
+              <WhatsappMessageActions
+                mid={whatsappMid}
+                content={hasTextBubble ? displayContent : undefined}
+              />
+            </div>
+          )}
           {extraData?.discordMessageId && !isDeleted && (
             <div
               className={cn(
@@ -187,12 +209,17 @@ export const MessageItem = () => {
               asChild
             >
               <div>
+                <WhatsappReplyPreview whatsappReplyTo={whatsappReplyTo} />
                 <MessageContent content={displayContent} internal={internal} />
                 {separateNext && (
-                  <div className="text-muted-foreground mt-1">
+                  <div className="text-muted-foreground mt-1 flex items-center gap-1">
                     <RelativeDateDisplay value={createdAt}>
                       <RelativeDateDisplay.Value value={createdAt} />
                     </RelativeDateDisplay>
+                    {/* Delivery state only means anything for what WE sent. */}
+                    {!!userId && (
+                      <WhatsappDeliveryTicks whatsappDelivery={whatsappDelivery} />
+                    )}
                   </div>
                 )}
               </div>
@@ -214,13 +241,20 @@ export const MessageItem = () => {
               Boolean(embeds?.length)) && (
             <div
               className={cn(
-                'text-muted-foreground mt-1 text-xs',
-                userId ? 'text-right' : 'text-left',
+                'text-muted-foreground mt-1 flex items-center gap-1 text-xs',
+                userId ? 'justify-end' : 'justify-start',
               )}
             >
               <RelativeDateDisplay value={createdAt}>
                 <RelativeDateDisplay.Value value={createdAt} />
               </RelativeDateDisplay>
+              {/* An attachment- or poll-only outbound message carries delivery
+                  state exactly like a text one does; without this a photo that
+                  silently failed (24h window expiry, blocked number) looks
+                  identical to one that was delivered. */}
+              {!!userId && (
+                <WhatsappDeliveryTicks whatsappDelivery={whatsappDelivery} />
+              )}
             </div>
           )}
         </div>

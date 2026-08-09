@@ -31,6 +31,7 @@ import {
   FacebookIcon,
   InstagramIcon,
   MessengerIcon,
+  WhatsAppIcon,
 } from '@/integrations/components/Icons';
 import { MembersInline } from 'ui-modules';
 import { useNavigate } from 'react-router-dom';
@@ -71,6 +72,10 @@ const PROVIDER_META: Record<
     label: 'IMAP',
     Icon: IconMail,
     iconClass: 'text-amber-500',
+  },
+  [IntegrationType.WHATSAPP_MESSENGER]: {
+    label: 'WhatsApp',
+    Icon: WhatsAppIcon,
   },
 };
 
