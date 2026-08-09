@@ -290,6 +290,17 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-08` — Call widget stays clickable above modal surfaces
+
+- **Summary:** The floating call trigger and the popover that holds the
+  incoming-call `Answer`/`Decline` buttons now render at `z-100` with
+  `pointer-events-auto`, so an open `Sheet`/`Dialog` (Radix `modal`, which sets
+  `pointer-events: none` on `body` and paints a `z-50` overlay) no longer
+  swallows clicks on the widget.
+- **Affected areas:**
+  `src/modules/integrations/call/components/{CallWidget.tsx,CallWidgetDraggable.tsx}`.
+- **Contracts changed:** `None`
+
 ### `2026-08-06` — Live unread counts on team channel rows
 
 - **Summary:** `Team inbox` rows now show `Channel.unreadConversationCount`
