@@ -286,10 +286,15 @@ export const loadClass = (models: IModels) => {
       // Not updateConversation: that stamps `updatedAt`, which the inbox sorts
       // and shows its relative time from. Reading is not activity.
       if (!readUserIds.includes(userId)) {
-        await models.Conversations.updateOne(
-          { _id },
-          { $addToSet: { readUserIds: userId } },
-        );
+        await models.Conversations.updateOne({ _id }, [
+          {
+            $set: {
+              readUserIds: {
+                $setUnion: [{ $ifNull: ['$readUserIds', []] }, [userId]],
+              },
+            },
+          },
+        ]);
       }
 
       graphqlPubsub.publish(`conversationChanged:${_id}`, {

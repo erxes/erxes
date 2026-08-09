@@ -128,23 +128,26 @@ export const useConversations = (
         const index = prev.conversations.list.findIndex(
           (conversation) => conversation._id === conversationId,
         );
-        const list = [...prev.conversations.list];
-        if (index === -1) {
-          // New conversation not yet in list — refetch to load the full entry
+        // Not in the list yet, or nothing to order it by — let the server say.
+        if (index === -1 || !newMessage.createdAt) {
           setTimeout(() => refetchRef.current(), 0);
           return prev;
-        } else {
-          const [conversation] = list.splice(index, 1);
-          list.unshift({
-            ...conversation,
-            readUserIds: conversation.readUserIds?.filter(
-              (id) => id !== userId,
-            ),
-            status: ConversationStatus.OPEN,
-            content: newMessage.content,
-            updatedAt: newMessage.createdAt || new Date().toISOString(),
-          });
         }
+
+        const list = [...prev.conversations.list];
+        const [conversation] = list.splice(index, 1);
+        list.unshift({
+          ...conversation,
+          readUserIds: conversation.readUserIds?.filter((id) => id !== userId),
+          status: ConversationStatus.OPEN,
+          content: newMessage.content,
+          // Events can arrive out of order; recency must never move backwards.
+          updatedAt:
+            Date.parse(newMessage.createdAt) >= getRecency(conversation)
+              ? newMessage.createdAt
+              : conversation.updatedAt,
+        });
+
         return { ...prev, conversations: { ...prev.conversations, list } };
       },
     });
