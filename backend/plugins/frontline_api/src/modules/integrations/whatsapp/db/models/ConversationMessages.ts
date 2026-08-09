@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { conversationMessageSchema } from '@/integrations/whatsapp/db/definitions/conversationMessages';
 import {
@@ -8,15 +8,22 @@ import {
 
 export interface IWhatsappConversationMessageModel
   extends Model<IWhatsappConversationMessageDocument> {
-  getMessage(selector): Promise<IWhatsappConversationMessageDocument>;
+  getMessage(
+    selector: FilterQuery<IWhatsappConversationMessageDocument>,
+  ): Promise<IWhatsappConversationMessageDocument>;
   addMessage(
     doc: IWhatsappConversationMessage,
   ): Promise<IWhatsappConversationMessageDocument>;
 }
 
+/** Builds the WhatsApp message model class bound to this tenant's models. */
 export const loadWhatsappConversationMessageClass = (models: IModels) => {
+  /** One message in a WhatsApp thread, in either direction. */
   class ConversationMessage {
-    public static async getMessage(selector) {
+    /** Finds one message, throwing when there is none. */
+    public static async getMessage(
+      selector: FilterQuery<IWhatsappConversationMessageDocument>,
+    ) {
       const message = await models.WhatsappConversationMessages.findOne(
         selector,
       );
@@ -39,7 +46,7 @@ export const loadWhatsappConversationMessageClass = (models: IModels) => {
     public static async addMessage(doc: IWhatsappConversationMessage) {
       try {
         return await models.WhatsappConversationMessages.create(doc);
-      } catch (e: any) {
+      } catch (e) {
         // 11000 is Mongo's duplicate-key code and the reliable signal. The
         // string match is only a fallback: it depends on the driver's wording
         // and casing, so on its own it would let a genuine duplicate rethrow

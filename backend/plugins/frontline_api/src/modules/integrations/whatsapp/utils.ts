@@ -323,7 +323,7 @@ export const markWhatsappMessageRead = async ({
       path: `/${phoneNumberId}/messages`,
       body,
     });
-  } catch (e: any) {
+  } catch (e) {
     // A read receipt is cosmetic; never fail the surrounding work over it.
     debugError(`Failed to mark WhatsApp message ${messageId} read: ${e.message}`);
   }
@@ -356,7 +356,7 @@ export const getWhatsappMediaUrl = async ({
     });
 
     return response?.url || '';
-  } catch (e: any) {
+  } catch (e) {
     debugError(`Failed to resolve WhatsApp media ${mediaId}: ${e.message}`);
     return '';
   }
@@ -550,7 +550,7 @@ export const downloadWhatsappMedia = async ({
     }
 
     return Buffer.from(await response.arrayBuffer());
-  } catch (e: any) {
+  } catch (e) {
     debugError(`Failed to download WhatsApp media ${mediaId}: ${e.message}`);
     return null;
   }

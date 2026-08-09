@@ -1,4 +1,4 @@
-import * as crypto from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 /**
  * Verifies the `X-Hub-Signature-256` header Meta sends with every webhook.
@@ -38,8 +38,7 @@ export const verifyMetaWebhookSignature = (
     return false;
   }
 
-  const expected = crypto
-    .createHmac('sha256', appSecret)
+  const expected = createHmac('sha256', appSecret)
     .update(rawBody)
     .digest('hex');
 
@@ -54,5 +53,5 @@ export const verifyMetaWebhookSignature = (
     return false;
   }
 
-  return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+  return timingSafeEqual(expectedBuffer, receivedBuffer);
 };

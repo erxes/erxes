@@ -83,7 +83,7 @@ export const normalizePhone = (
   // parentheses, dots, and any stray `+` that is not the first character.
   const cleaned = withoutWrittenTrunk.replace(NON_DIAL_CHARS, '');
   const hasPlus = cleaned.startsWith('+');
-  let digits = cleaned.replace(/\+/g, '');
+  const digits = cleaned.replace(/\+/g, '');
 
   // Nothing but zeroes (or nothing at all) identifies no one. Bail out before
   // any prefix handling, otherwise `'0'`/`'000'` would be turned into a bogus

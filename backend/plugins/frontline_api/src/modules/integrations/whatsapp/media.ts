@@ -84,7 +84,7 @@ export const rehostInboundMedia = async ({
     });
 
     return { ...attachment, url: key, size: buffer.byteLength };
-  } catch (e: any) {
+  } catch (e) {
     debugError(
       `Failed to re-host WhatsApp media ${mediaId}, keeping the Meta URL: ${e.message}`,
     );

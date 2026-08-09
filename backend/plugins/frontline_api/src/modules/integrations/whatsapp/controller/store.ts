@@ -54,7 +54,7 @@ export const getOrCreateCustomer = async (
       firstName: displayName,
       integrationId: integration.erxesApiId,
     });
-  } catch (e: any) {
+  } catch (e) {
     // A concurrent webhook for the same sender won the race. Its row is only
     // usable once that request has linked it to a core contact.
     // 11000 is the reliable duplicate-key signal; the string match is a
@@ -93,7 +93,7 @@ export const getOrCreateCustomer = async (
 
     customer.erxesApiId = response.data._id;
     await customer.save();
-  } catch (e: any) {
+  } catch (e) {
     await models.WhatsappCustomers.deleteOne({ _id: customer._id });
 
     throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
@@ -163,7 +163,7 @@ export const getOrCreateConversation = async (
       timestamp,
       lastCustomerMessageAt: timestamp,
     });
-  } catch (e: any) {
+  } catch (e) {
     // The unique (senderId, recipientId) index rejected a concurrent insert.
     // The winning row is only usable once it has been linked to the inbox.
     // 11000 is the reliable duplicate-key signal; the string match is a
@@ -202,7 +202,7 @@ export const getOrCreateConversation = async (
 
     conversation.erxesApiId = response.data._id;
     await conversation.save();
-  } catch (e: any) {
+  } catch (e) {
     await models.WhatsappConversations.deleteOne({ _id: conversation._id });
 
     debugError(`Failed to sync conversation with API: ${e.message}`);

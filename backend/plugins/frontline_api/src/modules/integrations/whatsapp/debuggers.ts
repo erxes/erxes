@@ -1,4 +1,4 @@
-const debug = require('debug');
+import debug from 'debug';
 
 export const debugWhatsapp = debug('erxes-whatsapp:whatsapp');
 

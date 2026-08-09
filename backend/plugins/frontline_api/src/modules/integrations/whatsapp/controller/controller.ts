@@ -38,7 +38,7 @@ export const whatsappSubscription = async (req, res, next) => {
 
     return res.send(req.query['hub.challenge']);
   } catch (e) {
-    next(e);
+    return next(e);
   }
 };
 
@@ -93,11 +93,12 @@ export const whatsappWebhook = async (req, res, next) => {
     res.sendStatus(200);
 
     try {
-      await receiveMessage(models, subdomain, body);
+      return await receiveMessage(models, subdomain, body);
     } catch (e) {
       debugError(`Failed to process WhatsApp webhook: ${e.message}`);
+      return undefined;
     }
   } catch (e) {
-    next(e);
+    return next(e);
   }
 };

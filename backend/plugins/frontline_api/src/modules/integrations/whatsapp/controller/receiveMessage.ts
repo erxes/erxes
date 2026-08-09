@@ -237,7 +237,7 @@ const receiveCustomerMessage = async (
       // actually be looked up.
       replyToMid: message.context?.id,
     });
-  } catch (e: any) {
+  } catch (e) {
     if (e.code === 11000 || e.message?.includes('duplicate')) {
       debugWhatsapp(
         `Concurrent delivery of message ${message.id} already stored`,
@@ -270,7 +270,7 @@ const receiveCustomerMessage = async (
 
     created.erxesApiMessageId = response.data._id;
     await created.save();
-  } catch (e: any) {
+  } catch (e) {
     // Roll the local row back so a Meta retry is reprocessed rather than being
     // silently swallowed by the `mid` dedup check above.
     await models.WhatsappConversationMessages.deleteOne({ _id: created._id });
@@ -322,9 +322,23 @@ const STATUS_RANK: Record<string, number> = {
  */
 const FAILED_RANK = 100;
 
+/**
+ * Orders a delivery status so a late webhook cannot move it backwards.
+ *
+ * Meta does not guarantee status webhooks arrive in order, so a `sent` landing
+ * after `read` must not downgrade the message. `failed` outranks everything —
+ * it is terminal and the most important state to surface.
+ */
 const rankOf = (status: string) =>
   status === 'failed' ? FAILED_RANK : STATUS_RANK[status] ?? 0;
 
+/**
+ * Applies one delivery receipt (sent/delivered/read/failed) to its message.
+ *
+ * Only ever moves the status forward — see `rankOf` — because Meta may deliver
+ * these out of order. A status for an unknown `mid` is ignored rather than
+ * treated as an error: it belongs to a message this tenant never stored.
+ */
 const receiveStatusUpdate = async (
   models: IModels,
   status: IWhatsappWebhookStatus,
@@ -422,7 +436,7 @@ export const receiveMessage = async (
             message,
             value,
           );
-        } catch (e: any) {
+        } catch (e) {
           debugError(
             `Failed to process WhatsApp message ${message.id}: ${e.message}`,
           );
@@ -432,7 +446,7 @@ export const receiveMessage = async (
       for (const status of value.statuses || []) {
         try {
           await receiveStatusUpdate(models, status);
-        } catch (e: any) {
+        } catch (e) {
           debugError(
             `Failed to process WhatsApp status ${status.id}: ${e.message}`,
           );
