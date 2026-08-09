@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_FORM_SUBMISSIONS = gql`
-  query FormSubmissions(
+  query frontlineFormSubmissions(
     $formId: String
     $customerId: String
     $limit: Int
@@ -50,7 +50,7 @@ export const GET_FORM_SUBMISSIONS = gql`
 `;
 
 export const GET_SUBMISSION_DETAILS = gql`
-  query FormSubmissionDetail($_id: String!) {
+  query frontlineFormSubmissionDetail($_id: String!) {
     formSubmissionDetail(_id: $_id) {
       _id
       customerId
