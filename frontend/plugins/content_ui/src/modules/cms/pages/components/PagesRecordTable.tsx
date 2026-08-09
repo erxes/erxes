@@ -56,6 +56,7 @@ export const PagesRecordTable = ({
           data={pages || []}
           className="h-full"
           stickyColumns={['more', 'checkbox', 'name']}
+          tableId="content_pages_record_table"
         >
           <RecordTable.CursorProvider
             hasPreviousPage={hasPreviousPage}

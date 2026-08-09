@@ -20,7 +20,7 @@ export const CustomTypesRecordTable = ({
 
   const columns = createCustomTypesColumns(
     clientPortalId,
-    onEdit || (() => {}),
+    onEdit || (() => undefined),
     refetch,
   );
 
@@ -30,6 +30,7 @@ export const CustomTypesRecordTable = ({
       data={customTypes || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'name']}
+      tableId="content_custom_types_record_table"
     >
       <RecordTable>
         <RecordTable.Header />
