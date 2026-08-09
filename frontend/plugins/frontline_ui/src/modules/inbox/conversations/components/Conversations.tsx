@@ -1,5 +1,6 @@
 import { useInView } from 'react-intersection-observer';
-import { IconLoader } from '@tabler/icons-react';
+import { IconLoader, IconMessageCircle2 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationListContext } from '@/inbox/conversations/context/ConversationListContext';
@@ -28,6 +29,24 @@ import { useAtom, useAtomValue } from 'jotai';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
 import { conversationsContainerScrollState } from '@/inbox/conversations/states/conversationsContainerScrollState';
 import { ConversationActions } from './ConversationActions';
+import { WhatsappNewConversation } from '@/integrations/whatsapp/components/WhatsappNewConversation';
+
+const NoConversations = () => {
+  const { t } = useTranslation('frontline');
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center">
+      <div className="size-28 bg-sidebar rounded-2xl border border-dashed flex items-center justify-center">
+        <IconMessageCircle2 size={64} className="text-scroll" stroke={1} />
+      </div>
+      <div className="font-medium mt-5 text-muted-foreground">
+        {t('no-conversations-found')}
+      </div>
+      <div className="text-accent-foreground mt-2">
+        {t('no-conversations-found-description')}
+      </div>
+    </div>
+  );
+};
 
 export const Conversations = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -159,29 +178,37 @@ export const Conversations = () => {
         <Filter id="conversations">
           <ConversationsHeader>
             <ConversationActions />
+            <WhatsappNewConversation />
           </ConversationsHeader>
         </Filter>
         <Separator />
-        <div className="h-full w-full overflow-y-auto" ref={containerRef}>
-          <ConversationThreadList
-            conversations={conversations || []}
-            threadMap={channelMap}
-            renderItem={renderConversationItem}
-          />
-          {!loading && conversations?.length > 0 && pageInfo?.hasNextPage && (
-            <Button
-              variant="ghost"
-              ref={ref}
-              className="pl-6 h-8 w-full text-muted-foreground"
-              asChild
-            >
-              <div>
-                <IconLoader className="size-4 animate-spin" />
-                loading more...
-              </div>
-            </Button>
-          )}
-        </div>
+        {!loading && !conversations?.length ? (
+          <NoConversations />
+        ) : (
+          <div
+            className="h-full w-full overflow-y-auto styled-scroll"
+            ref={containerRef}
+          >
+            <ConversationThreadList
+              conversations={conversations || []}
+              threadMap={channelMap}
+              renderItem={renderConversationItem}
+            />
+            {!loading && conversations?.length > 0 && pageInfo?.hasNextPage && (
+              <Button
+                variant="ghost"
+                ref={ref}
+                className="pl-6 h-8 w-full text-muted-foreground"
+                asChild
+              >
+                <div>
+                  <IconLoader className="size-4 animate-spin" />
+                  loading more...
+                </div>
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </ConversationListContext.Provider>
   );

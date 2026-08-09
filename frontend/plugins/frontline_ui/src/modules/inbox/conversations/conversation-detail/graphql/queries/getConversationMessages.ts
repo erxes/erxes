@@ -28,6 +28,15 @@ export const GET_CONVERSATION_MESSAGES = gql`
       customerId
       fromBot
       botData
+      whatsappDelivery {
+        status
+        error
+      }
+      whatsappReplyTo {
+        _id
+        content
+      }
+      whatsappMid
     }
     conversationMessagesTotalCount(conversationId: $conversationId)
   }
