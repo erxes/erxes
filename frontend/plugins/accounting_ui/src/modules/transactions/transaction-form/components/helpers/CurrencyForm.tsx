@@ -127,10 +127,7 @@ const CurrencyFormBody = ({
       return;
     }
 
-    form.setValue(
-      `trDocs.${journalIndex}.details.0.amount`,
-      nextAmount,
-    );
+    form.setValue(`trDocs.${journalIndex}.details.0.amount`, nextAmount);
   }, [currencyAmount, form, journalIndex, spotRate]);
 
   const diffAmount: number = useMemo(() => {
@@ -173,10 +170,7 @@ const CurrencyFormBody = ({
     );
 
     if (!isSameAmount(currentAmount, nextAmount)) {
-      form.setValue(
-        `trDocs.${journalIndex}.details.0.amount`,
-        nextAmount,
-      );
+      form.setValue(`trDocs.${journalIndex}.details.0.amount`, nextAmount);
     }
     resetChangingField('currencyAmount');
   };
