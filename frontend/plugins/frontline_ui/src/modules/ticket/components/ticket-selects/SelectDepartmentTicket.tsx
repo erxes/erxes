@@ -63,9 +63,7 @@ const SelectDepartmentTicketRoot = ({
       mode="single"
       value={value}
       onValueChange={(departmentId) => {
-        onValueChange?.(
-          departmentId === value ? '' : (departmentId as string),
-        );
+        onValueChange?.(departmentId === value ? '' : (departmentId as string));
         setOpen(false);
       }}
     >
