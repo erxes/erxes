@@ -1,6 +1,7 @@
 import { IconCashBanknote, IconReceipt } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
@@ -65,4 +66,5 @@ export const CONFIG: IUIConfig = {
       },
     ],
   },
+  searchProviders: SEARCH_PROVIDERS,
 };
