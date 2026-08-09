@@ -33,6 +33,7 @@ export const getIntegrationsKinds = async () => {
     'facebook-post': 'Facebook post',
     'instagram-messenger': 'Instagram messenger',
     'instagram-post': 'Instagram post',
+    'whatsapp-messenger': 'WhatsApp',
     'discord-messenger': 'Discord',
     calls: 'Phone call',
     client: 'Client Portal',
