@@ -1,4 +1,12 @@
-import { IconDots, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { ApolloError } from '@apollo/client';
+import {
+  IconDots,
+  IconEdit,
+  IconPlus,
+  IconReload,
+  IconTrash,
+} from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
   Button,
@@ -86,6 +94,70 @@ const PropertiesGroupActions = ({
   );
 };
 
+const PropertiesGroupContent = ({
+  loading,
+  error,
+  fields,
+  columns,
+  onRetry,
+  onRowClick,
+}: {
+  loading: boolean;
+  error?: ApolloError;
+  fields: IField[];
+  columns: ColumnDef<IField>[];
+  onRetry: () => void;
+  onRowClick: (field: IField) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+
+  if (loading) {
+    return <Spinner containerClassName="py-6" />;
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-md border py-10 text-center text-sm text-muted-foreground">
+        {t('fields-load-failed', 'Could not load every field of this group')}
+        <Button variant="secondary" onClick={onRetry}>
+          <IconReload />
+          {t('try-again', 'Try again')}
+        </Button>
+      </div>
+    );
+  }
+
+  if (fields.length === 0) {
+    return (
+      <div className="rounded-md border py-10 text-center text-sm text-muted-foreground">
+        {t('no-fields-found', 'No fields found')}
+      </div>
+    );
+  }
+
+  return (
+    <RecordTable.Provider
+      columns={columns}
+      data={fields}
+      stickyColumns={['more', 'checkbox', 'name']}
+      className="rounded-md border"
+    >
+      <RecordTable.Scroll className="h-auto" viewportClassName="max-h-96">
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.RowList
+              Row={(props) => (
+                <PropertiesRow {...props} onRowClick={onRowClick} />
+              )}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
+    </RecordTable.Provider>
+  );
+};
+
 export const PropertiesGroupSection = ({
   group,
   contentType,
@@ -96,7 +168,7 @@ export const PropertiesGroupSection = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const navigate = useNavigate();
   const [needsToRefresh, setNeedsToRefresh] = useAtom(needsToRefreshState);
-  const { fields, totalCount, loading, refetch } = useFields({
+  const { fields, totalCount, loading, error, refetch } = useFields({
     contentType,
     groupId: group._id,
   });
@@ -152,33 +224,14 @@ export const PropertiesGroupSection = ({
         <PropertiesGroupActions group={group} contentType={contentType} />
       </div>
       <Collapsible.Content className="pt-2">
-        {loading ? (
-          <Spinner containerClassName="py-6" />
-        ) : fields.length === 0 ? (
-          <div className="rounded-md border py-10 text-center text-sm text-muted-foreground">
-            {t('no-fields-found', 'No fields found')}
-          </div>
-        ) : (
-          <RecordTable.Provider
-            columns={columns}
-            data={fields}
-            stickyColumns={['more', 'checkbox', 'name']}
-            className="rounded-md border"
-          >
-            <RecordTable.Scroll className="h-auto">
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList
-                    Row={(props) => (
-                      <PropertiesRow {...props} onRowClick={handleRowClick} />
-                    )}
-                  />
-                </RecordTable.Body>
-              </RecordTable>
-            </RecordTable.Scroll>
-          </RecordTable.Provider>
-        )}
+        <PropertiesGroupContent
+          loading={loading}
+          error={error}
+          fields={fields}
+          columns={columns}
+          onRetry={() => refetch()}
+          onRowClick={handleRowClick}
+        />
         <div className="flex items-center justify-end mt-2">
           <Can action="fieldsManage">
             <Button variant="secondary" asChild>

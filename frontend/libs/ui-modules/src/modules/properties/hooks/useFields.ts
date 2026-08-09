@@ -1,7 +1,8 @@
-import { useQuery } from '@apollo/client';
 import { FIELDS_QUERY } from '../graphql/fieldsQueries';
-import { ICursorListResponse } from 'erxes-ui';
 import { IField } from '../types/fieldsTypes';
+import { useAllCursorPages } from './useAllCursorPages';
+
+const FIELDS_PER_PAGE = 100;
 
 export const useFields = ({
   groupId,
@@ -12,20 +13,16 @@ export const useFields = ({
   contentType: string;
   limit?: number;
 }) => {
-  const { data, loading, refetch } = useQuery<ICursorListResponse<IField>>(
-    FIELDS_QUERY,
-    {
-      variables: {
-        params: {
-          groupId,
-          contentType,
-          limit,
-        },
-      },
-    },
-  );
+  const { list, totalCount, loading, error, refetch } =
+    useAllCursorPages<IField>({
+      query: FIELDS_QUERY,
+      responseKey: 'fields',
+      params: { groupId, contentType },
+      perPage: FIELDS_PER_PAGE,
+      limit,
+    });
 
-  const fields = (data?.fields?.list || []).map((field) => {
+  const fields = list.map((field) => {
     const type = field.type?.startsWith('relation:') ? 'relation' : field.type;
     const relationType =
       type === 'relation' ? field.type?.replace('relation:', '') : undefined;
@@ -55,8 +52,9 @@ export const useFields = ({
 
   return {
     fields: fields,
-    totalCount: data?.fields?.totalCount || 0,
+    totalCount,
     loading,
+    error,
     refetch,
   };
 };

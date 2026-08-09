@@ -1,6 +1,8 @@
-import { useQuery } from '@apollo/client';
 import { FIELD_GROUPS_QUERY } from '../graphql/fieldsQueries';
 import { IFieldGroup } from '../types/fieldsTypes';
+import { useAllCursorPages } from './useAllCursorPages';
+
+const FIELD_GROUPS_PER_PAGE = 100;
 
 export const useFieldGroups = ({
   contentType,
@@ -9,19 +11,18 @@ export const useFieldGroups = ({
   contentType: string;
   limit?: number;
 }) => {
-  const { data, loading } = useQuery<{ fieldGroups: { list: IFieldGroup[] } }>(
-    FIELD_GROUPS_QUERY,
-    {
-      variables: {
-        params: {
-          contentType: contentType,
-          limit,
-        },
-      },
-    },
-  );
+  const { list, loading, error, refetch } = useAllCursorPages<IFieldGroup>({
+    query: FIELD_GROUPS_QUERY,
+    responseKey: 'fieldGroups',
+    params: { contentType },
+    perPage: FIELD_GROUPS_PER_PAGE,
+    limit,
+  });
+
   return {
-    fieldGroups: data?.fieldGroups?.list || [],
+    fieldGroups: list,
     loading,
+    error,
+    refetch,
   };
 };
