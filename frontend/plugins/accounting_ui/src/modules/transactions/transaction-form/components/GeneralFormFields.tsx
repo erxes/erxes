@@ -112,9 +112,9 @@ export const AmountField = ({
   index,
   detIndex,
   labelTxt,
-  onValueChange,
+  onAmountChange,
 }: ICommonFieldProps & {
-  onValueChange?: (value: number) => void;
+  onAmountChange?: (value: number) => void;
 }) => (
   <Form.Field
     control={form.control}
@@ -127,7 +127,7 @@ export const AmountField = ({
             value={field.value}
             onChange={(value) => {
               field.onChange(value);
-              onValueChange?.(value || 0);
+              onAmountChange?.(value || 0);
             }}
           />
         </Form.Control>

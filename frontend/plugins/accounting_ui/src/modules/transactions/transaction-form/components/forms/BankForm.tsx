@@ -2,7 +2,10 @@ import { JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES } from '../../../types/constants';
 import { ITransactionGroupForm } from '../../types/JournalForms';
 import { CtaxForm } from '../helpers/CtaxForm';
-import { CurrencyForm } from '../helpers/CurrencyForm';
+import {
+  CurrencyForm,
+  useCurrencyAmountSync,
+} from '../helpers/CurrencyForm';
 import { CustomerFields } from '../helpers/CustomerFields';
 import { RelAccountsForm } from '../helpers/RelAccountsForm';
 import { VatForm } from '../helpers/VatForm';
@@ -24,6 +27,8 @@ export const BankTransaction = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
+  const amountChangeRef = useCurrencyAmountSync();
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6">
@@ -33,13 +38,21 @@ export const BankTransaction = ({
           filter={{ journals: [JournalEnum.BANK] }}
         />
         <SideField form={form} index={index} sides={TR_SIDES.FUND_OPTIONS} />
-        <AmountField form={form} index={index} />
+        <AmountField
+          form={form}
+          index={index}
+          onAmountChange={(value) => amountChangeRef.current(value)}
+        />
         <CustomerFields form={form} index={index} />
         <AssignToField form={form} index={index} />
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
         <DescriptionField form={form} index={index} />
-        <CurrencyForm form={form} journalIndex={index} />
+        <CurrencyForm
+          form={form}
+          journalIndex={index}
+          amountChangeRef={amountChangeRef}
+        />
         <VatForm
           form={form}
           journalIndex={index}

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-05`
+- **Last synchronized:** `2026-08-09`
 
 ## Scope
 
@@ -22,7 +22,7 @@
 ## Current Capabilities
 
 - Displays, creates, updates, prints, and removes accounting transactions.
-- Keeps transaction form main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates.
+- Keeps cash, bank, payable, and receivable transaction form main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates.
 - Provides fund and debt currency rate adjustment list/detail routes under `/accounting/adjustment/fundRate` and `/accounting/adjustment/debRate`.
 - Opens fund rate adjustment create and edit forms in accounting sheet panels.
 - Allows fund rate adjustments to be calculated from the detail page and displays calculated account balances, differences, and linked transaction ids.
@@ -78,10 +78,10 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-05` — `Currency Amount Manual Sync`
+### `2026-08-09` — `Currency Amount Manual Sync`
 
-- **Summary:** Cash transaction foreign-currency and main amount fields sync in either manual edit direction without overwriting the active input.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/helpers/CurrencyForm.tsx`, `src/modules/transactions/transaction-form/components/forms/CashForm.tsx`, `src/modules/transactions/transaction-form/components/GeneralFormFields.tsx`.
+- **Summary:** Cash, bank, payable, and receivable transaction foreign-currency and main amount fields sync only from manual amount input events, preserving high-precision currency amounts during refetch.
+- **Affected areas:** `src/modules/transactions/transaction-form/components/helpers/CurrencyForm.tsx`, `src/modules/transactions/transaction-form/components/forms/CashForm.tsx`, `src/modules/transactions/transaction-form/components/forms/BankForm.tsx`, `src/modules/transactions/transaction-form/components/forms/PayableForm.tsx`, `src/modules/transactions/transaction-form/components/forms/ReceivableForm.tsx`, `src/modules/transactions/transaction-form/components/GeneralFormFields.tsx`.
 - **Contracts changed:** None.
 
 ### `2026-08-05` — `Fund Rate Sheet Forms`
