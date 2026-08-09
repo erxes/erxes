@@ -257,7 +257,9 @@ export const AddTicketForm = ({
                     </Form.Label>
                     <SelectBranchTicket.FormItem
                       value={field.value || ''}
-                      onValueChange={(value) => field.onChange(value)}
+                      onValueChange={(value) =>
+                        field.onChange(value || undefined)
+                      }
                     />
                   </Form.Item>
                 )}
@@ -273,7 +275,9 @@ export const AddTicketForm = ({
                     </Form.Label>
                     <SelectDepartmentTicket.FormItem
                       value={field.value || ''}
-                      onValueChange={(value) => field.onChange(value)}
+                      onValueChange={(value) =>
+                        field.onChange(value || undefined)
+                      }
                     />
                   </Form.Item>
                 )}

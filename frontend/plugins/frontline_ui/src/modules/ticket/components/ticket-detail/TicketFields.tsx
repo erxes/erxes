@@ -318,7 +318,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           <div className="gap-2 flex flex-wrap w-full items-center">
             <Tooltip>
               <div className="relative">
-                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
                 <SelectChannel value={channelId} variant="detail" disabled />
               </div>
               <Tooltip.Content>
@@ -327,7 +327,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             </Tooltip>
             <Tooltip>
               <div className="relative">
-                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
                 <SelectPipeline
                   value={pipelineId}
                   variant="detail"
@@ -341,7 +341,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             </Tooltip>
             <Tooltip>
               <div className="relative">
-                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
                 <SelectBranchTicket
                   value={branchId || ''}
                   variant="detail"
@@ -354,7 +354,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             </Tooltip>
             <Tooltip>
               <div className="relative">
-                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
                 <SelectDepartmentTicket
                   value={departmentId || ''}
                   variant="detail"
