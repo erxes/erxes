@@ -55,6 +55,23 @@ export const encodeCursor = (item: any, sortFields: string[]): string => {
   return Buffer.from(JSON.stringify(cursorData)).toString('base64');
 };
 
+/**
+ * Attaches an opaque per-item cursor to every row of a page.
+ *
+ * Several GraphQL types already expose a `cursor` field per record and the
+ * record table reads it to remember its scroll position. Without this the
+ * field resolves to null, the client persists an empty/invalid value and the
+ * next list query fails with "Invalid cursor format".
+ */
+export const attachCursors = <T>(
+  list: T[],
+  sortFields: string[],
+): (T & { cursor: string })[] =>
+  list.map((item) => ({
+    ...item,
+    cursor: encodeCursor(item, sortFields),
+  }));
+
 export const decodeCursor = (cursor: string): any => {
   try {
     const decoded = JSON.parse(Buffer.from(cursor, 'base64').toString());
