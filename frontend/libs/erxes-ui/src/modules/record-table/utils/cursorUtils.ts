@@ -10,13 +10,20 @@ interface ICursorResult<T> {
 }
 
 /**
+ * A string that has been checked by `isValidCursor`. The brand keeps the
+ * narrowing honest: passing `isValidCursor` yields a `Cursor`, not a bare
+ * `string`, so an unchecked string cannot be mistaken for a validated one.
+ */
+export type Cursor = string & { readonly __cursor: unique symbol };
+
+/**
  * A valid cursor is base64(JSON) carrying at least an `_id`, matching the
  * server's encodeCursor/decodeCursor. A raw row id or any other leftover value
  * is rejected server-side as "Invalid cursor format", which errors the list
  * query and leaves the table permanently blank. Treat anything that is not an
  * opaque cursor as "no cursor" so the table falls back to the first page.
  */
-export const isValidCursor = (value: string | null): value is string => {
+export const isValidCursor = (value: string | null): value is Cursor => {
   if (!value) return false;
 
   try {
