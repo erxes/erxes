@@ -133,7 +133,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
         return (
           <Tooltip>
             <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
               <Tooltip.Content>
                 {t('channel-cannot-be-changed')}
               </Tooltip.Content>
@@ -166,7 +166,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
         return (
           <Tooltip>
             <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
               <Tooltip.Content>
                 {t('pipeline-cannot-be-changed')}
               </Tooltip.Content>
