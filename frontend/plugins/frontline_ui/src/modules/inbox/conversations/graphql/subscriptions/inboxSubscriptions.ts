@@ -53,6 +53,7 @@ export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql`
       _id
       conversationId
       content
+      createdAt
     }
   }
 `;
@@ -86,6 +87,7 @@ const customerConnectionChanged = `
 export default {
   conversationChanged,
   conversationMessageInserted,
-  conversationClientTypingStatusChanged: CONVERSATION_CLIENT_TYPING_STATUS_CHANGED,
+  conversationClientTypingStatusChanged:
+    CONVERSATION_CLIENT_TYPING_STATUS_CHANGED,
   customerConnectionChanged,
 };

@@ -282,17 +282,14 @@ export const loadClass = (models: IModels) => {
       }
 
       const readUserIds = conversation.readUserIds || [];
-      // if current user is first one
-      if (!readUserIds || readUserIds.length === 0) {
-        await models.Conversations.updateConversation(_id, {
-          readUserIds: [userId],
-        });
-      }
 
-      // if current user is not in read users list then add it
+      // Not updateConversation: that stamps `updatedAt`, which the inbox sorts
+      // and shows its relative time from. Reading is not activity.
       if (!readUserIds.includes(userId)) {
-        readUserIds.push(userId);
-        await models.Conversations.updateConversation(_id, { readUserIds });
+        await models.Conversations.updateOne(
+          { _id },
+          { $addToSet: { readUserIds: userId } },
+        );
       }
 
       graphqlPubsub.publish(`conversationChanged:${_id}`, {
