@@ -1,6 +1,8 @@
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -10,6 +12,8 @@ import { ITicket, TicketHotKeyScope } from '@/ticket/types';
 import {
   IconAlertSquareRounded,
   IconCalendarFilled,
+  IconFolder,
+  IconGitBranch,
   IconLabelFilled,
   IconProgressCheck,
   IconUser,
@@ -168,6 +172,73 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
                   TicketHotKeyScope.TicketTableCell,
                   cell.row.original._id,
                   'Pipeline',
+                )}
+              />
+            </div>
+          </Tooltip>
+        );
+      },
+      size: 170,
+    },
+    {
+      id: 'branchId',
+      header: () => (
+        <RecordTable.InlineHead
+          label={t('branch-label', 'Branch')}
+          icon={IconGitBranch}
+        />
+      ),
+      cell: ({ cell }) => {
+        return (
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <Tooltip.Content>
+                {t('branch-cannot-be-changed', 'Branch cannot be changed')}
+              </Tooltip.Content>
+              <SelectBranchTicket
+                variant="table"
+                value={cell.row.original.branchId || ''}
+                disabled
+                scope={clsx(
+                  TicketHotKeyScope.TicketTableCell,
+                  cell.row.original._id,
+                  'Branch',
+                )}
+              />
+            </div>
+          </Tooltip>
+        );
+      },
+      size: 170,
+    },
+    {
+      id: 'departmentId',
+      header: () => (
+        <RecordTable.InlineHead
+          label={t('department-label', 'Department')}
+          icon={IconFolder}
+        />
+      ),
+      cell: ({ cell }) => {
+        return (
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <Tooltip.Content>
+                {t(
+                  'department-cannot-be-changed',
+                  'Department cannot be changed',
+                )}
+              </Tooltip.Content>
+              <SelectDepartmentTicket
+                variant="table"
+                value={cell.row.original.departmentId || ''}
+                disabled
+                scope={clsx(
+                  TicketHotKeyScope.TicketTableCell,
+                  cell.row.original._id,
+                  'Department',
                 )}
               />
             </div>

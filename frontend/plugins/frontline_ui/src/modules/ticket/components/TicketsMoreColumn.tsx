@@ -74,6 +74,7 @@ export const TicketsMoreColumnCell = ({
 
 export const ticketsMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TicketsMoreColumnCell,
   size: 33,
 };
