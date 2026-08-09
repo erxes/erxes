@@ -11,10 +11,7 @@ import {
   SideField,
 } from '../GeneralFormFields';
 import { CtaxForm } from '../helpers/CtaxForm';
-import {
-  CurrencyForm,
-  useCurrencyAmountSync,
-} from '../helpers/CurrencyForm';
+import { CurrencyForm, useCurrencyAmountSync } from '../helpers/CurrencyForm';
 import { CustomerFields } from '../helpers/CustomerFields';
 import { RelAccountsForm } from '../helpers/RelAccountsForm';
 import { VatForm } from '../helpers/VatForm';
