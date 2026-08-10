@@ -28,3 +28,10 @@ export interface IInvoice {
 export interface IInvoiceDocument extends IInvoice, Document {
   _id: string;
 }
+
+export interface IInvoiceEditInput {
+  description?: string;
+  amount?: number;
+  currency?: string;
+  status?: string;
+}

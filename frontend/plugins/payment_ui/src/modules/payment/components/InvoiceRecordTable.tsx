@@ -29,7 +29,7 @@ export function InvoiceRecordTable() {
       data={invoices || []}
       columns={invoicesColumns(t)}
       className="m-3"
-      stickyColumns={['invoiceNumber']}
+      stickyColumns={['more', 'invoiceNumber']}
       tableId="payment_invoices_record_table"
     >
       <RecordTable.CursorProvider
