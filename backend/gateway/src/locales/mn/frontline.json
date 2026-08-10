@@ -1235,5 +1235,6 @@
   "change-assigned-members": "Хариуцагч гишүүд өөрчлөх",
   "move-to-pipeline": "Pipeline рүү шилжүүлэх",
   "tickets-moved-successfully": "Тикетүүд амжилттай шилжлээ",
-  "tickets-updated-successfully": "Тикетүүд амжилттай шинэчлэгдлээ"
+  "tickets-updated-successfully": "Тикетүүд амжилттай шинэчлэгдлээ",
+  "tickets-updated-refresh-failed": "Тикетүүд шинэчлэгдсэн ч жагсаалтыг сэргээж чадсангүй. Хамгийн сүүлийн байдлыг харахын тулд refresh хийнэ үү."
 }

@@ -71,9 +71,16 @@ export const useBulkUpdateTickets = (): TUseBulkUpdateTickets => {
     const failedIds = failures.map((result) => result.ticketId);
 
     // Tickets that did change still have to leave a stale list, even when a
-    // sibling in the same batch failed.
+    // sibling in the same batch failed. A refetch that itself fails must not
+    // hide the mutation outcome, so it only downgrades the feedback.
+    let refetchFailed = false;
+
     if (refetchList && succeededIds.length > 0) {
-      await client.refetchQueries({ include: [GET_TICKETS] });
+      try {
+        await client.refetchQueries({ include: [GET_TICKETS] });
+      } catch {
+        refetchFailed = true;
+      }
     }
 
     if (failures.length > 0) {
@@ -81,6 +88,14 @@ export const useBulkUpdateTickets = (): TUseBulkUpdateTickets => {
       toast({
         title: t('error'),
         description: failures[0].errorMessage,
+        variant: 'destructive',
+      });
+    } else if (refetchFailed) {
+      // The mutations landed, so nothing rolls back — the list just needs a
+      // manual refresh.
+      toast({
+        title: t('error'),
+        description: t('tickets-updated-refresh-failed'),
         variant: 'destructive',
       });
     } else {

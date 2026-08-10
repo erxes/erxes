@@ -1235,5 +1235,6 @@
   "change-assigned-members": "Change assigned members",
   "move-to-pipeline": "Move to pipeline",
   "tickets-moved-successfully": "Tickets moved successfully",
-  "tickets-updated-successfully": "Tickets updated successfully"
+  "tickets-updated-successfully": "Tickets updated successfully",
+  "tickets-updated-refresh-failed": "Tickets updated, but the list could not be refreshed. Refresh to see the latest."
 }
