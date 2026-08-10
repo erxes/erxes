@@ -16,10 +16,11 @@ export const AutomationBotsRecordTable = () => {
         columns={automationFacebookBotsColumns}
         data={facebookMessengerBots || []}
         className="h-full"
+        tableId="frontline_facebook_automation_bots_record_table"
       >
         <RecordTable.Scroll>
           <RecordTable>
-            <RecordTable.Header />
+            <RecordTable.Header showColumnSelector />
             <RecordTable.Body>
               {loading && <RecordTable.RowSkeleton rows={10} />}
               <RecordTable.RowList />

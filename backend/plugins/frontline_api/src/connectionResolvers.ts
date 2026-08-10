@@ -305,6 +305,12 @@ import {
   IWhatsappConversationMessageDocument,
 } from '@/integrations/whatsapp/@types';
 
+import { IReportChartDocument } from '@/reports/@types/chart';
+import {
+  IReportChartModel,
+  loadReportChartClass,
+} from '@/reports/db/models/Charts';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -390,6 +396,8 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
+
+  ReportCharts: IReportChartModel;
 }
 
 export interface IContext extends IMainContext {
@@ -646,7 +654,10 @@ export const loadClasses = (
   models.DiscordConversationMessages = db.model<
     IDiscordConversationMessageDocument,
     IDiscordConversationMessageModel
-  >('conversation_messages_discord', loadDiscordConversationMessageClass(models));
+  >(
+    'conversation_messages_discord',
+    loadDiscordConversationMessageClass(models),
+  );
 
   //imap models
   models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
@@ -699,6 +710,11 @@ export const loadClasses = (
   models.Topic = db.model<ITopicDocument, ITopicModel>(
     'knowledgebase_topics',
     loadTopicClass(models),
+  );
+
+  models.ReportCharts = db.model<IReportChartDocument, IReportChartModel>(
+    'frontline_report_charts',
+    loadReportChartClass(models),
   );
 
   return models;

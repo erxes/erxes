@@ -12,7 +12,6 @@ import { TagData } from '@/report/types';
 import { memo, useMemo, useState, useEffect } from 'react';
 import { IconChevronLeft, IconShieldCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
 import {
   Bar,
   BarChart,
@@ -35,87 +34,57 @@ import {
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
 import { type LegendPayload } from 'recharts';
-import { getFilters } from '@/report/utils/dateFilters';
-import { getTicketPropertyFilterVariables } from '@/report/utils';
 import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
-import {
-  getReportDateFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-  getReportPipelineFilterAtom,
-  getReportStateFilterAtom,
-  getReportPriorityFilterAtom,
-  getReportTicketTagFilterAtom,
-  getReportCustomerFilterAtom,
-  getReportCompanyFilterAtom,
-  getReportPropertyFilterAtom,
-  getReportGroupPropertyFilterAtom,
-} from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
+import { ReportChart } from '@/report/types';
+import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
 
 interface TicketCustomPropertiesProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
 export const TicketCustomProperties = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: TicketCustomPropertiesProps) => {
   const { t } = useTranslation('frontline');
-  const id = title.toLowerCase().replace(/\s+/g, '-');
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [pipelineFilter] = useAtom(getReportPipelineFilterAtom(id));
-  const [stateFilter] = useAtom(getReportStateFilterAtom(id));
-  const [priorityFilter] = useAtom(getReportPriorityFilterAtom(id));
-  const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
-  const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
-  const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
-  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
-  const [groupPropertyFilter] = useAtom(getReportGroupPropertyFilterAtom(id));
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useTicketChartCard({ title, cardId, savedChart });
+  const { groupPropertyId } = filterConfig;
   const [drilldown, setDrilldown] = useState<
     { value: string; label: string; count: number } | undefined
   >(undefined);
-  const [filters, setFilters] = useState(() => getFilters());
-
-  useEffect(() => {
-    setFilters(getFilters(dateValue || undefined));
-  }, [dateValue]);
 
   useEffect(() => {
     setDrilldown(undefined);
-  }, [groupPropertyFilter]);
+  }, [groupPropertyId]);
 
   const { ticketCustomProperties, loading, error } = useTicketCustomProperties({
+    skip: !filtersRestored,
     variables: {
       filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
-        state: stateFilter || undefined,
-        priority: priorityFilter.length ? priorityFilter : undefined,
-        tagIds: tagFilter.length ? tagFilter : undefined,
-        customerIds: customerFilter.length ? customerFilter : undefined,
-        companyIds: companyFilter.length ? companyFilter : undefined,
-        groupPropertyId: groupPropertyFilter || undefined,
+        ...queryFilters,
         groupPropertyValue: drilldown?.value || undefined,
-        ...getTicketPropertyFilterVariables(propertyFilter),
       },
     },
   });
 
-  const canDrill = Boolean(groupPropertyFilter) && !drilldown;
+  const canDrill = Boolean(groupPropertyId) && !drilldown;
   const handleBarClick = (value: string, label: string, count: number) =>
     setDrilldown({ value, label, count });
 
@@ -151,6 +120,12 @@ export const TicketCustomProperties = ({
   const filterEl = (
     <>
       <TicketReportFilter cardId={id} />
+      <ReportChartActions
+        chartType={TICKET_CHART_TYPES.customProperties}
+        colSpan={colSpan}
+        filters={filterConfig}
+        savedChart={savedChart}
+      />
       <ChartExportButton
         data={allProperties}
         columns={exportColumns}
@@ -159,7 +134,7 @@ export const TicketCustomProperties = ({
     </>
   );
 
-  if (loading) {
+  if (loading || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -204,7 +179,7 @@ export const TicketCustomProperties = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           {drilldown && (
             <button
@@ -311,14 +286,12 @@ const TicketCustomPropertyRankedBars = memo(
     const { t } = useTranslation('frontline');
 
     const total =
-      totalOverride ??
-      properties.reduce((sum, p) => sum + (p.count || 0), 0);
+      totalOverride ?? properties.reduce((sum, p) => sum + (p.count || 0), 0);
     const max = Math.max(...properties.map((p) => p.count || 0), 1);
     const top2 = (properties[0]?.count || 0) + (properties[1]?.count || 0);
     const top2Pct = total ? Math.min(100, Math.round((top2 / total) * 100)) : 0;
     const pctOf = (n: number) =>
       total ? Math.min(100, Math.round((n / total) * 100)) : 0;
-
 
     const isGrouped = properties.some((p) => p.group);
     const groups: { label: string; rows: TagData[] }[] = [];
@@ -351,7 +324,9 @@ const TicketCustomPropertyRankedBars = memo(
           role={clickable ? 'button' : undefined}
           tabIndex={clickable ? 0 : undefined}
           onClick={
-            clickable ? () => onBarClick?.(String(p._id), p.name, count) : undefined
+            clickable
+              ? () => onBarClick?.(String(p._id), p.name, count)
+              : undefined
           }
           className={cn(
             'flex items-center gap-3 py-1.5',
@@ -431,10 +406,7 @@ const TicketCustomPropertyRankedBars = memo(
                       {g.rows.map((r, i) => {
                         const count = r.count || 0;
                         return (
-                          <div
-                            key={r._id}
-                            className="flex items-center gap-2"
-                          >
+                          <div key={r._id} className="flex items-center gap-2">
                             <span
                               className={cn(
                                 'size-2 shrink-0 rounded-full',

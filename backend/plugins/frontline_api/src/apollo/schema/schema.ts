@@ -86,6 +86,12 @@ import {
 } from '@/reports/graphql/schema/ticket';
 
 import {
+  mutations as ReportChartMutations,
+  queries as ReportChartQueries,
+  types as ReportChartTypes,
+} from '@/reports/graphql/schema/chart';
+
+import {
   queries as KnowledgeBaseQueries,
   mutations as KnowledgeBaseMutations,
   types as KnowledgeBaseTypes,
@@ -118,6 +124,7 @@ export const types = `
     ${ResponseTemplateTypes}
     ${ReportInboxTypes}
     ${ReportTicketTypes}
+    ${ReportChartTypes}
     ${FormTypes}
     ${FieldTypes}
     ${KnowledgeBaseTypes}
@@ -138,6 +145,7 @@ export const queries = `
     ${ResponseTemplateQueries}
     ${ReportInboxQueries}
     ${ReportTicketQueries}
+    ${ReportChartQueries}
     ${FormQueries}
     ${FieldQueries}
     ${KnowledgeBaseQueries}
@@ -161,6 +169,7 @@ export const mutations = `
    ${FieldMutations}
    ${KnowledgeBaseMutations}
    ${CpInboxMutations}
+   ${ReportChartMutations}
 `;
 
 export default { types, queries, mutations };

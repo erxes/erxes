@@ -53,6 +53,7 @@ export const FormPageList = () => {
       columns={formColumns as unknown as ColumnDef<IForm>[]}
       data={forms || []}
       className="m-3"
+      tableId="frontline_forms_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
