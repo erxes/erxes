@@ -37,15 +37,15 @@
 
 ## Architecture
 
-| Area              | Path                                      | Responsibility                                                 |
-| ----------------- | ----------------------------------------- | -------------------------------------------------------------- |
-| Federation config | `src/config.tsx`                          | `IUIConfig`: settings navigation + `invoices` relation widget  |
-| Pages             | `src/pages/payment`                       | Invoices, payment settings, corporate gateway route entries    |
-| Payment module    | `src/modules/payment`                     | Payment/invoice GraphQL documents, hooks, types, Jotai state   |
-| Invoice cells     | `src/modules/payment/components/InvoiceInlineCells.tsx` | Permission-aware inline editors for the invoice table |
-| Settings module   | `src/modules/settings/payment/components` | Payment method table, sheets, and all configuration forms      |
-| Corporate gateway | `src/modules/corporateGateway/<bank>`     | Bank-specific configs, accounts, and transaction containers    |
-| Widgets           | `src/widgets`                             | Exposed widget entries, including the invoices relation widget |
+| Area              | Path                                                    | Responsibility                                                 |
+| ----------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
+| Federation config | `src/config.tsx`                                        | `IUIConfig`: settings navigation + `invoices` relation widget  |
+| Pages             | `src/pages/payment`                                     | Invoices, payment settings, corporate gateway route entries    |
+| Payment module    | `src/modules/payment`                                   | Payment/invoice GraphQL documents, hooks, types, Jotai state   |
+| Invoice cells     | `src/modules/payment/components/InvoiceInlineCells.tsx` | Permission-aware inline editors for the invoice table          |
+| Settings module   | `src/modules/settings/payment/components`               | Payment method table, sheets, and all configuration forms      |
+| Corporate gateway | `src/modules/corporateGateway/<bank>`                   | Bank-specific configs, accounts, and transaction containers    |
+| Widgets           | `src/widgets`                                           | Exposed widget entries, including the invoices relation widget |
 
 ## Contracts
 

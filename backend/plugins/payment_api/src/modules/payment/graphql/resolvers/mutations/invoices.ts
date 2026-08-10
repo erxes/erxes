@@ -2,10 +2,7 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
 import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
-import {
-  IInvoice,
-  IInvoiceEditInput,
-} from '~/modules/payment/@types/invoices';
+import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
 import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
 import {
   enqueuePaidInvoiceCallback,
