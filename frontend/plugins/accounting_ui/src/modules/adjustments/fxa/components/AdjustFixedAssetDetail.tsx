@@ -263,12 +263,17 @@ const StatusBar = ({
 
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
-      <DatePicker
-        value={new Date(start)}
-        onChange={() => null}
-        className="h-8 flex w-full"
-        disabled
-      />
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-primary font-bold">
+          <DatePicker
+            value={new Date(start)}
+            onChange={() => null}
+            className="h-8 flex w-full"
+            disabled
+          />
+        </span>
+        <span className="text-accent-foreground">{'->'}</span>
+      </div>
       {days.map((day) => (
         <Tooltip key={day.toString()} delayDuration={0}>
           <Tooltip.Trigger asChild>{renderIcon(day)}</Tooltip.Trigger>
@@ -277,12 +282,17 @@ const StatusBar = ({
           </Tooltip.Content>
         </Tooltip>
       ))}
-      <DatePicker
-        value={new Date(end)}
-        onChange={() => null}
-        className="h-8 flex w-full"
-        disabled
-      />
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-accent-foreground">{'->'}</span>
+        <span className="text-primary font-bold">
+          <DatePicker
+            value={new Date(end)}
+            onChange={() => null}
+            className="h-8 flex w-full"
+            disabled
+          />
+        </span>
+      </div>
     </div>
   );
 };

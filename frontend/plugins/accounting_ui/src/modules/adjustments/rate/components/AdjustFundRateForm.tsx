@@ -14,7 +14,6 @@ import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import type { CurrencyCode } from 'erxes-ui/types';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { useAdjustFundRateAdd } from '../hooks/useAdjustFundRateAdd';
 import { useAdjustFundRateChange } from '../hooks/useAdjustFundRateChange';
 import { TAdjustFundRateForm } from '../types/adjustFundRateSchema';
@@ -81,8 +80,6 @@ const AdjustFundRateFormContent = ({
       description: '',
       gainAccountId: '',
       lossAccountId: '',
-      branchId: '',
-      departmentId: '',
     },
   });
 
@@ -96,8 +93,6 @@ const AdjustFundRateFormContent = ({
         description: adjustFundRate.description || '',
         gainAccountId: adjustFundRate.gainAccountId,
         lossAccountId: adjustFundRate.lossAccountId,
-        branchId: adjustFundRate.branchId || '',
-        departmentId: adjustFundRate.departmentId || '',
       });
     }
   }, [adjustFundRate, form]);
@@ -267,42 +262,6 @@ const AdjustFundRateFormContent = ({
                     value={field.value}
                     onValueChange={field.onChange}
                     defaultFilter={{ journal: 'exchangeDiff' }}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="branchId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Branch</Form.Label>
-                <Form.Control>
-                  <SelectBranches.FormItem
-                    mode="single"
-                    value={field.value ?? ''}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="departmentId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Department</Form.Label>
-                <Form.Control>
-                  <SelectDepartments.FormItem
-                    mode="single"
-                    value={field.value ?? ''}
-                    onValueChange={field.onChange}
                   />
                 </Form.Control>
                 <Form.Message />

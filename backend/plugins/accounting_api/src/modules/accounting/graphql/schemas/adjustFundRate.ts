@@ -11,6 +11,8 @@ export const types = () => `
     currencyBalance: Float
     diff: Float
     transactionId: String
+    branchId: String
+    departmentId: String
     createdAt: Date
     updatedAt: Date
   }
@@ -25,9 +27,13 @@ export const types = () => `
     gainAccountId: String
     lossAccountId: String
     transactionId: String
+    status: String
+    beginDate: Date
+    successDate: Date
+    checkedAt: Date
+    error: String
+    warning: String
     details: [AdjustFundRateDetail]
-    branchId: String
-    departmentId: String
     createdBy: String
     modifiedBy: String
     createdAt: Date
@@ -49,8 +55,6 @@ const adjustFundRateParams = `
   spotRate: Float,
   gainAccountId: String,
   lossAccountId: String,
-  branchId: String,
-  departmentId: String,
 `;
 
 const adjustFundRateFilterParams = `
@@ -59,8 +63,6 @@ const adjustFundRateFilterParams = `
   mainCurrency: String,
   currency: String,
   searchValue: String,
-  branchId: String,
-  departmentId: String,
 `;
 
 export const queries = `
@@ -71,6 +73,8 @@ export const queries = `
 export const mutations = `
   adjustFundRateAdd(${adjustFundRateParams}): AdjustFundRate
   adjustFundRateChange(_id: String!, ${adjustFundRateParams}): AdjustFundRate
+  adjustFundRateCalculate(_id: String!): AdjustFundRate
+  adjustFundRateDoTransaction(_id: String!): AdjustFundRate
   adjustFundRateRun(_id: String!): AdjustFundRate
   adjustFundRateRemove(adjustFundRateIds: [String!]!): JSON
 `;

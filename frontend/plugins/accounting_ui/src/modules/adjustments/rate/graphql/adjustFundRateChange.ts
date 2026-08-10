@@ -10,8 +10,6 @@ const adjFundRateChangeParamDefs = `
   $description: String
   $gainAccountId: String
   $lossAccountId: String
-  $branchId: String
-  $departmentId: String
 `;
 
 const adjFundRateChangeParams = `
@@ -23,8 +21,6 @@ const adjFundRateChangeParams = `
   description: $description
   gainAccountId: $gainAccountId
   lossAccountId: $lossAccountId
-  branchId: $branchId
-  departmentId: $departmentId
 `;
 
 export const ADJUST_FUND_RATE_CHANGE = gql`

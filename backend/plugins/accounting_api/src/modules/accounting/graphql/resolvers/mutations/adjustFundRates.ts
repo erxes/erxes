@@ -1,5 +1,8 @@
 import { IContext } from '~/connectionResolvers';
-import { runAdjustFundRate } from '../../../utils/adjustFundRates';
+import {
+  calculateAdjustFundRate,
+  runAdjustFundRate,
+} from '../../../utils/adjustFundRates';
 
 interface IAdjustFundRateInput {
   date: Date;
@@ -9,8 +12,6 @@ interface IAdjustFundRateInput {
   spotRate: number;
   gainAccountId: string;
   lossAccountId: string;
-  branchId?: string;
-  departmentId?: string;
 }
 
 const adjustFundRateMutations = {
@@ -45,10 +46,30 @@ const adjustFundRateMutations = {
   ) {
     await checkPermission('manageAdjustInventories');
 
-    await models.AdjustFundRates.getAdjustFundRate(_id);
+    const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
+
+    if (adjust.transactionId) {
+      const oldTransaction = await models.Transactions.findOne({
+        parentId: adjust.transactionId,
+      }).lean();
+
+      if (oldTransaction) {
+        await models.Transactions.removePTransaction({
+          parentId: adjust.transactionId,
+        });
+      }
+    }
 
     const updated = await models.AdjustFundRates.updateAdjustFundRate(_id, {
       ...doc,
+      details: [],
+      transactionId: '',
+      status: 'draft',
+      beginDate: undefined,
+      successDate: undefined,
+      checkedAt: undefined,
+      error: '',
+      warning: '',
       modifiedBy: user._id,
       updatedAt: new Date(),
     });
@@ -72,6 +93,31 @@ const adjustFundRateMutations = {
     }
 
     return { status: 'ok' };
+  },
+
+  async adjustFundRateCalculate(
+    _root: unknown,
+    { _id }: { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('manageAdjustInventories');
+
+    const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
+
+    return calculateAdjustFundRate(models, user._id, adjust);
+  },
+
+  async adjustFundRateDoTransaction(
+    _root: unknown,
+    { _id }: { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageTransactions');
+
+    const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
+
+    return runAdjustFundRate(models, user._id, adjust);
   },
 
   async adjustFundRateRun(

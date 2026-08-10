@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-09`
+- **Last synchronized:** `2026-08-10`
 
 ## Scope
 
@@ -25,7 +25,7 @@
 - Keeps cash, bank, payable, and receivable transaction form main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates.
 - Provides fund and debt currency rate adjustment list/detail routes under `/accounting/adjustment/fundRate` and `/accounting/adjustment/debRate`.
 - Opens fund rate adjustment create and edit forms in accounting sheet panels.
-- Allows fund rate adjustments to be calculated from the detail page and displays calculated account balances, differences, and linked transaction ids.
+- Allows fund rate adjustments to be calculated from the detail page, then run as a separate transaction step, and displays compact general information, day-by-day validation state, and calculated account balances grouped by branch/department.
 - Supports inventory income, out, move, sale, and sale return transaction forms with tax-aware amount editing.
 - Fills inventory sale prices from product master `unitPrice`, income prices from the last completed inventory income price, and out/move cost prices from current inventory cost.
 - Provides accounting settings, reports, remainder views, and fixed asset adjustment screens.
@@ -51,7 +51,7 @@
 ### Consumes
 
 - Accounting GraphQL queries and mutations from the accounting API plugin.
-- Fund rate adjustment detail consumes enriched calculated balance fields and `adjustFundRateRun`.
+- Fund rate adjustment detail consumes enriched calculated balance and validation fields, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, and `accountingAdjustFundRateChanged`.
 - Core product, branch, department, customer, and company data through public GraphQL and `ui-modules`.
 - UI primitives, forms, tables, popovers, hotkey controls, and toast feedback from `erxes-ui`.
 
@@ -77,6 +77,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-10` — `Fund Rate Validation Detail UI`
+
+- **Summary:** Fund rate detail now uses a compact inventory-style header, day-by-day validation bar, and branch/department grouped calculation results.
+- **Affected areas:** `src/modules/adjustments/rate/components/AdjustFundRateDetail.tsx`, `src/modules/adjustments/rate/graphql/adjustFundRateQueries.ts`, `src/modules/adjustments/rate/types/AdjustFundRate.ts`.
+- **Contracts changed:** Consumes fund rate `beginDate`, `successDate`, `checkedAt`, `error`, and `warning`.
+
+### `2026-08-09` — `Fund Rate Account Labels`
+
+- **Summary:** Fund rate adjustment detail now renders gain and loss accounts as inline account code-name labels, shows calculated branch/department groups and status, and separates Calculate from Do Transaction execution.
+- **Affected areas:** `src/modules/adjustments/rate/components/AdjustFundRateDetail.tsx`, `src/modules/adjustments/rate/components/AdjustFundRateForm.tsx`, `src/modules/adjustments/rate/graphql`, `src/modules/adjustments/rate/hooks/useAdjustFundRateDetail.tsx`, `src/modules/adjustments/rate/types`.
+- **Contracts changed:** Consumes `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, fund rate status, detail `branchId` and `departmentId` fields, and `accountingAdjustFundRateChanged` from accounting API.
 
 ### `2026-08-09` — `Currency Amount Manual Sync`
 

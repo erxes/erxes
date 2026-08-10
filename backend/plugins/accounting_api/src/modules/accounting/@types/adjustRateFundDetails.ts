@@ -8,6 +8,11 @@ export interface IAdjustFundRateDetail {
   currencyBalance: number;
 
   transactionId?: string;
+  branchId?: string;
+  departmentId?: string;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IAdjustFundRate {
@@ -23,11 +28,14 @@ export interface IAdjustFundRate {
   gainAccountId: string;
   lossAccountId: string;
   transactionId?: string;
+  status?: 'draft' | 'process' | 'complete';
+  beginDate?: Date;
+  successDate?: Date;
+  checkedAt?: Date;
+  error?: string;
+  warning?: string;
 
   details?: IAdjustFundRateDetail[];
-
-  branchId?: string;
-  departmentId?: string;
 
   createdBy: string;
   modifiedBy?: string;

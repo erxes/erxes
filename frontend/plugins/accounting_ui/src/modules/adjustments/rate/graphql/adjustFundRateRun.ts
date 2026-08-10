@@ -1,23 +1,18 @@
 import { gql } from '@apollo/client';
-import { adjustFundRateFields } from './adjustFundRateQueries';
+import { adjustFundRateDetailFields } from './adjustFundRateQueries';
 
-export const ADJUST_FUND_RATE_RUN = gql`
-  mutation AdjustFundRateRun($_id: String!) {
-    adjustFundRateRun(_id: $_id) {
-      ${adjustFundRateFields}
-      details {
-        _id
-        accountId
-        accountCode
-        accountName
-        accountCurrency
-        mainBalance
-        currencyBalance
-        diff
-        transactionId
-        createdAt
-        updatedAt
-      }
+export const ADJUST_FUND_RATE_CALCULATE = gql`
+  mutation AdjustFundRateCalculate($_id: String!) {
+    adjustFundRateCalculate(_id: $_id) {
+      ${adjustFundRateDetailFields}
+    }
+  }
+`;
+
+export const ADJUST_FUND_RATE_DO_TRANSACTION = gql`
+  mutation AdjustFundRateDoTransaction($_id: String!) {
+    adjustFundRateDoTransaction(_id: $_id) {
+      ${adjustFundRateDetailFields}
     }
   }
 `;

@@ -10,12 +10,35 @@ export const adjustFundRateFields = `
   gainAccountId
   lossAccountId
   transactionId
-  branchId
-  departmentId
+  status
+  beginDate
+  successDate
+  checkedAt
+  error
+  warning
   createdBy
   modifiedBy
   createdAt
   updatedAt
+`;
+
+export const adjustFundRateDetailFields = `
+  ${adjustFundRateFields}
+  details {
+    _id
+    accountId
+    accountCode
+    accountName
+    accountCurrency
+    mainBalance
+    currencyBalance
+    diff
+    transactionId
+    branchId
+    departmentId
+    createdAt
+    updatedAt
+  }
 `;
 
 export const ADJUST_FUND_RATE_QUERY = gql`
@@ -48,20 +71,7 @@ export const ADJUST_FUND_RATE_QUERY = gql`
 export const ADJUST_FUND_RATE_DETAIL_QUERY = gql`
   query AdjustFundRateDetail($_id: String!) {
     adjustFundRateDetail(_id: $_id) {
-      ${adjustFundRateFields}
-      details {
-        _id
-        accountId
-        accountCode
-        accountName
-        accountCurrency
-        mainBalance
-        currencyBalance
-        diff
-        transactionId
-        createdAt
-        updatedAt
-      }
+      ${adjustFundRateDetailFields}
     }
   }
 `;

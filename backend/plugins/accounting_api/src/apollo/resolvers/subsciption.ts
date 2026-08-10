@@ -40,7 +40,29 @@ const accountingAdjustFixedAssetChanged = `
   }
 `;
 
+const accountingAdjustFundRateChanged = `
+  subscription AccountingAdjustFundRateChanged($adjustId: String!) {
+    accountingAdjustFundRateChanged(adjustId: $adjustId) {
+      _id
+      createdAt
+      createdBy
+      updatedAt
+      modifiedBy
+
+      date
+      mainCurrency
+      currency
+      description
+      spotRate
+      gainAccountId
+      lossAccountId
+      transactionId
+    }
+  }
+`;
+
 export default {
   accountingAdjustInventoryChanged,
   accountingAdjustFixedAssetChanged,
+  accountingAdjustFundRateChanged,
 };
