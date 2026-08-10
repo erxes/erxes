@@ -280,6 +280,13 @@ import {
   loadInstagramConfigClass,
 } from '@/integrations/instagram/db/models/Config';
 import { IInstagramConfigDocument } from './modules/integrations/instagram/@types/config';
+
+import { IReportChartDocument } from '@/reports/@types/chart';
+import {
+  IReportChartModel,
+  loadReportChartClass,
+} from '@/reports/db/models/Charts';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -359,6 +366,8 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
+
+  ReportCharts: IReportChartModel;
 }
 
 export interface IContext extends IMainContext {
@@ -647,6 +656,11 @@ export const loadClasses = (
   models.Topic = db.model<ITopicDocument, ITopicModel>(
     'knowledgebase_topics',
     loadTopicClass(models),
+  );
+
+  models.ReportCharts = db.model<IReportChartDocument, IReportChartModel>(
+    'frontline_report_charts',
+    loadReportChartClass(models),
   );
 
   return models;

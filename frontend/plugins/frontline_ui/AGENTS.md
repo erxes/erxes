@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-06`
+- **Last synchronized:** `2026-08-10`
 
 ## Scope
 
@@ -25,7 +25,8 @@
 - Forms UI: form builder, preview, and submissions.
 - Knowledge base UI: topics, categories, and articles.
 - Call UI: call index, detail, and statistics pages.
-- Report screens for the frontline plugin.
+- Report screens for the frontline plugin, including the default chart catalogue
+  and the saved charts board built on top of it.
 - Automation remote entries under `src/widgets` for facebook, instagram, inbox,
   discord, knowledgebase, and ticket — trigger forms, action forms, node
   configuration content, bot management, and execution history renderers.
@@ -89,6 +90,14 @@
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
+- The ticket reports board renders the default charts from
+  `TICKET_DEFAULT_CARD_CONFIGS` plus every saved chart returned by
+  `reportCharts`. **Every** ticket card — status summary, date, source, tags,
+  custom properties, and list — carries Save in its header: it names the current
+  filter selection into a new saved chart, which appears on the board
+  immediately and reopens with those filters restored. The default charts are a
+  frontend constant and are never modified by saving; a saved card additionally
+  carries a delete action.
 
 ## Architecture
 
@@ -115,6 +124,8 @@
 | Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                       | Per-module trigger/action/bot/history components                                                 |
 | FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                     | Message sequence form, provider, constants, states                                               |
 | FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading                                             |
+| Reports board      | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                          |
+| Saved charts       | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection  |
 | Notifications      | `src/widgets/notifications/`                                                                                                      | Notification remote entries                                                                      |
 
 ## Contracts
@@ -147,6 +158,21 @@
   `INTEGRATION_ICONS` keyed by kind, falling back to `IconInbox`.
 - `channelScopeOf(channel)` from `src/modules/channels/utils/channelScope.ts` —
   the single place that resolves a missing `scope` to `team`.
+- `ReportComponentProps` — every report card component receives `title`,
+  `colSpan`, `onColSpanChange`, plus `cardId` (the registry id for a default
+  chart, the chart `_id` for a saved one) and `savedChart` when it renders a
+  saved configuration. A component that ignores the last two still works; one
+  that supports saving reads `cardId` for its filter atoms.
+- `TICKET_CHART_TYPES` from
+  `src/modules/report/types/component-registry.ts` — the registry keys shared by
+  the default cards, `ticketReportComponents`, and each card's save action.
+  These strings are persisted as a saved chart's `chartType`, so they must not
+  be renamed.
+- `useTicketChartCard({ title, cardId, savedChart })` from
+  `src/modules/report/hooks/useTicketChartCard.ts` — the plumbing every ticket
+  card shares: `id`, `filterConfig` (what gets saved), `queryFilters` (what gets
+  queried, with the relative `date` resolved to a range), and `filtersRestored`.
+  A new ticket card uses this rather than reading the filter atoms itself.
 
 ### Consumes
 
@@ -173,6 +199,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `AutomationActionFormProps` (which carries `trigger` and `targetType`),
   `splitAutomationNodeType`, `generateAutomationElementId`,
   `useAutomationRemoteFormSubmit`, `useFormValidationErrorHandler`.
+- `frontline_api` GraphQL `reportCharts`, `reportChartAdd`, and
+  `reportChartRemove` — saved report charts. The board reads **all** saved
+  charts in one query and filters them to the chart types it can render, and
+  both mutations update that same cache entry, so a chart saved from any card
+  appears without a refetch or a reload. Do not reintroduce a per-chart-type
+  query: the mutation would then write to a different cache entry than the
+  board reads.
 - `react-i18next` with the `frontline` namespace.
 
 ## Data and State
@@ -189,6 +222,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `GET_MY_CHANNELS` selects `unreadConversationCount` but not
   `conversationCount`; each count costs the API a query per channel, so add one
   to the selection only when a surface actually renders it.
+- Report card filters live in per-card Jotai atoms in
+  `src/modules/report/states.ts`, keyed by `cardId`. Two cards never share a
+  key, which is what lets a saved chart hold its own selection next to the
+  default chart it was saved from. `useTicketChartFilterConfig` reads those
+  atoms into the shape that is both saved and sent as query variables, and
+  `useRestoreTicketChartFilters` writes a saved chart back into them once per
+  mount.
 - Jotai atoms for plugin-wide UI state (`channelCreateSheetOpenState`,
   `imapFormSheetAtom`, hotkey scopes); `useQueryState` for URL-backed filters
   such as `channelId`; component-local state stays in `useState`. `Team inbox`
@@ -257,6 +297,29 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   area or an attachment tile.
 - The message input ignores drops while a dialog is open, so a composer dialog
   keeps its own dropzone (`isDialogOpen` in `MessageInput.tsx`).
+- The ticket KPI row derives its total by summing **every** row
+  `reportTicketPriority` returns, including the `priority: 0` one, so it shows
+  the real ticket count. Only rows with `priority > 0` become cards — the
+  untriaged figure goes in the total card's subtitle, which keeps the row at
+  five cards and inside `xl:grid-cols-5`. Never sum only the rendered cards; that
+  is what made "Total Tickets" disagree with its own percentages.
+- Ticket Status Summary rows are pipeline statuses, not the six built-in
+  categories: `name` is the status as the settings screen shows it, `group` is
+  the category it sits under, and `color` is the category's, so the colour
+  coding survives. A row with no `group` is a fallback for tickets whose status
+  was deleted. Never assume six rows, and never assume a non-empty list.
+- The report state filter defaults to `active`, matching the API. `all` is a
+  real value meaning "include archived and deleted", not the absence of a
+  filter — so `hasFilters` ignores `active` rather than treating any value as a
+  filter, and Clear resets to `active`, not to an empty string.
+- A report card must take its identity from the `cardId` prop, never from its
+  translated `title`. Deriving the id from the title made filter atoms, the
+  filter popover's session key, and the drag-and-drop id change with the
+  interface language; `cardId` is stable and is also the saved chart's `_id`.
+- A card that renders a saved chart must not query before
+  `useRestoreTicketChartFilters` reports back — it holds the query with `skip`
+  and shows its skeleton, otherwise the card flashes unfiltered data before the
+  saved filters land.
 - Exposed modules stay lazy-loaded and wrapped in `Suspense`.
 - Routed pages use `h-full`, never `h-dvh`/`h-screen`.
 - New user-visible strings go through `useTranslation('frontline')` with keys
@@ -289,6 +352,74 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-10` — Save chart on every ticket report card
+
+- **Summary:** Status summary, date, source, tags, and list gained the Save (and
+  for a saved card, delete) action that only custom properties had. Each card
+  now takes its filters from the shared `useTicketChartCard` hook instead of
+  reading eleven atoms itself, and the board reads every saved chart in one
+  query, keeping it to the chart types it can render.
+- **Affected areas:**
+  `src/modules/report/components/ticket-charts/Ticket{StatusSummary,OpenDate,Source,Tags,List,CustomProperties}.tsx`,
+  `src/modules/report/hooks/{useTicketChartCard.ts,useReportCharts.ts}`,
+  `src/modules/report/components/report-chart/ReportChartActions.tsx`,
+  `src/modules/report/components/TicketReportsList.tsx`,
+  `src/modules/report/types/component-registry.ts`.
+- **Contracts changed:** `TICKET_CUSTOM_PROPERTIES_CHART_TYPE` replaced by
+  `TICKET_CHART_TYPES` (same string values); `useReportCharts` and
+  `useReportChartMutations` no longer take a chart type;
+  `RemoveReportChartButton` dropped its `chartType` prop. Every ticket card
+  component gained optional `cardId` and `savedChart`.
+
+### `2026-08-10` — Status summary lists the pipeline's own statuses
+
+- **Summary:** The Ticket Status Summary card now shows one row per pipeline
+  status, named as it is in ticket status settings, with its default category
+  beside it, instead of six built-in category names. Axis ticks truncate because
+  status names are full sentences.
+- **Affected areas:**
+  `src/modules/report/components/ticket-charts/TicketStatusSummary.tsx`,
+  `src/modules/report/hooks/useTicketStatusSummary.ts`,
+  `src/modules/report/graphql/queries/getTicketChart.ts`.
+- **Contracts changed:** `TicketStatusSummaryItem` gained optional `_id` and
+  `group`; the card can now render an empty state, where six zero rows always
+  came back before.
+
+### `2026-08-10` — Ticket KPI row shows the real total
+
+- **Summary:** "Total Tickets" now sums every priority bucket, including the new
+  `priority: 0` row, so it matches the percentages beside it instead of counting
+  only triaged tickets; the untriaged count moved into that card's subtitle and
+  the row still renders four priority cards. The state filter now defaults to
+  `active` with `all` as the explicit opt-in to archived and deleted tickets.
+- **Affected areas:**
+  `src/modules/report/components/TicketReportsList.tsx`,
+  `src/modules/report/components/filter-popover/ticket-report-filter.tsx`,
+  `src/modules/report/states.ts`,
+  `src/modules/report/hooks/useTicketChartFilterConfig.ts`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
+- **Contracts changed:** `None` on this side; consumes the extra
+  `reportTicketPriority` row and the `state: 'all'` value from `frontline_api`.
+
+### `2026-08-09` — Save a filtered Ticket Custom Properties chart
+
+- **Summary:** The Ticket Custom Properties card gained a Save action that names
+  the current filter selection and stores it as a new chart through
+  `reportChartAdd`; the ticket reports board renders every saved chart beside
+  the defaults, restores its filters on open, and offers a delete action. Report
+  cards now take their identity from an explicit `cardId` prop instead of
+  deriving it from the translated title.
+- **Affected areas:**
+  `src/modules/report/components/{TicketReportsList.tsx,ticket-charts/TicketCustomProperties.tsx,report-chart/*}`,
+  `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig}.ts`,
+  `src/modules/report/graphql/{queries/getReportCharts.ts,mutations/reportChartMutations.ts}`,
+  `src/modules/report/{types.ts,types/component-registry.ts}`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
+- **Contracts changed:** `ReportComponentProps` gained optional `cardId` and
+  `savedChart`; new exported `TICKET_CUSTOM_PROPERTIES_CHART_TYPE`,
+  `ReportChart`, and `ReportChartFilters`. Consumes the new `reportCharts`,
+  `reportChartAdd`, and `reportChartRemove` operations from `frontline_api`.
 
 ### `2026-08-08` — Call widget stays clickable above modal surfaces
 
@@ -363,81 +494,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/inbox/channel/components/TeamChannelsNav.tsx`.
 - **Contracts changed:** None — `NavigationGroupActions` is new and internal;
   the sort toggle dropped its own now-redundant `stopPropagation`.
-
-### `2026-08-04` — Counts, members, and triage order in the inbox sidebar
-
-- **Summary:** `Me` and `Team inbox` now read like a triage list: every row
-  carries its open count and dims when it has none, sources still awaiting a
-  reply get a warning dot, team rows show a member avatar stack, the group
-  orders by count or name from a header toggle, and channels with nothing open
-  fold behind a "N quiet teams" row.
-- **Affected areas:**
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav,UnreadSummary}.tsx`,
-  `src/modules/inbox/channel/states/teamInboxSortState.ts`,
-  `src/modules/inbox/conversations/{hooks/useConversationCounts.tsx,graphql/queries/getConversationCounts.ts}`,
-  `src/modules/integrations/{components/ChooseIntegrationType.tsx,constants/integrationImages.ts}`,
-  `src/modules/FrontlineSubGroups.tsx`, `frontline` locale files.
-- **Contracts changed:** `IntegrationTypeItem` gained optional `count` and
-  `awaitingCount` props and now renders a kind icon; `PersonalInboxNav` and
-  `TeamChannelsNav` render their own `NavigationMenuGroup` instead of expecting
-  a caller to wrap them; `ConversationCounts` gained an `$awaitingResponse`
-  variable.
-
-### `2026-08-04` — Integration-type tree in the inbox sidebar
-
-- **Summary:** Restructured the inbox navigation so `Me` lists the personal
-  channel's integration types and `Team inbox` renders each team channel as a
-  collapsible row over the types used inside it, fetched lazily on expand.
-- **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav,ChooseChannel}.tsx`,
-  `src/modules/channels/utils/channelScope.ts`,
-  `src/modules/integrations/{components/ChooseIntegrationType.tsx,hooks/useUsedIntegrationTypes.tsx,graphql/queries/getIntegrations.ts}`,
-  integration add/remove/archive refetch lists.
-- **Contracts changed:** `IntegrationTypeItem` gained optional `channelId` and
-  `nested` props; new `useUsedIntegrationTypesByChannel` hook and
-  `IntegrationsGetUsedTypesByChannel` document.
-
-### `2026-08-04` — Rebuild the post composer on the standard sheet and dropzone
-
-- **Summary:** The composer now follows the `CreateBrand` sheet shape
-  (uncontrolled `Sheet`, `Sheet.Close` cancel, state inside the sheet body) and
-  uses the shared `Dropzone`/`DropzoneEmptyState`/`DropzoneContent` for picking
-  files and `Attachments.Root`/`Attachments.Preview` for the uploaded ones,
-  instead of a hand-rolled drop area, thumbnail grid, and filename list; help
-  and rejected filenames render as `Alert`, the empty and loading states use
-  `Empty` and `Spinner`, and the channel picker is a searchable
-  `Popover` + `Combobox` + `Command` like `SelectChannel.FormItem`.
-- **Affected areas:**
-  `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`,
-  `.../components/FacebookPostImagesField.tsx`,
-  `.../hooks/useFacebookPostImages.tsx`,
-  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned)
-- **Contracts changed:** `None`
-
-### `2026-08-04` — Split the Facebook post composer into hooks and fields
-
-- **Summary:** `FacebookPostSheet` no longer drills nine props into its form:
-  attachment state moved to `useFacebookPostImages`, channel/page loading to
-  `useFacebookPostTargets`, and the uploader UI to `FacebookPostImagesField`;
-  the message input's dialog-drop guard is now one shared helper.
-- **Affected areas:**
-  `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`,
-  `.../components/FacebookPostImagesField.tsx` (new),
-  `.../hooks/useFacebookPostImages.tsx` (new),
-  `.../hooks/useFacebookPostTargets.tsx` (new),
-  `.../constants/FbPostSchema.ts`,
-  `src/modules/inbox/conversations/conversation-detail/components/MessageInput.tsx`
-- **Contracts changed:** `None`
-
-### `2026-08-04` — Cap comment-triggered Facebook message actions at one message
-
-- **Summary:** A Facebook message action attached to a comment trigger now
-  accepts a single message and explains that the rest of the flow must continue
-  behind a button, matching Facebook's one-private-reply-per-comment rule.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/constants/ReplyMessage.ts`,
-  `.../action/context/ReplyMessageProvider.tsx`,
-  `.../action/components/replyMessage/MessageSequenceHeader.tsx`,
-  `.../action/components/replyMessage/MessageActionForm.tsx`
-- **Contracts changed:** `None`

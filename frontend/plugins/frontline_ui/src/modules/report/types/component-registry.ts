@@ -1,9 +1,21 @@
 import { ComponentType, LazyExoticComponent, lazy } from 'react';
+import { ReportChart } from '@/report/types';
+
+export const TICKET_CHART_TYPES = {
+  statusSummary: 'ticket-status-summary',
+  date: 'ticket-date',
+  source: 'ticket-source',
+  tags: 'ticket-tags',
+  customProperties: 'ticket-custom-properties',
+  list: 'ticket-list',
+} as const;
 
 export interface ReportComponentProps {
   title: string;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
+  cardId?: string;
+  savedChart?: ReportChart;
 }
 
 export interface ReportCardConfig {
@@ -76,36 +88,36 @@ export const ticketReportComponents: Record<
   string,
   LazyExoticComponent<ComponentType<ReportComponentProps>>
 > = {
-  'ticket-date': lazy(() =>
+  [TICKET_CHART_TYPES.date]: lazy(() =>
     import('@/report/components/ticket-charts/TicketOpenDate').then(
       (module) => ({
         default: module.TicketOpenDate,
       }),
     ),
   ),
-  'ticket-source': lazy(() =>
+  [TICKET_CHART_TYPES.source]: lazy(() =>
     import('@/report/components/ticket-charts/TicketSource').then((module) => ({
       default: module.TicketSource,
     })),
   ),
-  'ticket-tags': lazy(() =>
+  [TICKET_CHART_TYPES.tags]: lazy(() =>
     import('@/report/components/ticket-charts/TicketTags').then((module) => ({
       default: module.TicketTags,
     })),
   ),
-  'ticket-list': lazy(() =>
+  [TICKET_CHART_TYPES.list]: lazy(() =>
     import('@/report/components/ticket-charts/TicketList').then((module) => ({
       default: module.TicketList,
     })),
   ),
-  'ticket-custom-properties': lazy(() =>
+  [TICKET_CHART_TYPES.customProperties]: lazy(() =>
     import('@/report/components/ticket-charts/TicketCustomProperties').then(
       (module) => ({
         default: module.TicketCustomProperties,
       }),
     ),
   ),
-  'ticket-status-summary': lazy(() =>
+  [TICKET_CHART_TYPES.statusSummary]: lazy(() =>
     import('@/report/components/ticket-charts/TicketStatusSummary').then(
       (module) => ({
         default: module.TicketStatusSummary,
@@ -118,16 +130,16 @@ export const TICKET_DEFAULT_CARD_CONFIGS: Omit<
   ReportCardConfig,
   'component'
 >[] = [
-  { id: 'ticket-status-summary', title: 'ticket-status-summary-title', colSpan: 6 },
-  { id: 'ticket-date', title: 'ticket-date-title', colSpan: 6 },
-  { id: 'ticket-source', title: 'ticket-source-title', colSpan: 6 },
-  { id: 'ticket-tags', title: 'ticket-tags-title', colSpan: 6 },
+  { id: TICKET_CHART_TYPES.statusSummary, title: 'ticket-status-summary-title', colSpan: 6 },
+  { id: TICKET_CHART_TYPES.date, title: 'ticket-date-title', colSpan: 6 },
+  { id: TICKET_CHART_TYPES.source, title: 'ticket-source-title', colSpan: 6 },
+  { id: TICKET_CHART_TYPES.tags, title: 'ticket-tags-title', colSpan: 6 },
   {
-    id: 'ticket-custom-properties',
+    id: TICKET_CHART_TYPES.customProperties,
     title: 'ticket-custom-properties-title',
     colSpan: 6,
   },
-  { id: 'ticket-list', title: 'ticket-list-title', colSpan: 12 },
+  { id: TICKET_CHART_TYPES.list, title: 'ticket-list-title', colSpan: 12 },
 ];
 
 export function getReportComponent(

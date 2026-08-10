@@ -34,6 +34,7 @@ import {
   SelectMember,
   SelectCustomer,
   SelectCompany,
+  SelectTags,
   useFields,
 } from 'ui-modules';
 import { type IField } from 'ui-modules/modules/properties';
@@ -132,7 +133,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
       (dateValue && dateValue.length > 0) ||
       (pipelineFilter && pipelineFilter.length > 0) ||
       (ticketTagFilter && ticketTagFilter.length > 0) ||
-      stateFilter ||
+      (stateFilter && stateFilter !== 'active') ||
       (priorityFilter && priorityFilter.length > 0) ||
       (customerFilter && customerFilter.length > 0) ||
       (companyFilter && companyFilter.length > 0) ||
@@ -146,7 +147,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
     setDateValue('');
     setPipelineFilter([]);
     setTicketTagFilter([]);
-    setStateFilter('');
+    setStateFilter('active');
     setPriorityFilter([]);
     setFrequency('day');
     setCustomerFilter([]);
@@ -173,6 +174,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 <Filter.Item value="priority">
                   {t('priority-label')}
                 </Filter.Item>
+                <Filter.Item value="tag">{t('tags-label')}</Filter.Item>
                 <Filter.Item value="customer">
                   {t('customer-label')}
                 </Filter.Item>
@@ -246,6 +248,22 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 value={priorityFilter}
                 onValueChange={setPriorityFilter}
               />
+            </Command>
+          </Filter.View>
+
+          <Filter.View filterKey="tag">
+            <Command shouldFilter={false}>
+              <Command.List>
+                <BackButton />
+              </Command.List>
+              <SelectTags.Provider
+                mode="multiple"
+                tagType="frontline:ticket"
+                value={ticketTagFilter}
+                onValueChange={(val) => setTicketTagFilter(val as string[])}
+              >
+                <SelectTags.Content />
+              </SelectTags.Provider>
             </Command>
           </Filter.View>
 
@@ -493,9 +511,9 @@ const StateFilterView = ({
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       <BackButton />
-      <Command.Item value="all" onSelect={() => onValueChange('')}>
+      <Command.Item value="all" onSelect={() => onValueChange('all')}>
         <div className="flex items-center gap-2">
-          {!value && <IconCheck className="size-4" />}
+          {value === 'all' && <IconCheck className="size-4" />}
           <span>{t('all-states')}</span>
         </div>
       </Command.Item>
