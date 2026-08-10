@@ -2,11 +2,19 @@ import { useQuery } from '@apollo/client';
 import { FIELDS_QUERY } from '../graphql/fieldsQueries';
 import {
   EnumCursorDirection,
-  ICursorListResponse,
+  IRecordTableCursorPageInfo,
   mergeCursorData,
   validateFetchMore,
 } from 'erxes-ui';
 import { IField } from '../types/fieldsTypes';
+
+type FieldsQueryResponse = {
+  fields: {
+    list: IField[];
+    totalCount: number;
+    pageInfo: IRecordTableCursorPageInfo;
+  };
+};
 
 export const useFields = ({
   groupId,
@@ -17,17 +25,18 @@ export const useFields = ({
   contentType: string;
   limit?: number;
 }) => {
-  const { data, loading, refetch, fetchMore } = useQuery<
-    ICursorListResponse<IField>
-  >(FIELDS_QUERY, {
-    variables: {
-      params: {
-        groupId,
-        contentType,
-        limit,
+  const { data, loading, refetch, fetchMore } = useQuery<FieldsQueryResponse>(
+    FIELDS_QUERY,
+    {
+      variables: {
+        params: {
+          groupId,
+          contentType,
+          limit,
+        },
       },
     },
-  });
+  );
 
   const pageInfo = data?.fields?.pageInfo;
 
@@ -58,13 +67,17 @@ export const useFields = ({
           return prev;
         }
 
-        return Object.assign({}, prev, {
-          fields: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.fields,
-            prevResult: prev.fields,
-          }),
-        });
+        return {
+          ...prev,
+          fields: {
+            ...mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.fields,
+              prevResult: prev.fields,
+            }),
+            totalCount: fetchMoreResult.fields.totalCount,
+          },
+        };
       },
     });
   };
