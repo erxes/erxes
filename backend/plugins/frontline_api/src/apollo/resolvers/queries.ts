@@ -9,6 +9,7 @@ import { discordQueries } from '@/integrations/discord/graphql/resolvers/queries
 import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
 import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
+import { reportChartQueries } from '@/reports/graphql/resolvers/chartQueries';
 import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
 import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import ticketQueries from '@/ticket/graphql/resolvers/queries';
@@ -33,5 +34,6 @@ export const queries = {
   ...fieldQueries,
   ...reportInboxQueries,
   ...reportTicketQueries,
+  ...reportChartQueries,
   ...knowledgeBaseQueries,
 };

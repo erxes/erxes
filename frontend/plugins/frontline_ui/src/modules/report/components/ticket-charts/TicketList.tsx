@@ -7,7 +7,6 @@ import {
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
-import { getFilters } from '@/report/utils/dateFilters';
 import { formatDate } from 'date-fns';
 import { MembersInline } from 'ui-modules';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
@@ -20,88 +19,49 @@ import {
 } from '@tabler/icons-react';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { useNavigate } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import {
-  getReportDateFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-  getReportPipelineFilterAtom,
-  getReportStateFilterAtom,
-  getReportPriorityFilterAtom,
-  getReportTicketTagFilterAtom,
-  getReportCustomerFilterAtom,
-  getReportCompanyFilterAtom,
-  getReportPropertyFilterAtom,
-} from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { ColumnDef, Cell } from '@tanstack/react-table';
 import { useTicketExport } from '@/report/hooks/useTicketExport';
 import { generateTicketExcel, downloadExcel } from '@/report/utils/exportCsv';
-import { getTicketPropertyFilterVariables } from '@/report/utils';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
+import { ReportChart } from '@/report/types';
+import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
 
 const PER_PAGE = 10;
 
 interface TicketListProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
 export const TicketList = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: TicketListProps) => {
   const { t } = useTranslation('frontline');
-  const id = title.toLowerCase().replace(/\s+/g, '-');
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [pipelineFilter] = useAtom(getReportPipelineFilterAtom(id));
-  const [stateFilter] = useAtom(getReportStateFilterAtom(id));
-  const [priorityFilter] = useAtom(getReportPriorityFilterAtom(id));
-  const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
-  const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
-  const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
-  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useTicketChartCard({ title, cardId, savedChart });
   const [page, setPage] = useState(1);
   const { fetchExport, loading: exportLoading } = useTicketExport();
 
   useEffect(() => {
-    setFilters(getFilters(dateValue || undefined));
     setPage(1);
-  }, [dateValue]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [
-    channelFilter,
-    memberFilter,
-    pipelineFilter,
-    stateFilter,
-    priorityFilter,
-    tagFilter,
-    customerFilter,
-    companyFilter,
-    propertyFilter,
-  ]);
+  }, [queryFilters]);
 
   const { ticketList, isInitialLoad, isFetching, error } = useTicketList({
+    skip: !filtersRestored,
     variables: {
       filters: {
-        ...filters,
+        ...queryFilters,
         page,
         limit: PER_PAGE,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
-        state: stateFilter || undefined,
-        priority: priorityFilter.length ? priorityFilter : undefined,
-        tagIds: tagFilter.length ? tagFilter : undefined,
-        customerIds: customerFilter.length ? customerFilter : undefined,
-        companyIds: companyFilter.length ? companyFilter : undefined,
-        ...getTicketPropertyFilterVariables(propertyFilter),
       },
     },
   });
@@ -112,19 +72,7 @@ export const TicketList = ({
   const handleExport = useCallback(async () => {
     const result = await fetchExport({
       variables: {
-        filters: {
-          ...filters,
-          limit: undefined,
-          channelIds: channelFilter.length ? channelFilter : undefined,
-          memberIds: memberFilter.length ? memberFilter : undefined,
-          pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
-          state: stateFilter || undefined,
-          priority: priorityFilter.length ? priorityFilter : undefined,
-          tagIds: tagFilter.length ? tagFilter : undefined,
-          customerIds: customerFilter.length ? customerFilter : undefined,
-          companyIds: companyFilter.length ? companyFilter : undefined,
-          ...getTicketPropertyFilterVariables(propertyFilter),
-        },
+        filters: { ...queryFilters, limit: undefined },
       },
     });
     const tickets = result.data?.reportTicketExport;
@@ -133,24 +81,18 @@ export const TicketList = ({
       const timestamp = new Date().toISOString().slice(0, 10);
       downloadExcel(buffer, `ticket-list-${timestamp}.xlsx`);
     }
-  }, [
-    fetchExport,
-    filters,
-    channelFilter,
-    memberFilter,
-    pipelineFilter,
-    stateFilter,
-    priorityFilter,
-    tagFilter,
-    customerFilter,
-    companyFilter,
-    propertyFilter,
-  ]);
+  }, [fetchExport, queryFilters]);
 
   const filterEl = useMemo(
     () => (
       <>
         <TicketReportFilter cardId={id} />
+        <ReportChartActions
+          chartType={TICKET_CHART_TYPES.list}
+          colSpan={colSpan}
+          filters={filterConfig}
+          savedChart={savedChart}
+        />
         <Button
           variant="ghost"
           size="icon"
@@ -163,10 +105,10 @@ export const TicketList = ({
         </Button>
       </>
     ),
-    [id, handleExport, exportLoading, t],
+    [id, handleExport, exportLoading, t, colSpan, filterConfig, savedChart],
   );
 
-  if (isInitialLoad) {
+  if (isInitialLoad || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}

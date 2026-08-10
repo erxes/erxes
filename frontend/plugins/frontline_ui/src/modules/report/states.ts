@@ -186,7 +186,7 @@ export const getReportTicketTagFilterAtom = (cardId: string) =>
 export const getReportStateFilterAtom = (cardId: string) =>
   getOrCreate(stateFilterAtomCache, cardId, () =>
     atom(
-      (get) => get(reportStateFilterState)[cardId] || '',
+      (get) => get(reportStateFilterState)[cardId] || 'active',
       (get, set, newValue: string) => {
         set(reportStateFilterState, {
           ...get(reportStateFilterState),

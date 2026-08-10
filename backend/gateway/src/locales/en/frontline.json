@@ -1218,5 +1218,14 @@
   "post-images-upload-failed": "Image upload failed",
   "post-images-still-uploading": "Wait for the images to finish uploading",
   "post-images-or-link": "A post can include images or a link preview, not both. Put the URL in the message text instead.",
-  "post-images-bad-filename": "This filename cannot be stored (commas and some symbols are not supported). Rename the file and add it again."
+  "post-images-bad-filename": "This filename cannot be stored (commas and some symbols are not supported). Rename the file and add it again.",
+  "save-chart": "Save chart",
+  "save-chart-description": "Save the filters selected right now as a new chart. The default chart stays as it is.",
+  "chart-name": "Chart name",
+  "chart-name-placeholder": "e.g. High Priority Open Tickets",
+  "chart-saved": "Chart saved",
+  "chart-deleted": "Chart deleted",
+  "delete-chart": "Delete chart",
+  "confirm-delete-chart": "Are you sure you want to delete \"{{name}}\"?",
+  "without-priority": "{{value}} without priority"
 }
