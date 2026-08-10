@@ -23,8 +23,7 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Edit invoices',
           name: 'paymentInvoiceEdit',
-          description:
-            'Edit invoice description, amount, currency and status',
+          description: 'Edit invoice description, amount, currency and status',
         },
       ],
     },
