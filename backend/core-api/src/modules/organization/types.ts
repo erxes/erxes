@@ -34,6 +34,17 @@ export interface IEmailDeliveriesDocument extends IEmailDeliveries, Document {
   _id: string;
 }
 
+export interface IEmailAttachmentParams {
+  filename?: string;
+  name?: string;
+  path?: string;
+  url?: string;
+  content?: string;
+  contentType?: string;
+  type?: string;
+  cid?: string;
+}
+
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
@@ -41,7 +52,7 @@ export interface IEmailParams {
   customHtml?: string;
   customHtmlData?: any;
   template?: { name?: string; data?: any };
-  attachments?: object[];
+  attachments?: IEmailAttachmentParams[];
   modifier?: (data: any, email: string) => Promise<void>;
   transportMethod?: string;
   getOrganizationDetail?: ({ subdomain }: { subdomain: string }) => any;

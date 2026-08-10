@@ -6,12 +6,20 @@ const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
 
 export const toBase64Attachment = async (
   attachment: IEmailAttachment,
-): Promise<{ filename: string; content: string; type?: string }> => {
+): Promise<{
+  filename: string;
+  content: string;
+  type?: string;
+  disposition?: 'inline';
+  contentId?: string;
+}> => {
   if (attachment.content) {
     return {
       filename: attachment.filename,
       content: attachment.content,
       type: attachment.contentType,
+      disposition: attachment.cid ? 'inline' : undefined,
+      contentId: attachment.cid,
     };
   }
 
@@ -65,10 +73,20 @@ export const toBase64Attachment = async (
       attachment.contentType ||
       response.headers.get('content-type') ||
       undefined,
+    disposition: attachment.cid ? 'inline' : undefined,
+    contentId: attachment.cid,
   };
 };
 
 export const toBase64Attachments = async (
   attachments: IEmailAttachment[] = [],
-): Promise<Array<{ filename: string; content: string; type?: string }>> =>
+): Promise<
+  Array<{
+    filename: string;
+    content: string;
+    type?: string;
+    disposition?: 'inline';
+    contentId?: string;
+  }>
+> =>
   Promise.all(attachments.map(toBase64Attachment));

@@ -56,6 +56,7 @@ export class SmtpEmailProvider implements IEmailProvider {
           ? Buffer.from(attachment.content, 'base64')
           : undefined,
         contentType: attachment.contentType,
+        cid: attachment.cid,
       })),
       headers: { ...(message.headers || {}), ...(message.customArgs || {}) },
     });
