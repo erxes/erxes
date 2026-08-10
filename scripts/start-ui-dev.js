@@ -18,4 +18,11 @@ if (ENABLED_PLUGINS) {
 
 const command = `nx serve core-ui ${devRemotesArg} --verbose`;
 console.log(`Running: ${command}`);
-execSync(command, { stdio: 'inherit' });
+
+const childEnv = { ...process.env };
+
+if (process.platform === 'darwin' && childEnv.WATCHPACK_POLLING === undefined) {
+  childEnv.WATCHPACK_POLLING = 'true';
+}
+
+execSync(command, { stdio: 'inherit', env: childEnv });

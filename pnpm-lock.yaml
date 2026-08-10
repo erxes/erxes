@@ -1528,15 +1528,12 @@ importers:
       '@babel/preset-env':
         specifier: 7.26.9
         version: 7.26.9(@babel/core@7.29.7)
-<<<<<<< HEAD
-=======
       '@discordjs/rest':
         specifier: ^2.6.1
         version: 2.6.3
       '@discordjs/ws':
         specifier: ^2.0.4
         version: 2.0.4
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
       '@elastic/elasticsearch':
         specifier: 7.17.14
         version: 7.17.14
@@ -1549,12 +1546,9 @@ importers:
       '@prettier/sync':
         specifier: 0.5.5
         version: 0.5.5(prettier@3.6.2)
-<<<<<<< HEAD
-=======
       '@sendgrid/mail':
         specifier: 8.1.5
         version: 8.1.5(debug@4.4.3)
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
       '@sentry/node':
         specifier: 10.57.0
         version: 10.57.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))
@@ -1579,12 +1573,9 @@ importers:
       '@types/lodash':
         specifier: 4.17.21
         version: 4.17.21
-<<<<<<< HEAD
-=======
       '@types/nodemailer':
         specifier: 6.4.24
         version: 6.4.24
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
@@ -1618,12 +1609,9 @@ importers:
       debug:
         specifier: ^4.4.0
         version: 4.4.3(supports-color@8.1.1)
-<<<<<<< HEAD
-=======
       discord-api-types:
         specifier: 0.38.49
         version: 0.38.49
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
       dotenv:
         specifier: 16.4.7
         version: 16.4.7
@@ -2139,12 +2127,9 @@ importers:
       '@prettier/sync':
         specifier: 0.5.5
         version: 0.5.5(prettier@3.6.2)
-<<<<<<< HEAD
       '@sentry/node':
         specifier: 10.57.0
         version: 10.57.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))
-=======
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
       '@sniptt/guards':
         specifier: 0.2.0
         version: 0.2.0
@@ -2325,12 +2310,9 @@ importers:
       '@prettier/sync':
         specifier: 0.5.5
         version: 0.5.5(prettier@3.6.2)
-<<<<<<< HEAD
       '@sentry/node':
         specifier: 10.55.0
         version: 10.55.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))
-=======
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
       '@sniptt/guards':
         specifier: 0.2.0
         version: 0.2.0
@@ -2424,12 +2406,9 @@ importers:
       moment:
         specifier: 2.30.1
         version: 2.30.1
-<<<<<<< HEAD
       mongodb:
         specifier: 6.18.0
         version: 6.18.0(socks@2.8.7)
-=======
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
       mongoose:
         specifier: 8.13.2
         version: 8.13.2(socks@2.8.7)
@@ -2467,7 +2446,6 @@ importers:
         specifier: ^0.5.48
         version: 0.5.48
 
-<<<<<<< HEAD
   backend/plugins/tourism_api/dist:
     dependencies:
       '@apollo/server':
@@ -2612,8 +2590,6 @@ importers:
         specifier: 3.24.2
         version: 3.24.2
 
-  backend/saas-migrations: {}
-=======
   backend/saas-migrations:
     dependencies:
       '@aws-sdk/client-s3':
@@ -2631,7 +2607,6 @@ importers:
       undici:
         specifier: 6.27.0
         version: 6.27.0
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
 
   backend/services/automations:
     dependencies:
@@ -2842,7 +2817,6 @@ importers:
   frontend/libs/ui-modules: {}
 
 packages:
-<<<<<<< HEAD
 
   '@a2a-js/sdk@0.3.14':
     resolution: {integrity: sha512-F6Ew1AtPzCLhTn8h9yiqTe7DiDf6XVrSnq9V1YqSl9eWqPm6anMveTiKdCSb/76cW0YiJc24rNaUrVezFFHbqQ==}
@@ -2859,8 +2833,6 @@ packages:
       express:
         optional: true
 
-=======
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
   '@adobe/css-tools@4.3.3':
     resolution:
       {
@@ -3059,18 +3031,12 @@ packages:
       graphql: 14.x || 15.x || 16.x
 
   '@apollo/server@4.11.3':
-<<<<<<< HEAD
-    resolution: {integrity: sha512-mW8idE2q0/BN14mimfJU5DAnoPHZRrAWgwsVLBEdACds+mxapIYxIbI6AH4AsOpxfrpvHts3PCYDbopy1XPW1g==}
-    engines: {node: '>=14.16.0'}
-    deprecated: Apollo Server v4 is deprecated and will transition to end-of-life on January 26, 2026. As long as you are already using a non-EOL version of Node.js, upgrading to v5 should take only a few minutes. See https://www.apollographql.com/docs/apollo-server/previous-versions for details.
-=======
     resolution:
       {
         integrity: sha512-mW8idE2q0/BN14mimfJU5DAnoPHZRrAWgwsVLBEdACds+mxapIYxIbI6AH4AsOpxfrpvHts3PCYDbopy1XPW1g==,
       }
     engines: { node: '>=14.16.0' }
     deprecated: Apollo Server v4 is end-of-life since January 26, 2026. As long as you are already using a non-EOL version of Node.js, upgrading to v5 should take only a few minutes. See https://www.apollographql.com/docs/apollo-server/previous-versions for details.
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
     peerDependencies:
       graphql: ^16.6.0
 
@@ -27007,9 +26973,6 @@ packages:
         integrity: sha512-b9w0vcjHSdKiOq1jL/KXfb3IvgaIc/BeQv9JuJ3nTEoqSUZfIGKLAyKTS+akHSXrR64R0UwEDmw20GvD2di/Pg==,
       }
 
-  qz-tray@2.2.6:
-    resolution: {integrity: sha512-b9w0vcjHSdKiOq1jL/KXfb3IvgaIc/BeQv9JuJ3nTEoqSUZfIGKLAyKTS+akHSXrR64R0UwEDmw20GvD2di/Pg==}
-
   radix-ui@1.4.3:
     resolution:
       {
@@ -31854,7 +31817,6 @@ packages:
       }
 
 snapshots:
-<<<<<<< HEAD
 
   '@a2a-js/sdk@0.3.14(@grpc/grpc-js@1.14.3)(express@5.2.1)':
     dependencies:
@@ -31863,8 +31825,6 @@ snapshots:
       '@grpc/grpc-js': 1.14.3
       express: 5.2.1
 
-=======
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
   '@adobe/css-tools@4.3.3': {}
 
   '@adobe/css-tools@4.4.2': {}
@@ -51111,11 +51071,10 @@ snapshots:
 
   pathval@2.0.0: {}
 
-<<<<<<< HEAD
   pdf-parse@1.1.4:
     dependencies:
       node-ensure: 0.0.0
-=======
+
   pdfkit@0.15.2:
     dependencies:
       crypto-js: 4.2.0
@@ -51123,7 +51082,6 @@ snapshots:
       jpeg-exif: 1.1.4
       linebreak: 1.1.0
       png-js: 1.1.0
->>>>>>> ed9c73193f9ed5ac9e427c34fffc6968a81a590d
 
   peberminta@0.9.0: {}
 
