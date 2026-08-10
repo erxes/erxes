@@ -5,6 +5,7 @@ export interface IEmailAttachment {
   path?: string;
   content?: string;
   contentType?: string;
+  cid?: string;
 }
 
 export interface IOutboundEmail {

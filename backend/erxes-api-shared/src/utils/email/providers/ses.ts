@@ -95,6 +95,7 @@ export class SesEmailProvider implements IEmailProvider {
           ? Buffer.from(attachment.content, 'base64')
           : undefined,
         contentType: attachment.contentType,
+        cid: attachment.cid,
       })),
       headers,
     });

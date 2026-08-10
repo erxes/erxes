@@ -130,11 +130,12 @@ export const sendEmail = async (
           to: [toEmail],
           subject: title || '',
           html: html || '',
-          attachments: (attachments || []).map((attachment: any) => ({
+          attachments: (attachments || []).map((attachment) => ({
             filename: attachment.filename || attachment.name || '',
             path: attachment.path || attachment.url,
             content: attachment.content,
             contentType: attachment.contentType || attachment.type,
+            cid: attachment.cid,
           })),
         },
         log,

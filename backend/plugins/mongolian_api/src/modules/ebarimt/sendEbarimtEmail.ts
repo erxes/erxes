@@ -42,7 +42,8 @@ interface SendEbarimtEmailParams {
   subdomain: string;
 }
 
-interface EmailAttachment {
+interface InlineEmailAttachment {
+  cid: string;
   content: string;
   contentType: 'image/png';
   filename: string;
@@ -178,7 +179,7 @@ const getConfiguredText = (value: string | undefined, fallback: string) =>
 const getReceiptSection = (
   response: EbarimtEmailResponse,
   index: number,
-  qrImage: string,
+  qrContentId: string,
 ) => {
   const { rows, totalDiscount } = getReceiptRows(response.receipts || []);
 
@@ -186,7 +187,7 @@ const getReceiptSection = (
     <div style="width:270px;margin:0 auto;padding:16px 0;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:13px">
       ${index > 0 ? '<div style="margin-bottom:16px;border-top:1px dashed #444"></div>' : ''}
       <div style="text-align:center">
-        <img src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/ebarimt.png" alt="eBarimt" style="max-width:90px" />
+        <strong style="font-size:18px">eBarimt</strong>
       </div>
       ${response.companyName ? `<p style="margin:5px 0 10px;text-align:center">${escapeHtml(response.companyName)}</p>` : ''}
 
@@ -221,7 +222,7 @@ const getReceiptSection = (
 
       <div style="text-align:center">
         ${response.lottery ? `<div style="margin-top:20px;font-weight:bold">Сугалаа: ${escapeHtml(response.lottery)}</div>` : ''}
-        ${qrImage ? `<img src="${qrImage}" width="220" height="220" alt="И-Баримтын QR код" style="display:block;margin:10px auto" />` : ''}
+        ${qrContentId ? `<img src="cid:${escapeHtml(qrContentId)}" width="220" height="220" alt="И-Баримтын QR код" style="display:block;margin:10px auto" />` : ''}
         ${getConfiguredText(response.footerText, '<p style="margin:5px 0;font-weight:bold;font-size:12px">Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>')}
         ${response.description ? `<div>${formatText(response.description)}</div>` : ''}
       </div>
@@ -248,34 +249,33 @@ export const sendEbarimtEmail = async ({
     return;
   }
 
-  const attachments: EmailAttachment[] = [];
   const receiptSections: string[] = [];
+  const attachments: InlineEmailAttachment[] = [];
 
   for (const [index, response] of successfulResponses.entries()) {
-    let qrImage = '';
+    let qrContentId = '';
 
     if (response.qrData) {
       try {
-        qrImage = await QRCode.toDataURL(response.qrData, {
+        const qrImage = await QRCode.toBuffer(response.qrData, {
           errorCorrectionLevel: 'M',
-          margin: 1,
-          width: 220,
+          margin: 4,
+          type: 'png',
+          width: 600,
         });
-      } catch {
-        qrImage = '';
-      }
-
-      const content = qrImage.split(',')[1];
-      if (content) {
+        qrContentId = `ebarimt-${deal._id}-${index + 1}@erxes`;
         attachments.push({
-          content,
+          cid: qrContentId,
+          content: qrImage.toString('base64'),
           contentType: 'image/png',
           filename: `ebarimt-${index + 1}.png`,
         });
+      } catch {
+        qrContentId = '';
       }
     }
 
-    receiptSections.push(getReceiptSection(response, index, qrImage));
+    receiptSections.push(getReceiptSection(response, index, qrContentId));
   }
 
   const receiptLabel =
