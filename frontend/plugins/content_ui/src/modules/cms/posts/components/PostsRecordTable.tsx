@@ -53,6 +53,7 @@ export const PostsRecordTable = ({
       data={posts || []}
       className="h-full"
       stickyColumns={['openPublicUrl', 'more', 'checkbox', 'title']}
+      tableId="content_posts_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
