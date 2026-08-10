@@ -3,7 +3,7 @@ import { adjustFundRateColumns } from './AdjustFundRateTableColumns';
 import { RecordTable } from 'erxes-ui';
 
 export const AdjustFundRateTable = () => {
-  const { adjustFundRates, loading, totalCount } = useAdjustFundRates();
+  const { adjustFundRates, loading } = useAdjustFundRates();
 
   return (
     <RecordTable.Provider

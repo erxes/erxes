@@ -10,27 +10,26 @@ import {
   CurrencyField,
   DatePicker,
   Form,
+  Select,
   Sheet,
   Spinner,
   Textarea,
-  Select,
 } from 'erxes-ui';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
-  SelectBranches,
-  SelectDepartments,
-  SelectCustomer,
-  SelectCompany,
   CustomerType,
+  SelectBranches,
+  SelectCompany,
+  SelectCustomer,
+  SelectDepartments,
 } from 'ui-modules';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
 import { useAdjustDebtRateAdd } from '../hooks/useAdjustDebtRateAdd';
 import { useAdjustDebtRateChange } from '../hooks/useAdjustDebtRateChange';
-import { TAdjustDebtRateForm } from '../types/adjustDebtRateSchema';
-import { adjustDebtRateSchema } from '../types/adjustDebtRateSchema';
 import { IAdjustDebtRate } from '../types/AdjustDebtRate';
-import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
+import { adjustDebtRateSchema, TAdjustDebtRateForm } from '../types/adjustDebtRateSchema';
 
 export const AddAdjustDebtRate = () => {
   const [open, setOpen] = useState(false);
@@ -171,12 +170,12 @@ const AdjustDebtRateFormContent = ({
     }
   };
 
-  const SelectCustomerComponent =
-    customerType === CustomerType.CUSTOMER
-      ? SelectCustomer.FormItem
-      : customerType === CustomerType.COMPANY
-        ? SelectCompany
-        : null;
+  let SelectCustomerComponent = null;
+  if (customerType === CustomerType.CUSTOMER) {
+    SelectCustomerComponent = SelectCustomer.FormItem;
+  } else if (customerType === CustomerType.COMPANY) {
+    SelectCustomerComponent = SelectCompany;
+  }
 
   return (
     <Form {...form}>

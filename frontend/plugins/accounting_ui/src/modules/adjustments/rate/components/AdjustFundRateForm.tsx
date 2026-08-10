@@ -14,15 +14,14 @@ import {
   Spinner,
   Textarea,
 } from 'erxes-ui';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
 import { useAdjustFundRateAdd } from '../hooks/useAdjustFundRateAdd';
 import { useAdjustFundRateChange } from '../hooks/useAdjustFundRateChange';
-import { TAdjustFundRateForm } from '../types/adjustFundRateSchema';
-import { adjustFundRateSchema } from '../types/adjustFundRateSchema';
 import { IAdjustFundRate } from '../types/AdjustFundRate';
+import { adjustFundRateSchema, TAdjustFundRateForm } from '../types/adjustFundRateSchema';
 
 export const AddAdjustFundRate = () => {
   const [open, setOpen] = useState(false);
