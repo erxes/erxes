@@ -83,7 +83,8 @@ export const TicketReportsList = () => {
   const { reportCharts } = useReportCharts();
 
   const savedTicketCharts = useMemo(
-    () => reportCharts.filter((chart) => ticketReportComponents[chart.chartType]),
+    () =>
+      reportCharts.filter((chart) => ticketReportComponents[chart.chartType]),
     [reportCharts],
   );
 

@@ -286,14 +286,12 @@ const TicketCustomPropertyRankedBars = memo(
     const { t } = useTranslation('frontline');
 
     const total =
-      totalOverride ??
-      properties.reduce((sum, p) => sum + (p.count || 0), 0);
+      totalOverride ?? properties.reduce((sum, p) => sum + (p.count || 0), 0);
     const max = Math.max(...properties.map((p) => p.count || 0), 1);
     const top2 = (properties[0]?.count || 0) + (properties[1]?.count || 0);
     const top2Pct = total ? Math.min(100, Math.round((top2 / total) * 100)) : 0;
     const pctOf = (n: number) =>
       total ? Math.min(100, Math.round((n / total) * 100)) : 0;
-
 
     const isGrouped = properties.some((p) => p.group);
     const groups: { label: string; rows: TagData[] }[] = [];
@@ -326,7 +324,9 @@ const TicketCustomPropertyRankedBars = memo(
           role={clickable ? 'button' : undefined}
           tabIndex={clickable ? 0 : undefined}
           onClick={
-            clickable ? () => onBarClick?.(String(p._id), p.name, count) : undefined
+            clickable
+              ? () => onBarClick?.(String(p._id), p.name, count)
+              : undefined
           }
           className={cn(
             'flex items-center gap-3 py-1.5',
@@ -406,10 +406,7 @@ const TicketCustomPropertyRankedBars = memo(
                       {g.rows.map((r, i) => {
                         const count = r.count || 0;
                         return (
-                          <div
-                            key={r._id}
-                            className="flex items-center gap-2"
-                          >
+                          <div key={r._id} className="flex items-center gap-2">
                             <span
                               className={cn(
                                 'size-2 shrink-0 rounded-full',
