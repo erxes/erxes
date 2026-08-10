@@ -6,6 +6,7 @@ import {
 } from '@tabler/icons-react';
 import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 const FrontlineNavigation = lazy(() =>
   import('./modules/FrontlineNavigation').then((module) => ({
@@ -116,4 +117,5 @@ export const CONFIG: IUIConfig = {
       path: 'frontline/knowledgebase',
     },
   ],
+  searchProviders: SEARCH_PROVIDERS,
 };
