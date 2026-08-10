@@ -353,6 +353,15 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-10` — Form preview number fields drop the thousands separator
+
+- **Summary:** `Input.Number` from `erxes-ui` formats with a `,` thousands
+  separator by default, so a phone number typed into a `number` form field
+  previewed as `00,000,000`. The form preview now passes
+  `thousandsSeparator=""` for these fields.
+- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-08-10` — Save chart on every ticket report card
 
 - **Summary:** Status summary, date, source, tags, and list gained the Save (and
@@ -482,15 +491,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/inbox/channel/{components/TeamChannelsNav.tsx,states/teamInboxSortState.ts}`.
 - **Contracts changed:** None on this side; consumes the new `getMyChannels`
   sort arguments from `frontline_api`.
-
-### `2026-08-05` — Sidebar group actions no longer fold their own group
-
-- **Summary:** Create-channel, create-brand, and the team-inbox sort toggle sit
-  in a `NavigationMenuGroup` `actions` slot, which renders inside the group's
-  collapsible trigger, so every click on them also collapsed the group. A new
-  `NavigationGroupActions` wrapper stops the click at the slot.
-- **Affected areas:** `src/modules/NavigationGroupActions.tsx`,
-  `src/modules/FrontlineSubGroups.tsx` (Channels and Brands groups),
-  `src/modules/inbox/channel/components/TeamChannelsNav.tsx`.
-- **Contracts changed:** None — `NavigationGroupActions` is new and internal;
-  the sort toggle dropped its own now-redundant `stopPropagation`.
