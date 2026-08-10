@@ -17,13 +17,7 @@ interface IQueryParams {
 }
 
 export const generateFilter = async (params: IQueryParams) => {
-  const {
-    ids,
-    date,
-    mainCurrency,
-    currency,
-    searchValue,
-  } = params;
+  const { ids, date, mainCurrency, currency, searchValue } = params;
 
   const filter: FilterQuery<IAdjustFundRateDocument> = {};
 

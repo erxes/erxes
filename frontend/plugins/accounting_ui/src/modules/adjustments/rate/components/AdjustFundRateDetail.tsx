@@ -8,13 +8,7 @@ import {
   IconTrashX,
   IconEdit,
 } from '@tabler/icons-react';
-import {
-  Button,
-  DatePicker,
-  Spinner,
-  Tooltip,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, DatePicker, Spinner, Tooltip, useQueryState } from 'erxes-ui';
 import { useAdjustFundRateRemove } from '../hooks/useAdjustFundRateRemove';
 import { useAdjustFundRateDetail } from '../hooks/useAdjustFundRateDetail';
 import dayjs from 'dayjs';
@@ -70,10 +64,9 @@ export const AdjustFundRateDetail = () => {
 
   const accountIds = useMemo(
     () =>
-      [
-        adjustFundRate?.gainAccountId,
-        adjustFundRate?.lossAccountId,
-      ].filter(isPresent),
+      [adjustFundRate?.gainAccountId, adjustFundRate?.lossAccountId].filter(
+        isPresent,
+      ),
     [adjustFundRate?.gainAccountId, adjustFundRate?.lossAccountId],
   );
 
@@ -265,9 +258,7 @@ export const AdjustFundRateDetail = () => {
                       <th className="p-2 text-right font-medium">
                         Currency Balance
                       </th>
-                      <th className="p-2 text-right font-medium">
-                        Difference
-                      </th>
+                      <th className="p-2 text-right font-medium">Difference</th>
                       <th className="p-2 text-center font-medium">
                         Transaction
                       </th>
@@ -321,11 +312,7 @@ export const AdjustFundRateDetail = () => {
   );
 };
 
-const StatusBar = ({
-  adjustFundRate,
-}: {
-  adjustFundRate: IAdjustFundRate;
-}) => {
+const StatusBar = ({ adjustFundRate }: { adjustFundRate: IAdjustFundRate }) => {
   const start = adjustFundRate.beginDate || adjustFundRate.date;
   const end = adjustFundRate.date;
   const current = adjustFundRate.successDate || start;
