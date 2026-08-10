@@ -11,11 +11,22 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import {
+  InvoiceAmountCell,
+  InvoiceDescriptionCell,
+  InvoiceStatusCell,
+} from '~/modules/payment/components/InvoiceInlineCells';
+import { InvoiceMoreColumnCell } from '~/modules/payment/components/InvoiceMoreColumn';
 import { IInvoice } from '~/modules/payment/types/Payment';
 
 export const invoicesColumns = (
   t: (key: string) => string,
 ): ColumnDef<IInvoice>[] => [
+  {
+    id: 'more',
+    cell: ({ cell }) => <InvoiceMoreColumnCell invoice={cell.row.original} />,
+    size: 33,
+  },
   {
     id: 'invoiceNumber',
     accessorKey: 'invoiceNumber',
@@ -40,13 +51,7 @@ export const invoicesColumns = (
     header: () => (
       <RecordTable.InlineHead label={t('description')} icon={IconHash} />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => <InvoiceDescriptionCell invoice={cell.row.original} />,
     size: 350,
   },
   {
@@ -55,13 +60,7 @@ export const invoicesColumns = (
     header: () => (
       <RecordTable.InlineHead label={t('amount')} icon={IconHash} />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => <InvoiceAmountCell invoice={cell.row.original} />,
   },
   {
     id: 'currency',
@@ -83,19 +82,7 @@ export const invoicesColumns = (
     header: () => (
       <RecordTable.InlineHead label={t('status')} icon={IconHash} />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <Badge
-            variant={
-              (cell.getValue() as string) === 'paid' ? 'success' : 'destructive'
-            }
-          >
-            {cell.getValue() as string}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => <InvoiceStatusCell invoice={cell.row.original} />,
   },
   {
     id: 'scannedAt',

@@ -8,7 +8,9 @@ export const PersonalChannelBreadcrumb = () => {
   const { t } = useTranslation('frontline');
 
   return (
-    <Link to={`/settings/${FrontlinePaths.Frontline}${FrontlinePaths.PersonalChannel}`}>
+    <Link
+      to={`/settings/${FrontlinePaths.Frontline}${FrontlinePaths.PersonalChannel}`}
+    >
       <Button variant="ghost" className="font-semibold">
         <IconUserCircle className="w-4 h-4 text-accent-foreground" />
         {t('personal-channel')}

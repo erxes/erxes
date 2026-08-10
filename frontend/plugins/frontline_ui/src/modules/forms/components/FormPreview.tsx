@@ -267,6 +267,7 @@ export const FormPreviewContent = ({
                               value={field.value}
                               onChange={(value) => field.onChange(value)}
                               placeholder={erxesField.placeholder}
+                              thousandsSeparator=""
                             />
                             {erxesField.description && (
                               <Form.Description

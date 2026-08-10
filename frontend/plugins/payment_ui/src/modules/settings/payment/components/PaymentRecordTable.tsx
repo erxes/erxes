@@ -10,6 +10,7 @@ export function PaymentRecordTable() {
       data={payments || []}
       columns={paymentColumns}
       className="m-3"
+      tableId="payment_methods_record_table"
     >
       <RecordTable.Scroll>
         <RecordTable>

@@ -1,151 +1,144 @@
+import { useRemoveTicketConfig } from '@/pipelines/components/configs/hooks/useRemoveTicketConfig';
+import { useGetTicketConfigByPipelineId } from '@/pipelines/components/configs/hooks/useGetTicketConfigByPipelineId';
+import { PipelineSection } from '@/pipelines/components/PipelineSection';
 import {
-  Badge,
+  IconDots,
+  IconEdit,
+  IconMessageCog,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
+import {
   Button,
-  InfoCard,
+  DropdownMenu,
+  Empty,
   Skeleton,
   Spinner,
-  Table,
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
-import { useAtom } from 'jotai';
+import { TICKET_FORM_FIELDS } from '@/pipelines/components/configs/constant';
 import { configCreateModalAtom } from '../states';
-import { useRemoveTicketConfig } from '../hooks/useRemoveTicketConfig';
-import { useGetTicketConfigByPipelineId } from '../hooks/useGetTicketConfigByPipelineId';
 
-function formatDate(dateValue: Date | string | null | undefined): string {
-  if (!dateValue) return '-';
-  const date = new Date(dateValue);
-  return isNaN(date.getTime()) ? '-' : format(date, 'MM/dd/yyyy');
-}
+const ConfigRowSkeleton = () => (
+  <div className="flex h-12 items-center gap-3 px-2">
+    <Skeleton className="size-7 flex-none rounded" />
+    <div className="flex flex-col gap-1">
+      <Skeleton className="h-3.5 w-32" />
+      <Skeleton className="h-2.5 w-20" />
+    </div>
+  </div>
+);
+
+const ConfigMenu = ({ configId }: { configId: string }) => {
+  const { t } = useTranslation('frontline');
+  const { confirm } = useConfirm();
+  const { removeTicketConfig, loading } = useRemoveTicketConfig();
+  const [, setConfigId] = useQueryState<string | undefined>('configId');
+
+  const onRemove = () => {
+    confirm({
+      message: t('confirm-remove-configuration'),
+      options: { confirmationValue: 'delete' },
+    }).then(() => {
+      removeTicketConfig({ variables: { id: configId } });
+    });
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <Button className="ml-auto" size="icon" variant="ghost">
+          {loading ? <Spinner size="sm" /> : <IconDots />}
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="end" className="min-w-40">
+        <DropdownMenu.Item onSelect={() => setConfigId(configId)}>
+          <IconEdit />
+          {t('edit')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item
+          className="text-destructive"
+          disabled={loading}
+          onSelect={onRemove}
+        >
+          <IconTrash />
+          {t('delete')}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
 
 export const ConfigList = () => {
   const { t } = useTranslation('frontline');
-  const [, setOpen] = useAtom(configCreateModalAtom);
+  const setCreateOpen = useSetAtom(configCreateModalAtom);
   const [, setConfigId] = useQueryState<string | undefined>('configId');
   const { ticketConfig, loading } = useGetTicketConfigByPipelineId();
 
-  const { removeTicketConfig, loading: removeLoading } =
-    useRemoveTicketConfig();
-  const { confirm } = useConfirm();
-  const confirmationValue = 'delete';
-  const onRemove = (id: string) => {
-    confirm({
-      message: `Are you sure you want to remove this configuration?`,
-      options: { confirmationValue },
-    }).then(() => {
-      removeTicketConfig({ variables: { id } });
-    });
-  };
-  if (loading)
+  const formFields = ticketConfig?.formFields;
+  const shownFields = TICKET_FORM_FIELDS.filter(
+    (field) => formFields?.[field.key]?.isShow,
+  )
+    .sort(
+      (a, b) =>
+        (formFields?.[a.key]?.order ?? 0) - (formFields?.[b.key]?.order ?? 0),
+    )
+    .map((field) => t(field.label));
+
+  if (!loading && !ticketConfig) {
     return (
-      <div className="box-border flex-1 px-4 sm:px-8 lg:px-16">
-        <Skeleton className="w-full h-8 mb-2" />
-        <Skeleton className="w-full h-40" />
-      </div>
+      <Empty className="rounded-lg bg-sidebar">
+        <Empty.Header>
+          <Empty.Media>
+            <IconMessageCog />
+          </Empty.Media>
+          <Empty.Title>{t('messenger-configuration')}</Empty.Title>
+          <Empty.Description>
+            {t('configure-messenger-configuration')}
+          </Empty.Description>
+        </Empty.Header>
+        <Empty.Content>
+          <Button onClick={() => setCreateOpen(true)}>
+            <IconPlus />
+            {t('add-configuration')}
+          </Button>
+        </Empty.Content>
+      </Empty>
     );
+  }
+
   return (
-    <div className="box-border flex-1 px-4 sm:px-8 lg:px-16">
-      <InfoCard
-        title={t('messenger-configuration')}
-        description={t('configure-messenger-configuration')}
-      >
-        <InfoCard.Content>
-          <Table className="border-none rounded-xl overflow-hidden *:border-none">
-            <Table.Header className="border-none">
-              <Table.Row className="[&>td]:font-mono [&>td]:uppercase [&>td]:font-semibold [&>td]:text-xs [&>td]:text-accent-foreground *:border-none">
-                <Table.Cell colSpan={3} className="ps-2">
-                  {t('name')}
-                </Table.Cell>
-                <Table.Cell colSpan={3} className="text-center">
-                  {t('contact-type')}
-                </Table.Cell>
-                <Table.Cell colSpan={4} className="text-right">
-                  {t('created-at')}
-                </Table.Cell>
-                <Table.Cell colSpan={2} className="text-right pe-2">
-                  {t('actions')}
-                </Table.Cell>
-              </Table.Row>
-            </Table.Header>
-            {(ticketConfig && (
-              <Table.Body className="*:border-none">
-                <Table.Row
-                  key={ticketConfig?.id}
-                  className="hover:bg-transparent *:border-none"
-                >
-                  <Table.Cell
-                    colSpan={3}
-                    className="group-hover/table-row:bg-transparent ps-2"
-                  >
-                    <Badge
-                      variant="secondary"
-                      onClick={() => setConfigId(ticketConfig?.id)}
-                      className="cursor-pointer"
-                    >
-                      {ticketConfig?.name}
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell
-                    colSpan={3}
-                    className="text-center group-hover/table-row:bg-transparent"
-                  >
-                    {ticketConfig?.contactType}
-                  </Table.Cell>
-                  <Table.Cell
-                    colSpan={4}
-                    className="text-right group-hover/table-row:bg-transparent"
-                  >
-                    {formatDate(ticketConfig?.createdAt)}
-                  </Table.Cell>
-                  <Table.Cell
-                    colSpan={2}
-                    className="group-hover/table-row:bg-transparent pe-2"
-                  >
-                    <div className="flex items-center justify-end">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => onRemove(ticketConfig?.id || '')}
-                        disabled={removeLoading}
-                      >
-                        {removeLoading ? (
-                          <Spinner size="sm" />
-                        ) : (
-                          <IconTrash className="text-destructive" />
-                        )}
-                      </Button>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            )) || (
-              <Table.Footer className="mt-4 *:border-none">
-                <Table.Row className="hover:bg-background *:border-none">
-                  <Table.Cell
-                    colSpan={12}
-                    className="group-hover/table-row:bg-transparent"
-                  >
-                    <div className="w-full pt-3 pb-1 px-2">
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => setOpen(true)}
-                      >
-                        <IconPlus />
-                        {t('add-configuration')}
-                      </Button>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Footer>
-            )}
-          </Table>
-        </InfoCard.Content>
-      </InfoCard>
-    </div>
+    <PipelineSection title={t('messenger-configuration')}>
+      {loading || !ticketConfig ? (
+        <ConfigRowSkeleton />
+      ) : (
+        <div className="flex h-12 items-center gap-3 rounded-md border bg-background px-2 transition-colors hover:bg-accent">
+          <Button
+            className="h-auto min-w-0 flex-1 justify-start gap-3 whitespace-normal px-0 py-0 text-left font-normal hover:bg-transparent"
+            onClick={() => setConfigId(ticketConfig.id)}
+            variant="ghost"
+          >
+            <span className="flex size-7 flex-none items-center justify-center rounded bg-primary/10 text-primary">
+              <IconMessageCog className="size-4" />
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-sm font-medium">
+                {ticketConfig.name}
+              </span>
+              <span className="truncate font-mono text-xs uppercase text-muted-foreground">
+                {shownFields.length
+                  ? shownFields.join(' · ')
+                  : t('no-fields-to-preview')}
+              </span>
+            </span>
+          </Button>
+          <ConfigMenu configId={ticketConfig.id} />
+        </div>
+      )}
+    </PipelineSection>
   );
 };

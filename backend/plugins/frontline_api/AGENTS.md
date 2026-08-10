@@ -28,7 +28,8 @@
 - Forms: form definitions, fields, and form submissions (with submission export).
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
-- Frontline reports.
+- Frontline reports, including the saved report charts that persist a named
+  filter configuration for a report card.
 - Plugin-owned automation triggers/actions/bots contributed to the platform
   automation engine.
 
@@ -86,7 +87,7 @@
 
 | Area                 | Path                                                                       | Responsibility                                                                                          |
 | -------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Bootstrap            | `src/main.ts`                                                              | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface            |
+| Bootstrap            | `src/main.ts`                                                              | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface           |
 | Models               | `src/connectionResolvers.ts`                                               | Per-subdomain model container for all modules                                                           |
 | GraphQL              | `src/apollo/`                                                              | Aggregated `typeDefs` and `resolvers` across modules                                                    |
 | tRPC                 | `src/init-trpc.ts`                                                         | `appRouter` for service-to-service calls                                                                |
@@ -103,6 +104,7 @@
 | Ticket               | `src/modules/ticket/`                                                      | Boards, pipelines, statuses, tickets, activities, notes                                                 |
 | Forms                | `src/modules/form/`                                                        | Forms, fields, submissions                                                                              |
 | Knowledge base       | `src/modules/knowledgebase/`                                               | Topics, categories, articles, AI knowledge source                                                       |
+| Reports              | `src/modules/reports/`                                                     | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                |
 | Migrations           | `src/migrations/`                                                          | Plugin-owned data migrations                                                                            |
 
 ## Contracts
@@ -173,6 +175,18 @@
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
   `CallCdrs` through `buildCdrFilter` and fold legs into calls before counting.
   They return nothing in a deployment whose PBX does not post CDRs.
+- GraphQL: `reportCharts(chartType: String)` and `reportChartDetail(_id)` —
+  saved report charts, oldest first. A saved chart is a name plus the filter
+  configuration a report card was showing; `chartType` is the frontend's chart
+  registry id (for example `ticket-custom-properties`), which is how a stored
+  configuration finds the component that renders it.
+- GraphQL: `reportChartAdd(name!, chartType!, colSpan, filters)`,
+  `reportChartEdit(_id!, name, colSpan, filters)`, `reportChartRemove(_id!)`.
+  All three require an authenticated user. `filters` reuses the
+  `TicketReportFilter` **input**, so a saved configuration is by construction
+  something the report queries accept; the persisted subset is narrowed by
+  `pickReportChartFilters`. Saving never touches the default charts — they are
+  a frontend constant, not rows in this collection.
 - Automation constants (`triggers`, `actions`, `bots`, AI knowledge sources) and
   worker producers exported from `src/meta/automations.ts`.
 - Permissions, notification types, segment definitions, references, and
@@ -227,6 +241,11 @@
   personal channel per user and makes concurrent creation race-safe (the loser
   catches duplicate-key `11000` and reuses the winner).
 - Unique index `channelMembers { channelId: 1, memberId: 1 }`.
+- `frontline_report_charts` (`models.ReportCharts`) — one document per saved
+  report chart: `name`, indexed `chartType`, `colSpan`, an embedded `filters`
+  subdocument with explicit fields, and `createdBy`. Tenant-scoped like every
+  other collection here; charts are visible to the whole tenant, not only their
+  author.
 - Migrations under `src/migrations/` cover call conversation content, CDR dates,
   channels, forms, response templates, and tickets.
 - Every call — whether it arrived through the CDR webhook (`receiveCdr`) or the
@@ -354,6 +373,40 @@
   module (`frontline:facebook.comments.create`).
 - Facebook/Instagram automations must resolve their integration and bot from the
   request's own models; never read another plugin's collections.
+- Ticket reports count **live tickets by default**: `buildTicketMatch` treats an
+  unset `state` as `active` (and a missing `state` field as active, for tickets
+  written before it existed). `state: 'all'` is the only way to include archived
+  and deleted tickets. Do not reintroduce an unfiltered default.
+- `reportTicketPriority` returns a `priority: 0` ("no priority") row alongside
+  `TICKET_PRIORITY_TYPES`, because the schema default is `0` and most tickets
+  are never triaged. Summing every returned row gives the real ticket count, and
+  the percentages are shares of it. `TICKET_PRIORITY_TYPES` itself must stay
+  free of that row — import, export, and the priority field options read it.
+- `Ticket.statusType` is a **denormalized copy** of `Status.type` and is only
+  written by `updateTicket` when a ticket moves to a different status —
+  `addTicket` and the widget's direct `Ticket.create` never set it, so every
+  ticket created into a pipeline status and never moved still holds the schema
+  default `0`. Never group or count on it directly: resolve the category from
+  the ticket's `statusId` through `Status.type` and fall back to the stored copy
+  only when the status is gone. `reportTicketStatusSummary` is the reference
+  implementation: it reports per pipeline status, so `TICKET_DEFAULT_STATUSES`
+  supplies the category name and colour, never the row itself. The same staleness affects the `statusType` filter in
+  `src/modules/ticket/utils/generateFilter.ts` and the automation/export field,
+  which are **not** fixed yet.
+- A ticket report match built from `buildTicketMatch` / `buildTicketTagMatch` is
+  **not** complete on its own: a ticket carries no customer or company field, so
+  those two filters resolve to related ticket ids over tRPC. Every such match
+  must be passed through `narrowTicketMatchByContacts` before it reaches an
+  aggregation, otherwise the API accepts Customer and Company and then silently
+  ignores them. `buildTicketPipeline` already does this; a new ticket report
+  resolver must too. When a selected contact has no related tickets the result
+  is `_id: { $in: [] }` — never a fall back to unfiltered.
+- A saved report chart stores only configuration. `pickReportChartFilters` is
+  the one gate: it drops empty values and never persists `limit`, `page`, or
+  `groupPropertyValue`, which describe a viewing session (paging, an open
+  drill-down) rather than the chart. Widening the stored filter set means adding
+  the field to the `filters` subschema, the `ReportChartFilters` output type,
+  and that key list together, or it will be silently dropped on save.
 - Every resolver, model call, worker, and route resolves models from the request
   `subdomain`.
 - Schemas are defined with `new Schema(...)` and explicit fields; do not
@@ -461,68 +514,86 @@
   and the carrier breakdown all report differently because they were wrong
   before.
 
-### `2026-08-10` — Call reports stay on `CallCdrs`; queue list and carriers fixed
+### `2026-08-10` — Status summary breaks down by pipeline status
 
-### `2026-08-06` — Conversation counts on channels and used integration kinds
-
-- **Summary:** Added `Channel.conversationCount` /
-  `Channel.unreadConversationCount` field resolvers, and gave
-  `integrationsGetUsedTypesByChannel` its own return type carrying the same two
-  counts per integration kind, folded from one aggregation over the matched
-  channels' integrations.
+- **Summary:** `reportTicketStatusSummary` now returns one row per pipeline
+  status a ticket is actually in, named after that status and carrying its
+  default category in `group`, instead of six rolled-up category rows. Tickets
+  whose status was deleted collapse onto a category-named row with no `group`,
+  and statuses nobody is using are omitted.
 - **Affected areas:**
-  `src/modules/channel/graphql/{schemas/channel.ts,resolvers/customResolvers/channel.ts}`,
-  `src/modules/inbox/graphql/{schemas/integration.ts,resolvers/queries/integrations.ts}`.
-- **Contracts changed:** `Channel` gained two nullable `Int` fields;
-  `integrationsGetUsedTypesByChannel` now returns
-  `[integrationsGetUsedTypesByChannel]` instead of `[integrationsGetUsedTypes]`
-  — same `_id` / `name` fields, plus the two counts.
+  `src/modules/reports/graphql/{resolvers/ticketQueries.ts,schema/ticket.ts}`.
+- **Contracts changed:** `ReportTicketStatusSummary` gained nullable `_id` and
+  `group`; the row count is now the number of statuses in use rather than a
+  fixed six, and an empty result is possible where six zero rows came back
+  before.
 
-### `2026-08-06` — Personal channels accept every integration kind
+### `2026-08-10` — Ticket reports count live tickets, and priority totals add up
 
-- **Summary:** Removed `PERSONAL_INTEGRATION_KINDS` and the kind check in
-  `integrationsCreateExternalIntegration`. A personal channel now takes the same
-  integrations a team channel does, and a create call with no `channelId` falls
-  back to the caller's personal channel for any kind instead of erroring for
-  everything but IMAP.
+- **Summary:** `buildTicketMatch` now defaults to `state: 'active'`, so archived
+  and deleted tickets stay out of every ticket report unless `state: 'all'` asks
+  for them. `reportTicketPriority` additionally returns the `priority: 0` bucket
+  it was already counting into its denominator, so the KPI row can show the real
+  ticket count instead of only the triaged ones.
+- **Affected areas:** `src/modules/reports/utils.ts`,
+  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
+- **Contracts changed:** `TicketReportFilter.state` gained the `all` value;
+  an unset `state` no longer means "every state". `reportTicketPriority` returns
+  five rows instead of four.
+
+### `2026-08-10` — Status summary counts tickets by their real status
+
+- **Summary:** `reportTicketStatusSummary` now resolves each ticket's category
+  from `statusId` through `Status.type` instead of trusting the denormalized
+  `Ticket.statusType`, which is only written when a ticket is moved. Tickets
+  created into a custom pipeline status and never moved carried `statusType: 0`
+  and were dropped from every bucket; they are now counted, and the card's
+  percentages describe the same population as its counts.
 - **Affected areas:**
-  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`,
-  `src/modules/inbox/db/definitions/constants.ts`.
-- **Contracts changed:** `integrationsCreateExternalIntegration` no longer
-  rejects an omitted `channelId` for non-mailbox kinds; the ownership check on
-  another user's personal channel is unchanged.
+  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
+- **Contracts changed:** `None` — `reportTicketStatusSummary` keeps its
+  arguments and its six `TICKET_DEFAULT_STATUSES` rows.
 
-### `2026-08-06` — Fix the Facebook login callback behind the authorize redirector
+### `2026-08-10` — Customer and Company filters reach every ticket report
 
-- **Summary:** The OAuth `state` carries the integration kind as a
-  `/kind/<kind>` path segment instead of a `?kind=` query string, and
-  `/facebook/kind/:kind/fblogin` accepts the redirector callback, so returning
-  from Facebook no longer lands on `/facebook` with `Cannot GET /facebook`.
-- **Affected areas:**
-  `src/modules/integrations/facebook/middlewares/loginMiddleware.ts`,
-  `src/modules/integrations/facebook/routes.ts`
-- **Contracts changed:** new HTTP route `GET /facebook/kind/:kind/fblogin`
+- **Summary:** Extracted the customer/company relation lookup out of
+  `buildTicketPipeline` into `narrowTicketMatchByContacts` and applied it to the
+  six resolvers that built their match with `buildTicketMatch` /
+  `buildTicketTagMatch` and therefore dropped both filters without erroring —
+  custom properties, tags, source, open, status summary, and priority.
+  Behaviour of the four resolvers already using `buildTicketPipeline` is
+  unchanged.
+- **Affected areas:** `src/modules/reports/utils.ts`,
+  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
+- **Contracts changed:** `None` — same arguments and return shapes;
+  `reportTicketOpen`, `reportTicketStatusSummary`, and `reportTicketPriority`
+  now read `subdomain` from context.
 
-### `2026-08-05` — `getMyChannels` sorting
+### `2026-08-09` — Saved report charts
 
-- **Summary:** `getMyChannels` accepts `sortField` / `sortDirection` and sorts in
-  Mongo, so the UI no longer has to order the list client-side. `sortField` is
-  checked against an allowlist (`name`, `createdAt`) before it reaches the query,
-  and the query is collated so `name` does not fall back to byte order.
-- **Affected areas:**
-  `src/modules/channel/graphql/{schemas,resolvers/queries}/channel.ts`.
-- **Contracts changed:** `getMyChannels` gained optional `sortField: String` and
-  `sortDirection: Int` arguments; default order is `createdAt` descending, where
-  it was previously unspecified.
+- **Summary:** Added the `frontline_report_charts` collection and its
+  `reportCharts` / `reportChartDetail` queries and `reportChartAdd` /
+  `reportChartEdit` / `reportChartRemove` mutations, so a report card's current
+  filter selection can be stored under a user-chosen name and reopened later.
+  `filters` reuses the existing `TicketReportFilter` input and is narrowed by
+  `pickReportChartFilters` before it is written.
+- **Affected areas:** `src/modules/reports/@types/chart.ts`,
+  `src/modules/reports/db/{definitions,models}/chart*.ts`,
+  `src/modules/reports/graphql/{schema/chart.ts,resolvers/chart{Queries,Mutations}.ts}`,
+  `src/modules/reports/utils.ts`, `src/connectionResolvers.ts`,
+  `src/apollo/{schema/schema.ts,resolvers/{queries,mutations}.ts}`.
+- **Contracts changed:** New `ReportChart`, `ReportChartFilters`, and
+  `ReportChartPropertyValueFilter` types; two new queries and three new
+  mutations. No existing report query changed.
 
-### `2026-08-05` — `getChannels` restricted to team scope
+### `2026-08-07` — Indexed knowledge base articles carry their category name
 
-- **Summary:** `getChannels` now returns only team-scoped channels on all four
-  branches; personal inboxes (including the caller's own) are excluded and
-  remain reachable through `getPersonalChannel`. Added `teamChannelsOnly` in
-  `src/modules/channel/utils.ts`, which also matches legacy documents written
-  before `scope` existed, since the schema default is `team`.
-- **Affected areas:** `src/modules/channel/utils.ts`,
-  `src/modules/channel/graphql/resolvers/queries/channel.ts`.
-- **Contracts changed:** `getChannels` no longer returns personal channels; its
-  arguments and return type are unchanged.
+- **Summary:** Article documents sent for AI indexing are now titled
+  `Category › Article` and carry the category title as a keyword, so articles
+  named only `1`, `2`, `3` are still reachable by the subject that lives on
+  their category. Categories are resolved in one batched query per document
+  batch.
+- **Affected areas:** `src/modules/knowledgebase/meta/automations.ts`
+- **Contracts changed:** `None` (same `TKnowledgeDocument` shape; `title` and
+  `metadata.keywords` are richer). Existing chunks keep their old titles until
+  the source is re-indexed.

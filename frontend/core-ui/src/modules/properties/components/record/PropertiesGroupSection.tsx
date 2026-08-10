@@ -4,11 +4,13 @@ import {
   Button,
   Collapsible,
   DropdownMenu,
+  EnumCursorDirection,
   RecordTable,
   Spinner,
   useConfirm,
 } from 'erxes-ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
@@ -96,9 +98,18 @@ export const PropertiesGroupSection = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const navigate = useNavigate();
   const [needsToRefresh, setNeedsToRefresh] = useAtom(needsToRefreshState);
-  const { fields, totalCount, loading, refetch } = useFields({
-    contentType,
-    groupId: group._id,
+  const { fields, totalCount, loading, refetch, handleFetchMore, pageInfo } =
+    useFields({
+      contentType,
+      groupId: group._id,
+    });
+
+  const [loadMoreRef] = useInView({
+    onChange(inView) {
+      if (inView) {
+        handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+      }
+    },
   });
 
   useEffect(() => {
@@ -165,7 +176,7 @@ export const PropertiesGroupSection = ({
             stickyColumns={['more', 'checkbox', 'name']}
             className="rounded-md border"
           >
-            <RecordTable.Scroll className="h-auto">
+            <RecordTable.Scroll className="h-auto" viewportClassName="max-h-96">
               <RecordTable>
                 <RecordTable.Header />
                 <RecordTable.Body>
@@ -176,6 +187,11 @@ export const PropertiesGroupSection = ({
                   />
                 </RecordTable.Body>
               </RecordTable>
+              {pageInfo?.hasNextPage && (
+                <div ref={loadMoreRef}>
+                  <Spinner containerClassName="py-3" />
+                </div>
+              )}
             </RecordTable.Scroll>
           </RecordTable.Provider>
         )}

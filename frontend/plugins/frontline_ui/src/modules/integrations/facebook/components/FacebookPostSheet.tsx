@@ -14,6 +14,7 @@ import {
   Popover,
   Select,
   Sheet,
+  Sidebar,
   Spinner,
   Textarea,
   useToast,
@@ -37,15 +38,14 @@ export const FacebookPostSheet = () => {
   return (
     <Sheet>
       <Sheet.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-6 shrink-0 text-muted-foreground hover:text-foreground"
+        <Sidebar.MenuAction
+          showOnHover
+          className="text-muted-foreground hover:text-foreground"
           aria-label={t('create-facebook-post')}
           onClick={(e) => e.stopPropagation()}
         >
           <IconPlus />
-        </Button>
+        </Sidebar.MenuAction>
       </Sheet.Trigger>
       <Sheet.View className="p-0">
         <FacebookPostForm />

@@ -15,8 +15,8 @@ export const InboxWorkspaceToggleGroup = () => {
   const activeTab: Tab = mine
     ? 'assigned-to-me'
     : unassigned
-    ? 'unassigned'
-    : 'all';
+      ? 'unassigned'
+      : 'all';
 
   const handleOnChange = (value: string) => {
     if (!value) return;

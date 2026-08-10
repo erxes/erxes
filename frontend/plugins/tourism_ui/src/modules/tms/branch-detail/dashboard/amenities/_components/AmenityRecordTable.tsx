@@ -56,6 +56,7 @@ export const AmenityRecordTable = ({
       data={amenities || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name', 'icon']}
+      tableId="tourism_amenities_record_table"
     >
       <AmenityCommandBar />
       <RecordTable.CursorProvider

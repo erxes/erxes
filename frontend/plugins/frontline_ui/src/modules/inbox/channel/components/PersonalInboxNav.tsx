@@ -35,7 +35,10 @@ export const PersonalInboxNav = () => {
   );
 
   return (
-    <NavigationMenuGroup name={t('me')} actions={<UnreadSummary count={total} />}>
+    <NavigationMenuGroup
+      name={t('me')}
+      actions={<UnreadSummary count={total} />}
+    >
       {loading && !integrationTypes.length && (
         <Skeleton className="w-32 h-4 mt-1" />
       )}

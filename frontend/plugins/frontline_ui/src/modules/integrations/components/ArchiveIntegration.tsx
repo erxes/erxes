@@ -23,13 +23,17 @@ export const ArchiveIntegration = ({
     ],
     onCompleted() {
       toast({
-        title: isActive ? t('integration-archived') : t('integration-unarchived'),
+        title: isActive
+          ? t('integration-archived')
+          : t('integration-unarchived'),
         variant: 'default',
       });
     },
     onError(e) {
       toast({
-        title: isActive ? t('failed-to-archive-integration') : t('failed-to-unarchive-integration'),
+        title: isActive
+          ? t('failed-to-archive-integration')
+          : t('failed-to-unarchive-integration'),
         description: e?.message,
         variant: 'destructive',
       });

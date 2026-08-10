@@ -15,8 +15,10 @@ import {
   VatRows as MutationsVatRow,
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
-  AdjustFixedAssets as MutationsAdjustFixedAssets,
   AdjustInventories as MutationsAdjustInventories,
+  AdjustFundRates as MutationsAdjustFundRates,
+  AdjustDebtRates as MutationsAdjustDebtRates,
+  AdjustFixedAssets as MutationsAdjustFixedAssets,
   AccountPermissions as MutationsAccountPermissions,
 } from '@/accounting/graphql/resolvers/mutations';
 import {
@@ -30,6 +32,8 @@ import {
   AdjustFixedAssets as QueriesAdjustFixedAssets,
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
+  AdjustFundRates as QueriesAdjustFundRates,
+  AdjustDebtRates as QueriesAdjustDebtRates,
   AccountPermissions as QueriesAccountPermissions,
 } from '@/accounting/graphql/resolvers/queries';
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
@@ -75,6 +79,8 @@ const resolvers: any = {
     ...MutationsCtaxRow,
     ...MutationsTransactions,
     ...MutationsAdjustInventories,
+    ...MutationsAdjustFundRates,
+    ...MutationsAdjustDebtRates,
     ...MutationsAdjustFixedAssets,
     ...MutationsAccountPermissions,
     ...MutationsRemainder,
@@ -94,6 +100,8 @@ const resolvers: any = {
     ...QueriesAdjustInventories,
     ...QueriesAdjustFixedAssets,
     ...QueriesJournalReport,
+    ...QueriesAdjustFundRates,
+    ...QueriesAdjustDebtRates,
     ...QueriesAccountPermissions,
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,

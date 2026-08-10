@@ -3,7 +3,7 @@ import { TAiAgentForm } from '@/automations/components/settings/components/agent
 import {
   CONTEXT_FILES_KEY,
   getSourceKey,
-  getSourceSelectionCount,
+  getSourceSelectionLabel,
   TAiAgentKnowledgeSourceSelections,
 } from '@/automations/components/settings/components/agents/utils/aiAgentKnowledgeSources';
 import { useSessionTab } from '@/automations/hooks/useSessionTab';
@@ -21,7 +21,7 @@ type TAiKnowledgeSourcesResponse = {
 export type TAiAgentKnowledgeSourceRailItem = {
   key: string;
   label: string;
-  count: number;
+  count: string;
   icon: typeof IconFileText;
 };
 
@@ -47,13 +47,13 @@ export const useAiAgentKnowledgeSourceRail = (
     {
       key: CONTEXT_FILES_KEY,
       label: 'Context files',
-      count: files.length,
+      count: String(files.length),
       icon: IconPaperclip,
     },
     ...sources.map((source) => ({
       key: getSourceKey(source),
       label: source.label,
-      count: getSourceSelectionCount(knowledgeSources, source),
+      count: getSourceSelectionLabel(knowledgeSources, source),
       icon: IconFileText,
     })),
   ];

@@ -6,75 +6,98 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-03`
+- **Last synchronized:** `2026-08-10`
 
 ## Scope
 
 ### Owns
 
-- Accounting navigation, transaction list and form pages, inventory and fixed asset accounting UI, accounting settings pages, and plugin-owned relation widgets.
+- Accounting routes, navigation, transaction list/detail/form experiences, accounting settings, journal reports, inventory/fixed asset accounting UI, and accounting-owned relation widgets.
+- Fund and debt rate adjustment list, detail, form, calculation, transaction-run, subscription, and linked transaction display surfaces.
 
 ### Does not own
 
-- Core product, branch, department, customer, company, and shared UI implementations; those are consumed through public `ui-modules` and `erxes-ui` APIs.
-- Backend accounting calculations or GraphQL schema contracts.
+- Backend accounting calculations, persistence, GraphQL schema definitions, or transaction journal handlers.
+- Core product, branch, department, customer, company, organization settings, and shared UI implementations; consume them through public `ui-modules`, `erxes-ui`, and GraphQL APIs.
+- Other plugin UIs, routes, state, or implementation details.
 
 ## Current Capabilities
 
 - Displays, creates, updates, prints, and removes accounting transactions.
-- Supports inventory income, out, move, sale, and sale return transaction forms with tax-aware amount editing.
-- Fills inventory sale prices from product master `unitPrice`, income prices from the last completed inventory income price, and out/move cost prices from current inventory cost.
-- Provides accounting settings, reports, remainder views, and fixed asset adjustment screens.
+- Keeps cash, bank, payable, and receivable transaction main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates without update cycles.
+- Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
+- Opens fund and debt rate adjustment create/edit forms in `AccountingSheet` panels.
+- Uses system `dealCurrency` options for fund/debt adjustment main and foreign currency fields plus account currency selectors; rate adjustment main currency defaults from system `mainCurrency`.
+- Fetches spot rate from the existing exchange-rate hook when adjustment date, main currency, and foreign currency are selected.
+- Fund rate detail can calculate, show validation state, show account balances grouped by branch/department, run linked transactions, and display linked transaction rows.
+- Debt rate detail can calculate, show validation state, show account/customer balances grouped by branch/department, run linked transactions, and display linked transaction ids.
+- Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
+- Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration.
 
 ## Architecture
 
-| Area            | Path                                               | Responsibility                                                                 |
-| --------------- | -------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Runtime         | `src/main.ts`                                      | Starts the accounting UI remote.                                               |
-| Plugin config   | `src/config.tsx`                                   | Registers routes and navigation with the host.                                 |
-| Transactions    | `src/modules/transactions`                         | Owns transaction tables, forms, GraphQL documents, hooks, and print documents. |
-| Inventory pages | `src/modules/inventories`, `src/pages/inventories` | Own inventory remainder and reserve/safe remainder screens.                    |
-| Settings        | `src/modules/settings`, `src/pages`                | Owns accounting account, tax, permission, and sync settings UI.                |
+| Area              | Path                                       | Responsibility                                                                 |
+| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
+| Runtime           | `src/main.ts`                              | Starts the accounting UI remote.                                               |
+| Plugin config     | `src/config.tsx`                           | Registers accounting routes and navigation with the host.                      |
+| Route composition | `src/modules/AccountingMain.tsx`           | Wires accounting pages into the plugin router.                                 |
+| Transactions      | `src/modules/transactions`                 | Owns transaction tables, forms, GraphQL documents, hooks, and print documents. |
+| Adjustments       | `src/modules/adjustments`                  | Owns inventory, fixed asset, fund rate, and debt rate adjustment UI.           |
+| Settings          | `src/modules/settings`                     | Owns accounting settings forms, account tables, filters, and config hooks.     |
+| Pages             | `src/pages`                                | Exposes route-level page components for accounting surfaces.                   |
+| Relation widgets  | `src/widgets/relation/RelationWidgets.tsx` | Provides accounting relation widget exports.                                   |
 
 ## Contracts
 
 ### Provides
 
 - Module Federation exposes defined in `module-federation.config.ts`.
-- Accounting routes registered from `src/config.tsx`.
-- Relation widget exports from `src/widgets/relation/RelationWidgets.tsx`.
+- Accounting routes exposed through `src/modules/AccountingMain.tsx` and navigation registered from `src/config.tsx`.
+- Accounting relation widget exports from `src/widgets/relation/RelationWidgets.tsx`.
 
 ### Consumes
 
-- Accounting GraphQL queries and mutations from the accounting API plugin.
-- Core product, branch, department, customer, and company data through public GraphQL and `ui-modules`.
-- UI primitives, forms, tables, popovers, hotkey controls, and toast feedback from `erxes-ui`.
+- Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments.
+- Fund rate adjustment contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged`.
+- Debt rate adjustment contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged`.
+- Core system currency settings through `configsByCode(codes)` for `dealCurrency` and `mainCurrency`.
+- Core product, branch, department, customer, company, and team member selectors through public `ui-modules` APIs.
+- UI primitives, form components, tables, sheets, comboboxes, filters, toasts, and currency inputs from `erxes-ui`.
 
 ## Data and State
 
-- Apollo Client owns server state for transaction details, lists, cost info, product unit prices, and mutation refreshes.
+- Apollo Client owns server state, mutation refreshes, subscriptions, and detail/list cache updates.
+- React Hook Form owns editable accounting transaction and adjustment form state.
 - Jotai atoms under `src/modules/transactions/transaction-form/states` hold transaction form UI state, tax percentages, follow transactions, and rendering selections.
-- React Hook Form owns editable transaction group state.
+- URL query state owns selected detail ids and account table filters where existing accounting patterns use query params.
+- Rate adjustment detail subscriptions replace the loaded detail with the published calculated detail payload.
 
 ## Local Invariants
 
-- Inventory sale main row `unitPrice` is the selected product master `unitPrice`; related inventory cost/out rows use current inventory cost.
-- Inventory income row `unitPrice` is the last completed income price for the selected product, defaulting to `0` when no prior income exists.
-- Inventory out and move row `unitPrice` is current inventory cost, defaulting to `0` when no cost exists.
-- Transaction forms must keep `amount = count * unitPrice` when count or unit price changes.
+- GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
+- Create/update/remove/calculate/run mutations must show success/error feedback and refresh or subscribe so users do not need a manual reload.
+- Fund/debt adjustment transaction execution is separate from calculation; UI must expose both states and not run transactions before details are calculated.
+- Adjustment create/edit forms must use sheet layout consistent with accounting settings and adjustment forms.
+- Fund/debt adjustment main and foreign currency selectors must use system `dealCurrency`; default main currency comes from `mainCurrency`.
+- Account currency create/edit, inline edit, and filter selectors must use the same system `dealCurrency` options.
+- Currency amount inputs display rounded values by default but expose configured edit precision while focused.
+- Transaction currency amount synchronization must react to manual amount-field changes and avoid hook cycles.
 - Module Federation exposes, route paths, and named exports must stay aligned.
 
 ## Validation
 
 - `pnpm nx build accounting_ui`
-- Smoke scenario: in transaction form, change products in inventory sale, income, out, and move rows and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
+- `pnpm exec tsc -p frontend/plugins/accounting_ui/tsconfig.app.json --noEmit --pretty false`
+- Smoke scenario: create fund and debt rate adjustments, verify main/foreign currency options come from system `dealCurrency`, calculate details, run transactions, and confirm detail subscriptions/linked transaction display update without manual refresh.
+- Smoke scenario: in cash, bank, payable, and receivable transaction forms, manually edit main and foreign currency amounts and verify paired amount syncing does not loop or lose precision after refetch.
+- Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-03` — `Inventory Default Unit Prices`
+### `2026-08-10` — `Rate Adjustment Current State`
 
-- **Summary:** Inventory transaction rows now refill unit prices from the correct source when the selected product changes.
-- **Affected areas:** `src/modules/transactions/transaction-form/graphql/queries/invCostInfo.ts`, inventory transaction row hooks and forms.
-- **Contracts changed:** Consumes `getAccLastIncomePrice` and core `productDetail` queries for default unit price lookups.
+- **Summary:** Fund and debt rate adjustment UI is implemented with sheet forms, configured currency selectors, calculation/run actions, subscriptions, grouped result tables, and linked transaction display.
+- **Affected areas:** `src/modules/adjustments/rate`, `src/modules/adjustments/debt`, `src/modules/settings/hooks/useCurrencyConfigs.tsx`, account currency selectors, and transaction currency form helpers.
+- **Contracts changed:** Consumes fund/debt rate adjustment GraphQL contracts, `accountingAdjust*RateChanged` subscriptions, and core `configsByCode(codes)` for currency options.

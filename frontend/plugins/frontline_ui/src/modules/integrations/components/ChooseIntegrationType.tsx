@@ -1,5 +1,6 @@
 import {
   Button,
+  Sidebar,
   Skeleton,
   TextOverflowTooltip,
   cn,
@@ -91,10 +92,7 @@ export const IntegrationTypeItem = ({
   const trigger = (
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
-      className={cn(
-        'justify-start pl-7 relative overflow-hidden text-left flex-auto',
-        canCreatePost && 'bg-transparent hover:bg-transparent',
-      )}
+      className="justify-start pl-7 relative overflow-hidden text-left w-full"
       onClick={handleClick}
     >
       {isActive ? (
@@ -127,16 +125,9 @@ export const IntegrationTypeItem = ({
   }
 
   return (
-    <div
-      className={cn(
-        'group/integration-type flex items-center w-full rounded-md pr-1',
-        isActive ? 'bg-secondary' : 'hover:bg-accent',
-      )}
-    >
+    <Sidebar.MenuItem>
       {trigger}
-      <div className="invisible shrink-0 group-hover/integration-type:visible focus-within:visible">
-        <FacebookPostSheet />
-      </div>
-    </div>
+      <FacebookPostSheet />
+    </Sidebar.MenuItem>
   );
 };
