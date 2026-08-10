@@ -581,15 +581,17 @@ export const MessageInput = ({
             {t('internal-note')}
           </Toggle>
 
-          <ResponseTemplateSelector onSelect={handleTemplateSelect}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <IconMessage2 className="h-4 w-4" />
-            </Button>
-          </ResponseTemplateSelector>
+          {!isInternalNote && (
+            <ResponseTemplateSelector onSelect={handleTemplateSelect}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <IconMessage2 className="h-4 w-4" />
+              </Button>
+            </ResponseTemplateSelector>
+          )}
 
           <Button
             variant="ghost"
