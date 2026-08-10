@@ -1,9 +1,8 @@
 import { TPipelineConfig } from '@/pipelines/types';
-import { Path, useFieldArray, UseFormReturn, useWatch } from 'react-hook-form';
-import { Card, cn, Form, InfoCard, Input, Label, Switch } from 'erxes-ui';
+import { Control, Path, UseFormReturn, useWatch } from 'react-hook-form';
+import { cn, DragHandle, Form, Input, Label, Switch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { TICKET_FORM_FIELDS } from '../constant';
-import { AnimatePresence } from 'framer-motion';
+import { TICKET_FORM_FIELDS } from '@/pipelines/components/configs/constant';
 import {
   DndContext,
   KeyboardSensor,
@@ -21,7 +20,121 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useState, useEffect } from 'react';
-import { IconGripVertical } from '@tabler/icons-react';
+
+type TicketFormField = (typeof TICKET_FORM_FIELDS)[number];
+
+const SortableFieldRow = ({
+  control,
+  ticketField,
+}: {
+  control: Control<TPipelineConfig>;
+  ticketField: TicketFormField;
+}) => {
+  const { t } = useTranslation('frontline');
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: ticketField.key });
+
+  const isShown = useWatch({
+    control,
+    name: `formFields.${ticketField.key}.isShow` as Path<TPipelineConfig>,
+  });
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-2 py-2.5 first:pt-0 last:pb-0',
+        isDragging && 'opacity-50',
+      )}
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      <div className="flex items-center gap-2">
+        <DragHandle aria-label={t('reorder')} {...attributes} {...listeners} />
+        <Form.Field
+          control={control}
+          name={`formFields.${ticketField.key}.isShow` as Path<TPipelineConfig>}
+          render={({ field }) => (
+            <Form.Item className="flex flex-1 flex-row items-center justify-between gap-4 space-y-0">
+              <Form.Label
+                className="text-sm font-normal text-foreground"
+                variant="peer"
+              >
+                {t(ticketField.showLabel)}
+              </Form.Label>
+              <Form.Control>
+                <Switch
+                  checked={Boolean(field.value)}
+                  className="flex-none"
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+      </div>
+
+      {Boolean(isShown) && (
+        <div className="grid gap-2 pl-6 sm:grid-cols-2">
+          <Form.Field
+            control={control}
+            name={
+              `formFields.${ticketField.key}.label` as Path<TPipelineConfig>
+            }
+            render={({ field }) => (
+              <Form.Item className="space-y-0">
+                <Form.Label className="sr-only">
+                  {t('label-attribute')}
+                </Form.Label>
+                <Form.Control>
+                  <Input
+                    name={field.name}
+                    onBlur={field.onBlur}
+                    onChange={field.onChange}
+                    placeholder={t('label-attribute')}
+                    value={(field.value as string) ?? ''}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={control}
+            name={
+              `formFields.${ticketField.key}.placeholder` as Path<TPipelineConfig>
+            }
+            render={({ field }) => (
+              <Form.Item className="space-y-0">
+                <Form.Label className="sr-only">
+                  {t('placeholder-attribute')}
+                </Form.Label>
+                <Form.Control>
+                  <Input
+                    name={field.name}
+                    onBlur={field.onBlur}
+                    onChange={field.onChange}
+                    placeholder={t('placeholder-attribute')}
+                    value={(field.value as string) ?? ''}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 type Props = {
   form: UseFormReturn<TPipelineConfig>;
@@ -40,10 +153,6 @@ export const TicketBasicFields = ({ form }: Props) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor),
-  );
-
-  const hasSomeTrue = Object.values(formFields || {}).some(
-    (value) => value?.isShow === true,
   );
 
   useEffect(() => {
@@ -76,165 +185,30 @@ export const TicketBasicFields = ({ form }: Props) => {
       );
     });
   };
+
   return (
-    <>
-      <InfoCard
-        title={t('select-ticket-basic-fields')}
-        description={t('select-ticket-basic-fields-description')}
+    <div className="flex flex-col gap-3">
+      <Label>{t('edit-fields')}</Label>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
       >
-        <InfoCard.Content>
-          {TICKET_FORM_FIELDS.map((basicField) => (
-            <div key={`formFields.${basicField.key}.isShow`}>
-              <Form.Field
+        <SortableContext
+          items={orderedFields.map((field) => field.key)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="flex flex-col divide-y">
+            {orderedFields.map((ticketField) => (
+              <SortableFieldRow
                 control={control}
-                name={
-                  `formFields.${basicField.key}.isShow` as Path<TPipelineConfig>
-                }
-                render={({ field }) => {
-                  return (
-                    <Form.Item className="flex items-center gap-2">
-                      <Form.Control>
-                        <Switch
-                          id={`formFields.${basicField.key}.isShow`}
-                          checked={field.value as boolean}
-                          onCheckedChange={field.onChange}
-                        />
-                      </Form.Control>
-                      <Label
-                        variant="peer"
-                        htmlFor={`formFields.${basicField.key}.isShow`}
-                      >
-                        {basicField.label}
-                      </Label>
-                    </Form.Item>
-                  );
-                }}
+                key={ticketField.key}
+                ticketField={ticketField}
               />
-              {/* Under construction */}
-            </div>
-          ))}
-        </InfoCard.Content>
-      </InfoCard>
-      <AnimatePresence mode="popLayout">
-        {hasSomeTrue && (
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold">{t('edit-fields')}</h2>
-            <p className="text-sm text-muted-foreground">
-              {t('edit-fields-description')}
-            </p>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={orderedFields
-                  .filter(
-                    (f) =>
-                      formFields?.[f.key as keyof typeof formFields]?.isShow ===
-                      true,
-                  )
-                  .map((f) => f.key)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div data-container="true" className="flex flex-col gap-4">
-                  {orderedFields
-                    .filter(
-                      (f) =>
-                        formFields?.[f.key as keyof typeof formFields]
-                          ?.isShow === true,
-                    )
-                    .map((ticketField) => (
-                      <SortableFieldCard
-                        key={`formFields.${ticketField.key}`}
-                        ticketField={ticketField}
-                        control={control}
-                      />
-                    ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+            ))}
           </div>
-        )}
-      </AnimatePresence>
-    </>
+        </SortableContext>
+      </DndContext>
+    </div>
   );
 };
-
-interface SortableFieldCardProps {
-  ticketField: { key: string; label: string; path: string };
-  control: any;
-}
-
-function SortableFieldCard({ ticketField, control }: SortableFieldCardProps) {
-  const { t } = useTranslation('frontline');
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: ticketField.key });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <Card ref={setNodeRef} style={style} title={ticketField.label}>
-      <Card.Content className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
-          >
-            <IconGripVertical size={20} className="text-muted-foreground" />
-          </div>
-          <h3 className="text-sm font-semibold">{ticketField.label}</h3>
-        </div>
-        <Form.Field
-          control={control}
-          name={
-            `formFields.${ticketField.key}.placeholder` as Path<TPipelineConfig>
-          }
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('placeholder-attribute')}</Form.Label>
-              <Form.Control>
-                <Input
-                  name={field.name}
-                  value={field.value as string}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={control}
-          name={`formFields.${ticketField.key}.label` as Path<TPipelineConfig>}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('label-attribute')}</Form.Label>
-              <Form.Control>
-                <Input
-                  name={field.name}
-                  value={field.value as string}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      </Card.Content>
-    </Card>
-  );
-}

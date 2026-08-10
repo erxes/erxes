@@ -250,6 +250,7 @@ const TicketListTable = memo(function TicketListTable({
         data={tickets}
         columns={ticketListColumns}
         className="m-3"
+        tableId="frontline_ticket_report_record_table"
       >
         <RecordTable.Scroll>
           <RecordTable>
@@ -380,6 +381,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'open',
+    header: () => <RecordTable.ColumnSelector />,
     size: 33,
     cell: ({ cell }) => <TicketMoreCell cell={cell} />,
   },

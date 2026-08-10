@@ -1,7 +1,20 @@
 import { useQuery } from '@apollo/client';
 import { FIELDS_QUERY } from '../graphql/fieldsQueries';
-import { ICursorListResponse } from 'erxes-ui';
+import {
+  EnumCursorDirection,
+  IRecordTableCursorPageInfo,
+  mergeCursorData,
+  validateFetchMore,
+} from 'erxes-ui';
 import { IField } from '../types/fieldsTypes';
+
+type FieldsQueryResponse = {
+  fields: {
+    list: IField[];
+    totalCount: number;
+    pageInfo: IRecordTableCursorPageInfo;
+  };
+};
 
 export const useFields = ({
   groupId,
@@ -12,7 +25,7 @@ export const useFields = ({
   contentType: string;
   limit?: number;
 }) => {
-  const { data, loading, refetch } = useQuery<ICursorListResponse<IField>>(
+  const { data, loading, refetch, fetchMore } = useQuery<FieldsQueryResponse>(
     FIELDS_QUERY,
     {
       variables: {
@@ -24,6 +37,50 @@ export const useFields = ({
       },
     },
   );
+
+  const pageInfo = data?.fields?.pageInfo;
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (!validateFetchMore({ direction, pageInfo })) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        params: {
+          groupId,
+          contentType,
+          limit,
+          direction,
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo?.endCursor
+              : pageInfo?.startCursor,
+        },
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          fields: {
+            ...mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.fields,
+              prevResult: prev.fields,
+            }),
+            totalCount: fetchMoreResult.fields.totalCount,
+          },
+        };
+      },
+    });
+  };
 
   const fields = (data?.fields?.list || []).map((field) => {
     const type = field.type?.startsWith('relation:') ? 'relation' : field.type;
@@ -58,5 +115,7 @@ export const useFields = ({
     totalCount: data?.fields?.totalCount || 0,
     loading,
     refetch,
+    handleFetchMore,
+    pageInfo,
   };
 };
