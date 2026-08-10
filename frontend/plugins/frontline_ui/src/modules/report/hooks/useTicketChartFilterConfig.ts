@@ -123,7 +123,7 @@ export const useRestoreTicketChartFilters = (
     restoredChartId.current = chart._id;
 
     const filters = chart.filters || {};
-    const set = <T,>(
+    const set = <T>(
       getAtom: (id: string) => WritableAtom<T, [T], void>,
       value: T,
     ) => store.set(getAtom(cardId), value);

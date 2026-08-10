@@ -603,7 +603,10 @@ export const loadClasses = (
   models.DiscordConversationMessages = db.model<
     IDiscordConversationMessageDocument,
     IDiscordConversationMessageModel
-  >('conversation_messages_discord', loadDiscordConversationMessageClass(models));
+  >(
+    'conversation_messages_discord',
+    loadDiscordConversationMessageClass(models),
+  );
 
   //imap models
   models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(

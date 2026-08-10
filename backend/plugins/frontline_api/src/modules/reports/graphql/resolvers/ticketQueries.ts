@@ -78,7 +78,6 @@ async function reportTicketCustomPropertiesGrouped({
   filters: IReportFilters;
   groupPropertyId: string;
 }) {
-
   const pipeline: any[] = [
     { $match: matchFilter },
     { $match: { $expr: { $eq: [{ $type: '$propertiesData' }, 'object'] } } },
@@ -184,7 +183,6 @@ async function reportTicketCustomPropertiesGrouped({
   }));
 }
 
-
 async function reportTicketFieldsForGroupValue({
   models,
   subdomain,
@@ -253,11 +251,7 @@ async function reportTicketFieldsForGroupValue({
     {
       $addFields: {
         __vals: {
-          $cond: [
-            { $isArray: '$__props.v' },
-            '$__props.v',
-            ['$__props.v'],
-          ],
+          $cond: [{ $isArray: '$__props.v' }, '$__props.v', ['$__props.v']],
         },
       },
     },
@@ -278,9 +272,7 @@ async function reportTicketFieldsForGroupValue({
     return [];
   }
 
-  const fieldIds = Array.from(
-    new Set(valueCounts.map((p) => p._id.fieldId)),
-  );
+  const fieldIds = Array.from(new Set(valueCounts.map((p) => p._id.fieldId)));
 
   const fields: ReportPropertyField[] = await sendTRPCMessage({
     subdomain,
@@ -656,9 +648,8 @@ export const reportTicketQueries = {
       { $sort: { count: -1 } },
     ];
 
-    const propertyCounts: ReportPropertyCount[] = await models.Ticket.aggregate(
-      pipeline,
-    );
+    const propertyCounts: ReportPropertyCount[] =
+      await models.Ticket.aggregate(pipeline);
 
     if (!propertyCounts.length) {
       return [];
@@ -702,9 +693,8 @@ export const reportTicketQueries = {
           if (!optionValue) {
             return null;
           }
-               const fieldLabel = field.name || field.text;
+          const fieldLabel = field.name || field.text;
           const valueLabel = option?.label || optionValue;
-
 
           return {
             _id: `${fieldId}:${optionValue}`,
@@ -713,7 +703,6 @@ export const reportTicketQueries = {
           };
         }
 
-     
         return {
           _id: fieldId,
           name: field.name || field.text,
@@ -823,9 +812,7 @@ export const reportTicketQueries = {
     }
 
     return [...rows.values()]
-      .sort(
-        (a, b) => a.statusType - b.statusType || a.order - b.order,
-      )
+      .sort((a, b) => a.statusType - b.statusType || a.order - b.order)
       .map((row) => ({
         _id: row._id,
         statusType: row.statusType,

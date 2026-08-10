@@ -77,10 +77,18 @@ export const reportComponents: Record<
 
 export const DEFAULT_CARD_CONFIGS: Omit<ReportCardConfig, 'component'>[] = [
   { id: 'conversation-open', title: 'conversation-open-title', colSpan: 6 },
-  { id: 'conversation-resolved', title: 'conversation-resolved-title', colSpan: 6 },
+  {
+    id: 'conversation-resolved',
+    title: 'conversation-resolved-title',
+    colSpan: 6,
+  },
   { id: 'conversation-source', title: 'conversation-source-title', colSpan: 6 },
   { id: 'conversation-tag', title: 'conversation-tag-title', colSpan: 6 },
-  { id: 'conversation-responses', title: 'conversation-responses-title', colSpan: 6 },
+  {
+    id: 'conversation-responses',
+    title: 'conversation-responses-title',
+    colSpan: 6,
+  },
   { id: 'conversation-list', title: 'conversation-list-title', colSpan: 6 },
 ];
 
@@ -130,7 +138,11 @@ export const TICKET_DEFAULT_CARD_CONFIGS: Omit<
   ReportCardConfig,
   'component'
 >[] = [
-  { id: TICKET_CHART_TYPES.statusSummary, title: 'ticket-status-summary-title', colSpan: 6 },
+  {
+    id: TICKET_CHART_TYPES.statusSummary,
+    title: 'ticket-status-summary-title',
+    colSpan: 6,
+  },
   { id: TICKET_CHART_TYPES.date, title: 'ticket-date-title', colSpan: 6 },
   { id: TICKET_CHART_TYPES.source, title: 'ticket-source-title', colSpan: 6 },
   { id: TICKET_CHART_TYPES.tags, title: 'ticket-tags-title', colSpan: 6 },

@@ -1,8 +1,5 @@
 import { Model } from 'mongoose';
-import {
-  IReportChart,
-  IReportChartDocument,
-} from '@/reports/@types/chart';
+import { IReportChart, IReportChartDocument } from '@/reports/@types/chart';
 import { reportChartSchema } from '@/reports/db/definitions/chart';
 import { IModels } from '~/connectionResolvers';
 

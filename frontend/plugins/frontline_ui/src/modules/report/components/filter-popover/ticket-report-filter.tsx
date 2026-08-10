@@ -129,16 +129,16 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
 
   const hasFilters = Boolean(
     (channelFilter && channelFilter.length > 0) ||
-      (memberFilter && memberFilter.length > 0) ||
-      (dateValue && dateValue.length > 0) ||
-      (pipelineFilter && pipelineFilter.length > 0) ||
-      (ticketTagFilter && ticketTagFilter.length > 0) ||
-      (stateFilter && stateFilter !== 'active') ||
-      (priorityFilter && priorityFilter.length > 0) ||
-      (customerFilter && customerFilter.length > 0) ||
-      (companyFilter && companyFilter.length > 0) ||
-      (propertyFilter && propertyFilter.length > 0) ||
-      Boolean(groupPropertyFilter),
+    (memberFilter && memberFilter.length > 0) ||
+    (dateValue && dateValue.length > 0) ||
+    (pipelineFilter && pipelineFilter.length > 0) ||
+    (ticketTagFilter && ticketTagFilter.length > 0) ||
+    (stateFilter && stateFilter !== 'active') ||
+    (priorityFilter && priorityFilter.length > 0) ||
+    (customerFilter && customerFilter.length > 0) ||
+    (companyFilter && companyFilter.length > 0) ||
+    (propertyFilter && propertyFilter.length > 0) ||
+    Boolean(groupPropertyFilter),
   );
 
   const handleClear = () => {

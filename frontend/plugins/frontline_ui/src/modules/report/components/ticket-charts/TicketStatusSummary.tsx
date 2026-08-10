@@ -33,10 +33,7 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
-import {
-  getReportChartTypeAtom,
-  reportChartTypeState,
-} from '@/report/states';
+import { getReportChartTypeAtom, reportChartTypeState } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { type LegendPayload } from 'recharts';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
