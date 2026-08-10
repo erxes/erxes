@@ -1,29 +1,24 @@
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   IAdjustClosing,
-  IAdjustClosingDetail,
   IAdjustClosingDocument,
-  IAdjustClosingEntry,
-  IClosingDetailEntry,
 } from '../../@types/adjustClosingEntry';
 import { IModels } from '~/connectionResolvers';
 import { adjustClosingSchema } from '../definitions/adjustClosingEntry';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { TR_SIDES } from '../../@types/constants';
 
 export interface IAdjustClosingEntryModel
   extends Model<IAdjustClosingDocument> {
   getAdjustClosing(selector: any): Promise<IAdjustClosingDocument>;
-  getAdjustClosings(params: {
-    beginDate: Date;
-    date: Date;
-  }): Promise<IAdjustClosingDocument[]>;
   createAdjustClosing(doc: IAdjustClosing): Promise<IAdjustClosingDocument>;
   updateAdjustClosing(
     _id: string,
-    doc: IAdjustClosing,
+    doc: Partial<IAdjustClosing> & {
+      detailId?: string;
+      entryId?: string;
+      percent?: number;
+    },
   ): Promise<IAdjustClosingDocument>;
-  removeAdjustClosing(_id: string): Promise<{ n: number; ok: number }>;
+  removeAdjustClosing(_id: string): Promise<string>;
   publishAdjustClosing(_id: string): Promise<IAdjustClosingDocument>;
 }
 
@@ -47,118 +42,6 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Хаалтын дэлгэрэнгүйг салбар хэлтэс болон дансны үлдэгдлээр тооцож үүсгэх
-     */
-    public static async initDetails(subdomain: string, adj: IAdjustClosing) {
-      const [branches, departments, tempAccounts] = await Promise.all([
-        sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'branches',
-          action: 'find',
-          input: {},
-          defaultValue: [],
-        }),
-        sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'departments',
-          action: 'find',
-          input: {},
-          defaultValue: [],
-        }),
-        models.Accounts.find({ isTemp: true }).lean(),
-      ]);
-
-      const tempAccountIds = tempAccounts.map((a) => a._id);
-
-      if (!tempAccountIds.length || !branches.length || !departments.length) {
-        await models.AdjustClosings.updateOne(
-          { _id: adj._id },
-          { $set: { details: [] } },
-        );
-        return;
-      }
-
-      const balances = await models.Transactions.aggregate([
-        {
-          $match: {
-            date: { $gte: adj.beginDate, $lte: adj.date },
-            'details.accountId': { $in: tempAccountIds },
-          },
-        },
-        { $unwind: '$details' },
-        {
-          $match: {
-            'details.accountId': { $in: tempAccountIds },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              branchId: '$details.branchId',
-              departmentId: '$details.departmentId',
-              accountId: '$details.accountId',
-            },
-            balance: {
-              $sum: {
-                $cond: [
-                  { $eq: ['$side', TR_SIDES.DEBIT] },
-                  '$details.amount',
-                  { $multiply: ['$details.amount', -1] },
-                ],
-              },
-            },
-          },
-        },
-        { $match: { balance: { $ne: 0 } } },
-      ]);
-
-      const balanceMap: Record<string, number> = {};
-      for (const row of balances) {
-        const { branchId, departmentId, accountId } = row._id;
-        const key = `${branchId}-${departmentId}-${accountId}`;
-        balanceMap[key] = row.balance;
-      }
-
-      const details: IAdjustClosingDetail[] = [];
-
-      for (const branch of branches) {
-        for (const department of departments) {
-          const entries: IClosingDetailEntry[] = [];
-
-          for (const account of tempAccounts) {
-            const key = `${branch._id}-${department._id}-${account._id}`;
-            const balance = balanceMap[key];
-
-            if (balance && balance !== 0) {
-              entries.push({
-                _id: new Types.ObjectId().toString(),
-                accountId: account._id,
-                balance,
-                percent: 100,
-              });
-            }
-          }
-
-          if (entries.length > 0) {
-            details.push({
-              _id: new Types.ObjectId().toString(),
-              branchId: branch._id,
-              departmentId: department._id,
-              entries,
-              createdAt: new Date(),
-            });
-          }
-        }
-      }
-
-      await models.AdjustClosings.updateOne(
-        { _id: adj._id },
-        { $set: { details } },
-      );
-    }
-    /**
      * Create Adjust Closing
      */
     public static async createAdjustClosing(doc: IAdjustClosing) {
@@ -167,45 +50,33 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
         .lean();
 
       const closingDate = doc?.date ? new Date(doc.date) : new Date();
-      const beginDate = doc?.beginDate
-        ? new Date(doc.beginDate)
-        : lastEntry?.date
-        ? new Date(lastEntry.date)
-        : new Date('2000-01-01');
 
-      if (lastEntry && lastEntry.status !== 'complete') {
+      if (
+        lastEntry &&
+        !['complete', 'publish'].includes(lastEntry.status || '')
+      ) {
         throw new Error('Previous Adjust Closing is not published yet');
       }
 
-      const adj = await models.AdjustClosings.create({
+      return models.AdjustClosings.create({
         ...doc,
-        beginDate,
         date: closingDate,
         status: 'draft',
         createdAt: new Date(),
       });
-
-      const adjPlain: IAdjustClosing = {
-        ...adj.toObject(),
-        _id: adj._id,
-        beginDate,
-        date: closingDate,
-      };
-
-      try {
-        await this.initDetails(subdomain, adjPlain);
-      } catch (error) {
-        await models.AdjustClosings.deleteOne({ _id: adj._id });
-        throw error;
-      }
-
-      return models.AdjustClosings.findById(adj._id).lean();
     }
 
     /**
      * Update Adjust Closing
      */
-    public static async updateAdjustClosing(_id: string, doc: IAdjustClosing) {
+    public static async updateAdjustClosing(
+      _id: string,
+      doc: Partial<IAdjustClosing> & {
+        detailId?: string;
+        entryId?: string;
+        percent?: number;
+      },
+    ) {
       const lastEntry = await models.AdjustClosings.findOne({})
         .sort({ createdAt: -1 })
         .lean();
@@ -218,13 +89,35 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
         throw new Error('Only the latest Adjust Closing can be edited');
       }
 
-      if (lastEntry.status === 'complete') {
+      if (lastEntry.status === 'publish') {
         throw new Error('Published Adjust Closing cannot be edited');
+      }
+
+      const { detailId, entryId, percent, ...setDoc } = doc;
+
+      if (detailId && entryId && typeof percent === 'number') {
+        await models.AdjustClosings.updateOne(
+          { _id, 'details._id': detailId, 'details.entries._id': entryId },
+          {
+            $set: {
+              'details.$[detail].entries.$[entry].percent': percent,
+              updatedAt: new Date(),
+            },
+          },
+          {
+            arrayFilters: [
+              { 'detail._id': detailId },
+              { 'entry._id': entryId },
+            ],
+          },
+        );
+
+        return models.AdjustClosings.getAdjustClosing({ _id });
       }
 
       const result = await models.AdjustClosings.findByIdAndUpdate(
         _id,
-        { $set: doc },
+        { $set: { ...setDoc, updatedAt: new Date() } },
         { new: true },
       ).lean();
 
@@ -247,8 +140,23 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
         throw new Error('Only the latest Adjust Closing can be removed');
       }
 
-      await models.AdjustClosings.deleteOne({ _id });
+      const parentIds = [
+        lastEntry.closePeriodTrId,
+        lastEntry.earningTrId,
+        lastEntry.taxPayableTrId,
+      ].filter((parentId): parentId is string => Boolean(parentId));
 
+      for (const parentId of parentIds) {
+        const oldTransaction = await models.Transactions.findOne({
+          parentId,
+        }).lean();
+
+        if (oldTransaction) {
+          await models.Transactions.removePTransaction({ parentId });
+        }
+      }
+
+      await models.AdjustClosings.deleteOne({ _id });
       return 'success delete';
     }
     /**
@@ -274,56 +182,10 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
 
       await models.AdjustClosings.updateOne(
         { _id },
-        { $set: { status: 'complete', publishedAt: new Date() } },
+        { $set: { status: 'publish', updatedAt: new Date() } },
       );
 
-      return 'published';
-    }
-    /**
-     * Get Adjust Closings
-     */
-
-    public static async getAdjustClosings({
-      beginDate,
-      date,
-    }: {
-      beginDate: Date;
-      date: Date;
-    }) {
-      const accounts = await models.Accounts.find({ isTemp: true })
-        .select({ _id: 1 })
-        .lean();
-
-      if (!accounts.length) {
-        return [];
-      }
-
-      const accountIds = accounts.map((acc) => acc._id);
-
-      const detailResult = await models.Transactions.aggregate([
-        {
-          $match: {
-            date: { $gt: beginDate, $lte: date },
-            'details.accountId': { $in: accountIds },
-          },
-        },
-        { $unwind: '$details' },
-        { $match: { 'details.accountId': { $in: accountIds } } },
-        {
-          $project: {
-            accountId: '$details.accountId',
-            balance: { $subtract: ['$details.debit', '$details.credit'] },
-          },
-        },
-      ]);
-
-      if (!detailResult?.length) return [];
-
-      return detailResult.map((r) => ({
-        accountId: r.accountId,
-        side: r.balance > 0 ? 'debit' : 'credit',
-        amount: Math.abs(r.balance),
-      }));
+      return models.AdjustClosings.getAdjustClosing({ _id });
     }
   }
   adjustClosingSchema.loadClass(AdjustClosing);

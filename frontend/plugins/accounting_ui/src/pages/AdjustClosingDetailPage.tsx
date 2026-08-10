@@ -5,7 +5,7 @@ import { AccountingLayout } from '~/modules/layout/components/Layout';
 
 export const AdjustClosingDetailPage = () => {
   const { id } = useParams();
-  console.log('closing id:', id);
+
   return (
     <AccountingLayout>
       <AccountingHeader

@@ -1,18 +1,20 @@
 import { defaultPaginate } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
-import { ACCOUNT_STATUSES } from '~/modules/accounting/@types/constants';
 
 interface IQueryParams {
   page?: number;
   perPage?: number;
   sortField?: string;
   sortDirection?: number;
+  status?: string;
 }
 
 export const generateFilter = async (models: IModels, params: IQueryParams) => {
   const filter: any = {};
 
-  filter.status = { $ne: ACCOUNT_STATUSES.DELETED };
+  if (params.status) {
+    filter.status = params.status;
+  }
 
   return filter;
 };
@@ -60,11 +62,14 @@ const adjustClosingQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const detail = await models.AdjustClosings.findById(_id).lean();
-    if (!detail || !detail.entries) {
+    const adjust = await models.AdjustClosings.findById(_id).lean();
+    if (!adjust?.details) {
       return 0;
     }
-    return detail.entries.length;
+    return adjust.details.reduce(
+      (total, detail) => total + (detail.entries?.length || 0),
+      0,
+    );
   },
 };
 

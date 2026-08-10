@@ -8,6 +8,10 @@ export const types = `
     status: String
     date: Date
     beginDate: Date
+    successDate: Date
+    checkedAt: Date
+    error: String
+    warning: String
     integrateAccountId: String
     periodGLAccountId: String
     earningAccountId: String
@@ -37,6 +41,10 @@ export const types = `
     status: String
     date: Date
     beginDate: Date
+    successDate: Date
+    checkedAt: Date
+    error: String
+    warning: String
     description: String
     
     details: [AdjustClosingDetail]
@@ -102,15 +110,21 @@ adjustClosingEdit(
   integrateAccountId: String
   periodGLAccountId: String
   earningAccountId: String
-  taxPayableaccountId: String
-  accountId: String
-  balance: Float
+  taxPayableAccountId: String
+  detailId: String
+  entryId: String
   percent: Float
-  mainAccTrId: String
-  integrateTrId: String
 ): AdjustClosing
 
   adjustClosingRemove(_id: String!): String
+
+  adjustClosingCalculate(_id: String!): AdjustClosing
+
+  adjustClosingDoTransaction(_id: String!): AdjustClosing
+
+  adjustClosingPublish(adjustId: String!): AdjustClosing
+
+  adjustClosingCancel(adjustId: String!): AdjustClosing
 
   adjustClosingRun(_id: String!): AdjustClosing
 `;

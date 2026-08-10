@@ -7,8 +7,11 @@ export const ADJUST_CLOSING_EDIT = gql`
     $integrateAccountId: String
     $periodGLAccountId: String
     $earningAccountId: String
-    $taxPayableaccountId: String
+    $taxPayableAccountId: String
     $beginDate: Date
+    $detailId: String
+    $entryId: String
+    $percent: Float
   ) {
     adjustClosingEdit(
       _id: $_id
@@ -16,11 +19,22 @@ export const ADJUST_CLOSING_EDIT = gql`
       integrateAccountId: $integrateAccountId
       periodGLAccountId: $periodGLAccountId
       earningAccountId: $earningAccountId
-      taxPayableaccountId: $taxPayableaccountId
+      taxPayableAccountId: $taxPayableAccountId
       beginDate: $beginDate
+      detailId: $detailId
+      entryId: $entryId
+      percent: $percent
     ) {
       _id
+      status
       description
+      details {
+        _id
+        entries {
+          _id
+          percent
+        }
+      }
       updatedAt
     }
   }

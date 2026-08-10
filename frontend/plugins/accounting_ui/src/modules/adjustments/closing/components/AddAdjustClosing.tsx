@@ -13,10 +13,8 @@ import { TAdjustClosingForm } from '../types/adjustClosingForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { adjustClosingSchema } from '../types/adjustClosingSchema';
-import { AccountingDialog } from '~/modules/layout/components/Dialog';
 import { useAdjustClosingAdd } from '../hooks/useAdjustClosingAdd';
 import { SelectAccountFormItem } from '~/modules/settings/account/components/SelectAccount';
-import { ApolloError } from '@apollo/client';
 
 export const AddAdjustClosing = () => {
   const [open, setOpen] = useState(false);
@@ -30,9 +28,12 @@ export const AddAdjustClosing = () => {
         </Button>
       </Dialog.Trigger>
 
-      <AccountingDialog title="Add Account" description="Add a new account">
+      <Dialog.Content>
+        <Dialog.Header>
+          <Dialog.Title>Add Closing Adjustment</Dialog.Title>
+        </Dialog.Header>
         <AddAdjustClosingForm setOpen={setOpen} />
-      </AccountingDialog>
+      </Dialog.Content>
     </Dialog>
   );
 };
@@ -57,9 +58,6 @@ export const AddAdjustClosingForm = ({
         setOpen(false);
         form.reset();
       },
-      onError: (e: ApolloError) => {
-        console.error(e);
-      },
     });
   };
 
@@ -67,7 +65,7 @@ export const AddAdjustClosingForm = ({
     <Form {...form}>
       <form
         className="p-6 flex-auto overflow-auto"
-        onSubmit={form.handleSubmit(onSubmit, console.log)}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <h3 className="text-lg font-bold">
           {id ? `Edit` : `Create`} Adjust Inventory

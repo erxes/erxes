@@ -8,12 +8,20 @@ export interface IAdjustClosing {
   status?: string;
   date?: Date;
   beginDate?: Date;
+  successDate?: Date;
+  checkedAt?: Date;
+  error?: string;
+  warning?: string;
   description?: string;
 
   integrateAccountId?: string;
   periodGLAccountId?: string;
   earningAccountId?: string;
-  taxPayableaccountId?: string;
+  taxPayableAccountId?: string;
+  taxImpactValue?: number;
+  closePeriodTrId?: string;
+  earningTrId?: string;
+  taxPayableTrId?: string;
 }
 
 export interface IClosingDetailEntry {

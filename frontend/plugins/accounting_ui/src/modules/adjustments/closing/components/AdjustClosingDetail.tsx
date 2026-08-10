@@ -1,26 +1,22 @@
 import {
   IconBinoculars,
+  IconCalculator,
   IconCircleCheck,
   IconClockEdit,
   IconCrane,
   IconGavel,
   IconHelpSquareRounded,
-  IconListCheck,
+  IconPlayerPlay,
   IconRotateClockwise2,
-  IconStopwatch,
   IconTrashX,
 } from '@tabler/icons-react';
 import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
 import { format } from 'date-fns-tz';
+import { Button, DatePicker, Input, Spinner, Tooltip } from 'erxes-ui';
 import {
-  Button,
-  DatePicker,
-  Input,
-  RecordTable,
-  Spinner,
-  Tooltip,
-} from 'erxes-ui';
-import { IAdjustClosing } from '~/modules/adjustments/closing/types/AdjustClosing';
+  IAdjustClosing,
+  IAdjustClosingDetailItem,
+} from '~/modules/adjustments/closing/types/AdjustClosing';
 import { ADJ_INV_STATUSES } from '~/modules/adjustments/inventories/types/AdjustInventory';
 import { useAdjustClosingRun } from '../hooks/useAdjustClosingRun';
 import {
@@ -53,7 +49,12 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   });
 
   const { adjustClosingEdit } = useAdjustClosingEdit();
-  const { runAdjust } = useAdjustClosingRun(id ?? '');
+  const {
+    calculateAdjust,
+    calculateLoading,
+    runAdjust,
+    loading: runLoading,
+  } = useAdjustClosingRun(id ?? '');
   const { publishAdjust } = useAdjustClosingPublish(id ?? '');
   const { cancelAdjust } = useAdjustClosingCancel(id ?? '');
   const { removeAdjust } = useAdjustClosingEntryRemove();
@@ -66,6 +67,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
     return null;
   }
 
+  const handleCalculate = () => calculateAdjust();
   const handleRun = () => runAdjust();
   const handlePublish = () => publishAdjust();
   const handleCancel = () => cancelAdjust();
@@ -92,10 +94,17 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
       case ADJ_INV_STATUSES.PROCESS:
         return (
           <>
-            <Button onClick={handleRun}>
-              <IconCrane />
-              RUN
+            <Button onClick={handleCalculate} disabled={calculateLoading}>
+              {calculateLoading ? <Spinner /> : <IconCalculator />}
+              Calculate
             </Button>
+            {adjustClosingDetail?.status === ADJ_INV_STATUSES.PROCESS &&
+              !adjustClosingDetail.error && (
+                <Button onClick={handleRun} disabled={runLoading}>
+                  {runLoading ? <Spinner /> : <IconPlayerPlay />}
+                  Do Transaction
+                </Button>
+              )}
             <Button
               variant="secondary"
               className="text-destructive"
@@ -130,7 +139,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
       case ADJ_INV_STATUSES.RUNNING:
         return (
           <Button onClick={handleRun}>
-            <IconStopwatch />
+            <IconCrane />
             Stop
           </Button>
         );
@@ -141,7 +150,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   };
 
   // 1. Салбар бүрийн хүснэгтийг рендерлэх функц
-  const renderDetailTable = (detail: any) => (
+  const renderDetailTable = (detail: IAdjustClosingDetailItem) => (
     <div
       key={detail._id}
       className="mb-8 bg-card border rounded-lg overflow-hidden shadow-sm"
@@ -167,20 +176,29 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
           </tr>
         </thead>
         <tbody className="divide-y">
-          {detail.entries.map((entry: any) => (
-            <tr key={entry._id} className="hover:bg-accent/30">
+          {detail.entries.map((entry) => (
+            <tr
+              key={entry._id || entry.accountId}
+              className="hover:bg-accent/30"
+            >
               <td className="p-3 font-mono text-xs">{entry.accountId}</td>
               <td className="p-3 text-right">
-                {new Intl.NumberFormat().format(entry.balance)}
+                {new Intl.NumberFormat().format(entry.balance || 0)}
               </td>
               <td className="p-3">
                 <Input
                   type="number"
                   className="h-8 text-center"
                   defaultValue={entry.percent}
-                  onBlur={(e) =>
-                    handlePercentChange(detail._id, entry._id, e.target.value)
-                  }
+                  onBlur={(e) => {
+                    if (entry._id) {
+                      handlePercentChange(
+                        detail._id,
+                        entry._id,
+                        e.target.value,
+                      );
+                    }
+                  }}
                 />
               </td>
             </tr>
@@ -227,6 +245,30 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
         ) : (
           <div className="p-10 text-center border-2 border-dashed rounded-lg text-muted-foreground">
             No entries found. Please check your process.
+          </div>
+        )}
+
+        {adjustClosingDetail?.error && (
+          <div className="rounded-md border border-destructive/30 p-3 text-sm text-destructive">
+            {`${
+              adjustClosingDetail.checkedAt
+                ? format(
+                    new Date(adjustClosingDetail.checkedAt),
+                    'yyyy-MM-dd HH:mm:ss',
+                  )
+                : ''
+            }: ${adjustClosingDetail.error}`}
+          </div>
+        )}
+
+        {typeof adjustClosingDetail?.taxImpactValue === 'number' && (
+          <div className="rounded-md border p-3 text-sm">
+            Tax impact:{' '}
+            <b>
+              {new Intl.NumberFormat().format(
+                adjustClosingDetail.taxImpactValue,
+              )}
+            </b>
           </div>
         )}
 

@@ -30,3 +30,5 @@ export const useAdjustClosingEdit = () => {
 
   return { adjustClosingEdit, loading };
 };
+
+export const useAdjustClosingEntryEdit = useAdjustClosingEdit;

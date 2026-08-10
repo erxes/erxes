@@ -13,17 +13,33 @@ export const ADJUST_CLOSING_DETAIL_QUERY = gql`
       integrateAccountId
       periodGLAccountId
       earningAccountId
+      taxPayableAccountId
+      taxImpactValue
       closeIntegrateTrId
       periodGLTrId
+      closePeriodTrId
+      earningTrId
+      taxPayableTrId
+      successDate
+      checkedAt
+      error
+      warning
       createdAt
       updatedAt
-      entries {
+      details {
         _id
-        accountId
-        balance
-        percent
-        mainAccTrId
-        integrateTrId
+        branchId
+        departmentId
+        closeIntegrateTrId
+        periodGLTrId
+        entries {
+          _id
+          accountId
+          balance
+          percent
+          mainAccTrId
+          integrateTrId
+        }
       }
     }
   }
@@ -33,16 +49,21 @@ export const ADJUST_CLOSING_DETAILS = gql`
   query AdjustClosingDetails($_id: String!) {
     adjustClosingDetail(_id: $_id) {
       _id
-      branchId
-      departmentId
-      entries {
+      details {
         _id
-        code
+        branchId
+        departmentId
+        closeIntegrateTrId
+        periodGLTrId
+        entries {
+          _id
+          accountId
+          balance
+          percent
+          mainAccTrId
+          integrateTrId
+        }
       }
-      closeIntegrateTrId
-      periodGLTrId
-      createdAt
-      updatedAt
     }
     adjustClosingEntriesCount(_id: $_id)
   }

@@ -44,9 +44,13 @@ export interface IAdjustClosingDetail {
 
 export interface IAdjustClosing {
   _id?: string;
-  status: 'draft' | 'publish' | 'warning' | 'complete';
+  status?: 'draft' | 'process' | 'publish' | 'warning' | 'complete';
   date: Date;
-  beginDate: Date;
+  beginDate?: Date;
+  successDate?: Date;
+  checkedAt?: Date;
+  error?: string;
+  warning?: string;
   description?: string;
 
   details?: IAdjustClosingDetail[];
@@ -58,7 +62,7 @@ export interface IAdjustClosing {
   earningAccountId: string;
   taxPayableAccountId: string;
 
-  taxImpactValue: number;
+  taxImpactValue?: number;
 
   closePeriodTrId?: string;
   earningTrId?: string;
