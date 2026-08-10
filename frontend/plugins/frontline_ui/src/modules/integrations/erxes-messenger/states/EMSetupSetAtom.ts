@@ -83,7 +83,6 @@ export const erxesMessengerSetSetupAtom = atom(
 
       set(erxesMessengerSetupConfigAtom, config);
 
-
       const messagesObj = payload?.messengerData?.messages;
       const languageCode =
         payload?.languageCode ||
@@ -104,7 +103,6 @@ export const erxesMessengerSetSetupAtom = atom(
       };
 
       set(erxesMessengerSetupGreetingAtom, greetings);
-
 
       const defaultHours = createDefaultOnlineHours();
       const processedHours = processOnlineHours(

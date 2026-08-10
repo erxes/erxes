@@ -85,27 +85,27 @@
 
 ## Architecture
 
-| Area                 | Path                                                                       | Responsibility                                                                                          |
-| -------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Bootstrap            | `src/main.ts`                                                              | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface           |
-| Models               | `src/connectionResolvers.ts`                                               | Per-subdomain model container for all modules                                                           |
-| GraphQL              | `src/apollo/`                                                              | Aggregated `typeDefs` and `resolvers` across modules                                                    |
-| tRPC                 | `src/init-trpc.ts`                                                         | `appRouter` for service-to-service calls                                                                |
-| HTTP                 | `src/routes.ts`                                                            | Mounts `/facebook` and `/instagram` webhook routers                                                     |
-| Platform extensions  | `src/meta/`                                                                | automations, permissions, notifications, segments, references, import/export                            |
-| Channels             | `src/modules/channel/`                                                     | Channel + ChannelMember models, schema, resolvers, role checks                                          |
-| Inbox                | `src/modules/inbox/`                                                       | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                |
+| Area                 | Path                                                                        | Responsibility                                                                                          |
+| -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Bootstrap            | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface           |
+| Models               | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                           |
+| GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                    |
+| tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                |
+| HTTP                 | `src/routes.ts`                                                             | Mounts `/facebook` and `/instagram` webhook routers                                                     |
+| Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                            |
+| Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                          |
+| Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`               |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
-| Integrations         | `src/modules/integrations/<kind>/`                                         | facebook, instagram, imap, discord, call, trpc                                                          |
-| Call reporting       | `src/modules/integrations/call/services/callReportService.ts`              | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
-| FB automation        | `src/modules/integrations/facebook/meta/automation/`                       | Comment/message triggers and actions, bot message generation                                            |
-| FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`         | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
-| FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                         | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
-| Ticket               | `src/modules/ticket/`                                                      | Boards, pipelines, statuses, tickets, activities, notes                                                 |
-| Forms                | `src/modules/form/`                                                        | Forms, fields, submissions                                                                              |
-| Knowledge base       | `src/modules/knowledgebase/`                                               | Topics, categories, articles, AI knowledge source                                                       |
-| Reports              | `src/modules/reports/`                                                     | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                |
-| Migrations           | `src/migrations/`                                                          | Plugin-owned data migrations                                                                            |
+| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, trpc                                                          |
+| Call reporting       | `src/modules/integrations/call/services/callReportService.ts`               | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
+| FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
+| FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
+| FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
+| Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                 |
+| Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                              |
+| Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                       |
+| Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                |
+| Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                            |
 
 ## Contracts
 
@@ -143,7 +143,7 @@
   `channelUpdate` deliberately exposes no `scope` argument, so a channel's scope
   is fixed at creation.
 - GraphQL: `integrationsCreateExternalIntegration(kind, channelId, name,
-  accountId, brandId, data)` — `channelId` is **nullable** for every kind;
+accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   omitting it attaches the integration to the caller's personal channel and
   provisions that channel if it does not exist yet.
 - GraphQL: `integrationsGetUsedTypes` and
@@ -199,13 +199,13 @@
   `attachment`, `tags`, each with `isShow` / `label` / `placeholder` / `order`)
   and `propertyFields: [TicketPropertyField]` — ticket custom properties chosen
   from the `frontline:ticket` field groups, each `{ fieldId, groupId, label,
-  placeholder, order, isRequired, type, options }`, where `type` and `options`
+placeholder, order, isRequired, type, options }`, where `type` and `options`
   are copied from the core field definition on save so the messenger widget can
   render the right control without querying core. The widget bootstrap
   (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
   so both lists reach the messenger widget without a schema change there.
 - GraphQL: `widgetTicketCreated(name, description, attachments, statusId,
-  customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
+customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   submission. `propertiesData` is a `{ [fieldId]: value }` map that is narrowed
   to the `propertyFields` of the pipeline's ticket config, checked for the
   required ones, validated through core `fields.validateFieldValues`, and stored

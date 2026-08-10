@@ -10,7 +10,13 @@ import { useTranslation } from 'react-i18next';
 import { KpiCard } from './KpiCard';
 import { useKpiScorecard } from '../../hooks/useKpiScorecard';
 import { useCallFilters } from '../../hooks/useCallFilters';
-import { fmtDur, fmtDurOrDash, fmtNum, fmtPct, fmtPctOrDash } from '../../utils';
+import {
+  fmtDur,
+  fmtDurOrDash,
+  fmtNum,
+  fmtPct,
+  fmtPctOrDash,
+} from '../../utils';
 
 /** 6-card KPI scorecard row. */
 export function KpiSection() {
@@ -77,7 +83,10 @@ export function KpiSection() {
     {
       title: t('kpi-answer-rate'),
       value: fmtPctOrDash(answerRate),
-      subtitle: direction !== 'all' ? t('kpi-direction-only', { direction }) : t('kpi-all-directions'),
+      subtitle:
+        direction !== 'all'
+          ? t('kpi-direction-only', { direction })
+          : t('kpi-all-directions'),
       icon: <IconPercentage className="h-5 w-5" />,
       valueClass: 'text-[var(--chart-3)]',
       iconClass: 'bg-[var(--chart-3)]/10 text-[var(--chart-3)]',
