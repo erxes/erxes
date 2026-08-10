@@ -88,5 +88,4 @@ export const toBase64Attachments = async (
     disposition?: 'inline';
     contentId?: string;
   }>
-> =>
-  Promise.all(attachments.map(toBase64Attachment));
+> => Promise.all(attachments.map(toBase64Attachment));
