@@ -416,7 +416,9 @@ const LinkedTransactionsTable = ({
                 <div className="font-medium">
                   {[detail.account?.code, detail.account?.name]
                     .filter(Boolean)
-                    .join(' - ') || detail.accountId || '-'}
+                    .join(' - ') ||
+                    detail.accountId ||
+                    '-'}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {transaction.journal}
@@ -467,11 +469,7 @@ const LinkedTransactionsTable = ({
   );
 };
 
-const StatusBar = ({
-  adjustFundRate,
-}: {
-  adjustFundRate: IAdjustFundRate;
-}) => {
+const StatusBar = ({ adjustFundRate }: { adjustFundRate: IAdjustFundRate }) => {
   const start = adjustFundRate.beginDate || adjustFundRate.date;
   const end = adjustFundRate.date;
   const current = adjustFundRate.successDate || start;

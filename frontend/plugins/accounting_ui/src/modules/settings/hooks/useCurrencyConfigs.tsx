@@ -36,7 +36,9 @@ const toCurrencyList = (value?: string | string[] | null): string[] => {
 const toCurrencyOptions = (currencies: string[]) =>
   Object.fromEntries(
     currencies
-      .filter((currency): currency is CurrencyCode => currency in CURRENCY_CODES)
+      .filter(
+        (currency): currency is CurrencyCode => currency in CURRENCY_CODES,
+      )
       .map((currency) => [currency, CURRENCY_CODES[currency]]),
   ) as typeof CURRENCY_CODES;
 

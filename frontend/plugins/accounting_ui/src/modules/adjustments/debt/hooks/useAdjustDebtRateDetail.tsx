@@ -12,14 +12,13 @@ export const useAdjustDebtRateDetail = (
   options?: QueryHookOptions<IAdjustDebtRateDetailResponse, OperationVariables>,
 ) => {
   const adjustId = options?.variables?._id;
-  const { data, loading, error, refetch, subscribeToMore } =
-    useQuery<IAdjustDebtRateDetailResponse, OperationVariables>(
-      ADJUST_DEBT_RATE_DETAIL_QUERY,
-      {
-        ...options,
-        fetchPolicy: 'cache-and-network',
-      },
-    );
+  const { data, loading, error, refetch, subscribeToMore } = useQuery<
+    IAdjustDebtRateDetailResponse,
+    OperationVariables
+  >(ADJUST_DEBT_RATE_DETAIL_QUERY, {
+    ...options,
+    fetchPolicy: 'cache-and-network',
+  });
 
   useEffect(() => {
     if (!adjustId) {
