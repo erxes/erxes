@@ -1,11 +1,13 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
+import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
-import { IInvoice } from '~/modules/payment/@types/invoices';
+import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
 import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
 import {
   enqueuePaidInvoiceCallback,
   resolvePaymentForInvoice,
+  sendPaidInvoiceQrEmail,
 } from '~/modules/payment/services/paidInvoiceCallback';
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
@@ -37,21 +39,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       },
       subdomain,
     );
-    if (invoice.status === 'paid') {
-      const plainInvoice =
-        typeof (invoice as any).toObject === 'function'
-          ? (invoice as any).toObject()
-          : invoice;
-      const payment = await resolvePaymentForInvoice(models, plainInvoice);
-      enqueuePaidInvoiceCallback(
-        subdomain,
-        models,
-        plainInvoice,
-        payment,
-        'invoiceCreate',
-      );
-    }
-
     return invoice;
   },
 
@@ -234,6 +221,80 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       selectedPaymentId: paymentId,
       domain,
     });
+  },
+
+  async invoiceEdit(
+    _root,
+    { _id, input }: { _id: string; input: IInvoiceEditInput },
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('paymentInvoiceEdit');
+
+    const invoice = await models.Invoices.getInvoice({ _id });
+
+    const doc: IInvoiceEditInput & { resolvedAt?: Date } = {};
+
+    if (input.description !== undefined) {
+      doc.description = input.description;
+    }
+
+    if (input.amount !== undefined) {
+      if (!(input.amount > 0)) {
+        throw new Error('Amount must be greater than 0');
+      }
+
+      doc.amount = input.amount;
+    }
+
+    if (input.currency !== undefined) {
+      if (!CURRENCIES.includes(input.currency)) {
+        throw new Error(`Unsupported currency: ${input.currency}`);
+      }
+
+      doc.currency = input.currency;
+    }
+
+    if (input.status !== undefined) {
+      if (!PAYMENT_STATUS.ALL.includes(input.status)) {
+        throw new Error(`Unsupported status: ${input.status}`);
+      }
+
+      doc.status = input.status;
+
+      if (input.status === PAYMENT_STATUS.PAID && !invoice.resolvedAt) {
+        doc.resolvedAt = new Date();
+      }
+    }
+
+    if (Object.keys(doc).length === 0) {
+      throw new Error('Nothing to update');
+    }
+
+    const updated = await models.Invoices.updateInvoice(_id, doc);
+
+    if (doc.status && doc.status !== invoice.status) {
+      graphqlPubsub.publish(`invoiceUpdated:${_id}`, {
+        invoiceUpdated: {
+          _id,
+          status: updated.status,
+        },
+      });
+
+      if (doc.status === PAYMENT_STATUS.PAID) {
+        const paidInvoice = await models.Invoices.getInvoice({ _id }, true);
+        const payment = await resolvePaymentForInvoice(models, paidInvoice);
+
+        sendPaidInvoiceQrEmail(
+          subdomain,
+          models,
+          paidInvoice,
+          payment,
+          'invoiceEdit',
+        );
+      }
+    }
+
+    return updated;
   },
 
   async cpInvoiceUpdate(

@@ -99,7 +99,7 @@ export const sendInvoiceQrEmail = async (subdomain: string, invoice: any) => {
       attachments: [
         {
           filename: 'tickets.pdf',
-          path: `data:application/pdf;base64,${pdfBase64}`,
+          content: pdfBase64,
           contentType: 'application/pdf',
         },
       ],

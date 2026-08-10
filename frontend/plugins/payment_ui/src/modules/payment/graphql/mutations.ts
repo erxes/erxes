@@ -1,18 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const INVOICE_CREATE = gql`
-  mutation invoiceCreate($input: InvoiceInput!) {
-    invoiceCreate(input: $input) {
-      _id
-      invoiceNumber
-      amount
-      currency
-      status
-      createdAt
-    }
-  }
-`;
-
 export const ADD_PAYMENT = gql`
   mutation paymentAdd($input: PaymentInput!) {
     paymentAdd(input: $input) {
@@ -36,6 +23,19 @@ export const EDIT_PAYMENT = gql`
 export const REMOVE_PAYMENT = gql`
   mutation paymentRemove($_ids: [String!]!) {
     paymentRemove(_ids: $_ids)
+  }
+`;
+
+export const INVOICE_EDIT = gql`
+  mutation PaymentInvoiceEdit($_id: String!, $input: InvoiceEditInput!) {
+    invoiceEdit(_id: $_id, input: $input) {
+      _id
+      amount
+      currency
+      description
+      status
+      resolvedAt
+    }
   }
 `;
 

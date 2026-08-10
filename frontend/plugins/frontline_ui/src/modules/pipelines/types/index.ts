@@ -12,7 +12,6 @@ export interface PermissionState {
   branchOnly: boolean;
   myTicketsOnly: boolean;
   departmentOnly: boolean;
-  allowAllUsers: boolean;
   selectedUsers: string[];
   visibility: 'public' | 'private';
   memberIds: string[];
@@ -59,11 +58,6 @@ export interface ITicketsPipelineFilter {
     userId?: string;
     applyVisibilityFilter?: boolean;
   };
-}
-
-export enum ContactType {
-  CUSTOMER = 'customer',
-  COMPANY = 'company',
 }
 
 export type TCreatePipelineForm = z.infer<typeof CREATE_PIPELINE_FORM_SCHEMA>;

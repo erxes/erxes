@@ -174,6 +174,8 @@ export type TAiKnowledgeSourceConfig = {
   key: string;
   label: string;
   sourceSelector: 'remote-module' | 'local';
+  // Off for collections too large to stream, e.g. customers.
+  supportsFullScope?: boolean;
 };
 
 export type TAiToolConfig = {

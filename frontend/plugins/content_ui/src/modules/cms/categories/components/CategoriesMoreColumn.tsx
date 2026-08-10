@@ -34,8 +34,10 @@ export const CategoryMoreColumnCell = ({
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { removeSingleCategory, removeBulkCategories, loading } =
-    useRemoveCategories(clientPortalId, onRefetch || (() => {}));
+  const { removeSingleCategory, loading } = useRemoveCategories(
+    clientPortalId,
+    onRefetch || (() => undefined),
+  );
 
   const handleEdit = () => {
     const category = cell.row.original;
@@ -122,6 +124,7 @@ export const categoryMoreColumn = (
   onRefetch?: () => void,
 ) => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (cell: CellContext<any, unknown>) => (
     <CategoryMoreColumnCell
       cell={cell}

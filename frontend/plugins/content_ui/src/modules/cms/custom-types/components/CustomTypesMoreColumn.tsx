@@ -105,6 +105,7 @@ export const customTypeMoreColumn = (
   onRefetch?: () => void,
 ) => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (cell: CellContext<any, unknown>) => (
     <CustomTypeMoreColumnCell
       cell={cell}

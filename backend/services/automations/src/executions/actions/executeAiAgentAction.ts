@@ -1,4 +1,5 @@
 import {
+  buildAiKnowledgeTool,
   isAiClassificationResultEmpty,
   loadAiActionMemory,
   loadAiConversationState,
@@ -67,18 +68,30 @@ export const executeAiAgentAction = async (
     if (!agent) {
       throw new Error('AI Agent not found.');
     }
-    const tools = await buildAiAgentTools({
+    const parsedAgent = parseAiAgentInput(agent);
+    // Two registries meet here: action tools come from the canvas node, the
+    // knowledge tool follows the agent wherever it is used.
+    const knowledgeTool =
+      parsedActionConfig.goalType === 'generateText'
+        ? buildAiKnowledgeTool({
+            models,
+            agentId: aiAgentId,
+            agent: parsedAgent,
+          })
+        : null;
+    const actionTools = await buildAiAgentTools({
       subdomain,
       models,
       execution,
       actionConfig: parsedActionConfig,
     });
+    const tools = [...(knowledgeTool ? [knowledgeTool] : []), ...actionTools];
 
     const timerLabel = `runAiAction:${execution._id}:${action.id}`;
     console.time(timerLabel);
     const response = await runAiAction({
       subdomain,
-      agent: parseAiAgentInput(agent),
+      agent: parsedAgent,
       agentId: aiAgentId,
       models,
       actionConfig: parsedActionConfig,

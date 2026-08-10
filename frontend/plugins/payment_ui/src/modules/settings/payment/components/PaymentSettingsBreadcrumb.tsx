@@ -3,7 +3,6 @@ import { Button, Separator, useIsMatchingLocation } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { PaymentAddSheet } from '@/settings/payment/components/PaymentAddSheet';
-import { InvoiceAddSheet } from '@/payment/components/InvoiceAddSheet';
 
 export const PaymentSettingsBreadcrumb = () => {
   const { t } = useTranslation('payment');
@@ -36,9 +35,6 @@ export const PaymentSettingsBreadcrumb = () => {
           <Button variant="ghost" className="font-semibold">
             {t('invoices')}
           </Button>
-          <span className="ml-auto">
-            <InvoiceAddSheet />
-          </span>
         </>
       )}
 
