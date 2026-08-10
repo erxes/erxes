@@ -14,12 +14,17 @@ export type TBulkTicketUpdate = {
   state?: string;
 };
 
+export type TBulkUpdateResult = {
+  succeededIds: string[];
+  failedIds: string[];
+};
+
 export type TBulkUpdateOptions = {
   successMessage: string;
   /** Refetch the ticket list once, after every update settled. */
   refetchList?: boolean;
-  /** Called before the error toast so callers can roll back optimistic state. */
-  onError?: () => void;
+  /** Called with the tickets that failed, so callers roll back only those. */
+  onError?: (failedIds: string[]) => void;
 };
 
 export type TUseBulkUpdateTickets = {
@@ -27,7 +32,7 @@ export type TUseBulkUpdateTickets = {
     ticketIds: string[],
     update: TBulkTicketUpdate,
     options: TBulkUpdateOptions,
-  ) => Promise<boolean>;
+  ) => Promise<TBulkUpdateResult>;
 };
 
 export const useBulkUpdateTickets = (): TUseBulkUpdateTickets => {
@@ -41,43 +46,52 @@ export const useBulkUpdateTickets = (): TUseBulkUpdateTickets => {
     update: TBulkTicketUpdate,
     { successMessage, refetchList, onError }: TBulkUpdateOptions,
   ) => {
-    let failedMessage = '';
+    const results = await Promise.all(
+      ticketIds.map(async (ticketId) => {
+        let errorMessage = '';
 
-    await Promise.all(
-      ticketIds.map((ticketId) =>
-        updateTicket({
+        await updateTicket({
           variables: {
             _id: ticketId,
             ...update,
           },
           onError: (error) => {
-            failedMessage = failedMessage || error.message;
+            errorMessage = error.message;
           },
-        }),
-      ),
+        });
+
+        return { ticketId, errorMessage };
+      }),
     );
 
-    if (failedMessage) {
-      onError?.();
-      toast({
-        title: t('error'),
-        description: failedMessage,
-        variant: 'destructive',
-      });
-      return false;
-    }
+    const succeededIds = results
+      .filter((result) => !result.errorMessage)
+      .map((result) => result.ticketId);
+    const failures = results.filter((result) => result.errorMessage);
+    const failedIds = failures.map((result) => result.ticketId);
 
-    if (refetchList) {
+    // Tickets that did change still have to leave a stale list, even when a
+    // sibling in the same batch failed.
+    if (refetchList && succeededIds.length > 0) {
       await client.refetchQueries({ include: [GET_TICKETS] });
     }
 
-    toast({
-      title: t('success'),
-      variant: 'success',
-      description: successMessage,
-    });
+    if (failures.length > 0) {
+      onError?.(failedIds);
+      toast({
+        title: t('error'),
+        description: failures[0].errorMessage,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: t('success'),
+        variant: 'success',
+        description: successMessage,
+      });
+    }
 
-    return true;
+    return { succeededIds, failedIds };
   };
 
   return { bulkUpdateTickets };

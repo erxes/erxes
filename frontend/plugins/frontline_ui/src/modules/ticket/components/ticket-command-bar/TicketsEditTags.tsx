@@ -49,7 +49,13 @@ export const TicketsEditTagsContent = ({
           { tagIds: newTagIds },
           {
             successMessage: t('tickets-updated-successfully'),
-            onError: () => setValue(previousTagIds),
+            // The control holds one value for the whole selection, so it can
+            // only go back when nothing was applied.
+            onError: (failedIds) => {
+              if (failedIds.length === ticketIds.length) {
+                setValue(previousTagIds);
+              }
+            },
           },
         );
       }}

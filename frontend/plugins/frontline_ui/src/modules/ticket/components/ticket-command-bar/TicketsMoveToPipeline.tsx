@@ -48,7 +48,7 @@ export const TicketsMoveToPipelineContent = ({
       return;
     }
 
-    const succeeded = await bulkUpdateTickets(
+    const { succeededIds } = await bulkUpdateTickets(
       ticketIds,
       { pipelineId: targetPipelineId },
       {
@@ -58,11 +58,11 @@ export const TicketsMoveToPipelineContent = ({
     );
 
     if (
-      succeeded &&
+      succeededIds.length > 0 &&
       pipelineIdFilter &&
       pipelineIdFilter !== targetPipelineId
     ) {
-      removeTicketsFromView(ticketIds);
+      removeTicketsFromView(succeededIds);
     }
   };
 

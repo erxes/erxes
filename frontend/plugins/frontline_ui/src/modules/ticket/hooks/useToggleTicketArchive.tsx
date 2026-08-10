@@ -1,11 +1,14 @@
 import { useRemoveTicketsFromView } from '@/ticket/hooks/useRemoveTicketsFromView';
-import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
+import {
+  TBulkUpdateResult,
+  useBulkUpdateTickets,
+} from '@/ticket/hooks/useBulkUpdateTickets';
 import { useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export type TToggleArchiveOptions = {
-  /** Called when at least one ticket failed, so callers can roll back. */
-  onError?: () => void;
+  /** Called with the tickets that failed, so callers roll back only those. */
+  onError?: (failedIds: string[]) => void;
 };
 
 export type TUseToggleTicketArchive = {
@@ -13,7 +16,7 @@ export type TUseToggleTicketArchive = {
     ticketIds: string[],
     archived: boolean,
     options?: TToggleArchiveOptions,
-  ) => Promise<boolean>;
+  ) => Promise<TBulkUpdateResult>;
 };
 
 export const useToggleTicketArchive = (): TUseToggleTicketArchive => {
@@ -29,7 +32,7 @@ export const useToggleTicketArchive = (): TUseToggleTicketArchive => {
   ) => {
     const nextState = archived ? 'active' : 'archived';
 
-    const succeeded = await bulkUpdateTickets(
+    const result = await bulkUpdateTickets(
       ticketIds,
       { state: nextState },
       {
@@ -41,11 +44,14 @@ export const useToggleTicketArchive = (): TUseToggleTicketArchive => {
       },
     );
 
-    if (succeeded && nextState !== (stateFilter || 'active')) {
-      removeTicketsFromView(ticketIds);
+    if (
+      result.succeededIds.length > 0 &&
+      nextState !== (stateFilter || 'active')
+    ) {
+      removeTicketsFromView(result.succeededIds);
     }
 
-    return succeeded;
+    return result;
   };
 
   return { toggleArchive };
