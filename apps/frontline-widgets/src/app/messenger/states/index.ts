@@ -61,9 +61,13 @@ export const uiOptionsAtom = atom<IWidgetUiOptions>({
   heroStyleVariant: 'aurora',
 });
 
-export const ticketConfigAtom = atom<ITicketConfig | null>(null);
+export const ticketConfigsAtom = atom<ITicketConfig[] | null>(null);
 
 export const hasTicketConfigAtom = atom<boolean>(false);
+
+export const selectedTicketConfigAtom = atom<ITicketConfig | null>(null);
+
+export const ticketTabAtom = atom<'submissions' | 'selection'>('submissions');
 
 export const hasKnowledgeBaseTopicAtom = atom<boolean>(false);
 
