@@ -49,6 +49,16 @@ import {
   types as adjustInventoryTypes,
 } from '~/modules/accounting/graphql/schemas/adjustInvDetail';
 import {
+  mutations as adjustFundRateMutations,
+  queries as adjustFundRateQueries,
+  types as adjustFundRateTypes,
+} from '~/modules/accounting/graphql/schemas/adjustFundRate';
+import {
+  mutations as adjustDebtRateMutations,
+  queries as adjustDebtRateQueries,
+  types as adjustDebtRateTypes,
+} from '~/modules/accounting/graphql/schemas/adjustDebtRate';
+import {
   mutations as remainderMutations,
   queries as remainderQueries,
   types as remainderTypes,
@@ -114,6 +124,8 @@ export const types = `
   ${transactionTypes()}
   ${accInventoryTypes}
   ${adjustInventoryTypes}
+  ${adjustFundRateTypes()}
+  ${adjustDebtRateTypes()}
   ${journalReportTypes}
   ${fixedAssetCategoryTypes}
   ${fixedAssetTypes}
@@ -136,6 +148,8 @@ export const queries = `
   ${transactionQueries}
   ${accInventoryQueries}
   ${adjustInventoryQueries}
+  ${adjustFundRateQueries}
+  ${adjustDebtRateQueries}
   ${journalReportQueries}
   ${fixedAssetCategoryQueries}
   ${fixedAssetQueries}
@@ -157,6 +171,8 @@ export const mutations = `
   ${transactionMutations}
   ${accInventoryMutations}
   ${adjustInventoryMutations}
+  ${adjustFundRateMutations}
+  ${adjustDebtRateMutations}
   ${fixedAssetCategoryMutations}
   ${fixedAssetMutations}
   ${fxaInstanceMutations}
