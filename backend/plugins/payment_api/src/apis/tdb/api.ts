@@ -90,13 +90,13 @@ export const tdbCallbackHandler = async (
       return transaction;
     }
     await models.Transactions.updateOne(
-  { _id: transaction._id },
-  {
-    status,
-    response: transaction.response,
-    updatedAt: new Date(),
-  },
-);
+      { _id: transaction._id },
+      {
+        status,
+        response: transaction.response,
+        updatedAt: new Date(),
+      },
+    );
 
     return models.Transactions.getTransaction({ _id: transaction._id });
   } catch (error) {
@@ -152,21 +152,21 @@ export class TDBAPI extends BaseAPI {
     const { id: orderId, password } = transaction?.response?.order || {};
 
     const response: ITDBGetOrderDetailResponse = await this.request({
-  method: 'GET',
-  path: `order/${orderId}`,
-  params: {
-    password,
-  },
-  headers: {
-    Authorization: buildBasicAuth(this.username, this.password),
-  },
-}).then((r) => r.json());
+      method: 'GET',
+      path: `order/${orderId}`,
+      params: {
+        password,
+      },
+      headers: {
+        Authorization: buildBasicAuth(this.username, this.password),
+      },
+    }).then((r) => r.json());
 
-console.log('[TDB checkInvoice] response:', response);
+    console.log('[TDB checkInvoice] response:', response);
 
-transaction.response = response;
+    transaction.response = response;
 
-const status = (response?.order?.status || '').toUpperCase();
+    const status = (response?.order?.status || '').toUpperCase();
     switch (status) {
       case 'FULLYPAID':
       case 'PARTPAID':

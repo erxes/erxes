@@ -93,8 +93,8 @@ export const callbackHandler = async (req, res) => {
       ].includes(transaction.status)
     ) {
       return res.redirect(
-    `/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
-  );
+        `/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
+      );
     }
     if (
       transaction.status === PAYMENT_STATUS.CANCELLED ||
