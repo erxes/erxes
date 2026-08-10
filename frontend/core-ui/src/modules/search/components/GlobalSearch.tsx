@@ -1,50 +1,23 @@
-import { IconSearch } from '@tabler/icons-react';
+import { GlobalSearchDialog } from '@/search/components/GlobalSearchDialog';
 import {
   GLOBAL_SEARCH_MIN_LENGTH,
   useGlobalSearch,
 } from '@/search/hooks/useGlobalSearch';
-import { GlobalSearchDialog } from '@/search/components/GlobalSearchDialog';
+import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
-import { Button, cn } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 
 const SEARCH_DEBOUNCE = 350;
 
-const GlobalSearchTrigger = ({
-  className,
-  label,
-  onClick,
-}: {
-  className?: string;
-  label: string;
-  onClick: () => void;
-}) => {
-  const isMac = isMacPlatform();
-
-  return (
-    <Button
-      aria-keyshortcuts={isMac ? 'Meta+Alt+K' : 'Control+Alt+K'}
-      aria-label={label}
-      className={cn('size-8 shrink-0 text-muted-foreground', className)}
-      onClick={onClick}
-      size="icon"
-      title={`${label} (${isMac ? '⌘ ⌥ K' : 'Ctrl Alt K'})`}
-      type="button"
-      variant="ghost"
-    >
-      <IconSearch className="size-4" />
-    </Button>
-  );
-};
-
-export const GlobalSearch = ({ className }: { className?: string }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'global-search' });
+// Mounted by the layout rather than by the tabs row, which unmounts when the
+// row is hidden — the shortcut has to keep working there too.
+export const GlobalSearch = () => {
   const navigate = useNavigate();
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useAtom(globalSearchOpenState);
   const [value, setValue] = useState('');
   const [debouncedValue] = useDebounce(value.trim(), SEARCH_DEBOUNCE);
 
@@ -71,7 +44,7 @@ export const GlobalSearch = ({ className }: { className?: string }) => {
     window.addEventListener('keydown', handleOpenSearch);
 
     return () => window.removeEventListener('keydown', handleOpenSearch);
-  }, []);
+  }, [setOpen]);
 
   const openResult = (path: string) => {
     setValue('');
@@ -83,28 +56,20 @@ export const GlobalSearch = ({ className }: { className?: string }) => {
   const hasResults = groups.some((group) => group.items.length > 0);
 
   return (
-    <>
-      <GlobalSearchTrigger
-        className={className}
-        label={t('placeholder', 'Search')}
-        onClick={() => setOpen(true)}
-      />
-
-      <GlobalSearchDialog
-        open={open}
-        onOpenChange={setOpen}
-        value={value}
-        onValueChange={setValue}
-        isTyping={isTyping}
-        hasFailure={hasFailure}
-        loading={loading}
-        hasResults={hasResults}
-        groups={groups}
-        totalCount={totalCount}
-        searchValue={debouncedValue}
-        onSelect={openResult}
-        onRetry={() => refetch()}
-      />
-    </>
+    <GlobalSearchDialog
+      open={open}
+      onOpenChange={setOpen}
+      value={value}
+      onValueChange={setValue}
+      isTyping={isTyping}
+      hasFailure={hasFailure}
+      loading={loading}
+      hasResults={hasResults}
+      groups={groups}
+      totalCount={totalCount}
+      searchValue={debouncedValue}
+      onSelect={openResult}
+      onRetry={() => refetch()}
+    />
   );
 };

@@ -5,6 +5,7 @@ import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
 import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
 import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
+import { GlobalSearch } from '@/search/components/GlobalSearch';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 import { cn, Sidebar, useQueryState } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
@@ -61,6 +62,7 @@ export const DefaultLayout = () => {
       sidebarWidthIcon="3rem"
     >
       <VisitedPageTabs />
+      <GlobalSearch />
       <Sidebar
         collapsible="icon"
         variant="sidebar"
