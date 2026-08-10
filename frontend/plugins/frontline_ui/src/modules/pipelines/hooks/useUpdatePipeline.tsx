@@ -29,7 +29,7 @@ export const useUpdatePipeline = () => {
         });
         options.onError?.(error);
       },
-      refetchQueries: ['GetTicketPipelines'],
+      refetchQueries: ['GetTicketPipelines', 'GetTicketPipeline'],
     });
   };
   return { updatePipeline, loading };
