@@ -1,9 +1,8 @@
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
-import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
+import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
 import { useRemoveTicketsFromView } from '@/ticket/hooks/useRemoveTicketsFromView';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { IconChevronRight, IconGitBranch } from '@tabler/icons-react';
-import { useQueryState, Command, useToast } from 'erxes-ui';
+import { Command, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const TicketsMoveToPipelineTrigger = ({
@@ -38,54 +37,33 @@ export const TicketsMoveToPipelineContent = ({
   setOpen: (open: boolean) => void;
 }) => {
   const { t } = useTranslation('frontline');
-  const { toast } = useToast();
-  const { updateTicket } = useUpdateTicket();
+  const { bulkUpdateTickets } = useBulkUpdateTickets();
   const { removeTicketsFromView } = useRemoveTicketsFromView();
   const [pipelineIdFilter] = useQueryState<string>('pipelineId');
 
   const handleMove = async (targetPipelineId: string) => {
-    if (targetPipelineId === pipelineId) {
-      setOpen(false);
-      return;
-    }
-
-    let failedMessage = '';
-
-    await Promise.all(
-      ticketIds.map((ticketId) =>
-        updateTicket({
-          variables: {
-            _id: ticketId,
-            pipelineId: targetPipelineId,
-          },
-          refetchQueries: [GET_TICKETS],
-          onError: (error) => {
-            failedMessage = failedMessage || error.message;
-          },
-        }),
-      ),
-    );
-
     setOpen(false);
 
-    if (failedMessage) {
-      toast({
-        title: t('error'),
-        description: failedMessage,
-        variant: 'destructive',
-      });
+    if (targetPipelineId === pipelineId) {
       return;
     }
 
-    if (pipelineIdFilter && pipelineIdFilter !== targetPipelineId) {
+    const succeeded = await bulkUpdateTickets(
+      ticketIds,
+      { pipelineId: targetPipelineId },
+      {
+        refetchList: true,
+        successMessage: t('tickets-moved-successfully'),
+      },
+    );
+
+    if (
+      succeeded &&
+      pipelineIdFilter &&
+      pipelineIdFilter !== targetPipelineId
+    ) {
       removeTicketsFromView(ticketIds);
     }
-
-    toast({
-      title: t('success'),
-      variant: 'success',
-      description: t('tickets-moved-successfully'),
-    });
   };
 
   return (

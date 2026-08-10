@@ -1,5 +1,5 @@
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
 import { IconChevronRight, IconUsersGroup } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { useState } from 'react';
@@ -32,23 +32,25 @@ export const TicketsAssignedMembersContent = ({
   ticketIds: string[];
   assignedMembers: string[];
 }) => {
-  const { updateTicket } = useUpdateTicket();
+  const { t } = useTranslation('frontline');
+  const { bulkUpdateTickets } = useBulkUpdateTickets();
   const [value, setValue] = useState<string[]>(assignedMembers);
 
   return (
     <SelectAssignedMembersTicket.Provider
       mode="multiple"
       value={value}
-      onValueChange={(newValue) => {
+      onValueChange={async (newValue) => {
         const memberIds = Array.isArray(newValue) ? newValue : [];
+        const previousMemberIds = value;
         setValue(memberIds);
-        ticketIds.forEach((ticketId) =>
-          updateTicket({
-            variables: {
-              _id: ticketId,
-              assignedMembers: memberIds,
-            },
-          }),
+        await bulkUpdateTickets(
+          ticketIds,
+          { assignedMembers: memberIds },
+          {
+            successMessage: t('tickets-updated-successfully'),
+            onError: () => setValue(previousMemberIds),
+          },
         );
       }}
     >

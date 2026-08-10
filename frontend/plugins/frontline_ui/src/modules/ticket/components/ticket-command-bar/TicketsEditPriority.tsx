@@ -1,5 +1,5 @@
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
 import { IconAlertSquareRounded, IconChevronRight } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -31,22 +31,18 @@ export const TicketsEditPriorityContent = ({
   ticketIds: string[];
   setOpen: (open: boolean) => void;
 }) => {
-  const { updateTicket } = useUpdateTicket();
+  const { t } = useTranslation('frontline');
+  const { bulkUpdateTickets } = useBulkUpdateTickets();
 
   return (
     <SelectPriorityTicket.Provider
       onValueChange={async (value) => {
-        await Promise.all(
-          ticketIds.map((ticketId) =>
-            updateTicket({
-              variables: {
-                _id: ticketId,
-                priority: value,
-              },
-            }),
-          ),
-        );
         setOpen(false);
+        await bulkUpdateTickets(
+          ticketIds,
+          { priority: value },
+          { successMessage: t('tickets-updated-successfully') },
+        );
       }}
     >
       <SelectPriorityTicket.Content />

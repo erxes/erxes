@@ -5,7 +5,6 @@ import { IconRepeat } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import {
   Button,
-  Command,
   CommandBar,
   Popover,
   RecordTable,
@@ -15,39 +14,21 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can, Export } from 'ui-modules';
-import { TicketsArchive } from './TicketsArchive';
-import {
-  TicketsAssignedMembersContent,
-  TicketsAssignedMembersTrigger,
-} from './TicketsAssignedMembers';
-import {
-  TicketsAssignToContent,
-  TicketsAssignToTrigger,
-} from './TicketsAssignTo';
-import { TicketsDelete } from './TicketsDelete';
-import {
-  TicketsEditPriorityContent,
-  TicketsEditPriorityTrigger,
-} from './TicketsEditPriority';
-import {
-  TicketsEditStatusContent,
-  TicketsEditStatusTrigger,
-} from './TicketsEditStatus';
-import {
-  TicketsEditTagsContent,
-  TicketsEditTagsTrigger,
-} from './TicketsEditTags';
-import {
-  TicketsMoveToPipelineContent,
-  TicketsMoveToPipelineTrigger,
-} from './TicketsMoveToPipeline';
+import { TicketActionsMenu, TicketActionsPanel } from './TicketActions';
 
+/** Ids every selected ticket has in common, so bulk edits start from a shared value. */
 const getSharedValues = (valueLists: (string[] | undefined)[]): string[] => {
   if (valueLists.length === 0) return [];
   return valueLists.reduce<string[]>(
     (shared, list) => shared.filter((value) => (list || []).includes(value)),
     [...(valueLists[0] || [])],
   );
+};
+
+/** The single value every selected ticket carries, or undefined when they disagree. */
+const getSharedValue = (values: (string | undefined)[]): string | undefined => {
+  const unique = [...new Set(values)];
+  return unique.length === 1 ? unique[0] : undefined;
 };
 
 export const TicketCommandBar = () => {
@@ -63,18 +44,19 @@ export const TicketCommandBar = () => {
   const ticketIds = selectedTickets.map((ticket) => ticket._id);
 
   const [pipelineIdParam] = useQueryState<string | null>('pipelineId');
-  const selectedPipelineIds = [
-    ...new Set(selectedTickets.map((ticket) => ticket.pipelineId)),
-  ];
-  const pipelineId =
-    pipelineIdParam ||
-    (selectedPipelineIds.length === 1 ? selectedPipelineIds[0] : undefined);
 
-  const selectedChannelIds = [
-    ...new Set(selectedTickets.map((ticket) => ticket.channelId)),
-  ];
-  const channelId =
-    selectedChannelIds.length === 1 ? selectedChannelIds[0] : undefined;
+  // Prefer the selection's own pipeline so a status change can never target a
+  // pipeline the selected tickets do not belong to.
+  const sharedPipelineId = getSharedValue(
+    selectedTickets.map((ticket) => ticket.pipelineId),
+  );
+  const pipelineId =
+    sharedPipelineId ||
+    (selectedTickets.length === 0 ? pipelineIdParam || undefined : undefined);
+
+  const channelId = getSharedValue(
+    selectedTickets.map((ticket) => ticket.channelId),
+  );
 
   const { pipeline } = useGetPipeline(pipelineId || undefined);
   const { canDeleteTicket, canEditTicket, canMoveTicket } =
@@ -89,6 +71,8 @@ export const TicketCommandBar = () => {
   const allArchived =
     selectedTickets.length > 0 &&
     selectedTickets.every((ticket) => ticket.state === 'archived');
+
+  const hasAnyAction = canEditTicket || canMoveTicket || canDeleteTicket;
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
@@ -111,7 +95,7 @@ export const TicketCommandBar = () => {
             ids={ticketIds}
           />
         </Can>
-        {(canEditTicket || canMoveTicket || canDeleteTicket) && (
+        {hasAnyAction && (
           <>
             <Separator.Inline />
             <Popover open={open} onOpenChange={handleOpenChange}>
@@ -127,96 +111,29 @@ export const TicketCommandBar = () => {
                 side="top"
                 sideOffset={10}
               >
-                {currentContent === 'main' && (
-                  <Command>
-                    <Command.Input />
-                    <Command.List className="p-0">
-                      {canEditTicket && (
-                        <Command.Group className="p-1">
-                          <TicketsAssignToTrigger
-                            setCurrentContent={setCurrentContent}
-                          />
-                          <TicketsAssignedMembersTrigger
-                            setCurrentContent={setCurrentContent}
-                          />
-                          <TicketsEditPriorityTrigger
-                            setCurrentContent={setCurrentContent}
-                          />
-                          <TicketsEditTagsTrigger
-                            setCurrentContent={setCurrentContent}
-                          />
-                        </Command.Group>
-                      )}
-                      {canMoveTicket && (pipelineId || channelId) && (
-                        <Command.Group className="p-1">
-                          {pipelineId && (
-                            <TicketsEditStatusTrigger
-                              setCurrentContent={setCurrentContent}
-                            />
-                          )}
-                          {channelId && (
-                            <TicketsMoveToPipelineTrigger
-                              setCurrentContent={setCurrentContent}
-                            />
-                          )}
-                        </Command.Group>
-                      )}
-                      <Command.Separator />
-                      <Command.Group className="p-1">
-                        {canEditTicket && (
-                          <TicketsArchive
-                            ticketIds={ticketIds}
-                            archived={allArchived}
-                            setOpen={setOpen}
-                          />
-                        )}
-                        {canDeleteTicket && (
-                          <TicketsDelete
-                            ticketIds={ticketIds}
-                            rows={selectedRows}
-                            setOpen={setOpen}
-                          />
-                        )}
-                      </Command.Group>
-                    </Command.List>
-                  </Command>
-                )}
-                {currentContent === 'assignee' && (
-                  <TicketsAssignToContent
+                {currentContent === 'main' ? (
+                  <TicketActionsMenu
                     ticketIds={ticketIds}
-                    setOpen={setOpen}
-                  />
-                )}
-                {currentContent === 'assignedMembers' && (
-                  <TicketsAssignedMembersContent
-                    ticketIds={ticketIds}
-                    assignedMembers={sharedAssignedMembers}
-                  />
-                )}
-                {currentContent === 'status' && pipelineId && (
-                  <TicketsEditStatusContent
-                    ticketIds={ticketIds}
+                    rows={selectedRows}
                     pipelineId={pipelineId}
-                    setOpen={setOpen}
-                  />
-                )}
-                {currentContent === 'priority' && (
-                  <TicketsEditPriorityContent
-                    ticketIds={ticketIds}
-                    setOpen={setOpen}
-                  />
-                )}
-                {currentContent === 'tags' && (
-                  <TicketsEditTagsContent
-                    ticketIds={ticketIds}
-                    tagIds={sharedTagIds}
-                  />
-                )}
-                {currentContent === 'pipeline' && channelId && (
-                  <TicketsMoveToPipelineContent
-                    ticketIds={ticketIds}
                     channelId={channelId}
+                    allArchived={allArchived}
+                    permissions={{
+                      canEditTicket,
+                      canMoveTicket,
+                      canDeleteTicket,
+                    }}
+                    setCurrentContent={setCurrentContent}
+                    setOpen={setOpen}
+                  />
+                ) : (
+                  <TicketActionsPanel
+                    currentContent={currentContent}
+                    ticketIds={ticketIds}
                     pipelineId={pipelineId}
+                    channelId={channelId}
+                    sharedAssignedMembers={sharedAssignedMembers}
+                    sharedTagIds={sharedTagIds}
                     setOpen={setOpen}
                   />
                 )}

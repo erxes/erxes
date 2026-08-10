@@ -1,60 +1,51 @@
-import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { useRemoveTicketsFromView } from '@/ticket/hooks/useRemoveTicketsFromView';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { useQueryState, useToast } from 'erxes-ui';
+import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
+import { useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-export const useToggleTicketArchive = () => {
+export type TToggleArchiveOptions = {
+  /** Called when at least one ticket failed, so callers can roll back. */
+  onError?: () => void;
+};
+
+export type TUseToggleTicketArchive = {
+  toggleArchive: (
+    ticketIds: string[],
+    archived: boolean,
+    options?: TToggleArchiveOptions,
+  ) => Promise<boolean>;
+};
+
+export const useToggleTicketArchive = (): TUseToggleTicketArchive => {
   const { t } = useTranslation('frontline');
-  const { toast } = useToast();
-  const { updateTicket } = useUpdateTicket();
+  const { bulkUpdateTickets } = useBulkUpdateTickets();
   const { removeTicketsFromView } = useRemoveTicketsFromView();
   const [stateFilter] = useQueryState<string>('state');
 
   const toggleArchive = async (
     ticketIds: string[],
     archived: boolean,
-    options?: { onError?: () => void },
+    options?: TToggleArchiveOptions,
   ) => {
     const nextState = archived ? 'active' : 'archived';
-    let failedMessage = '';
 
-    await Promise.all(
-      ticketIds.map((ticketId) =>
-        updateTicket({
-          variables: {
-            _id: ticketId,
-            state: nextState,
-          },
-          refetchQueries: [GET_TICKETS],
-          onError: (error) => {
-            failedMessage = failedMessage || error.message;
-          },
-        }),
-      ),
+    const succeeded = await bulkUpdateTickets(
+      ticketIds,
+      { state: nextState },
+      {
+        refetchList: true,
+        onError: options?.onError,
+        successMessage: archived
+          ? t('ticket-restored-successfully')
+          : t('ticket-archived-successfully'),
+      },
     );
 
-    if (failedMessage) {
-      options?.onError?.();
-      toast({
-        title: t('error'),
-        description: failedMessage,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (nextState !== (stateFilter || 'active')) {
+    if (succeeded && nextState !== (stateFilter || 'active')) {
       removeTicketsFromView(ticketIds);
     }
 
-    toast({
-      title: t('success'),
-      variant: 'success',
-      description: archived
-        ? t('ticket-restored-successfully')
-        : t('ticket-archived-successfully'),
-    });
+    return succeeded;
   };
 
   return { toggleArchive };

@@ -1,5 +1,5 @@
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
 import { IconChevronRight, IconUser } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -31,7 +31,8 @@ export const TicketsAssignToContent = ({
   ticketIds: string[];
   setOpen: (open: boolean) => void;
 }) => {
-  const { updateTicket } = useUpdateTicket();
+  const { t } = useTranslation('frontline');
+  const { bulkUpdateTickets } = useBulkUpdateTickets();
 
   return (
     <SelectAssigneeTicket.Provider
@@ -39,17 +40,12 @@ export const TicketsAssignToContent = ({
       value=""
       allowUnassigned
       onValueChange={async (value) => {
-        await Promise.all(
-          ticketIds.map((ticketId) =>
-            updateTicket({
-              variables: {
-                _id: ticketId,
-                assigneeId: value,
-              },
-            }),
-          ),
-        );
         setOpen(false);
+        await bulkUpdateTickets(
+          ticketIds,
+          { assigneeId: Array.isArray(value) ? value[0] : value },
+          { successMessage: t('tickets-updated-successfully') },
+        );
       }}
     >
       <SelectAssigneeTicket.Content />

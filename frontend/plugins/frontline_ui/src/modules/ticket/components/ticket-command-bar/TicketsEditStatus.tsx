@@ -1,5 +1,5 @@
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
 import { IconChevronRight, IconProgressCheck } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -33,24 +33,20 @@ export const TicketsEditStatusContent = ({
   pipelineId: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { updateTicket } = useUpdateTicket();
+  const { t } = useTranslation('frontline');
+  const { bulkUpdateTickets } = useBulkUpdateTickets();
 
   return (
     <SelectStatusTicket.Provider
       pipelineId={pipelineId}
       value=""
       onValueChange={async (value) => {
-        await Promise.all(
-          ticketIds.map((ticketId) =>
-            updateTicket({
-              variables: {
-                _id: ticketId,
-                statusId: value,
-              },
-            }),
-          ),
-        );
         setOpen(false);
+        await bulkUpdateTickets(
+          ticketIds,
+          { statusId: value },
+          { successMessage: t('tickets-updated-successfully') },
+        );
       }}
     >
       <SelectStatusTicket.Content />

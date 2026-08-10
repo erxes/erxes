@@ -1,4 +1,4 @@
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
 import { IconChevronRight, IconTags } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { useState } from 'react';
@@ -32,7 +32,8 @@ export const TicketsEditTagsContent = ({
   ticketIds: string[];
   tagIds: string[];
 }) => {
-  const { updateTicket } = useUpdateTicket();
+  const { t } = useTranslation('frontline');
+  const { bulkUpdateTickets } = useBulkUpdateTickets();
   const [value, setValue] = useState<string[]>(tagIds);
 
   return (
@@ -40,15 +41,16 @@ export const TicketsEditTagsContent = ({
       mode="multiple"
       type="frontline:ticket"
       value={value}
-      onValueChange={(newTagIds: string[]) => {
+      onValueChange={async (newTagIds: string[]) => {
+        const previousTagIds = value;
         setValue(newTagIds);
-        ticketIds.forEach((ticketId) =>
-          updateTicket({
-            variables: {
-              _id: ticketId,
-              tagIds: newTagIds,
-            },
-          }),
+        await bulkUpdateTickets(
+          ticketIds,
+          { tagIds: newTagIds },
+          {
+            successMessage: t('tickets-updated-successfully'),
+            onError: () => setValue(previousTagIds),
+          },
         );
       }}
     >

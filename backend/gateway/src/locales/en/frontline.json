@@ -1234,5 +1234,6 @@
   "change-tags": "Change tags",
   "change-assigned-members": "Change assigned members",
   "move-to-pipeline": "Move to pipeline",
-  "tickets-moved-successfully": "Tickets moved successfully"
+  "tickets-moved-successfully": "Tickets moved successfully",
+  "tickets-updated-successfully": "Tickets updated successfully"
 }

@@ -1234,5 +1234,6 @@
   "change-tags": "Таг өөрчлөх",
   "change-assigned-members": "Хариуцагч гишүүд өөрчлөх",
   "move-to-pipeline": "Pipeline рүү шилжүүлэх",
-  "tickets-moved-successfully": "Тикетүүд амжилттай шилжлээ"
+  "tickets-moved-successfully": "Тикетүүд амжилттай шилжлээ",
+  "tickets-updated-successfully": "Тикетүүд амжилттай шинэчлэгдлээ"
 }
