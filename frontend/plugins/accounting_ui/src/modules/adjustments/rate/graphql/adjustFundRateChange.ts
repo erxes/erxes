@@ -24,7 +24,7 @@ const adjFundRateChangeParams = `
 `;
 
 export const ADJUST_FUND_RATE_CHANGE = gql`
-  mutation AdjustFundRateChange(${adjFundRateChangeParamDefs}) {
+  mutation AccountingAdjustFundRateChange(${adjFundRateChangeParamDefs}) {
     adjustFundRateChange(${adjFundRateChangeParams}) {
       ${adjustFundRateFields}
     }

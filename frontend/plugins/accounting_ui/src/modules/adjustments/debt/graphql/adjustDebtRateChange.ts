@@ -32,7 +32,7 @@ const adjDebtRateChangeParams = `
 `;
 
 export const ADJUST_DEBT_RATE_CHANGE = gql`
-  mutation AdjustDebtRateChange(${adjDebtRateChangeParamDefs}) {
+  mutation AccountingAdjustDebtRateChange(${adjDebtRateChangeParamDefs}) {
     adjustDebtRatesEdit(${adjDebtRateChangeParams}) {
       ${adjustDebtRateFields}
     }
@@ -40,7 +40,7 @@ export const ADJUST_DEBT_RATE_CHANGE = gql`
 `;
 
 export const ADJUST_DEBT_RATE_REMOVE = gql`
-  mutation AdjustDebtRateRemove($adjustDebtRateIds: [String!]!) {
+  mutation AccountingAdjustDebtRateRemove($adjustDebtRateIds: [String!]!) {
     adjustDebtRatesRemove(adjustDebtRateIds: $adjustDebtRateIds)
   }
 `;

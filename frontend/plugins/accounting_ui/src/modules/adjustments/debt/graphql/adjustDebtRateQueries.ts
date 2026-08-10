@@ -27,7 +27,7 @@ export const adjustDebtRateFields = `
 `;
 
 export const ADJUST_DEBT_RATE_QUERY = gql`
-  query AdjustDebtRates(
+  query AccountingAdjustDebtRates(
     $limit: Int
     $cursor: String
     $orderBy: JSON
@@ -54,7 +54,7 @@ export const ADJUST_DEBT_RATE_QUERY = gql`
 `;
 
 export const ADJUST_DEBT_RATE_DETAIL_QUERY = gql`
-  query AdjustDebtRateDetail($_id: String!) {
+  query AccountingAdjustDebtRateDetail($_id: String!) {
     adjustDebtRateDetail(_id: $_id) {
       ${adjustDebtRateFields}
       details {

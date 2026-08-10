@@ -22,7 +22,7 @@ const adjFundRateInputParams = `
 `;
 
 export const ADJUST_FUND_RATE_ADD = gql`
-  mutation AdjustFundRateAdd(${adjFundRateInputParamDefs}) {
+  mutation AccountingAdjustFundRateAdd(${adjFundRateInputParamDefs}) {
     adjustFundRateAdd(${adjFundRateInputParams}) {
       ${adjustFundRateFields}
     }

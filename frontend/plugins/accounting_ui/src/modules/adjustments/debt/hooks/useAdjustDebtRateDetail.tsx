@@ -16,8 +16,8 @@ export const useAdjustDebtRateDetail = (
     useQuery<IAdjustDebtRateDetailResponse, OperationVariables>(
       ADJUST_DEBT_RATE_DETAIL_QUERY,
       {
-      ...options,
-      fetchPolicy: 'cache-and-network',
+        ...options,
+        fetchPolicy: 'cache-and-network',
       },
     );
 

@@ -30,7 +30,7 @@ const adjDebtRateInputParams = `
 `;
 
 export const ADJUST_DEBT_RATE_ADD = gql`
-  mutation AdjustDebtRateAdd(${adjDebtRateInputParamDefs}) {
+  mutation AccountingAdjustDebtRateAdd(${adjDebtRateInputParamDefs}) {
     adjustDebtRatesAdd(${adjDebtRateInputParams}) {
       ${adjustDebtRateFields}
     }

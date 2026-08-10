@@ -15,20 +15,27 @@ interface IAdjustDebtRatesResponse {
   };
 }
 
-export const useAdjustDebtRates = (variables?: any) => {
-  const { data, loading, error, refetch } = useQuery<IAdjustDebtRatesResponse>(
-    ADJUST_DEBT_RATE_QUERY,
-    {
-      variables: {
-        limit: 20,
-        cursor: null,
-        orderBy: { createdAt: -1 },
-        ...variables,
-      },
-      fetchPolicy: 'cache-and-network',
-      notifyOnNetworkStatusChange: true,
+type TAdjustDebtRatesVariables = {
+  limit?: number;
+  cursor?: string | null;
+  orderBy?: Record<string, 1 | -1>;
+  searchValue?: string;
+};
+
+export const useAdjustDebtRates = (variables?: TAdjustDebtRatesVariables) => {
+  const { data, loading, error, refetch } = useQuery<
+    IAdjustDebtRatesResponse,
+    TAdjustDebtRatesVariables
+  >(ADJUST_DEBT_RATE_QUERY, {
+    variables: {
+      limit: 20,
+      cursor: null,
+      orderBy: { createdAt: -1 },
+      ...variables,
     },
-  );
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
 
   return {
     adjustDebtRates: data?.adjustDebtRates?.list || [],

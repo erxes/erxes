@@ -24,7 +24,7 @@ const adjustDebtRateDetailFields = `
 `;
 
 export const ADJUST_DEBT_RATE_CALCULATE = gql`
-  mutation AdjustDebtRateCalculate($_id: String!) {
+  mutation AccountingAdjustDebtRateCalculate($_id: String!) {
     adjustDebtRateCalculate(_id: $_id) {
       ${adjustDebtRateDetailFields}
     }
@@ -32,7 +32,7 @@ export const ADJUST_DEBT_RATE_CALCULATE = gql`
 `;
 
 export const ADJUST_DEBT_RATE_DO_TRANSACTION = gql`
-  mutation AdjustDebtRateDoTransaction($_id: String!) {
+  mutation AccountingAdjustDebtRateDoTransaction($_id: String!) {
     adjustDebtRateDoTransaction(_id: $_id) {
       ${adjustDebtRateDetailFields}
     }

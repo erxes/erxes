@@ -12,109 +12,89 @@
 
 ### Owns
 
-- Accounting transaction APIs, journals, reports, inventory accounting side effects, fixed asset accounting side effects, and plugin-owned migration routes.
+- Tenant-scoped accounting APIs for accounts, transactions, journals, reports, permissions, tax rows, inventory accounting, fixed asset accounting, and accounting-owned migrations.
+- Fund and debt currency rate adjustment persistence, calculation, validation, transaction execution, and subscriptions.
 
 ### Does not own
 
-- Core contacts, branches, departments, and products; those are consumed through public platform service contracts.
-- Source-system migration scripts outside the erxes repository.
+- Core contacts, branches, departments, products, team members, and organization settings; consume them only through public platform contracts.
+- Frontend UI state, routes, forms, or presentation.
+- Other plugins' data models or implementation details.
 
 ## Current Capabilities
 
-- Creates, updates, links, removes, and reports accounting transactions.
-- Supports main, cash, bank, receivable, payable, tax, inventory, and fixed asset journal handlers.
-- Exposes fund and debt currency rate adjustment schemas, models, GraphQL queries, and mutations alongside current accounting modules.
-- Calculates fund currency rate adjustments by validating daily cash/bank foreign-currency balances, grouping final balances by account/branch/department, storing account balance details, and then running linked exchange-difference transactions from the calculated details.
-- Calculates debt currency rate adjustments by validating daily receivable/payable account balances, grouping final balances by account/customer/branch/department, storing account balance details, and then running linked exchange-difference transactions from the calculated details.
-- Exposes inventory price lookup helpers for current cost and last completed income price by product.
-- Accepts Erkhet migration batches at `/pl:accounting/migration/erkhet/transactions`; by default it validates and resolves source codes, then raw-saves the supplied transaction documents without recalculating journal side effects.
+- Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
+- Provides account, account category, permission, VAT, CTAX, inventory, fixed asset, and journal report GraphQL contracts.
+- Calculates fund rate adjustments for cash/bank foreign-currency balances by day, validates that daily foreign-currency balances do not go negative, groups final balances by account/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
+- Calculates debt rate adjustments for receivable/payable balances by day, validates active accounts on debit-side balances and passive accounts on credit-side balances, groups final balances by account/customer/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
+- Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
+- Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
+- Accepts token-protected Erkhet transaction migration batches at `/pl:accounting/migration/erkhet/transactions`; raw-save mode preserves source-side accounting calculations after validation and code resolution.
 
 ## Architecture
 
-| Area                    | Path                                               | Responsibility                                                                               |
-| ----------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Runtime                 | `src/main.ts`                                      | Starts the accounting API plugin service.                                                    |
-| Accounting transactions | `src/modules/accounting`                           | Owns transaction schemas, models, GraphQL resolvers, routes, and journal utilities.          |
-| Fixed assets            | `src/modules/fixedAssets`                          | Owns fixed asset master data, instances, logs, and adjustment models.                        |
-| Erkhet migration        | `src/modules/accounting/routes/erkhetMigration.ts` | Validates migration batches, resolves external codes to erxes IDs, and imports transactions. |
+| Area                    | Path                                               | Responsibility                                                                       |
+| ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Runtime                 | `src/main.ts`                                      | Starts the accounting API plugin service.                                            |
+| Apollo integration      | `src/apollo`                                      | Registers accounting schema, resolvers, subscriptions, and federation wiring.        |
+| Models                  | `src/connectionResolvers.ts`                       | Generates tenant-scoped Mongoose models for accounting-owned collections.            |
+| Accounting domain       | `src/modules/accounting`                           | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.   |
+| Rate adjustments        | `src/modules/accounting/utils/adjust*Rates.ts`     | Owns fund/debt daily validation, grouping, calculation, and transaction execution.   |
+| Fixed assets            | `src/modules/fixedAssets`                          | Owns fixed asset master data, instances, logs, and adjustment models.                |
+| Erkhet migration        | `src/modules/accounting/routes/erkhetMigration.ts` | Validates migration batches, resolves external codes, and imports transactions.      |
 
 ## Contracts
 
 ### Provides
 
-- GraphQL accounting schema and resolvers from `src/modules/accounting/graphql`.
-- GraphQL fund/debt rate adjustment queries and mutations through `adjustFundRates`, `adjustDebtRates`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRun`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, and `adjustDebtRateDoTransaction`.
-- GraphQL subscription `accountingAdjustFundRateChanged(adjustId: String!)` publishes enriched fund rate detail updates after calculation.
-- GraphQL subscription `accountingAdjustDebtRateChanged(adjustId: String!)` publishes enriched debt rate detail updates after calculation.
+- Accounting GraphQL schema and resolvers from `src/modules/accounting/graphql`.
+- Fund rate GraphQL contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRun`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged(adjustId: String!)`.
+- Debt rate GraphQL contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged(adjustId: String!)`.
+- Adjustment detail fields include account/customer/branch/department grouping metadata, `mainBalance`, `currencyBalance`, `diff`, linked transaction ids, and validation state fields `beginDate`, `successDate`, `checkedAt`, `error`, and `warning`.
 - GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`, returning each requested product's last completed inventory income unit price or `0`.
-- HTTP route `/pl:accounting/migration/erkhet/transactions` for token-protected Erkhet batch imports.
-- Transaction model methods such as `createPTransaction`, `updatePTransaction`, `createTransaction`, and `updateTransaction`.
+- Transaction model methods such as `createPTransaction`, `updatePTransaction`, `createTransaction`, `updateTransaction`, and removal helpers used by accounting-owned flows.
+- HTTP route `/pl:accounting/migration/erkhet/transactions`.
 
 ### Consumes
 
-- Core branches, departments, customers, companies, and products through `sendTRPCMessage`.
-- Shared backend utilities from `erxes-api-shared`.
+- Core branch, department, customer, company, product, and organization data through `sendTRPCMessage`, GraphQL, HTTP, or shared platform contracts.
+- Shared backend utilities, cursor pagination helpers, pubsub, and service startup APIs from `erxes-api-shared`.
 
 ## Data and State
 
-- Tenant-scoped MongoDB models generated through `generateModels(subdomain)`.
-- Fund and debt rate adjustments persist in `adjust_fund_rates` and `adjust_debt_rates`; fund rate details include account, branch, department, main balance, currency balance, and linked transaction ids.
-- Debt rate details include account, customer, branch, department, main balance, currency balance, and linked transaction ids.
-- Fund rate adjustment calculation stores `process` status, validation period fields, checked/error state, and grouped details; transaction execution creates linked `exchangeDiff` transactions, stores the parent transaction id on the adjustment plus account-side transaction ids on details, and marks the adjustment `complete`.
-- Accounting transaction documents store journal, side, details, source content IDs, parent/ptr grouping, and migration metadata in `extraData`.
-- Fixed asset instance and adjustment collections are owned by this plugin.
+- All Mongoose models are generated per request `subdomain`; never bypass tenant-scoped `models`.
+- Fund adjustments persist in `adjust_fund_rates`; details are grouped by account/branch/department.
+- Debt adjustments persist in `adjust_debt_rates`; details are grouped by account/customer/branch/department.
+- Rate adjustment calculation stores `status: "process"`, validation period metadata, grouped details, and warning/error state.
+- Rate adjustment transaction execution creates linked `exchangeDiff` parent/child transactions, stores transaction ids on the adjustment/details, and marks status `complete`.
+- Accounting transaction documents store journal, side, date, status, details, branch/department/customer context, parent transaction linkage, and plugin-specific `extraData`.
+- Fixed asset instance, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
 
 ## Local Invariants
 
-- Migration import must remain tenant-scoped through request subdomain models.
-- Erkhet migration raw-save mode must not invent accounting calculations that should come from Erkhet payloads.
-- External source codes must be validated and resolved before transaction documents are saved.
-- Fixed asset master records are matched by code during migration; missing codes must fail the batch.
-- Last income price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
+- Every resolver that reads or mutates accounting data must use tenant-scoped `models` and enforce the relevant permission before data access.
+- Fund/debt rate adjustments are calculated first and executed second; execution must fail when calculated details are missing.
+- Rate adjustment edits and removals must remove linked generated transactions and reset calculated state.
+- Fund rate adjustment is organization-level; branch/department grouping belongs to details and generated transactions, not the root adjustment.
+- Debt rate adjustment filters customer type only when a concrete customer id is selected; selecting only customer type must not exclude other customers.
+- Exchange-difference transactions must be generated only through accounting journal handlers and must keep parent/detail transaction linkage.
+- Erkhet migration raw-save mode must validate and resolve external source codes but must not recalculate source-side accounting results.
+- Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 
 ## Validation
 
 - `pnpm nx build accounting_api`
 - `pnpm nx test accounting_api`
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`
+- Smoke scenario: calculate a fund and debt rate adjustment, verify validation fields/details are stored, then run transactions and confirm linked `exchangeDiff` transactions are created.
 - Smoke scenario: send a dry-run Erkhet batch with `rawSave: true` and verify code resolution plus per-batch success/error rows.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-10` — `Debt Rate Daily Adjustment Calculation`
+### `2026-08-10` — `Rate Adjustment Current State`
 
-- **Summary:** Debt rate adjustments now validate active/passive debt account balances by day, calculate account/customer/branch/department grouped differences, and run exchange-difference transactions through a separate mutation.
-- **Affected areas:** `src/modules/accounting/utils/adjustDebtRates.ts`, `src/modules/accounting/db/definitions/adjustDebtRate.ts`, `src/modules/accounting/db/models/AdjustDebtRate.ts`, `src/modules/accounting/graphql/schemas/adjustDebtRate.ts`, `src/modules/accounting/graphql/resolvers/queries/adjustDebtRates.ts`, `src/modules/accounting/graphql/resolvers/mutations/adjustDebtRates.ts`, `src/apollo/subscription.ts`, `src/apollo/resolvers/subsciption.ts`.
-- **Contracts changed:** Added mutations `adjustDebtRateCalculate(_id: String!): AdjustDebtRate` and `adjustDebtRateDoTransaction(_id: String!): AdjustDebtRate`, subscription `accountingAdjustDebtRateChanged(adjustId: String!)`, debt rate validation fields, and enriched detail fields `accountCode`, `accountName`, `accountKind`, `accountCurrency`, `customerType`, `customerId`, `branchId`, `departmentId`, and `diff`.
-
-### `2026-08-10` — `Fund Rate Validation State`
-
-- **Summary:** Fund rate calculation now persists validation period, success date, checked timestamp, and error/warning state so detail screens can show day-by-day validation progress.
-- **Affected areas:** `src/modules/accounting/db/definitions/adjustFundRate.ts`, `src/modules/accounting/@types/adjustRateFundDetails.ts`, `src/modules/accounting/graphql/schemas/adjustFundRate.ts`, `src/modules/accounting/graphql/resolvers/mutations/adjustFundRates.ts`, `src/modules/accounting/utils/adjustFundRates.ts`.
-- **Contracts changed:** Added fund rate fields `beginDate`, `successDate`, `checkedAt`, `error`, and `warning`.
-
-### `2026-08-09` — `Fund Rate Daily Adjustment Calculation`
-
-- **Summary:** Organization-level fund rate adjustments now validate daily cash/bank foreign-currency balances, calculate grouped details into `process`, and complete exchange-difference transactions through a separate mutation.
-- **Affected areas:** `src/modules/accounting/utils/adjustFundRates.ts`, `src/modules/accounting/utils/commonSave.ts`, `src/modules/accounting/db/definitions/adjustFundRate.ts`, `src/modules/accounting/graphql/schemas/adjustFundRate.ts`, `src/modules/accounting/graphql/resolvers/queries/adjustFundRates.ts`, `src/modules/accounting/graphql/resolvers/mutations/adjustFundRates.ts`, `src/apollo/subscription.ts`, `src/apollo/resolvers/subsciption.ts`, fund rate model removal lifecycle.
-- **Contracts changed:** Added mutations `adjustFundRateCalculate(_id: String!): AdjustFundRate`, `adjustFundRateDoTransaction(_id: String!): AdjustFundRate`, and `adjustFundRateRun(_id: String!): AdjustFundRate`, subscription `accountingAdjustFundRateChanged(adjustId: String!)`, status field, and enriched detail fields `accountCode`, `accountName`, `accountCurrency`, `branchId`, `departmentId`, and `diff`.
-
-### `2026-08-04` — `Fund Debt Rate Merge Recovery`
-
-- **Summary:** Fund and debt rate adjustment schemas and resolvers were merged with current accounting fixed asset, inventory remainder, permission, and sync contracts.
-- **Affected areas:** `src/apollo`, `src/connectionResolvers.ts`, `src/modules/accounting/db/definitions/adjust*Rate.ts`, `src/modules/accounting/db/models/Adjust*Rate.ts`, `src/modules/accounting/graphql/resolvers`.
-- **Contracts changed:** Added fund/debt rate adjustment GraphQL contracts to the merged accounting schema.
-
-### `2026-08-03` — `Inventory Last Income Price Query`
-
-- **Summary:** Inventory price lookup now exposes last completed income unit prices with `0` defaults for products without purchase history.
-- **Affected areas:** `src/modules/accounting/graphql/resolvers/queries/inventories.ts`, `src/modules/accounting/graphql/schemas/inventories.ts`.
-- **Contracts changed:** Added GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`.
-
-### `2026-08-03` — `Erkhet Raw Batch Migration`
-
-- **Summary:** Erkhet migration now defaults to raw-saving normalized transaction batches after validation so source-side accounting calculations are preserved.
-- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`, fixed asset migration payload handling.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts optional `rawSave`; omitted or true uses raw batch persistence, false uses existing journal handlers.
+- **Summary:** Fund and debt rate adjustments are implemented with daily validation, grouped calculation details, separate transaction execution, subscriptions, and permission-protected resolvers.
+- **Affected areas:** `src/modules/accounting/db/definitions/adjust*Rate.ts`, `src/modules/accounting/db/models/Adjust*Rate.ts`, `src/modules/accounting/graphql`, `src/modules/accounting/utils/adjust*Rates.ts`, `src/apollo`.
+- **Contracts changed:** Provides fund/debt rate adjustment GraphQL queries, mutations, subscriptions, validation fields, grouped detail fields, and linked transaction ids.

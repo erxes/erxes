@@ -42,7 +42,7 @@ export const adjustFundRateDetailFields = `
 `;
 
 export const ADJUST_FUND_RATE_QUERY = gql`
-  query AdjustFundRates(
+  query AccountingAdjustFundRates(
     $limit: Int
     $cursor: String
     $orderBy: JSON
@@ -69,7 +69,7 @@ export const ADJUST_FUND_RATE_QUERY = gql`
 `;
 
 export const ADJUST_FUND_RATE_DETAIL_QUERY = gql`
-  query AdjustFundRateDetail($_id: String!) {
+  query AccountingAdjustFundRateDetail($_id: String!) {
     adjustFundRateDetail(_id: $_id) {
       ${adjustFundRateDetailFields}
     }

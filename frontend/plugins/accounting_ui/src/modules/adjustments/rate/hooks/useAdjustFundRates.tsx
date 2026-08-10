@@ -15,20 +15,27 @@ interface IAdjustFundRatesResponse {
   };
 }
 
-export const useAdjustFundRates = (variables?: any) => {
-  const { data, loading, error, refetch } = useQuery<IAdjustFundRatesResponse>(
-    ADJUST_FUND_RATE_QUERY,
-    {
-      variables: {
-        limit: 20,
-        cursor: null,
-        orderBy: { createdAt: -1 },
-        ...variables,
-      },
-      fetchPolicy: 'cache-and-network',
-      notifyOnNetworkStatusChange: true,
+type TAdjustFundRatesVariables = {
+  limit?: number;
+  cursor?: string | null;
+  orderBy?: Record<string, 1 | -1>;
+  searchValue?: string;
+};
+
+export const useAdjustFundRates = (variables?: TAdjustFundRatesVariables) => {
+  const { data, loading, error, refetch } = useQuery<
+    IAdjustFundRatesResponse,
+    TAdjustFundRatesVariables
+  >(ADJUST_FUND_RATE_QUERY, {
+    variables: {
+      limit: 20,
+      cursor: null,
+      orderBy: { createdAt: -1 },
+      ...variables,
     },
-  );
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
 
   return {
     adjustFundRates: data?.adjustFundRates?.list || [],

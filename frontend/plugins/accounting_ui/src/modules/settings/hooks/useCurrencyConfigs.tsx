@@ -4,7 +4,7 @@ import type { CurrencyCode } from 'erxes-ui/types';
 import { useMemo } from 'react';
 
 const SYSTEM_CONFIGS_BY_CODE = gql`
-  query SystemConfigsByCode($codes: [String]) {
+  query AccountingSystemConfigsByCode($codes: [String]) {
     configsByCode(codes: $codes) {
       code
       value

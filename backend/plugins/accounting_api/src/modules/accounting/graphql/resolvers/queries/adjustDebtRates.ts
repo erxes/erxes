@@ -92,8 +92,10 @@ const adjustDebtRateQueries = {
   async adjustDebtRates(
     _root: unknown,
     params: IQueryParams & ICursorPaginateParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustInventories');
+
     const filter = await generateFilter(params);
 
     const { sortField = 'createdAt', sortDirection = -1 } = params;
@@ -113,8 +115,10 @@ const adjustDebtRateQueries = {
   async adjustDebtRateDetail(
     _root: unknown,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustInventories');
+
     const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
     return enrichDebtRateAdjustment(models, adjust);
   },

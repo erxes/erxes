@@ -8,7 +8,3 @@ export const ACCOUNTING_ADJUST_FUND_RATE_CHANGED = gql`
     }
   }
 `;
-
-export default {
-  ACCOUNTING_ADJUST_FUND_RATE_CHANGED,
-};
