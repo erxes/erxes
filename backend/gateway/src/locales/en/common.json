@@ -111,6 +111,8 @@
     "placeholder": "Search",
     "loading": "Loading...",
     "no-results": "No results",
+    "results-count_one": "{{count}} result",
+    "results-count_other": "{{count}} results",
     "contacts": "Contacts",
     "companies": "Companies",
     "conversations": "Conversations",

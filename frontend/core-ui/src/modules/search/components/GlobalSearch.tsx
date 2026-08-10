@@ -48,7 +48,7 @@ export const GlobalSearch = ({ className }: { className?: string }) => {
   const [value, setValue] = useState('');
   const [debouncedValue] = useDebounce(value.trim(), SEARCH_DEBOUNCE);
 
-  const { groups, loading, hasFailure, refetch } =
+  const { groups, totalCount, loading, hasFailure, refetch } =
     useGlobalSearch(debouncedValue);
 
   useEffect(() => {
@@ -100,6 +100,7 @@ export const GlobalSearch = ({ className }: { className?: string }) => {
         loading={loading}
         hasResults={hasResults}
         groups={groups}
+        totalCount={totalCount}
         onSelect={openResult}
         onRetry={() => refetch()}
       />

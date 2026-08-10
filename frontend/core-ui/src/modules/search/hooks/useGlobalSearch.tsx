@@ -15,6 +15,7 @@ export const GLOBAL_SEARCH_PER_GROUP = 5;
 
 export interface IGlobalSearchResult {
   groups: TGlobalSearchGroup[];
+  totalCount: number;
   loading: boolean;
   hasFailure: boolean;
   refetch: () => void;
@@ -101,7 +102,23 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
     });
   }, [providers, payload, erroredAliases, error, skip]);
 
+  const totalCount = useMemo(
+    () =>
+      groups.reduce(
+        (total, group) =>
+          group.status === 'ok' ? total + group.totalCount : total,
+        0,
+      ),
+    [groups],
+  );
+
   const hasFailure = !skip && Boolean(error) && !data && !previousData;
 
-  return { groups, loading, hasFailure, refetch: () => refetch() };
+  return {
+    groups,
+    totalCount,
+    loading,
+    hasFailure,
+    refetch: () => refetch(),
+  };
 };

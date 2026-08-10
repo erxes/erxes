@@ -65,6 +65,7 @@ export const GlobalSearchDialog = ({
   loading,
   hasResults,
   groups,
+  totalCount,
   onSelect,
   onRetry,
 }: {
@@ -77,6 +78,7 @@ export const GlobalSearchDialog = ({
   loading: boolean;
   hasResults: boolean;
   groups: TGlobalSearchGroup[];
+  totalCount: number;
   onSelect: (path: string) => void;
   onRetry: () => void;
 }) => {
@@ -95,13 +97,21 @@ export const GlobalSearchDialog = ({
           shouldFilter={false}
           className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2"
         >
-          <Command.Input
-            focusOnMount
-            variant="primary"
-            placeholder={t('placeholder', 'Search')}
-            value={value}
-            onValueChange={onValueChange}
-          />
+          <div className="relative">
+            <Command.Input
+              focusOnMount
+              variant="primary"
+              placeholder={t('placeholder', 'Search')}
+              value={value}
+              onValueChange={onValueChange}
+              className="pr-24"
+            />
+            {isTyping && !hasFailure && hasResults && (
+              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground tabular-nums">
+                {t('results-count', { count: totalCount })}
+              </span>
+            )}
+          </div>
           <GlobalSearchResults
             isTyping={isTyping}
             hasFailure={hasFailure}

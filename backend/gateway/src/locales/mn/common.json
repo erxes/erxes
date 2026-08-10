@@ -112,6 +112,8 @@
     "placeholder": "Хайх",
     "loading": "Ачаалж байна...",
     "no-results": "Илэрц олдсонгүй",
+    "results-count_one": "{{count}} илэрц",
+    "results-count_other": "{{count}} илэрц",
     "contacts": "Харилцагчид",
     "companies": "Байгууллагууд",
     "conversations": "Харилцаа",
