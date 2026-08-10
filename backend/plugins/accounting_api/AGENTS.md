@@ -33,15 +33,15 @@
 
 ## Architecture
 
-| Area                    | Path                                               | Responsibility                                                                       |
-| ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Runtime                 | `src/main.ts`                                      | Starts the accounting API plugin service.                                            |
-| Apollo integration      | `src/apollo`                                      | Registers accounting schema, resolvers, subscriptions, and federation wiring.        |
-| Models                  | `src/connectionResolvers.ts`                       | Generates tenant-scoped Mongoose models for accounting-owned collections.            |
-| Accounting domain       | `src/modules/accounting`                           | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.   |
-| Rate adjustments        | `src/modules/accounting/utils/adjust*Rates.ts`     | Owns fund/debt daily validation, grouping, calculation, and transaction execution.   |
-| Fixed assets            | `src/modules/fixedAssets`                          | Owns fixed asset master data, instances, logs, and adjustment models.                |
-| Erkhet migration        | `src/modules/accounting/routes/erkhetMigration.ts` | Validates migration batches, resolves external codes, and imports transactions.      |
+| Area               | Path                                               | Responsibility                                                                     |
+| ------------------ | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Runtime            | `src/main.ts`                                      | Starts the accounting API plugin service.                                          |
+| Apollo integration | `src/apollo`                                       | Registers accounting schema, resolvers, subscriptions, and federation wiring.      |
+| Models             | `src/connectionResolvers.ts`                       | Generates tenant-scoped Mongoose models for accounting-owned collections.          |
+| Accounting domain  | `src/modules/accounting`                           | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes. |
+| Rate adjustments   | `src/modules/accounting/utils/adjust*Rates.ts`     | Owns fund/debt daily validation, grouping, calculation, and transaction execution. |
+| Fixed assets       | `src/modules/fixedAssets`                          | Owns fixed asset master data, instances, logs, and adjustment models.              |
+| Erkhet migration   | `src/modules/accounting/routes/erkhetMigration.ts` | Validates migration batches, resolves external codes, and imports transactions.    |
 
 ## Contracts
 

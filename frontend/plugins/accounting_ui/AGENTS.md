@@ -36,16 +36,16 @@
 
 ## Architecture
 
-| Area                 | Path                                      | Responsibility                                                                  |
-| -------------------- | ----------------------------------------- | ------------------------------------------------------------------------------- |
-| Runtime              | `src/main.ts`                             | Starts the accounting UI remote.                                                |
-| Plugin config        | `src/config.tsx`                          | Registers accounting routes and navigation with the host.                       |
-| Route composition    | `src/modules/AccountingMain.tsx`          | Wires accounting pages into the plugin router.                                  |
-| Transactions         | `src/modules/transactions`                | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.  |
-| Adjustments          | `src/modules/adjustments`                 | Owns inventory, fixed asset, fund rate, and debt rate adjustment UI.            |
-| Settings             | `src/modules/settings`                    | Owns accounting settings forms, account tables, filters, and config hooks.      |
-| Pages                | `src/pages`                               | Exposes route-level page components for accounting surfaces.                    |
-| Relation widgets     | `src/widgets/relation/RelationWidgets.tsx` | Provides accounting relation widget exports.                                  |
+| Area              | Path                                       | Responsibility                                                                 |
+| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
+| Runtime           | `src/main.ts`                              | Starts the accounting UI remote.                                               |
+| Plugin config     | `src/config.tsx`                           | Registers accounting routes and navigation with the host.                      |
+| Route composition | `src/modules/AccountingMain.tsx`           | Wires accounting pages into the plugin router.                                 |
+| Transactions      | `src/modules/transactions`                 | Owns transaction tables, forms, GraphQL documents, hooks, and print documents. |
+| Adjustments       | `src/modules/adjustments`                  | Owns inventory, fixed asset, fund rate, and debt rate adjustment UI.           |
+| Settings          | `src/modules/settings`                     | Owns accounting settings forms, account tables, filters, and config hooks.     |
+| Pages             | `src/pages`                                | Exposes route-level page components for accounting surfaces.                   |
+| Relation widgets  | `src/widgets/relation/RelationWidgets.tsx` | Provides accounting relation widget exports.                                   |
 
 ## Contracts
 
