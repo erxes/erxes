@@ -29,7 +29,10 @@ import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hook
 import { useAdjustDebtRateAdd } from '../hooks/useAdjustDebtRateAdd';
 import { useAdjustDebtRateChange } from '../hooks/useAdjustDebtRateChange';
 import { IAdjustDebtRate } from '../types/AdjustDebtRate';
-import { adjustDebtRateSchema, TAdjustDebtRateForm } from '../types/adjustDebtRateSchema';
+import {
+  adjustDebtRateSchema,
+  TAdjustDebtRateForm,
+} from '../types/adjustDebtRateSchema';
 
 export const AddAdjustDebtRate = () => {
   const [open, setOpen] = useState(false);
