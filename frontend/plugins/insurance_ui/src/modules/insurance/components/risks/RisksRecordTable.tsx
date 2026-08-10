@@ -14,6 +14,7 @@ export const RisksRecordTable = () => {
       data={riskTypes || []}
       loading={loading}
       sessionKey="risks-cursor"
+      tableId="insurance_risks_record_table"
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconAlertTriangle size={64} />,

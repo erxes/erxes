@@ -16,6 +16,20 @@ interface CategoryRecordTableProps {
   mainLanguage?: string;
 }
 
+function CategoryTableContent({ loading }: Readonly<{ loading: boolean }>) {
+  return (
+    <RecordTable.Scroll>
+      <RecordTable>
+        <RecordTable.Header />
+        <RecordTable.Body>
+          <RecordTable.RowList Row={RecordTableTree.Row} />
+          {loading && <RecordTable.RowSkeleton rows={10} />}
+        </RecordTable.Body>
+      </RecordTable>
+    </RecordTable.Scroll>
+  );
+}
+
 export const CategoryRecordTable = ({
   branchId,
   branchLanguages,
@@ -58,21 +72,19 @@ export const CategoryRecordTable = ({
 
   return (
     <RecordTable.Provider
-      columns={categoryColumns(categoryObject, branchLanguages, mainLanguage, t)}
+      columns={categoryColumns(
+        categoryObject,
+        branchLanguages,
+        mainLanguage,
+        t,
+      )}
       data={categoriesWithChildren || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
+      tableId="tourism_categories_record_table"
     >
       <RecordTableTree id="tour-categories" ordered>
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList Row={RecordTableTree.Row} />
-              {loading && <RecordTable.RowSkeleton rows={10} />}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
+        <CategoryTableContent loading={loading} />
       </RecordTableTree>
       <CategoryCommandBar />
     </RecordTable.Provider>
