@@ -134,6 +134,7 @@ const callQueries = {
       },
       user,
     )) as any;
+     console.log(queueData, 'extension list queueData');
 
     if (queueData?.response) {
       const { account } = queueData.response;

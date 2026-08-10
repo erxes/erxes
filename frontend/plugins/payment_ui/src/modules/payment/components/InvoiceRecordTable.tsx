@@ -30,6 +30,7 @@ export function InvoiceRecordTable() {
       columns={invoicesColumns(t)}
       className="m-3"
       stickyColumns={['invoiceNumber']}
+      tableId="payment_invoices_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -38,7 +39,7 @@ export function InvoiceRecordTable() {
         dataLength={invoices?.length}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}

@@ -9,10 +9,11 @@ interface EmptyStateProps {
 }
 
 interface GenericRecordTableProps<T> {
-  columns: ColumnDef<T, any>[];
+  columns: ColumnDef<T, unknown>[];
   data: T[];
   loading: boolean;
   sessionKey: string;
+  tableId: string;
   stickyColumns?: string[];
   emptyState: EmptyStateProps;
 }
@@ -22,6 +23,7 @@ export function GenericRecordTable<T>({
   data,
   loading,
   sessionKey,
+  tableId,
   stickyColumns = ['more', 'checkbox', 'name'],
   emptyState,
 }: GenericRecordTableProps<T>) {
@@ -31,6 +33,7 @@ export function GenericRecordTable<T>({
       data={data}
       className="m-3"
       stickyColumns={stickyColumns}
+      tableId={tableId}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={false}

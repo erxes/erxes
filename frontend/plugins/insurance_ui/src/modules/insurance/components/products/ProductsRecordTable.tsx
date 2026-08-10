@@ -19,8 +19,16 @@ export const ProductsRecordTable = ({
   const { insuranceProducts, loading } = useInsuranceProducts();
 
   const columns = useMemo(
-    () => createProductsColumns(onEdit, onDelete),
-    [onEdit, onDelete],
+    () =>
+      createProductsColumns(onEdit, onDelete, {
+        name: t('name'),
+        insuranceType: t('insurance-type'),
+        coveredRisks: t('covered-risks'),
+        risks: t('risks'),
+        riskDetails: t('risk-details'),
+        createdAt: t('created-at'),
+      }),
+    [onEdit, onDelete, t],
   );
 
   return (
@@ -29,6 +37,7 @@ export const ProductsRecordTable = ({
       data={insuranceProducts || []}
       loading={loading}
       sessionKey="products-cursor"
+      tableId="insurance_products_record_table"
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconPackage size={64} />,
