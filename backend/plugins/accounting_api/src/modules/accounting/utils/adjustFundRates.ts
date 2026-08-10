@@ -352,11 +352,7 @@ const buildAdjustmentResult = async (
   }
 
   const accountIds = accounts.map((account) => account._id);
-  const period = await getAdjustmentPeriod(
-    models,
-    adjust,
-    accountIds,
-  );
+  const period = await getAdjustmentPeriod(models, adjust, accountIds);
   const movements = await getBalanceMovements(
     models,
     adjust,
@@ -546,7 +542,9 @@ export const calculateAdjustFundRate = async (
         details: [],
         transactionId: '',
         beginDate:
-          validationError?.beginDate || adjust.beginDate || getPureDate(adjust.date),
+          validationError?.beginDate ||
+          adjust.beginDate ||
+          getPureDate(adjust.date),
         successDate: validationError?.date,
         checkedAt: new Date(),
         status: 'process',

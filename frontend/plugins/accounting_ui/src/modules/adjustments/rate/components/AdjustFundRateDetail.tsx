@@ -83,10 +83,9 @@ export const AdjustFundRateDetail = () => {
 
   const accountIds = useMemo(
     () =>
-      [
-        adjustFundRate?.gainAccountId,
-        adjustFundRate?.lossAccountId,
-      ].filter(isPresent),
+      [adjustFundRate?.gainAccountId, adjustFundRate?.lossAccountId].filter(
+        isPresent,
+      ),
     [adjustFundRate?.gainAccountId, adjustFundRate?.lossAccountId],
   );
 
