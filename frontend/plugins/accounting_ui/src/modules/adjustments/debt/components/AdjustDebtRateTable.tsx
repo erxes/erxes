@@ -3,7 +3,7 @@ import { adjustDebtRateColumns } from './AdjustDebtRateTableColumns';
 import { RecordTable } from 'erxes-ui';
 
 export const AdjustDebtRateTable = () => {
-  const { adjustDebtRates, loading, totalCount } = useAdjustDebtRates();
+  const { adjustDebtRates, loading } = useAdjustDebtRates();
 
   return (
     <RecordTable.Provider
