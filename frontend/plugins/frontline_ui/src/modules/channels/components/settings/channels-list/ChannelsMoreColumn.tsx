@@ -63,8 +63,7 @@ export const ChannelsMoreColumnCell = ({
 
 export const channelsMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ChannelsMoreColumnCell,
   size: 33,
-  minSize: 45,
-  maxSize: 45,
 };

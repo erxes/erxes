@@ -14,6 +14,7 @@ export const ContractsRecordTable = () => {
       data={contracts || []}
       loading={loading}
       sessionKey="contracts-cursor"
+      tableId="insurance_contracts_record_table"
       stickyColumns={['more', 'checkbox', 'contractNumber']}
       emptyState={{
         icon: <IconFileX size={64} />,

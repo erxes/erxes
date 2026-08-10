@@ -22,7 +22,7 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import {
   getReportCallStatusFilterAtom,
   getReportDateFilterAtom,
@@ -60,17 +60,11 @@ export const ConversationList = ({
 }: ConversationListProps) => {
   const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
-  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
+  const dateValue = useAtomValue(getReportDateFilterAtom(id));
+  const sourceFilter = useAtomValue(getReportSourceFilterAtom(id));
+  const channelFilter = useAtomValue(getReportChannelFilterAtom(id));
+  const memberFilter = useAtomValue(getReportMemberFilterAtom(id));
+  const callStatusFilter = useAtomValue(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(1);
@@ -198,7 +192,7 @@ export const ConversationList = ({
         </Button>
       </>
     ),
-    [id, handleExport, exporting],
+    [id, handleExport, exporting, t],
   );
 
   if (isInitialLoad) {
@@ -340,13 +334,13 @@ const ConversationListTable = memo(function ConversationListTable({
 }: {
   conversationList: ConversationListItem[];
 }) {
-  const navigate = useNavigate();
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={conversationList}
         columns={conversationListColumns}
         className="m-3"
+        tableId="frontline_conversation_report_record_table"
       >
         <RecordTable.Scroll>
           <RecordTable>
@@ -465,6 +459,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'open',
+    header: () => <RecordTable.ColumnSelector />,
     size: 33,
     cell: ({ cell }) => <MoreCell cell={cell} />,
   },

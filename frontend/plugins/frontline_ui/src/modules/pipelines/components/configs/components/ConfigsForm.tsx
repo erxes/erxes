@@ -1,11 +1,4 @@
-import {
-  Combobox,
-  Form,
-  Input,
-  Popover,
-  PopoverScoped,
-  Separator,
-} from 'erxes-ui';
+import { Combobox, Form, Input, PopoverScoped, Separator } from 'erxes-ui';
 
 import { TPipelineConfig } from '@/pipelines/types';
 import { UseFormReturn } from 'react-hook-form';
@@ -60,7 +53,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
                 <SelectStatusTicket.FormItem
                   value={field.value as string}
                   onValueChange={field.onChange}
-                  form={form as any}
+                  form={form}
                 />
               </Form.Control>
               <Form.Message />
