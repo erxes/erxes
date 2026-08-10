@@ -67,6 +67,7 @@ function getJournalHandler(journal: string) {
     }>
   > = {
     main: handleMain,
+    exchangeDiff: handleMain,
     cash: handleSingleTr,
     bank: handleSingleTr,
     receivable: handleSingleTr,
