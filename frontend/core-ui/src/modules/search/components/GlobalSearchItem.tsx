@@ -1,14 +1,17 @@
+import { highlightMatch } from '@/search/utils/highlightMatch';
 import { Command, TSearchResultItem } from 'erxes-ui';
 
 export const GlobalSearchItem = ({
   item,
   providerKey,
   icon: Icon,
+  searchValue,
   onSelect,
 }: {
   item: TSearchResultItem;
   providerKey: string;
   icon?: React.ElementType;
+  searchValue: string;
   onSelect: (path: string) => void;
 }) => (
   <Command.Item
@@ -16,11 +19,11 @@ export const GlobalSearchItem = ({
     onSelect={() => onSelect(item.path)}
   >
     {Icon && <Icon />}
-    <span className="truncate">{item.title}</span>
-    {Boolean(item.description) && (
+    <span className="truncate">{highlightMatch(item.title, searchValue)}</span>
+    {item.description ? (
       <Command.Shortcut className="truncate">
-        {item.description}
+        {highlightMatch(item.description, searchValue)}
       </Command.Shortcut>
-    )}
+    ) : null}
   </Command.Item>
 );

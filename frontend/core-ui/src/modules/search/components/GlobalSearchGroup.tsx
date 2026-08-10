@@ -5,9 +5,11 @@ import { GlobalSearchItem } from '@/search/components/GlobalSearchItem';
 
 export const GlobalSearchGroup = ({
   group,
+  searchValue,
   onSelect,
 }: {
   group: TGlobalSearchGroup;
+  searchValue: string;
   onSelect: (path: string) => void;
 }) => {
   const { t } = useTranslation(group.labelNamespace ?? 'common', {
@@ -53,6 +55,7 @@ export const GlobalSearchGroup = ({
           item={item}
           providerKey={group.key}
           icon={group.icon}
+          searchValue={searchValue}
           onSelect={onSelect}
         />
       ))}

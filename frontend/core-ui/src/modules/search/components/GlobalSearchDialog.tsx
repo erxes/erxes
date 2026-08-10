@@ -15,6 +15,7 @@ const GlobalSearchResults = ({
   loading,
   hasResults,
   groups,
+  searchValue,
   onSelect,
   onRetry,
 }: {
@@ -23,6 +24,7 @@ const GlobalSearchResults = ({
   loading: boolean;
   hasResults: boolean;
   groups: TGlobalSearchGroup[];
+  searchValue: string;
   onSelect: (path: string) => void;
   onRetry: () => void;
 }) => {
@@ -48,6 +50,7 @@ const GlobalSearchResults = ({
           <GlobalSearchGroup
             key={group.key}
             group={group}
+            searchValue={searchValue}
             onSelect={onSelect}
           />
         ))}
@@ -66,6 +69,7 @@ export const GlobalSearchDialog = ({
   hasResults,
   groups,
   totalCount,
+  searchValue,
   onSelect,
   onRetry,
 }: {
@@ -79,6 +83,7 @@ export const GlobalSearchDialog = ({
   hasResults: boolean;
   groups: TGlobalSearchGroup[];
   totalCount: number;
+  searchValue: string;
   onSelect: (path: string) => void;
   onRetry: () => void;
 }) => {
@@ -118,6 +123,7 @@ export const GlobalSearchDialog = ({
             loading={loading}
             hasResults={hasResults}
             groups={groups}
+            searchValue={searchValue}
             onSelect={onSelect}
             onRetry={onRetry}
           />

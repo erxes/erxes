@@ -101,6 +101,7 @@ export const GlobalSearch = ({ className }: { className?: string }) => {
         hasResults={hasResults}
         groups={groups}
         totalCount={totalCount}
+        searchValue={debouncedValue}
         onSelect={openResult}
         onRetry={() => refetch()}
       />
