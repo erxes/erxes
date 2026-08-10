@@ -9,10 +9,9 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
-import { useRemoveTicketsFromView } from '@/ticket/hooks/useRemoveTicketsFromView';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import { useToggleTicketArchive } from '@/ticket/hooks/useToggleTicketArchive';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { ITicket } from '@/ticket/types';
 import { IAttachment } from '@/ticket/types/attachments';
 import { Block } from '@blocknote/core';
@@ -27,7 +26,6 @@ import {
   Tooltip,
   useBlockEditor,
   useConfirm,
-  useQueryState,
   useToast,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
@@ -137,8 +135,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const { updateTicket } = useUpdateTicket();
   const { removeTicket } = useTicketRemove();
-  const { removeTicketsFromView } = useRemoveTicketsFromView();
-  const [stateFilter] = useQueryState<string>('state');
+  const { toggleArchive } = useToggleTicketArchive();
   const [name, setName] = useState(_name);
   const [isSubscribed, setSubscribe] = useState<boolean>(
     _isSubscribed || false,
@@ -178,38 +175,13 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const [debouncedName, nameDebounce] = useDebounce(name, 1000);
 
   const handleArchiveToggle = () => {
-    const newState = state === 'active' ? 'archived' : 'active';
     const previousState = state;
 
     // Optimistically update the UI
-    setState(newState);
+    setState(state === 'active' ? 'archived' : 'active');
 
-    updateTicket({
-      variables: {
-        _id: ticketId,
-        state: newState,
-      },
-      refetchQueries: [GET_TICKETS],
-      onCompleted: () => {
-        if (newState !== (stateFilter || 'active')) {
-          removeTicketsFromView([ticketId]);
-        }
-        toast({
-          title: t('success'),
-          description:
-            newState === 'archived'
-              ? t('ticket-archived-successfully')
-              : t('ticket-restored-successfully'),
-        });
-      },
-      onError: (error) => {
-        setState(previousState);
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
+    toggleArchive([ticketId], state === 'archived', {
+      onError: () => setState(previousState),
     });
   };
 

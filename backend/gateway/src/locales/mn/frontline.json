@@ -1227,5 +1227,12 @@
   "chart-deleted": "Чарт устгагдлаа",
   "delete-chart": "Чарт устгах",
   "confirm-delete-chart": "\"{{name}}\" чартыг устгахдаа итгэлтэй байна уу?",
-  "without-priority": "{{value}} нь priority-гүй"
+  "without-priority": "{{value}} нь priority-гүй",
+  "assign-to": "Хуваарилах",
+  "change-status": "Төлөв өөрчлөх",
+  "change-priority": "Эрэмбэ өөрчлөх",
+  "change-tags": "Таг өөрчлөх",
+  "change-assigned-members": "Хариуцагч гишүүд өөрчлөх",
+  "move-to-pipeline": "Pipeline рүү шилжүүлэх",
+  "tickets-moved-successfully": "Тикетүүд амжилттай шилжлээ"
 }

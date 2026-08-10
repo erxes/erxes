@@ -1227,5 +1227,12 @@
   "chart-deleted": "Chart deleted",
   "delete-chart": "Delete chart",
   "confirm-delete-chart": "Are you sure you want to delete \"{{name}}\"?",
-  "without-priority": "{{value}} without priority"
+  "without-priority": "{{value}} without priority",
+  "assign-to": "Assign to",
+  "change-status": "Change status",
+  "change-priority": "Change priority",
+  "change-tags": "Change tags",
+  "change-assigned-members": "Change assigned members",
+  "move-to-pipeline": "Move to pipeline",
+  "tickets-moved-successfully": "Tickets moved successfully"
 }
