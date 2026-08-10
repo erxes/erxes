@@ -3,6 +3,7 @@ import { IUIConfig } from 'erxes-ui';
 import { LoyaltySettingsNavigation } from './LoyaltySettingsNavigation';
 import { Suspense } from 'react';
 import { MainNavigation } from './modules/navigation/MainNavigation';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 export const CONFIG: IUIConfig = {
   name: 'loyalty',
@@ -43,4 +44,5 @@ export const CONFIG: IUIConfig = {
       },
     ],
   },
+  searchProviders: SEARCH_PROVIDERS,
 };

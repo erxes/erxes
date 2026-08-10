@@ -6,6 +6,7 @@ import {
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 const TaskStatusPropertyInput = lazy(() =>
   import('./modules/task/components/task-selects/TaskStatusPropertyInput').then(
@@ -92,4 +93,5 @@ export const CONFIG: IUIConfig = {
       ),
     },
   },
+  searchProviders: SEARCH_PROVIDERS,
 };
