@@ -2,10 +2,12 @@
 
 export interface KpiScorecard {
   callstotal: number;
-  serviceLevel: number;
   abandonment: number;
-  averageSpeed: number;
   averageAnsweredTime: number;
+  /** Null when no call in range carries a ring time, so it cannot be measured. */
+  serviceLevel: number | null;
+  /** Null when no call in range carries a ring time, so it cannot be measured. */
+  averageSpeed: number | null;
   firstCallResolution: number | null;
   occupancy: number | null;
 }

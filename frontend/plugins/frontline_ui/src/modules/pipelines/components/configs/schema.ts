@@ -7,6 +7,22 @@ const ticketFormFieldsSchema = z.object({
   placeholder: z.string().optional().nullable(),
 });
 
+const ticketPropertyFieldOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+const ticketPropertyFieldSchema = z.object({
+  fieldId: z.string().min(1, 'Field is required'),
+  groupId: z.string().optional().nullable(),
+  label: z.string().optional().nullable(),
+  placeholder: z.string().optional().nullable(),
+  order: z.number().optional().nullable(),
+  isRequired: z.boolean().optional().nullable(),
+  type: z.string().optional().nullable(),
+  options: z.array(ticketPropertyFieldOptionSchema).default([]),
+});
+
 export const PIPELINE_CONFIG_SCHEMA = z.object({
   name: z.string().min(1, 'Name is required'),
   channelId: z.string().min(1, 'Channel is required'),
@@ -22,4 +38,5 @@ export const PIPELINE_CONFIG_SCHEMA = z.object({
     })
     .optional()
     .nullable(),
+  propertyFields: z.array(ticketPropertyFieldSchema).default([]),
 });

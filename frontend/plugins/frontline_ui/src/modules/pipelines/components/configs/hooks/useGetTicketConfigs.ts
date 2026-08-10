@@ -18,16 +18,20 @@ export const useGetTicketConfigs = (
 ) => {
   const { id } = useParams<{ id: string }>();
   const effectiveChannelId = options?.variables?.channelId || id;
-  const { data, loading } = useQuery<IConfigResponse>(GET_TICKET_CONFIGS, {
-    ...options,
-    variables: {
-      channelId: effectiveChannelId,
+  const { data, loading, error } = useQuery<IConfigResponse>(
+    GET_TICKET_CONFIGS,
+    {
+      ...options,
+      variables: {
+        channelId: effectiveChannelId,
+      },
+      skip: !effectiveChannelId,
     },
-    skip: !effectiveChannelId,
-  });
+  );
 
   return {
     ticketConfigs: data?.ticketConfigs,
     loading,
+    error,
   };
 };

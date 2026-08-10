@@ -29,7 +29,11 @@ import {
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
 import { SelectMember, SelectBrand } from 'ui-modules';
-import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconQuestionMark,
+  IconTrash,
+} from '@tabler/icons-react';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupEditSheetOpenAtom,
@@ -103,11 +107,11 @@ export const EMConfig = () => {
         >
           <div className="p-4 pt-0 space-y-6 overflow-auto styled-scroll flex-1">
             <Collapsible defaultOpen>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
                 <Collapsible.TriggerIcon />
                 {t('integration-setup')}
               </Collapsible.TriggerButton>
-              <Collapsible.Content className="p-2 space-y-6">
+              <Collapsible.Content className="p-2 px-4 space-y-6">
                 <Form.Field
                   name="name"
                   render={({ field }) => (
@@ -131,7 +135,6 @@ export const EMConfig = () => {
                           value={field.value}
                           onValueChange={field.onChange}
                           placeholder={t('select-a-brand')}
-                          className="w-full h-10 rounded-lg border bg-background"
                         />
                       </Form.Control>
                       <Form.Description>
@@ -144,11 +147,11 @@ export const EMConfig = () => {
               </Collapsible.Content>
             </Collapsible>
             <Collapsible>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
                 <Collapsible.TriggerIcon />
                 {t('bot-setup')}
               </Collapsible.TriggerButton>
-              <Collapsible.Content className="p-2 space-y-4">
+              <Collapsible.Content className="p-2 px-4 space-y-4">
                 <Form.Field
                   name="botSetup.greetingMessage"
                   render={({ field }) => (
@@ -310,40 +313,41 @@ export const EMConfig = () => {
               </Collapsible.Content>
             </Collapsible> */}
             <Collapsible>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
                 <Collapsible.TriggerIcon />
                 {t('ticket-config')}
               </Collapsible.TriggerButton>
-              <Collapsible.Content className="p-2 space-y-4">
+              <Collapsible.Content className="space-y-4 p-2">
                 <Form.Field
-                  name="ticketConfigId"
+                  name="ticketConfigIds"
                   render={({ field }) => (
-                    <Form.Item>
+                    <Form.Item className="rounded-sm shadow-xs p-2">
                       <Form.Label>{t('select-ticket-config')}</Form.Label>
-                      <Form.Control>
-                        <SelectTicketConfig.FormItem
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        />
-                      </Form.Control>
+                      <SelectTicketConfig.FormItem
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      />
+                      <Form.Description>
+                        {t('ticket-config-display-tip')}
+                      </Form.Description>
                     </Form.Item>
                   )}
                 />
               </Collapsible.Content>
             </Collapsible>
             <Collapsible>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
                 <Collapsible.TriggerIcon />
                 {t('knowledge-base-topic')}
               </Collapsible.TriggerButton>
-              <Collapsible.Content className="p-2 space-y-4">
+              <Collapsible.Content className="space-y-4 p-2">
                 <Form.Field<
                   z.infer<typeof EM_CONFIG_SCHEMA>,
                   'knowledgeBaseTopicId'
                 >
                   name="knowledgeBaseTopicId"
                   render={({ field }) => (
-                    <Form.Item>
+                    <Form.Item className="rounded-sm shadow-xs p-2">
                       <Form.Label>
                         {t('select-knowledge-base-topic')}
                       </Form.Label>

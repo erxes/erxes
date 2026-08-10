@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-06`
+- **Last synchronized:** `2026-08-10`
 
 ## Scope
 
@@ -96,6 +96,7 @@
 | Inbox                | `src/modules/inbox/`                                                       | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
 | Integrations         | `src/modules/integrations/<kind>/`                                         | facebook, instagram, imap, discord, call, trpc                                                          |
+| Call reporting       | `src/modules/integrations/call/services/callReportService.ts`              | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
 | FB automation        | `src/modules/integrations/facebook/meta/automation/`                       | Comment/message triggers and actions, bot message generation                                            |
 | FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`         | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                         | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
@@ -163,10 +164,38 @@
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,
   `/facebook/kind/:kind/fblogin`, and `/instagram/iglogin`.
+- GraphQL `callQueueList(integrationId)` — the queues configured on the call
+  integration, each merged with its `CallQueueStatistics` row when the PBX has
+  reported one. A queue with no live statistics is still listed, as
+  `{ queue, integrationId }`.
+- GraphQL call reports — `callGetQueueStats`, `callGetAgentStats`,
+  `getCallbackStats`, `callKpiScorecard`, `callVolumeSeries`,
+  `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
+  `CallCdrs` through `buildCdrFilter` and fold legs into calls before counting.
+  They return nothing in a deployment whose PBX does not post CDRs.
 - Automation constants (`triggers`, `actions`, `bots`, AI knowledge sources) and
   worker producers exported from `src/meta/automations.ts`.
 - Permissions, notification types, segment definitions, references, and
   ticket/form-submission import-export handlers from `src/meta/`.
+
+- GraphQL: `ticketConfigs(channelId)`, `ticketConfigDetail(_id)`,
+  `ticketConfig(pipelineId)`, `ticketSaveConfig(input)`, `ticketRemoveConfig`
+  — the messenger ticket form configuration for a pipeline. `TicketConfig`
+  carries `formFields` (the four built-in fields `name`, `description`,
+  `attachment`, `tags`, each with `isShow` / `label` / `placeholder` / `order`)
+  and `propertyFields: [TicketPropertyField]` — ticket custom properties chosen
+  from the `frontline:ticket` field groups, each `{ fieldId, groupId, label,
+  placeholder, order, isRequired, type, options }`, where `type` and `options`
+  are copied from the core field definition on save so the messenger widget can
+  render the right control without querying core. The widget bootstrap
+  (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
+  so both lists reach the messenger widget without a schema change there.
+- GraphQL: `widgetTicketCreated(name, description, attachments, statusId,
+  customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
+  submission. `propertiesData` is a `{ [fieldId]: value }` map that is narrowed
+  to the `propertyFields` of the pipeline's ticket config, checked for the
+  required ones, validated through core `fields.validateFieldValues`, and stored
+  on `Ticket.propertiesData`.
 
 ### Consumes
 
@@ -178,7 +207,8 @@
   `replaceOutputPlaceholders`, `splitType`, `sendAutomationTrigger`,
   `EXECUTE_WAIT_TYPES`, `attachmentSchema`.
 - `core` over tRPC — brands, tags, users, structure,
-  `configs.getFileUploadConfigs`, `users.findOne`.
+  `configs.getFileUploadConfigs`, `users.findOne`, `fields.find` (validating the
+  ticket property fields chosen in a ticket config).
 - Facebook Graph API through `fbgraph` (`graphRequest` in
   `src/modules/integrations/facebook/utils.ts`).
 
@@ -199,6 +229,17 @@
 - Unique index `channelMembers { channelId: 1, memberId: 1 }`.
 - Migrations under `src/migrations/` cover call conversation content, CDR dates,
   channels, forms, response templates, and tickets.
+- Every call — whether it arrived through the CDR webhook (`receiveCdr`) or the
+  CTI event pipeline (`handleCallEvent`) — creates or updates a row in the inbox
+  `Conversations` collection. That collection is therefore the only complete
+  record of call activity and is what call reporting aggregates.
+- Per-call telemetry lives outside the conversation: `CallSessions`
+  (`calls_sessions`) is the live record written by both call paths, and
+  `CallHistory` (`calls_histories`) is the legacy softphone log, still read but
+  no longer written. `CallCdrs` (`calls_cdrs`) holds raw PBX legs and is
+  populated only when a PBX posts to the CDR webhook.
+- `calls_conversations` and `calls_active_sessions` are erxes v1 leftovers. No
+  model binds them; never read or write them.
 - Facebook upload configuration is cached in a module-level variable in
   `src/modules/integrations/facebook/utils.ts` and is **not** keyed by
   subdomain — treat it as a known cross-tenant hazard when touching that file.
@@ -251,6 +292,64 @@
 - Accounts stored before `appId` existed belong to the shared app; app-scoped
   queries must go through `facebookAppSelector`/`facebookAccountSelector` so
   those legacy accounts stay visible.
+- Call reports read `CallCdrs`. It is the only source carrying `disposition`,
+  `billsec`, `duration`, `userfield`, and the `QUEUE[<id>]` action type; the
+  trade-off is that a deployment whose PBX never posts CDRs reports nothing.
+- Every call report resolver has the same shape as `callCalculate*`: build a
+  filter with `buildCdrFilter`, `find(...).select(CDR_REPORT_FIELDS).lean()`,
+  then compute in JS. Do not reintroduce an aggregation pipeline — the folding
+  and the metric definitions belong in `callReportService.ts` and
+  `statistics.ts`, where one change reaches every surface.
+- A call writes several CDR legs sharing a `uniqueid`, so every report calls
+  `foldLegsIntoCalls` before counting. Counting legs double-counts a multi-leg
+  call — that is exactly what the carrier donut used to do, which is why it
+  never reconciled with Total Calls.
+- The Mongolian carrier mapping lives once, in `carrierExpression` in
+  `callReportService.ts`, and is shared by `callCarrierBreakdown` and
+  `callTopNumbers`. Prefixes are two digits except Skytel's `696XXXXX`;
+  unallocated ranges (`81`, `82`, `84`, `87`) fall through to `Other`. Mirror
+  any change in `detectCarrier` in `frontline_ui`.
+- `CallIntegrations.queues` is the authoritative queue list.
+  `CallQueueStatistics` is a cache of live PBX counters and is empty until the
+  PBX pushes queue statistics, so it must never be the source of "which queues
+  exist" — the Call Reports page hides every tab when the queue list is empty.
+- KPI formulas live once, in `statistics.ts`. `callKpiScorecard`,
+  `callTodayStatistics`, and the six `callCalculate*` queries all pass filtered
+  CDR legs to those helpers, so every surface reports a metric the same way.
+  The one exception is `callKpiScorecard`'s `averageSpeed`, which uses
+  `averageSpeedOfAnswer` in `cdrUtils.ts`.
+- Speed of answer must be folded per call, never averaged per leg. The caller's
+  wait is stamped on the leg that held them — the `Queue` leg, which carries
+  `NO ANSWER` and no talk time because the caller left it the moment the agent
+  bridged — while the leg marked `ANSWERED` is usually a `ForkCDR` copy whose
+  `answer` equals its `start`. Selecting legs by `disposition` therefore keeps
+  only zero-ring legs and reports `0`. `callSpeedOfAnswer` reads the
+  `isHumanAnsweredLeg` leg first and falls back to the call's `Queue`/`Dial`
+  legs; calls answered only by voicemail or IVR are excluded, not counted as 0.
+- `waittime` is **not a field on `CDRSchema`** — Mongoose strips it on write, so
+  anything reading `$waittime` measures zero. Ring time is `duration - billsec`
+  on a folded call (`statistics.ts` uses `answer - start` for the same thing).
+- A trunk leg carries the dialled DID in `dst`; the answering extension is in
+  `dstchannelExt`. `agentOf` takes whichever field holds a four-digit extension,
+  so agent attribution must not read `dst` alone.
+- `calculateOccupancyRate` computes `workingTime / handlingTime`, which is the
+  inverse of occupancy and exceeds 100% at low call volume. `callKpiScorecard`
+  returns it as-is; neither it nor `firstCallResolution` is rendered by the UI
+  today.
+- `TicketConfig.propertyFields` is stored in display order: the array position
+  is the order and `order` is rewritten to `index + 1` on every save. Never
+  re-sort the incoming list by `order` — the client sends the list as the user
+  arranged it. Every entry must resolve to an existing `frontline:ticket` field
+  in core, and duplicates are dropped; `validateTicketPropertyFields` in
+  `src/modules/ticket/utils/ticketConfig.ts` is the one implementation. `type`
+  and `options` are always taken from the core field definition there, never
+  from the submitted input, so a saved config mirrors the property as it exists
+  at save time.
+- `widgetTicketCreated` is unauthenticated: it must never write a
+  `propertiesData` key that the pipeline's ticket config does not expose.
+  `buildTicketPropertiesData` in
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts` is the single filter
+  and required-field gate for that payload.
 - Automation operation and node type names stay prefixed with the plugin and
   module (`frontline:facebook.comments.create`).
 - Facebook/Instagram automations must resolve their integration and bot from the
@@ -278,10 +377,91 @@
   comment trigger, then confirm the public comment reply is posted and the
   private reply arrives in Messenger without a `#10` or `Invalid parameter`
   entry in the `erxes-facebook:error` log.
+- Smoke: open Call Reports for an integration with a configured queue and a date
+  range covering `calls_cdrs` documents whose `actionType` contains
+  `QUEUE[<queue>]`. Every tab must show numbers; an empty `calls_cdrs` renders
+  every tab blank, which is expected, not a bug.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-10` — Ticket property values from the messenger widget
+
+- **Summary:** `widgetTicketCreated` accepts `propertiesData: JSON`
+  (`{ [fieldId]: value }`) and stores it on the ticket after narrowing it to the
+  `propertyFields` of the pipeline's ticket config, enforcing the required ones,
+  and validating the values through core `fields.validateFieldValues`.
+  `TicketPropertyField` also gained `type` and `options`, both copied from the
+  core field definition on every `ticketSaveConfig`, so the widget can render a
+  select, radio, checkbox, switch, or date control instead of a text box.
+- **Affected areas:**
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`,
+  `src/modules/inbox/graphql/schemas/widget.ts`,
+  `src/modules/ticket/@types/ticketConfig.ts`,
+  `src/modules/ticket/db/definitions/ticketConfig.ts`,
+  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
+  `src/modules/ticket/utils/ticketConfig.ts`.
+- **Contracts changed:** `widgetTicketCreated` gained the optional
+  `propertiesData: JSON` argument; `TicketPropertyField` /
+  `TicketPropertyFieldInput` gained optional `type: String` and
+  `options: [TicketPropertyFieldOption]`.
+
+### `2026-08-10` — Speed of answer folded per call
+
+- **Summary:** `callKpiScorecard.averageSpeed` no longer always returns `0`.
+  `cdrUtils.ts` gained `legRingSeconds`, `callSpeedOfAnswer`, and
+  `averageSpeedOfAnswer`, which fold inbound legs by `uniqueid` and read the
+  ring time off the leg that actually held the caller instead of averaging
+  `answer - start` over legs selected by `disposition`, all of which are
+  stamped at their own `start`.
+- **Affected areas:** `src/modules/integrations/call/services/cdrUtils.ts`,
+  `src/modules/integrations/call/graphql/resolvers/queries.ts`,
+  `ICdrLeg.answer` in `src/modules/integrations/call/services/callReportService.ts`.
+- **Contracts changed:** None — `CallKpiScorecard.averageSpeed` keeps its shape
+  and unit (seconds).
+
+### `2026-08-10` — Ticket property fields in the messenger ticket config
+
+- **Summary:** A messenger ticket form configuration can now include ticket
+  custom properties in addition to the four built-in fields: `TicketConfig`
+  gained `propertyFields`, each entry naming a `frontline:ticket` field with its
+  own label, placeholder, required flag, and position. `ticketSaveConfig`
+  validates every entry against core's `fields` collection over tRPC, drops
+  duplicates, and renumbers `order` from the submitted array position.
+- **Affected areas:** `src/modules/ticket/@types/ticketConfig.ts`,
+  `src/modules/ticket/db/definitions/ticketConfig.ts`,
+  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
+  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`,
+  `src/modules/ticket/utils/ticketConfig.ts` (new).
+- **Contracts changed:** `TicketConfig.propertyFields: [TicketPropertyField]`
+  and `TicketConfigInput.propertyFields: [TicketPropertyFieldInput]` added; both
+  are optional, so existing callers and stored configs are unaffected.
+
+### `2026-08-10` — Call report queries rewritten as filter-fetch-compute
+
+- **Summary:** All eight report queries now follow the same shape as
+  `callCalculate*` — build a CDR filter, fetch the legs, compute in JS —
+  replacing roughly 1,300 lines of `$addFields`/`$switch`/`$group` pipelines
+  with `callReportService.ts`. `callKpiScorecard` delegates to `statistics.ts`,
+  which fills in `firstCallResolution` and `occupancy` (previously hard-coded
+  `null`) and drops an unexplained `+38` seconds from `averageAnsweredTime`.
+  Fixes carried by the rewrite: wait time is `duration - billsec` rather than
+  the non-existent `$waittime`, so Avg Wait is no longer always `0`; the agent
+  extension comes from `dstchannelExt` when `dst` holds the DID; the carrier
+  breakdown folds legs into calls, where it used to count legs; queue and
+  callback stats bound only `start`, so a call finishing after the range is no
+  longer dropped; and the queue filter is anchored on `QUEUE[<id>]` so `650`
+  cannot match `QUEUE[6500]`.
+- **Affected areas:**
+  `src/modules/integrations/call/services/callReportService.ts`,
+  `src/modules/integrations/call/graphql/resolvers/queries.ts`.
+- **Contracts changed:** `None` — same query names, arguments, and return
+  types. Values move: wait-time figures, `firstCallResolution`, `occupancy`,
+  and the carrier breakdown all report differently because they were wrong
+  before.
+
+### `2026-08-10` — Call reports stay on `CallCdrs`; queue list and carriers fixed
 
 ### `2026-08-06` — Conversation counts on channels and used integration kinds
 
@@ -346,59 +526,3 @@
   `src/modules/channel/graphql/resolvers/queries/channel.ts`.
 - **Contracts changed:** `getChannels` no longer returns personal channels; its
   arguments and return type are unchanged.
-
-### `2026-08-04` — `integrationsGetUsedTypesByChannel` resolver
-
-- **Summary:** Implemented the already-declared query so it returns the active
-  integration kinds used by the caller's visible channels, optionally narrowed
-  by channel id and/or scope, resolving channel ids first and then a single
-  `distinct('kind')` read; extracted `visibleChannelsFilter` so the channel
-  visibility rule has one implementation.
-- **Affected areas:**
-  `src/modules/inbox/graphql/{resolvers/queries/integrations.ts,schemas/integration.ts}`,
-  `src/modules/channel/utils.ts`,
-  `src/modules/channel/graphql/resolvers/queries/channel.ts`.
-- **Contracts changed:** `integrationsGetUsedTypesByChannel` gained an optional
-  `scope: String` argument and its `channelId` relaxed from `String!` to
-  `String`; the query itself was already declared and previously returned
-  `undefined`.
-
-### `2026-08-04` — Drop the unreachable `imageUrls` path from page posting
-
-- **Summary:** `facebookCreatePost` only accepts uploaded image keys, so the
-  never-called URL variant (`uploadUnpublishedPhoto`, its https-only check, and
-  the `imageUrls` argument) is gone, along with a write-only `accountId` in the
-  login middleware.
-- **Affected areas:** `src/modules/integrations/facebook/postService.ts`,
-  `.../utils.ts`, `.../graphql/schema/facebook.ts`,
-  `.../middlewares/loginMiddleware.ts`
-- **Contracts changed:** `facebookCreatePost` no longer accepts `imageUrls`
-
-### `2026-08-04` — Extract the page-post publishing pipeline out of the resolver
-
-- **Summary:** `facebookCreatePost` now delegates to `publishPagePost` in
-  `postService.ts`, which owns image validation, unpublished-photo staging with
-  cleanup, permalink lookup, and audit logging; account queries share one
-  app-scope selector.
-- **Affected areas:**
-  `src/modules/integrations/facebook/postService.ts` (new),
-  `.../graphql/resolvers/mutations.ts`, `.../graphql/resolvers/queries.ts`,
-  `.../commonUtils.ts`, `.../db/definitions/accounts.ts`
-- **Contracts changed:** `None`
-
-### `2026-08-04` — Stop message-level Graph errors from marking integrations unhealthy
-
-- **Summary:** Request-level Facebook Graph error codes no longer set
-  `FacebookIntegrations.healthStatus` to `account-token`, which was showing a
-  false token failure whenever an automation sent an invalid payload.
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`sendReply`)
-- **Contracts changed:** `None`
-
-### `2026-08-03` — Lazy personal-channel provisioning
-
-- **Summary:** Added the `getPersonalChannel` query so a personal channel is
-  created the first time it is read, replacing any need to choose a scope at
-  channel-creation time.
-- **Affected areas:** `src/modules/channel/graphql/{schemas,resolvers/queries}/channel.ts`.
-- **Contracts changed:** New query `getPersonalChannel: Channel` with
-  get-or-create semantics.

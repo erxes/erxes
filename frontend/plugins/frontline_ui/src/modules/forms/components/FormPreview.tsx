@@ -23,7 +23,9 @@ import React, { useEffect, useState } from 'react';
 import { ControllerRenderProps, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
+import { FORM_SETUP_STEPS } from '../constants/formStatesDefaultValues';
 import {
+  formSetupCalloutAtom,
   formSetupConfirmationAtom,
   formSetupContentAtom,
   formSetupGeneralAtom,
@@ -35,6 +37,7 @@ export const FormPreview = () => {
   const { t } = useTranslation('frontline');
   const formContent = useAtomValue(formSetupContentAtom);
   const formGeneral = useAtomValue(formSetupGeneralAtom);
+  const formCallout = useAtomValue(formSetupCalloutAtom);
   const formConfirmation = useAtomValue(formSetupConfirmationAtom);
   const [activeStep, setActiveStep] = useState<number>(1);
   const activeFormStep = useAtomValue(formSetupStepAtom);
@@ -57,7 +60,37 @@ export const FormPreview = () => {
     );
   }
 
-  if (activeFormStep === 3) {
+  if (activeFormStep === FORM_SETUP_STEPS.CALLOUT) {
+    return (
+      <div className="p-5">
+        <InfoCard title={formCallout.title || formGeneral.title}>
+          <InfoCard.Content>
+            {formCallout.skip ? (
+              <p className="text-muted-foreground">{t('callout-skipped')}</p>
+            ) : (
+              <>
+                {formCallout.body && (
+                  <p className="text-muted-foreground">{formCallout.body}</p>
+                )}
+                {formCallout.featuredImage && (
+                  <div className="relative rounded-md aspect-video">
+                    <img
+                      src={readImage(formCallout.featuredImage)}
+                      alt="callout"
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+                )}
+                <Button>{formCallout.buttonText || t('next')}</Button>
+              </>
+            )}
+          </InfoCard.Content>
+        </InfoCard>
+      </div>
+    );
+  }
+
+  if (activeFormStep === FORM_SETUP_STEPS.CONFIRMATION) {
     return (
       <div className="p-5">
         <InfoCard title={formConfirmation.title}>

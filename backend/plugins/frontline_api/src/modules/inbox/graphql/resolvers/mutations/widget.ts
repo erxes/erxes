@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import {
   IAttachment,
   IBrowserInfo,
+  IPropertyField,
   Resolver,
 } from 'erxes-api-shared/core-types';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
@@ -228,7 +229,58 @@ export interface ITicketWidget {
   type: string;
   customerIds: string[];
   tagIds: string[];
+  propertiesData?: IPropertyField;
 }
+
+/*
+ * Keeps only the property fields the ticket form of that pipeline exposes,
+ * enforces the required ones and validates the values against their definition
+ */
+const buildTicketPropertiesData = async (
+  models: IModels,
+  subdomain: string,
+  pipelineId: string,
+  propertiesData?: IPropertyField,
+): Promise<IPropertyField | undefined> => {
+  const config = await models.TicketConfig.findOne({ pipelineId }).lean();
+  const propertyFields = config?.propertyFields || [];
+
+  if (!propertyFields.length) {
+    return undefined;
+  }
+
+  const filteredData: IPropertyField = {};
+
+  for (const propertyField of propertyFields) {
+    const value = propertiesData?.[propertyField.fieldId];
+    const isEmpty = value === undefined || value === null || value === '';
+
+    if (isEmpty) {
+      if (propertyField.isRequired) {
+        throw new Error(
+          `${propertyField.label || 'Property field'} is required`,
+        );
+      }
+      continue;
+    }
+
+    filteredData[propertyField.fieldId] = value;
+  }
+
+  if (!Object.keys(filteredData).length) {
+    return undefined;
+  }
+
+  return await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'fields',
+    action: 'validateFieldValues',
+    input: { data: filteredData },
+    defaultValue: filteredData,
+  });
+};
 
 export const widgetMutations: Record<string, Resolver> = {
   async widgetsLeadIncreaseViewCount(
@@ -467,10 +519,10 @@ export const widgetMutations: Record<string, Resolver> = {
         { $set: { isConnected: true } },
       );
     }
-    let ticketConfig;
-    if (integration.ticketConfigId) {
-      ticketConfig = await models.TicketConfig.findOne({
-        _id: integration.ticketConfigId,
+    let ticketConfigs = [];
+    if (integration.ticketConfigIds && integration.ticketConfigIds.length > 0) {
+      ticketConfigs = await models.TicketConfig.find({
+        _id: { $in: integration.ticketConfigIds },
       });
     }
 
@@ -478,7 +530,7 @@ export const widgetMutations: Record<string, Resolver> = {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      ticketConfig: ticketConfig || {},
+      ticketConfigs: ticketConfigs || [],
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer?._id,
       visitorId: customer ? null : visitorId,
@@ -614,7 +666,13 @@ export const widgetMutations: Record<string, Resolver> = {
 
     let parsedPayload: Record<string, string> | undefined;
     let ticketFormWidgetData:
-      | { _id: string; type: string; text: string; value: string; column: number }[]
+      | {
+          _id: string;
+          type: string;
+          text: string;
+          value: string;
+          column: number;
+        }[]
       | undefined;
     if (contentType === MESSAGE_TYPES.TICKET_FORM_SUBMISSION && payload) {
       try {
@@ -1191,7 +1249,7 @@ export const widgetMutations: Record<string, Resolver> = {
     doc: ITicketWidget,
     { models, subdomain, user }: IContext,
   ) {
-    const { statusId, ...restFields } = doc;
+    const { statusId, propertiesData, ...restFields } = doc;
     const status = await models.Status.findOne({ _id: statusId });
     if (!status) {
       throw new Error('Status not found');
@@ -1214,9 +1272,17 @@ export const widgetMutations: Record<string, Resolver> = {
     });
     const validCustomerIds = customers.map((c: any) => c._id);
 
+    const validatedPropertiesData = await buildTicketPropertiesData(
+      models,
+      subdomain,
+      status.pipelineId,
+      propertiesData,
+    );
+
     try {
       const ticket = await models.Ticket.create({
         ...restFields,
+        propertiesData: validatedPropertiesData,
         statusId: statusId,
         pipelineId: status.pipelineId,
         channelId: pipeline.channelId,

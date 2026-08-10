@@ -16,6 +16,20 @@ export const fmtDur = (n: number | null | undefined): string =>
 export const fmtNum = (n: number | null | undefined): string =>
   (n ?? 0).toLocaleString();
 
+/**
+ * Shown in place of a metric the backend could not measure. Distinct from a
+ * real `0`, which means "measured, and it was zero".
+ */
+export const NO_DATA = '—';
+
+/** Percentage, or `—` when the backend returned no measurement. */
+export const fmtPctOrDash = (n: number | null | undefined): string =>
+  n == null ? NO_DATA : fmtPct(n);
+
+/** Duration, or `—` when the backend returned no measurement. */
+export const fmtDurOrDash = (n: number | null | undefined): string =>
+  n == null ? NO_DATA : fmtDur(n);
+
 /** Days-of-week labels indexed 1–7 (Mon–Sun, matching $isoDayOfWeek). */
 export const DOW_LABELS: string[] = [
   '',
@@ -43,26 +57,49 @@ export const CARRIER_CSS_VARS: string[] = [
   'var(--chart-3)',
 ];
 
+/** Mongolian mobile prefixes, keyed on the first two digits of the number. */
+const CARRIER_BY_PREFIX: Record<string, string> = {
+  '85': 'Mobicom',
+  '94': 'Mobicom',
+  '95': 'Mobicom',
+  '99': 'Mobicom',
+  '80': 'Unitel',
+  '86': 'Unitel',
+  '88': 'Unitel',
+  '89': 'Unitel',
+  '90': 'Skytel',
+  '91': 'Skytel',
+  '92': 'Skytel',
+  '96': 'Skytel',
+  '83': 'G-Mobile',
+  '93': 'G-Mobile',
+  '97': 'G-Mobile',
+  '98': 'G-Mobile',
+  '60': 'Ondo',
+  '66': 'Ondo',
+};
+
 /**
- * Detect carrier from phone-number prefix (first 2 digits).
- * Returns the carrier name string.
+ * Detect the carrier from a phone-number prefix.
+ *
+ * Two digits identify every allocated range except Skytel's `696XXXXX`, which
+ * needs three — `69` alone is not allocated. Unallocated ranges (`81`, `82`,
+ * `84`, `87`) and landlines return `Unknown`.
+ *
+ * Mirrors `carrierExpression` in `frontline_api`'s call report service, which
+ * is what actually labels the report data; keep the two in step.
  */
 export function detectCarrier(phone: string): string {
-  const prefix = phone.replace(/^\+976/, '').slice(0, 2);
-  const map: Record<string, string> = {
-    '99': 'Mobicom',
-    '95': 'Mobicom',
-    '85': 'Mobicom',
-    '89': 'Unitel',
-    '96': 'Unitel',
-    '91': 'Skytel',
-    '94': 'Skytel',
-    '90': 'Skytel',
-    '98': 'G-Mobile',
-    '93': 'G-Mobile',
-    '97': 'Ondo',
-  };
-  return map[prefix] ?? 'Unknown';
+  const digits = phone.replace(/\D/g, '');
+
+  // Only an 11-digit number carries the country code — `976XXXXX` on its own is
+  // a valid 8-digit G-Mobile number and must keep its `97` prefix.
+  const national =
+    digits.length === 11 && digits.startsWith('976') ? digits.slice(3) : digits;
+
+  if (national.startsWith('696')) return 'Skytel';
+
+  return CARRIER_BY_PREFIX[national.slice(0, 2)] ?? 'Unknown';
 }
 
 /** Map carrier name → CSS custom property variable string. */

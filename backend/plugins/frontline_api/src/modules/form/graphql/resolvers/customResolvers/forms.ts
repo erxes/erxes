@@ -32,6 +32,10 @@ export const Form = {
     return fields.filter((f) => !subFieldIds.includes(f._id));
   },
 
+  callout(form: IFormDocument) {
+    return form.leadData?.callout || null;
+  },
+
   async channel(form: IFormDocument, _params, { models }: IContext) {
     if (!form.channelId) {
       return null;

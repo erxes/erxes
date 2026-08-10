@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-06`
+- **Last synchronized:** `2026-08-10`
 
 ## Scope
 
@@ -46,6 +46,15 @@
 ## Current Capabilities
 
 - Runs as a Module Federation remote on port `3004`, bundled with Rspack.
+- The messenger ticket form builder lives on a pipeline's configuration sheet
+  (`src/modules/pipelines/components/configs/`): a configuration picks a status
+  and a tag group, toggles the four built-in ticket fields, and now also selects
+  ticket custom properties out of the `frontline:ticket` field groups. Both
+  lists are drag-reorderable and each entry carries its own label and
+  placeholder; property entries add a required toggle.
+- A messenger integration attaches **several** ticket configs. The erxes
+  messenger config form binds `ticketConfigIds` to `SelectTicketConfig.FormItem`,
+  a multi-select over the selected channel's `ticketConfigs`.
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
 - Inbox navigation splits into **Me** — the integration types in use by the
@@ -115,6 +124,7 @@
 | Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                       | Per-module trigger/action/bot/history components                                               |
 | FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                     | Message sequence form, provider, constants, states                                             |
 | FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading                                           |
+| Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells |
 | Notifications      | `src/widgets/notifications/`                                                                                                      | Notification remote entries                                                                    |
 
 ## Contracts
@@ -173,6 +183,13 @@
   `AutomationActionFormProps` (which carries `trigger` and `targetType`),
   `splitAutomationNodeType`, `generateAutomationElementId`,
   `useAutomationRemoteFormSubmit`, `useFormValidationErrorHandler`.
+- `frontline_api` GraphQL `TicketConfigs`, `TicketConfigDetail`, `TicketConfig`,
+  `TicketSaveConfig` — the messenger ticket form configuration, including
+  `propertyFields` (chosen ticket custom properties, each carrying the source
+  property's `type` and `options` so the messenger widget can render it).
+- `ui-modules` properties hooks `useFieldGroups` / `useFields` with
+  `contentType: 'frontline:ticket'` — the ticket property groups and their
+  fields, read straight from core; this UI never defines property metadata.
 - `react-i18next` with the `frontline` namespace.
 
 ## Data and State
@@ -194,6 +211,12 @@
   such as `channelId`; component-local state stays in `useState`. `Team inbox`
   has no sort control and holds no sort state — the order is whatever
   `getMyChannels` returns.
+- `PIPELINE_CONFIG_SCHEMA.propertyFields` is a `useFieldArray` list whose array
+  position is the display order — the API renumbers `order` from that position
+  on save, so reordering means `move`, never rewriting `order` values. Each
+  entry also carries the source property's `type` and `options`, taken from
+  `useFields` when the property is toggled on; the API overwrites both from the
+  current core definition on save, so never edit them in this UI.
 - React Hook Form + Zod for every form (`CHANNEL_SCHEMA`, `imapFormSchema`); the
   Facebook message action schema is in
   `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
@@ -208,6 +231,29 @@
 
 ## Local Invariants
 
+- The theme's semantic colour tokens are `--success`, `--warning`, `--info`, and
+  `--destructive` (each also exposed to Tailwind as `bg-success`,
+  `text-destructive`, …). `--pos`, `--neg`, and `--warn` are **not defined
+  anywhere** — call report code still references them in places, and those rules
+  silently resolve to nothing, which is why some badges render untinted. Never
+  add a new use; the fix is the real token, not a new variable in `core-ui`
+  (out of plugin scope).
+- Call report tables compose `ReportTable`, never `erxes-ui`'s `Table`
+  directly. `Table` is tuned for the record grids — `table-fixed` columns and
+  `p-0` cells against `px-2` heads — which in a seven-column report gives the
+  label column the same width as a two-digit count and misaligns every header
+  from its values. `ReportTable` re-establishes `table-auto`, symmetric padding,
+  and a horizontal scroll container; fix density there, not per table, and never
+  by editing `erxes-ui` (out of plugin scope, and the record grids depend on
+  those defaults).
+- `callKpiScorecard.serviceLevel` and `averageSpeed` are nullable `Float`s.
+  Render them with `fmtPctOrDash` / `fmtDurOrDash` so an absent measurement
+  shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
+  metric. Both currently arrive as numbers from the CDR pipelines, so the dash
+  is a fallback, not the common case.
+- `detectCarrier` mirrors `carrierExpression` in `frontline_api`'s call report
+  service, which is what actually labels the report data — the UI helper only
+  covers phone numbers the plugin classifies itself. Change both together.
 - Channel scope is presentation-only here; the server is the authority. Never
   infer privacy from the UI, and never offer a members/invite affordance on a
   channel whose `scope` is `personal`.
@@ -290,6 +336,95 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-10` — Ticket property fields carry their type and options
+
+- **Summary:** Toggling a ticket property into a messenger ticket form now
+  stores the source property's `type` and `options` alongside its label,
+  placeholder, required flag, and order, and the four ticket-config documents
+  select both back. The messenger widget uses them to render the matching input
+  instead of a text box; the API rewrites both from the current core field
+  definition on every save, so nothing here edits them.
+- **Affected areas:**
+  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`,
+  `.../configs/schema.ts`, `.../configs/graphql/**`.
+- **Contracts changed:** `None` on the UI side; the ticket-config documents now
+  select the new optional `type` and `options` fields from `frontline_api`.
+
+### `2026-08-10` — Ticket config picker is multi-select
+
+- **Summary:** `SelectTicketConfig` now selects many ticket configs instead of
+  one: its context is `value: string[]` / `onValueChange: (configIds: string[])`,
+  items toggle in and out of the array, the popover stays open across toggles,
+  the trigger shows the single config's name or `n-selected`, and the list gained
+  loading and error states. Also repointed the messenger preview's two ticket
+  gates from the removed `ticketConfigId` to `ticketConfigIds`.
+- **Affected areas:**
+  `src/modules/pipelines/components/configs/components/SelectTicketConfig.tsx`,
+  `.../configs/hooks/useGetTicketConfigs.ts`,
+  `src/modules/integrations/erxes-messenger/components/EMPreviewIntro.tsx`.
+- **Contracts changed:** `SelectTicketConfig`, its `Provider`, and its `FormItem`
+  take `value?: string[] | null` and emit `string[]`; `useGetTicketConfigs` also
+  returns `error`.
+
+### `2026-08-10` — Current Mongolian carrier prefixes
+
+- **Summary:** `detectCarrier` now uses the current allocation — Skytel `90`,
+  `91`, `92`, `96` and `696XXXXX`; Mobicom `85`, `94`, `95`, `99`; Unitel `80`,
+  `86`, `88`, `89`; G-Mobile `83`, `93`, `97`, `98`; Ondo `60`, `66` — with the
+  unallocated ranges falling through to `Unknown`. The country-code strip is now
+  length-aware so a legitimate 8-digit `976XXXXX` G-Mobile number keeps its
+  prefix.
+- **Affected areas:** `src/modules/report/call/utils.ts`.
+- **Contracts changed:** `None`
+
+### `2026-08-10` — Ticket property fields in the messenger config builder
+
+- **Summary:** The pipeline configuration sheet gained a "Select ticket property
+  fields" section: ticket custom properties are listed per `frontline:ticket`
+  field group, toggling one adds it to the form, and selected properties get
+  drag-ordered cards with label, placeholder, and required controls, saved as
+  `propertyFields` on the ticket config.
+- **Affected areas:**
+  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`
+  (new), `.../components/ConfigsForm.tsx`, `.../schema.ts`, `.../constant.ts`,
+  `.../hooks/usePipelineConfigForm.ts`, `.../graphql/**`.
+- **Contracts changed:** `None` on the UI side; the four ticket-config documents
+  now select the new optional `propertyFields` field from `frontline_api`.
+
+### `2026-08-10` — Denser, scannable call report tables
+
+- **Summary:** The Agents, Callbacks, and Top Numbers tables now compose a
+  shared `ReportTable` wrapper that replaces `erxes-ui`'s `table-fixed` /
+  `p-0` defaults with content-sized columns, real cell padding, aligned heads,
+  and horizontal scrolling. Added proportional `Meter` bars for call volume,
+  answer rate, and callback recovery; an agent row now shows name over
+  extension with its leaderboard rank; the expander is a real button with
+  `aria-expanded`; and the drilldown became a labelled grid. Fixed a missing
+  React `key` on the agent row fragment, and repointed these three tables'
+  colours from the undefined `--pos` / `--neg` / `--warn` variables to the
+  theme's real `--success` / `--destructive` / `--warning`, so the count pills
+  are actually tinted.
+- **Affected areas:** `src/modules/report/call/components/ReportTable.tsx`
+  (new), `.../components/Meter.tsx` (new),
+  `.../components/AgentsSection/{AgentTable,AgentDrilldown}.tsx`,
+  `.../components/CallbacksSection/CallbacksSection.tsx`,
+  `.../components/TopNumbersSection/TopNumbersSection.tsx`.
+- **Contracts changed:** `None`
+
+### `2026-08-10` — Unmeasured call KPIs render as `—`
+
+- **Summary:** Service Level and Avg Speed of Answer now show `—` instead of
+  `0.0%` / `00:00:00` when the backend has no ring time to measure them from,
+  via new `fmtPctOrDash` / `fmtDurOrDash` helpers. Answer Rate was also gated on
+  `serviceLevel != null`, so it disappeared whenever service level was
+  unmeasured; it now derives from `abandonment` alone.
+- **Affected areas:** `src/modules/report/call/utils.ts`,
+  `src/modules/report/call/types.ts`,
+  `src/modules/report/call/components/KpiSection/KpiSection.tsx`.
+- **Contracts changed:** `KpiScorecard.serviceLevel` and
+  `KpiScorecard.averageSpeed` are typed `number | null` (the GraphQL fields were
+  already nullable `Float`).
+
 ### `2026-08-06` — Live unread counts on team channel rows
 
 - **Summary:** `Team inbox` rows now show `Channel.unreadConversationCount`
@@ -340,93 +475,3 @@
   `src/modules/inbox/channel/{components/TeamChannelsNav.tsx,states/teamInboxSortState.ts}`.
 - **Contracts changed:** None on this side; consumes the new `getMyChannels`
   sort arguments from `frontline_api`.
-
-### `2026-08-05` — Sidebar group actions no longer fold their own group
-
-- **Summary:** Create-channel, create-brand, and the team-inbox sort toggle sit
-  in a `NavigationMenuGroup` `actions` slot, which renders inside the group's
-  collapsible trigger, so every click on them also collapsed the group. A new
-  `NavigationGroupActions` wrapper stops the click at the slot.
-- **Affected areas:** `src/modules/NavigationGroupActions.tsx`,
-  `src/modules/FrontlineSubGroups.tsx` (Channels and Brands groups),
-  `src/modules/inbox/channel/components/TeamChannelsNav.tsx`.
-- **Contracts changed:** None — `NavigationGroupActions` is new and internal;
-  the sort toggle dropped its own now-redundant `stopPropagation`.
-
-### `2026-08-04` — Counts, members, and triage order in the inbox sidebar
-
-- **Summary:** `Me` and `Team inbox` now read like a triage list: every row
-  carries its open count and dims when it has none, sources still awaiting a
-  reply get a warning dot, team rows show a member avatar stack, the group
-  orders by count or name from a header toggle, and channels with nothing open
-  fold behind a "N quiet teams" row.
-- **Affected areas:**
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav,UnreadSummary}.tsx`,
-  `src/modules/inbox/channel/states/teamInboxSortState.ts`,
-  `src/modules/inbox/conversations/{hooks/useConversationCounts.tsx,graphql/queries/getConversationCounts.ts}`,
-  `src/modules/integrations/{components/ChooseIntegrationType.tsx,constants/integrationImages.ts}`,
-  `src/modules/FrontlineSubGroups.tsx`, `frontline` locale files.
-- **Contracts changed:** `IntegrationTypeItem` gained optional `count` and
-  `awaitingCount` props and now renders a kind icon; `PersonalInboxNav` and
-  `TeamChannelsNav` render their own `NavigationMenuGroup` instead of expecting
-  a caller to wrap them; `ConversationCounts` gained an `$awaitingResponse`
-  variable.
-
-### `2026-08-04` — Integration-type tree in the inbox sidebar
-
-- **Summary:** Restructured the inbox navigation so `Me` lists the personal
-  channel's integration types and `Team inbox` renders each team channel as a
-  collapsible row over the types used inside it, fetched lazily on expand.
-- **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav,ChooseChannel}.tsx`,
-  `src/modules/channels/utils/channelScope.ts`,
-  `src/modules/integrations/{components/ChooseIntegrationType.tsx,hooks/useUsedIntegrationTypes.tsx,graphql/queries/getIntegrations.ts}`,
-  integration add/remove/archive refetch lists.
-- **Contracts changed:** `IntegrationTypeItem` gained optional `channelId` and
-  `nested` props; new `useUsedIntegrationTypesByChannel` hook and
-  `IntegrationsGetUsedTypesByChannel` document.
-
-### `2026-08-04` — Rebuild the post composer on the standard sheet and dropzone
-
-- **Summary:** The composer now follows the `CreateBrand` sheet shape
-  (uncontrolled `Sheet`, `Sheet.Close` cancel, state inside the sheet body) and
-  uses the shared `Dropzone`/`DropzoneEmptyState`/`DropzoneContent` for picking
-  files and `Attachments.Root`/`Attachments.Preview` for the uploaded ones,
-  instead of a hand-rolled drop area, thumbnail grid, and filename list; help
-  and rejected filenames render as `Alert`, the empty and loading states use
-  `Empty` and `Spinner`, and the channel picker is a searchable
-  `Popover` + `Combobox` + `Command` like `SelectChannel.FormItem`.
-- **Affected areas:**
-  `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`,
-  `.../components/FacebookPostImagesField.tsx`,
-  `.../hooks/useFacebookPostImages.tsx`,
-  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned)
-- **Contracts changed:** `None`
-
-### `2026-08-04` — Split the Facebook post composer into hooks and fields
-
-- **Summary:** `FacebookPostSheet` no longer drills nine props into its form:
-  attachment state moved to `useFacebookPostImages`, channel/page loading to
-  `useFacebookPostTargets`, and the uploader UI to `FacebookPostImagesField`;
-  the message input's dialog-drop guard is now one shared helper.
-- **Affected areas:**
-  `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`,
-  `.../components/FacebookPostImagesField.tsx` (new),
-  `.../hooks/useFacebookPostImages.tsx` (new),
-  `.../hooks/useFacebookPostTargets.tsx` (new),
-  `.../constants/FbPostSchema.ts`,
-  `src/modules/inbox/conversations/conversation-detail/components/MessageInput.tsx`
-- **Contracts changed:** `None`
-
-### `2026-08-04` — Cap comment-triggered Facebook message actions at one message
-
-- **Summary:** A Facebook message action attached to a comment trigger now
-  accepts a single message and explains that the rest of the flow must continue
-  behind a button, matching Facebook's one-private-reply-per-comment rule.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/constants/ReplyMessage.ts`,
-  `.../action/context/ReplyMessageProvider.tsx`,
-  `.../action/components/replyMessage/MessageSequenceHeader.tsx`,
-  `.../action/components/replyMessage/MessageActionForm.tsx`
-- **Contracts changed:** `None`

@@ -12,6 +12,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useEffect, useState } from 'react';
 import { TicketBasicFields } from './TicketBasicFields';
+import { TicketPropertyFields } from './TicketPropertyFields';
 import { SelectTags } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +28,10 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
 
   useEffect(() => {
     if (defaultValues) {
-      form.reset(defaultValues);
+      form.reset({
+        ...defaultValues,
+        propertyFields: defaultValues.propertyFields ?? [],
+      });
     }
   }, [defaultValues, form]);
 
@@ -102,6 +106,8 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
       </div>
       <Separator />
       <TicketBasicFields form={form} />
+      <Separator />
+      <TicketPropertyFields form={form} />
     </>
   );
 };

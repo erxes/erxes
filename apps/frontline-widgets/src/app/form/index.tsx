@@ -7,12 +7,15 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
   browserInfoAtom,
+  calloutPassedAtom,
   customerIdAtom,
   showConfirmationAtom,
 } from './states/erxesFormStates';
 import { ErxesFormValues } from './components/ErxesFormValues';
 import { getVisitorId, postMessage } from '@libs/utils';
 import { ErxesFormFinal } from './components/ErxesFormFinal';
+import { ErxesFormCallout } from './components/ErxesFormCallout';
+import { isCalloutVisible } from './utils/formUtils';
 
 export const Form = () => {
   const [settings, setSettings] = useState<any>({});
@@ -21,6 +24,7 @@ export const Form = () => {
   const activeStep = useAtomValue(activeStepAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const showConfirmation = useAtomValue(showConfirmationAtom);
+  const calloutPassed = useAtomValue(calloutPassedAtom);
   const customerId = useAtomValue(customerIdAtom);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
@@ -130,10 +134,14 @@ export const Form = () => {
     return null;
   }
 
+  const showCallout = isCalloutVisible(form.callout) && !calloutPassed;
+
   const formContent = (
     <ErxesFormProvider form={form}>
       {showConfirmation ? (
         <ErxesFormFinal />
+      ) : showCallout ? (
+        <ErxesFormCallout />
       ) : (
         !loading &&
         form &&

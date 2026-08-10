@@ -5,7 +5,7 @@ export interface IConnectionInfo {
 
 export interface IWidgetData {
   messengerData?: IMessengerData;
-  ticketConfig?: ITicketConfig;
+  ticketConfigs?: ITicketConfig[];
   languageCode?: string;
   uiOptions?: IWidgetUiOptions;
   customerId?: string;
@@ -115,6 +115,22 @@ export interface ITicketFormFields {
   tags?: ITicketFormField;
 }
 
+export interface ITicketPropertyFieldOption {
+  label: string;
+  value: string;
+}
+
+export interface ITicketPropertiesFields {
+  fieldId: string;
+  groupId: string;
+  label: string;
+  placeholder: string;
+  order: number;
+  isRequired: boolean;
+  type?: string;
+  options?: ITicketPropertyFieldOption[];
+}
+
 export interface ITicketConfig {
   _id: string;
   name: string;
@@ -124,6 +140,7 @@ export interface ITicketConfig {
   channelId: string;
   selectedStatusId: string;
   formFields: ITicketFormFields;
+  propertyFields?: ITicketPropertiesFields[];
   parentId?: string;
 }
 
