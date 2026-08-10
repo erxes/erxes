@@ -72,8 +72,10 @@ export const types = `
   }
 
   type ReportTicketStatusSummary {
+    _id: String
     statusType: Int
     name: String
+    group: String
     color: String
     count: Int
     percentage: Int

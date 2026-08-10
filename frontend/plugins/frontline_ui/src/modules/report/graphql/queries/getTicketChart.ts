@@ -91,8 +91,10 @@ export const GET_TICKET_TOTAL_COUNT = gql`
 export const GET_TICKET_STATUS_SUMMARY = gql`
   query ReportTicketStatusSummary($filters: TicketReportFilter) {
     reportTicketStatusSummary(filters: $filters) {
+      _id
       statusType
       name
+      group
       color
       count
       percentage

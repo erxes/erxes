@@ -110,6 +110,7 @@ export const itineraryMoreColumn = (
   mainLanguage?: string,
 ): ColumnDef<IItinerary> => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (props) => (
     <ItineraryMoreColumn
       {...props}
