@@ -1,8 +1,12 @@
+import { useQuery } from '@apollo/client';
+import {
+  EnumCursorDirection,
+  ICursorListResponse,
+  mergeCursorData,
+  validateFetchMore,
+} from 'erxes-ui';
 import { FIELD_GROUPS_QUERY } from '../graphql/fieldsQueries';
 import { IFieldGroup } from '../types/fieldsTypes';
-import { useAllCursorPages } from './useAllCursorPages';
-
-const FIELD_GROUPS_PER_PAGE = 100;
 
 export const useFieldGroups = ({
   contentType,
@@ -11,18 +15,60 @@ export const useFieldGroups = ({
   contentType: string;
   limit?: number;
 }) => {
-  const { list, loading, error, refetch } = useAllCursorPages<IFieldGroup>({
-    query: FIELD_GROUPS_QUERY,
-    responseKey: 'fieldGroups',
-    params: { contentType },
-    perPage: FIELD_GROUPS_PER_PAGE,
-    limit,
+  const { data, loading, fetchMore } = useQuery<
+    ICursorListResponse<IFieldGroup>
+  >(FIELD_GROUPS_QUERY, {
+    variables: {
+      params: {
+        contentType: contentType,
+        limit,
+      },
+    },
   });
 
+  const pageInfo = data?.fieldGroups?.pageInfo;
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (!validateFetchMore({ direction, pageInfo })) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        params: {
+          contentType,
+          limit,
+          direction,
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo?.endCursor
+              : pageInfo?.startCursor,
+        },
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        return Object.assign({}, prev, {
+          fieldGroups: mergeCursorData({
+            direction,
+            fetchMoreResult: fetchMoreResult.fieldGroups,
+            prevResult: prev.fieldGroups,
+          }),
+        });
+      },
+    });
+  };
+
   return {
-    fieldGroups: list,
+    fieldGroups: data?.fieldGroups?.list || [],
     loading,
-    error,
-    refetch,
+    handleFetchMore,
+    pageInfo,
   };
 };

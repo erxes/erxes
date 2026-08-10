@@ -1,8 +1,12 @@
+import { useQuery } from '@apollo/client';
 import { FIELDS_QUERY } from '../graphql/fieldsQueries';
+import {
+  EnumCursorDirection,
+  ICursorListResponse,
+  mergeCursorData,
+  validateFetchMore,
+} from 'erxes-ui';
 import { IField } from '../types/fieldsTypes';
-import { useAllCursorPages } from './useAllCursorPages';
-
-const FIELDS_PER_PAGE = 100;
 
 export const useFields = ({
   groupId,
@@ -13,16 +17,59 @@ export const useFields = ({
   contentType: string;
   limit?: number;
 }) => {
-  const { list, totalCount, loading, error, refetch } =
-    useAllCursorPages<IField>({
-      query: FIELDS_QUERY,
-      responseKey: 'fields',
-      params: { groupId, contentType },
-      perPage: FIELDS_PER_PAGE,
-      limit,
-    });
+  const { data, loading, refetch, fetchMore } = useQuery<
+    ICursorListResponse<IField>
+  >(FIELDS_QUERY, {
+    variables: {
+      params: {
+        groupId,
+        contentType,
+        limit,
+      },
+    },
+  });
 
-  const fields = list.map((field) => {
+  const pageInfo = data?.fields?.pageInfo;
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (!validateFetchMore({ direction, pageInfo })) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        params: {
+          groupId,
+          contentType,
+          limit,
+          direction,
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo?.endCursor
+              : pageInfo?.startCursor,
+        },
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        return Object.assign({}, prev, {
+          fields: mergeCursorData({
+            direction,
+            fetchMoreResult: fetchMoreResult.fields,
+            prevResult: prev.fields,
+          }),
+        });
+      },
+    });
+  };
+
+  const fields = (data?.fields?.list || []).map((field) => {
     const type = field.type?.startsWith('relation:') ? 'relation' : field.type;
     const relationType =
       type === 'relation' ? field.type?.replace('relation:', '') : undefined;
@@ -52,9 +99,10 @@ export const useFields = ({
 
   return {
     fields: fields,
-    totalCount,
+    totalCount: data?.fields?.totalCount || 0,
     loading,
-    error,
     refetch,
+    handleFetchMore,
+    pageInfo,
   };
 };
