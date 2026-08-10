@@ -90,6 +90,10 @@
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
+- Ticket tag selection (board card, detail sheet, create form) shows a single
+  count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
+  selected — instead of listing every selected tag inline; the board card also
+  renders up to 5 tag pills with a "+N" overflow badge below the card body.
 - The ticket reports board renders the default charts from
   `TICKET_DEFAULT_CARD_CONFIGS` plus every saved chart returned by
   `reportCharts`. **Every** ticket card — status summary, date, source, tags,
@@ -119,6 +123,7 @@
 | Inbox              | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                 |
 | Integrations       | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                      |
 | Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                               |
+| Ticket selects     | `src/modules/ticket/components/ticket-selects/`                                                                                              | Card/detail/form select-trigger components (status, priority, assignee, dates, tags) shared across the board card, detail sheet, and create form |
 | Forms              | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                               |
 | Knowledge base     | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                     |
 | Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                 |
@@ -199,6 +204,10 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `AutomationActionFormProps` (which carries `trigger` and `targetType`),
   `splitAutomationNodeType`, `generateAutomationElementId`,
   `useAutomationRemoteFormSubmit`, `useFormValidationErrorHandler`.
+- `ui-modules`: `TagsSelect` (tags-new) for the `frontline:ticket` tag type —
+  `Provider`/`Value`/`Content` drive `SelectTagsTicket`; `useGetTags` reads the
+  full `frontline:ticket` tag catalogue for the board card's overflow pill
+  list.
 - `frontline_api` GraphQL `reportCharts`, `reportChartAdd`, and
   `reportChartRemove` — saved report charts. The board reads **all** saved
   charts in one query and filters them to the chart types it can render, and
@@ -325,6 +334,12 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - New user-visible strings go through `useTranslation('frontline')` with keys
   added to both `en` and `mn` gateway-owned locale files; that is a
   repository-level change and must be requested explicitly.
+- Ticket tag selectors must go through `SelectTagsTicket`
+  (`src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`), never
+  `TagsSelect.SelectedList` directly — the shared component chains every
+  selected tag as a badge with no cap, which is the long-list look the ticket
+  UI intentionally avoids in favor of a "Tag +N" count trigger, matching how
+  Sales' `DealTagsChip` calls `TagsSelect.Trigger` with `showSelectedTagsOutside={false}`.
 
 ## Validation
 
@@ -352,6 +367,22 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-10` — Ticket tag selector matches Sales' count-based trigger
+
+- **Summary:** Ticket tag selection (board card, detail sheet, create form) now
+  shows a single "Tag +N" / placeholder trigger via the new `SelectTagsTicket`
+  instead of an icon plus the full chained `TagsSelect.SelectedList`, mirroring
+  Sales' `DealTagsChip` behavior. The board card also gained the trigger in its
+  status/priority row plus a new `TicketCardTags` list that shows up to 5 tag
+  pills with a "+N" overflow badge, matching Sales' `DealCardDetails` pattern.
+- **Affected areas:**
+  `src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx` (new),
+  `src/modules/ticket/components/TicketCard.tsx`,
+  `src/modules/ticket/components/ticket-detail/TicketFields.tsx`,
+  `src/modules/ticket/components/add-ticket/AddTicketForm.tsx`.
+- **Contracts changed:** None — reuses `ui-modules`' existing `TagsSelect`
+  (tags-new) and `useGetTags` public exports.
 
 ### `2026-08-10` — Form preview number fields drop the thousands separator
 
@@ -479,15 +510,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/inbox/channel/states/teamInboxSortState.ts` (deleted),
   `frontline` locale files (`sort-team-inbox`, `sort-by-unread` removed).
 - **Contracts changed:** None.
-
-### `2026-08-05` — Channel name ordering moved to the API
-
-- **Summary:** `GET_MY_CHANNELS` now sends `sortField` / `sortDirection` and
-  `useGetMyChannels` pins name-ascending for every caller, so the sidebar drops
-  its `localeCompare` pass. The persisted `teamInboxSortState` now only decides
-  whether the unread re-order runs on top of that order.
-- **Affected areas:** `src/modules/channels/graphql/queries.ts`,
-  `src/modules/channels/hooks/useGetMyChannels.tsx`,
-  `src/modules/inbox/channel/{components/TeamChannelsNav.tsx,states/teamInboxSortState.ts}`.
-- **Contracts changed:** None on this side; consumes the new `getMyChannels`
-  sort arguments from `frontline_api`.
