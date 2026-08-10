@@ -74,6 +74,7 @@ export const FormsList = () => {
       columns={formsColumns as unknown as ColumnDef<IForm>[]}
       data={forms || []}
       className="m-3"
+      tableId="frontline_channel_forms_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -114,7 +115,7 @@ export const FormsMoreColumnCell = ({
 
   const [open, setOpen] = useState(false);
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </DropdownMenu.Trigger>
@@ -144,6 +145,7 @@ export const FormsMoreColumnCell = ({
 
 export const MoreColumn: ColumnDef<IForm> = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   size: 33,
   cell: FormsMoreColumnCell,
 };
@@ -154,8 +156,7 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    header: function FormNameHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
     },
@@ -177,10 +178,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'status',
     id: 'status',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    header: function FormStatusHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
+      return (
+        <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -197,13 +199,13 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'channelId',
     id: 'channelId',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    header: function FormChannelHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
+      return (
+        <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />
+      );
     },
-    cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    cell: function FormChannelCell({ cell }) {
       const { t } = useTranslation('frontline');
       return (
         <RecordTableInlineCell>
@@ -218,8 +220,7 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'tagIds',
     id: 'tagIds',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    header: function FormTagsHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('tags')} icon={IconTag} />;
     },
@@ -238,8 +239,7 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdUserId',
     id: 'createdUserId',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    header: function FormCreatedByHeader() {
       const { t } = useTranslation('frontline');
       return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
     },
@@ -254,10 +254,14 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdDate',
     id: 'createdDate',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    header: function FormCreatedAtHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-at')}
+          icon={IconCalendarEvent}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
