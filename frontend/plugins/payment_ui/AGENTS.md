@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-08-03`
+- **Last synchronized:** `2026-08-10`
 
 ## Scope
 
@@ -30,6 +30,9 @@
 - Create, edit, and remove payment methods with kind-specific Zod validation and toast feedback.
 - Configure a payment method to auto-create a sales deal (`dealEnabled` + board/pipeline/stage).
 - Browse invoices with kind/status filters, live scan subscription, and total-count state.
+- Edit an invoice's description, amount, and status either inline in the table cells or through
+  the row's **more → Edit** sheet form; both surfaces require the `paymentInvoiceEdit` action and
+  disappear/fall back to read-only without it.
 - Manage corporate gateway configurations, accounts, and transactions per bank.
 
 ## Architecture
@@ -39,6 +42,7 @@
 | Federation config | `src/config.tsx`                          | `IUIConfig`: settings navigation + `invoices` relation widget  |
 | Pages             | `src/pages/payment`                       | Invoices, payment settings, corporate gateway route entries    |
 | Payment module    | `src/modules/payment`                     | Payment/invoice GraphQL documents, hooks, types, Jotai state   |
+| Invoice cells     | `src/modules/payment/components/InvoiceInlineCells.tsx` | Permission-aware inline editors for the invoice table |
 | Settings module   | `src/modules/settings/payment/components` | Payment method table, sheets, and all configuration forms      |
 | Corporate gateway | `src/modules/corporateGateway/<bank>`     | Bank-specific configs, accounts, and transaction containers    |
 | Widgets           | `src/widgets`                             | Exposed widget entries, including the invoices relation widget |
@@ -54,10 +58,12 @@
 ### Consumes
 
 - `erxes-ui` primitives (`Form`, `Switch`, `Sheet`, `RecordTable`, `Combobox`, `Command`, …).
-- `ui-modules`: `SettingsHeader`, `IRelationWidgetProps`, and the sales selectors
-  `SelectBoard` / `SelectPipeline` / `SelectStage`.
+- `ui-modules`: `SettingsHeader`, `IRelationWidgetProps`, `usePermissionCheck`, and the sales
+  selectors `SelectBoard` / `SelectPipeline` / `SelectStage`.
 - Gateway GraphQL: `payments`, `paymentsTotalCount`, `invoices`, `qpayGetDistricts`,
-  `paymentAdd`, `paymentEdit`, `paymentRemove`, `invoiceScanBarcode`, `invoiceScanned`.
+  `paymentAdd`, `paymentEdit`, `paymentRemove`, `invoiceEdit`, `invoiceScanBarcode`,
+  `invoiceScanned`.
+- Permission action `paymentInvoiceEdit`, declared by `payment_api`.
 - `react-i18next` namespace `payment`.
 
 ## Data and State
@@ -83,6 +89,13 @@
   `dealStageId`. Turning `dealEnabled` off clears the three ids.
 - Changing the board clears pipeline and stage; changing the pipeline clears stage.
 - Every GraphQL operation name stays prefixed/unique for this plugin.
+- Invoice inline editors must fall back to the read-only cell whenever
+  `usePermissionCheck()` is still loading or `paymentInvoiceEdit` is missing — never render an
+  empty cell while permissions load.
+- `invoiceEdit` returns the edited `Invoice` with `_id`, so Apollo's normalized cache refreshes
+  the row; do not add a refetch for it.
+- Translation keys live outside this plugin (`backend/gateway/src/locales/*/payment.json`), so
+  new UI text must reuse existing keys of the `payment` namespace.
 
 ## Validation
 
@@ -94,6 +107,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-10` — Permission-gated inline invoice editing
+
+- **Summary:** The invoice table now edits description, amount, and status inline through the
+  new `invoiceEdit` mutation for users with the `paymentInvoiceEdit` action, and stays
+  read-only for everyone else.
+- **Affected areas:** `src/modules/payment/components/InvoiceInlineCells.tsx` (new),
+  `src/modules/payment/components/InvoiceColumns.tsx`,
+  `src/modules/payment/hooks/useInvoiceEdit.tsx` (new),
+  `src/modules/payment/graphql/mutations.ts`.
+- **Contracts changed:** Consumes the new `invoiceEdit` mutation (operation
+  `PaymentInvoiceEdit`).
 
 ### `2026-08-03` — Single shared `Form` instance across payment settings forms
 

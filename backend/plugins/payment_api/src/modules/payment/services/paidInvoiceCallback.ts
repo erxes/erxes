@@ -1,5 +1,7 @@
 import { splitType } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { IInvoiceDocument } from '~/modules/payment/@types/invoices';
 import { IPaymentDealConfig } from '~/modules/payment/@types/payment';
 import { sendInvoiceQrEmailOnce } from '~/modules/payment/services/invoiceQrEmail';
 
@@ -27,6 +29,34 @@ export const resolvePaymentForInvoice = async (models: any, invoice: any) => {
     : null;
 };
 
+export const sendPaidInvoiceQrEmail = (
+  subdomain: string,
+  models: IModels,
+  invoice: IInvoiceDocument,
+  payment: PaymentLike,
+  logPrefix: string,
+) => {
+  if (payment?.sendEmailOnPayment === false) {
+    process.stdout.write(
+      `[${logPrefix}] Skipped QR email for invoice ${invoice._id}: sendEmailOnPayment is off on the payment method\n`,
+    );
+    return;
+  }
+
+  if (!invoice.email) {
+    process.stdout.write(
+      `[${logPrefix}] Skipped QR email for invoice ${invoice._id}: invoice has no email\n`,
+    );
+    return;
+  }
+
+  sendInvoiceQrEmailOnce(subdomain, models, invoice).catch((err) => {
+    process.stderr.write(
+      `[${logPrefix}] Failed to send QR email for invoice ${invoice._id}: ${err.message}\n`,
+    );
+  });
+};
+
 export const enqueuePaidInvoiceCallback = (
   subdomain: string,
   models: any,
@@ -37,21 +67,7 @@ export const enqueuePaidInvoiceCallback = (
   const sendEmailOnPayment = payment?.sendEmailOnPayment !== false;
   const dealConfig = payment?.dealConfig;
 
-  if (!sendEmailOnPayment) {
-    process.stdout.write(
-      `[${logPrefix}] Skipped QR email for invoice ${invoice._id}: sendEmailOnPayment is off on the payment method\n`,
-    );
-  } else if (!invoice.email) {
-    process.stdout.write(
-      `[${logPrefix}] Skipped QR email for invoice ${invoice._id}: invoice has no email\n`,
-    );
-  } else {
-    sendInvoiceQrEmailOnce(subdomain, models, invoice).catch((err) => {
-      process.stderr.write(
-        `[${logPrefix}] Failed to send QR email for invoice ${invoice._id}: ${err.message}\n`,
-      );
-    });
-  }
+  sendPaidInvoiceQrEmail(subdomain, models, invoice, payment, logPrefix);
 
   const baseData = {
     ...invoice,
