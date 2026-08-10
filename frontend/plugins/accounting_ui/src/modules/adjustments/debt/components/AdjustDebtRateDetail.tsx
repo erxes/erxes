@@ -111,7 +111,10 @@ export const AdjustDebtRateDetail = () => {
             label="Main Currency"
             value={adjustDebtRate.mainCurrency}
           />
-          <DetailField label="Status" value={adjustDebtRate.status || 'draft'} />
+          <DetailField
+            label="Status"
+            value={adjustDebtRate.status || 'draft'}
+          />
           {adjustDebtRate.error && (
             <div className="col-span-2 text-sm text-destructive">
               {adjustDebtRate.error}
@@ -174,55 +177,57 @@ export const AdjustDebtRateDetail = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {adjustDebtRate.details.map((detail: IAdjustDebtRateDetail) => (
-                    <tr key={detail._id} className="border-b">
-                      <td className="p-3">
-                        <div className="font-medium">
-                          {detail.accountCode || detail.accountId}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {[detail.accountName, detail.accountKind]
+                  {adjustDebtRate.details.map(
+                    (detail: IAdjustDebtRateDetail) => (
+                      <tr key={detail._id} className="border-b">
+                        <td className="p-3">
+                          <div className="font-medium">
+                            {detail.accountCode || detail.accountId}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {[detail.accountName, detail.accountKind]
+                              .filter(Boolean)
+                              .join(' / ') || '-'}
+                          </div>
+                        </td>
+                        <td className="p-3 text-sm text-muted-foreground">
+                          {[detail.customerType, detail.customerId]
                             .filter(Boolean)
-                            .join(' / ') || '-'}
-                        </div>
-                      </td>
-                      <td className="p-3 text-sm text-muted-foreground">
-                        {[detail.customerType, detail.customerId]
-                          .filter(Boolean)
-                          .join(': ') || '-'}
-                      </td>
-                      <td className="p-3 text-sm text-muted-foreground">
-                        {detail.branchId ? (
-                          <SelectBranches.InlineCell
-                            branchIds={[detail.branchId]}
-                          />
-                        ) : (
-                          '-'
-                        )}
-                      </td>
-                      <td className="p-3 text-sm text-muted-foreground">
-                        {detail.departmentId ? (
-                          <SelectDepartments.InlineCell
-                            departmentIds={[detail.departmentId]}
-                          />
-                        ) : (
-                          '-'
-                        )}
-                      </td>
-                      <td className="p-3 text-right font-mono">
-                        {detail.mainBalance?.toLocaleString() || '-'}
-                      </td>
-                      <td className="p-3 text-right font-mono">
-                        {detail.currencyBalance?.toLocaleString() || '-'}
-                      </td>
-                      <td className="p-3 text-right font-mono">
-                        {detail.diff?.toLocaleString() || '-'}
-                      </td>
-                      <td className="p-3 text-center text-sm text-muted-foreground">
-                        {detail.transactionId || '-'}
-                      </td>
-                    </tr>
-                  ))}
+                            .join(': ') || '-'}
+                        </td>
+                        <td className="p-3 text-sm text-muted-foreground">
+                          {detail.branchId ? (
+                            <SelectBranches.InlineCell
+                              branchIds={[detail.branchId]}
+                            />
+                          ) : (
+                            '-'
+                          )}
+                        </td>
+                        <td className="p-3 text-sm text-muted-foreground">
+                          {detail.departmentId ? (
+                            <SelectDepartments.InlineCell
+                              departmentIds={[detail.departmentId]}
+                            />
+                          ) : (
+                            '-'
+                          )}
+                        </td>
+                        <td className="p-3 text-right font-mono">
+                          {detail.mainBalance?.toLocaleString() || '-'}
+                        </td>
+                        <td className="p-3 text-right font-mono">
+                          {detail.currencyBalance?.toLocaleString() || '-'}
+                        </td>
+                        <td className="p-3 text-right font-mono">
+                          {detail.diff?.toLocaleString() || '-'}
+                        </td>
+                        <td className="p-3 text-center text-sm text-muted-foreground">
+                          {detail.transactionId || '-'}
+                        </td>
+                      </tr>
+                    ),
+                  )}
                 </tbody>
               </table>
             </div>

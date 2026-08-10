@@ -77,10 +77,8 @@ const AdjustDebtRateFormContent = ({
   setOpen: (open: boolean) => void;
   adjustDebtRate?: IAdjustDebtRate;
 }) => {
-  const {
-    dealCurrencyOptions,
-    mainCurrency: configuredMainCurrency,
-  } = useCurrencyConfigs();
+  const { dealCurrencyOptions, mainCurrency: configuredMainCurrency } =
+    useCurrencyConfigs();
   const form = useForm<TAdjustDebtRateForm>({
     resolver: zodResolver(adjustDebtRateSchema),
     defaultValues: {

@@ -106,7 +106,15 @@ const getDebtAccounts = async (models: IModels, adjust: IAdjustDebtRate) => {
       currency: adjust.currency,
       status: 'active',
     },
-    { _id: 1, code: 1, name: 1, kind: 1, currency: 1, branchId: 1, departmentId: 1 },
+    {
+      _id: 1,
+      code: 1,
+      name: 1,
+      kind: 1,
+      currency: 1,
+      branchId: 1,
+      departmentId: 1,
+    },
   ).lean();
 
   return {
@@ -490,7 +498,9 @@ const buildTransactionDocs = (
 
     for (const detail of customerDetails) {
       if (detail.diff > 0) {
-        debitDebtDetails.push(makeDetail(detail.accountId, detail.diff, detail));
+        debitDebtDetails.push(
+          makeDetail(detail.accountId, detail.diff, detail),
+        );
         creditGainDetails.push(
           makeDetail(adjust.gainAccountId, detail.diff, detail),
         );
@@ -622,7 +632,9 @@ export const calculateAdjustDebtRate = async (
         details: [],
         transactionId: '',
         beginDate:
-          validationError?.beginDate || adjust.beginDate || getPureDate(adjust.date),
+          validationError?.beginDate ||
+          adjust.beginDate ||
+          getPureDate(adjust.date),
         successDate: validationError?.date,
         checkedAt: new Date(),
         status: 'process',
@@ -705,7 +717,9 @@ export const runAdjustDebtRate = async (
           transactionId: transaction._id,
         })),
       )
-      .filter(({ key }) => details.some((detail) => makeDebtKey(detail) === key))
+      .filter(({ key }) =>
+        details.some((detail) => makeDebtKey(detail) === key),
+      )
       .map(({ key, transactionId }) => [key, transactionId]),
   );
 
