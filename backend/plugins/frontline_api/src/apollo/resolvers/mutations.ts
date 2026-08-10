@@ -8,6 +8,7 @@ import { facebookMutations } from '@/integrations/facebook/graphql/resolvers/mut
 import { discordMutations } from '@/integrations/discord/graphql/resolvers/mutations';
 import { instagramMutations } from '@/integrations/instagram/graphql/resolvers/mutations';
 import { imapMutations } from '@/integrations/imap/graphql/resolvers/mutations';
+import { whatsappMutations } from '@/integrations/whatsapp/graphql/resolvers/mutations';
 import { knowledgeBaseMutations } from '@/knowledgebase/graphql/resolvers/mutations/knowledgeBaseMutations';
 import { reportChartMutations } from '@/reports/graphql/resolvers/chartMutations';
 import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
@@ -28,6 +29,7 @@ export const mutations = {
   ...instagramMutations,
   ...callMutations,
   ...imapMutations,
+  ...whatsappMutations,
   ...ticketMutations,
   ...widgetMutations,
   ...responseTemplateMutations,

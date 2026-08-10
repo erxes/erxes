@@ -3,6 +3,7 @@ import {
   FacebookIcon,
   InstagramIcon,
   MessengerIcon,
+  WhatsAppIcon,
 } from '@/integrations/components/Icons';
 import { IconMail, IconMessageFilled, IconPhone } from '@tabler/icons-react';
 import type { ComponentType, CSSProperties } from 'react';
@@ -42,6 +43,9 @@ const PROVIDER_META: Record<
   [IntegrationType.IMAP]: {
     Icon: IconMail,
     iconClass: 'text-amber-500',
+  },
+  [IntegrationType.WHATSAPP_MESSENGER]: {
+    Icon: WhatsAppIcon,
   },
 };
 

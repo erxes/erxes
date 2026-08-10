@@ -7,6 +7,7 @@ export * from './logs';
 export * from './knowledge';
 export * from './mongo';
 export * from './mq-worker';
+export * from './phone';
 export * from './random';
 export * from './redis';
 export * from './saas';

@@ -1,5 +1,6 @@
 import {
   IconBrandDiscord,
+  IconBrandWhatsapp,
   IconForms,
   IconMail,
   IconMessageFilled,
@@ -23,4 +24,5 @@ export const INTEGRATION_ICONS: Record<string, FC<any>> = {
   callpro: IconPhone,
   imap: IconMail,
   'discord-messenger': IconBrandDiscord,
+  'whatsapp-messenger': IconBrandWhatsapp,
 };

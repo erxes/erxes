@@ -8,6 +8,7 @@ export const sourceMap: Record<string, string> = {
   'facebook-post': 'facebook-post',
   'instagram-messenger': 'instagram-messenger',
   'instagram-post': 'instagram-post',
+  'whatsapp-messenger': 'whatsapp-messenger',
   calls: 'calls',
   messenger: 'messenger',
   form: 'form',
