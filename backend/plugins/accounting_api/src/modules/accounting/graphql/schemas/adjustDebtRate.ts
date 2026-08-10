@@ -4,8 +4,17 @@ export const types = () => `
   type AdjustDebtRateDetail @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String!
     accountId: String
+    accountCode: String
+    accountName: String
+    accountKind: String
+    accountCurrency: String
+    customerType: String
+    customerId: String
+    branchId: String
+    departmentId: String
     mainBalance: Float
     currencyBalance: Float
+    diff: Float
     transactionId: String
     createdAt: Date
     updatedAt: Date
@@ -23,6 +32,12 @@ export const types = () => `
     gainAccountId: String
     lossAccountId: String
     transactionId: String
+    status: String
+    beginDate: Date
+    successDate: Date
+    checkedAt: Date
+    error: String
+    warning: String
     details: [AdjustDebtRateDetail]
     branchId: String
     departmentId: String
@@ -71,5 +86,7 @@ export const queries = `
 export const mutations = `
   adjustDebtRatesAdd(${adjustDebtRateParams}): AdjustDebtRate
   adjustDebtRatesEdit(_id: String!, ${adjustDebtRateParams}): AdjustDebtRate
+  adjustDebtRateCalculate(_id: String!): AdjustDebtRate
+  adjustDebtRateDoTransaction(_id: String!): AdjustDebtRate
   adjustDebtRatesRemove(adjustDebtRateIds: [String!]!): JSON
 `;

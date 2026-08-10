@@ -1,10 +1,18 @@
-import { IconTrashX, IconEdit } from '@tabler/icons-react';
+import {
+  IconCalculator,
+  IconPlayerPlay,
+  IconTrashX,
+  IconEdit,
+} from '@tabler/icons-react';
 import { Button, Spinner, useQueryState } from 'erxes-ui';
 import { useAdjustDebtRateRemove } from '../hooks/useAdjustDebtRateChange';
 import { useAdjustDebtRateDetail } from '../hooks/useAdjustDebtRateDetail';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { EditAdjustDebtRate } from './AdjustDebtRateForm';
+import { useAdjustDebtRateRun } from '../hooks/useAdjustDebtRateRun';
+import type { IAdjustDebtRateDetail } from '../types/AdjustDebtRate';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 
 const DetailField = ({ label, value }: { label: string; value: string }) => (
   <div>
@@ -24,6 +32,12 @@ export const AdjustDebtRateDetail = () => {
 
   const { removeAdjustDebtRate, loading: removeLoading } =
     useAdjustDebtRateRemove();
+  const {
+    calculateAdjustDebtRate,
+    calculateLoading,
+    runAdjustDebtRate,
+    loading: runLoading,
+  } = useAdjustDebtRateRun(id || '');
 
   if (loading) {
     return (
@@ -45,12 +59,28 @@ export const AdjustDebtRateDetail = () => {
     }
   };
 
+  const handleCalculate = () => {
+    calculateAdjustDebtRate();
+  };
+
+  const handleRun = () => {
+    runAdjustDebtRate();
+  };
+
   return (
     <div className="p-6">
       <div className="bg-card rounded-lg shadow-sm">
         <div className="p-6 border-b flex justify-between items-center">
           <h2 className="text-2xl font-bold">Debt Rate Adjustment</h2>
           <div className="flex gap-2">
+            <Button onClick={handleCalculate} disabled={calculateLoading}>
+              {calculateLoading ? <Spinner /> : <IconCalculator size={16} />}
+              Calculate
+            </Button>
+            <Button onClick={handleRun} disabled={runLoading}>
+              {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
+              Run
+            </Button>
             <Button variant="outline" onClick={() => setEditOpen(true)}>
               <IconEdit size={16} />
               Edit
@@ -81,6 +111,12 @@ export const AdjustDebtRateDetail = () => {
             label="Main Currency"
             value={adjustDebtRate.mainCurrency}
           />
+          <DetailField label="Status" value={adjustDebtRate.status || 'draft'} />
+          {adjustDebtRate.error && (
+            <div className="col-span-2 text-sm text-destructive">
+              {adjustDebtRate.error}
+            </div>
+          )}
           <DetailField
             label="Customer Type"
             value={adjustDebtRate.customerType || 'All'}
@@ -126,22 +162,61 @@ export const AdjustDebtRateDetail = () => {
                 <thead>
                   <tr className="border-b">
                     <th className="text-left p-3 font-medium">Account</th>
+                    <th className="text-left p-3 font-medium">Customer</th>
+                    <th className="text-left p-3 font-medium">Branch</th>
+                    <th className="text-left p-3 font-medium">Department</th>
                     <th className="text-right p-3 font-medium">Main Balance</th>
                     <th className="text-right p-3 font-medium">
                       Currency Balance
                     </th>
+                    <th className="text-right p-3 font-medium">Difference</th>
                     <th className="text-center p-3 font-medium">Transaction</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {adjustDebtRate.details.map((detail: any) => (
+                  {adjustDebtRate.details.map((detail: IAdjustDebtRateDetail) => (
                     <tr key={detail._id} className="border-b">
-                      <td className="p-3">{detail.accountId}</td>
+                      <td className="p-3">
+                        <div className="font-medium">
+                          {detail.accountCode || detail.accountId}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {[detail.accountName, detail.accountKind]
+                            .filter(Boolean)
+                            .join(' / ') || '-'}
+                        </div>
+                      </td>
+                      <td className="p-3 text-sm text-muted-foreground">
+                        {[detail.customerType, detail.customerId]
+                          .filter(Boolean)
+                          .join(': ') || '-'}
+                      </td>
+                      <td className="p-3 text-sm text-muted-foreground">
+                        {detail.branchId ? (
+                          <SelectBranches.InlineCell
+                            branchIds={[detail.branchId]}
+                          />
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td className="p-3 text-sm text-muted-foreground">
+                        {detail.departmentId ? (
+                          <SelectDepartments.InlineCell
+                            departmentIds={[detail.departmentId]}
+                          />
+                        ) : (
+                          '-'
+                        )}
+                      </td>
                       <td className="p-3 text-right font-mono">
                         {detail.mainBalance?.toLocaleString() || '-'}
                       </td>
                       <td className="p-3 text-right font-mono">
                         {detail.currencyBalance?.toLocaleString() || '-'}
+                      </td>
+                      <td className="p-3 text-right font-mono">
+                        {detail.diff?.toLocaleString() || '-'}
                       </td>
                       <td className="p-3 text-center text-sm text-muted-foreground">
                         {detail.transactionId || '-'}

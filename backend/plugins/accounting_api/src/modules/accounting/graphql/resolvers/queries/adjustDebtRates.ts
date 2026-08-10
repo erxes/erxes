@@ -3,6 +3,7 @@ import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IAdjustDebtRateDocument } from '@/accounting/@types/adjustDebtRate';
+import { enrichDebtRateAdjustment } from '../../../utils/adjustDebtRates';
 
 interface IQueryParams {
   ids?: string[];
@@ -114,7 +115,8 @@ const adjustDebtRateQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    return models.AdjustDebtRates.getAdjustDebtRate(_id);
+    const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
+    return enrichDebtRateAdjustment(models, adjust);
   },
 };
 

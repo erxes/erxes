@@ -5,6 +5,10 @@ export const adjustDebtRateDetailsSchema = new Schema({
   _id: mongooseStringRandomId,
 
   accountId: { type: String, label: 'Account' },
+  customerType: { type: String, optional: true, label: 'Customer type' },
+  customerId: { type: String, optional: true, label: 'Customer' },
+  branchId: { type: String, optional: true, label: 'Branch' },
+  departmentId: { type: String, optional: true, label: 'Department' },
   mainBalance: { type: Number, label: 'Main Currency Balance' }, // Төгрөгийн буюу үндсэн валютын үлдэгдэл
   currencyBalance: { type: Number, label: 'Currency Balance' }, // Гадаад валютын үлдэгдэл
   transactionId: { type: String, optional: true, label: 'Transaction' }, // Хадгалах үед зөрүү дүнтэй бол TR үүснэ
@@ -28,6 +32,12 @@ export const adjustDebtRatesSchema = new Schema({
   gainAccountId: { type: String, label: 'Gain Account' }, // олз данс
   lossAccountId: { type: String, label: 'Loss Account' }, // гарз данс
   transactionId: { type: String, optional: true, label: 'Transaction' }, // детайл бүрийн зөрүүнийдийн нийлбэр 0ээс ялгаатай бол баримт үүснэ
+  status: { type: String, default: 'draft', label: 'Status' },
+  beginDate: { type: Date, optional: true, label: 'Begin date' },
+  successDate: { type: Date, optional: true, label: 'Success date' },
+  checkedAt: { type: Date, optional: true, label: 'Checked at' },
+  error: { type: String, optional: true, label: 'Error' },
+  warning: { type: String, optional: true, label: 'Warning' },
 
   details: {
     type: [adjustDebtRateDetailsSchema],

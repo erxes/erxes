@@ -1,17 +1,21 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
+import {
+  getCurrencyCodeFromOptions,
+  useCurrencyConfigs,
+} from '@/settings/hooks/useCurrencyConfigs';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
   CurrencyField,
   DatePicker,
-  Dialog,
   Form,
+  Sheet,
   Spinner,
   Textarea,
   Select,
 } from 'erxes-ui';
-import type { CurrencyCode } from 'erxes-ui/types';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -26,29 +30,22 @@ import { useAdjustDebtRateChange } from '../hooks/useAdjustDebtRateChange';
 import { TAdjustDebtRateForm } from '../types/adjustDebtRateSchema';
 import { adjustDebtRateSchema } from '../types/adjustDebtRateSchema';
 import { IAdjustDebtRate } from '../types/AdjustDebtRate';
-import { FILTERED_CURRENCIES } from '../constants';
 import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
-
-const getCurrencyCode = (value: string) =>
-  value in FILTERED_CURRENCIES ? (value as CurrencyCode) : undefined;
 
 export const AddAdjustDebtRate = () => {
   const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           Add Debt Rate Adjustment
         </Button>
-      </Dialog.Trigger>
-      <Dialog.ContentCombined
-        title="Debt Rate Adjustment"
-        description="Create a new debt rate adjustment"
-      >
+      </Sheet.Trigger>
+      <AccountingSheet title="Create Debt Rate Adjustment">
         <AdjustDebtRateFormContent setOpen={setOpen} />
-      </Dialog.ContentCombined>
-    </Dialog>
+      </AccountingSheet>
+    </Sheet>
   );
 };
 
@@ -62,17 +59,14 @@ export const EditAdjustDebtRate = ({
   adjustDebtRate: IAdjustDebtRate;
 }) => {
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.ContentCombined
-        title="Edit Debt Rate Adjustment"
-        description="Update debt rate adjustment"
-      >
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <AccountingSheet title="Edit Debt Rate Adjustment">
         <AdjustDebtRateFormContent
           setOpen={setOpen}
           adjustDebtRate={adjustDebtRate}
         />
-      </Dialog.ContentCombined>
-    </Dialog>
+      </AccountingSheet>
+    </Sheet>
   );
 };
 
@@ -83,6 +77,10 @@ const AdjustDebtRateFormContent = ({
   setOpen: (open: boolean) => void;
   adjustDebtRate?: IAdjustDebtRate;
 }) => {
+  const {
+    dealCurrencyOptions,
+    mainCurrency: configuredMainCurrency,
+  } = useCurrencyConfigs();
   const form = useForm<TAdjustDebtRateForm>({
     resolver: zodResolver(adjustDebtRateSchema),
     defaultValues: {
@@ -117,6 +115,12 @@ const AdjustDebtRateFormContent = ({
       });
     }
   }, [adjustDebtRate, form]);
+
+  useEffect(() => {
+    if (!adjustDebtRate && configuredMainCurrency) {
+      form.setValue('mainCurrency', configuredMainCurrency);
+    }
+  }, [adjustDebtRate, configuredMainCurrency, form]);
 
   const date = form.watch('date');
   const mainCurrency = form.watch('mainCurrency');
@@ -179,14 +183,10 @@ const AdjustDebtRateFormContent = ({
   return (
     <Form {...form}>
       <form
-        className="p-6 flex-auto overflow-auto"
+        className="flex flex-col flex-1 min-h-0 bg-background"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h3 className="text-lg font-bold mb-4">
-          {adjustDebtRate ? 'Edit' : 'Create'} Debt Rate Adjustment
-        </h3>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
           <Form.Field
             control={form.control}
             name="mainCurrency"
@@ -197,9 +197,12 @@ const AdjustDebtRateFormContent = ({
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
-                    value={getCurrencyCode(field.value)}
+                    value={getCurrencyCodeFromOptions(
+                      field.value,
+                      dealCurrencyOptions,
+                    )}
                     onChange={field.onChange}
-                    currencies={FILTERED_CURRENCIES}
+                    currencies={dealCurrencyOptions}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -217,9 +220,12 @@ const AdjustDebtRateFormContent = ({
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
-                    value={getCurrencyCode(field.value)}
+                    value={getCurrencyCodeFromOptions(
+                      field.value,
+                      dealCurrencyOptions,
+                    )}
                     onChange={field.onChange}
-                    currencies={FILTERED_CURRENCIES}
+                    currencies={dealCurrencyOptions}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -400,7 +406,7 @@ const AdjustDebtRateFormContent = ({
             control={form.control}
             name="description"
             render={({ field }) => (
-              <Form.Item className="col-span-2">
+              <Form.Item>
                 <Form.Label>Description</Form.Label>
                 <Form.Control>
                   <Textarea
@@ -415,17 +421,20 @@ const AdjustDebtRateFormContent = ({
           />
         </div>
 
-        <Dialog.Footer className="mt-6">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              Cancel
-            </Button>
-          </Dialog.Close>
+        <Sheet.Footer className="px-5 border-t bg-background shrink-0">
+          <Button
+            variant="outline"
+            type="button"
+            size="lg"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
             Save
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

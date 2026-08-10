@@ -24,8 +24,10 @@
 - Displays, creates, updates, prints, and removes accounting transactions.
 - Keeps cash, bank, payable, and receivable transaction form main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates.
 - Provides fund and debt currency rate adjustment list/detail routes under `/accounting/adjustment/fundRate` and `/accounting/adjustment/debRate`.
-- Opens fund rate adjustment create and edit forms in accounting sheet panels.
-- Allows fund rate adjustments to be calculated from the detail page, then run as a separate transaction step, and displays compact general information, day-by-day validation state, and calculated account balances grouped by branch/department.
+- Opens fund and debt rate adjustment create and edit forms in accounting sheet panels.
+- Limits accounting foreign-currency selectors for rate adjustments and account settings to the system `dealCurrency` configuration.
+- Allows fund rate adjustments to be calculated from the detail page, then run as a separate transaction step, and displays compact general information, day-by-day validation state, calculated account balances grouped by branch/department, and linked exchange-difference transactions.
+- Allows debt rate adjustments to be calculated from the detail page, then run as a separate transaction step, and displays calculated account/customer/branch/department balances, differences, validation status, and linked transaction ids.
 - Supports inventory income, out, move, sale, and sale return transaction forms with tax-aware amount editing.
 - Fills inventory sale prices from product master `unitPrice`, income prices from the last completed inventory income price, and out/move cost prices from current inventory cost.
 - Provides accounting settings, reports, remainder views, and fixed asset adjustment screens.
@@ -52,6 +54,8 @@
 
 - Accounting GraphQL queries and mutations from the accounting API plugin.
 - Fund rate adjustment detail consumes enriched calculated balance and validation fields, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, and `accountingAdjustFundRateChanged`.
+- Debt rate adjustment detail consumes enriched calculated balance and validation fields, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, and `accountingAdjustDebtRateChanged`.
+- Rate adjustment and account currency selectors consume system currency values through `configsByCode(codes)`.
 - Core product, branch, department, customer, and company data through public GraphQL and `ui-modules`.
 - UI primitives, forms, tables, popovers, hotkey controls, and toast feedback from `erxes-ui`.
 
@@ -78,10 +82,22 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-10` — `Configured Currency Selectors`
+
+- **Summary:** Fund/debt rate adjustment main and foreign currency fields plus account currency selectors now use system `dealCurrency` options, while rate adjustment main currency defaults from `mainCurrency`.
+- **Affected areas:** `src/modules/settings/hooks/useCurrencyConfigs.tsx`, rate adjustment forms, and account currency form/table/filter selectors.
+- **Contracts changed:** Consumes core `configsByCode(codes)` for `dealCurrency` and `mainCurrency`.
+
+### `2026-08-10` — `Debt Rate Calculation UI`
+
+- **Summary:** Debt rate detail can calculate and run exchange-rate adjustments, subscribe to calculation updates, show grouped account/customer/branch/department balance results, and open create/edit forms as accounting sheets.
+- **Affected areas:** `src/modules/adjustments/debt/components/AdjustDebtRateDetail.tsx`, `src/modules/adjustments/debt/components/AdjustDebtRateForm.tsx`, `src/modules/adjustments/debt/graphql`, `src/modules/adjustments/debt/hooks`, `src/modules/adjustments/debt/types/AdjustDebtRate.ts`.
+- **Contracts changed:** Consumes `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `accountingAdjustDebtRateChanged`, validation fields, and enriched debt detail fields from accounting API.
+
 ### `2026-08-10` — `Fund Rate Validation Detail UI`
 
-- **Summary:** Fund rate detail now uses a compact inventory-style header, day-by-day validation bar, and branch/department grouped calculation results.
-- **Affected areas:** `src/modules/adjustments/rate/components/AdjustFundRateDetail.tsx`, `src/modules/adjustments/rate/graphql/adjustFundRateQueries.ts`, `src/modules/adjustments/rate/types/AdjustFundRate.ts`.
+- **Summary:** Fund rate detail now uses a compact inventory-style header, day-by-day validation bar, tabbed branch/department grouped calculation results, and linked transaction rows.
+- **Affected areas:** `src/modules/adjustments/rate/components/AdjustFundRateDetail.tsx`, `src/modules/adjustments/rate/graphql/adjustFundRateQueries.ts`, `src/modules/adjustments/rate/types/AdjustFundRate.ts`, transaction detail query consumption.
 - **Contracts changed:** Consumes fund rate `beginDate`, `successDate`, `checkedAt`, `error`, and `warning`.
 
 ### `2026-08-09` — `Fund Rate Account Labels`

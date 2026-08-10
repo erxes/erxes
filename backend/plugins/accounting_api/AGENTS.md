@@ -25,6 +25,7 @@
 - Supports main, cash, bank, receivable, payable, tax, inventory, and fixed asset journal handlers.
 - Exposes fund and debt currency rate adjustment schemas, models, GraphQL queries, and mutations alongside current accounting modules.
 - Calculates fund currency rate adjustments by validating daily cash/bank foreign-currency balances, grouping final balances by account/branch/department, storing account balance details, and then running linked exchange-difference transactions from the calculated details.
+- Calculates debt currency rate adjustments by validating daily receivable/payable account balances, grouping final balances by account/customer/branch/department, storing account balance details, and then running linked exchange-difference transactions from the calculated details.
 - Exposes inventory price lookup helpers for current cost and last completed income price by product.
 - Accepts Erkhet migration batches at `/pl:accounting/migration/erkhet/transactions`; by default it validates and resolves source codes, then raw-saves the supplied transaction documents without recalculating journal side effects.
 
@@ -42,8 +43,9 @@
 ### Provides
 
 - GraphQL accounting schema and resolvers from `src/modules/accounting/graphql`.
-- GraphQL fund/debt rate adjustment queries and mutations through `adjustFundRates`, `adjustDebtRates`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRun`, `adjustDebtRatesAdd`, and `adjustDebtRatesEdit`.
+- GraphQL fund/debt rate adjustment queries and mutations through `adjustFundRates`, `adjustDebtRates`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRun`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, and `adjustDebtRateDoTransaction`.
 - GraphQL subscription `accountingAdjustFundRateChanged(adjustId: String!)` publishes enriched fund rate detail updates after calculation.
+- GraphQL subscription `accountingAdjustDebtRateChanged(adjustId: String!)` publishes enriched debt rate detail updates after calculation.
 - GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`, returning each requested product's last completed inventory income unit price or `0`.
 - HTTP route `/pl:accounting/migration/erkhet/transactions` for token-protected Erkhet batch imports.
 - Transaction model methods such as `createPTransaction`, `updatePTransaction`, `createTransaction`, and `updateTransaction`.
@@ -57,6 +59,7 @@
 
 - Tenant-scoped MongoDB models generated through `generateModels(subdomain)`.
 - Fund and debt rate adjustments persist in `adjust_fund_rates` and `adjust_debt_rates`; fund rate details include account, branch, department, main balance, currency balance, and linked transaction ids.
+- Debt rate details include account, customer, branch, department, main balance, currency balance, and linked transaction ids.
 - Fund rate adjustment calculation stores `process` status, validation period fields, checked/error state, and grouped details; transaction execution creates linked `exchangeDiff` transactions, stores the parent transaction id on the adjustment plus account-side transaction ids on details, and marks the adjustment `complete`.
 - Accounting transaction documents store journal, side, details, source content IDs, parent/ptr grouping, and migration metadata in `extraData`.
 - Fixed asset instance and adjustment collections are owned by this plugin.
@@ -79,6 +82,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-10` — `Debt Rate Daily Adjustment Calculation`
+
+- **Summary:** Debt rate adjustments now validate active/passive debt account balances by day, calculate account/customer/branch/department grouped differences, and run exchange-difference transactions through a separate mutation.
+- **Affected areas:** `src/modules/accounting/utils/adjustDebtRates.ts`, `src/modules/accounting/db/definitions/adjustDebtRate.ts`, `src/modules/accounting/db/models/AdjustDebtRate.ts`, `src/modules/accounting/graphql/schemas/adjustDebtRate.ts`, `src/modules/accounting/graphql/resolvers/queries/adjustDebtRates.ts`, `src/modules/accounting/graphql/resolvers/mutations/adjustDebtRates.ts`, `src/apollo/subscription.ts`, `src/apollo/resolvers/subsciption.ts`.
+- **Contracts changed:** Added mutations `adjustDebtRateCalculate(_id: String!): AdjustDebtRate` and `adjustDebtRateDoTransaction(_id: String!): AdjustDebtRate`, subscription `accountingAdjustDebtRateChanged(adjustId: String!)`, debt rate validation fields, and enriched detail fields `accountCode`, `accountName`, `accountKind`, `accountCurrency`, `customerType`, `customerId`, `branchId`, `departmentId`, and `diff`.
 
 ### `2026-08-10` — `Fund Rate Validation State`
 

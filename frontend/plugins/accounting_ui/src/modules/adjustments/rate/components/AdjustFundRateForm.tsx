@@ -1,4 +1,8 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
+import {
+  getCurrencyCodeFromOptions,
+  useCurrencyConfigs,
+} from '@/settings/hooks/useCurrencyConfigs';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import {
@@ -11,7 +15,7 @@ import {
   Textarea,
 } from 'erxes-ui';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import type { CurrencyCode } from 'erxes-ui/types';
+import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAdjustFundRateAdd } from '../hooks/useAdjustFundRateAdd';
@@ -19,11 +23,6 @@ import { useAdjustFundRateChange } from '../hooks/useAdjustFundRateChange';
 import { TAdjustFundRateForm } from '../types/adjustFundRateSchema';
 import { adjustFundRateSchema } from '../types/adjustFundRateSchema';
 import { IAdjustFundRate } from '../types/AdjustFundRate';
-import { FILTERED_CURRENCIES } from '../constants';
-import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
-
-const getCurrencyCode = (value: string) =>
-  value in FILTERED_CURRENCIES ? (value as CurrencyCode) : undefined;
 
 export const AddAdjustFundRate = () => {
   const [open, setOpen] = useState(false);
@@ -70,6 +69,10 @@ const AdjustFundRateFormContent = ({
   setOpen: (open: boolean) => void;
   adjustFundRate?: IAdjustFundRate;
 }) => {
+  const {
+    dealCurrencyOptions,
+    mainCurrency: configuredMainCurrency,
+  } = useCurrencyConfigs();
   const form = useForm<TAdjustFundRateForm>({
     resolver: zodResolver(adjustFundRateSchema),
     defaultValues: {
@@ -96,6 +99,12 @@ const AdjustFundRateFormContent = ({
       });
     }
   }, [adjustFundRate, form]);
+
+  useEffect(() => {
+    if (!adjustFundRate && configuredMainCurrency) {
+      form.setValue('mainCurrency', configuredMainCurrency);
+    }
+  }, [adjustFundRate, configuredMainCurrency, form]);
 
   const date = form.watch('date');
   const mainCurrency = form.watch('mainCurrency');
@@ -159,9 +168,12 @@ const AdjustFundRateFormContent = ({
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
-                    value={getCurrencyCode(field.value)}
+                    value={getCurrencyCodeFromOptions(
+                      field.value,
+                      dealCurrencyOptions,
+                    )}
                     onChange={field.onChange}
-                    currencies={FILTERED_CURRENCIES}
+                    currencies={dealCurrencyOptions}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -179,9 +191,12 @@ const AdjustFundRateFormContent = ({
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
-                    value={getCurrencyCode(field.value)}
+                    value={getCurrencyCodeFromOptions(
+                      field.value,
+                      dealCurrencyOptions,
+                    )}
                     onChange={field.onChange}
-                    currencies={FILTERED_CURRENCIES}
+                    currencies={dealCurrencyOptions}
                   />
                 </Form.Control>
                 <Form.Message />

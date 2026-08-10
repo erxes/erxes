@@ -1,4 +1,8 @@
 import { IContext } from '~/connectionResolvers';
+import {
+  calculateAdjustDebtRate,
+  runAdjustDebtRate,
+} from '../../../utils/adjustDebtRates';
 
 interface IAdjustDebtRateInput {
   date: Date;
@@ -42,10 +46,30 @@ const adjustDebtRateMutations = {
     { _id, ...doc }: { _id: string } & IAdjustDebtRateInput,
     { models, user }: IContext,
   ) {
-    await models.AdjustDebtRates.getAdjustDebtRate(_id);
+    const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
+
+    if (adjust.transactionId) {
+      const oldTransaction = await models.Transactions.findOne({
+        parentId: adjust.transactionId,
+      }).lean();
+
+      if (oldTransaction) {
+        await models.Transactions.removePTransaction({
+          parentId: adjust.transactionId,
+        });
+      }
+    }
 
     const updated = await models.AdjustDebtRates.updateAdjustDebtRate(_id, {
       ...doc,
+      details: [],
+      transactionId: '',
+      status: 'draft',
+      beginDate: undefined,
+      successDate: undefined,
+      checkedAt: undefined,
+      error: '',
+      warning: '',
       modifiedBy: user._id,
       updatedAt: new Date(),
     });
@@ -67,6 +91,31 @@ const adjustDebtRateMutations = {
     }
 
     return { status: 'ok' };
+  },
+
+  async adjustDebtRateCalculate(
+    _root: unknown,
+    { _id }: { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('manageAdjustInventories');
+
+    const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
+
+    return calculateAdjustDebtRate(models, user._id, adjust);
+  },
+
+  async adjustDebtRateDoTransaction(
+    _root: unknown,
+    { _id }: { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageTransactions');
+
+    const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
+
+    return runAdjustDebtRate(models, user._id, adjust);
   },
 };
 

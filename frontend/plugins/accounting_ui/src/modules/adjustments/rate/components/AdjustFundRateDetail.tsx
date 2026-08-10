@@ -12,6 +12,7 @@ import {
   Button,
   DatePicker,
   Spinner,
+  Tabs,
   Tooltip,
   useQueryState,
 } from 'erxes-ui';
@@ -28,6 +29,8 @@ import {
 } from 'date-fns';
 import { EditAdjustFundRate } from './AdjustFundRateForm';
 import { useAdjustFundRateRun } from '../hooks/useAdjustFundRateRun';
+import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
+import type { ITransaction } from '@/transactions/types/Transaction';
 import type {
   IAdjustFundRate,
   IAdjustFundRateDetail,
@@ -59,6 +62,11 @@ const isPresent = (value?: string): value is string => Boolean(value);
 const makeGroupKey = (detail: IAdjustFundRateDetail) =>
   `${detail.branchId || ''}:${detail.departmentId || ''}`;
 
+type TLinkedTransactionRow = {
+  transaction: ITransaction;
+  detail: ITransaction['details'][number];
+};
+
 export const AdjustFundRateDetail = () => {
   const [id] = useQueryState<string>('id');
   const [editOpen, setEditOpen] = useState(false);
@@ -67,6 +75,11 @@ export const AdjustFundRateDetail = () => {
     variables: { _id: id },
     skip: !id,
   });
+  const { transactions = [], loading: transactionsLoading } =
+    useTransactionsDetail({
+      variables: { _id: adjustFundRate?.transactionId },
+      skip: !adjustFundRate?.transactionId,
+    });
 
   const accountIds = useMemo(
     () =>
@@ -124,6 +137,17 @@ export const AdjustFundRateDetail = () => {
 
     return [...groups.values()];
   }, [adjustFundRate?.details]);
+
+  const transactionRows = useMemo(
+    () =>
+      transactions.flatMap((transaction) =>
+        (transaction.details || []).map((detail) => ({
+          transaction,
+          detail,
+        })),
+      ),
+    [transactions],
+  );
 
   if (loading) {
     return (
@@ -227,88 +251,21 @@ export const AdjustFundRateDetail = () => {
         </div>
       )}
 
-      {groupedDetails.length > 0 ? (
-        <div className="flex flex-col gap-3">
-          {groupedDetails.map((group) => (
-            <div
-              key={`${group.branchId || 'no-branch'}:${group.departmentId || 'no-department'}`}
-              className="rounded-md border"
-            >
-              <div className="flex flex-wrap items-center gap-6 border-b bg-muted/30 px-3 py-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Branch:</span>
-                  {group.branchId ? (
-                    <SelectBranches.InlineCell branchIds={[group.branchId]} />
-                  ) : (
-                    <span>-</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Department:</span>
-                  {group.departmentId ? (
-                    <SelectDepartments.InlineCell
-                      departmentIds={[group.departmentId]}
-                    />
-                  ) : (
-                    <span>-</span>
-                  )}
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="p-2 text-left font-medium">Account</th>
-                      <th className="p-2 text-right font-medium">
-                        Main Balance
-                      </th>
-                      <th className="p-2 text-right font-medium">
-                        Currency Balance
-                      </th>
-                      <th className="p-2 text-right font-medium">
-                        Difference
-                      </th>
-                      <th className="p-2 text-center font-medium">
-                        Transaction
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {group.details.map((detail) => (
-                      <tr key={detail._id} className="border-b last:border-0">
-                        <td className="p-2">
-                          <div className="font-medium">
-                            {detail.accountCode || detail.accountId}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {detail.accountName || '-'}
-                          </div>
-                        </td>
-                        <td className="p-2 text-right font-mono">
-                          {formatAmount(detail.mainBalance)}
-                        </td>
-                        <td className="p-2 text-right font-mono">
-                          {formatAmount(detail.currencyBalance)}
-                        </td>
-                        <td className="p-2 text-right font-mono">
-                          {formatAmount(detail.diff)}
-                        </td>
-                        <td className="p-2 text-center text-xs text-muted-foreground">
-                          {detail.transactionId || '-'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="rounded-md border p-3 text-sm text-muted-foreground">
-          No calculated account balances yet.
-        </div>
-      )}
+      <Tabs defaultValue="calculation" className="flex flex-col gap-3">
+        <Tabs.List className="w-fit">
+          <Tabs.Trigger value="calculation">Calculation</Tabs.Trigger>
+          <Tabs.Trigger value="transactions">Transactions</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="calculation">
+          <CalculationGroups groupedDetails={groupedDetails} />
+        </Tabs.Content>
+        <Tabs.Content value="transactions">
+          <LinkedTransactionsTable
+            loading={transactionsLoading}
+            rows={transactionRows}
+          />
+        </Tabs.Content>
+      </Tabs>
 
       {editOpen && (
         <EditAdjustFundRate
@@ -317,6 +274,196 @@ export const AdjustFundRateDetail = () => {
           adjustFundRate={adjustFundRate}
         />
       )}
+    </div>
+  );
+};
+
+const CalculationGroups = ({
+  groupedDetails,
+}: {
+  groupedDetails: Array<{
+    branchId?: string;
+    departmentId?: string;
+    details: IAdjustFundRateDetail[];
+  }>;
+}) => {
+  if (!groupedDetails.length) {
+    return (
+      <div className="rounded-md border p-3 text-sm text-muted-foreground">
+        No calculated account balances yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {groupedDetails.map((group) => (
+        <div
+          key={`${group.branchId || 'no-branch'}:${group.departmentId || 'no-department'}`}
+          className="rounded-md border"
+        >
+          <div className="flex flex-wrap items-center gap-6 border-b bg-muted/30 px-3 py-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Branch:</span>
+              {group.branchId ? (
+                <SelectBranches.InlineCell branchIds={[group.branchId]} />
+              ) : (
+                <span>-</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Department:</span>
+              {group.departmentId ? (
+                <SelectDepartments.InlineCell
+                  departmentIds={[group.departmentId]}
+                />
+              ) : (
+                <span>-</span>
+              )}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="p-2 text-left font-medium">Account</th>
+                  <th className="p-2 text-right font-medium">Main Balance</th>
+                  <th className="p-2 text-right font-medium">
+                    Currency Balance
+                  </th>
+                  <th className="p-2 text-right font-medium">Difference</th>
+                  <th className="p-2 text-center font-medium">Transaction</th>
+                </tr>
+              </thead>
+              <tbody>
+                {group.details.map((detail) => (
+                  <tr key={detail._id} className="border-b last:border-0">
+                    <td className="p-2">
+                      <div className="font-medium">
+                        {detail.accountCode || detail.accountId}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {detail.accountName || '-'}
+                      </div>
+                    </td>
+                    <td className="p-2 text-right font-mono">
+                      {formatAmount(detail.mainBalance)}
+                    </td>
+                    <td className="p-2 text-right font-mono">
+                      {formatAmount(detail.currencyBalance)}
+                    </td>
+                    <td className="p-2 text-right font-mono">
+                      {formatAmount(detail.diff)}
+                    </td>
+                    <td className="p-2 text-center text-xs text-muted-foreground">
+                      {detail.transactionId || '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const LinkedTransactionsTable = ({
+  loading,
+  rows,
+}: {
+  loading: boolean;
+  rows: TLinkedTransactionRow[];
+}) => {
+  if (loading) {
+    return (
+      <div className="flex h-24 items-center justify-center rounded-md border">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!rows.length) {
+    return (
+      <div className="rounded-md border p-3 text-sm text-muted-foreground">
+        No linked transactions yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto rounded-md border">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b">
+            <th className="p-2 text-left font-medium">Account</th>
+            <th className="p-2 text-left font-medium">Number</th>
+            <th className="p-2 text-left font-medium">Date</th>
+            <th className="p-2 text-right font-medium">Debit</th>
+            <th className="p-2 text-right font-medium">Credit</th>
+            <th className="p-2 text-left font-medium">Branch</th>
+            <th className="p-2 text-left font-medium">Department</th>
+            <th className="p-2 text-left font-medium">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(({ transaction, detail }) => (
+            <tr
+              key={`${transaction._id}:${detail._id || detail.accountId}`}
+              className="border-b last:border-0"
+            >
+              <td className="p-2">
+                <div className="font-medium">
+                  {[detail.account?.code, detail.account?.name]
+                    .filter(Boolean)
+                    .join(' - ') || detail.accountId || '-'}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {transaction.journal}
+                </div>
+              </td>
+              <td className="p-2 text-xs text-muted-foreground">
+                {transaction.number || transaction.ptrNumber || '-'}
+              </td>
+              <td className="p-2">
+                {transaction.date
+                  ? dayjs(transaction.date).format('YYYY-MM-DD')
+                  : '-'}
+              </td>
+              <td className="p-2 text-right font-mono">
+                {transaction.side === 'dt'
+                  ? formatAmount(detail.amount)
+                  : formatAmount(0)}
+              </td>
+              <td className="p-2 text-right font-mono">
+                {transaction.side === 'ct'
+                  ? formatAmount(detail.amount)
+                  : formatAmount(0)}
+              </td>
+              <td className="p-2 text-sm text-muted-foreground">
+                {detail.branchId ? (
+                  <SelectBranches.InlineCell branchIds={[detail.branchId]} />
+                ) : (
+                  '-'
+                )}
+              </td>
+              <td className="p-2 text-sm text-muted-foreground">
+                {detail.departmentId ? (
+                  <SelectDepartments.InlineCell
+                    departmentIds={[detail.departmentId]}
+                  />
+                ) : (
+                  '-'
+                )}
+              </td>
+              <td className="max-w-80 truncate p-2 text-muted-foreground">
+                {transaction.description || '-'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

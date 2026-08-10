@@ -54,7 +54,19 @@ export const loadAdjustDebtRatesClass = (models: IModels) => {
     }
 
     public static async removeAdjustDebtRate(_id: string) {
-      await models.AdjustDebtRates.getAdjustDebtRate(_id);
+      const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
+
+      if (adjust.transactionId) {
+        const oldTransaction = await models.Transactions.findOne({
+          parentId: adjust.transactionId,
+        }).lean();
+
+        if (oldTransaction) {
+          await models.Transactions.removePTransaction({
+            parentId: adjust.transactionId,
+          });
+        }
+      }
 
       await models.AdjustDebtRates.deleteOne({ _id });
       return 'success delete';

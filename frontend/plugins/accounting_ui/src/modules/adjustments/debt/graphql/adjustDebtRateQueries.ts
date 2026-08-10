@@ -12,6 +12,12 @@ export const adjustDebtRateFields = `
   gainAccountId
   lossAccountId
   transactionId
+  status
+  beginDate
+  successDate
+  checkedAt
+  error
+  warning
   branchId
   departmentId
   createdBy
@@ -54,8 +60,17 @@ export const ADJUST_DEBT_RATE_DETAIL_QUERY = gql`
       details {
         _id
         accountId
+        accountCode
+        accountName
+        accountKind
+        accountCurrency
+        customerType
+        customerId
+        branchId
+        departmentId
         mainBalance
         currencyBalance
+        diff
         transactionId
         createdAt
         updatedAt
