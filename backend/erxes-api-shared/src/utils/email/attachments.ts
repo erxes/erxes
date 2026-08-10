@@ -78,7 +78,7 @@ export const toBase64Attachment = async (
   };
 };
 
-export const toBase64Attachments = async (
+export const toBase64Attachments = (
   attachments: IEmailAttachment[] = [],
 ): Promise<
   Array<{
